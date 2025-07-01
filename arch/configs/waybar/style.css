@@ -1,0 +1,150 @@
+* {
+  font-family: JetbrainsMono Nerd Font;
+  font-size: 13px;
+  min-height: 0;
+  padding-right: 2px;
+  padding-left: 2px;
+  padding-bottom: 0px;
+}
+
+tooltip {
+  color: white;
+  background-color: black;
+  text-shadow: none;
+}
+
+tooltip * {
+  color: white;
+  text-shadow: none;
+}
+
+#waybar {
+  background: transparent;
+  color: #c6d0f5;
+  margin: 2px 2px;
+}
+
+#workspaces {
+  border-radius: 5px;
+  margin: 5px;
+  background: #101010;
+  margin-left: 1rem;
+}
+
+#workspaces button {
+  color: #babbf1;
+  border-radius: 5px;
+  padding: 0.4rem;
+}
+
+#workspaces button.active {
+  color: #99d1db;
+  border-radius: 5px;
+}
+
+#workspaces button:hover {
+  color: #85c1dc;
+  border-radius: 5px;
+}
+
+#custom-music,
+#tray,
+#custom-backlight,
+#clock,
+#battery,
+#pulseaudio,
+#cpu,
+#memory,
+#custom-lock,
+#disk,
+#custom-power {
+  background-color: #101010;
+  padding: 0.5rem 1rem;
+  margin: 5px 0;
+}
+
+#network {
+  background-color: #101010;
+  padding: 0.5rem 0rem 0.5rem 1rem;
+  margin: 5px 0;
+}
+#custom-ping {
+  background-color: #101010;
+  padding: 0.5rem 1rem 0.5rem 0rem;
+  margin: 5px 0;
+}
+#custom-ping.good { color:#73d036 }
+#custom-ping.medium { color:#e39c3f }
+#custom-ping.bad { color:#d21928 }
+#custom-ping.dead { color:#d21928 }
+
+#memory {
+  border-radius: 0px 5px 5px 0px;
+}
+
+/* middle part */
+#clock {
+  color: #ffffff;
+  font-weight: 700;
+  border-radius: 5px;
+  margin-right: 1rem;
+}
+
+#custom-weather {
+  border-radius: 5px;
+  margin-right: 1rem;
+}
+
+#custom-weather2 {
+  border-radius: 5px;
+  margin-right: 1rem;
+}
+
+#battery {
+  color: #a6d189;
+}
+
+#battery.charging {
+  color: #a6d189;
+}
+
+#battery.warning:not(.charging) {
+  color: #e78284;
+}
+
+#custom-backlight {
+  color: #e5c890;
+  border-radius: 0;
+}
+
+#battery {
+  border-radius: 0;
+}
+
+#pulseaudio {
+  color: #ea999c;
+  border-radius: 5px 0px 0px 5%;
+  margin-left: 1rem;
+}
+
+#custom-music {
+  color: #ca9ee6;
+  border-radius: 5px;
+}
+
+#custom-lock {
+  border-radius: 5px 0px 0px 5px;
+  color: #babbf1;
+}
+
+#custom-power {
+  margin-right: 1rem;
+  border-radius: 0px 5px 5px 0px;
+  color: #e78284;
+}
+
+#tray {
+  margin-right: 1rem;
+  margin-left: 1rem;
+  border-radius: 5px;
+}
