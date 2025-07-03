@@ -45,7 +45,7 @@
     "clock": {
       "timezone": "Asia/Dhaka",
       "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
-      "format": "{:%Y-%m-%d %I:%M:%S %p}",
+      "format": "{:%a %Y-%m-%d %I:%M:%S %p}",
       "on-click": "xdg-open https://calendar.google.com",
       "interval": 1,
       "tooltip": true
