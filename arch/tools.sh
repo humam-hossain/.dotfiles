@@ -46,3 +46,6 @@ yay -Sy --noconfirm --needed zoom
 
 echo "[INSTALL] taskwarrior"
 sudo pacman -Sy --noconfirm --needed task
+
+echo "[INSTALL] smartmontools"
+sudo pacman -Sy --noconfirm --needed smartmontools
