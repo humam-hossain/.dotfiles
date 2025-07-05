@@ -123,22 +123,6 @@ vim.keymap.set("n", "<C-h>", ":wincmd h<CR>", { noremap = true, silent = true, d
 vim.keymap.set("n", "<C-l>", ":wincmd l<CR>", { noremap = true, silent = true, desc = "Move to window right" })
 
 -- ============================================================================
--- TAB MANAGEMENT
--- ============================================================================
-
--- Open a new tab
-vim.keymap.set("n", "<leader>to", ":tabnew<CR>", { noremap = true, silent = true, desc = "Open new tab" })
-
--- Close current tab
-vim.keymap.set("n", "<leader>tx", ":tabclose<CR>", { noremap = true, silent = true, desc = "Close tab" })
-
--- Go to next tab
-vim.keymap.set("n", "<leader>tn", ":tabn<CR>", { noremap = true, silent = true, desc = "Next tab" })
-
--- Go to previous tab
-vim.keymap.set("n", "<leader>tp", ":tabp<CR>", { noremap = true, silent = true, desc = "Previous tab" })
-
--- ============================================================================
 -- DISPLAY OPTIONS
 -- ============================================================================
 

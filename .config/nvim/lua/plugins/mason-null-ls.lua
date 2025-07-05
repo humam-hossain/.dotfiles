@@ -1,6 +1,8 @@
 return {
   "jay-babu/mason-null-ls.nvim",
   event = { "BufReadPre", "BufNewFile" },
+  priority = 1000,
+  lazy = false,
   dependencies = {
     "williamboman/mason.nvim",
     "nvimtools/none-ls.nvim",
@@ -9,19 +11,19 @@ return {
     require("mason-null-ls").setup({
       ensure_installed = {
         -- Formatters
-        "shfmt",              -- Bash
-        "clang-format",       -- C/C++
+        "shfmt",          -- Bash
+        "clang-format",   -- C/C++
         "google-java-format", -- Java
-        "prettier",           -- JavaScript
-        "stylua",             -- Lua
-        "ruff",               -- Python (replaces black, isort, flake8)
+        "prettier",       -- JavaScript
+        "stylua",         -- Lua
+        "ruff",           -- Python (replaces black, isort, flake8)
 
         -- Linters
         "shellcheck", -- Bash
-        "cppcheck",   -- C/C++
+        "cppcheck", -- C/C++
         "checkstyle", -- Java
-        "eslint_d",   -- JavaScript
-        "luacheck",   -- Lua
+        "eslint_d", -- JavaScript
+        "luacheck", -- Lua
       },
       automatic_installation = true,
       handlers = {
