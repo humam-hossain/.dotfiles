@@ -1,5 +1,7 @@
 return {
 	"nvimtools/none-ls.nvim",
+	priority = 1000,
+	lazy = false,
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 		"jay-babu/mason-null-ls.nvim",
@@ -10,12 +12,12 @@ return {
 		null_ls.setup({
 			sources = {
 				-- Formatting
-				null_ls.builtins.formatting.shfmt, -- Bash
+				null_ls.builtins.formatting.shfmt,  -- Bash
 				null_ls.builtins.formatting.clang_format, -- C/C++
 				null_ls.builtins.formatting.google_java_format, -- Java
 				null_ls.builtins.formatting.prettier, -- JavaScript
 				null_ls.builtins.formatting.stylua, -- Lua
-				null_ls.builtins.formatting.ruff, -- Python
+				null_ls.builtins.formatting.ruff,   -- Python
 
 				-- Diagnostics (Linters)
 				null_ls.builtins.diagnostics.shellcheck, -- Bash
