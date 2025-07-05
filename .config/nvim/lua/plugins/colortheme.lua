@@ -14,6 +14,7 @@ return {
 					nvimtree = true,
 					telescope = true,
 					treesitter = true,
+					markdown = true,
 				},
 			})
 			vim.cmd.colorscheme("catppuccin")
