@@ -56,6 +56,7 @@ return {
 		"neovim/nvim-lspconfig",
 		config = function()
 			local lspconfig = require("lspconfig")
+			local capabilities = require("cmp_nvim_lsp").default_capabilities()
 
 			-- Configure diagnostic signs
 			vim.diagnostic.config({
@@ -99,15 +100,33 @@ return {
 				},
 			}) -- Removed duplicate lspconfig.lua_ls.setup({})
 
-			lspconfig.ts_ls.setup({})
-			lspconfig.pyright.setup({})
-			lspconfig.clangd.setup({})
-			lspconfig.jdtls.setup({})
-			lspconfig.sqlls.setup({})
-			lspconfig.texlab.setup({})
-			lspconfig.html.setup({})
-			lspconfig.cssls.setup({})
-			lspconfig.marksman.setup({})
+			lspconfig.ts_ls.setup({
+				capabilities = capabilities,
+			})
+			lspconfig.pyright.setup({
+				capabilities = capabilities,
+			})
+			lspconfig.clangd.setup({
+				capabilities = capabilities,
+			})
+			lspconfig.jdtls.setup({
+				capabilities = capabilities,
+			})
+			lspconfig.sqlls.setup({
+				capabilities = capabilities,
+			})
+			lspconfig.texlab.setup({
+				capabilities = capabilities,
+			})
+			lspconfig.html.setup({
+				capabilities = capabilities,
+			})
+			lspconfig.cssls.setup({
+				capabilities = capabilities,
+			})
+			lspconfig.marksman.setup({
+				capabilities = capabilities,
+			})
 			-- Removed lspconfig.eslint.setup({}) since diagnostics are handled by none-ls
 			-- Note: asm_lsp was in your original code but not in ensure_installed; removed it here
 			-- If you need asm_lsp, add "asm_lsp" to ensure_installed
