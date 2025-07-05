@@ -8,4 +8,4 @@ sudo pacman -Sy --noconfirm --needed jq bc
 
 echo "[CONFIG] waybar"
 mkdir -p ~/.config/waybar
-cp -rf configs/waybar/* ~/.config/waybar/
+cp -rf .config/waybar/* ~/.config/waybar/
