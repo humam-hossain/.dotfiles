@@ -19,6 +19,9 @@ return {
   {
     -- Hints keybinds
     "folke/which-key.nvim",
+    config = function()
+      require("which-key").setup({})
+    end,
   },
   {
     -- Autoclose parentheses, brackets, quotes, etc.
