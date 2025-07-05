@@ -15,5 +15,4 @@ sudo pacman -Sy --noconfirm --needed cliphist
 
 echo "[CONFIG] Hyprland config"
 mkdir -p ~/.config/hypr
-cp -rf configs/hypr/* ~/.config/hypr/
-
+cp -rf .config/hypr/* ~/.config/hypr/

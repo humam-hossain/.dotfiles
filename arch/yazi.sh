@@ -5,4 +5,4 @@ sudo pacman -Sy --noconfirm --needed yazi
 
 echo "[CONFIG] copying yazi config"
 mkdir -p ~/.config/yazi
-cp -rf configs/yazi/* ~/.config/yazi/
+cp -rf .config/yazi/* ~/.config/yazi/
