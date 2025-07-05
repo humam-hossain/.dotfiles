@@ -11,4 +11,4 @@ sudo pacman -Sy --noconfirm --needed neovim
 
 echo "[CONFIG] copying .config"
 mkdir -p ~/.config/nvim/
-cp -rf .config/nvim ~/.config/nvim/
+cp -rf .config/nvim/* ~/.config/nvim/
