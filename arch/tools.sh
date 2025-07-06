@@ -21,8 +21,9 @@ sudo pacman -Sy --noconfirm --needed libreoffice-fresh
 echo "[INSTALL] btop htop"
 sudo pacman -Sy --noconfirm --needed btop htop
 
-echo "[INSTALL] fastfetch"
+echo "[INSTALL] fastfetch, neofetch, durdraw"
 sudo pacman -Sy --noconfirm --needed fastfetch
+yay -Sy --noconfirm --needed durdraw
 
 echo "[INSTALL] curl"
 sudo pacman -Sy --noconfirm --needed curl
@@ -52,3 +53,18 @@ sudo pacman -Sy --noconfirm --needed smartmontools
 
 echo "[INSTALL] lazygit"
 sudo pacman -Sy --noconfirm --needed lazygit
+
+echo "[INSTALL] dysk (better than df)"
+sudo pacman -Sy --noconfirm --needed dysk
+
+echo "[INSTALL] webcamize"
+yay -Sy --noconfirm --needed webcamize
+
+echo "[INSTALL] disk burner caligula"
+sudo pacman -Sy --noconfirm --needed caligula
+
+echo "[INSTALL] pastel"
+sudo pacman -Sy --noconfirm --needed pastel
+
+echo "[INSTALL] wikiman"
+sudo pacman -Sy --noconfirm --needed wikiman
