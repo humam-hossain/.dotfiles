@@ -18,8 +18,8 @@ sudo pacman -Sy --noconfirm --needed gparted
 echo "[INSTALL] libre-office"
 sudo pacman -Sy --noconfirm --needed libreoffice-fresh
 
-echo "[INSTALL] btop"
-sudo pacman -Sy --noconfirm --needed btop
+echo "[INSTALL] btop htop"
+sudo pacman -Sy --noconfirm --needed btop htop
 
 echo "[INSTALL] fastfetch"
 sudo pacman -Sy --noconfirm --needed fastfetch
@@ -49,3 +49,6 @@ sudo pacman -Sy --noconfirm --needed task
 
 echo "[INSTALL] smartmontools"
 sudo pacman -Sy --noconfirm --needed smartmontools
+
+echo "[INSTALL] lazygit"
+sudo pacman -Sy --noconfirm --needed lazygit
