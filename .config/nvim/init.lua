@@ -27,6 +27,7 @@ require("lazy").setup({
   require("plugins.mason-null-ls"),
   require("plugins.autocompletion"),
   require("plugins.indent-blankline"),
+  require("plugins.notify"),
   require("plugins.misc"),
 })
 -- The line beneath this is called `modeline`. See `:help modeline`
