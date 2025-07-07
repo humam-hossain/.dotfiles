@@ -13,22 +13,6 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 -- Set up plugins
-require("lazy").setup({
-  require("plugins.alpha"),
-  require("plugins.neotree"),
-  require("plugins.colortheme"),
-  require("plugins.bufferline"),
-  require("plugins.gitsigns"),
-  require("plugins.lualine"),
-  require("plugins.treesitter"),
-  require("plugins.telescope"),
-  require("plugins.lsp"),
-  require("plugins.none-ls"),
-  require("plugins.mason-null-ls"),
-  require("plugins.autocompletion"),
-  require("plugins.indent-blankline"),
-  require("plugins.notify"),
-  require("plugins.misc"),
-})
+require("lazy").setup("plugins")
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
