@@ -192,16 +192,7 @@ return {
 					hide_dotfiles = false,
 					hide_gitignored = false,
 					hide_hidden = false, -- only works on Windows for hidden files/directories
-					hide_by_name = {
-						".DS_Store",
-						"thumbs.db",
-						"node_modules",
-						"__pycache__",
-						".virtual_documents",
-						".git",
-						".python-version",
-						".venv",
-					},
+					hide_by_name = {},
 					hide_by_pattern = { -- uses glob style patterns
 						--"*.meta",
 						--"*/src/*/tsconfig.json",

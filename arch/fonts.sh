@@ -17,3 +17,4 @@ sudo pacman -Sy --noconfirm --needed noto-fonts-emoji
 
 echo "[SYNC] rebuild font cache"
 fc-cache -fv
+
