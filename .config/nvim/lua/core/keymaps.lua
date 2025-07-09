@@ -54,6 +54,17 @@ vim.keymap.set("n", "n", "nzzzv", { noremap = true, silent = true, desc = "Next 
 vim.keymap.set("n", "N", "Nzzzv", { noremap = true, silent = true, desc = "Previous search result" })
 
 -- ============================================================================
+-- Diagnostics, Formatting, Autocompletion
+-- ============================================================================
+vim.keymap.set("n", "gl", function()
+	vim.diagnostic.open_float()
+end, { desc = "Open Diagnostics in Float" })
+
+vim.keymap.set("n", "<leader>cf", function()
+	require("conform").format()
+end, { desc = "[C]ode [F]ormat current file" })
+
+-- ============================================================================
 -- WINDOW RESIZING
 -- ============================================================================
 

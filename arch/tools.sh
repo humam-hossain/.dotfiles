@@ -68,3 +68,6 @@ sudo pacman -Sy --noconfirm --needed pastel
 
 echo "[INSTALL] wikiman"
 sudo pacman -Sy --noconfirm --needed wikiman
+
+echo "[INSTALL] feh"
+sudo pacman -Sy --noconfirm --needed feh
