@@ -71,3 +71,7 @@ sudo pacman -Sy --noconfirm --needed wikiman
 
 echo "[INSTALL] feh"
 sudo pacman -Sy --noconfirm --needed feh
+
+echo "[INSTALL] memtester"
+sudo pacman -Sy --noconfirm --needed memtester
+
