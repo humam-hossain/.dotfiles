@@ -65,14 +65,25 @@ vim.keymap.set("n", "<leader>cf", function()
 end, { desc = "[C]ode [F]ormat current file" })
 
 -- ============================================================================
+-- git
+-- ============================================================================
+vim.keymap.set("n", "<leader>gp", ":Gitsigns preview_hunk<CR>", { desc = "[G]itsigns [P]review" })
+vim.keymap.set(
+	"n",
+	"<leader>gt",
+	":Gitsigns toggle_current_line_blame<CR>",
+	{ desc = "[G]itsigns [T]oggle Current Line blame" }
+)
+
+-- ============================================================================
 -- WINDOW RESIZING
 -- ============================================================================
 
 -- Decrease window height by 2 lines using Up arrow
--- vim.keymap.set("n", "<Up>", ":resize -2<CR>", { noremap = true, silent = true, desc = "Decrease window height" })
+vim.keymap.set("n", "<Up>", ":resize -2<CR>", { noremap = true, silent = true, desc = "Decrease window height" })
 
 -- Increase window height by 2 lines using Down arrow
--- vim.keymap.set("n", "<Down>", ":resize +2<CR>", { noremap = true, silent = true, desc = "Increase window height" })
+vim.keymap.set("n", "<Down>", ":resize +2<CR>", { noremap = true, silent = true, desc = "Increase window height" })
 
 -- Decrease window width by 2 columns using Left arrow
 vim.keymap.set(
