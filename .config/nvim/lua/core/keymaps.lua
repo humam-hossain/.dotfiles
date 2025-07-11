@@ -53,6 +53,10 @@ vim.keymap.set("n", "n", "nzzzv", { noremap = true, silent = true, desc = "Next 
 -- Find previous search result and center it on screen with cursor in middle
 vim.keymap.set("n", "N", "Nzzzv", { noremap = true, silent = true, desc = "Previous search result" })
 
+vim.keymap.set("n", "<C-_>", "gcc", { desc = "Toggle comment", remap = true })
+vim.keymap.set("i", "<C-_>", "<ESC>gcca", { desc = "Toggle comment", remap = true })
+vim.keymap.set("v", "<C-_>", "gc", { desc = "Toggle comment", remap = true })
+
 -- ============================================================================
 -- Diagnostics, Formatting, Autocompletion
 -- ============================================================================
