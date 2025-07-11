@@ -204,9 +204,18 @@ return {
 		local servers = {
 			bashls = {},
 			marksman = {},
-			-- clangd = {},
-			-- gopls = {},
-			-- pyright = {},
+			clangd = {},
+			gopls = {},
+			pyright = {},
+			eslint_d = {},
+			cssls = {},
+			html = {},
+			jsonls = {},
+			jdtls = {},
+			texlab = {},
+			ts_ls = {},
+			vimls = {},
+			yamlls = {},
 			-- rust_analyzer = {},
 			-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
 			--
@@ -249,10 +258,15 @@ return {
 		local ensure_installed = vim.tbl_keys(servers or {})
 		vim.list_extend(ensure_installed, {
 			"stylua", -- Used to format Lua code
+			"asmfmt",
+			"clang-format",
 			"prettierd",
 			"prettier",
 			"isort",
 			"black",
+			"google-java-format",
+			"latexindent",
+			"shfmt",
 		})
 		require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
