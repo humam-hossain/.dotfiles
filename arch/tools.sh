@@ -75,3 +75,9 @@ sudo pacman -Sy --noconfirm --needed feh
 echo "[INSTALL] memtester"
 sudo pacman -Sy --noconfirm --needed memtester
 
+echo "[INSTALL] qutebrowser"
+sudo pacman -Sy --noconfirm --needed qutebrowser
+
+echo "[INSTALL] torbrowser-launcher"
+sudo pacman -Sy --noconfirm --needed torbrowser-launcher
+

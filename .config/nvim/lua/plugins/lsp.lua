@@ -96,10 +96,6 @@ return {
 				map("gW", require("fzf-lua").lsp_live_workspace_symbols, "Open Workspace Symbols")
 
 				--- This function resolves a difference between neovim nightly (version 0.11) and stable (version 0.10)
-				---@param client vim.lsp.Client
-				---@param method vim.lsp.protocol.Method
-				---@param bufnr? integer some lsp support methods only in specific files
-				---@return boolean
 				local function client_supports_method(client, method, bufnr)
 					if vim.fn.has("nvim-0.11") == 1 then
 						return client:supports_method(method, bufnr)
@@ -193,7 +189,8 @@ return {
 		--  By default, Neovim doesn't support everything that is in the LSP specification.
 		--  When you add blink.cmp, luasnip, etc. Neovim now has *more* capabilities.
 		--  So, we create new capabilities with blink.cmp, and then broadcast that to the servers.
-		local capabilities = require("blink.cmp").get_lsp_capabilities()
+		local original_capabilites = vim.lsp.protocol.make_client_capabilities()
+		local capabilities = require("blink.cmp").get_lsp_capabilities(original_capabilites)
 
 		-- Enable the following language servers
 		--  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
