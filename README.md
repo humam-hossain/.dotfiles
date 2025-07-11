@@ -1,6 +1,7 @@
 # dotfiles
 
 ## Neovim config
+> [!WARNING] Neovim use underscore(_) for forward slash(/) 
 
 ### Resources
 

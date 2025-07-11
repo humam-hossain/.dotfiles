@@ -1,5 +1,10 @@
 set -xe
 
+echo "[INSTALL] btop htop"
+sudo pacman -Sy --noconfirm --needed btop htop
+mkdir -p ~/.config/btop/
+cp -rf .config/btop/* ~/.config/btop/
+
 echo "[INSTALL] unzip & tar"
 sudo pacman -Sy --noconfirm --needed unzip tar
 
@@ -17,11 +22,6 @@ sudo pacman -Sy --noconfirm --needed gparted
 
 echo "[INSTALL] libre-office"
 sudo pacman -Sy --noconfirm --needed libreoffice-fresh
-
-echo "[INSTALL] btop htop"
-sudo pacman -Sy --noconfirm --needed btop htop
-mkdir -p ~/.config/btop/
-cp -rf .config/btop/* ~/.config/btop/
 
 echo "[INSTALL] fastfetch, neofetch, durdraw"
 sudo pacman -Sy --noconfirm --needed fastfetch
