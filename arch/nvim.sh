@@ -1,5 +1,8 @@
 set -xe
 
+echo "[INSTALL] pynvim"
+sudo pacman -Sy --noconfirm --needed python-pynvim
+
 echo "[INSTALL] luarocks"
 sudo pacman -Sy --noconfirm --needed luarocks
 
