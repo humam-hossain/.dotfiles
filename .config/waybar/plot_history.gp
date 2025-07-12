@@ -2,7 +2,7 @@ set datafile separator ","
 set xdata time
 set timefmt "%Y-%m-%d"
 set format x "%m-%d"
-set title "API Calls Over Time"
+set title "OpenMeteo API Calls Over Time"
 set xlabel "Date"
 set ylabel "API Calls"
 set grid
