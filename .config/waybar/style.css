@@ -68,15 +68,28 @@ tooltip * {
   padding: 0.5rem 0rem 0.5rem 1rem;
   margin: 5px 0;
 }
+
 #custom-ping {
   background-color: #101010;
   padding: 0.5rem 1rem 0.5rem 0rem;
   margin: 5px 0;
 }
-#custom-ping.good { color:#73d036 }
-#custom-ping.medium { color:#e39c3f }
-#custom-ping.bad { color:#d21928 }
-#custom-ping.dead { color:#d21928 }
+
+#custom-ping.good {
+  color: #73d036
+}
+
+#custom-ping.medium {
+  color: #e39c3f
+}
+
+#custom-ping.bad {
+  color: #d21928
+}
+
+#custom-ping.dead {
+  color: #d21928
+}
 
 #memory {
   border-radius: 0px 5px 5px 0px;
