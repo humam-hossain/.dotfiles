@@ -121,3 +121,5 @@ source $ZSH/oh-my-zsh.sh
 export EDITOR="code"
 
 PATH=~/.console-ninja/.bin:$PATH
+
+alias waybar_history="~/.config/waybar/history.sh"
