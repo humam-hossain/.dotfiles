@@ -17,6 +17,43 @@ vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true, desc = "Disabl
 -- Save current file using Ctrl+S
 vim.keymap.set("n", "<C-s>", "<cmd> w <CR>", { noremap = true, silent = true, desc = "Save file" })
 
+-- Auto-save on focus lost
+vim.api.nvim_create_autocmd("FocusLost", {
+	pattern = "*",
+	command = "silent!wa",
+	desc = "Auto save on focus lost",
+})
+-- Auto-save on buffer leave
+vim.api.nvim_create_autocmd("BufLeave", {
+	pattern = "*",
+	command = "silent! w",
+	desc = "Auto-save on buffer leave",
+})
+
+-- Auto-save on text change (with delay)
+vim.api.nvim_create_autocmd("TextChanged", {
+	pattern = "*",
+	callback = function()
+		vim.defer_fn(function()
+			if vim.bo.modified and vim.bo.buftype == "" then
+				vim.cmd("silent! write")
+			end
+		end, 1000) -- 1 second delay
+	end,
+	desc = "Auto-save after text changes",
+})
+
+-- Auto-save on insert leave
+vim.api.nvim_create_autocmd("InsertLeave", {
+	pattern = "*",
+	callback = function()
+		if vim.bo.modified and vim.bo.buftype == "" then
+			vim.cmd("silent! write")
+		end
+	end,
+	desc = "Auto-save on insert leave",
+})
+
 -- Save file without running auto-formatting commands
 vim.keymap.set(
 	"n",
@@ -26,7 +63,7 @@ vim.keymap.set(
 )
 
 -- Quit current file/buffer using Ctrl+Q
-vim.keymap.set("n", "<C-q>", "<cmd> wq <CR>", { noremap = true, silent = true, desc = "Quit file" })
+vim.keymap.set("n", "<C-q>", "<cmd>q<CR>", { noremap = true, silent = true, desc = "Quit file" })
 
 -- ============================================================================
 -- Mode Shortcut
