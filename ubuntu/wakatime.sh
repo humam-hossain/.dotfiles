@@ -1,0 +1,10 @@
+set -xe
+
+echo "[CONFIG] wakatime api"
+rm $HOME/.wakatime.cfg || true
+echo "[settings]" >> $HOME/.wakatime.cfg
+echo "api_url=https://wakapi.dev/api" >> $HOME/.wakatime.cfg
+echo "api_key=REDACTED" >> $HOME/.wakatime.cfg
+
+echo "[VERIFY] wakatime setup"
+cat $HOME/.wakatime.cfg
