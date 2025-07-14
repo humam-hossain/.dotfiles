@@ -1,65 +1,87 @@
-set -xe
+#!/usr/bin/env bash
+set -xeuo pipefail
 
-echo "[INSTALL] zsh"
-sudo apt install -y zsh
+# 0. Update package lists
+echo "[SYNC] Updating package lists"
+sudo apt update
 
-echo "[CONFIG] default shell zsh"
-chsh -s $(which zsh)
+# 1. Install prerequisites
+echo "[INSTALL] Core prerequisites (zsh, git, curl, unzip)"
+sudo apt install -y \
+  zsh \
+  git \
+  curl \
+  unzip
 
-echo "[INSTALL] oh-my-zsh"
+# 2. Change default shell to zsh (if not already)
+CURRENT_SHELL=$(getent passwd "$USER" | cut -d: -f7)
+ZSH_PATH=$(which zsh)
+
+if [[ "$CURRENT_SHELL" != "$ZSH_PATH" ]]; then
+  echo "[CONFIG] Changing default shell to zsh"
+  chsh -s "$ZSH_PATH"
+else
+  echo "[SKIP] Default shell is already zsh"
+fi
+
+# 3. Install Oh My Zsh (non‑interactive)
 ZSH_DIR="${ZSH:-$HOME/.oh-my-zsh}"
+if [[ -d "$ZSH_DIR" ]]; then
+  echo "[SKIP] Oh My Zsh already installed at $ZSH_DIR"
+else
+  echo "[INSTALL] Oh My Zsh → $ZSH_DIR"
+  export RUNZSH=no
+  export KEEP_ZSHRC=yes
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+fi
+
+# 4. Custom plugins & theme directory
 ZSH_CUSTOM="${ZSH_CUSTOM:-$ZSH_DIR/custom}"
 
-if [ -d "$ZSH_DIR" ]; then
-	echo "[SKIP] Oh My Zsh already installed in $ZSH_DIR"
-else
-	echo "[INSTALL] Oh My Zsh to $ZSH_DIR"
-	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-fi
+install_if_missing() {
+  local url=$1
+  local target=$2
+  local name=$3
 
-# 1. powerlevel10k
-THEME_DIR="$ZSH_CUSTOM/themes/powerlevel10k"
-if [ -d "$THEME_DIR" ]; then
-	echo "[SKIP] powerlevel10k already installed in $THEME_DIR"
-else
-	echo "[INSTALL] powerlevel10k → $THEME_DIR"
-	git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$THEME_DIR"
-fi
+  if [[ -d "$target" ]]; then
+    echo "[SKIP] $name already installed at $target"
+  else
+    echo "[INSTALL] $name → $target"
+    git clone --depth=1 "$url" "$target"
+  fi
+}
 
-# 2. zsh-autosuggestions
-AUTO_SUG_DIR="$ZSH_CUSTOM/plugins/zsh-autosuggestions"
-if [ -d "$AUTO_SUG_DIR" ]; then
-	echo "[SKIP] zsh-autosuggestions already installed in $AUTO_SUG_DIR"
-else
-	echo "[INSTALL] zsh-autosuggestions → $AUTO_SUG_DIR"
-	git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git "$AUTO_SUG_DIR"
-fi
+# 4.1 powerlevel10k
+install_if_missing \
+  https://github.com/romkatv/powerlevel10k.git \
+  "$ZSH_CUSTOM/themes/powerlevel10k" \
+  "powerlevel10k theme"
 
-# 3. zsh-syntax-highlighting
-SYNTAX_DIR="$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
-if [ -d "$SYNTAX_DIR" ]; then
-	echo "[SKIP] zsh-syntax-highlighting already installed in $SYNTAX_DIR"
-else
-	echo "[INSTALL] zsh-syntax-highlighting → $SYNTAX_DIR"
-	git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git "$SYNTAX_DIR"
-fi
+# 4.2 zsh-autosuggestions
+install_if_missing \
+  https://github.com/zsh-users/zsh-autosuggestions.git \
+  "$ZSH_CUSTOM/plugins/zsh-autosuggestions" \
+  "zsh-autosuggestions plugin"
 
-# 4. zsh-autocomplete
-AUTO_CPL_DIR="$ZSH_CUSTOM/plugins/zsh-autocomplete"
-if [ -d "$AUTO_CPL_DIR" ]; then
-	echo "[SKIP] zsh-autocomplete already installed in $AUTO_CPL_DIR"
-else
-	echo "[INSTALL] zsh-autocomplete → $AUTO_CPL_DIR"
-	git clone --depth=1 https://github.com/marlonrichert/zsh-autocomplete.git "$AUTO_CPL_DIR"
-fi
+# 4.3 zsh-syntax-highlighting
+install_if_missing \
+  https://github.com/zsh-users/zsh-syntax-highlighting.git \
+  "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" \
+  "zsh-syntax-highlighting plugin"
 
-echo "[DONE] all Oh My Zsh plugins/themes are present."
+# 4.4 zsh-autocomplete
+install_if_missing \
+  https://github.com/marlonrichert/zsh-autocomplete.git \
+  "$ZSH_CUSTOM/plugins/zsh-autocomplete" \
+  "zsh-autocomplete plugin"
 
-echo "[CONFIG] copying .zshrc"
-cp -f .config/.zshrc ~/.zshrc
+echo "[DONE] All Oh My Zsh plugins/themes are present."
 
-echo "[CONFIG] copying .zprofile"
-cp -f .config/.zprofile ~/.zprofile
+# 5. Copy your custom configs (adjust paths as needed)
+echo "[CONFIG] Copying dotfiles"
+cp -f .config/.zshrc      "$HOME/.zshrc"
+cp -f .config/.p10k.zsh   "$HOME/.p10k.zsh"
 
-echo "[CONFIG] copying .p10k.zsh"
-cp -f .config/.p10k.zsh ~/.p10k.zsh
+echo "[COMPLETE] zsh + Oh My Zsh setup finished."
+echo "🔁 Please log out and back in (or restart your terminal) to apply the new shell."
+
