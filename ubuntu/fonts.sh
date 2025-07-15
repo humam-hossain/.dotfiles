@@ -4,7 +4,7 @@ echo "[INSTALL] font awesome"
 sudo apt install -y fonts-font-awesome 
 
 echo "[INSTALL] fonts"
-sudo apt install -y fonts-dejavu fonts-liberation fonts-cmu fonts-freefont-ttf fonts-noto-core fonts-noto-color-emoji
+sudo apt install -y fonts-dejavu fonts-liberation fonts-cmu fonts-freefont-ttf fonts-noto-core fonts-noto-color-emoji texlive-fonts-extra
 
 echo "[INSTALL] papirus-icon-theme"
 sudo apt install -y papirus-icon-theme
