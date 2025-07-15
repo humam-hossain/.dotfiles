@@ -14,8 +14,11 @@ vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true, desc = "Disabl
 -- FILE OPERATIONS
 -- ============================================================================
 
--- Save current file using Ctrl+S
-vim.keymap.set("n", "<C-s>", "<cmd> w <CR>", { noremap = true, silent = true, desc = "Save file" })
+-- Save and format current file using Ctrl+S
+vim.keymap.set("n", "<C-s>", function()
+	require("conform").format({ async = false, lsp_fallback = true })
+	vim.cmd("w")
+end, { desc = "Save and format file" })
 
 -- Auto-save on focus lost
 vim.api.nvim_create_autocmd("FocusLost", {
