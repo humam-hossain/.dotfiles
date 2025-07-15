@@ -118,7 +118,7 @@ source $ZSH/oh-my-zsh.sh
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # yazi config
-export EDITOR="code"
+export EDITOR="nvim"
 
 PATH=~/.console-ninja/.bin:$PATH
 
