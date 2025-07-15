@@ -3,11 +3,16 @@ set -xe
 echo "[INSTALL] font awesome"
 sudo apt install -y fonts-font-awesome 
 
-echo "[INSTALL] noto fonts"
+echo "[INSTALL] fonts"
 sudo apt install -y fonts-dejavu fonts-liberation fonts-cmu fonts-freefont-ttf fonts-noto-core fonts-noto-color-emoji
 
 echo "[INSTALL] papirus-icon-theme"
 sudo apt install -y papirus-icon-theme
+
+echo "[INSTALL] microsoft fonts"
+sudo add-apt-repository multiverse
+sudo apt update -y
+sudo apt install -y ttf-mscorefonts-installer fontconfig
 
 echo "[INSTALL] JetBrains Mono Nerd Font (manual)"
 mkdir -p "${HOME}/.local/share/fonts"
