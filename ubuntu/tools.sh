@@ -25,7 +25,8 @@ sudo apt install -y \
   memtester \
   feh \
   qutebrowser \
-  torbrowser-launcher
+  torbrowser-launcher \
+  zathura \
 
 # 2. Copy btop config
 echo "[CONFIG] Copying btop config"
