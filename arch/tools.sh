@@ -79,3 +79,6 @@ sudo pacman -Sy --noconfirm --needed qutebrowser
 
 echo "[INSTALL] torbrowser-launcher"
 sudo pacman -Sy --noconfirm --needed torbrowser-launcher
+
+echo "[INSTALL] distrobox"
+sudo pacman -Sy --noconfirm --needed distrobox
