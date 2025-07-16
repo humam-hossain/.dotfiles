@@ -41,9 +41,6 @@ sudo usermod -aG docker $USER
 echo "[INSTALL] discord from yay"
 yay -Sy --noconfirm --needed discord
 
-echo "[INSTALL] ferdium"
-yay -Sy --noconfirm --needed ferdium-bin
-
 echo "[INSTALL] zoom"
 yay -Sy --noconfirm --needed zoom
 
