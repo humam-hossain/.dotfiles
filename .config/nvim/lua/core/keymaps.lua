@@ -13,6 +13,22 @@ vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true, desc = "Disabl
 -- ============================================================================
 -- FILE OPERATIONS
 -- ============================================================================
+-- Close current buffer/window intelligently using Ctrl+Q
+vim.keymap.set("n", "<C-q>", function()
+	local buf_count = #vim.fn.filter(vim.fn.range(1, vim.fn.bufnr("$")), "buflisted(v:val)")
+	local win_count = vim.fn.winnr("$")
+
+	if win_count > 1 then
+		-- If there are multiple windows, close the current window
+		vim.cmd("close")
+	elseif buf_count > 1 then
+		-- If there's only one window but multiple buffers, close the buffer
+		vim.cmd("bdelete")
+	else
+		-- If it's the last buffer and window, quit Neovim
+		vim.cmd("quit")
+	end
+end, { noremap = true, silent = true, desc = "Smart quit" })
 
 -- Save and format current file using Ctrl+S
 vim.keymap.set("n", "<C-s>", function()
@@ -64,9 +80,6 @@ vim.keymap.set(
 	"<cmd>noautocmd w <CR>",
 	{ noremap = true, silent = true, desc = "Save without formatting" }
 )
-
--- Quit current file/buffer using Ctrl+Q
-vim.keymap.set("n", "<C-q>", "<cmd>q<CR>", { noremap = true, silent = true, desc = "Quit file" })
 
 -- ============================================================================
 -- Mode Shortcut
