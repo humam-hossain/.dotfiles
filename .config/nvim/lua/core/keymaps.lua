@@ -137,16 +137,16 @@ vim.keymap.set(
 -- ============================================================================
 
 -- Decrease window height by 2 lines using Up arrow
-vim.keymap.set("n", "<Up>", ":resize -2<CR>", { noremap = true, silent = true, desc = "Decrease window height" })
+vim.keymap.set("n", "<Up>", ":resize +2<CR>", { noremap = true, silent = true, desc = "Decrease window height" })
 
 -- Increase window height by 2 lines using Down arrow
-vim.keymap.set("n", "<Down>", ":resize +2<CR>", { noremap = true, silent = true, desc = "Increase window height" })
+vim.keymap.set("n", "<Down>", ":resize -2<CR>", { noremap = true, silent = true, desc = "Increase window height" })
 
 -- Decrease window width by 2 columns using Left arrow
 vim.keymap.set(
 	"n",
 	"<Left>",
-	":vertical resize -2<CR>",
+	":vertical resize +2<CR>",
 	{ noremap = true, silent = true, desc = "Decrease window width" }
 )
 
@@ -154,7 +154,7 @@ vim.keymap.set(
 vim.keymap.set(
 	"n",
 	"<Right>",
-	":vertical resize +2<CR>",
+	":vertical resize -2<CR>",
 	{ noremap = true, silent = true, desc = "Increase window width" }
 )
 
@@ -226,3 +226,10 @@ vim.keymap.set("v", ">", ">gv", { noremap = true, silent = true, desc = "Indent 
 -- Paste over selected text without losing the original yanked content
 -- This prevents the selected text from replacing your clipboard content
 vim.keymap.set("v", "p", '"_dP', { noremap = true, silent = true, desc = "Paste without yanking" })
+
+-- ============================================================================
+-- open file in default browser
+-- ============================================================================
+
+vim.keymap.set("n", "<C-o>", "<cmd>!xdg-open %:p<CR>", { desc = "Open file in default browser" })
+
