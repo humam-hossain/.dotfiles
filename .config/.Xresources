@@ -1,0 +1,5 @@
+! XTerm settings for JetBrainsMono Nerd Font
+XTerm*faceName: JetBrainsMono Nerd Font Mono
+XTerm*faceSize: 11
+! Enable full use of color
+XTerm*termName: xterm-256color
