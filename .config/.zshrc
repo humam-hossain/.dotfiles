@@ -117,9 +117,6 @@ source $ZSH/oh-my-zsh.sh
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# yazi config
-export EDITOR="nvim"
-
 PATH=~/.console-ninja/.bin:$PATH
 
 alias waybar_history="~/.config/waybar/history.sh"
