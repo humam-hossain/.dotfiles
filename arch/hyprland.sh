@@ -1,7 +1,7 @@
 set -xe
 
 echo "[INSTALL] hyprland"
-sudo pacman -Sy --noconfirm --needed hyprland hyprland-protocols xdg-desktop-portal-hyprland
+sudo pacman -Sy --noconfirm --needed hyprland hyprland-protocols xdg-desktop-portal-hyprland xdg-desktop-portal-wlr
 
 echo "[INSTALL] hyprpaper hyprshot hyprlock swaync"
 sudo pacman -Sy --noconfirm --needed hyprpaper hyprshot hyprlock swaync
