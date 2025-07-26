@@ -133,7 +133,14 @@ return {
 			},
 
 			-- Global custom commands
-			commands = {},
+			commands = {
+				open_in_browser = function(state)
+					local node = state.tree:get_node()
+					if node and node.path then
+						vim.fn.jobstart({ "xdg-open", node.path })
+					end
+				end,
+			},
 
 			window = {
 				position = "left",
@@ -143,6 +150,7 @@ return {
 					nowait = true,
 				},
 				mappings = {
+					["<c-o>"] = "open_in_browser",
 					["<space>"] = {
 						"toggle_node",
 						nowait = false, -- disable `nowait` if you have existing combos starting with this char that you want to use
