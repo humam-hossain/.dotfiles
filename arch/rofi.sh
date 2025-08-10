@@ -5,4 +5,4 @@ sudo pacman -Sy --noconfirm --needed rofi
 
 echo "[CONFIG] rofi"
 mkdir -p ~/.config/rofi
-cp -rf configs/rofi/* ~/.config/rofi/
+cp .config/rofi/* ~/.config/rofi/

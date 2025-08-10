@@ -1,7 +1,7 @@
 set -xe
 
 echo "[DOWNLOAD] yay"
-git clone https://aur.archlinux.org/yay-bin -d $HOME
+git clone https://aur.archlinux.org/yay-bin $HOME/yay-bin
 
 echo "[INSTALL] yay"
 cd ~/yay-bin
