@@ -17,8 +17,8 @@ sudo pacman -Sy --noconfirm --needed w3m viu
 echo "[INSTALL] vlc"
 sudo pacman -Sy --noconfirm --needed vlc
 
-echo "[INSTALL] gparted"
-sudo pacman -Sy --noconfirm --needed gparted
+# echo "[INSTALL] gparted"
+# sudo pacman -Sy --noconfirm --needed gparted
 
 echo "[INSTALL] libre-office"
 sudo pacman -Sy --noconfirm --needed libreoffice-fresh

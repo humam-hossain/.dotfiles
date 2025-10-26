@@ -1,4 +1,4 @@
-jet -xe
+set -xe
 
 echo "[INSTALL] audio softwares"
 sudo pacman -Sy --noconfirm --needed sof-firmware pipewire pipewire-pulse pipewire-alsa pavucontrol
