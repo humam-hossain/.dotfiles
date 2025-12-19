@@ -110,6 +110,10 @@
   "cpu": {
     "interval": 1,
     "format": " {usage}%",
+    "states": {
+      "warning": 50,
+      "critical": 90
+    },
     "format-icons": [
       "▁",
       "▂",
