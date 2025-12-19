@@ -39,7 +39,7 @@ tooltip {
 
 /* Hover effect for interactivity */
 #workspaces:hover, #disk:hover, #cpu:hover, #custom-memory:hover, #network:hover, 
-#clock:hover, #pulseaudio:hover, #custom-power:hover {
+#clock:hover, #pulseaudio:hover, #custom-power:hover, #custom-ping:hover {
   background-color: @surface1;
   opacity: 1;
 }
