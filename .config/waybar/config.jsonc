@@ -5,7 +5,7 @@
     "hyprland/workspaces",
     "disk",
     "cpu",
-    "memory",
+    "custom/memory",
     "network",
     "custom/ping"
   ],
@@ -121,9 +121,12 @@
       "█"
     ]
   },
-  "memory": {
+  "custom/memory": {
     "interval": 5,
-    "format": "  {used:0.01f}G/{total:0.01f}G"
+    "return-type": "json",
+    "exec": "~/.config/waybar/memory.sh",
+    "tooltip": true,
+    "on-click": "kitty -e btop" 
   },
   "pulseaudio": {
     "format": "{icon} {volume}%",

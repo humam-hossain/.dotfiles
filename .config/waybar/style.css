@@ -1,175 +1,116 @@
 @import "mocha.css";
 
+/* --- 1. Global Reset & Font --- */
 * {
-  font-family: JetbrainsMono Nerd Font;
-  font-size: 13px;
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 14px;
+  font-weight: bold;
   min-height: 0;
-  padding-right: 2px;
-  padding-left: 2px;
-  padding-bottom: 0px;
+  border: none;
+  border-radius: 0;
+}
+
+window#waybar {
+  background: transparent;
+  /* Add a subtle shadow to the whole bar */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); 
 }
 
 tooltip {
+  background: @base;
   color: @text;
-  background-color: @base;
-  text-shadow: none;
+  border-radius: 8px;
+  border: 1px solid @surface1;
 }
 
-tooltip * {
+/* --- 2. Module Base Style (The "Pill" Shape) --- */
+/* This applies to ALL modules to ensure perfect consistency */
+#workspaces, #disk, #cpu, #custom-memory, #network, #custom-ping,
+#custom-weather, #clock, #custom-weather2,
+#tray, #custom-music, #pulseaudio, #custom-backlight, #custom-lock, #custom-power, #custom-notification {
+  background-color: @surface0; /* Unified dark grey background */
   color: @text;
-  text-shadow: none;
+  padding: 6px 14px;      /* Consistent internal spacing */
+  margin: 6px 4px;        /* Consistent gaps between modules */
+  border-radius: 8px;     /* Smooth rounded corners */
+  opacity: 0.9;
+  transition: all 0.3s ease;
 }
 
-#waybar {
-  background: transparent;
-  color: @text;
-  margin: 2px 2px;
+/* Hover effect for interactivity */
+#workspaces:hover, #disk:hover, #cpu:hover, #custom-memory:hover, #network:hover, 
+#clock:hover, #pulseaudio:hover, #custom-power:hover {
+  background-color: @surface1;
+  opacity: 1;
 }
 
+/* --- 3. LEFT MODULES: Hardware Monitor (Cool Tones) --- */
 #workspaces {
-  border-radius: 5px;
-  margin: 5px;
-  background: @crust;
-  margin-left: 1rem;
+  background-color: @surface0; /* Darker background for workspaces */
+  padding: 4px 8px;
 }
-
 #workspaces button {
-  color: @lavender;
-  border-radius: 5px;
-  padding: 0.4rem;
+  color: @overlay1;
+  padding: 0 6px;
+  border-radius: 6px;
 }
-
 #workspaces button.active {
-  color: @sky;
-  border-radius: 5px;
+  color: @mauve;             /* Active workspace is Mauve */
+  background-color: @surface0;
 }
-
 #workspaces button:hover {
-  color: @sapphire;
-  border-radius: 5px;
+  color: @text;
 }
 
-#custom-music,
-#tray,
-#custom-backlight,
-#clock,
-#battery,
-#pulseaudio,
-#cpu,
-#memory,
-#custom-lock,
-#disk,
-#custom-power {
-  background-color: @crust;
-  padding: 0.5rem 1rem;
-  margin: 5px 0;
+/* Gradient Effect: Blue -> Sky -> Teal -> Green */
+#disk { color: @blue; }
+#cpu { color: @sapphire; }
+#custom-memory { color: @sky; }
+#network { color: @teal; }
+#custom-ping { color: @green; }
+
+
+/* --- 4. CENTER MODULES: Information (Warm Tones) --- */
+#clock {
+  background-color: @surface0; /* Make the clock stand out */
+  color: @rosewater;          /* bright yellow text */
+  border: 1px solid @surface1;
 }
 
-#network {
-  background-color: @crust;
-  padding: 0.5rem 0rem 0.5rem 1rem;
-  margin: 5px 0;
-}
-
-#custom-ping {
-  background-color: @crust;
-  padding: 0.5rem 1rem 0.5rem 0rem;
-  margin: 5px 0;
-}
-
-#custom-ping.good {
-  color: @green;
-}
-
-#custom-ping.medium {
+#custom-weather, #custom-weather2 {
   color: @peach;
 }
 
-#custom-ping.bad {
-  color: @red;
+
+/* --- 5. RIGHT MODULES: Controls (Vibrant/Alert) --- */
+#tray {
+  background-color: @surface0;
+  padding: 6px 10px;
+}
+#tray > .passive {
+  -gtk-icon-effect: dim;
+}
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+  background-color: @red;
 }
 
-#custom-ping.dead {
-  color: @red;
-}
+#custom-music { color: @pink; }
+#pulseaudio { color: @flamingo; }
+#custom-backlight { color: @rosewater; }
 
-#memory {
-  border-radius: 0px 5px 5px 0px;
-}
-
-/* middle part */
-#clock {
-  color: @text;
-  font-weight: 700;
-  border-radius: 5px;
-  margin-right: 1rem;
-}
-
-#custom-weather {
-  border-radius: 5px;
-  margin-right: 1rem;
-}
-
-#custom-weather2 {
-  border-radius: 5px;
-  margin-right: 1rem;
-}
-
-#battery {
-  color: @green;
-}
-
-#battery.charging {
-  color: @green;
-}
-
-#battery.warning:not(.charging) {
-  color: @red;
-}
-
-#custom-backlight {
-  color: @yellow;
-  border-radius: 0;
-}
-
-#battery {
-  border-radius: 0;
-}
-
-#pulseaudio {
-  color: @maroon;
-  border-radius: 5px 0px 0px 5%;
-  margin-left: 1rem;
-}
-
-#custom-music {
-  color: @mauve;
-  border-radius: 5px;
-}
-
+/* Session Controls */
 #custom-lock {
-  border-radius: 5px 0px 0px 5px;
-  color: @lavender;
+  background-color: @surface1; /* Subtle */
+  color: @text;
 }
 
 #custom-power {
-  margin-right: 1rem;
-  border-radius: 0px 5px 5px 0px;
-  color: @red;
-}
-
-#tray {
-  margin-right: 1rem;
-  margin-left: 1rem;
-  border-radius: 5px;
+  background-color: @red;      /* Red for Danger/Action */
+  color: @base;                /* Dark text on Red background */
+  margin-right: 12px;          /* Extra space at the edge */
 }
 
 #custom-notification {
-  font-family: "JetBrainsMono Nerd Font";
-  background-color: @crust;
-  color: @green;
-  padding: 0.5rem 1rem;
-  margin: 5px 0;
-  margin-left: 1rem; /* Spacing from the left */
-  border-radius: 5px;
+  color: @lavender;
 }
