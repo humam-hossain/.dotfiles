@@ -16,3 +16,12 @@ sudo pacman -Sy --noconfirm --needed cliphist
 echo "[CONFIG] Hyprland config"
 mkdir -p ~/.config/hypr
 cp -rf .config/hypr/* ~/.config/hypr/
+
+echo "[CONFIG] Swaync config"
+mkdir -p ~/.config/swaync
+cp -rf .config/swaync/* ~/.config/swaync/
+
+echo "[INSTALL] Swaync Config Dependencies"
+sudo pacman -Sy --noconfirm --needed blueman xdg-desktop-portal-hyprland xdg-desktop-portal-gtk dnsmasq
+yay -Sy --noconfirm --needed gnome-network-displays 
+
