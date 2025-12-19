@@ -1,3 +1,5 @@
+@import "mocha.css";
+
 * {
   font-family: JetbrainsMono Nerd Font;
   font-size: 13px;
@@ -8,42 +10,42 @@
 }
 
 tooltip {
-  color: white;
-  background-color: black;
+  color: @text;
+  background-color: @base;
   text-shadow: none;
 }
 
 tooltip * {
-  color: white;
+  color: @text;
   text-shadow: none;
 }
 
 #waybar {
   background: transparent;
-  color: #c6d0f5;
+  color: @text;
   margin: 2px 2px;
 }
 
 #workspaces {
   border-radius: 5px;
   margin: 5px;
-  background: #101010;
+  background: @crust;
   margin-left: 1rem;
 }
 
 #workspaces button {
-  color: #babbf1;
+  color: @lavender;
   border-radius: 5px;
   padding: 0.4rem;
 }
 
 #workspaces button.active {
-  color: #99d1db;
+  color: @sky;
   border-radius: 5px;
 }
 
 #workspaces button:hover {
-  color: #85c1dc;
+  color: @sapphire;
   border-radius: 5px;
 }
 
@@ -58,37 +60,37 @@ tooltip * {
 #custom-lock,
 #disk,
 #custom-power {
-  background-color: #101010;
+  background-color: @crust;
   padding: 0.5rem 1rem;
   margin: 5px 0;
 }
 
 #network {
-  background-color: #101010;
+  background-color: @crust;
   padding: 0.5rem 0rem 0.5rem 1rem;
   margin: 5px 0;
 }
 
 #custom-ping {
-  background-color: #101010;
+  background-color: @crust;
   padding: 0.5rem 1rem 0.5rem 0rem;
   margin: 5px 0;
 }
 
 #custom-ping.good {
-  color: #73d036
+  color: @green;
 }
 
 #custom-ping.medium {
-  color: #e39c3f
+  color: @peach;
 }
 
 #custom-ping.bad {
-  color: #d21928
+  color: @red;
 }
 
 #custom-ping.dead {
-  color: #d21928
+  color: @red;
 }
 
 #memory {
@@ -97,7 +99,7 @@ tooltip * {
 
 /* middle part */
 #clock {
-  color: #ffffff;
+  color: @text;
   font-weight: 700;
   border-radius: 5px;
   margin-right: 1rem;
@@ -114,19 +116,19 @@ tooltip * {
 }
 
 #battery {
-  color: #a6d189;
+  color: @green;
 }
 
 #battery.charging {
-  color: #a6d189;
+  color: @green;
 }
 
 #battery.warning:not(.charging) {
-  color: #e78284;
+  color: @red;
 }
 
 #custom-backlight {
-  color: #e5c890;
+  color: @yellow;
   border-radius: 0;
 }
 
@@ -135,25 +137,25 @@ tooltip * {
 }
 
 #pulseaudio {
-  color: #ea999c;
+  color: @maroon;
   border-radius: 5px 0px 0px 5%;
   margin-left: 1rem;
 }
 
 #custom-music {
-  color: #ca9ee6;
+  color: @mauve;
   border-radius: 5px;
 }
 
 #custom-lock {
   border-radius: 5px 0px 0px 5px;
-  color: #babbf1;
+  color: @lavender;
 }
 
 #custom-power {
   margin-right: 1rem;
   border-radius: 0px 5px 5px 0px;
-  color: #e78284;
+  color: @red;
 }
 
 #tray {
@@ -164,8 +166,8 @@ tooltip * {
 
 #custom-notification {
   font-family: "JetBrainsMono Nerd Font";
-  background-color: #101010;
-  color: #a6e3a1;
+  background-color: @crust;
+  color: @green;
   padding: 0.5rem 1rem;
   margin: 5px 0;
   margin-left: 1rem; /* Spacing from the left */

@@ -10,7 +10,7 @@ return {
 	window_decorations = "NONE", -- Good for tiling WMs
 
 	-- Colors
-	color_scheme = "Dracula",
+	color_scheme = "Catppuccin Mocha",
 
 	-- Disable WezTerm's built-in multiplexing (use tmux instead)
 	enable_tab_bar = false,
