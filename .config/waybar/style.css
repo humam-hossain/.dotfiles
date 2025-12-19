@@ -65,6 +65,8 @@ tooltip {
 /* Gradient Effect: Blue -> Sky -> Teal -> Green */
 #disk { color: @blue; }
 #cpu { color: @sapphire; }
+#cpu.warning { color: @yellow; }
+#cpu.critical { color: @red; }
 #custom-memory { color: @sky; }
 #network { color: @teal; }
 #custom-ping { color: @green; }
