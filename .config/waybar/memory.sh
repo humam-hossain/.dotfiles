@@ -42,6 +42,6 @@ fi
 
 # 3. Output JSON
 # We cut the mem_info to keep it cleaner
-text_label="  $mem_info  (${percent}%)"
+text_label="  $mem_info (${percent}%)"
 
 echo "{\"text\": \"$text_label\", \"tooltip\": \"$tooltip\", \"class\": \"memory\", \"percentage\": $percent}"
