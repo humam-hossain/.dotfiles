@@ -2,127 +2,219 @@ import pandas as pd
 import plotly.graph_objects as go
 import webbrowser
 import os
-from datetime import datetime, time
+from datetime import datetime, timedelta, time
 
-# Load the data
-file_path = '~/.config/waybar/ping_history.csv'
-df = pd.read_csv(file_path)
+# --- Configuration ---
+FILE_PATH = '~/.config/waybar/ping_history.csv'
+GAP_THRESHOLD_SECONDS = 60  # If gap > 60s, consider it offline
+BAD_PING = 200
+MED_PING = 100
+DAYS_TO_SHOW = 10 
 
-# Convert 'date' column to datetime objects
-df['datetime'] = pd.to_datetime(df['date'], format='%Y-%m-%d_%H:%M:%S')
+# --- Custom Palette ---
+# Offline: Surface2 (Grey)
+COLOR_OFFLINE = '#43433C' 
+# Bad: Red (Quality 3)
+COLOR_BAD     = '#EB0111' 
+# Medium: Yellow (Quality 2)
+COLOR_MED     = '#EBD501' 
+# Good: Green (Quality 1)
+COLOR_GOOD    = '#00EB3A' 
+# Background Color (Catppuccin Base) for the HTML page
+PAGE_BG_COLOR = '#1e1e2e'
 
-# Drop rows where 'datetime' conversion failed (resulting in NaT)
-df.dropna(subset=['datetime'], inplace=True)
+def get_quality(ping):
+    """
+    Maps ping to quality integer:
+    Good (<100ms)  -> 1
+    Med (100-200ms) -> 2
+    Bad (>200ms)   -> 3
+    """
+    if pd.isna(ping): return None
+    if ping >= BAD_PING: return 3
+    if ping >= MED_PING: return 2
+    return 1
 
-# Extract date
-df['date_only'] = df['datetime'].dt.date
+def get_color_by_quality(quality):
+    if quality == 3: return COLOR_BAD
+    if quality == 2: return COLOR_MED
+    if quality == 1: return COLOR_GOOD
+    return COLOR_OFFLINE
 
-# Get the current date to use as a reference for the 24h axis
-ref_date = datetime.now().date()
-current_date = ref_date
+def create_figure_for_day(date_obj, day_df):
+    """Creates a single Plotly figure for a specific date."""
+    
+    # 1. Setup Data & Shapes
+    shapes = []
+    
+    # Define the start/end of this day for axis locking (00:00 - 23:59)
+    start_of_day = datetime.combine(date_obj, time.min)
+    end_of_day   = datetime.combine(date_obj, time.max)
+    
+    if not day_df.empty:
+        day_df = day_df.sort_values('datetime').reset_index(drop=True)
+        day_df['quality'] = day_df['ping_ms'].apply(get_quality)
+        day_df['color'] = day_df['quality'].apply(get_color_by_quality)
 
-# Create a figure
-fig = go.Figure()
+        # --- Shape Generation Logic ---
+        curr_quality = day_df.iloc[0]['quality']
+        seg_start_time = day_df.iloc[0]['datetime']
+        prev_time = day_df.iloc[0]['datetime']
+        
+        for j in range(1, len(day_df)):
+            row = day_df.iloc[j]
+            curr_time = row['datetime']
+            new_quality = row['quality']
+            
+            time_diff = (curr_time - prev_time).total_seconds()
+            is_gap = time_diff > GAP_THRESHOLD_SECONDS
+            
+            if is_gap:
+                # Close previous segment
+                if seg_start_time != prev_time:
+                    shapes.append(dict(
+                        type="rect",
+                        x0=seg_start_time, x1=prev_time, y0=0, y1=4,
+                        fillcolor=get_color_by_quality(curr_quality), line_width=0, layer="below"
+                    ))
+                # Offline segment
+                shapes.append(dict(
+                    type="rect",
+                    x0=prev_time, x1=curr_time, y0=0, y1=4,
+                    fillcolor=COLOR_OFFLINE, line_width=0, layer="below"
+                ))
+                curr_quality = new_quality
+                seg_start_time = curr_time
+                
+            elif new_quality != curr_quality:
+                # State change
+                shapes.append(dict(
+                    type="rect",
+                    x0=seg_start_time, x1=curr_time,
+                    fillcolor=get_color_by_quality(curr_quality), line_width=0, layer="below"
+                ))
+                curr_quality = new_quality
+                seg_start_time = curr_time
+                
+            prev_time = curr_time
 
-# Get unique dates and sort them
-unique_dates = sorted(df['date_only'].unique())
+        # Close last segment
+        if seg_start_time != prev_time:
+            shapes.append(dict(
+                type="rect",
+                x0=seg_start_time, x1=prev_time, y0=0, y1=4,
+                fillcolor=get_color_by_quality(curr_quality), line_width=0, layer="below"
+            ))
 
-for date in unique_dates:
-    date_df = df[df['date_only'] == date].sort_values(by='datetime').reset_index(drop=True)
-
-    # --- Gap detection logic ---
-    # Calculate time difference from the previous point
-    time_diff = date_df['datetime'].diff()
-
-    # Identify gaps larger than 1 minute
-    gap_threshold = pd.Timedelta(minutes=1)
-    gap_indices = time_diff[time_diff > gap_threshold].index
-
-    new_rows = []
-    if not gap_indices.empty:
-        for i in gap_indices:
-            # Get the datetime of the point before the gap
-            prev_datetime = date_df.loc[i - 1, 'datetime']
-            # Create a new point with a NaN value just after the previous point to create a break in the line
-            nan_time = prev_datetime + pd.Timedelta(seconds=1)
-            new_rows.append({'datetime': nan_time, 'ping_ms': None, 'date_only': date})
-
-    # Combine original data with new gap rows
-    if new_rows:
-        gaps_df = pd.DataFrame(new_rows)
-        plot_df = pd.concat([date_df, gaps_df]).sort_values(by='datetime').reset_index(drop=True)
+    # 2. Create Figure
+    fig = go.Figure()
+    
+    if not day_df.empty:
+        # Invisible Trace for Hover
+        fig.add_trace(go.Scatter(
+            x=day_df['datetime'],
+            y=day_df['quality'], 
+            customdata=day_df['ping_ms'],
+            mode='markers',
+            opacity=0, 
+            marker=dict(color=day_df['color']),
+            hovertemplate="<b>%{x|%H:%M:%S}</b><br>Ping: %{customdata}ms<extra></extra>",
+            hoverlabel=dict(
+                bgcolor=day_df['color'], 
+                font=dict(color='black')
+            ),
+            name='Quality',
+            showlegend=False
+        ))
     else:
-        plot_df = date_df
-    # --- End of gap detection logic ---
+        # Add a dummy invisible trace just to establish the time range for empty days
+        fig.add_trace(go.Scatter(
+            x=[start_of_day, end_of_day],
+            y=[0, 0],
+            mode='markers', opacity=0, hoverinfo='skip'
+        ))
 
-    # Map all datetimes to a single reference date to overlay them on a 24h axis
-    plot_df['plot_time'] = plot_df['datetime'].apply(lambda dt: datetime.combine(ref_date, dt.time()) if pd.notna(dt) else None)
-    
-    # Set opacity for current day's plot
-    opacity = 0.7 if date == current_date else 0.3
-    
-    fig.add_trace(go.Scatter(
-        x=plot_df['plot_time'],
-        y=plot_df['ping_ms'],
-        mode='markers',
-        name=str(date),
-        opacity=opacity,
-        connectgaps=False  # This ensures that NaN values create gaps in the line
-    ))
-
-# Update layout for a fixed 24-hour X-axis
-fig.update_layout(
-    title='Ping History',
-    template="plotly_dark",
-    xaxis_title='Time',
-    yaxis_title='Ping (ms)',
-    legend_title='Date',
-    xaxis=dict(
-        range=[datetime.combine(ref_date, time.min), datetime.combine(ref_date, time.max)],
-        tickformat='%H:%M:%S',  # Format x-axis labels to show time
-    ),
-   shapes=[
-        # RED ZONE (bottom layer, drawn first)
-        # Covers the entire area from 200ms upwards
-       dict(
-            type="rect",
-            xref="paper", yref="y",
-            x0=0, x1=1,
-            y0=200, y1=1000, 
-            fillcolor="red",
-            opacity=0.1,
-            layer="below",
-            line_width=0,
-        ), 
-        # YELLOW ZONE (middle layer, drawn on top of red)
-        # Covers the area from 100ms to 200ms
-        dict(
-            type="rect",
-            xref="paper", yref="y",
-            x0=0, x1=1,
-            y0=100, y1=200,
-            fillcolor="yellow",
-            opacity=0.1,
-            layer="below",
-            line_width=0,
+    # 3. Configure Layout
+    fig.update_layout(
+        title=dict(
+            text=date_obj.strftime('%A, %b %d'),
+            x=0.01, # Left align title
+            font=dict(size=14, color='#bac2de')
         ),
-        # GREEN ZONE (top layer, drawn on top of everything else)
-        # Covers the area from 0ms to 100ms
-        dict(
-            type="rect",
-            xref="paper", yref="y",
-            x0=0, x1=1,
-            y0=0, y1=100,
-            fillcolor="green",
-            opacity=0.1,
-            layer="below",
-            line_width=0,
+        template="plotly_dark",
+        height=180, # Height per plot
+        hovermode='x',
+        margin=dict(l=20, r=20, t=40, b=20),
+        xaxis=dict(
+            range=[start_of_day, end_of_day],
+            tickformat='%H:%M',
+            showgrid=False,
+            showspikes=True, spikemode='across', spikesnap='cursor', 
+            spikecolor='white', spikethickness=1, spikedash='solid',
         ),
-    ] 
-)
+        yaxis=dict(
+            visible=False, fixedrange=True, range=[0, 4]
+        ),
+        shapes=shapes,
+        paper_bgcolor=PAGE_BG_COLOR,
+        plot_bgcolor=PAGE_BG_COLOR
+    )
+    
+    return fig
 
-# Write to HTML and open in browser
-plot_file = '/home/pera/.config/waybar/ping_plot.html'
-fig.write_html(plot_file)
+def main():
+    # 1. Load Data
+    expanded_path = os.path.expanduser(FILE_PATH)
+    if not os.path.exists(expanded_path):
+        print(f"File not found: {expanded_path}")
+        return
 
-webbrowser.open('file://' + os.path.realpath(plot_file))
+    df = pd.read_csv(expanded_path)
+    df['datetime'] = pd.to_datetime(df['date'], format='%Y-%m-%d_%H:%M:%S', errors='coerce')
+    df.dropna(subset=['datetime'], inplace=True)
+    
+    # 2. Determine Date Range
+    today = datetime.now().date()
+    target_dates = [today - timedelta(days=i) for i in range(DAYS_TO_SHOW)]
+    
+    # 3. Generate HTML Content
+    output_file = os.path.expanduser('~/.config/waybar/ping_plot.html')
+    
+    with open(output_file, 'w') as f:
+        # Start HTML structure with dark background
+        f.write(f"""
+        <html>
+        <head>
+            <title>Ping History</title>
+            <style>
+                body {{ background-color: {PAGE_BG_COLOR}; color: #cdd6f4; font-family: sans-serif; margin: 20px; }}
+            </style>
+        </head>
+        <body>
+            <h2 style="text-align: center;">Ping Timeline (Last {DAYS_TO_SHOW} Days)</h2>
+        """)
+        
+        for i, date_obj in enumerate(target_dates):
+            # Filter data for this date
+            day_df = df[df['datetime'].dt.date == date_obj].copy()
+            
+            # Create separate figure
+            fig = create_figure_for_day(date_obj, day_df)
+            
+            # Generate HTML for this figure
+            # We include plotly.js only in the first figure (i==0) to keep file size optimized
+            # but ensure it works offline (default include_plotlyjs=True embeds the library)
+            # To avoid embedding it 5 times, we can use 'cdn' or a trick.
+            # Best balance: Embed it once manually or rely on 'cdn' if online. 
+            # Given the request context usually implies 'offline' ping monitoring might mean no internet:
+            # We will use include_plotlyjs=True for the FIRST one, and False for others.
+            
+            plot_html = fig.to_html(full_html=False, include_plotlyjs='cdn' if i == 0 else False)
+            f.write(f"<div style='margin-bottom: 20px;'>{plot_html}</div>")
+
+        f.write("</body></html>")
+
+    webbrowser.open('file://' + os.path.realpath(output_file))
+
+if __name__ == "__main__":
+    main()
