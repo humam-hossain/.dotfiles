@@ -5,7 +5,7 @@ import os
 from datetime import datetime, time
 
 # Load the data
-file_path = '/home/pera/.config/waybar/ping_history.csv'
+file_path = '~/.config/waybar/ping_history.csv'
 df = pd.read_csv(file_path)
 
 # Convert 'date' column to datetime objects
