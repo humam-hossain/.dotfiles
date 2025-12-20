@@ -9,7 +9,7 @@ FILE_PATH = '~/.config/waybar/ping_history.csv'
 GAP_THRESHOLD_SECONDS = 60  # If gap > 60s, consider it offline
 BAD_PING = 200
 MED_PING = 100
-DAYS_TO_SHOW = 10 
+DAYS_TO_SHOW = 30
 
 # --- Custom Palette ---
 # Offline: Surface2 (Grey)
@@ -20,8 +20,10 @@ COLOR_BAD     = '#EB0111'
 COLOR_MED     = '#EBD501' 
 # Good: Green (Quality 1)
 COLOR_GOOD    = '#00EB3A' 
-# Background Color (Catppuccin Base) for the HTML page
-PAGE_BG_COLOR = '#1e1e2e'
+# Background Color for the HTML page (White for Light Theme)
+PAGE_BG_COLOR = '#ffffff'
+# Text Color for the HTML page (Black for Light Theme)
+PAGE_TEXT_COLOR = '#000000'
 
 def get_quality(ping):
     """
@@ -139,9 +141,9 @@ def create_figure_for_day(date_obj, day_df):
         title=dict(
             text=date_obj.strftime('%A, %b %d'),
             x=0.01, # Left align title
-            font=dict(size=14, color='#bac2de')
+            font=dict(size=14, color='#333333') # Dark grey for title
         ),
-        template="plotly_dark",
+        template="plotly_white", # Light theme
         height=180, # Height per plot
         hovermode='x',
         margin=dict(l=20, r=20, t=40, b=20),
@@ -150,7 +152,7 @@ def create_figure_for_day(date_obj, day_df):
             tickformat='%H:%M',
             showgrid=False,
             showspikes=True, spikemode='across', spikesnap='cursor', 
-            spikecolor='white', spikethickness=1, spikedash='solid',
+            spikecolor='black', spikethickness=1, spikedash='solid', # Black spike line
         ),
         yaxis=dict(
             visible=False, fixedrange=True, range=[0, 4]
@@ -181,20 +183,21 @@ def main():
     output_file = os.path.expanduser('~/.config/waybar/ping_plot.html')
     
     with open(output_file, 'w') as f:
-        # Start HTML structure with dark background
+        # Start HTML structure with light background
         f.write(f"""
         <html>
         <head>
             <title>Ping History</title>
             <style>
-                body {{ background-color: {PAGE_BG_COLOR}; color: #cdd6f4; font-family: sans-serif; margin: 20px; }}
+                body {{ background-color: {PAGE_BG_COLOR}; color: {PAGE_TEXT_COLOR}; font-family: sans-serif; margin: 20px; }}
             </style>
         </head>
         <body>
-            <h2 style="text-align: center;">Ping Timeline (Last {DAYS_TO_SHOW} Days)</h2>
+            <h2 style="text-align: center;">Ping History (Last {DAYS_TO_SHOW} Days)</h2>
         """)
         
         for i, date_obj in enumerate(target_dates):
+            print(f"Generating plot for day_{i} ...")
             # Filter data for this date
             day_df = df[df['datetime'].dt.date == date_obj].copy()
             
@@ -202,13 +205,7 @@ def main():
             fig = create_figure_for_day(date_obj, day_df)
             
             # Generate HTML for this figure
-            # We include plotly.js only in the first figure (i==0) to keep file size optimized
-            # but ensure it works offline (default include_plotlyjs=True embeds the library)
-            # To avoid embedding it 5 times, we can use 'cdn' or a trick.
-            # Best balance: Embed it once manually or rely on 'cdn' if online. 
-            # Given the request context usually implies 'offline' ping monitoring might mean no internet:
-            # We will use include_plotlyjs=True for the FIRST one, and False for others.
-            
+            # Include plotly.js only in the first figure
             plot_html = fig.to_html(full_html=False, include_plotlyjs='cdn' if i == 0 else False)
             f.write(f"<div style='margin-bottom: 20px;'>{plot_html}</div>")
 
