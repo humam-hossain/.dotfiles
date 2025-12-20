@@ -69,7 +69,10 @@ tooltip {
 #cpu.critical { color: @red; }
 #custom-memory { color: @sky; }
 #network { color: @teal; }
-#custom-ping { color: @green; }
+#custom-ping.good { color: @blue; }
+#custom-ping.medium { color: @yellow; }
+#custom-ping.bad { color: @red; }
+#custom-ping.dead { color: @mauve; }
 
 
 /* --- 4. CENTER MODULES: Information (Warm Tones) --- */
