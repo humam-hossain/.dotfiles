@@ -88,7 +88,7 @@
       "󰤨"
     ],
     "on-click": "kitty -e nmtui",
-    "interval": 20,
+    "interval": 10,
     "tooltip": true,
     "tooltip-format": "<big>{icon} {essid}</big>\n<tt>ifname:{ifname}\nipaddr:{ipaddr}\ngwaddr:{gwaddr}\ncidr:{cidr}\nnetmask:{netmask}\nbssid:{bssid}\nsignalStrength:{signalStrength}\nsignaldBm:{signaldBm}\nfrequency:{frequency}G\nbandwidthUpBytes:{bandwidthUpBytes}\nbandwidthDownBytes:{bandwidthDownBytes}\nbandwidthTotalBytes:{bandwidthTotalBytes}\n</tt>"
   },
@@ -99,7 +99,7 @@
     "exec": "~/.config/waybar/ping.sh",
     "return-type": "json",
     "exec-if": "command -v ping",
-    "on-click": "xdg-open https://speed.cloudflare.com/"
+    "on-click": "python3 ~/.config/waybar/plot_ping_history.py"
   },
   "disk": {
     "interval": 30,
