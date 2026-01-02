@@ -13,7 +13,6 @@ echo "[CONFIG] set default browser"
 xdg-settings set default-web-browser google-chrome-stable.desktop
 xdg-mime default google-chrome.desktop x-scheme-handler/http
 xdg-mime default google-chrome.desktop x-scheme-handler/https
-xdg-mime default google-chrome.desktop inode/directory
 xdg-mime default google-chrome.desktop text/plain
 
 for type in $(grep "image/" /usr/share/mime/types | cut -d' ' -f1); do
