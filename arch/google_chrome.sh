@@ -11,11 +11,14 @@ sudo pacman -Sy --noconfirm --needed xdg-utils xdg-desktop-portal xdg-desktop-po
 
 echo "[CONFIG] set default browser"
 xdg-settings set default-web-browser google-chrome-stable.desktop
-xdg-mime default google-chrome-stable.desktop x-scheme-handler/http
-xdg-mime default google-chrome-stable.desktop x-scheme-handler/https
+xdg-mime default google-chrome.desktop x-scheme-handler/http
+xdg-mime default google-chrome.desktop x-scheme-handler/https
 xdg-mime default google-chrome.desktop inode/directory
 xdg-mime default google-chrome.desktop text/plain
-xdg-mime default google-chrome.desktop video/mp4 video/webm video/ogg video/x-matroska video/quicktime video/x-msvideo video/x-flv audio/mpeg audio/ogg audio/wav audio/webm audio/x-aac audio/x-flac audio/x-m4a
+
+for type in $(grep "image/" /usr/share/mime/types | cut -d' ' -f1); do
+    xdg-mime default google-chrome.desktop "$type"
+done
 
 echo "[VERIFY] default browser"
 xdg-settings get default-web-browser
