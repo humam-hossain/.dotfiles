@@ -1,65 +1,59 @@
-set -xe
+#!/bin/bash
+set -e
 
-echo "[INSTALL] zsh"
-sudo pacman -Sy --noconfirm --needed zsh
+# 1. Define Paths
+# Explicitly set ZSH_CUSTOM to ~/.zsh
+ZSH_CUSTOM="$HOME/.zsh"
+PLUGIN_DIR="$ZSH_CUSTOM/plugins"
 
-echo "[CONFIG] default shell zsh"
-chsh -s $(which zsh)
+echo ">> Setting up Zsh Environment..."
+echo ">> Plugin Directory: $PLUGIN_DIR"
 
-echo "[INSTALL] oh-my-zsh"
-ZSH_DIR="${ZSH:-$HOME/.oh-my-zsh}"
-ZSH_CUSTOM="${ZSH_CUSTOM:-$ZSH_DIR/custom}"
+# 2. Install Zsh & Starship (Arch Linux)
+# Uses -Syu to prevent partial upgrade issues common in Arch
+echo "[INSTALL] Updating system and installing zsh + starship..."
+sudo pacman -Syu --noconfirm --needed zsh starship git
 
-if [ -d "$ZSH_DIR" ]; then
-	echo "[SKIP] Oh My Zsh already installed in $ZSH_DIR"
-else
-	echo "[INSTALL] Oh My Zsh to $ZSH_DIR"
-	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-fi
+# 3. Clone Plugins
+# Function to clone or skip
+install_plugin() {
+    local name="$1"
+    local url="$2"
+    local dir="$PLUGIN_DIR/$name"
 
-# 1. powerlevel10k
-THEME_DIR="$ZSH_CUSTOM/themes/powerlevel10k"
-if [ -d "$THEME_DIR" ]; then
-	echo "[SKIP] powerlevel10k already installed in $THEME_DIR"
-else
-	echo "[INSTALL] powerlevel10k → $THEME_DIR"
-	git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$THEME_DIR"
-fi
+    if [ -d "$dir" ]; then
+        echo "[SKIP] $name already installed."
+    else
+        echo "[INSTALL] $name..."
+        git clone --depth=1 "$url" "$dir"
+    fi
+}
 
-# 2. zsh-autosuggestions
-AUTO_SUG_DIR="$ZSH_CUSTOM/plugins/zsh-autosuggestions"
-if [ -d "$AUTO_SUG_DIR" ]; then
-	echo "[SKIP] zsh-autosuggestions already installed in $AUTO_SUG_DIR"
-else
-	echo "[INSTALL] zsh-autosuggestions → $AUTO_SUG_DIR"
-	git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git "$AUTO_SUG_DIR"
-fi
+mkdir -p "$PLUGIN_DIR"
 
-# 3. zsh-syntax-highlighting
-SYNTAX_DIR="$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
-if [ -d "$SYNTAX_DIR" ]; then
-	echo "[SKIP] zsh-syntax-highlighting already installed in $SYNTAX_DIR"
-else
-	echo "[INSTALL] zsh-syntax-highlighting → $SYNTAX_DIR"
-	git clone --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git "$SYNTAX_DIR"
-fi
+install_plugin "zsh-autosuggestions" "https://github.com/zsh-users/zsh-autosuggestions.git"
+install_plugin "zsh-syntax-highlighting" "https://github.com/zsh-users/zsh-syntax-highlighting.git"
+install_plugin "zsh-autocomplete" "https://github.com/marlonrichert/zsh-autocomplete.git"
 
-# 4. zsh-autocomplete
-AUTO_CPL_DIR="$ZSH_CUSTOM/plugins/zsh-autocomplete"
-if [ -d "$AUTO_CPL_DIR" ]; then
-	echo "[SKIP] zsh-autocomplete already installed in $AUTO_CPL_DIR"
-else
-	echo "[INSTALL] zsh-autocomplete → $AUTO_CPL_DIR"
-	git clone --depth=1 https://github.com/marlonrichert/zsh-autocomplete.git "$AUTO_CPL_DIR"
-fi
-
-echo "[DONE] all Oh My Zsh plugins/themes are present."
-
+# 4. Copy Configs
 echo "[CONFIG] copying .zshrc"
 cp -f .config/.zshrc ~/.zshrc
+
+echo "[CONFIG] copying starship.toml"
+cp -f .config/starship.toml ~/.config/starship.toml
 
 echo "[CONFIG] copying .zprofile"
 cp -f .config/.zprofile ~/.zprofile
 
-echo "[CONFIG] copying .p10k.zsh"
-cp -f .config/.p10k.zsh ~/.p10k.zsh
+# 5. Set Default Shell
+current_shell=$(basename "$SHELL")
+if [ "$current_shell" != "zsh" ]; then
+    echo "[CONFIG] Changing default shell to zsh..."
+    # We use chsh for the current user. 
+    # This usually prompts for a password.
+    chsh -s "$(which zsh)"
+else
+    echo "[SKIP] Default shell is already zsh."
+fi
+
+echo ">> Setup complete! Please log out and log back in."
