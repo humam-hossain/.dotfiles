@@ -12,7 +12,7 @@ echo ">> Plugin Directory: $PLUGIN_DIR"
 # 2. Install Zsh & Starship (Arch Linux)
 # Uses -Syu to prevent partial upgrade issues common in Arch
 echo "[INSTALL] Updating system and installing zsh + starship..."
-sudo pacman -Syu --noconfirm --needed zsh starship git
+sudo pacman -Sy --noconfirm --needed zsh starship git
 
 # 3. Clone Plugins
 # Function to clone or skip
