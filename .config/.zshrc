@@ -51,7 +51,6 @@ alias ls='ls --color=auto'
 alias ll='ls -lh'              # List human readable sizes
 alias la='ls -lah'             # List all including hidden
 alias grep='grep --color=auto'
-alias rm='rm -i'               # Confirm before deleting
 
 # fzf keybindings
 eval "$(fzf --zsh)"
