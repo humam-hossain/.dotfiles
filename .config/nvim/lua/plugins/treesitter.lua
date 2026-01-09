@@ -52,7 +52,7 @@ return { -- Highlight, edit, and navigate code
 			},
 		},
 		fold = {
-			enable = true,
+			enable = false,
 		},
 	},
 	-- There are additional nvim-treesitter modules that you can use to interact
