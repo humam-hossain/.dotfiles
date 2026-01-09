@@ -17,7 +17,7 @@ setopt HIST_IGNORE_SPACE       # Don't record commands starting with a space
 
 # --- 3. Basic Options ---
 setopt AUTO_CD                 # Change directory just by typing its name
-setopt CORRECT                 # Auto-correct simple command typos
+unsetopt CORRECT                 # Auto-correct simple command typos
 
 # --- 4. Starship Prompt ---
 # Initialize the prompt
