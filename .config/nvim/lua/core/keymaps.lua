@@ -114,7 +114,7 @@ vim.keymap.set("v", "<C-_>", "gc", { desc = "Toggle comment", remap = true })
 -- Diagnostics, Formatting, Autocompletion
 -- ============================================================================
 vim.keymap.set("n", "gl", function()
-	vim.diagnostic.open_float()
+	vim.diagnostic.open_float({ focusable = true })
 end, { desc = "Open Diagnostics in Float" })
 
 vim.keymap.set("n", "<leader>cf", function()
