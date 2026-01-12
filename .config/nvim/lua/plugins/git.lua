@@ -30,8 +30,8 @@ return {
 				follow_files = true,
 			},
 			attach_to_untracked = true,
-			current_line_blame = false,
-			update_debounce = 100,
+			current_line_blame = true,
+			update_debounce = 5,
 			status_formatter = nil,
 			max_file_length = 40000,
 			preview_config = {
