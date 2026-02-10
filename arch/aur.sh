@@ -1,11 +1,17 @@
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
 
-echo "[DOWNLOAD] yay"
-git clone https://aur.archlinux.org/yay-bin $HOME/yay-bin
+if ! command -v yay &> /dev/null; then
+    echo "[DOWNLOAD] yay"
+    git clone https://aur.archlinux.org/yay-bin "$HOME/yay-bin"
 
-echo "[INSTALL] yay"
-cd ~/yay-bin
-makepkg -si
+    echo "[INSTALL] yay"
+    cd "$HOME/yay-bin"
+    makepkg -si
+else
+    echo "[SKIP] yay is already installed."
+fi
 
 echo "[CHECK] yay version"
 yay --version

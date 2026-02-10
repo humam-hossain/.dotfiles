@@ -1,5 +1,8 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+
 
 # 1. Define Paths
 # Explicitly set ZSH_CUSTOM to ~/.zsh

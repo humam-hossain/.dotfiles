@@ -1,4 +1,7 @@
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
 
 echo "[INSTALL] google-chrome-stable"
 yay -Sy --noconfirm --needed google-chrome

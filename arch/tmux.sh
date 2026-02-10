@@ -1,4 +1,7 @@
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
 
 echo "[INSTALL] tmux"
 sudo pacman -Sy --noconfirm --needed tmux
@@ -11,4 +14,4 @@ else
 fi
 
 echo "[CONFIG] copying config file"
-cp .config/.tmux.conf ~/.tmux.conf
+cp -f .config/.tmux.conf ~/.tmux.conf

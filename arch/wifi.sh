@@ -1,5 +1,8 @@
-#!/bin/bash
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+
 
 echo "[STEP] Install prerequisites"
 sudo pacman -Sy --noconfirm --needed usbutils iw linux-firmware usb_modeswitch
@@ -23,6 +26,7 @@ sudo pacman -Sy --noconfirm --needed wpa_supplicant networkmanager
 sudo systemctl enable --now NetworkManager.service
 
 echo "[STATUS] Check NetworkManager status"
+sleep 5 # Give NetworkManager a moment to start up
 systemctl --no-pager --full status NetworkManager.service || true
 
 echo "[STEP] Verify WiFi interface"
