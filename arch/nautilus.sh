@@ -1,4 +1,7 @@
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
 
 echo "[INSTALL] nautilus"
 sudo pacman -Sy --noconfirm --needed nautilus gvfs gvfs-mtp gvfs-smb gvfs-nfs tumbler ffmpegthumbnailer nwg-look

@@ -1,4 +1,7 @@
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
 
 echo "[INSTALL] vscode"
 yay -Sy --noconfirm --needed visual-studio-code-bin

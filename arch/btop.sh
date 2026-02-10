@@ -1,4 +1,7 @@
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
 
 echo "[INSTALL] btop htop"
 sudo pacman -Sy --noconfirm --needed btop htop

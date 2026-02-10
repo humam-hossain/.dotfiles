@@ -1,4 +1,7 @@
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
 
 echo "[INSTALL] hyprland"
 sudo pacman -Sy --noconfirm --needed hyprland hyprland-protocols xdg-desktop-portal-hyprland xdg-desktop-portal-wlr

@@ -1,7 +1,10 @@
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
 
 echo "[INSTALL] waybar"
-sudo pacman -S --noconfirm waybar
+sudo pacman -Sy --noconfirm waybar
 
 echo "[INSTALL] jq bc"
 sudo pacman -Sy --noconfirm --needed jq bc

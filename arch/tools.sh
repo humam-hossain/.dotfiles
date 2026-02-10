@@ -1,4 +1,7 @@
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
 
 echo "[INSTALL] unzip & tar"
 sudo pacman -Sy --noconfirm --needed unzip tar
@@ -27,11 +30,6 @@ sudo pacman -Sy --noconfirm --needed curl
 
 echo "[INSTALL] wget"
 sudo pacman -Sy --noconfirm --needed wget
-
-echo "[INSTALL] docker"
-sudo pacman -Sy --noconfirm --needed docker
-sudo systemctl enable --now docker.service
-sudo usermod -aG docker $USER
 
 echo "[INSTALL] discord from yay"
 yay -Sy --noconfirm --needed discord

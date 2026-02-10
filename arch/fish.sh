@@ -1,4 +1,7 @@
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
 
 echo "[INSTALL] fish"
 sudo pacman -Sy --noconfirm --needed fish starship eza
