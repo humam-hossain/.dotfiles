@@ -206,7 +206,7 @@ return {
 			marksman = {},
 			clangd = {},
 			gopls = {},
-			pyright = {},
+			ty = {},
 			eslint_d = {},
 			cssls = {},
 			html = {},
