@@ -1,34 +1,32 @@
-# ==========================================
-#  Powerlevel10k Instant Prompt
-# ==========================================
+# INFO: Powerlevel10k Instant Prompt
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-# ==========================================
-#  Path Definitions
-# ==========================================
+
+# INFO: Path Definitions
+
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
 
 # Define Custom plugin path (Preserved from your config)
 export ZSH_CUSTOM="$HOME/.zsh"
 
-# ==========================================
-#  Theme Selection
-# ==========================================
+
+# INFO: Theme Selection
+
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
-# ==========================================
-#  Starship (DISABLED)
-# ==========================================
+
+# INFO: Starship (DISABLED)
+
 # Starship initialization commented out as requested:
 # eval "$(starship init zsh)"
 
-# ==========================================
-#  User Configuration
-# ==========================================
+
+# INFO: User Configuration
 
 # --- History Settings ---
 HISTFILE="$HOME/.zsh_history"
@@ -59,9 +57,9 @@ if command -v fzf &> /dev/null; then
   eval "$(fzf --zsh)"
 fi
 
-# ==========================================
-#  Plugins
-# ==========================================
+
+# INFO: Plugins
+
 # Standard plugins can be found in $ZSH/plugins/
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 plugins=(
@@ -74,11 +72,17 @@ plugins=(
 # Source Oh My Zsh
 source $ZSH/oh-my-zsh.sh
 
-# ==========================================
-#  Powerlevel10k Config File
-# ==========================================
+
+# INFO: Powerlevel10k Config File
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# DARKBOT Conda Aliases
+alias darkconda="source $HOME/miniconda3/bin/activate; conda activate darkconda"
+alias baseconda="source $HOME/miniconda3/bin/activate"
 
 # other aliases
 alias define="bash $HOME/define.sh"
