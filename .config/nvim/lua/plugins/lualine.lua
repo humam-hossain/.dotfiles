@@ -16,7 +16,7 @@ return {
 		config = function()
 			require("lualine").setup({
 				options = {
-					theme = "catppuccin",
+					theme = "auto",
 					section_seperator = "",
 					component_seperators = "",
 					icons_enabled = true,
@@ -30,7 +30,21 @@ return {
 						"filename",
 						path = 1,
 					} },
-					lualine_x = { "filetype" },
+					lualine_x = {
+						-- 1. MACRO RECORDING (handled by Noice)
+						{
+							require("noice").api.status.mode.get,
+							cond = require("noice").api.status.mode.has,
+							color = { fg = "#51f7d3" },
+						},
+						-- 2. COMMAND / KEYSTROKES (shows pending keys like "d2...")
+						{
+							require("noice").api.status.command.get,
+							cond = require("noice").api.status.command.has,
+							color = { fg = "#51f7d3" },
+						},
+						"filetype"
+					},
 					lualine_y = { "progress" },
 					lualine_z = { "location" },
 				},
