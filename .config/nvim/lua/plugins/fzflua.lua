@@ -18,7 +18,11 @@ return {
 		{
 			"<leader>fg",
 			function()
-				require("fzf-lua").live_grep()
+				require("fzf-lua").live_grep({
+					-- "--hidden" searches hidden files
+					-- "-g '!.git/'" excludes the .git folder so you don't grep your history
+					rg_opts = "--column --line-number --no-heading --color=always --smart-case --max-columns=4096 --hidden -g '!.git/'",
+				})
 			end,
 			desc = "Find by grepping in project directory",
 		},
