@@ -1,19 +1,8 @@
 return {
 	{
-		"bjarneo/hackerman.nvim",
-		dependencies = {
-			"bjarneo/aether.nvim",
-		},
-		lazy = false,
-		priority = 1000,
-		config = function()
-			vim.cmd.colorscheme("hackerman")
-		end,
-	},
-	{
 		"catppuccin/nvim",
 		name = "catppuccin",
-		lazy = true,
+		lazy = false,
 		priority = 1000,
 		config = function()
 			require("catppuccin").setup({
@@ -29,6 +18,17 @@ return {
 				},
 			})
 			vim.cmd.colorscheme("catppuccin")
+		end,
+	},
+	{
+		"bjarneo/hackerman.nvim",
+		dependencies = {
+			"bjarneo/aether.nvim",
+		},
+		lazy = true,
+		priority = 1000,
+		config = function()
+			vim.cmd.colorscheme("hackerman")
 		end,
 	},
 }
