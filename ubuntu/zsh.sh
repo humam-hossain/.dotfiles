@@ -36,7 +36,8 @@ else
 fi
 
 # 4. Custom plugins & theme directory
-ZSH_CUSTOM="${ZSH_CUSTOM:-$ZSH_DIR/custom}"
+# Must match ZSH_CUSTOM in .zshrc ($HOME/.zsh)
+ZSH_CUSTOM="$HOME/.zsh"
 
 install_if_missing() {
   local url=$1
