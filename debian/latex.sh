@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
+
+echo "[INSTALL] latex"
+sudo apt install -y texlive-xetex texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended texlive-luatex
+sudo apt install -y latexmk
+
+echo "[DONE] usage: latexmk -xelatex -pvc main.tex"
