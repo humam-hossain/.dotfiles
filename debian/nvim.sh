@@ -14,6 +14,7 @@ sudo apt install -y tree-sitter-cli
 echo "[INSTALL] neovim (latest tarball from GitHub releases)"
 curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
 tar -xzf nvim-linux-x86_64.tar.gz
+sudo rm -rf /opt/nvim
 sudo mv -fv nvim-linux-x86_64 /opt/nvim
 sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
 rm nvim-linux-x86_64.tar.gz
