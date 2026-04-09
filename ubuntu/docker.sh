@@ -1,4 +1,6 @@
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
 
 echo "[INFO] ref - https://docs.docker.com/engine/install/ubuntu/"
 sudo apt update -y; sudo apt full-upgrade -y

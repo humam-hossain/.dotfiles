@@ -1,4 +1,6 @@
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
 
 echo "[CONFIG] wakatime api"
 rm $HOME/.wakatime.cfg || true

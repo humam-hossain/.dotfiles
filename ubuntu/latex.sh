@@ -1,4 +1,6 @@
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
 
 echo "[INSTALL] latex (recommended)"
 sudo apt install -y texlive-xetex texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended texlive-luatex

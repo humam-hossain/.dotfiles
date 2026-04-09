@@ -1,4 +1,6 @@
-set -xe
+#!/usr/bin/env bash
+set -euo pipefail
+set -x
 
 echo "[INSTALL] kitty"
 sudo apt install -y kitty
