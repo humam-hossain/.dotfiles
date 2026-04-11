@@ -1,0 +1,2 @@
+commands:
+  metrics_smartctl_bin: /usr/local/bin/smartctl-wrapper
