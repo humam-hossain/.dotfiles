@@ -2,9 +2,9 @@ LATITUDE=23.758492
 LONGITUDE=90.390055
 CACHE_DURATION=900 # 15 minutes
 PER_API_CALL_COST=1.6
-CACHE_FILE="$HOME/.config/waybar/api_response.json"
-API_COUNT_FILE="$HOME/.config/waybar/api_count.txt"
-API_HISTORY_FILE="$HOME/.config/waybar/api_history.csv"
+CACHE_FILE="$HOME/.config/waybar/data/api_response.json"
+API_COUNT_FILE="$HOME/.config/waybar/data/api_count.txt"
+API_HISTORY_FILE="$HOME/.config/waybar/data/api_history.csv"
 
 # --- CATPPUCCIN MOCHA PALETTE ---
 C_TEXT="#cdd6f4"

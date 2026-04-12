@@ -61,7 +61,7 @@
     "format": "{text}",
     "return-type": "json",
     "pango": true,
-    "exec": "~/.config/waybar/curr_weather.sh",
+    "exec": "~/.config/waybar/scripts/weather/curr_weather.sh",
     "exec-if": "command -v curl && command -v jq",
     "tooltip": true
   },
@@ -70,15 +70,15 @@
     "format": "{text}",
     "return-type": "json",
     "pango": true,
-    "exec": "~/.config/waybar/forcast_weather.sh",
+    "exec": "~/.config/waybar/scripts/weather/forcast_weather.sh",
     "exec-if": "command -v curl && command -v jq",
     "tooltip": true,
     "format-tooltip": "{tooltip}",
     "tooltip-pango": true
   },
   "network": {
-    "format-wifi": "{icon} {essid} {bandwidthDownBytes} {bandwidthUpBytes}",
-    "format-ethernet": "󰈀 {ifname} {bandwidthDownBytes} {bandwidthUpBytes}",
+    "format-wifi": "{icon} {essid}",
+    "format-ethernet": "󰈀 {ifname}",
     "format-disconnected": "󰤠 No Network",
     "format-icons": [
       "󰤯",
@@ -94,12 +94,11 @@
   },
   "custom/ping": {
     "interval": 5,
-    "format": " {}",
-    "tooltip": false,
-    "exec": "~/.config/waybar/ping.sh",
+    "exec": "~/.config/waybar/scripts/network/ping.sh",
     "return-type": "json",
+    "markup": true,
     "exec-if": "command -v ping",
-    "on-click": "python3 ~/.config/waybar/plot_ping_history.py"
+    "on-click": "xdg-open http://localhost:8765/"
   },
   "disk": {
     "interval": 30,
@@ -129,7 +128,7 @@
   "custom/memory": {
     "interval": 5,
     "return-type": "json",
-    "exec": "~/.config/waybar/memory.sh",
+    "exec": "~/.config/waybar/scripts/system/memory.sh",
     "tooltip": true,
     "on-click": "kitty -e btop" 
   },

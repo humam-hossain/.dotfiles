@@ -71,7 +71,8 @@ tooltip {
 #network { color: @teal; }
 #custom-ping.good { color: @blue; }
 #custom-ping.medium { color: @yellow; }
-#custom-ping.bad { color: @red; }
+#custom-ping.bad { color: @peach; }
+#custom-ping.critical { color: @red; }
 #custom-ping.dead { color: @mauve; }
 
 

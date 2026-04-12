@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ping History</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: monospace; background: #fff; color: #000; padding: 20px 24px; font-size: 12px; }
+h1 { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
+#subtitle { font-size: 12px; color: #666; margin-bottom: 10px; }
+.filter { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; font-size: 12px; }
+.filter label { display: flex; align-items: center; gap: 4px; }
+.filter input[type=number] { width: 56px; font-family: monospace; font-size: 12px; padding: 2px 4px; border: 1px solid #ccc; }
+.filter input[type=date] { font-family: monospace; font-size: 12px; padding: 2px 4px; border: 1px solid #ccc; }
+.filter .sep { color: #999; }
+.filter button { font-family: monospace; font-size: 12px; padding: 2px 8px; cursor: pointer; border: 1px solid #888; background: #f5f5f5; }
+.filter button:hover { background: #e8e8e8; }
+.filter button:disabled { color: #aaa; cursor: default; background: #f5f5f5; }
+#fetch-time { font-size: 11px; color: #999; margin-bottom: 10px; min-height: 16px; }
+.legend { display: flex; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #444; }
+.legend-swatch { width: 13px; height: 13px; border-radius: 2px; flex-shrink: 0; }
+.days { display: flex; flex-direction: column; gap: 2px; }
+.day-row { display: flex; align-items: center; gap: 8px; }
+.day-label { font-size: 11px; color: #555; width: 96px; flex-shrink: 0; text-align: right; }
+.day-label.today { color: #000; font-weight: bold; }
+.target-canvases { display: flex; flex: 1; gap: 4px; }
+canvas { flex: 1; display: block; cursor: crosshair; background: #ebebeb; }
+canvas.axis-canvas { height: 24px; cursor: default; background: transparent; }
+canvas.bar-canvas  { height: 22px; }
+.target-names { display: flex; flex: 1; gap: 4px; }
+.target-name { flex: 1; font-size: 10px; color: #777; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#sticky-header { position: sticky; top: 0; background: #fff; z-index: 10; padding-bottom: 2px; }
+#tooltip {
+  position: fixed;
+  background: rgba(20,20,20,0.9);
+  color: #fff;
+  font-size: 12px;
+  font-family: monospace;
+  padding: 6px 10px;
+  border-radius: 4px;
+  pointer-events: none;
+  display: none;
+  white-space: pre;
+  z-index: 9999;
+  line-height: 1.5;
+}
+#error { color: #c00; font-size: 12px; margin-top: 8px; }
+</style>
+</head>
+<body>
+<h1>Ping History</h1>
+<div id="subtitle">Loading…</div>
+<div class="filter">
+  <label>Last <input type="number" id="f-days" value="30" min="1" max="365"> days</label>
+  <button id="f-days-submit">Apply</button>
+  <span class="sep">|</span>
+  <label>From <input type="date" id="f-from"></label>
+  <label>To <input type="date" id="f-to"></label>
+  <button id="f-range-submit">Apply</button>
+</div>
+<div id="fetch-time"></div>
+<div class="legend">
+  <div class="legend-item"><div class="legend-swatch" style="background:#00C853"></div>Normal</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#FFD600"></div>Elevated</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#FF6D00"></div>High</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#D50000"></div>Critical</div>
+  <div class="legend-item"><div class="legend-swatch" style="background:#37474F"></div>Offline</div>
+</div>
+<div class="days" id="days"></div>
+<div id="tooltip"></div>
+<div id="error"></div>
+
+<script>
+const COLORS = {
+  normal:   '#00C853',
+  elevated: '#FFD600',
+  high:     '#FF6D00',
+  critical: '#D50000',
+  offline:  '#37474F',
+};
+
+// Populated from API response: { "8.8.8.8": [40, 100, 200], ... }
+let targetThresholds = {};
+
+function qualityLabel(target, quality) {
+  const [t1, t2, t3] = targetThresholds[target] || [40, 100, 200];
+  switch (quality) {
+    case 'normal':   return `Normal (<${t1} ms)`;
+    case 'elevated': return `Elevated (${t1}–${t2} ms)`;
+    case 'high':     return `High (${t2}–${t3} ms)`;
+    case 'critical': return `Critical (≥${t3} ms)`;
+    case 'offline':  return 'Offline';
+    default:         return quality;
+  }
+}
+
+const AXIS_HOURS  = [0,2,4,6,8,10,12,14,16,18,20,22,24];
+const AXIS_LABELS = ['12am','2am','4am','6am','8am','10am','12pm','2pm','4pm','6pm','8pm','10pm','12am'];
+
+function timeToSecs(t) {
+  const parts = t.split(':').map(Number);
+  return parts[0] * 3600 + parts[1] * 60 + parts[2];
+}
+
+function drawDay(canvas, segments) {
+  const w = canvas.width;
+  const h = canvas.height;
+  if (w === 0) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+  for (const seg of segments) {
+    const x0 = timeToSecs(seg.start) / 86400 * w;
+    const x1 = timeToSecs(seg.end)   / 86400 * w;
+    ctx.fillStyle = COLORS[seg.quality] || '#999';
+    ctx.fillRect(Math.floor(x0), 0, Math.max(Math.ceil(x1 - x0), 1), h);
+  }
+}
+
+function drawAxis(canvas) {
+  const w = canvas.width;
+  const h = canvas.height;
+  if (w === 0) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#888';
+  ctx.font = '10px monospace';
+  ctx.textBaseline = 'top';
+
+  for (let i = 0; i < AXIS_HOURS.length; i++) {
+    const x = Math.round(AXIS_HOURS[i] / 24 * w);
+    ctx.fillRect(x, 0, 1, 4);
+    const label = AXIS_LABELS[i];
+    if (i === 0) {
+      ctx.textAlign = 'left';
+      ctx.fillText(label, x + 1, 5);
+    } else if (i === AXIS_HOURS.length - 1) {
+      ctx.textAlign = 'right';
+      ctx.fillText(label, x - 1, 5);
+    } else {
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x, 5);
+    }
+  }
+}
+
+const tooltip = document.getElementById('tooltip');
+
+// segMap[date][target] = [segments]
+const segMap = {};
+
+function findSeg(date, target, fracX) {
+  const secs = fracX * 86400;
+  return ((segMap[date] || {})[target] || []).find(s =>
+    timeToSecs(s.start) <= secs && secs <= timeToSecs(s.end)
+  );
+}
+
+function attachTooltip(canvas, date, target) {
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    const frac = (e.clientX - rect.left) / rect.width;
+    const seg = findSeg(date, target, frac);
+    if (seg) {
+      const ms = seg.avg_ms !== null ? `${seg.avg_ms} ms` : 'N/A';
+      tooltip.textContent =
+        `${target}  ${date}  ${seg.start} – ${seg.end}\n` +
+        `${qualityLabel(target, seg.quality)}  avg: ${ms}`;
+      tooltip.style.display = 'block';
+      tooltip.style.left = (e.clientX + 14) + 'px';
+      tooltip.style.top  = (e.clientY - 8) + 'px';
+    } else {
+      tooltip.style.display = 'none';
+    }
+  });
+  canvas.addEventListener('mouseleave', () => {
+    tooltip.style.display = 'none';
+  });
+}
+
+let resizeObserver;
+
+function buildRows(data) {
+  const container = document.getElementById('days');
+  container.innerHTML = '';
+  if (resizeObserver) resizeObserver.disconnect();
+
+  if (data.thresholds) targetThresholds = data.thresholds;
+  const targets = data.targets;
+
+  resizeObserver = new ResizeObserver(entries => {
+    for (const entry of entries) {
+      const canvas = entry.target;
+      const newW = Math.floor(entry.contentRect.width);
+      if (canvas.width !== newW) {
+        canvas.width = newW;
+        if (canvas.classList.contains('axis-canvas')) {
+          drawAxis(canvas);
+        } else {
+          const row = canvas.closest('.day-row');
+          if (row) {
+            const date   = row.dataset.date;
+            const target = canvas.dataset.target;
+            drawDay(canvas, (segMap[date] || {})[target] || []);
+          }
+        }
+      }
+    }
+  });
+
+  // Sticky header: target names row + axis row
+  const stickyHeader = document.createElement('div');
+  stickyHeader.id = 'sticky-header';
+
+  // Target names row
+  const nameRow = document.createElement('div');
+  nameRow.className = 'day-row';
+  const nameLabel = document.createElement('div');
+  nameLabel.className = 'day-label';
+  nameRow.appendChild(nameLabel);
+  const nameGroup = document.createElement('div');
+  nameGroup.className = 'target-names';
+  for (const target of targets) {
+    const div = document.createElement('div');
+    div.className = 'target-name';
+    div.textContent = target;
+    nameGroup.appendChild(div);
+  }
+  nameRow.appendChild(nameGroup);
+  stickyHeader.appendChild(nameRow);
+
+  // Axis row (one axis canvas per target column for correct alignment)
+  const axisRow = document.createElement('div');
+  axisRow.className = 'day-row';
+  const axisLabel = document.createElement('div');
+  axisLabel.className = 'day-label';
+  axisRow.appendChild(axisLabel);
+  const axisGroup = document.createElement('div');
+  axisGroup.className = 'target-canvases';
+  for (const target of targets) {
+    const c = document.createElement('canvas');
+    c.className = 'axis-canvas';
+    c.height = 24;
+    axisGroup.appendChild(c);
+    resizeObserver.observe(c);
+  }
+  axisRow.appendChild(axisGroup);
+  stickyHeader.appendChild(axisRow);
+
+  container.appendChild(stickyHeader);
+
+  const today = data.days.length ? data.days[0].date : null;
+
+  for (const day of data.days) {
+    if (!segMap[day.date]) segMap[day.date] = {};
+    for (const target of targets) {
+      segMap[day.date][target] = (day.bars[target] || []);
+    }
+
+    const row = document.createElement('div');
+    row.className = 'day-row';
+    row.dataset.date = day.date;
+
+    const label = document.createElement('div');
+    label.className = 'day-label' + (day.date === today ? ' today' : '');
+    label.textContent = day.date === today ? 'today' : day.date;
+    label.title = day.date;
+    row.appendChild(label);
+
+    const canvasGroup = document.createElement('div');
+    canvasGroup.className = 'target-canvases';
+
+    for (const target of targets) {
+      const canvas = document.createElement('canvas');
+      canvas.className = 'bar-canvas';
+      canvas.height = 22;
+      canvas.dataset.target = target;
+      attachTooltip(canvas, day.date, target);
+      canvasGroup.appendChild(canvas);
+      resizeObserver.observe(canvas);
+    }
+
+    row.appendChild(canvasGroup);
+    container.appendChild(row);
+  }
+}
+
+function refreshToday(data) {
+  if (!segMap[data.date]) segMap[data.date] = {};
+  for (const target of data.targets) {
+    segMap[data.date][target] = data.bars[target] || [];
+  }
+  const row = document.querySelector(`.day-row[data-date="${data.date}"]`);
+  if (row) {
+    for (const target of data.targets) {
+      const canvas = row.querySelector(`canvas[data-target="${CSS.escape(target)}"]`);
+      if (canvas) drawDay(canvas, segMap[data.date][target]);
+    }
+  }
+  if (data.last_ping) {
+    setSubtitle(`last ping: ${data.last_ping}  (updates every 5s)`);
+  }
+}
+
+function setSubtitle(text) {
+  document.getElementById('subtitle').textContent = text;
+}
+
+function setFetchTime(ms) {
+  document.getElementById('fetch-time').textContent = `fetched in ${(ms / 1000).toFixed(2)}s`;
+}
+
+function showError(msg) {
+  document.getElementById('error').textContent = msg;
+}
+
+async function loadPings(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`/api/pings returned ${res.status}`);
+  return res.json();
+}
+
+async function applyFilter(url, btn) {
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = '…';
+  const t0 = performance.now();
+  try {
+    const data = await loadPings(url);
+    setFetchTime(performance.now() - t0);
+    buildRows(data);
+    const n = data.days.length;
+    setSubtitle(`${n} day${n !== 1 ? 's' : ''} — loading last ping…`);
+    document.getElementById('error').textContent = '';
+  } catch (err) {
+    showError('Failed to load: ' + err.message);
+  } finally {
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
+}
+
+document.getElementById('f-days-submit').addEventListener('click', function() {
+  const days = document.getElementById('f-days').value || 30;
+  applyFilter(`/api/pings?days=${days}`, this);
+});
+
+document.getElementById('f-range-submit').addEventListener('click', function() {
+  const fromVal = document.getElementById('f-from').value;
+  const toVal   = document.getElementById('f-to').value;
+  if (!fromVal || !toVal) { showError('Both From and To dates required.'); return; }
+  applyFilter(`/api/pings?from=${fromVal}&to=${toVal}`, this);
+});
+
+async function init() {
+  const t0 = performance.now();
+  try {
+    const data = await loadPings('/api/pings?days=30');
+    setFetchTime(performance.now() - t0);
+    buildRows(data);
+    const n = data.days.length;
+    setSubtitle(`${n} day${n !== 1 ? 's' : ''} — loading last ping…`);
+  } catch (err) {
+    setSubtitle('');
+    showError('Failed to load: ' + err.message);
+    return;
+  }
+
+  setInterval(async () => {
+    try {
+      const r = await fetch('/api/today');
+      if (!r.ok) return;
+      const d = await r.json();
+      refreshToday(d);
+    } catch (_) {}
+  }, 5000);
+
+  try {
+    const r = await fetch('/api/today');
+    if (r.ok) {
+      const d = await r.json();
+      refreshToday(d);
+    }
+  } catch (_) {}
+}
+
+init();
+</script>
+</body>
+</html>
