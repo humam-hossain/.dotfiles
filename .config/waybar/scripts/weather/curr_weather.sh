@@ -3,7 +3,7 @@
 
 # Configuration: set your latitude and longitude here
 
-LOG_FILE="$HOME/.config/waybar/curr_weather.log"
+LOG_FILE="$HOME/.config/waybar/logs/curr_weather.log"
 
 # import functions
 FUNCTIONS_FILE="$(dirname "$0")/functions.sh"

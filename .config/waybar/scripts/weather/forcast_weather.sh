@@ -2,7 +2,7 @@
 # forecast_weather.sh - Fetch weather forecast and output JSON for Waybar custom module
 
 # Configuration
-LOG_FILE="$HOME/.config/waybar/forcast_weather.log"
+LOG_FILE="$HOME/.config/waybar/logs/forcast_weather.log"
 
 # import functions
 FUNCTIONS_FILE="$(dirname "$0")/functions.sh"
