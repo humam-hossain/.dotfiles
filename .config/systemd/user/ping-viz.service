@@ -1,0 +1,12 @@
+[Unit]
+Description=Ping collector and visualization server
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 %h/.config/waybar/monitor/server.py
+WorkingDirectory=%h/.config/waybar
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
