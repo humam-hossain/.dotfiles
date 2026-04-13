@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """One-time migration: add target_host column to pings table.
 Existing rows are backfilled with '8.8.8.8'.
-Run once: python3 analysis/migrate_add_target_host.py
+Run once: python3 monitor/migrate_add_target_host.py
 """
 import os
 import sqlite3

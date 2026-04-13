@@ -94,10 +94,10 @@
   },
   "custom/ping": {
     "interval": 5,
-    "exec": "~/.config/waybar/scripts/network/ping.sh",
+    "exec": "~/.config/waybar/scripts/network/ping_status.sh",
     "return-type": "json",
     "markup": true,
-    "exec-if": "command -v ping",
+    "exec-if": "command -v curl && command -v python3",
     "on-click": "xdg-open http://localhost:8765/"
   },
   "disk": {

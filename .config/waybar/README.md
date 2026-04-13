@@ -1,92 +1,95 @@
 # Waybar Ping Monitor
 
-Ping latency monitor for Waybar. Logs per-target ping history to SQLite and serves
-a live browser visualization. Supports multiple targets with per-target labels,
-per-target quality thresholds, and Pango-colored text in the status bar.
+Ping monitoring split into three parts:
 
----
-
-## Requirements
-
-- `waybar`
-- `python3` (stdlib only — no pip packages)
-- `sqlite3` CLI
-- `ping` (iputils)
-- `systemd` (user session)
-
----
+- `server`: collects ping data every 5 seconds, writes SQLite history, serves HTTP APIs
+- `web`: renders history in the browser from the server APIs
+- `waybar`: fetches the latest computed status from the server and displays it in the bar
 
 ## Setup
 
-### 1. Create directories
+Fast path on Arch:
 
 ```bash
-mkdir -p ~/.config/waybar/{data,logs,analysis,scripts/network}
+cd /home/pera/github_repo/.dotfiles
+bash arch/waybar.sh
 ```
 
-### 2. Copy files
+The script installs the packages required by the tracked Waybar setup, syncs the
+managed Waybar files, installs `ping-viz.service`, removes stale managed files,
+and restarts/verifies the ping server.
 
-Place these files from this repo into the correct locations:
+### Requirements
+
+- `waybar`
+- `curl`
+- `python3`
+- `ping` (iputils)
+- `systemd` user session
+
+### Server
+
+Create directories:
+
+```bash
+mkdir -p ~/.config/waybar/{analysis,data,logs,scripts/network}
+mkdir -p ~/.config/systemd/user
+```
+
+Copy files:
 
 | Source | Destination |
 |--------|-------------|
-| `scripts/network/ping.sh` | `~/.config/waybar/scripts/network/ping.sh` |
-| `analysis/server.py` | `~/.config/waybar/analysis/server.py` |
-| `data/ping_plot.html` | `~/.config/waybar/data/ping_plot.html` |
-| `data/ping.config` | `~/.config/waybar/data/ping.config` |
+| `monitor/server.py` | `~/.config/waybar/monitor/server.py` |
+| `monitor/ping.config` | `~/.config/waybar/monitor/ping.config` |
+| `monitor/ping_plot.html` | `~/.config/waybar/monitor/ping_plot.html` |
+| `scripts/network/ping_status.sh` | `~/.config/waybar/scripts/network/ping_status.sh` |
+
+Make the Waybar fetcher executable:
 
 ```bash
-chmod +x ~/.config/waybar/scripts/network/ping.sh
+chmod +x ~/.config/waybar/scripts/network/ping_status.sh
 ```
 
-### 3. Install the systemd service
+Install the user service:
 
 ```bash
-mkdir -p ~/.config/systemd/user
-
-cat > ~/.config/systemd/user/ping-viz.service << 'EOF'
-[Unit]
-Description=Ping visualization server
-After=network.target
-
-[Service]
-ExecStart=/usr/bin/python3 /home/YOUR_USERNAME/.config/waybar/analysis/server.py
-WorkingDirectory=/home/YOUR_USERNAME/.config/waybar/data
-Restart=on-failure
-RestartSec=5
-
-[Install]
-WantedBy=default.target
-EOF
-```
-
-Replace `YOUR_USERNAME` with your actual username (`echo $USER`).
-
-Enable and start:
-
-```bash
+cp /home/pera/github_repo/.dotfiles/.config/systemd/user/ping-viz.service ~/.config/systemd/user/
+systemctl --user daemon-reload
 systemctl --user enable --now ping-viz
-systemctl --user status ping-viz   # should show: active (running)
+systemctl --user status ping-viz
 ```
 
-### 4. Configure Waybar
+If you use `bash arch/waybar.sh`, this service setup is done automatically.
 
-In `~/.config/waybar/config.jsonc`, add the `custom/ping` module definition:
+### Web
+
+The web UI is served by the same server at:
+
+```bash
+http://127.0.0.1:8765/
+```
+
+No extra setup is required once the server is running.
+
+### Waybar
+
+In `~/.config/waybar/config.jsonc`, configure the module:
 
 ```jsonc
 "custom/ping": {
   "interval": 5,
-  "exec": "~/.config/waybar/scripts/network/ping.sh",
+  "exec": "~/.config/waybar/scripts/network/ping_status.sh",
   "return-type": "json",
   "markup": true,
-  "exec-if": "command -v ping",
-  "on-click": "xdg-open http://localhost:8765/"
+  "exec-if": "command -v curl && command -v python3",
+  "on-click": "xdg-open http://127.0.0.1:8765/"
 },
 ```
 
-Add `"custom/ping"` to your bar's `modules-left`, `modules-center`, or `modules-right`.
+Add `"custom/ping"` to one of your module lists.
 
-Add CSS classes to `~/.config/waybar/style.css`:
+Add CSS classes in `~/.config/waybar/style.css`:
 
 ```css
 #custom-ping.good     { color: #00C853; }
@@ -96,183 +99,111 @@ Add CSS classes to `~/.config/waybar/style.css`:
 #custom-ping.dead     { color: #37474F; }
 ```
 
-### 5. Reload Waybar
+Reload Waybar:
 
 ```bash
 killall -SIGUSR2 waybar
 ```
 
-### 6. Verify
+## Usage
 
-```bash
-# Script outputs valid JSON
-~/.config/waybar/scripts/network/ping.sh
+### Server
 
-# DB is being written to
-sqlite3 ~/.config/waybar/data/pings.db "SELECT COUNT(*) FROM pings;"
+Edit targets in `~/.config/waybar/monitor/ping.config`:
 
-# Server is responding
-curl http://localhost:8765/api/pings?days=1 | python3 -m json.tool | head -30
-
-# Open browser
-xdg-open http://localhost:8765/
-```
-
----
-
-## Migrating from CSV history
-
-If you have a legacy `data/ping_history.csv` (format: `YYYY-MM-DD_HH:MM:SS,ping_ms`):
-
-```bash
-python3 ~/.config/waybar/analysis/migrate_csv_to_sqlite.py
-```
-
-This deduplicates and imports all rows into SQLite.
-
----
-
-## Adding and configuring ping targets
-
-Edit `~/.config/waybar/data/ping.config`. One target per line.
-
-### Format
-
-```
+```text
 host  [label]  t1  t2  t3
 ```
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| `host` | yes | Plain IP/hostname, or a shell command that resolves to one |
-| `label` | no | Single display token shown in waybar before the ms value (icon or short word) |
-| `t1 t2 t3` | no* | ms thresholds for normal/elevated/high; above `t3` = critical. *Required if specifying a label |
+Example:
 
-Lines starting with `#` are ignored.
-
-### Example
-
-```
-# host                                           label    t1   t2   t3
+```text
 8.8.8.8                                          󰒍        40  100  200
 ip route | awk '/default/ {print $3; exit}'      ROUTER:   2    5   10
 192.168.0.104                                    PC:       2    5   10
-# 1.1.1.1                                        DNS:     40  100  200
 ```
 
-- **Labels** must be a single token with no shell metacharacters (`{ } ' " | $ \` ( ) / < > \`). They're colored in waybar alongside the ms value using that target's quality color.
-- **Shell commands** as host values are detected by spaces, pipes, `$`, etc. and evaluated. The resolved IP is what gets stored in the DB.
-- **Thresholds** are per-target — the browser visualization also respects them for segment classification and tooltip ms ranges.
-- **Targets are positional**: first uncommented line = `%1`, second = `%2`, etc.
+Notes:
 
-No restarts needed — ping.sh re-reads the config every 5 seconds. New targets appear in the browser automatically once the first ping is logged.
+- `host` can be a plain host/IP or a shell command that resolves to one
+- `label` is optional and shown in Waybar
+- `t1 t2 t3` are per-target thresholds
+- config changes are picked up automatically on the next collection cycle
 
-### Waybar display modes
+Useful checks:
 
-**Default (recommended)** — label and ms wrapped in one colored span per target:
-
-```jsonc
-"exec": "~/.config/waybar/scripts/network/ping.sh"
-// → 󰒍 27ms  ROUTER: 2ms  PC: 1ms   (each unit colored by its quality tier)
-```
-
-**Custom format** — you control the layout with `%N` placeholders; only the ms value is colored:
-
-```jsonc
-"exec": "~/.config/waybar/scripts/network/ping.sh '󰒍 %1 ISP: %2'"
-// → 󰒍 27ms  ISP: 2ms   (literal text uncolored, ms values colored)
-```
-
-Targets not referenced in a custom format string are still pinged and logged.
-
----
-
-## Quality tiers
-
-| Tier | Latency | Bar color | Waybar CSS class |
-|------|---------|-----------|-----------------|
-| Normal | `< t1` | green `#00C853` | `good` |
-| Elevated | `t1 – t2` | yellow `#FFD600` | `medium` |
-| High | `t2 – t3` | orange `#FF6D00` | `bad` |
-| Critical | `≥ t3` | red `#D50000` | `critical` |
-| Offline | failed / gap > 60s | dark `#37474F` | `dead` |
-
-Default thresholds (when omitted): `t1=40 t2=100 t3=200`.
-
----
-
-## Browser visualization
-
-Open: **http://localhost:8765/**
-
-- **Rows**: one row per calendar day, newest first
-- **Columns**: one canvas bar per ping target, side-by-side
-- **Colors**: match quality tier table above, using each target's own thresholds
-- **Tooltip**: hover any segment — shows target, date, time range, quality with correct ms ranges for that target, avg latency
-- **Live**: today's bars update every 5 seconds automatically
-- **Filters**:
-  - *Last N days* — enter a number, click Apply
-  - *Date range* — pick From / To dates, click Apply
-
-### Offline detection
-
-Two conditions both render as offline (dark grey):
-1. `ms = NULL` — ping failed while computer was running
-2. Gap > 60s between consecutive rows — computer was off or waybar stopped
-
----
-
-## Troubleshooting
-
-**Waybar shows no text / dead class immediately:**
-```bash
-~/.config/waybar/scripts/network/ping.sh
-# Should print JSON within ~3 seconds
-```
-
-**Pango tags rendered as literal text:**  
-Make sure `"markup": true` is set in the `custom/ping` module definition in `config.jsonc`.
-
-**Browser shows "Failed to load":**
 ```bash
 systemctl --user status ping-viz
-systemctl --user restart ping-viz
-curl http://localhost:8765/
-```
-
-**DB not growing:**
-```bash
-sqlite3 ~/.config/waybar/data/pings.db "SELECT MAX(ts) FROM pings;"
-# Should be within last 10 seconds if waybar is running
-```
-
-**Check ping.sh logs:**
-```bash
+curl http://127.0.0.1:8765/api/status
+sqlite3 ~/.config/waybar/data/pings.db "SELECT MAX(ts), COUNT(*) FROM pings;"
 tail -f ~/.config/waybar/logs/ping.log
 ```
 
----
+### Web
 
-## File reference
+Open the history page:
 
+```bash
+xdg-open http://127.0.0.1:8765/
 ```
-~/.config/waybar/
-├── config.jsonc                          # Waybar bar config
-├── style.css                             # Waybar CSS (quality classes)
-├── scripts/
-│   └── network/
-│       └── ping.sh                       # Data collection script
-├── analysis/
-│   ├── server.py                         # HTTP visualization server
-│   ├── migrate_csv_to_sqlite.py          # One-time CSV → SQLite migration
-│   └── migrate_add_target_host.py        # One-time schema migration (add target_host)
-├── data/
-│   ├── ping.config                       # Target list (hosts + labels + thresholds)
-│   ├── pings.db                          # SQLite database
-│   └── ping_plot.html                    # Browser frontend
-└── logs/
-    └── ping.log                          # ping.sh runtime log
 
-~/.config/systemd/user/
-└── ping-viz.service                      # Systemd unit for HTTP server
+Available API routes:
+
+- `GET /api/status` → latest Waybar JSON
+- `GET /api/today` → today’s aggregated bars + `last_ping`
+- `GET /api/pings?days=30` → historical aggregated bars
+
+The page supports:
+
+- last-N-days filtering
+- date range filtering
+- live refresh of today’s row every 5 seconds
+- per-target thresholds in tooltips
+
+### Waybar
+
+Default display:
+
+```jsonc
+"exec": "~/.config/waybar/scripts/network/ping_status.sh"
+```
+
+Custom format with placeholders:
+
+```jsonc
+"exec": "~/.config/waybar/scripts/network/ping_status.sh '󰒍 %1 ISP: %2'"
+```
+
+Notes:
+
+- `%1`, `%2`, ... map to targets by position in `ping.config`
+- default mode renders `label + value` in one colored span
+- custom mode colors only the substituted latency values
+
+Quick checks:
+
+```bash
+~/.config/waybar/scripts/network/ping_status.sh
+~/.config/waybar/scripts/network/ping_status.sh '󰒍 %1 ISP: %2'
+```
+
+### Troubleshooting
+
+Waybar shows `ping down`:
+
+```bash
+curl http://127.0.0.1:8765/api/status
+systemctl --user status ping-viz
+```
+
+History page fails to load:
+
+```bash
+curl http://127.0.0.1:8765/api/today | python3 -m json.tool | head -40
+```
+
+DB is not advancing:
+
+```bash
+watch -n 5 'sqlite3 ~/.config/waybar/data/pings.db "SELECT MAX(ts), COUNT(*) FROM pings;"'
 ```
