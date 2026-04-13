@@ -15,9 +15,11 @@
 #   "exec": "ping.sh '󰒍 %1'"
 #   "exec": "ping.sh '󰒍 %1 ISP: %2 GW: %3'"
 
-LOG_FILE="$HOME/.config/waybar/logs/ping.log"
-DB_FILE="$HOME/.config/waybar/data/pings.db"
-CONFIG_FILE="$HOME/.config/waybar/data/ping.config"
+# Use script-relative paths
+BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+LOG_FILE="$BASE_DIR/logs/ping.log"
+DB_FILE="$BASE_DIR/data/pings.db"
+CONFIG_FILE="$BASE_DIR/data/ping.config"
 
 # Parallel-indexed arrays populated by load_config
 declare -a HOSTS T1S T2S T3S LABELS
@@ -40,7 +42,7 @@ load_config() {
 
         local host_expr t1 t2 t3 label=""
         if (( nf >= 4 )) && \
-           [[ "$maybe_t1" =~ ^[0-9]+$ && "$maybe_t2" =~ ^[0-9]+$ && "$maybe_t3" =~ ^[0-9]+$ ]]; then
+           [[ "$maybe_t1" =~ ^[0-9.]+$ && "$maybe_t2" =~ ^[0-9.]+$ && "$maybe_t3" =~ ^[0-9.]+$ ]]; then
             t1=$maybe_t1; t2=$maybe_t2; t3=$maybe_t3
             local pre
             pre=$(awk '{for(i=1;i<=NF-3;i++) printf "%s%s",$i,(i<NF-3?" ":""); print ""}' <<< "$line")
@@ -107,11 +109,18 @@ log_ping_history() {
 
 quality_of() {
     local ms="$1" t1="$2" t2="$3" t3="$4"
-    if [[ -z "$ms" ]];     then echo "offline"
-    elif (( ms < t1 ));    then echo "good"
-    elif (( ms < t2 ));    then echo "medium"
-    elif (( ms < t3 ));    then echo "bad"
-    else echo "critical"; fi
+    echo "DEBUG: quality_of ms=$ms t1=$t1 t2=$t2 t3=$t3" >> "$LOG_FILE"
+    if [[ -z "$ms" ]]; then
+        echo "offline"
+    elif (( $(echo "$ms < $t1" | bc -l) )); then
+        echo "good"
+    elif (( $(echo "$ms < $t2" | bc -l) )); then
+        echo "medium"
+    elif (( $(echo "$ms < $t3" | bc -l) )); then
+        echo "bad"
+    else
+        echo "critical"
+    fi
 }
 
 color_of() {
@@ -171,7 +180,7 @@ main() {
             local out
             out=$(ping -c3 -i0.3 -W1 "${HOSTS[$i]}" 2>/dev/null)
             local ms
-            ms=$(echo "$out" | awk -F'/' 'END{if($5~/^[0-9]/) print int($5)}')
+            ms=$(echo "$out" | awk -F'/' 'END{if($5~/^[0-9]/) print $5}')
             echo "${ms:-}" > "$tmpdir/$i"
         ) &
     done
@@ -186,7 +195,10 @@ main() {
         local host="${HOSTS[$i]}"
         local ms
         ms=$(cat "$tmpdir/$i" 2>/dev/null)
-        ms="${ms//[^0-9]/}"  # digits only
+        ms="${ms//[^0-9.]/}"  # allow decimal point
+
+        local ms_int=""
+        [[ -n "$ms" ]] && ms_int=$(printf "%.0f" "$ms")
 
         local quality
         quality=$(quality_of "$ms" "${T1S[$i]}" "${T2S[$i]}" "${T3S[$i]}")
@@ -202,7 +214,15 @@ main() {
 
         local display
         local _text
-        if [[ -n "$ms" ]]; then _text="${ms}ms"; else _text="offline"; fi
+        if [[ -n "$ms" ]]; then
+            if (( $(echo "$ms < 10" | bc -l) )); then
+                _text=$(printf "%.2fms" "$ms")
+            else
+                _text="${ms_int}ms"
+            fi
+        else
+            _text="offline"
+        fi
         if (( _use_labels )) && [[ -n "${LABELS[$i]}" ]]; then
             display="<span color='${color}'>${LABELS[$i]} ${_text}</span>"
         else
