@@ -1,5 +1,59 @@
 # Neovim config
 
+## Phase 2: Central Command and Keymap Architecture
+
+This phase centralizes all custom keymaps under a declarative registry for discoverability and maintainability.
+
+### Domain Taxonomy
+
+All leader-prefixed keymaps follow explicit domain prefixes:
+
+| Prefix | Domain | Description |
+|--------|--------|-------------|
+| `<leader>f` | search | Fuzzy find, grep, files, buffers |
+| `<leader>c` | code | LSP goto, references, actions |
+| `<leader>g` | git | Status, blame, hunk navigation |
+| `<leader>e` | explorer | File tree, reveal |
+| `<leader>b` | buffers | Buffer list, close |
+| `<leader>w` | windows | Window navigation, resize |
+| `<leader>t` | toggles | Fold, inlay hints |
+| `<leader>s` | save | Write, session |
+
+### Preserved Direct Keys
+
+These non-leader keys are intentionally preserved:
+
+| Key | Action |
+|-----|--------|
+| `jk` | Switch to normal mode |
+| `<C-h>` | Window left |
+| `<C-j>` | Window down |
+| `<C-k>` | Window up |
+| `<C-l>` | Window right |
+| `<C-_>` | Toggle comment |
+| `<Tab>` | Next buffer |
+| `<S-Tab>` | Previous buffer |
+
+### Mapping Scopes
+
+- **global**: Applied immediately at startup via `core.keymaps.apply`
+- **lazy**: Loaded on key trigger via `lazy.nvim` — defined in registry, consumed by plugin specs
+- **buffer**: Applied on LSP attach via `core.keymaps.attach`
+- **plugin-local**: Context-specific (neo-tree windows, treesitter incremental)
+
+### Registry Architecture
+
+```
+lua/core/keymaps/
+├── registry.lua   -- Declarative source of truth
+├── apply.lua      -- Applies global mappings
+├── lazy.lua       -- Compiles lazy.nvim keys specs
+├── attach.lua     -- Applies buffer-local mappings
+└── whichkey.lua  -- Registers which-key groups
+```
+
+All custom mappings are declared in `registry.lua` with: `id`, `lhs`, `mode`, `desc`, `domain`, `scope`, `plugin`, `action`.
+
 ## Phase 1: Reliability and Portability Baseline
 
 This config is designed to work across Arch Linux, Debian/Ubuntu, and Windows with a unified buffer-first lifecycle model.

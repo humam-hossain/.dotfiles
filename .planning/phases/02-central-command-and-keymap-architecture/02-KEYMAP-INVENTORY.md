@@ -180,10 +180,12 @@ These mappings only apply in specific plugin contexts and are scoped accordingly
 - [x] Central registry created (`core/keymaps/registry.lua`)
 - [x] Apply module created (`core/keymaps/apply.lua`)
 - [x] Whichkey module created (`core/keymaps/whichkey.lua`)
+- [x] Lazy module created (`core/keymaps/lazy.lua`)
+- [x] Attach module created (`core/keymaps/attach.lua`)
 - [x] Global mappings migrated to registry
 - [x] Lazy mappings declared in registry
 - [x] Buffer mappings declared in registry
 - [x] Plugin-local mappings documented
-- [ ] Lazy keys generated for fzf-lua (pending 02-02)
-- [ ] Attach helpers for LSP (pending 02-02)
-- [ ] Duplicate removal verification (pending 02-03)
+- [x] Lazy keys generated for fzf-lua (complete 02-02)
+- [x] Attach helpers for LSP (complete 02-02)
+- [x] Duplicate removal verification (complete 02-03)
