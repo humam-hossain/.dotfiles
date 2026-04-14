@@ -38,7 +38,9 @@ still collects and stores data.
 - write one row per target per cycle to SQLite
 - keep an in-memory snapshot for the latest Waybar status
 - serve the browser HTML and JSON APIs
-- log DB saves and HTTP requests to stdout (visible via `docker compose logs`)
+- log DB saves, HTTP requests, and errors using Python's `logging` module (INFO/DEBUG/ERROR levels)
+- log output to both stdout (docker logs) and `logs/ping.log`
+- use `RotatingFileHandler` to manage log file size (10MB, 5 backups)
 
 ### Inputs
 
@@ -95,7 +97,7 @@ Rules:
 - `GET /` → serves `ping_plot.html`
 - `GET /api/status` → latest Waybar JSON: `text` + `class`; optional `?format=<template>`
 - `GET /api/today` → today's aggregated segments + `last_pings` (per-target dict)
-- `GET /api/pings` → historical aggregated segments; `?days=N` (default 30) or `?from=YYYY-MM-DD&to=YYYY-MM-DD`
+- `GET /api/pings` → historical aggregated segments; `?days=N` (default 50) or `?from=YYYY-MM-DD&to=YYYY-MM-DD`
 
 ### Freshness and failure behavior
 

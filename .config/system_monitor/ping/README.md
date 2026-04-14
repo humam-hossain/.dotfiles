@@ -44,7 +44,7 @@ ip route | awk '/default/ {print $3; exit}'      󰀂         2    5   10
 
 - `GET /api/status` → Waybar JSON `{"text":"...","class":"..."}`
 - `GET /api/today` → today's aggregated bars + `last_pings` per target
-- `GET /api/pings?days=30` → historical aggregated bars
+- `GET /api/pings?days=50` → historical aggregated bars
 - `GET /` → browser history UI
 
 ## Useful checks

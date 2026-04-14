@@ -4,7 +4,7 @@
 Routes:
   GET /           -> ping_plot.html
   GET /api/pings  -> aggregated segments JSON (multi-target)
-                     ?days=N  (default 30)
+                     ?days=N  (default 50)
                      ?from=YYYY-MM-DD&to=YYYY-MM-DD
                      Today always included as first entry regardless of range.
   GET /api/today  -> today's segments JSON + last_ping timestamp (live refresh)
@@ -15,6 +15,7 @@ Routes:
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 import sqlite3
@@ -25,6 +26,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 from html import escape
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlparse
@@ -64,13 +66,25 @@ _latest_cycle: dict[str, Any] = {
 }
 
 
-def log(message: str) -> None:
-    stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    line = f"[{stamp}] {message}"
-    print(line, flush=True)
+def setup_logging() -> None:
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with LOG_PATH.open("a", encoding="utf-8") as fh:
-        fh.write(line + "\n")
+    
+    # Format: [2026-04-14 10:00:00] [LEVEL] Message
+    formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] %(message)s", 
+                                  datefmt="%Y-%m-%d %H:%M:%S")
+
+    # Console handler for docker logs
+    console = logging.StreamHandler()
+    console.setFormatter(formatter)
+
+    # File handler (10MB per file, keep 5 backups)
+    file_handler = RotatingFileHandler(LOG_PATH, maxBytes=10*1024*1024, backupCount=5)
+    file_handler.setFormatter(formatter)
+
+    root = logging.getLogger()
+    root.setLevel(logging.INFO)
+    root.addHandler(console)
+    root.addHandler(file_handler)
 
 
 def ensure_db() -> None:
@@ -108,7 +122,7 @@ def _resolve_host(host_expr: str) -> str:
             stdout = result.stdout.strip()
             return stdout.split()[0] if stdout else ""
         except Exception as exc:  # pragma: no cover - defensive
-            log(f"[ERROR] failed to resolve host_expr={host_expr!r}: {exc}")
+            logging.error(f"failed to resolve host_expr={host_expr!r}: {exc}")
             return ""
     return host_expr.strip()
 
@@ -127,6 +141,7 @@ def load_config() -> list[dict[str, Any]]:
     if _cfg_cache and mtime == _cfg_mtime:
         return [target.copy() for target in _cfg_cache]
 
+    logging.info(f"reloading config from {CONFIG_PATH}")
     targets: list[dict[str, Any]] = []
     try:
         lines = CONFIG_PATH.read_text(encoding="utf-8").splitlines()
@@ -155,7 +170,7 @@ def load_config() -> list[dict[str, Any]]:
 
         host = _resolve_host(host_expr)
         if not host:
-            log(f"[WARN] skipping unresolved target from config line: {raw_line}")
+            logging.warning(f"skipping unresolved target from config line: {raw_line}")
             continue
 
         targets.append(
@@ -418,7 +433,7 @@ def probe_target(target: dict[str, Any]) -> dict[str, Any]:
         )
         output = result.stdout + ("\n" + result.stderr if result.stderr else "")
     except Exception as exc:  # pragma: no cover - defensive
-        log(f"[ERROR] ping failed for host={host}: {exc}")
+        logging.error(f"ping failed for host={host}: {exc}")
         output = ""
 
     match = _RTT_RE.search(output)
@@ -452,7 +467,7 @@ def store_cycle(ts: str, target_rows: list[dict[str, Any]]) -> None:
             rows_to_insert,
         )
         conn.commit()
-        log(f"[DB] saved ts={ts} rows={cursor.rowcount}/{len(rows_to_insert)}")
+        logging.info(f"saved ts={ts} rows={cursor.rowcount}/{len(rows_to_insert)}")
     finally:
         conn.close()
 
@@ -542,12 +557,12 @@ def collector_loop() -> None:
 
             for row in rows:
                 ms_text = "inf" if row["ms"] is None else f"{row['ms']:.3f}"
-                log(
-                    f"[INFO] host={row['host']} ms={ms_text} "
+                logging.debug(
+                    f"host={row['host']} ms={ms_text} "
                     f"quality={row['quality']} class={row['class']}"
                 )
         except Exception as exc:  # pragma: no cover - defensive
-            log(f"[ERROR] collector cycle failed: {exc}")
+            logging.exception(f"collector cycle failed: {exc}")
 
         elapsed = time.monotonic() - started
         time.sleep(max(0.0, COLLECTION_INTERVAL - elapsed))
@@ -573,19 +588,20 @@ def api_pings(params: dict[str, list[str]]) -> dict[str, Any]:
 
     from_p = params.get("from", [None])[0]
     to_p = params.get("to", [None])[0]
-    days_p = params.get("days", ["30"])[0]
+    days_p = params.get("days", ["50"])[0]
 
-    if from_p and to_p:
+    if (from_p and to_p):
         cutoff = f"{from_p} 00:00:00"
         end_str = f"{to_p} 23:59:59"
     else:
         try:
             days_count = max(1, int(days_p))
         except (TypeError, ValueError):
-            days_count = 30
+            days_count = 50
         cutoff = (now_dt - timedelta(days=days_count)).strftime("%Y-%m-%d %H:%M:%S")
         end_str = None
 
+    logging.info(f"API /api/pings: cutoff={cutoff} end_str={end_str}")
     targets = configured_targets()
     all_days: dict[str, dict[str, list[dict[str, Any]]]] = {}
     thresholds: dict[str, list[float]] = {}
@@ -642,7 +658,7 @@ def api_today() -> dict[str, Any]:
 
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt: str, *args: Any) -> None:
-        log(f"[HTTP] {self.address_string()} {fmt % args}")
+        logging.info(f"HTTP {self.address_string()} {fmt % args}")
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
@@ -688,14 +704,14 @@ class Handler(BaseHTTPRequestHandler):
         except (BrokenPipeError, ConnectionResetError):
             return
 
-
 def main() -> None:
+    setup_logging()
     ensure_db()
     collector = threading.Thread(target=collector_loop, name="ping-collector", daemon=True)
     collector.start()
 
+    logging.info(f"Ping viz server on http://{BIND_HOST}:{PORT}/")
     server = ThreadingHTTPServer((BIND_HOST, PORT), Handler)
-    print(f"Ping viz server on http://{BIND_HOST}:{PORT}/")
     server.serve_forever()
 
 
