@@ -8,8 +8,9 @@ MONITOR_DST="$HOME/.config/system_monitor/ping"
 BIND_HOST="${BIND_HOST:-0.0.0.0}"
 
 PACKAGES=(
-  docker.io
-  docker-compose
+  docker-ce
+  docker-ce-cli
+  docker-compose-plugin
   curl
   python3
 )
@@ -27,6 +28,7 @@ MANAGED_FILES=(
 
 install_packages() {
   echo "[INSTALL] ping-viz runtime dependencies"
+  sudo apt-get update
   sudo apt-get install -y "${PACKAGES[@]}"
 }
 
