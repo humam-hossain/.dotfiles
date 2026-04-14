@@ -1,0 +1,15 @@
+name: system_monitor
+
+services:
+  ping-viz:
+    build: .
+    container_name: system_monitor
+    network_mode: host
+    restart: always
+    environment:
+      - BIND_HOST=${BIND_HOST:-127.0.0.1}
+    volumes:
+      - ./ping.config:/app/ping.config:ro
+      - ./data:/app/data
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro

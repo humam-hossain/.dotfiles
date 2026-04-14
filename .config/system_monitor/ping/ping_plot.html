@@ -83,6 +83,7 @@ const COLORS = {
 
 // Populated from API response: { "8.8.8.8": [40, 100, 200], ... }
 let targetThresholds = {};
+let targetLabels = {};
 
 function qualityLabel(target, quality) {
   const [t1, t2, t3] = targetThresholds[target] || [40, 100, 200];
@@ -187,6 +188,7 @@ function buildRows(data) {
   if (resizeObserver) resizeObserver.disconnect();
 
   if (data.thresholds) targetThresholds = data.thresholds;
+  if (data.labels) targetLabels = data.labels;
   const targets = data.targets;
 
   resizeObserver = new ResizeObserver(entries => {
@@ -224,7 +226,7 @@ function buildRows(data) {
   for (const target of targets) {
     const div = document.createElement('div');
     div.className = 'target-name';
-    div.textContent = target;
+    div.textContent = targetLabels[target] ? `${targetLabels[target]} ${target}` : target;
     nameGroup.appendChild(div);
   }
   nameRow.appendChild(nameGroup);
@@ -298,9 +300,19 @@ function refreshToday(data) {
       if (canvas) drawDay(canvas, segMap[data.date][target]);
     }
   }
-  if (data.last_ping) {
-    setSubtitle(`last ping: ${data.last_ping}  (updates every 5s)`);
+}
+
+function showLastPings(last_pings, targets) {
+  if (!last_pings) return;
+  const parts = [];
+  for (const target of targets) {
+    const info = last_pings[target];
+    if (!info) continue;
+    const label = targetLabels[target] ? `${targetLabels[target]} ` : `${target}: `;
+    const time = info.ts ? info.ts.slice(11, 19) : '?';
+    parts.push(`${label}${info.text_value} @ ${time}`);
   }
+  setSubtitle(parts.join('  |  '));
 }
 
 function setSubtitle(text) {
@@ -360,29 +372,30 @@ async function init() {
     setFetchTime(performance.now() - t0);
     buildRows(data);
     const n = data.days.length;
-    setSubtitle(`${n} day${n !== 1 ? 's' : ''} — loading last ping…`);
+    setSubtitle(`${n} day${n !== 1 ? 's' : ''} — fetching last ping…`);
   } catch (err) {
     setSubtitle('');
     showError('Failed to load: ' + err.message);
     return;
   }
 
-  setInterval(async () => {
-    try {
-      const r = await fetch('/api/today');
-      if (!r.ok) return;
-      const d = await r.json();
-      refreshToday(d);
-    } catch (_) {}
-  }, 5000);
-
   try {
     const r = await fetch('/api/today');
     if (r.ok) {
       const d = await r.json();
       refreshToday(d);
+      showLastPings(d.last_pings, d.targets);
     }
   } catch (_) {}
+
+  setInterval(async () => {
+    try {
+      const r = await fetch('/api/today');
+      if (!r.ok) return;
+      const d = await r.json();
+      showLastPings(d.last_pings, d.targets);
+    } catch (_) {}
+  }, 10000);
 }
 
 init();

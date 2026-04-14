@@ -29,12 +29,13 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, urlparse
 
-BASE_DIR = Path(os.path.expanduser("~/.config/waybar"))
+BASE_DIR = Path(__file__).parent
 DB_PATH = BASE_DIR / "data/pings.db"
-HTML_PATH = BASE_DIR / "monitor/ping_plot.html"
-CONFIG_PATH = BASE_DIR / "monitor/ping.config"
+HTML_PATH = BASE_DIR / "ping_plot.html"
+CONFIG_PATH = BASE_DIR / "ping.config"
 LOG_PATH = BASE_DIR / "logs/ping.log"
 PORT = 8765
+BIND_HOST = os.environ.get("BIND_HOST", "127.0.0.1")
 COLLECTION_INTERVAL = 5
 STALE_AFTER_SECONDS = 15
 PING_ARGS = ("ping", "-c3", "-i0.3", "-W1")
@@ -64,10 +65,12 @@ _latest_cycle: dict[str, Any] = {
 
 
 def log(message: str) -> None:
+    stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    line = f"[{stamp}] {message}"
+    print(line, flush=True)
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     with LOG_PATH.open("a", encoding="utf-8") as fh:
-        stamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        fh.write(f"[{stamp}] {message}\n")
+        fh.write(line + "\n")
 
 
 def ensure_db() -> None:
@@ -379,11 +382,26 @@ def query_rows(cutoff_str: str, end_str: str | None = None, target: str | None =
         conn.close()
 
 
-def query_last_ping() -> str | None:
+def query_last_pings(targets: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     conn = sqlite3.connect(DB_PATH)
     try:
-        row = conn.execute("SELECT MAX(ts) FROM pings").fetchone()
-        return row[0] if row else None
+        result: dict[str, dict[str, Any]] = {}
+        for target in targets:
+            host = target["host"]
+            row = conn.execute(
+                "SELECT ts, ms FROM pings WHERE target_host = ? ORDER BY ts DESC LIMIT 1",
+                (host,),
+            ).fetchone()
+            if row:
+                ts, ms = row
+                if ms is None:
+                    text_value = "offline"
+                elif ms < 10:
+                    text_value = f"{ms:.2f}ms"
+                else:
+                    text_value = f"{round(ms):.0f}ms"
+                result[host] = {"ts": ts, "ms": ms, "text_value": text_value}
+        return result
     finally:
         conn.close()
 
@@ -428,11 +446,13 @@ def probe_target(target: dict[str, Any]) -> dict[str, Any]:
 def store_cycle(ts: str, target_rows: list[dict[str, Any]]) -> None:
     conn = sqlite3.connect(DB_PATH)
     try:
-        conn.executemany(
+        rows_to_insert = [(ts, row["host"], row["ms"]) for row in target_rows]
+        cursor = conn.executemany(
             "INSERT OR IGNORE INTO pings (ts, target_host, ms) VALUES (?, ?, ?)",
-            [(ts, row["host"], row["ms"]) for row in target_rows],
+            rows_to_insert,
         )
         conn.commit()
+        log(f"[DB] saved ts={ts} rows={cursor.rowcount}/{len(rows_to_insert)}")
     finally:
         conn.close()
 
@@ -589,10 +609,12 @@ def api_pings(params: dict[str, list[str]]) -> dict[str, Any]:
             all_days.setdefault(date, {})[host] = segs
 
     sorted_dates = sorted(all_days.keys(), reverse=True)
+    labels = {target["host"]: target["label"] for target in targets}
     return {
         "now": now_dt.strftime("%Y-%m-%d %H:%M:%S"),
         "targets": [target["host"] for target in targets],
         "thresholds": thresholds,
+        "labels": labels,
         "days": [{"date": date, "bars": all_days[date]} for date in sorted_dates],
     }
 
@@ -614,13 +636,13 @@ def api_today() -> dict[str, Any]:
         "date": today,
         "targets": [target["host"] for target in targets],
         "bars": bars,
-        "last_ping": query_last_ping(),
+        "last_pings": query_last_pings(targets),
     }
 
 
 class Handler(BaseHTTPRequestHandler):
-    def log_message(self, *_: Any) -> None:
-        pass
+    def log_message(self, fmt: str, *args: Any) -> None:
+        log(f"[HTTP] {self.address_string()} {fmt % args}")
 
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
@@ -672,8 +694,8 @@ def main() -> None:
     collector = threading.Thread(target=collector_loop, name="ping-collector", daemon=True)
     collector.start()
 
-    server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
-    print(f"Ping viz server on http://localhost:{PORT}/")
+    server = ThreadingHTTPServer((BIND_HOST, PORT), Handler)
+    print(f"Ping viz server on http://{BIND_HOST}:{PORT}/")
     server.serve_forever()
 
 
