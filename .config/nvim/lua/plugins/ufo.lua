@@ -33,15 +33,12 @@ return {
 			verthoriz = "╋",
 		}
 
-		-- Set keymaps
-		vim.keymap.set("n", "zR", require("ufo").openAllFolds)
-		vim.keymap.set("n", "zM", require("ufo").closeAllFolds)
-		vim.keymap.set("n", "zK", function()
-			local winid = require("ufo").peekFoldedLinesUnderCursor()
-			if not winid then
-				vim.lsp.buf.hover()
-			end
-		end, { desc = "Peek Fold" })
+		-- Apply fold keymaps from registry
+		local lazy = require("core.keymaps.lazy")
+		local fold_keys = lazy.fold_keys()
+		for _, key_map in ipairs(fold_keys) do
+			vim.keymap.set("n", key_map[1], key_map[2], { desc = key_map[3] })
+		end
 
 		-- Custom handler to show number of lines with ...
 		local handler = function(virtText, lnum, endLnum, width, truncate)

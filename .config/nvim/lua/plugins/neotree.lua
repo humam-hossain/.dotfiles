@@ -313,36 +313,11 @@ return {
 			},
 		})
 
-		-- Keymaps
-		vim.keymap.set(
-			"n",
-			"\\",
-			":Neotree reveal<CR>",
-			{ noremap = true, silent = true, desc = "Reveal file in Neo-tree" }
-		)
-		vim.keymap.set(
-			"n",
-			"<leader>e",
-			":Neotree toggle position=left<CR>",
-			{ noremap = true, silent = true, desc = "Toggle file explorer" }
-		)
-		vim.keymap.set(
-			"n",
-			"<leader>ngs",
-			":Neotree float git_status<CR>",
-			{ noremap = true, silent = true, desc = "Open git status window" }
-		)
-		vim.keymap.set(
-			"n",
-			"<leader>nb",
-			":Neotree toggle show buffers right<CR>",
-			{ noremap = true, silent = true, desc = "Toggle buffer list" }
-		)
-		vim.keymap.set(
-			"n",
-			"<leader>nf",
-			":Neotree filesystem reveal left<CR>",
-			{ noremap = true, silent = true, desc = "Reveal current file" }
-		)
+		-- Apply explorer keymaps from registry
+		local lazy = require("core.keymaps.lazy")
+		local explorer_keys = lazy.explorer_keys()
+		for _, key_map in ipairs(explorer_keys) do
+			vim.keymap.set("n", key_map[1], key_map[2], { noremap = true, silent = true, desc = key_map[3] })
+		end
 	end,
 }
