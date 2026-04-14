@@ -231,6 +231,8 @@ vim.keymap.set("v", "p", '"_dP', { noremap = true, silent = true, desc = "Paste 
 -- open file in default browser
 -- ============================================================================
 
-vim.keymap.set("n", "<C-S-o>", "<cmd>silent !xdg-open %:p<CR>", { desc = "Open file with default application" })
+vim.keymap.set("n", "<C-S-o>", function()
+	require("core.open").open_current_buffer()
+end, { desc = "Open file with default application" })
 
 vim.keymap.set("n", "<C-i>", "<C-i>", { noremap = true })
