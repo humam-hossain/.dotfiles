@@ -731,7 +731,7 @@ M.buffer = {
     domain = "c",
     scope = "buffer",
     attach = "LspAttach",
-    action = require("fzf-lua").lsp_references,
+    action = function(opts) require("fzf-lua").lsp_references(opts) end,
   },
   {
     id = "lsp.implementations",
@@ -741,7 +741,7 @@ M.buffer = {
     domain = "c",
     scope = "buffer",
     attach = "LspAttach",
-    action = require("fzf-lua").lsp_implementations,
+    action = function(opts) require("fzf-lua").lsp_implementations(opts) end,
   },
   {
     id = "lsp.definition",
@@ -751,7 +751,7 @@ M.buffer = {
     domain = "c",
     scope = "buffer",
     attach = "LspAttach",
-    action = require("fzf-lua").lsp_definitions,
+    action = function(opts) require("fzf-lua").lsp_definitions(opts) end,
   },
   {
     id = "lsp.typedefs",
@@ -761,7 +761,7 @@ M.buffer = {
     domain = "c",
     scope = "buffer",
     attach = "LspAttach",
-    action = require("fzf-lua").lsp_typedefs,
+    action = function(opts) require("fzf-lua").lsp_typedefs(opts) end,
   },
   {
     id = "lsp.declaration",
@@ -781,7 +781,7 @@ M.buffer = {
     domain = "c",
     scope = "buffer",
     attach = "LspAttach",
-    action = require("fzf-lua").lsp_document_symbols,
+    action = function(opts) require("fzf-lua").lsp_document_symbols(opts) end,
   },
   {
     id = "lsp.workspace_symbols",
@@ -791,7 +791,7 @@ M.buffer = {
     domain = "c",
     scope = "buffer",
     attach = "LspAttach",
-    action = require("fzf-lua").lsp_live_workspace_symbols,
+    action = function(opts) require("fzf-lua").lsp_live_workspace_symbols(opts) end,
   },
   {
     id = "lsp.toggle_inlay",
