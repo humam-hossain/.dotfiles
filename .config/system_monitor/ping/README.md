@@ -72,7 +72,7 @@ docker compose -f ~/.config/system_monitor/ping/docker-compose.yml ps
 curl http://127.0.0.1:8765/api/status # (default port)
 
 # Most recent DB row
-sqlite3 ~/.config/system_monitor/ping/data/pings.db "SELECT MAX(ts), COUNT(*) FROM pings;"
+sqlite3 ~/.config/system_monitor/ping/data/system.db "SELECT MAX(ts), COUNT(*) FROM pings;"
 
 # Follow logs
 docker compose -f ~/.config/system_monitor/ping/docker-compose.yml logs -f
@@ -93,7 +93,7 @@ docker compose -f ~/.config/system_monitor/ping/docker-compose.yml logs --tail=2
 **DB not advancing:**
 
 ```bash
-watch -n 5 'sqlite3 ~/.config/system_monitor/ping/data/pings.db "SELECT MAX(ts), COUNT(*) FROM pings;"'
+watch -n 5 'sqlite3 ~/.config/system_monitor/ping/data/system.db "SELECT MAX(ts), COUNT(*) FROM pings;"'
 ```
 
 **Gateway target not resolving** (`WARN skipping unresolved target`):

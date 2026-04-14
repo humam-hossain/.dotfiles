@@ -32,7 +32,7 @@ from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 BASE_DIR = Path(__file__).parent
-DB_PATH = BASE_DIR / "data/pings.db"
+DB_PATH = BASE_DIR / "data/system.db"
 HTML_PATH = BASE_DIR / "ping_plot.html"
 CONFIG_PATH = BASE_DIR / "ping.config"
 LOG_PATH = BASE_DIR / "logs/ping.log"
