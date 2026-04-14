@@ -8,6 +8,9 @@ services:
     restart: always
     environment:
       - BIND_HOST=${BIND_HOST:-127.0.0.1}
+      - PORT=${PORT:-8765}
+      - COLLECTION_INTERVAL=${COLLECTION_INTERVAL:-5}
+      - STALE_AFTER_SECONDS=${STALE_AFTER_SECONDS:-15}
     volumes:
       - ./ping.config:/app/ping.config:ro
       - ./data:/app/data

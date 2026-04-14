@@ -21,6 +21,21 @@ bash debian/monitor_system.sh
 BIND_HOST=192.168.1.10 bash debian/monitor_system.sh
 ```
 
+## Environment
+
+Configuration is managed via `~/.config/system_monitor/ping/.env`. Copy `.env.example` to get started:
+
+```bash
+cp .env.example .env
+```
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `BIND_HOST` | `127.0.0.1` | IP address to bind (use `0.0.0.0` for LAN) |
+| `PORT` | `8765` | HTTP server port |
+| `COLLECTION_INTERVAL` | `5` | Seconds between ping cycles |
+| `STALE_AFTER_SECONDS` | `15` | Seconds before Waybar shows "stale" |
+
 ## `ping.config`
 
 Edit targets at `~/.config/system_monitor/ping/ping.config`:
@@ -54,7 +69,7 @@ ip route | awk '/default/ {print $3; exit}'      󰀂         2    5   10
 docker compose -f ~/.config/system_monitor/ping/docker-compose.yml ps
 
 # Latest Waybar status
-curl http://127.0.0.1:8765/api/status
+curl http://127.0.0.1:8765/api/status # (default port)
 
 # Most recent DB row
 sqlite3 ~/.config/system_monitor/ping/data/pings.db "SELECT MAX(ts), COUNT(*) FROM pings;"
@@ -63,7 +78,7 @@ sqlite3 ~/.config/system_monitor/ping/data/pings.db "SELECT MAX(ts), COUNT(*) FR
 docker compose -f ~/.config/system_monitor/ping/docker-compose.yml logs -f
 
 # Open browser UI
-xdg-open http://127.0.0.1:8765/
+xdg-open http://127.0.0.1:8765/ # (default port)
 ```
 
 ## Troubleshooting
