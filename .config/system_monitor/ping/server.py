@@ -36,10 +36,10 @@ DB_PATH = BASE_DIR / "data/pings.db"
 HTML_PATH = BASE_DIR / "ping_plot.html"
 CONFIG_PATH = BASE_DIR / "ping.config"
 LOG_PATH = BASE_DIR / "logs/ping.log"
-PORT = 8765
+PORT = int(os.environ.get("PORT", "8765"))
 BIND_HOST = os.environ.get("BIND_HOST", "127.0.0.1")
-COLLECTION_INTERVAL = 5
-STALE_AFTER_SECONDS = 15
+COLLECTION_INTERVAL = int(os.environ.get("COLLECTION_INTERVAL", "5"))
+STALE_AFTER_SECONDS = int(os.environ.get("STALE_AFTER_SECONDS", "15"))
 PING_ARGS = ("ping", "-c3", "-i0.3", "-W1")
 DEFAULT_TARGET = {
     "host": "8.8.8.8",

@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-API_URL="http://127.0.0.1:8765/api/status"
+BIND_HOST="${BIND_HOST:-127.0.0.1}"
+PORT="${PORT:-8765}"
+API_URL="http://${BIND_HOST}:${PORT}/api/status"
 FALLBACK='{"text":"ping down","class":"dead"}'
 
 curl_args=(

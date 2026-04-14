@@ -6,6 +6,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MONITOR_SRC="$REPO_ROOT/.config/system_monitor/ping"
 MONITOR_DST="$HOME/.config/system_monitor/ping"
 BIND_HOST="${BIND_HOST:-127.0.0.1}"
+PORT="${PORT:-8765}"
 
 PACKAGES=(
   docker
@@ -22,6 +23,7 @@ MANAGED_FILES=(
   "migrate_csv_to_sqlite.py"
   "Dockerfile"
   "docker-compose.yml"
+  ".env"
 )
 
 install_packages() {
@@ -47,7 +49,7 @@ start_service() {
   echo "[CONFIG] enable docker and start ping-viz container"
   sudo systemctl enable --now docker
   cd "$MONITOR_DST"
-  BIND_HOST="$BIND_HOST" docker compose up -d --build --force-recreate
+  BIND_HOST="$BIND_HOST" PORT="$PORT" docker compose up -d --build --force-recreate
 }
 
 verify() {
@@ -61,7 +63,7 @@ verify() {
   echo "[VERIFY] status endpoint responds"
   status_json=""
   for attempt in {1..10}; do
-    if status_json="$(curl --silent --show-error --fail --max-time 5 http://127.0.0.1:8765/api/status 2>/dev/null)"; then
+    if status_json="$(curl --silent --show-error --fail --max-time 5 http://${BIND_HOST}:${PORT}/api/status 2>/dev/null)"; then
       break
     fi
     sleep 1
@@ -70,11 +72,11 @@ verify() {
   printf '%s' "$status_json" | python3 -c 'import json, sys; d=json.load(sys.stdin); assert "text" in d and "class" in d, f"missing keys: {d}"'
 
   echo "[VERIFY] today endpoint responds"
-  curl --silent --fail --max-time 5 http://127.0.0.1:8765/api/today \
+  curl --silent --fail --max-time 5 http://${BIND_HOST}:${PORT}/api/today \
     | python3 -c 'import json, sys; d=json.load(sys.stdin); assert "bars" in d, f"missing bars: {d}"'
 
   echo "[VERIFY] web UI served"
-  curl --silent --fail --max-time 5 http://127.0.0.1:8765/ | grep -q "<html\|<!DOCTYPE"
+  curl --silent --fail --max-time 5 http://${BIND_HOST}:${PORT}/ | grep -q "<html\|<!DOCTYPE"
 
   echo "[VERIFY] ping.config accessible inside container"
   cd "$MONITOR_DST"
@@ -83,14 +85,14 @@ verify() {
   echo "[VERIFY] waybar fetcher returns valid JSON"
   local fetcher="$HOME/.config/waybar/scripts/network/ping_status.sh"
   if [[ -x "$fetcher" ]]; then
-    "$fetcher" | python3 -c 'import json, sys; json.load(sys.stdin)'
+    BIND_HOST="$BIND_HOST" PORT="$PORT" "$fetcher" | python3 -c 'import json, sys; json.load(sys.stdin)'
   else
     echo "[SKIP] waybar fetcher not deployed — run arch/waybar.sh first"
   fi
 }
 
 print_summary() {
-  echo "[DONE] ping-viz running via Docker at http://127.0.0.1:8765/"
+  echo "[DONE] ping-viz running via Docker at http://${BIND_HOST}:${PORT}/"
 }
 
 main() {
