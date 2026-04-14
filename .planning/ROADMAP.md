@@ -47,9 +47,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: Design command taxonomy and central keymap registry structure
-- [ ] 02-02: Migrate scattered mappings into the central registry without breaking workflows
-- [ ] 02-03: Document keymap organization and remove stale/duplicate mapping definitions
+- [x] 02-01: Design command taxonomy and central keymap registry structure
+- [x] 02-02: Migrate scattered mappings into the central registry without breaking workflows
+- [x] 02-03: Document keymap organization and remove stale/duplicate mapping definitions
 
 ### Phase 3: Plugin Audit and Validation Harness
 **Goal**: Create a safe foundation for aggressive cleanup by auditing plugins and adding regression checks.
