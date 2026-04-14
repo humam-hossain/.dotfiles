@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""One-time migration: ping_history.csv → pings.db (SQLite)."""
+"""One-time migration: ping_history.csv → system.db (SQLite)."""
 
 import csv
 import os
@@ -7,7 +7,7 @@ import sqlite3
 import sys
 
 CSV_PATH = os.path.expanduser("~/.config/waybar/data/ping_history.csv")
-DB_PATH  = os.path.expanduser("~/.config/waybar/data/pings.db")
+DB_PATH  = os.path.expanduser("~/.config/waybar/data/system.db")
 
 
 def init_db(conn):

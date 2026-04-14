@@ -71,7 +71,7 @@ Notes:
 
 ### Storage
 
-SQLite database: `data/pings.db` (bind-mounted to host at `~/.config/system_monitor/ping/data/pings.db`)
+SQLite database: `data/system.db` (bind-mounted to host at `~/.config/system_monitor/ping/data/system.db`)
 
 Schema:
 
@@ -145,7 +145,7 @@ Rules:
 - `.config/system_monitor/ping/ping_plot.html` — browser frontend
 - `.config/system_monitor/ping/Dockerfile` — container image (`python:3.12-slim` + `iputils-ping` + `iproute2`)
 - `.config/system_monitor/ping/docker-compose.yml` — service definition (host network, timezone mounts)
-- `~/.config/system_monitor/ping/data/pings.db` — SQLite DB (bind-mounted host directory)
+- `~/.config/system_monitor/ping/data/system.db` — SQLite DB (bind-mounted host directory)
 
 ## Install Scripts
 

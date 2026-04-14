@@ -6,7 +6,7 @@ Run once: python3 monitor/migrate_add_target_host.py
 import os
 import sqlite3
 
-DB_PATH = os.path.expanduser("~/.config/waybar/data/pings.db")
+DB_PATH = os.path.expanduser("~/.config/waybar/data/system.db")
 
 
 def migrate():

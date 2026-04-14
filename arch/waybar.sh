@@ -52,7 +52,7 @@ STALE_MANAGED_FILES=(
   "$WAYBAR_DST/analysis/requirements.txt"
   "$WAYBAR_DST/data/ping.config"
   "$WAYBAR_DST/data/ping_plot.html"
-  "$WAYBAR_DST/data/pings.db"
+  "$WAYBAR_DST/data/system.db"
   "$WAYBAR_DST/monitor/server.py"
   "$WAYBAR_DST/monitor/ping.config"
   "$WAYBAR_DST/monitor/ping_plot.html"
