@@ -5,8 +5,6 @@ set -x
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WAYBAR_SRC="$REPO_ROOT/.config/waybar"
 WAYBAR_DST="$HOME/.config/waybar"
-SYSTEMD_SRC="$REPO_ROOT/.config/systemd/user/ping-viz.service"
-SYSTEMD_DST="$HOME/.config/systemd/user/ping-viz.service"
 
 PACKAGES=(
   waybar
@@ -29,12 +27,6 @@ MANAGED_FILES=(
   "config.jsonc"
   "style.css"
   "mocha.css"
-  "monitor/server.py"
-  "monitor/migrate_add_target_host.py"
-  "monitor/migrate_csv_to_sqlite.py"
-  "monitor/requirements.txt"
-  "monitor/ping.config"
-  "monitor/ping_plot.html"
   "scripts/alerts/earthquake.sh"
   "scripts/network/ping_status.sh"
   "scripts/system/memory.sh"
@@ -60,6 +52,21 @@ STALE_MANAGED_FILES=(
   "$WAYBAR_DST/analysis/requirements.txt"
   "$WAYBAR_DST/data/ping.config"
   "$WAYBAR_DST/data/ping_plot.html"
+  "$WAYBAR_DST/data/pings.db"
+  "$WAYBAR_DST/monitor/server.py"
+  "$WAYBAR_DST/monitor/ping.config"
+  "$WAYBAR_DST/monitor/ping_plot.html"
+  "$WAYBAR_DST/monitor/requirements.txt"
+  "$WAYBAR_DST/monitor/migrate_add_target_host.py"
+  "$WAYBAR_DST/monitor/migrate_csv_to_sqlite.py"
+  "$WAYBAR_DST/logs/ping.log"
+  "$WAYBAR_DST/PRD.md"
+  "$WAYBAR_DST/README.md"
+)
+
+STALE_MANAGED_DIRS=(
+  "$WAYBAR_DST/analysis"
+  "$WAYBAR_DST/monitor"
 )
 
 install_packages() {
@@ -70,14 +77,10 @@ install_packages() {
 ensure_dirs() {
   echo "[CONFIG] create directories"
   mkdir -p \
-    "$WAYBAR_DST/monitor" \
-    "$WAYBAR_DST/data" \
-    "$WAYBAR_DST/logs" \
     "$WAYBAR_DST/scripts/alerts" \
     "$WAYBAR_DST/scripts/network" \
     "$WAYBAR_DST/scripts/system" \
-    "$WAYBAR_DST/scripts/weather" \
-    "$HOME/.config/systemd/user"
+    "$WAYBAR_DST/scripts/weather"
 }
 
 sync_file() {
@@ -104,9 +107,6 @@ sync_managed_files() {
   for rel in "${MANAGED_FILES[@]}"; do
     sync_file "$rel"
   done
-
-  echo "[CONFIG] sync ping-viz systemd unit"
-  install -Dm0644 "$SYSTEMD_SRC" "$SYSTEMD_DST"
 }
 
 cleanup_stale_files() {
@@ -116,13 +116,11 @@ cleanup_stale_files() {
   for path in "${STALE_MANAGED_FILES[@]}"; do
     rm -f "$path"
   done
-}
 
-restart_ping_viz() {
-  echo "[CONFIG] enable and restart ping-viz"
-  systemctl --user daemon-reload
-  systemctl --user enable --now ping-viz
-  systemctl --user restart ping-viz
+  echo "[CLEANUP] remove stale managed directories"
+  for path in "${STALE_MANAGED_DIRS[@]}"; do
+    rm -rf "$path"
+  done
 }
 
 verify_file_presence() {
@@ -132,31 +130,11 @@ verify_file_presence() {
   for rel in "${MANAGED_FILES[@]}"; do
     [[ -f "$WAYBAR_DST/$rel" ]]
   done
-  [[ -f "$SYSTEMD_DST" ]]
   [[ -x "$WAYBAR_DST/scripts/network/ping_status.sh" ]]
 }
 
-verify_ping_viz() {
-  local status_json
-  local attempt
-
-  echo "[VERIFY] ping-viz is active"
-  systemctl --user is-active --quiet ping-viz
-
-  echo "[VERIFY] status endpoint responds"
-  status_json=""
-  for attempt in {1..10}; do
-    if status_json="$(curl --silent --show-error --fail --max-time 5 http://127.0.0.1:8765/api/status 2>/dev/null)"; then
-      break
-    fi
-    sleep 1
-  done
-  [[ -n "$status_json" ]]
-  printf '%s' "$status_json" | python3 -c 'import json, sys; json.load(sys.stdin)'
-}
-
 print_summary() {
-  echo "[DONE] waybar files synced, ping-viz restarted, verification passed"
+  echo "[DONE] waybar files synced and verified"
 }
 
 main() {
@@ -164,9 +142,7 @@ main() {
   ensure_dirs
   sync_managed_files
   cleanup_stale_files
-  restart_ping_viz
   verify_file_presence
-  verify_ping_viz
   print_summary
 }
 
