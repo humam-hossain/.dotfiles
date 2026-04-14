@@ -13,22 +13,10 @@ vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true, desc = "Disabl
 -- ============================================================================
 -- FILE OPERATIONS
 -- ============================================================================
--- Close current buffer/window intelligently using Ctrl+Q
+-- Close current buffer with confirmation using Ctrl+Q
 vim.keymap.set("n", "<C-q>", function()
-	local buf_count = #vim.fn.filter(vim.fn.range(1, vim.fn.bufnr("$")), "buflisted(v:val)")
-	local win_count = vim.fn.winnr("$")
-
-	if win_count > 1 then
-		-- If there are multiple windows, close the current window
-		vim.cmd("close")
-	elseif buf_count > 1 then
-		-- If there's only one window but multiple buffers, close the buffer
-		vim.cmd("bdelete")
-	else
-		-- If it's the last buffer and window, quit Neovim
-		vim.cmd("quit")
-	end
-end, { noremap = true, silent = true, desc = "Smart quit" })
+	vim.cmd("confirm bdelete")
+end, { noremap = true, silent = true, desc = "Close current buffer" })
 
 -- Save and format current file using Ctrl+S
 vim.keymap.set("n", "<C-s>", function()
@@ -36,41 +24,20 @@ vim.keymap.set("n", "<C-s>", function()
 	vim.cmd("w")
 end, { desc = "Save and format file" })
 
--- Auto-save on focus lost
+-- Auto-save on focus lost (conservative, guarded)
 vim.api.nvim_create_autocmd("FocusLost", {
 	pattern = "*",
-	command = "silent!wa",
-	desc = "Auto save on focus lost",
-})
--- Auto-save on buffer leave
-vim.api.nvim_create_autocmd("BufLeave", {
-	pattern = "*",
-	command = "silent! w",
-	desc = "Auto-save on buffer leave",
-})
-
--- Auto-save on text change (with delay)
-vim.api.nvim_create_autocmd("TextChanged", {
-	pattern = "*",
 	callback = function()
-		vim.defer_fn(function()
-			if vim.bo.modified and vim.bo.buftype == "" then
+		local bufnr = vim.api.nvim_get_current_buf()
+		local bufname = vim.api.nvim_buf_get_name(bufnr)
+		if vim.bo.buftype == "" and vim.bo.modifiable and vim.bo.modified and bufname ~= "" then
+			local readable = vim.fn.filereadable(bufname) == 1 or vim.fn.bufexists(bufnr) == 1
+			if readable then
 				vim.cmd("silent! write")
 			end
-		end, 1000) -- 1 second delay
-	end,
-	desc = "Auto-save after text changes",
-})
-
--- Auto-save on insert leave
-vim.api.nvim_create_autocmd("InsertLeave", {
-	pattern = "*",
-	callback = function()
-		if vim.bo.modified and vim.bo.buftype == "" then
-			vim.cmd("silent! write")
 		end
 	end,
-	desc = "Auto-save on insert leave",
+	desc = "Auto save on focus lost for normal file buffers",
 })
 
 -- Save file without running auto-formatting commands
