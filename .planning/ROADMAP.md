@@ -32,9 +32,9 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Audit and replace platform-specific runtime commands with guarded helpers
-- [ ] 01-02: Fix buffer/window/tab/save/quit lifecycle behavior and simplify autosave interactions
-- [ ] 01-03: Add baseline portability verification notes and smoke scenarios for supported OSes
+- [ ] 01-01-PLAN.md — Audit and replace platform-specific runtime commands with guarded helpers
+- [ ] 01-02-PLAN.md — Fix buffer/window/tab/save/quit lifecycle behavior and simplify autosave interactions
+- [ ] 01-03-PLAN.md — Add baseline portability verification notes and smoke scenarios for supported OSes
 
 ### Phase 2: Central Command and Keymap Architecture
 **Goal**: Move all custom mappings under one maintainable control plane.
