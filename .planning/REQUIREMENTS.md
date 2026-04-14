@@ -61,30 +61,30 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PLAT-01 | TBD | Pending |
-| PLAT-02 | TBD | Pending |
-| PLAT-03 | TBD | Pending |
-| PLAT-04 | TBD | Pending |
-| CORE-01 | TBD | Pending |
-| CORE-02 | TBD | Pending |
-| CORE-03 | TBD | Pending |
-| KEY-01 | TBD | Pending |
-| KEY-02 | TBD | Pending |
-| KEY-03 | TBD | Pending |
-| PLUG-01 | TBD | Pending |
-| PLUG-02 | TBD | Pending |
-| PLUG-03 | TBD | Pending |
-| TOOL-01 | TBD | Pending |
-| TOOL-02 | TBD | Pending |
-| TOOL-03 | TBD | Pending |
-| UX-01 | TBD | Pending |
-| UX-02 | TBD | Pending |
+| PLAT-01 | Phase 1 | Pending |
+| PLAT-02 | Phase 1 | Pending |
+| PLAT-03 | Phase 1 | Pending |
+| PLAT-04 | Phase 1 | Pending |
+| CORE-01 | Phase 1 | Pending |
+| CORE-02 | Phase 1 | Pending |
+| CORE-03 | Phase 1 | Pending |
+| KEY-01 | Phase 2 | Pending |
+| KEY-02 | Phase 2 | Pending |
+| KEY-03 | Phase 2 | Pending |
+| PLUG-01 | Phase 3 | Pending |
+| PLUG-03 | Phase 3 | Pending |
+| TOOL-01 | Phase 3 | Pending |
+| TOOL-03 | Phase 3 | Pending |
+| PLUG-02 | Phase 4 | Pending |
+| TOOL-02 | Phase 4 | Pending |
+| UX-01 | Phase 5 | Pending |
+| UX-02 | Phase 5 | Pending |
 
 **Coverage:**
 - v1 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18 ⚠️
+- Mapped to phases: 18
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-04-14*
-*Last updated: 2026-04-14 after initial definition*
+*Last updated: 2026-04-14 after roadmap traceability mapping*
