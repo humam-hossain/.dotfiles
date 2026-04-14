@@ -5,6 +5,13 @@ set -x
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MONITOR_SRC="$REPO_ROOT/.config/system_monitor/ping"
 MONITOR_DST="$HOME/.config/system_monitor/ping"
+
+# Source environment
+if [[ -f "$MONITOR_SRC/.env" ]]; then
+  set -a; source "$MONITOR_SRC/.env"; set +a
+fi
+
+# Fallbacks
 BIND_HOST="${BIND_HOST:-127.0.0.1}"
 PORT="${PORT:-8765}"
 
@@ -49,7 +56,7 @@ start_service() {
   echo "[CONFIG] enable docker and start ping-viz container"
   sudo systemctl enable --now docker
   cd "$MONITOR_DST"
-  BIND_HOST="$BIND_HOST" PORT="$PORT" docker compose up -d --build --force-recreate
+  docker compose up -d --build --force-recreate
 }
 
 verify() {
