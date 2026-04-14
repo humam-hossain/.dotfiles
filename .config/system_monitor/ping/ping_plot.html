@@ -53,7 +53,7 @@ canvas.bar-canvas  { height: 22px; }
 <h1>Ping History</h1>
 <div id="subtitle">Loading…</div>
 <div class="filter">
-  <label>Last <input type="number" id="f-days" value="30" min="1" max="365"> days</label>
+  <label>Last <input type="number" id="f-days" value="50" min="1" max="365"> days</label>
   <button id="f-days-submit">Apply</button>
   <span class="sep">|</span>
   <label>From <input type="date" id="f-from"></label>
@@ -354,7 +354,7 @@ async function applyFilter(url, btn) {
 }
 
 document.getElementById('f-days-submit').addEventListener('click', function() {
-  const days = document.getElementById('f-days').value || 30;
+  const days = document.getElementById('f-days').value || 50;
   applyFilter(`/api/pings?days=${days}`, this);
 });
 
@@ -368,7 +368,7 @@ document.getElementById('f-range-submit').addEventListener('click', function() {
 async function init() {
   const t0 = performance.now();
   try {
-    const data = await loadPings('/api/pings?days=30');
+    const data = await loadPings('/api/pings?days=50');
     setFetchTime(performance.now() - t0);
     buildRows(data);
     const n = data.days.length;
