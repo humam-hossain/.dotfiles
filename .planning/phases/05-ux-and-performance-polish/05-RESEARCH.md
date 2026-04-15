@@ -564,22 +564,25 @@ Security enforcement applies minimally to this phase — it is a UI/UX and perfo
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **snacks.terminal and snacks.zen — enable or disable?**
    - What we know: Both are bundled in snacks.nvim. terminal provides a floating/split terminal; zen provides distraction-free mode with a centered window.
    - What's unclear: Whether the user uses a terminal inside Neovim at all (CLAUDE.md shows kitty+tmux as the workflow), and whether zen adds value given no such workflow exists today.
    - Recommendation: Disable both (`enabled = false`). The user's workflow is kitty → tmux → Neovim splits. A floating terminal inside Neovim duplicates tmux. Zen mode has no established use case in this config. Leave as `enabled = false` with a comment explaining the decision.
+   - RESOLVED: 05-01 Task 1 sets `terminal = { enabled = false }` and `zen = { enabled = false }`.
 
 2. **snacks.picker grep hidden-file behavior**
    - What we know: Current `<leader>fg` passes explicit `rg_opts` with `--hidden -g '!.git/'` to fzf-lua.
    - What's unclear: Whether snacks.picker.grep() includes hidden files by default or needs explicit config.
    - Recommendation: Test after migration. If hidden files aren't included, add `args = { "--hidden", "--glob=!.git/" }` to the grep action options.
+   - RESOLVED: 05-01 Task 2 wires `search.grep` as `Snacks.picker.grep({ hidden = true, ignored = false })`. Post-migration test is noted as a manual verification step.
 
 3. **lualine_x layout after noice removal**
    - What we know: Claude's discretion per D-18. Noice provided "recording macro" and "command" status display.
    - What's unclear: Whether the user misses these indicators.
    - Recommendation: Use `{ "filetype", "encoding" }` in lualine_x — filetype is always useful, encoding is low cost and occasionally helpful. Omit macro recording indicator since it was noice-specific and rarely triggered.
+   - RESOLVED: 05-02 Task 1 sets `lualine_x = { "filetype", "encoding" }`.
 
 ---
 
