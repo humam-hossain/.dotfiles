@@ -78,9 +78,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 04-01: Modernize LSP and Mason architecture around chosen Neovim baseline
-- [ ] 04-02: Update formatting, completion, search, tree, and git integrations to audited standards
-- [ ] 04-03: Replace weak or outdated plugins/settings and normalize plugin spec patterns
+- [x] 04-01: Modernize LSP and Mason architecture around chosen Neovim baseline
+- [x] 04-02: Update formatting, completion, search, tree, and git integrations to audited standards
+- [x] 04-03: Replace weak or outdated plugins/settings and normalize plugin spec patterns
 
 ### Phase 5: UX and Performance Polish
 **Goal**: Finish with coherent UI behavior, better startup efficiency, and clear rollout guidance.
