@@ -18,7 +18,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPORT_DIR="$REPO_ROOT/.planning/tmp/nvim-validate"
 
 # --- Plugin and tool probe lists ---
-PLUGIN_LIST="{'notify','noice','lualine','neo-tree','lspconfig','conform','nvim-treesitter.configs','blink.cmp','fzf-lua','gitsigns','ufo','bufferline','which-key','alpha','render-markdown'}"
+PLUGIN_LIST="{'snacks','lualine','neo-tree','lspconfig','conform','nvim-treesitter.configs','blink.cmp','gitsigns','ufo','bufferline','which-key','render-markdown'}"
 TOOL_LIST="{'stylua','black','isort','prettierd','prettier','clang-format','shfmt','rg','git','node','go','clangd','gopls','lua-language-server'}"
 
 # --- Install hints per tool ---
@@ -237,9 +237,9 @@ cmd_smoke() {
 	local lua_script
 	lua_script=$(cat <<'LUA'
 local plugins = {
-  'notify','noice','lualine','neo-tree','lspconfig','conform',
-  'nvim-treesitter.configs','blink.cmp','fzf-lua','gitsigns',
-  'ufo','bufferline','which-key','alpha','render-markdown',
+  'snacks','lualine','neo-tree','lspconfig','conform',
+  'nvim-treesitter.configs','blink.cmp','gitsigns',
+  'ufo','bufferline','which-key','render-markdown',
 }
 local failed = {}
 for _, name in ipairs(plugins) do
