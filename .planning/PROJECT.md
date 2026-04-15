@@ -2,71 +2,64 @@
 
 ## What This Is
 
-This project is a shared Neovim configuration inside a `.dotfiles` repo that should run reliably across Arch Linux, Debian/Ubuntu, and Windows with OS-specific guards inside one codebase. It already provides a modular `lazy.nvim`-based setup with LSP, completion, search, file tree, git, formatting, and UI plugins, but it now needs to be cleaned up, modernized, and made predictable.
-
-The next evolution is not "add random features." It is to turn the current config into a clean, up-to-date, best-practice Neovim setup with organized keymaps, fewer bugs, better plugin choices, and safer cross-platform behavior.
+A shared Neovim configuration inside a `.dotfiles` repo that runs reliably across Arch Linux, Debian/Ubuntu, and Windows via OS-specific guards inside one codebase. The v1.0 milestone delivered a clean, modernized, best-practice Neovim setup: organized keymaps, aggressive plugin cleanup, cross-platform portability, a headless validation harness, and full rollout documentation.
 
 ## Core Value
 
-One shared Neovim config should give a clean, modern, bug-resistant editing experience across Linux and Windows without the setup fighting the user.
+One shared Neovim config gives a clean, modern, bug-resistant editing experience across Linux and Windows without the setup fighting the user.
 
 ## Requirements
 
 ### Validated
 
 - ✓ Modular Neovim config loads from `.config/nvim/init.lua` with `core/` and `plugins/` split — existing
-- ✓ Plugin management is already based on `lazy.nvim` with pinned revisions in `.config/nvim/lazy-lock.json` — existing
-- ✓ Current setup already includes LSP, Mason tool installs, formatting, Treesitter, fuzzy search, file explorer, git UI, statusline, folding, and theme support — existing
-- ✓ Custom editor behavior already exists through centralized options and many custom keymaps — existing
+- ✓ Plugin management via `lazy.nvim` with pinned revisions in `lazy-lock.json` — existing
+- ✓ LSP, Mason, formatting, Treesitter, fuzzy search, file explorer, git UI, statusline, folding, and theme — existing
+- ✓ Custom editor behavior via centralized options and keymaps — existing
+- ✓ Cross-platform OS-aware open helper (`vim.ui.open()`) replacing hardcoded shell commands — v1.0 (PLAT-01–04)
+- ✓ Buffer-first close with confirmation, conservative FocusLost-only autosave — v1.0 (CORE-01–03)
+- ✓ Central keymap registry with domain taxonomy; all plugins consume registry keys — v1.0 (KEY-01–03)
+- ✓ Plugin audit: keep/remove/replace decisions for every plugin; refreshed lockfile — v1.0 (PLUG-01, PLUG-03)
+- ✓ Headless validation harness (`nvim-validate.sh` + `core/health.lua`) for startup/sync/health/smoke — v1.0 (TOOL-01)
+- ✓ Actionable health output for missing external tools — v1.0 (TOOL-03)
+- ✓ Neovim 0.11-native LSP (`vim.lsp.config/enable`); format-on-save with filetype safety policy — v1.0 (PLUG-02, TOOL-02)
+- ✓ Coherent UI: snacks.nvim replacing 5 plugins, globalstatus statusline, tmux-aware laststatus — v1.0 (UX-01)
+- ✓ Rollout documentation: machine checklist, phase summary, verification steps, rollback modes — v1.0 (UX-02)
 
 ### Active
 
-- [ ] Make the Neovim config stable across Arch Linux, Debian/Ubuntu, and Windows using one shared repo with OS-specific guards
-- [ ] Fix known bugs and sharp edges in the current setup, especially buffer/tab/save-quit behavior that can close all of Neovim unexpectedly
-- [ ] Centralize all custom keymaps into a single authoritative location so updates are easy to manage
-- [ ] Audit every plugin for relevance, correctness, and maintenance status; aggressively replace weak choices when a better option exists
-- [ ] Update the configuration to current Neovim ecosystem standards and plugin conventions
-- [ ] Improve startup/runtime safety with better health checks, validation, and regression prevention
-- [ ] Improve performance, UI polish, and day-to-day editing ergonomics as part of the cleanup
+*(None — all v1.0 requirements shipped. Next milestone defines new active requirements.)*
 
 ### Out of Scope
 
 - Separate per-OS Neovim repos or divergent configs — one shared config with guards is the chosen strategy
-- Machine-specific install scripts as primary source of truth for behavior — install scripts may remain, but config quality must live in the Neovim code itself
-- Adding unrelated editor features before reliability, organization, and cross-platform support are fixed — cleanup comes first
+- Machine-specific install scripts as primary source of truth for behavior — config quality lives in Neovim code
+- Adding unrelated editor features before reliability, organization, and cross-platform support are fixed — cleanup came first
+- CI-based automated cross-platform validation — deferred to v2 (AUTO-01)
+- Machine-role optional plugin profiles — deferred to v2 (AUTO-02)
+- Automated machine update tooling — deferred to v2 (ROLL-01)
 
 ## Context
 
-This is a brownfield Neovim configuration in `/home/pera/github_repo/.dotfiles/.config/nvim`. The codebase map shows a modular layout: `.config/nvim/init.lua` bootstraps `lazy.nvim`, `.config/nvim/lua/core/` holds global options and keymaps, and `.config/nvim/lua/plugins/` contains a flat set of plugin spec modules.
-
-Current architecture is functional but uneven. Keymaps are broad and scattered between core and plugin files. Plugin choices mix newer tools such as `blink.cmp` with older or inconsistent patterns. Some config details are Linux-specific today, such as `xdg-open`, and the current repo has no automated validation for startup, health, plugin drift, or platform compatibility.
-
-Known pain points already surfaced:
-- Save/quit behavior around buffers/tabs can close all of Neovim unexpectedly
-- Custom keymaps need to be centralized and normalized
-- Plugin configs need review for bugs, outdated conventions, and better replacements
-- Cross-platform support must be explicit rather than accidental
-
-Operational note: the repo is just dotfiles. Deploying changes onto a machine may require running `@arch/nvim.sh`, which can require `sudo`.
-
-## Constraints
-
-- **Platform**: One shared config repo across Arch Linux, Debian/Ubuntu, and Windows — avoid forked configs because maintenance cost grows fast
-- **Architecture**: OS-specific behavior must be guarded inside config code — portability is a first-class requirement
-- **Quality**: Aggressive cleanup is allowed, including plugin replacement — current choices are not sacred
-- **Usability**: Keymaps must become centrally managed — maintainability matters as much as feature count
-- **Reliability**: Bug fixes and regression prevention are required, not optional polish — current failure modes break core editing flow
-- **Workflow**: This lives in a `.dotfiles` repo and may need external install/update scripts on target machines — rollout must respect that reality
+Shipped v1.0 on 2026-04-15. Neovim config at `.config/nvim/` is now clean and modernized:
+- **2,550 LOC** Lua across 34 files
+- **Stack:** Neovim 0.11+, lazy.nvim, snacks.nvim, blink.cmp, fzf-lua, conform.nvim, mason, gitsigns, neo-tree, lualine, catppuccin mocha
+- **Validation:** `scripts/nvim-validate.sh` covers startup, sync, health, smoke
+- **Rollout:** `README.md` documents full machine update workflow
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Keep one shared Neovim config repo across Linux and Windows | Single source of truth is easier to maintain than separate per-OS setups | — Pending |
-| Use OS-specific guards inside config rather than separate codepaths/repos | Cross-platform support is required but divergence should stay controlled | — Pending |
-| Centralize all custom keymaps in one place | Current mappings are scattered and hard to audit safely | — Pending |
-| Allow aggressive plugin cleanup and replacement | Goal is best-fit modern config, not preservation of every existing choice | — Pending |
-| Include reliability, plugin audit, performance, UI polish, and regression prevention in v1 scope | User wants a clean up-to-date best Neovim configuration, not a narrow bugfix patch | — Pending |
+| Keep one shared Neovim config repo across Linux and Windows | Single source of truth is easier to maintain than separate per-OS setups | ✓ Shipped v1.0 with OS guards |
+| Use OS-specific guards inside config rather than separate codepaths | Cross-platform support required but divergence stays controlled | ✓ `vim.ui.open()` pattern established |
+| Centralize all custom keymaps in one registry | Current mappings were scattered and hard to audit safely | ✓ Registry with domain taxonomy, all plugins consume keys |
+| Allow aggressive plugin cleanup and replacement | Goal is best-fit modern config, not preservation of existing choices | ✓ Dropped 3 plugins, migrated 5 to snacks.nvim |
+| Include reliability, plugin audit, performance, UI polish, and regression prevention in v1 scope | User wants a clean up-to-date Neovim config, not a narrow bugfix patch | ✓ All delivered |
+| Neovim 0.11-native LSP via `vim.lsp.config/enable` | Removes lspconfig dependency; follows upstream direction | ✓ Clean migration, all servers work |
+| snacks.nvim replaces dashboard, indent, input, notifier, scope (5 plugins) | UX coherence — one well-maintained plugin over 5 separate ones | ✓ Shipped in 05-01 |
+| Format-on-save with filetype safety policy | Avoid polluting gitcommit/markdown/scratch with formatter noise | ✓ Exclusion list well-tested |
+| Headless validation harness in-repo | Catch regressions without a full Neovim UI session | ✓ `nvim-validate.sh` ships in all target machines |
 
 ## Evolution
 
@@ -86,4 +79,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-14 after initialization*
+*Last updated: 2026-04-15 after v1.0 milestone*
