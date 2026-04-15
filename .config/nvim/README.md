@@ -94,6 +94,23 @@ All reports are written to `.planning/tmp/nvim-validate/` (gitignored):
 
 Missing external tools are reported as `available: false` with install hints printed by the shell wrapper. Missing tools do NOT fail the harness (per Phase 3 D-07 graceful degradation policy); only missing plugins fail.
 
+### Missing Tool Policy
+
+Per Phase 3 decisions D-07 through D-09:
+
+- Runtime startup does NOT emit `vim.notify` warnings when external tools (formatters, LSP binaries) are missing. Startup stays graceful and silent.
+- Missing tools are surfaced ONLY through `./scripts/nvim-validate.sh health` and the `core.health.snapshot` JSON.
+- Each tool entry in `health.json` includes `affected_feature` (what stops working) and `install_hint` (how to install).
+- Tool-sensitive plugins (conform.nvim formatters, mason-managed LSPs) degrade silently when their binary is absent; the health command is the single source of truth for what is missing.
+
+Example missing-tool output from `./scripts/nvim-validate.sh health`:
+
+```
+MISSING TOOLS:
+WARN: missing tool 'shfmt' — affects Shell formatting — install: go install mvdan.cc/sh/v3/cmd/shfmt@latest
+WARN: missing tool 'gopls' — affects Go LSP — install: mason: :MasonInstall gopls
+```
+
 ### When To Run
 
 - After any change in `.config/nvim/lua/plugins/*.lua`: `./scripts/nvim-validate.sh startup`

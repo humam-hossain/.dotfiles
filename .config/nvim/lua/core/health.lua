@@ -1,5 +1,22 @@
 local M = {}
 
+local TOOL_METADATA = {
+	["stylua"]              = { affected_feature = "Lua formatting",              install_hint = "mason: :MasonInstall stylua  OR  cargo install stylua" },
+	["black"]               = { affected_feature = "Python formatting",           install_hint = "mason: :MasonInstall black  OR  pipx install black" },
+	["isort"]               = { affected_feature = "Python import sorting",       install_hint = "mason: :MasonInstall isort  OR  pipx install isort" },
+	["prettierd"]           = { affected_feature = "JS/TS/CSS/HTML formatting",   install_hint = "mason: :MasonInstall prettierd  OR  npm i -g @fsouza/prettierd" },
+	["prettier"]            = { affected_feature = "JS/TS/CSS/HTML fallback",     install_hint = "mason: :MasonInstall prettier  OR  npm i -g prettier" },
+	["clang-format"]        = { affected_feature = "C/C++ formatting",            install_hint = "distro package: pacman -S clang (Arch)  OR  apt install clang-format (Debian)" },
+	["shfmt"]               = { affected_feature = "Shell formatting",            install_hint = "go install mvdan.cc/sh/v3/cmd/shfmt@latest" },
+	["rg"]                  = { affected_feature = "fzf-lua live grep",           install_hint = "distro package ripgrep" },
+	["git"]                 = { affected_feature = "gitsigns, fugitive, lazy",    install_hint = "distro package git" },
+	["node"]                = { affected_feature = "ts-ls, eslint-d, prettierd runtime", install_hint = "distro package nodejs" },
+	["go"]                  = { affected_feature = "gopls, shfmt build",          install_hint = "distro package go" },
+	["clangd"]              = { affected_feature = "C/C++ LSP",                   install_hint = "mason: :MasonInstall clangd" },
+	["gopls"]               = { affected_feature = "Go LSP",                      install_hint = "mason: :MasonInstall gopls" },
+	["lua-language-server"] = { affected_feature = "Lua LSP",                     install_hint = "mason: :MasonInstall lua-language-server" },
+}
+
 local function probe_plugin(name)
 	local ok, err = pcall(require, name)
 	return {
@@ -12,7 +29,14 @@ end
 local function probe_tool(name)
 	local available = vim.fn.executable(name) == 1
 	local path = available and vim.fn.exepath(name) or ""
-	return { name = name, available = available, path = path }
+	local meta = TOOL_METADATA[name] or { affected_feature = "unknown", install_hint = "no hint registered" }
+	return {
+		name             = name,
+		available        = available,
+		path             = path,
+		affected_feature = meta.affected_feature,
+		install_hint     = meta.install_hint,
+	}
 end
 
 local function probe_lazy()
