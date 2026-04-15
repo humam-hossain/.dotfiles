@@ -1,5 +1,44 @@
 # Neovim config
 
+## Phase 4: Tooling and Ecosystem Modernization
+
+This phase modernizes the Neovim tooling stack around a current ecosystem baseline: Neovim 0.11+ native LSP registration, safe format-on-save, and productivity-first defaults.
+
+### Neovim 0.11+ Baseline
+
+- **LSP registration**: Uses `vim.lsp.config()` + `vim.lsp.enable()` instead of legacy `lspconfig[server].setup()`
+- **Mason-first provisioning**: Preferred path for LSP servers and formatters
+- **System-binary fallback**: Config degrades gracefully when tools are installed system-wide rather than via Mason
+
+### Save-Format Policy
+
+- **Enabled by default** for normal file buffers
+- **Excluded filetypes**: `gitcommit`, `text`, `markdown`, `gitrebase`, `diff`, `NeogitCommitMessage`, `neo-tree`, `qf`
+- **Fallback**: Uses `lsp_format = "fallback"` for predictable behavior when formatter is absent
+- **Manual format**: `<leader>cf` forces format without saving
+- **Save without format**: `<leader>sn` saves without triggering format
+
+### Productivity-First Defaults
+
+- **Completion**: blink.cmp with docs, signature help, and ghost text enabled by default
+- **Search**: fzf-lua with live grep, file search, buffers
+- **Tree**: neo-tree with external open via `vim.ui.open()` (cross-platform)
+- **Git**: gitsigns + fugitive with inline hunk preview
+
+### Validation Commands
+
+| Command | Purpose |
+|---------|---------|
+| `./scripts/nvim-validate.sh startup` | Headless startup smoke test |
+| `./scripts/nvim-validate.sh sync` | Lazy sync with 120s timeout |
+| `./scripts/nvim-validate.sh health` | Core health snapshot (plugins + tools) |
+| `./scripts/nvim-validate.sh smoke` | pcall-require high-risk plugins |
+| `./scripts/nvim-validate.sh all` | Run all validations in order |
+
+### Central Keymap Rule
+
+Per Phase 2 architecture, all user-facing mappings are declared in `lua/core/keymaps/registry.lua`. Plugin specs must NOT introduce inline `keys = { ... }` — instead, they reference the registry via `require("core.keymaps.lazy").*_keys()`.
+
 ## Phase 2: Central Command and Keymap Architecture
 
 This phase centralizes all custom keymaps under a declarative registry for discoverability and maintainability.
