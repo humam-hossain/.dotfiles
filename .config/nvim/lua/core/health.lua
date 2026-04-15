@@ -15,6 +15,10 @@ local TOOL_METADATA = {
 	["clangd"]              = { affected_feature = "C/C++ LSP",                   install_hint = "mason: :MasonInstall clangd" },
 	["gopls"]               = { affected_feature = "Go LSP",                      install_hint = "mason: :MasonInstall gopls" },
 	["lua-language-server"] = { affected_feature = "Lua LSP",                     install_hint = "mason: :MasonInstall lua-language-server" },
+	["eslint_d"]            = { affected_feature = "ESLint LSP",                  install_hint = "mason: :MasonInstall eslint_d" },
+	["ts_ls"]               = { affected_feature = "TypeScript LSP",              install_hint = "mason: :MasonInstall ts_ls" },
+	["jdtls"]               = { affected_feature = "Java LSP",                    install_hint = "mason: :MasonInstall jdtls" },
+	["texlab"]              = { affected_feature = "LaTeX LSP",                   install_hint = "mason: :MasonInstall texlab" },
 }
 
 local function probe_plugin(name)
