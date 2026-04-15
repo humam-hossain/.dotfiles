@@ -3,10 +3,7 @@ return {
 	opts = {
 		formatters_by_ft = {
 			lua = { "stylua" },
-			-- Conform will run multiple formatters sequentially
 			python = { "isort", "black" },
-			-- You can customize some of the format options for the filetype (:help conform.format)
-			-- Conform will run the first available formatter
 			javascript = { "prettierd", "prettier", stop_after_first = true },
 			typescript = { "prettierd", "prettier", stop_after_first = true },
 			java = { "google-java-format" },
@@ -15,9 +12,43 @@ return {
 			asm = { "asmfmt" },
 			tex = { "latexindent" },
 		},
-		-- format_on_save = {
-		-- 	timeout_ms = 500,
-		-- 	lsp_format = "fallback",
-		-- },
+		format_on_save = function(bufnr)
+			local bufname = vim.api.nvim_buf_get_name(bufnr)
+			local ft = vim.bo[bufnr].filetype
+			local buftype = vim.bo[bufnr].buftype
+
+			if buftype ~= "" and buftype ~= "acwrite" then
+				return false
+			end
+
+			if not vim.bo[bufnr].modifiable then
+				return false
+			end
+
+			if bufname == "" then
+				return false
+			end
+
+			local excluded = {
+				gitcommit = true,
+				text = true,
+				markdown = true,
+				gitrebase = true,
+				diff = true,
+				NeogitCommitMessage = true,
+				["neo-tree"] = true,
+				["qf"] = true,
+			}
+
+			if excluded[ft] then
+				return false
+			end
+
+			return { timeout_ms = 500, lsp_format = "fallback" }
+		end,
+		default_format_options = {
+			trim_trailing_whitespace = true,
+			format_on_save = true,
+		},
 	},
 }
