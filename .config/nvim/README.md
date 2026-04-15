@@ -1,5 +1,196 @@
 # Neovim config
 
+## Rollout and Update Workflow
+
+This section is the single entry point for applying this config to a new or existing machine, verifying it, and rolling back if something breaks. It assumes the dotfiles repo is cloned at `~/github_repo/.dotfiles` (adjust paths if yours differs).
+
+### Machine Update Checklist
+
+Run these steps in order from the dotfiles repo root. Each step is idempotent.
+
+1. **Pull the latest config**
+
+   ```bash
+   cd ~/github_repo/.dotfiles
+   git pull --ff-only
+   ```
+
+   If the pull is not a fast-forward, resolve manually before continuing — do not `--rebase` against local edits to `.config/nvim/` without reading the phase summaries under `.planning/phases/` first.
+
+2. **Run the install script** (Arch)
+
+   ```bash
+   bash arch/nvim.sh
+   ```
+
+   This installs `python-pynvim`, `luarocks`, `tree-sitter-cli`, and `neovim` via `pacman -Sy --needed`, then copies `.config/nvim/*` into `~/.config/nvim/`. On Debian/Ubuntu use the `ubuntu/` equivalent if present; on Windows copy `.config/nvim/` into `%LOCALAPPDATA%\nvim\` manually.
+
+3. **Sync plugins against the locked set**
+
+   ```bash
+   ./scripts/nvim-validate.sh sync
+   ```
+
+   This runs `:Lazy! sync` headlessly with a 120-second timeout. It installs newly added plugins (like `folke/snacks.nvim` introduced in Phase 5) and uninstalls anything removed from the spec tree (`noice.nvim`, `nvim-notify`, `alpha.nvim`, `indent-blankline`, `fzf-lua`). Expected last line: `PASS: sync OK`.
+
+   If you prefer the interactive path, open Neovim and run `:Lazy sync` then quit.
+
+4. **Update Mason-managed tools**
+
+   Open Neovim and run:
+
+   ```
+   :MasonUpdate
+   ```
+
+   This refreshes the Mason registry so LSP servers, formatters, and linters pull in any new versions. Tools installed system-wide (outside Mason) are untouched — the config's system-binary fallback (Phase 4) handles those.
+
+5. **Run the full validation harness**
+
+   ```bash
+   ./scripts/nvim-validate.sh all
+   ```
+
+   This runs `startup`, `sync`, `smoke`, and `health` in order and fails fast. Expected final line: `==> all PASS`. See **Post-Deploy Verification** below for what to do on failure.
+
+6. **Launch Neovim and confirm the UI**
+
+   ```bash
+   nvim
+   ```
+
+   You should see the snacks.nvim dashboard, not the old alpha banner. Press `<leader>ff` to confirm `snacks.picker` opens for file search. Press `<leader>gg` to confirm `snacks.lazygit` opens the lazygit float. These three checks cover the Phase 5 UX-01 coherence surface.
+
+### Phase-by-Phase Change Summary
+
+This summary captures what each phase changed so a maintainer updating a machine from an older config knows what behavior is now different.
+
+| Phase | What Changed | User-Visible Effect |
+|-------|--------------|---------------------|
+| **Phase 1** | Buffer-first lifecycle; autosave runs only on `FocusLost` for normal buffers; external open uses `vim.ui.open()` | `<C-q>` closes current buffer (not the whole session); special buffers never auto-save; `<C-S-o>` works on Linux, macOS, and Windows |
+| **Phase 2** | All custom keymaps moved into `lua/core/keymaps/registry.lua`; leader prefixes organized by domain (`f` search, `c` code, `g` git, `e` explorer, `b` buffers, `w` windows, `t` toggles, `s` save) | Plugin specs no longer define their own `keys = {}`; `:WhichKey` shows grouped, labeled commands |
+| **Phase 3** | Added `scripts/nvim-validate.sh` with `startup`/`sync`/`health`/`smoke`/`all` subcommands; added `core.health.snapshot` producing `health.json`; missing external tools degrade silently at runtime and surface only via `health` | Startup no longer nags about missing formatters; validation harness is the single source of truth for "what's missing" |
+| **Phase 4** | LSP migrated to Neovim 0.11+ `vim.lsp.config()` + `vim.lsp.enable()`; Mason-first provisioning with system-binary fallback; save-format policy with filetype exclusions (`gitcommit`, `markdown`, `text`, `gitrebase`, `diff`, `NeogitCommitMessage`, `neo-tree`, `qf`); `<leader>cf` manual format; `<leader>sn` save-without-format | Faster LSP startup; no unwanted formatting in commit messages or markdown; cleaner plugin specs |
+| **Phase 5** | `noice.nvim`, `nvim-notify`, `alpha.nvim`, `fzf-lua`, and `indent-blankline` replaced by `folke/snacks.nvim` submodules (notifier, dashboard, picker, indent, scroll, words, lazygit, quickfile); lualine `globalstatus = true` with `laststatus` guarded on `$TMUX`; catppuccin integrations pruned (`telescope`/`nvimtree` removed) and `snacks` integration added | Bottom-right toast notifications; minimal snacks dashboard on empty launch; same fuzzy-find keymaps (`<leader>ff`, `<leader>fg`, `<leader>cd`, `<leader>cr`, etc.) now backed by snacks.picker; `<leader>gg` opens lazygit float; statusline visible outside tmux |
+
+### Post-Deploy Verification
+
+Run these checks in order after step 5 of the update checklist. Each check has an expected outcome; anything else is a regression.
+
+1. **Harness: full validation suite**
+
+   ```bash
+   ./scripts/nvim-validate.sh all
+   ```
+
+   Expected final line: `==> all PASS`. The suite runs `startup`, `sync`, `smoke`, and `health`. Output artifacts land in `.planning/tmp/nvim-validate/` — inspect `health.json` if `health` fails.
+
+2. **In-editor: :checkhealth**
+
+   Open Neovim and run:
+
+   ```
+   :checkhealth
+   ```
+
+   Scroll through each section. Expected: no errors (`ERROR:` lines) from `snacks`, `lazy`, `lspconfig`, `mason`, `blink.cmp`, `gitsigns`, `neo-tree`, `lualine`, `treesitter`. Warnings (`WARNING:`) about optional tooling (e.g., a missing language LSP you do not use) are acceptable.
+
+3. **Manual keymap smoke**
+
+   | Keymap | Expected Behavior |
+   |--------|-------------------|
+   | `<leader>ff` | snacks.picker files float opens |
+   | `<leader>fg` | snacks.picker grep float opens and finds matches including in hidden files |
+   | `<leader>gg` | snacks.lazygit float opens the lazygit TUI |
+   | `<leader>cd` | snacks.picker jumps to LSP definition (on a symbol) |
+   | `<leader>cr` | snacks.picker lists LSP references |
+   | `:echo "test"` + Enter | Bottom-right notification toast appears (snacks.notif) |
+
+4. **Statusline placement check**
+
+   - Inside tmux: Neovim should have no statusline inside its own window; the tmux status bar at the bottom should reflect the current mode/branch/filename (vim-tpipeline forwards lualine's render).
+   - Outside tmux (direct terminal or Windows or VS Code embedded): Neovim should show its own statusline at the bottom (guard flips `laststatus=3`).
+
+5. **Dashboard check**
+
+   Launching `nvim` with no file argument should show the snacks.nvim default dashboard sections (Keymaps, Recent Files, Projects, startup footer). If you still see the old alpha ASCII banner, `:Lazy sync` did not clean — rerun step 3 of the checklist.
+
+### Rollback Instructions
+
+If post-deploy verification fails and you cannot fix forward quickly, use the most targeted rollback that matches the failure mode.
+
+#### A. Single-file rollback (config-level regression)
+
+If a specific file broke (e.g., `lualine.lua` or `registry.lua`), revert just that file:
+
+```bash
+cd ~/github_repo/.dotfiles
+git log --oneline .config/nvim/lua/plugins/lualine.lua
+git checkout <commit-before-breakage> -- .config/nvim/lua/plugins/lualine.lua
+bash arch/nvim.sh
+./scripts/nvim-validate.sh all
+```
+
+Use this when one plan's changes misbehave but other plans are fine.
+
+#### B. Phase-level rollback (one plan broke, others are OK)
+
+Revert the commits of the offending plan only. Each plan commit message starts with `feat({phase}-{plan}):` or `docs({phase}-{plan}):`.
+
+```bash
+cd ~/github_repo/.dotfiles
+git log --oneline --grep='05-01'   # find the plan's commits
+git revert <commit-sha>...<commit-sha>   # creates new revert commits (does not rewrite history)
+bash arch/nvim.sh
+./scripts/nvim-validate.sh all
+```
+
+Prefer `git revert` over `git reset --hard` so the history remains linear and other machines can pull the revert cleanly.
+
+#### C. Plugin-set rollback (lazy-lock.json regression)
+
+If `:Lazy sync` pulled a new plugin version that breaks startup, restore the previous lockfile and pin plugins back:
+
+```bash
+cd ~/github_repo/.dotfiles
+git log --oneline lazy-lock.json
+git checkout <previous-commit> -- lazy-lock.json
+```
+
+Then inside Neovim:
+
+```
+:Lazy restore
+```
+
+`:Lazy restore` reads `lazy-lock.json` and resets every plugin to the commit recorded there. Re-run `./scripts/nvim-validate.sh all` to confirm the rollback is healthy.
+
+#### D. Full phase rollback (last resort)
+
+If Phase 5 is the problem and you want the pre-Phase-5 state back:
+
+```bash
+cd ~/github_repo/.dotfiles
+git log --oneline --grep='05-'                # list all Phase 5 commits
+git revert <oldest-05-commit>..<newest-05-commit>
+bash arch/nvim.sh
+./scripts/nvim-validate.sh all
+```
+
+Expect `snacks.nvim` to be uninstalled on the next `:Lazy sync` and the old `noice.nvim`, `nvim-notify`, `alpha.nvim`, `fzf-lua`, `indent-blankline` plugin specs to be restored by the revert.
+
+#### Rollback Sanity Checks
+
+After any rollback path above, the same post-deploy verification suite applies:
+
+```bash
+./scripts/nvim-validate.sh all
+nvim   # confirm dashboard, <leader>ff, <leader>gg interactively
+```
+
+If the harness is still red after rollback, the breakage is upstream of the reverted commit range — widen the revert window or open a fresh branch and bisect with `git bisect` against `./scripts/nvim-validate.sh startup`.
+
+
 ## Phase 4: Tooling and Ecosystem Modernization
 
 This phase modernizes the Neovim tooling stack around a current ecosystem baseline: Neovim 0.11+ native LSP registration, safe format-on-save, and productivity-first defaults.
