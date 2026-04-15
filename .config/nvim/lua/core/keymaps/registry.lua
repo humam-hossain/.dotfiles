@@ -295,7 +295,7 @@ M.global = {
 -- LAZY MAPPINGS (loaded on key trigger via lazy.nvim)
 -- ============================================================================
 M.lazy = {
-  -- Search domain (f)
+-- Search domain (f)
   {
     id = "search.files",
     lhs = "<leader>ff",
@@ -303,10 +303,8 @@ M.lazy = {
     desc = "Find Files in project directory",
     domain = "f",
     scope = "lazy",
-    plugin = "ibhagwan/fzf-lua",
-    action = function()
-      require("fzf-lua").files()
-    end,
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.picker.files() end,
   },
   {
     id = "search.grep",
@@ -315,12 +313,8 @@ M.lazy = {
     desc = "Find by grepping in project directory",
     domain = "f",
     scope = "lazy",
-    plugin = "ibhagwan/fzf-lua",
-    action = function()
-      require("fzf-lua").live_grep({
-        rg_opts = "--column --line-number --no-heading --color=always --smart-case --max-columns=4096 --hidden -g '!.git/'",
-      })
-    end,
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.picker.grep({ hidden = true, ignored = false }) end,
   },
   {
     id = "search.config",
@@ -329,10 +323,8 @@ M.lazy = {
     desc = "Find in neovim configuration",
     domain = "f",
     scope = "lazy",
-    plugin = "ibhagwan/fzf-lua",
-    action = function()
-      require("fzf-lua").files({ cwd = vim.fn.stdpath("config") })
-    end,
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end,
   },
   {
     id = "search.help",
@@ -341,10 +333,8 @@ M.lazy = {
     desc = "Find Help",
     domain = "f",
     scope = "lazy",
-    plugin = "ibhagwan/fzf-lua",
-    action = function()
-      require("fzf-lua").helptags()
-    end,
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.picker.help() end,
   },
   {
     id = "search.keymaps",
@@ -353,10 +343,8 @@ M.lazy = {
     desc = "Find Keymaps",
     domain = "f",
     scope = "lazy",
-    plugin = "ibhagwan/fzf-lua",
-    action = function()
-      require("fzf-lua").keymaps()
-    end,
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.picker.keymaps() end,
   },
   {
     id = "search.builtin",
@@ -365,10 +353,8 @@ M.lazy = {
     desc = "Find Builtin FZF",
     domain = "f",
     scope = "lazy",
-    plugin = "ibhagwan/fzf-lua",
-    action = function()
-      require("fzf-lua").builtin()
-    end,
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.picker() end,
   },
   {
     id = "search.word",
@@ -377,10 +363,8 @@ M.lazy = {
     desc = "Find current Word",
     domain = "f",
     scope = "lazy",
-    plugin = "ibhagwan/fzf-lua",
-    action = function()
-      require("fzf-lua").grep_cword()
-    end,
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.picker.grep_word() end,
   },
   {
     id = "search.WORD",
@@ -389,10 +373,8 @@ M.lazy = {
     desc = "Find current WORD",
     domain = "f",
     scope = "lazy",
-    plugin = "ibhagwan/fzf-lua",
-    action = function()
-      require("fzf-lua").grep_cWORD()
-    end,
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.picker.grep_word() end,
   },
   {
     id = "search.diagnostics",
@@ -401,10 +383,8 @@ M.lazy = {
     desc = "Find Diagnostics",
     domain = "f",
     scope = "lazy",
-    plugin = "ibhagwan/fzf-lua",
-    action = function()
-      require("fzf-lua").diagnostics_document()
-    end,
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.picker.diagnostics() end,
   },
   {
     id = "search.resume",
@@ -413,10 +393,8 @@ M.lazy = {
     desc = "Find Resume",
     domain = "f",
     scope = "lazy",
-    plugin = "ibhagwan/fzf-lua",
-    action = function()
-      require("fzf-lua").resume()
-    end,
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.picker.resume() end,
   },
   {
     id = "search.oldfiles",
@@ -425,10 +403,8 @@ M.lazy = {
     desc = "Find Old Files",
     domain = "f",
     scope = "lazy",
-    plugin = "ibhagwan/fzf-lua",
-    action = function()
-      require("fzf-lua").oldfiles()
-    end,
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.picker.recent() end,
   },
   {
     id = "search.buffers",
@@ -437,10 +413,8 @@ M.lazy = {
     desc = "Find existing buffers",
     domain = "f",
     scope = "lazy",
-    plugin = "ibhagwan/fzf-lua",
-    action = function()
-      require("fzf-lua").buffers()
-    end,
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.picker.buffers() end,
   },
   {
     id = "search.grep_curbuf",
@@ -449,27 +423,21 @@ M.lazy = {
     desc = "Live grep the current buffer",
     domain = "f",
     scope = "lazy",
-    plugin = "ibhagwan/fzf-lua",
-    action = function()
-      require("fzf-lua").lgrep_curbuf()
-    end,
-  },
-
-  -- Code domain (c)
-  {
-    id = "code.format",
-    lhs = "<leader>cf",
-    mode = "n",
-    desc = "Code Format current file",
-    domain = "c",
-    scope = "lazy",
-    plugin = "stevearc/conform.nvim",
-    action = function()
-      require("conform").format()
-    end,
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.picker.lines() end,
   },
 
   -- Git domain (g)
+  {
+    id = "git.lazygit",
+    lhs = "<leader>gg",
+    mode = "n",
+    desc = "Open LazyGit",
+    domain = "g",
+    scope = "lazy",
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.lazygit() end,
+  },
   {
     id = "git.preview_hunk",
     lhs = "<leader>gp",
@@ -731,7 +699,7 @@ M.buffer = {
     domain = "c",
     scope = "buffer",
     attach = "LspAttach",
-    action = function(opts) require("fzf-lua").lsp_references(opts) end,
+    action = function() Snacks.picker.lsp_references() end,
   },
   {
     id = "lsp.implementations",
@@ -741,7 +709,7 @@ M.buffer = {
     domain = "c",
     scope = "buffer",
     attach = "LspAttach",
-    action = function(opts) require("fzf-lua").lsp_implementations(opts) end,
+    action = function() Snacks.picker.lsp_implementations() end,
   },
   {
     id = "lsp.definition",
@@ -751,7 +719,7 @@ M.buffer = {
     domain = "c",
     scope = "buffer",
     attach = "LspAttach",
-    action = function(opts) require("fzf-lua").lsp_definitions(opts) end,
+    action = function() Snacks.picker.lsp_definitions() end,
   },
   {
     id = "lsp.typedefs",
@@ -761,7 +729,7 @@ M.buffer = {
     domain = "c",
     scope = "buffer",
     attach = "LspAttach",
-    action = function(opts) require("fzf-lua").lsp_typedefs(opts) end,
+    action = function() Snacks.picker.lsp_type_definitions() end,
   },
   {
     id = "lsp.declaration",
@@ -781,7 +749,7 @@ M.buffer = {
     domain = "c",
     scope = "buffer",
     attach = "LspAttach",
-    action = function(opts) require("fzf-lua").lsp_document_symbols(opts) end,
+    action = function() Snacks.picker.lsp_symbols() end,
   },
   {
     id = "lsp.workspace_symbols",
@@ -791,7 +759,7 @@ M.buffer = {
     domain = "c",
     scope = "buffer",
     attach = "LspAttach",
-    action = function(opts) require("fzf-lua").lsp_live_workspace_symbols(opts) end,
+    action = function() Snacks.picker.lsp_workspace_symbols() end,
   },
   {
     id = "lsp.toggle_inlay",
