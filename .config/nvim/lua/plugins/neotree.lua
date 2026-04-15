@@ -13,11 +13,8 @@ return {
 					filter_rules = {
 						include_current_win = false,
 						autoselect_one = true,
-						-- filter using buffer options
 						bo = {
-							-- if the file type is one of following, the window will be ignored
 							filetype = { "neo-tree", "neo-tree-popup", "notify" },
-							-- if the buffer type is one of following, the window will be ignored
 							buftype = { "terminal", "quickfix" },
 						},
 					},
@@ -25,6 +22,8 @@ return {
 			end,
 		},
 	},
+	cmd = "Neotree",
+	keys = require("core.keymaps.lazy").explorer_keys(),
 	init = function()
 		-- Disable netrw at the very start of neovim
 		vim.g.loaded_netrw = 1
@@ -311,12 +310,5 @@ return {
 				},
 			},
 		})
-
-		-- Apply explorer keymaps from registry
-		local lazy = require("core.keymaps.lazy")
-		local explorer_keys = lazy.explorer_keys()
-		for _, key_map in ipairs(explorer_keys) do
-			vim.keymap.set("n", key_map[1], key_map[2], { noremap = true, silent = true, desc = key_map[3] })
-		end
 	end,
 }
