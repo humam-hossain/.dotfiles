@@ -93,9 +93,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 05-01: Profile startup and eliminate obvious plugin waste
-- [ ] 05-02: Polish UI/UX interactions after architecture and tooling stabilize
-- [ ] 05-03: Document rollout/update workflow, including machine update notes and verification steps
+- [x] 05-01: Profile startup and eliminate obvious plugin waste
+- [x] 05-02: Polish UI/UX interactions after architecture and tooling stabilize
+- [x] 05-03: Document rollout/update workflow, including machine update notes and verification steps
 
 ## Progress
 
