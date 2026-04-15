@@ -54,6 +54,52 @@ lua/core/keymaps/
 
 All custom mappings are declared in `registry.lua` with: `id`, `lhs`, `mode`, `desc`, `domain`, `scope`, `plugin`, `action`.
 
+## Phase 3: Validation Harness
+
+The repo ships a shell-orchestrated headless validation harness so maintainers can catch startup, sync, health, and plugin-load regressions without launching an interactive Neovim.
+
+### Entrypoint
+
+| Command | Purpose |
+|---------|---------|
+| `./scripts/nvim-validate.sh startup` | Run `nvim --headless "+qa"` against this config; fail on any error message or non-zero exit |
+| `./scripts/nvim-validate.sh sync` | Run headless `Lazy! sync` with a 120s timeout; fail on timeout or stack traceback |
+| `./scripts/nvim-validate.sh health` | Invoke `core.health.snapshot` and write JSON to `.planning/tmp/nvim-validate/health.json`; fail on any plugin with `loaded=false` |
+| `./scripts/nvim-validate.sh smoke` | pcall-require the high-risk plugin modules one by one; fail on any load failure |
+| `./scripts/nvim-validate.sh all` | Run startup, sync, smoke, health in order; fail fast |
+
+### Report Output
+
+All reports are written to `.planning/tmp/nvim-validate/` (gitignored):
+
+- `startup.log` — stdout+stderr from headless startup
+- `sync.log` — output from `Lazy! sync`
+- `smoke.log` — per-plugin pcall results
+- `health.json` — machine-readable snapshot (schema below)
+- `health.log` — stderr from the health invocation
+
+### Health Snapshot Schema
+
+`health.json` is produced by `require('core.health').snapshot({...})` and conforms to:
+
+```json
+{
+  "neovim_version": "<semver>",
+  "timestamp": "<ISO-8601 UTC>",
+  "plugins": [ { "name": "<module>", "loaded": true, "error": null } ],
+  "tools":   [ { "name": "<binary>", "available": true, "path": "/usr/bin/..." } ],
+  "lazy":    { "installed": 42, "loaded": 42, "problems": [] }
+}
+```
+
+Missing external tools are reported as `available: false` with install hints printed by the shell wrapper. Missing tools do NOT fail the harness (per Phase 3 D-07 graceful degradation policy); only missing plugins fail.
+
+### When To Run
+
+- After any change in `.config/nvim/lua/plugins/*.lua`: `./scripts/nvim-validate.sh startup`
+- After refreshing `lazy-lock.json`: `./scripts/nvim-validate.sh all`
+- Before concluding Phase 3 or starting Phase 4: `./scripts/nvim-validate.sh all`
+
 ## Phase 1: Reliability and Portability Baseline
 
 This config is designed to work across Arch Linux, Debian/Ubuntu, and Windows with a unified buffer-first lifecycle model.
