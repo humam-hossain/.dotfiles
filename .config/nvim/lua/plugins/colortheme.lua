@@ -8,12 +8,16 @@ return {
 			flavour = "mocha",
 			transparent_background = false,
 			integrations = {
-				cmp = true,
+				cmp = true, -- blink.cmp reuses nvim-cmp highlight groups
 				gitsigns = true,
-				nvimtree = true,
-				telescope = true,
+				neotree = true, -- replaces stale nvimtree flag (neo-tree is installed)
 				treesitter = true,
 				markdown = true,
+				snacks = {
+					enabled = true,
+					indent_scope_color = "", -- default = overlay2
+				},
+				-- REMOVED per D-14: nvimtree (no nvim-tree installed), telescope (no telescope installed)
 			},
 		})
 		vim.cmd.colorscheme("catppuccin")

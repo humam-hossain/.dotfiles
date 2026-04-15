@@ -20,7 +20,7 @@ return {
 					section_seperator = "",
 					component_seperators = "",
 					icons_enabled = true,
-					globalstatus = false,
+					globalstatus = true, -- D-16: single statusline for all splits
 				},
 				dependencies = { "nvim-tree/nvim-web-devicons" },
 				sections = {
@@ -30,30 +30,23 @@ return {
 						"filename",
 						path = 1,
 					} },
-					lualine_x = (function()
-						-- Graceful degradation if noice fails to load (see Phase 3 CONCERNS.md, D-08).
-						local ok_noice, noice = pcall(require, "noice")
-						local x = {}
-						if ok_noice and noice and noice.api and noice.api.status then
-							table.insert(x, {
-								noice.api.status.mode.get,
-								cond = noice.api.status.mode.has,
-								color = { fg = "#51f7d3" },
-							})
-							table.insert(x, {
-								noice.api.status.command.get,
-								cond = noice.api.status.command.has,
-								color = { fg = "#51f7d3" },
-							})
-						end
-						table.insert(x, "filetype")
-						return x
-					end)(),
+					-- D-18: noice component removed; clean static list
+					lualine_x = { "filetype", "encoding" },
 					lualine_y = { "progress" },
 					lualine_z = { "location" },
 				},
 			})
-			vim.o.laststatus = 0
+
+			-- D-17: guard laststatus on tmux presence
+			-- Inside tmux, vim-tpipeline forwards lualine render to tmux status;
+			-- neovim hides its own statusline via laststatus=0. Outside tmux
+			-- (direct terminal, Windows, VS Code), show statusline inside nvim
+			-- via laststatus=3 (globalstatus).
+			if vim.env.TMUX then
+				vim.o.laststatus = 0
+			else
+				vim.o.laststatus = 3
+			end
 		end,
 	},
 }
