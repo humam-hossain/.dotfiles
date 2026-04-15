@@ -206,12 +206,15 @@ cmd_health() {
 		missing=$(jq -r '.tools[] | select(.available == false) | .name' "$json")
 		if [[ -n "$missing" ]]; then
 			echo "" >&2
-			echo "WARNING: the following tools are not available:" >&2
+			echo "MISSING TOOLS:" >&2
 			while IFS= read -r tool; do
-				local hint="${TOOL_HINTS[$tool]:- distro package or mason tool}"
-				echo "  $tool  →  $hint" >&2
+				local info
+				info=$(jq -r ".tools[] | select(.name == \"$tool\") | \"$tool — affects \(.affected_feature) — install: \(.install_hint)\"" "$json")
+				echo "WARN: $info" >&2
 			done <<< "$missing"
-			echo "(Missing tools do NOT fail the harness — install as needed)" >&2
+			echo "" >&2
+		else
+			echo "ALL TOOLS AVAILABLE" >&2
 		fi
 	else
 		echo "NOTE: jq not available, skipping structured plugin/tool checks" >&2
