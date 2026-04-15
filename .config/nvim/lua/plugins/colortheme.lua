@@ -20,15 +20,4 @@ return {
 			vim.cmd.colorscheme("catppuccin")
 		end,
 	},
-	{
-		"bjarneo/hackerman.nvim",
-		dependencies = {
-			"bjarneo/aether.nvim",
-		},
-		lazy = true,
-		priority = 1000,
-		config = function()
-			vim.cmd.colorscheme("hackerman")
-		end,
-	},
 }
