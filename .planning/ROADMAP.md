@@ -63,9 +63,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: Build plugin inventory with keep/remove/replace rationale
-- [ ] 03-02: Add documented headless smoke checks and health verification workflow
-- [ ] 03-03: Refresh lockfile and harden missing-tool behavior after audit decisions
+- [ ] 03-01-PLAN.md — Build plugin inventory ledger with keep/remove/replace decisions and aggressive audit rules
+- [ ] 03-02-PLAN.md — Build repo-owned headless validation harness (scripts/nvim-validate.sh + core.health.snapshot)
+- [ ] 03-03-PLAN.md — Apply audit decisions: refresh lazy-lock.json, fix drift items, harden missing-tool behavior
 
 ### Phase 4: Tooling and Ecosystem Modernization
 **Goal**: Bring LSP, formatting, completion, and major integrations up to current Neovim ecosystem standards.
