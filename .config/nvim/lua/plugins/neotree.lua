@@ -5,7 +5,6 @@ return {
 		"nvim-lua/plenary.nvim",
 		"nvim-tree/nvim-web-devicons",
 		"MunifTanjim/nui.nvim",
-		"3rd/image.nvim", -- Optional image support in preview window
 		{
 			"s1n7ax/nvim-window-picker",
 			version = "2.*",
