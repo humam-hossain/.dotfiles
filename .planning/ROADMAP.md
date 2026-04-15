@@ -63,9 +63,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Build plugin inventory ledger with keep/remove/replace decisions and aggressive audit rules
-- [ ] 03-02-PLAN.md — Build repo-owned headless validation harness (scripts/nvim-validate.sh + core.health.snapshot)
-- [ ] 03-03-PLAN.md — Apply audit decisions: refresh lazy-lock.json, fix drift items, harden missing-tool behavior
+- [x] 03-01-PLAN.md — Build plugin inventory ledger with keep/remove/replace decisions and aggressive audit rules
+- [x] 03-02-PLAN.md — Build repo-owned headless validation harness (scripts/nvim-validate.sh + core.health.snapshot)
+- [x] 03-03-PLAN.md — Apply audit decisions: refresh lazy-lock.json, fix drift items, harden missing-tool behavior
 
 ### Phase 4: Tooling and Ecosystem Modernization
 **Goal**: Bring LSP, formatting, completion, and major integrations up to current Neovim ecosystem standards.
@@ -104,8 +104,8 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Reliability and Portability Baseline | 0/3 | Not started | - |
-| 2. Central Command and Keymap Architecture | 0/3 | Not started | - |
-| 3. Plugin Audit and Validation Harness | 0/3 | Not started | - |
+| 1. Reliability and Portability Baseline | 3/3 | ✓ Complete | 2026-04-15 |
+| 2. Central Command and Keymap Architecture | 3/3 | ✓ Complete | 2026-04-15 |
+| 3. Plugin Audit and Validation Harness | 3/3 | ✓ Complete | 2026-04-15 |
 | 4. Tooling and Ecosystem Modernization | 0/3 | Not started | - |
 | 5. UX and Performance Polish | 0/3 | Not started | - |
