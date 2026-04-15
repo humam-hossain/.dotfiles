@@ -1,6 +1,6 @@
 return {
 	"folke/noice.nvim",
-	even = "VeryLazy",
+	event = "VeryLazy",
 	opts = {
 		views = {
 			cmdline_popup = {

@@ -30,21 +30,25 @@ return {
 						"filename",
 						path = 1,
 					} },
-					lualine_x = {
-						-- 1. MACRO RECORDING (handled by Noice)
-						{
-							require("noice").api.status.mode.get,
-							cond = require("noice").api.status.mode.has,
-							color = { fg = "#51f7d3" },
-						},
-						-- 2. COMMAND / KEYSTROKES (shows pending keys like "d2...")
-						{
-							require("noice").api.status.command.get,
-							cond = require("noice").api.status.command.has,
-							color = { fg = "#51f7d3" },
-						},
-						"filetype"
-					},
+					lualine_x = (function()
+						-- Graceful degradation if noice fails to load (see Phase 3 CONCERNS.md, D-08).
+						local ok_noice, noice = pcall(require, "noice")
+						local x = {}
+						if ok_noice and noice and noice.api and noice.api.status then
+							table.insert(x, {
+								noice.api.status.mode.get,
+								cond = noice.api.status.mode.has,
+								color = { fg = "#51f7d3" },
+							})
+							table.insert(x, {
+								noice.api.status.command.get,
+								cond = noice.api.status.command.has,
+								color = { fg = "#51f7d3" },
+							})
+						end
+						table.insert(x, "filetype")
+						return x
+					end)(),
 					lualine_y = { "progress" },
 					lualine_z = { "location" },
 				},
