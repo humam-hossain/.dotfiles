@@ -476,7 +476,7 @@ M.lazy = {
     domain = "g",
     scope = "lazy",
     plugin = "nvim-neo-tree/neo-tree.nvim",
-    action = ":Neotree git_commit<CR>",
+    action = ":Neotree git_status",
   },
 
   -- Explorer domain (e)
@@ -600,10 +600,23 @@ M.lazy = {
     mode = "n",
     desc = "Pick a window to switch to",
     domain = "w",
-    scope = "lazy",
-    plugin = "s1n7ax/nvim-window-picker",
+    scope = "global",
     action = function()
-      require("window-picker").pick_window()
+      local wins = vim.api.nvim_list_wins()
+      local choices = {}
+      for _, w in ipairs(wins) do
+        local buf = vim.api.nvim_win_get_buf(w)
+        local name = vim.fs.basename(vim.api.nvim_buf_get_name(buf)) or "[No Name]"
+        table.insert(choices, string.format("Window %d: %s", w, name))
+      end
+      vim.ui.select(choices, { prompt = "Pick window:" }, function(choice)
+        if choice then
+          local win_id = tonumber(choice:match("Window (%d+)"))
+          if win_id then
+            vim.api.nvim_set_current_win(win_id)
+          end
+        end
+      end)
     end,
   },
 

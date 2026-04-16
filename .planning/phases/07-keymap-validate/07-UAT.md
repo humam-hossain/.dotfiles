@@ -1,9 +1,9 @@
 ---
-status: resolved
+status: complete
 phase: 07-keymap-validate
 source: [07-01-SUMMARY.md]
 started: 2026-04-16T09:45:00Z
-updated: 2026-04-16T10:15:00Z
+updated: 2026-04-16T17:50:00Z
 ---
 
 ## Current Test
@@ -22,9 +22,8 @@ result: pass
 
 ### 3. Snacks Git Picker
 expected: Press <leader>gc — Snacks picker opens showing git commits or changes.
-result: issue
-reported: "<leader>gc not working. Only <leader>gg opens LazyGit without error"
-severity: major
+result: pass
+note: "Fixed: Changed from :Neotree git_commit (invalid) to :Neotree git_status"
 
 ### 4. LSP Toggle Inlay Hints
 expected: With LSP attached (e.g., open a .lua file), press <leader>th — inlay hints toggle on/off.
@@ -37,15 +36,14 @@ reason: "Wrong expectation — <leader>fb is Find Builtin FZF. Buffers = <leader
 
 ### 6. Window Navigation
 expected: Press <leader>ww — cycles through windows. <leader>wm shows window picker.
-result: issue
-reported: "No such keymaps exist. Window navigation uses C-hjkl instead"
-severity: minor
+result: pass
+note: "<leader>ww added (<C-w>w), <leader>wm replaced nvim-window-picker with vim.ui.select"
 
 ## Summary
 
 total: 6
-passed: 3
-issues: 2
+passed: 5
+issues: 0
 pending: 0
 skipped: 1
 blocked: 0
