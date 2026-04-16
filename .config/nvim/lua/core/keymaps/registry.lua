@@ -155,6 +155,16 @@ M.global = {
     action = ":wincmd l<CR>",
     opts = { noremap = true, silent = true },
   },
+  {
+    id = "window.cycle",
+    lhs = "<leader>ww",
+    mode = "n",
+    desc = "Cycle to next window",
+    domain = "w",
+    scope = "global",
+    action = "<C-w>w",
+    opts = { noremap = true, silent = true },
+  },
 
   -- Window resize (arrow keys)
   {
@@ -583,6 +593,18 @@ M.lazy = {
     scope = "global",
     action = ":close<CR>",
     opts = { noremap = true, silent = true },
+  },
+  {
+    id = "window.picker",
+    lhs = "<leader>wm",
+    mode = "n",
+    desc = "Pick a window to switch to",
+    domain = "w",
+    scope = "lazy",
+    plugin = "s1n7ax/nvim-window-picker",
+    action = function()
+      require("window-picker").pick_window()
+    end,
   },
 
   -- Toggle domain (t)
