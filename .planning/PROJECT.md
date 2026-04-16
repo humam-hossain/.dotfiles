@@ -1,5 +1,7 @@
 # Cross-Platform Neovim Dotfiles
 
+**Last updated:** 2026-04-16 — Phase 6 (Nyquist Verification) complete. All 18 v1.0 requirements verified PASS across phases 1-5.
+
 ## What This Is
 
 A shared Neovim configuration inside a `.dotfiles` repo that runs reliably across Arch Linux, Debian/Ubuntu, and Windows via OS-specific guards inside one codebase. The v1.0 milestone delivered a clean, modernized, best-practice Neovim setup: organized keymaps, aggressive plugin cleanup, cross-platform portability, a headless validation harness, and full rollout documentation.
