@@ -2,6 +2,10 @@ return {
   "folke/snacks.nvim",
   priority = 1000,
   lazy = false,
+  -- KEY-01: wire all lazy keymaps from central registry via lazy.nvim
+  keys = function()
+    return require("core.keymaps.lazy").get_all_keys()
+  end,
   ---@type snacks.Config
   opts = {
     notifier = {
