@@ -53,7 +53,18 @@ return {
 			ts_ls = {},
 			vimls = {},
 			yamlls = {},
-			lua_ls = {},
+			lua_ls = {
+				single_file_support = true,
+				-- nvim-lspconfig's lua_ls uses root_markers only; vim.fs.root with a callback
+				-- never fires when no markers exist. Provide root_dir that ALWAYS fires the callback,
+				-- falling back to the file's directory for single-file support.
+				root_dir = function(bufnr, on_resolved)
+					local fname = vim.api.nvim_buf_get_name(bufnr)
+					local dir = vim.fs.dirname(fname)
+					local resolved = vim.fs.root(dir, { ".git" }) or dir or "."
+					on_resolved(resolved)
+				end,
+			},
 		}
 
 		local mason_tools = {
@@ -83,6 +94,10 @@ return {
 		end
 
 		vim.lsp.enable(vim.tbl_keys(lsp_servers))
+
+vim.api.nvim_create_user_command("LspLog", function()
+	vim.cmd("edit " .. vim.fn.stdpath("state") .. "/lsp.log")
+end, { desc = "Open LSP log file" })
 
 		vim.api.nvim_create_autocmd("LspAttach", {
 			group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
