@@ -458,6 +458,16 @@ M.lazy = {
     plugin = "lewis6991/gitsigns.nvim",
     action = ":Gitsigns toggle_current_line_blame<CR>",
   },
+  {
+    id = "git.commits",
+    lhs = "<leader>gc",
+    mode = "n",
+    desc = "Browse git commits",
+    domain = "g",
+    scope = "lazy",
+    plugin = "nvim-neo-tree/neo-tree.nvim",
+    action = ":Neotree git_commit<CR>",
+  },
 
   -- Explorer domain (e)
   {
