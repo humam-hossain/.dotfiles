@@ -1,5 +1,5 @@
 ---
-status: diagnosed
+status: resolved
 phase: 07-keymap-validate
 source: [07-01-SUMMARY.md]
 started: 2026-04-16T09:45:00Z
@@ -53,8 +53,8 @@ blocked: 0
 ## Gaps
 
 - truth: "<leader>gc opens Snacks git picker showing commits/changes"
-  status: failed
-  reason: "User reported: <leader>gc not working. Only <leader>gg opens LazyGit. No git commits/changes picker exists in registry."
+  status: resolved
+  reason: "Added <leader>gc via neo-tree git_commit source in registry.lua (plan 07.1, commit f183e89)."
   severity: major
   test: 3
   root_cause: "Phase 2 never planned/added <leader>gc. Snacks has no built-in git_commits picker. Neo-tree git_commit source exists (neotree.lua:299)."
@@ -64,10 +64,11 @@ blocked: 0
   missing:
     - "Add <leader>gc entry to registry.lua using neo-tree git_commit source"
   debug_session: ""
+  resolution: "07.1-SUMMARY.md"
 
 - truth: "<leader>ww/<leader>wm window picker exists"
-  status: failed
-  reason: "User reported: no such keymaps. Window navigation via C-hjkl exists but no leader-based window picker."
+  status: resolved
+  reason: "Added <leader>ww (cycle) and <leader>wm (picker) keymaps in registry.lua (plan 07.2, commit 2322ecb)."
   severity: minor
   test: 6
   root_cause: "Phase 2 never planned/added <leader>ww or <leader>wm. nvim-window-picker already installed as neo-tree dependency."
@@ -78,4 +79,5 @@ blocked: 0
     - "Add <leader>ww (cycle windows) using <C-w>w"
     - "Add <leader>wm (pick window) using window-picker plugin"
   debug_session: ""
+  resolution: "07.2-SUMMARY.md"
 
