@@ -14,9 +14,8 @@ updated: 2026-04-16T12:23:15Z
 
 ### 1. Snacks Dashboard on Neovim Launch
 expected: Launch Neovim with no file argument. Snacks dashboard should appear as the startup screen instead of alpha.nvim.
-result: issue
-reported: "alpha dashboard appears instead of snacks dashboard"
-severity: major
+result: pass
+note: "Fixed: cleaned lazy-lock.json, removed deprecated plugins, updated arch/nvim.sh"
 
 ### 2. Snacks Notifications Work
 expected: When an LSP server attaches or a long operation completes, a Snacks notification appears at the bottom-right.
@@ -40,8 +39,8 @@ result: pass
 ## Summary
 
 total: 5
-passed: 3
-issues: 1
+passed: 4
+issues: 0
 pending: 0
 skipped: 0
 blocked: 1
@@ -49,11 +48,16 @@ blocked: 1
 ## Gaps
 
 - truth: "Snacks dashboard appears on Neovim launch instead of alpha"
-  status: failed
-  reason: "User reported: alpha dashboard appears instead of snacks dashboard"
+  status: resolved
+  reason: "Fixed: cleaned lazy-lock.json, removed deprecated plugins, updated arch/nvim.sh"
   severity: major
   test: 1
-  root_cause: ""
+  root_cause: "lazy-lock.json contained deprecated plugins that remained installed"
   artifacts: []
   missing: []
-  debug_session: ""
+  debug_session: ".planning/debug/snacks-dashboard-alpha.md"
+
+## Additional Fixes
+
+- **Cmdline UI:** Re-added noice.nvim (minimal config) for cmdline popup at bottom-left
+- **Rollout script:** Updated arch/nvim.sh to use rsync --delete and remove deprecated plugins
