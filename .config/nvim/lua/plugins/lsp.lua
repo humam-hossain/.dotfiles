@@ -117,12 +117,7 @@ return {
 					})
 				end
 
-				if client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
-					vim.keymap.set("n", "<leader>th", function()
-						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
-					end, { buffer = event.buf, desc = "[T]oggle Inlay [H]ints" })
-				end
-			end,
+				end,
 		})
 	end,
 }
