@@ -14,9 +14,9 @@ Central Command and Keymap Architecture — central registry, domain taxonomy, n
 
 | Req ID | Requirement | Status | Evidence |
 |--------|-------------|--------|----------|
-| KEY-01 | Central registry as single source of truth | PASS | registry.lua exists with global/lazy/buffer/plugin_local scopes; apply.lua, attach.lua, lazy.lua, whichkey.lua all use it |
+| KEY-01 | Central registry as single source of truth | PASS | registry.lua exists with global/lazy/buffer/plugin_local scopes; apply.lua, attach.lua, lazy.lua, whichkey.lua all use it; snacks.lua wires `keys = function() ... get_all_keys()` so pickers trigger via registry |
 | KEY-02 | Coherent domain taxonomy (f/c/g/e/b/w/t/s) | PASS | All 8 domain prefixes present in registry; whichkey groups registered (groups table with 8 entries) |
-| KEY-03 | No hidden duplicate mappings in plugin files | PASS | fzflua/lsp/ufo/neotree use registry helpers; stray vim.keymap.set are callback-scoped only |
+| KEY-03 | No hidden duplicate mappings in plugin files | PASS | fzflua/lsp/ufo/neotree use registry helpers; stray vim.keymap.set are callback-scoped only; duplicate `<leader>th>` in lsp.lua removed — now exclusively via buffer registry entry |
 
 ## Success Criteria Verification
 
