@@ -1,5 +1,32 @@
 # Neovim config
 
+## File Inventory
+
+| File | Purpose |
+|------|---------|
+| lua/core/options.lua | Editor defaults |
+| lua/core/keymaps.lua | Global keymaps |
+| lua/core/keymaps/registry.lua | Keymap registry |
+| lua/core/keymaps/whichkey.lua | Which-key groups |
+| lua/core/keymaps/apply.lua | Global mapping app |
+| lua/core/keymaps/attach.lua | Buffer-local mappings |
+| lua/core/keymaps/lazy.lua | Lazy keymap compilation |
+| lua/core/health.lua | Health snapshot |
+| lua/core/open.lua | External open |
+| lua/plugins/lsp.lua | LSP setup |
+| lua/plugins/blink-cmp.lua | Completion |
+| lua/plugins/conform.lua | Format-on-save |
+| lua/plugins/treesitter.lua | Parsers |
+| lua/plugins/git.lua | Git integration |
+| lua/plugins/colortheme.lua | Colorscheme |
+| lua/plugins/lualine.lua | Statusline |
+| lua/plugins/ufo.lua | Folding |
+| lua/plugins/snacks.lua | UI enhancements |
+| lua/plugins/misc.lua | Misc plugins |
+| lua/plugins/bufferline.lua | Buffer tabs |
+| lua/plugins/project.lua | Project scoping |
+| lua/plugins/vim-indent-object.lua | Indent textobjects |
+
 ## Rollout and Update Workflow
 
 This section is the single entry point for applying this config to a new or existing machine, verifying it, and rolling back if something breaks. It assumes the dotfiles repo is cloned at `~/github_repo/.dotfiles` (adjust paths if yours differs).
