@@ -469,14 +469,14 @@ M.lazy = {
     action = ":Gitsigns toggle_current_line_blame<CR>",
   },
   {
-    id = "git.commits",
-    lhs = "<leader>gc",
+    id = "git.status",
+    lhs = "<leader>gs",
     mode = "n",
-    desc = "Browse git commits",
+    desc = "Open git status window",
     domain = "g",
     scope = "lazy",
-    plugin = "nvim-neo-tree/neo-tree.nvim",
-    action = ":Neotree git_status",
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.picker.git_status() end,
   },
 
   -- Explorer domain (e)
@@ -487,48 +487,8 @@ M.lazy = {
     desc = "Toggle file explorer",
     domain = "e",
     scope = "lazy",
-    plugin = "nvim-neo-tree/neo-tree.nvim",
-    action = ":Neotree toggle position=left<CR>",
-  },
-  {
-    id = "explorer.reveal",
-    lhs = "\\",
-    mode = "n",
-    desc = "Reveal file in Neo-tree",
-    domain = "e",
-    scope = "lazy",
-    plugin = "nvim-neo-tree/neo-tree.nvim",
-    action = ":Neotree reveal<CR>",
-  },
-  {
-    id = "explorer.git_status",
-    lhs = "<leader>ngs",
-    mode = "n",
-    desc = "Open git status window",
-    domain = "g",
-    scope = "lazy",
-    plugin = "nvim-neo-tree/neo-tree.nvim",
-    action = ":Neotree float git_status<CR>",
-  },
-  {
-    id = "explorer.buffers",
-    lhs = "<leader>nb",
-    mode = "n",
-    desc = "Toggle buffer list",
-    domain = "b",
-    scope = "lazy",
-    plugin = "nvim-neo-tree/neo-tree.nvim",
-    action = ":Neotree toggle show buffers right<CR>",
-  },
-  {
-    id = "explorer.reveal_file",
-    lhs = "<leader>nf",
-    mode = "n",
-    desc = "Reveal current file",
-    domain = "e",
-    scope = "lazy",
-    plugin = "nvim-neo-tree/neo-tree.nvim",
-    action = ":Neotree filesystem reveal left<CR>",
+    plugin = "folke/snacks.nvim",
+    action = function() Snacks.explorer() end,
   },
 
   -- Buffer domain (b)
@@ -824,38 +784,6 @@ M.buffer = {
 -- PLUGIN-LOCAL MAPPINGS (scoped to specific plugin contexts)
 -- ============================================================================
 M.plugin_local = {
-  -- Neo-tree window mappings (scoped to neo-tree buffers)
-  {
-    id = "neotree.open_split",
-    lhs = "S",
-    mode = "n",
-    desc = "Open in horizontal split",
-    domain = "e",
-    scope = "plugin-local",
-    attach = "neo-tree",
-    action = "open_split",
-  },
-  {
-    id = "neotree.open_vsplit",
-    lhs = "s",
-    mode = "n",
-    desc = "Open in vertical split",
-    domain = "e",
-    scope = "plugin-local",
-    attach = "neo-tree",
-    action = "open_vsplit",
-  },
-  {
-    id = "neotree.open_tabnew",
-    lhs = "t",
-    mode = "n",
-    desc = "Open in new tab",
-    domain = "e",
-    scope = "plugin-local",
-    attach = "neo-tree",
-    action = "open_tabnew",
-  },
-
   -- CSV view navigation (scoped to CSV buffers)
   {
     id = "csvview.next_field",
