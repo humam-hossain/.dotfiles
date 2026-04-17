@@ -1,6 +1,14 @@
 require("core.options") -- Load general options
 require("core.keymaps") -- Load general keymaps
 
+-- Guard against stale TSNode objects passed by nvim-treesitter injection queries.
+-- node:range() is nil on invalidated nodes; patching here avoids upstream edits.
+local _orig_get_node_text = vim.treesitter.get_node_text
+vim.treesitter.get_node_text = function(node, source, opts)
+  if not node or type(node.range) ~= "function" then return "" end
+  return _orig_get_node_text(node, source, opts)
+end
+
 -- Set up the Lazy plugin manager
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
