@@ -31,6 +31,11 @@ return {
     lazygit = {
       enabled = true, -- D-07: wired in registry as <leader>gg
     },
+    explorer = {
+      enabled = true,
+      replace_netrw = true,
+      trash = true,
+    },
     quickfile = {
       enabled = true, -- fast file render before full lazy load (UX-02)
     },
@@ -44,4 +49,8 @@ return {
       enabled = false, -- D-12: no established use case
     },
   },
+  config = function(_, opts)
+    require("snacks").setup(opts)
+    vim.ui.select = Snacks.picker.select
+  end,
 }

@@ -8,8 +8,8 @@ local registry = require("core.keymaps.registry")
 
 local M = {}
 
--- Register all domain groups and mapping hints
-function M.register()
+-- Setup which-key with all domain groups and individual key descriptions
+function M.setup()
   local ok, which_key = pcall(require, "which-key")
   if not ok then
     vim.notify("[keymaps.whichkey] which-key not loaded", vim.log.levels.DEBUG)
