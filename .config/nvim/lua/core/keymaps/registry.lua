@@ -506,7 +506,7 @@ M.lazy = {
     domain = "g",
     scope = "lazy",
     plugin = "folke/snacks.nvim",
-    action = function() Snacks.picker.diffs() end,
+    action = function() Snacks.picker.git_diff() end,
   },
 
   -- Explorer domain (e)
