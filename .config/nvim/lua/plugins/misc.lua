@@ -1,6 +1,25 @@
 -- Standalone plugins with less than 10 lines of config go here
 return {
 	{
+		-- Cmdline UI (replaces vim's default)
+		"folke/noice.nvim",
+		event = "VeryLazy",
+		opts = {
+			cmdline = { enabled = true },
+			views = {
+				cmdline_popup = {
+					border = { style = "none" },
+					relative = "editor",
+					position = { row = "100%", col = 0 },
+					size = { width = 100 },
+				},
+			},
+			lsp = { progress = { enabled = false } },
+			notify = { enabled = false },
+			messages = { enabled = false },
+		},
+	},
+	{
 		-- Tmux & split window navigation
 		"christoomey/vim-tmux-navigator",
 	},
@@ -17,6 +36,7 @@ return {
 		"folke/which-key.nvim",
 		config = function()
 			require("which-key").setup({})
+			require("core.keymaps.whichkey").setup()
 		end,
 	},
 	{

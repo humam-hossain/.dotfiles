@@ -36,6 +36,3 @@ vim.api.nvim_create_autocmd("FocusLost", {
 
 -- Apply global mappings from the central registry
 require("core.keymaps.apply").apply_global()
-
--- Which-key group registration
-require("core.keymaps.whichkey").setup()
