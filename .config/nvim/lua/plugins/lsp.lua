@@ -74,7 +74,8 @@ return {
 			"marksman",
 			"clangd",
 			"gopls",
-			"ty",
+			-- "ty" intentionally excluded: not yet in Mason registry (Astral Python type-checker)
+			-- ty binary can be installed manually; lsp_servers entry still enables it if found on PATH
 			"css-lsp",
 			"html-lsp",
 			"json-lsp",
