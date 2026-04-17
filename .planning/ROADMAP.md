@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v1.0 Neovim Modernization** — Phases 1-5 (shipped 2026-04-15)
-- 🔄 **v1.0 Gap Closure** — Phases 6-8 (in progress)
+- 🔄 **v1.0 Gap Closure** — Phases 6-11 (in progress)
 
 ## Phases
 
@@ -35,6 +35,21 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
 **Requirements:** UX-01, UX-02
 **Gap Closure:** Closes unsatisfied requirement status for Phase 5 UX
 
+### Phase 9: Fix Keymap Registry Integration
+**Goal:** Wire the keymap registry to which-key and fix neo-tree lazy-load triggers so all three keymap requirements are actually satisfied at runtime
+**Requirements:** KEY-01, KEY-02, KEY-03, TOOL-02
+**Gap Closure:** Closes critical integration gaps — whichkey.register() never called, neo-tree domain-mismatched keys trigger snacks load, plugin_local scope mismatch
+
+### Phase 10: Resolve noice.nvim / UX-01
+**Goal:** Either remove noice from misc.lua entirely or update UX-01 requirement wording to reflect intentional partial retention
+**Requirements:** UX-01
+**Gap Closure:** Closes UX-01 partial — noice still active despite "snacks replacing noice" claim
+
+### Phase 11: Nyquist Compliance and Tech Debt
+**Goal:** Add missing VERIFICATION.md / VALIDATION.md files and fix SUMMARY.md frontmatter so phases 6-8 are Nyquist-compliant
+**Requirements:** —
+**Gap Closure:** Closes documentation gaps — Phase 06 missing VERIFICATION.md, Phase 07 missing VALIDATION.md, Phase 08 SUMMARY missing requirements-completed field
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -47,3 +62,6 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
 | 6. Add Missing VERIFICATION.md Files | v1.0 Gap Closure | 1/5 | 🔄 In Progress | — |
 | 7. Validate Keymap Requirements | v1.0 Gap Closure | 3/3 | Complete    | 2026-04-16 |
 | 8. Validate UX Requirements | v1.0 Gap Closure | 1/1 | Complete   | 2026-04-16 |
+| 9. Fix Keymap Registry Integration | v1.0 Gap Closure | 0/1 | Pending | — |
+| 10. Resolve noice.nvim / UX-01 | v1.0 Gap Closure | 0/1 | Pending | — |
+| 11. Nyquist Compliance and Tech Debt | v1.0 Gap Closure | 0/1 | Pending | — |
