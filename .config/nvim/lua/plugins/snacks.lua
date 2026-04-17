@@ -1,3 +1,4 @@
+--- TODO: UI enhancements - snacks.nvim dashboard/notifier/picker ---
 return {
 	"folke/snacks.nvim",
 	priority = 1000,

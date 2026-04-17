@@ -1,3 +1,4 @@
+--- TODO: Git integration - gitsigns, fugitive ---
 return {
 	{
 		"tpope/vim-fugitive",

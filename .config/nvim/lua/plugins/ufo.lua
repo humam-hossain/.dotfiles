@@ -1,3 +1,4 @@
+--- TODO: Folding UX - nvim-ufo, virtual text ---
 return {
 	"kevinhwang91/nvim-ufo",
 	dependencies = {

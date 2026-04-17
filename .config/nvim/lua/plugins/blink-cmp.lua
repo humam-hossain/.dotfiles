@@ -1,3 +1,4 @@
+--- TODO: Completion engine - blink.cmp config ---
 return {
 	"saghen/blink.cmp",
 	-- optional: provides snippets for the snippet source
