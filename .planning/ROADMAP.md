@@ -63,5 +63,5 @@ Full archive: `.planning/milestones/v1.0-ROADMAP.md`
 | 7. Validate Keymap Requirements | v1.0 Gap Closure | 3/3 | Complete    | 2026-04-16 |
 | 8. Validate UX Requirements | v1.0 Gap Closure | 1/1 | Complete   | 2026-04-16 |
 | 9. Fix Keymap Registry Integration | v1.0 Gap Closure | 2/2 | Ready to execute | — |
-| 10. Resolve noice.nvim / UX-01 | v1.0 Gap Closure | 0/1 | Pending | — |
+| 10. Resolve noice.nvim / UX-01 | v1.0 Gap Closure | 0/0 | Complete    | 2026-04-17 |
 | 11. Nyquist Compliance and Tech Debt | v1.0 Gap Closure | 0/1 | Pending | — |
