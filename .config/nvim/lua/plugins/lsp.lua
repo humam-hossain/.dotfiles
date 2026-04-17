@@ -1,3 +1,4 @@
+--- TODO: LSP client setup - vim.lsp.config(), mason, diagnostics ---
 return {
 	"neovim/nvim-lspconfig",
 	dependencies = {

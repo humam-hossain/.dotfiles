@@ -1,3 +1,4 @@
+--- TODO: Project scoping - project.nvim ---
 return {
 	"ahmedkhalf/project.nvim",
 	init = function()

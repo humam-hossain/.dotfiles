@@ -1,3 +1,4 @@
+--- TODO: Statusline - lualine, tmux guard ---
 return {
 	{
 		"vimpostor/vim-tpipeline",

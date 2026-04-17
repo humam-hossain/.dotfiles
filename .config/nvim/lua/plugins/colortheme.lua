@@ -1,3 +1,4 @@
+--- TODO: Colorscheme - catppuccin, highlights ---
 return {
 	"catppuccin/nvim",
 	name = "catppuccin",

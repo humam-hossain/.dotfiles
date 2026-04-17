@@ -1,3 +1,4 @@
+--- TODO: Misc plugins - which-key, autopairs, todo-comments ---
 -- Standalone plugins with less than 10 lines of config go here
 return {
 	{

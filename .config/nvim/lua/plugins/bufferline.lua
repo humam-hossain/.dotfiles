@@ -1,3 +1,4 @@
+--- TODO: Buffer tabs - bufferline.nvim ---
 return {
 	"akinsho/bufferline.nvim",
 	dependencies = {
