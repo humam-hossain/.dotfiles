@@ -38,13 +38,21 @@ return {
 			},
 		})
 
+		-- Servers managed via vim.lsp.config() + vim.lsp.enable() (nvim 0.12 native API).
+		-- nvim-lspconfig v2 auto-registers cmd/filetypes/root_markers from its lsp/*.lua
+		-- files via the runtimepath. We only need to provide overrides here.
 		local lsp_servers = {
-			bashls = {},
+			bashls = {
+				settings = {
+					bash = {
+						shellcheckPath = "",
+					},
+				},
+			},
 			marksman = {},
 			clangd = {},
 			gopls = {},
 			ty = {},
-			eslint_d = {},
 			cssls = {},
 			html = {},
 			jsonls = {},
@@ -55,18 +63,31 @@ return {
 			yamlls = {},
 			lua_ls = {
 				single_file_support = true,
-				-- nvim-lspconfig's lua_ls uses root_markers only; vim.fs.root with a callback
-				-- never fires when no markers exist. Provide root_dir that ALWAYS fires the callback,
-				-- falling back to the file's directory for single-file support.
-				root_dir = function(bufnr, on_resolved)
-					local fname = vim.api.nvim_buf_get_name(bufnr)
-					local dir = vim.fs.dirname(fname)
-					local resolved = vim.fs.root(dir, { ".git" }) or dir or "."
-					on_resolved(resolved)
-				end,
 			},
+			basedpyright = {},
 		}
 
+		-- Mason LSP servers to ensure installed (mason package names).
+		-- These must be installed for the corresponding LSP to start.
+		local mason_lsp_servers = {
+			"bash-language-server",
+			"marksman",
+			"clangd",
+			"gopls",
+			"ty",
+			"css-lsp",
+			"html-lsp",
+			"json-lsp",
+			"jdtls",
+			"texlab",
+			"typescript-language-server",
+			"vim-language-server",
+			"yaml-language-server",
+			"lua-language-server",
+			"basedpyright",
+		}
+
+		-- Non-LSP mason tools (formatters, linters, etc.)
 		local mason_tools = {
 			"stylua",
 			"asmfmt",
@@ -80,11 +101,20 @@ return {
 			"shfmt",
 		}
 
-		require("mason-tool-installer").setup({ ensure_installed = mason_tools })
+		local all_mason_packages = vim.list_extend(vim.list_extend({}, mason_lsp_servers), mason_tools)
+		require("mason-tool-installer").setup({ ensure_installed = all_mason_packages })
+
+		-- Initialize mason-lspconfig so it can auto-enable newly installed servers.
+		-- automatic_enable is set to false because we manage vim.lsp.enable() ourselves below.
+		require("mason-lspconfig").setup({
+			automatic_enable = false,
+		})
 
 		local lsp_capabilities = vim.lsp.protocol.make_client_capabilities()
 		lsp_capabilities = require("blink.cmp").get_lsp_capabilities(lsp_capabilities)
 
+		-- Apply capability overrides (and any per-server config overrides) on top of
+		-- nvim-lspconfig v2 defaults already registered in the runtimepath.
 		for server_name, server_opts in pairs(lsp_servers) do
 			local opts = vim.tbl_deep_extend("force", {
 				capabilities = lsp_capabilities,
@@ -95,9 +125,9 @@ return {
 
 		vim.lsp.enable(vim.tbl_keys(lsp_servers))
 
-vim.api.nvim_create_user_command("LspLog", function()
-	vim.cmd("edit " .. vim.fn.stdpath("state") .. "/lsp.log")
-end, { desc = "Open LSP log file" })
+		vim.api.nvim_create_user_command("LspLog", function()
+			vim.cmd("edit " .. vim.fn.stdpath("state") .. "/lsp.log")
+		end, { desc = "Open LSP log file" })
 
 		vim.api.nvim_create_autocmd("LspAttach", {
 			group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
@@ -109,7 +139,11 @@ end, { desc = "Open LSP log file" })
 
 				attach.apply_lsp(event.buf)
 
-				if client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
+				if
+					client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf)
+					and not vim.b[event.buf]._lsp_highlight_attached
+				then
+					vim.b[event.buf]._lsp_highlight_attached = true
 					local highlight_augroup = vim.api.nvim_create_augroup("kickstart-lsp-highlight", { clear = false })
 					vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 						buffer = event.buf,
@@ -131,8 +165,7 @@ end, { desc = "Open LSP log file" })
 						end,
 					})
 				end
-
-				end,
+			end,
 		})
 	end,
 }
