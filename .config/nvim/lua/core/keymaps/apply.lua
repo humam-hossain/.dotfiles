@@ -1,3 +1,5 @@
+--- TODO: Global mapping application at startup ---
+
 -- ============================================================================
 -- KEYMAP APPLY - Applies global/eager mappings from the registry
 -- ============================================================================

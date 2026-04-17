@@ -1,3 +1,5 @@
+--- TODO: Buffer-local mappings on LSP attach ---
+
 -- ============================================================================
 -- KEYMAP ATTACH - Apply registry-owned scoped mappings for known contexts
 -- ============================================================================

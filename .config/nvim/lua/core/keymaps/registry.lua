@@ -1,3 +1,5 @@
+--- TODO: Declarative keymap registry - id, lhs, mode, desc, domain, scope ---
+
 -- ============================================================================
 -- KEYMAP REGISTRY - Central source of truth for all custom mappings
 -- ============================================================================
