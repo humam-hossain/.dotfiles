@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: completed
-stopped_at: Completed all phases and plans in v1.0 milestone
-last_updated: "2026-04-17T17:03:59.207Z"
+milestone: v1.1
+milestone_name: Neovim Setup Bug Fixes
+status: active
+stopped_at: Defining milestone requirements and roadmap
+last_updated: "2026-04-17T18:30:00.000Z"
 progress:
-  total_phases: 7
-  completed_phases: 5
-  total_plans: 8
-  completed_plans: 8
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -19,16 +19,16 @@ progress:
 
 See: .planning/PROJECT.md (updated 2026-04-17)
 
-**Core value:** One shared Neovim config should give a clean, modern, bug-resistant editing experience across Linux and Windows without the setup fighting the user.
-**Current focus:** Phase 11 complete — Nyquist compliance artifacts created
+**Core value:** One shared Neovim config gives a clean, modern, bug-resistant editing experience across Linux and Windows without the setup fighting the user.
+**Current focus:** Milestone v1.1 setup — requirements and roadmap definition
 
 ## Current Position
 
-Phase: 11
-Plan: 01
-Status: Complete
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
 
-Progress: [████████████████████] 100% — 11 of 11 phases, 16 of 16 plans
+Progress: [--------------------] 0% — 0 phases, 0 plans
 
 ## Accumulated Context
 
@@ -38,7 +38,7 @@ All key decisions recorded in PROJECT.md Key Decisions table.
 
 ### Roadmap Evolution
 
-- Phase 12 added: Document nvim config codebase
+- v1.0 milestone completed and archived as shipped baseline plus follow-up gap-closure/history
 
 ### Pending Todos
 
@@ -46,10 +46,10 @@ None.
 
 ### Blockers/Concerns
 
-None — all v1.0 blockers resolved.
+Need milestone roadmap before execution begins.
 
 ## Session Continuity
 
-Last session: Phase 11 — Nyquist compliance artifacts created
-Stopped at: Completed all phases and plans in v1.0 milestone
-**All v1.0 work complete.** Run `/gsd-new-milestone` to start next milestone.
+Last session: v1.0 completion and follow-up cleanup
+Stopped at: Defining milestone requirements and roadmap for v1.1
+Next step: Review `.planning/REQUIREMENTS.md`, then run `/gsd-plan-phase 6`
