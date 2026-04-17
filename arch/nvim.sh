@@ -2,9 +2,8 @@
 set -euo pipefail
 set -x
 
-
 echo "[INSTALL] pynvim"
-sudo pacman -Sy --noconfirm --needed python-pynvim
+sudo pacman -Sy --noconfirm --needed python-pynvim fd
 
 echo "[INSTALL] luarocks"
 sudo pacman -Sy --noconfirm --needed luarocks
@@ -15,6 +14,6 @@ sudo pacman -Sy --noconfirm --needed tree-sitter-cli
 echo "[INSTALL] neovim"
 sudo pacman -Sy --noconfirm --needed neovim
 
-echo "[CONFIG] copying .config"
+echo "[CONFIG] syncing .config"
 mkdir -p ~/.config/nvim/
-cp -rf .config/nvim/* ~/.config/nvim/
+rsync -a --delete .config/nvim/ ~/.config/nvim/

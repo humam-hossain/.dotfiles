@@ -1,6 +1,10 @@
+--- TODO: Editor defaults - cursor, fold, search, clipboard, etc. ---
+
+-- NOTE: Window appearance - line numbers, signs, cursor
 vim.wo.number = true -- Make line numbers default (default: false)
 vim.wo.signcolumn = "yes" -- Keep signcolumn on by default (default: 'auto')
 
+-- NOTE: UI behavior - wrap, mouse, scroll
 vim.o.relativenumber = true -- Set relative numbered lines (default: false)
 vim.o.clipboard = "unnamedplus" -- Sync clipboard between OS and Neovim. (default: '')
 vim.o.wrap = true -- Display lines as one long line (default: true)

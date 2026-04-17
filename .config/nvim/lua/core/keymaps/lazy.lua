@@ -1,3 +1,5 @@
+--- TODO: Lazy keymap compilation for plugin specs ---
+
 -- ============================================================================
 -- KEYMAP LAZY - Compile registry entries to lazy.nvim key specs
 -- ============================================================================

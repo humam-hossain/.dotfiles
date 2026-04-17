@@ -1,3 +1,5 @@
+--- TODO: Health snapshot for validation harness ---
+
 local M = {}
 
 local TOOL_METADATA = {

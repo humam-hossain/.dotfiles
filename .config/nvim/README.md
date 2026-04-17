@@ -383,8 +383,61 @@ This config is designed to work across Arch Linux, Debian/Ubuntu, and Windows wi
 2. **External open**: Press `<C-S-o>` - should open in system default app
 3. **Neo-tree open**: In neo-tree, press `<c-o>` on a file - should open externally
 4. **Buffer close**: Press `<C-q>` on modified buffer - should prompt for confirmation
-5. **Split close**: Press `<leader>xs>` - should close only current split
+. **Split close**: Press `<leader>xs>` - should close only current split
 6. **Autosave**: Edit a file, switch focus away - should auto-save (FocusLost)
+
+## Manual LSP Verification
+
+### Quick Check
+
+```bash
+# View LSP log for errors
+tail -50 ~/.local/state/nvim/lsp.log
+```
+
+In Neovim, open a file and run:
+
+```
+:LspInfo
+```
+
+Shows active LSP clients for the current buffer.
+
+### Per-Language Test
+
+Open a file with a known filetype and check the log for successful start:
+
+| Filetype | Expected LSP |
+|----------|--------------|
+| `.lua` | lua_ls |
+| `.py` | ty |
+| `.js`/`.ts` | ts_ls |
+| `.rs` | rust_analyzer |
+| `.go` | gopls |
+| `.c`/`.h` | clangd |
+| `.md` | marksman |
+| `.sh` | bashls |
+| `.json` | jsonls |
+| `.html` | html |
+| `.css` | cssls |
+| `.yaml` | yamlls |
+
+Expected log entry: `"Starting <server> LSP server"` or `"Starting Marksman LSP server"`.
+
+### Common Errors
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `invalid "eslint_d" config: cmd: expected table, got nil` | eslint_d not in config or not installed | Remove from lsp_servers or install eslint |
+| `ShellCheck: disabling linting as no executable was found` | shellcheck not installed | Install `pacman -S shellcheck` or set `shellcheckPath = ""` in bashls |
+| `locale-loader error` | lua_ls root_dir callback issue | Remove custom root_dir from lua_ls config |
+| `jdtls: Java 21 not found` | Java 21 not installed | Install Java 21 or disable jdtls |
+
+### Verify All Servers Enabled
+
+```bash
+nvim --headless -c "lua print(vim.inspect(vim.lsp.get_active_clients()))" -c "qa" 2>&1 | grep -v "deprecated"
+```
 
 ## Resources
 

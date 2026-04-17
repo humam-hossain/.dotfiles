@@ -1,7 +1,6 @@
--- ============================================================================
--- NEOVIM KEYMAPS CONFIGURATION
--- ============================================================================
+--- TODO: Global keymaps - smart quit, save/format, tmux navigation ---
 
+-- NOTE: Leader key setup
 -- Set leader key to spacebar for custom key combinations
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
@@ -10,10 +9,7 @@ vim.g.maplocalleader = " "
 -- This prevents conflicts with our leader key mappings
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true, desc = "Disable spacebar" })
 
--- ============================================================================
--- AUTO-SAVE (non-mapping policy that belongs in core)
--- ============================================================================
-
+-- NOTE: Auto-save configuration
 -- Auto-save on focus lost (conservative, guarded)
 vim.api.nvim_create_autocmd("FocusLost", {
   pattern = "*",

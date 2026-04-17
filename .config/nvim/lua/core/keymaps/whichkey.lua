@@ -1,3 +1,5 @@
+--- TODO: Which-key group registration ---
+
 -- ============================================================================
 -- KEYMAP WHICHKEY - Registry-driven which-key group registration
 -- ============================================================================

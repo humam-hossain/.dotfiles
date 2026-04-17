@@ -18,6 +18,6 @@ sudo mv nvim-linux-x86_64 /opt/nvim
 sudo ln -sf /opt/nvim/bin/nvim /usr/local/bin/nvim
 rm nvim-linux-x86_64.tar.gz
 
-echo "[CONFIG] copying .config"
+echo "[CONFIG] syncing .config"
 mkdir -p ~/.config/nvim/
-cp -rf .config/nvim/* ~/.config/nvim/
+rsync -a --delete .config/nvim/ ~/.config/nvim/
