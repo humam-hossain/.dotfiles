@@ -18,6 +18,9 @@ return {
     },
     picker = {
       enabled = true, -- D-06: replaces fzf-lua; wired via registry
+      previewers = {
+        diff = { style = "syntax" }, -- avoid treesitter injection nil node bug (nvim-treesitter compat)
+      },
     },
     indent = {
       enabled = true, -- D-08: replaces indent-blankline
