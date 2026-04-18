@@ -23,10 +23,10 @@
 **Goal:** Turn reported and known Neovim setup failures into a ranked inventory with reliable repro steps and ownership labels
 **Requirements:** BUG-01, BUG-02, BUG-03
 **Depends on:** —
-**Plans:** 2 plans
+**Plans:** 2 plans ✓ 1/2 COMPLETE
 
 Plans:
-- [ ] 6-01-PLAN.md — Audit current runtime failures from keymaps, plugins, crashes, and `:checkhealth`
+- [x] 6-01-PLAN.md — Audit current runtime failures from keymaps, plugins, crashes, and `:checkhealth`
 - [ ] 6-02-PLAN.md — Create reproducible validation checklist for confirmed failures
 
 ### Phase 7: Keymap Reliability Fixes
@@ -85,7 +85,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status |
 |-------|-----------|----------------|--------|
-| 6. Runtime Failure Inventory and Reproduction | v1.1 | 0/2 | ⬜ Pending |
+| 6. Runtime Failure Inventory and Reproduction | v1.1 | 1/2 | 📋 In Progress |
 | 7. Keymap Reliability Fixes | v1.1 | 0/2 | ⬜ Pending |
 | 8. Plugin Runtime Hardening | v1.1 | 0/3 | ⬜ Pending |
 | 9. Health Signal Cleanup | v1.1 | 0/2 | ⬜ Pending |
