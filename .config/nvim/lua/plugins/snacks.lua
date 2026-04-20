@@ -19,6 +19,8 @@ return {
 		},
 		picker = {
 			enabled = true, -- D-06: replaces fzf-lua; wired via registry
+			hidden = true,
+			ignored = true,
 			previewers = {
 				diff = { style = "syntax" }, -- avoid treesitter injection nil node bug (nvim-treesitter compat)
 			},
@@ -39,7 +41,6 @@ return {
 			enabled = true,
 			replace_netrw = true,
 			trash = true,
-			hidden = true,
 		},
 		quickfile = {
 			enabled = true, -- fast file render before full lazy load (UX-02)

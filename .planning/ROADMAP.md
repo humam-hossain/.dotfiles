@@ -85,7 +85,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status |
 |-------|-----------|----------------|--------|
-| 6. Runtime Failure Inventory and Reproduction | v1.1 | 1/2 | 📋 In Progress |
+| 6. Runtime Failure Inventory and Reproduction | v1.1 | 2/2 | ✅ Complete |
 | 7. Keymap Reliability Fixes | v1.1 | 0/2 | ⬜ Pending |
 | 8. Plugin Runtime Hardening | v1.1 | 0/3 | ⬜ Pending |
 | 9. Health Signal Cleanup | v1.1 | 0/2 | ⬜ Pending |
