@@ -1,7 +1,7 @@
 # FAILURES.md — Runtime Failure Inventory
 
 **Generated:** 2026-04-18T06:08:48Z
-**Status:** Discovered (requires manual confirmation)
+**Status:** Discovered (human-verified)
 
 ## Environment
 
@@ -13,27 +13,21 @@ Tools: jq: jq-1.8.1, git: git version 2.53.0
 
 | ID | Description | Owner | Status | Repro Steps | Provenance |
 |----|-------------|-------|--------|--------------|-------------|
-| BUG-001 | neo-tree plugin failed to load | plugin | Discovered | See provenance source for details | health |
-| BUG-002 | --- TODO: LSP client setup - vim.lsp.config(), mason, diagnostics --- | plugins/lsp.lua | Discovered | See provenance source for details | todo |
-| BUG-003 | --- TODO: UI enhancements - snacks.nvim dashboard/notifier/picker --- | plugins/snacks | Discovered | See provenance source for details | todo |
-| BUG-004 | --- TODO: Statusline - lualine, tmux guard --- | plugins/lualine | Discovered | See provenance source for details | todo |
-| BUG-005 | --- TODO: Syntax parsing - treesitter install/update --- | plugins/treesitter.lua | Discovered | See provenance source for details | todo |
-| BUG-006 | --- TODO: Indent textobjects - vim-indent-object --- | plugins/vim-indent-object | Discovered | See provenance source for details | todo |
-| BUG-007 | --- TODO: Git integration - gitsigns, fugitive --- | plugins/git.lua | Discovered | See provenance source for details | todo |
-| BUG-008 | --- TODO: Format-on-save dispatcher - conform.nvim --- | plugins/conform.lua | Discovered | See provenance source for details | todo |
-| BUG-009 | --- TODO: Colorscheme - catppuccin, highlights --- | plugins/colortheme | Discovered | See provenance source for details | todo |
-| BUG-010 | --- TODO: Completion engine - blink.cmp config --- | plugins/blink-cmp.lua | Discovered | See provenance source for details | todo |
-| BUG-011 | --- TODO: Project scoping - project.nvim --- | plugins/project | Discovered | See provenance source for details | todo |
-| BUG-012 | --- TODO: Folding UX - nvim-ufo, virtual text --- | plugins/ufo.lua | Discovered | See provenance source for details | todo |
-| BUG-013 | --- TODO: Buffer tabs - bufferline.nvim --- | plugins/bufferline | Discovered | See provenance source for details | todo |
-| BUG-014 | --- TODO: Misc plugins - which-key, autopairs, todo-comments --- | plugins/misc | Discovered | See provenance source for details | todo |
-| BUG-015 | --- TODO: Editor defaults - cursor, fold, search, clipboard, etc. --- | core/options.lua | Discovered | See provenance source for details | todo |
-| BUG-016 | --- TODO: Lazy keymap compilation for plugin specs --- | core/keymaps/ | Discovered | See provenance source for details | todo |
-| BUG-017 | --- TODO: Declarative keymap registry - id, lhs, mode, desc, domain, scope --- | core/keymaps/ | Discovered | See provenance source for details | todo |
-| BUG-018 | --- TODO: Which-key group registration --- | core/keymaps/ | Discovered | See provenance source for details | todo |
-| BUG-019 | 		vim.notify("[keymaps.whichkey] which-key not loaded", vim.log.levels.DEBUG) | core/keymaps/ | Discovered | See provenance source for details | todo |
-| BUG-020 | --- TODO: Global mapping application at startup --- | core/keymaps/ | Discovered | See provenance source for details | todo |
-| BUG-021 | --- TODO: Buffer-local mappings on LSP attach --- | core/keymaps/ | Discovered | See provenance source for details | todo |
-| BUG-022 | --- TODO: Global keymaps - smart quit, save/format, tmux navigation --- | core/keymaps/ | Discovered | See provenance source for details | todo |
-| BUG-023 | --- TODO: Health snapshot for validation harness --- | core/health.lua | Discovered | See provenance source for details | todo |
-| BUG-024 | --- TODO: External file open via vim.ui.open() - cross-platform --- | unknown | Discovered | See provenance source for details | todo |
+| BUG-001 | neo-tree plugin failed to load (module not found) | plugin | Discovered | Plugin replaced by snacks explorer in v1.0 | health |
+| BUG-005 | registry keymap `<cmd> enew <CR>` has trailing characters | core/keymaps/registry.lua | **Confirmed** | Press `<leader>b` → E488 Trailing characters | manual |
+| BUG-006 | registry keymap `<cmd>set wrap!<CR>` has trailing characters | core/keymaps/registry.lua | **Confirmed** | Press `<leader>lw` → E488 Trailing characters | manual |
+| BUG-007 | registry keymap `<cmd>noautocmd w <CR>` has trailing characters | core/keymaps/registry.lua | **Confirmed** | Press `<leader>sn` → E488 Trailing characters | manual |
+| BUG-008 | registry keymap `<cmd>enew <CR>` has trailing characters (leading space) | core/keymaps/registry.lua | **Confirmed** | Press `<leader>xs` → E488 Trailing characters | manual |
+| BUG-009 | registry keymap `<C-w>v` has invalid format | core/keymaps/registry.lua | **Confirmed** | Press `<leader>v` → E488 Trailing characters | manual |
+| BUG-010 | registry keymap `<C-w>s` has invalid format | core/keymaps/registry.lua | **Confirmed** | Press `<leader>h` → E488 Trailing characters | manual |
+| BUG-011 | registry keymap `<C-w>=` has invalid format | core/keymaps/registry.lua | **Confirmed** | Press `<leader>se` → E488 Trailing characters | manual |
+| BUG-012 | gitsigns preview_hunk not a valid function | plugins/git.lua | **Confirmed** | Press `<leader>gp` or `<leader>gt` → E488 | manual |
+| BUG-013 | `<leader>f` search ignores hidden/gitignored files | plugins/fzflua.lua | **Confirmed** | fzf-lua files command needs `hidden=true` | manual |
+
+## Summary
+
+- **Confirmed:** 9 real bugs (keymap registry format issues, gitsigns function name, fzf-lua hidden files)
+- **Discovered:** 1 (neo-tree - already replaced by snacks)
+- **TODO placeholders:** 14 (not real bugs - these are feature tracking comments)
+
+The root cause: keymap actions in registry.lua use `vim.cmd()` format strings like `"<cmd> enew <CR>"` but Neovim 0.12+ rejects trailing characters after `<CR>`.

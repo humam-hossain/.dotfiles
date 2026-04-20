@@ -1,3 +1,35 @@
+<!--toc:start-->
+- [Project](#project)
+  - [Constraints](#constraints)
+- [Technology Stack](#technology-stack)
+- [Languages](#languages)
+- [Runtime](#runtime)
+- [Frameworks](#frameworks)
+- [Key Dependencies](#key-dependencies)
+- [Configuration](#configuration)
+- [Platform Requirements](#platform-requirements)
+- [Conventions](#conventions)
+- [Naming Patterns](#naming-patterns)
+- [Code Style](#code-style)
+- [Import Organization](#import-organization)
+- [Error Handling](#error-handling)
+- [Logging](#logging)
+- [Comments](#comments)
+- [Function Design](#function-design)
+- [Module Design](#module-design)
+- [Architecture](#architecture)
+- [Pattern Overview](#pattern-overview)
+- [Layers](#layers)
+- [Data Flow](#data-flow)
+- [Key Abstractions](#key-abstractions)
+- [Entry Points](#entry-points)
+- [Error Handling](#error-handling-1)
+- [Cross-Cutting Concerns](#cross-cutting-concerns)
+- [Project Skills](#project-skills)
+- [GSD Workflow Enforcement](#gsd-workflow-enforcement)
+- [Developer Profile](#developer-profile)
+<!--toc:end-->
+
 <!-- GSD:project-start source:PROJECT.md -->
 ## Project
 

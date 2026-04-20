@@ -1,8 +1,6 @@
 --- TODO: External file open via vim.ui.open() - cross-platform ---
 
--- ============================================================================
 -- CROSS-PLATFORM EXTERNAL OPEN HELPER
--- ============================================================================
 -- Provides OS-aware external open functionality that works across
 -- Linux, macOS, and Windows using the system default application.
 
