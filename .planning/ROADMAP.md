@@ -33,7 +33,7 @@ Plans:
 **Goal:** Remove config-caused errors from shared keymaps and ensure registry-driven mappings execute safely
 **Requirements:** BUG-01
 **Depends on:** Phase 6
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 7-01-PLAN.md — Fix broken or miswired keymaps in registry and attachment helpers
@@ -86,7 +86,7 @@ Plans:
 | Phase | Milestone | Plans Complete | Status |
 |-------|-----------|----------------|--------|
 | 6. Runtime Failure Inventory and Reproduction | v1.1 | 2/2 | ✅ Complete |
-| 7. Keymap Reliability Fixes | v1.1 | 0/2 | ⬜ Pending |
+| 7. Keymap Reliability Fixes | 2/2 | Complete   | 2026-04-21 |
 | 8. Plugin Runtime Hardening | v1.1 | 0/3 | ⬜ Pending |
 | 9. Health Signal Cleanup | v1.1 | 0/2 | ⬜ Pending |
 | 10. Validation Harness Expansion | v1.1 | 0/3 | ⬜ Pending |
