@@ -22,11 +22,23 @@ function M.get_keys(domain)
 				function()
 					local ok, mod = pcall(require, map.plugin)
 					if ok and mod and mod[map.action] then
+						-- module-method dispatch: plugin module has the action as a method
 						mod[map.action]()
 					elseif type(map.action) == "function" then
+						-- direct function dispatch
 						map.action()
-					else
-						vim.cmd(map.action)
+					elseif type(map.action) == "string" then
+						if map.action:match("<[^>]+>") then
+							-- keymap notation (e.g. <cmd>...<CR>) must go through feedkeys, not vim.cmd
+							vim.api.nvim_feedkeys(
+								vim.api.nvim_replace_termcodes(map.action, true, false, true),
+								"n",
+								false
+							)
+						else
+							-- plain ex-command string
+							vim.cmd(map.action)
+						end
 					end
 				end,
 				desc = map.desc,
@@ -107,8 +119,17 @@ function M.fold_keys()
 						mod[map.action]()
 					elseif type(map.action) == "function" then
 						map.action()
-					else
-						vim.cmd(map.action)
+					elseif type(map.action) == "string" then
+						if map.action:match("<[^>]+>") then
+							-- keymap notation (e.g. <cmd>...<CR>) must go through feedkeys, not vim.cmd
+							vim.api.nvim_feedkeys(
+								vim.api.nvim_replace_termcodes(map.action, true, false, true),
+								"n",
+								false
+							)
+						else
+							vim.cmd(map.action)
+						end
 					end
 				end,
 				desc = map.desc,
