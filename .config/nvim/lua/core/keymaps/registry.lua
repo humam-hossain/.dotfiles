@@ -301,6 +301,145 @@ M.global = {
     action = '"_dP',
     opts = { noremap = true, silent = true },
   },
+
+  -- Buffer management (eager/shared controls, not plugin-trigger lazy keys)
+  {
+    id = "buffer.new",
+    lhs = "<leader>b",
+    mode = "n",
+    desc = "New buffer",
+    domain = "b",
+    scope = "global",
+    action = function() vim.cmd("enew") end,
+    opts = { noremap = true, silent = true },
+  },
+  {
+    id = "buffer.close",
+    lhs = "<leader>x",
+    mode = "n",
+    desc = "Close buffer",
+    domain = "b",
+    scope = "global",
+    action = ":bdelete!<CR>",
+    opts = { noremap = true, silent = true },
+  },
+
+  -- Window management (eager/shared controls)
+  {
+    id = "window.split_vert",
+    lhs = "<leader>v",
+    mode = "n",
+    desc = "Split window vertically",
+    domain = "w",
+    scope = "global",
+    action = function() vim.cmd("vsplit") end,
+    opts = { noremap = true, silent = true },
+  },
+  {
+    id = "window.split_horiz",
+    lhs = "<leader>h",
+    mode = "n",
+    desc = "Split window horizontally",
+    domain = "w",
+    scope = "global",
+    action = function() vim.cmd("split") end,
+    opts = { noremap = true, silent = true },
+  },
+  {
+    id = "window.equalize",
+    lhs = "<leader>se",
+    mode = "n",
+    desc = "Make splits equal",
+    domain = "w",
+    scope = "global",
+    action = function() vim.cmd("wincmd =") end,
+    opts = { noremap = true, silent = true },
+  },
+  {
+    id = "window.close_split",
+    lhs = "<leader>xs",
+    mode = "n",
+    desc = "Close split",
+    domain = "w",
+    scope = "global",
+    action = function() vim.cmd("close") end,
+    opts = { noremap = true, silent = true },
+  },
+  {
+    id = "window.picker",
+    lhs = "<leader>wm",
+    mode = "n",
+    desc = "Pick a window to switch to",
+    domain = "w",
+    scope = "global",
+    action = function()
+      local wins = vim.api.nvim_list_wins()
+      local choices = {}
+      for _, w in ipairs(wins) do
+        local buf = vim.api.nvim_win_get_buf(w)
+        local name = vim.fs.basename(vim.api.nvim_buf_get_name(buf)) or "[No Name]"
+        table.insert(choices, string.format("Window %d: %s", w, name))
+      end
+      vim.ui.select(choices, { prompt = "Pick window:" }, function(choice)
+        if choice then
+          local win_id = tonumber(choice:match("Window (%d+)"))
+          if win_id then
+            vim.api.nvim_set_current_win(win_id)
+          end
+        end
+      end)
+    end,
+    opts = { noremap = true, silent = true },
+  },
+
+  -- Toggle domain (eager/shared controls)
+  {
+    id = "toggle.line_wrap",
+    lhs = "<leader>lw",
+    mode = "n",
+    desc = "Toggle line wrap",
+    domain = "t",
+    scope = "global",
+    action = function() vim.wo.wrap = not vim.wo.wrap end,
+    opts = { noremap = true, silent = true },
+  },
+
+  -- Save domain (eager/shared controls)
+  {
+    id = "save.format_and_write",
+    lhs = "<C-s>",
+    mode = "n",
+    desc = "Save and format file",
+    domain = "s",
+    scope = "global",
+    action = function()
+      require("conform").format({ async = false, lsp_fallback = true })
+      vim.cmd("w")
+    end,
+    opts = { noremap = true, silent = true },
+  },
+  {
+    id = "save.no_format",
+    lhs = "<leader>sn",
+    mode = "n",
+    desc = "Save without formatting",
+    domain = "s",
+    scope = "global",
+    action = function() vim.cmd("noautocmd w") end,
+    opts = { noremap = true, silent = true },
+  },
+  {
+    id = "save.close_buffer",
+    lhs = "<C-q>",
+    mode = "n",
+    desc = "Close current buffer",
+    domain = "b",
+    scope = "global",
+    action = function()
+      vim.cmd("confirm bdelete")
+    end,
+    opts = { noremap = true, silent = true },
+  },
 }
 
 -- ============================================================================
@@ -458,7 +597,7 @@ M.lazy = {
     domain = "g",
     scope = "lazy",
     plugin = "lewis6991/gitsigns.nvim",
-    action = ":Gitsigns preview_hunk<CR>",
+    action = function() require("gitsigns").preview_hunk() end,
   },
   {
     id = "git.toggle_blame",
@@ -468,7 +607,7 @@ M.lazy = {
     domain = "g",
     scope = "lazy",
     plugin = "lewis6991/gitsigns.nvim",
-    action = ":Gitsigns toggle_current_line_blame<CR>",
+    action = function() require("gitsigns").toggle_current_line_blame() end,
   },
   {
     id = "git.status",
@@ -521,144 +660,6 @@ M.lazy = {
     scope = "lazy",
     plugin = "folke/snacks.nvim",
     action = function() Snacks.explorer() end,
-  },
-
-  -- Buffer domain (b)
-  {
-    id = "buffer.new",
-    lhs = "<leader>b",
-    mode = "n",
-    desc = "New buffer",
-    domain = "b",
-    scope = "global",
-    action = "<cmd> enew <CR>",
-    opts = { noremap = true, silent = true },
-  },
-  {
-    id = "buffer.close",
-    lhs = "<leader>x",
-    mode = "n",
-    desc = "Close buffer",
-    domain = "b",
-    scope = "global",
-    action = ":bdelete!<CR>",
-    opts = { noremap = true, silent = true },
-  },
-
-  -- Window domain (w)
-  {
-    id = "window.split_vert",
-    lhs = "<leader>v",
-    mode = "n",
-    desc = "Split window vertically",
-    domain = "w",
-    scope = "global",
-    action = "<C-w>v",
-    opts = { noremap = true, silent = true },
-  },
-  {
-    id = "window.split_horiz",
-    lhs = "<leader>h",
-    mode = "n",
-    desc = "Split window horizontally",
-    domain = "w",
-    scope = "global",
-    action = "<C-w>s",
-    opts = { noremap = true, silent = true },
-  },
-  {
-    id = "window.equalize",
-    lhs = "<leader>se",
-    mode = "n",
-    desc = "Make splits equal",
-    domain = "w",
-    scope = "global",
-    action = "<C-w>=",
-    opts = { noremap = true, silent = true },
-  },
-  {
-    id = "window.close_split",
-    lhs = "<leader>xs",
-    mode = "n",
-    desc = "Close split",
-    domain = "w",
-    scope = "global",
-    action = ":close<CR>",
-    opts = { noremap = true, silent = true },
-  },
-  {
-    id = "window.picker",
-    lhs = "<leader>wm",
-    mode = "n",
-    desc = "Pick a window to switch to",
-    domain = "w",
-    scope = "global",
-    action = function()
-      local wins = vim.api.nvim_list_wins()
-      local choices = {}
-      for _, w in ipairs(wins) do
-        local buf = vim.api.nvim_win_get_buf(w)
-        local name = vim.fs.basename(vim.api.nvim_buf_get_name(buf)) or "[No Name]"
-        table.insert(choices, string.format("Window %d: %s", w, name))
-      end
-      vim.ui.select(choices, { prompt = "Pick window:" }, function(choice)
-        if choice then
-          local win_id = tonumber(choice:match("Window (%d+)"))
-          if win_id then
-            vim.api.nvim_set_current_win(win_id)
-          end
-        end
-      end)
-    end,
-  },
-
-  -- Toggle domain (t)
-  {
-    id = "toggle.line_wrap",
-    lhs = "<leader>lw",
-    mode = "n",
-    desc = "Toggle line wrap",
-    domain = "t",
-    scope = "global",
-    action = "<cmd>set wrap!<CR>",
-    opts = { noremap = true, silent = true },
-  },
-
-  -- Save domain (s)
-  {
-    id = "save.format_and_write",
-    lhs = "<C-s>",
-    mode = "n",
-    desc = "Save and format file",
-    domain = "s",
-    scope = "global",
-    action = function()
-      require("conform").format({ async = false, lsp_fallback = true })
-      vim.cmd("w")
-    end,
-    opts = { noremap = true, silent = true },
-  },
-  {
-    id = "save.no_format",
-    lhs = "<leader>sn",
-    mode = "n",
-    desc = "Save without formatting",
-    domain = "s",
-    scope = "global",
-    action = "<cmd>noautocmd w <CR>",
-    opts = { noremap = true, silent = true },
-  },
-  {
-    id = "save.close_buffer",
-    lhs = "<C-q>",
-    mode = "n",
-    desc = "Close current buffer",
-    domain = "b",
-    scope = "global",
-    action = function()
-      vim.cmd("confirm bdelete")
-    end,
-    opts = { noremap = true, silent = true },
   },
 
   -- UFO fold mappings
