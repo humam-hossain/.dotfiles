@@ -72,7 +72,7 @@ parse_health_json() {
 	# Failed plugins - extract name and truncate error to single line
 	jq -r '.plugins[] | select(.loaded == false) | .name' "$health_json" 2>/dev/null | while read -r name; do
 		local err
-		err=$(jq -r ".plugins[] | select(.name == \"$name\") | .error" "$health_json" 2>/dev/null | head -1 | tr '\n' ' ' | head -c 100)
+		err=$(jq -r --arg n "$name" '.plugins[] | select(.name == $n) | .error' "$health_json" 2>/dev/null | head -1 | tr '\n' ' ' | head -c 100)
 		echo "$name plugin failed to load|plugin|$err|health"
 	done
 
@@ -147,20 +147,19 @@ scan_todo_fixme() {
 
 scan_git_log() {
 	# Check for matching commits first
-	if ! git --no-merges log --all --pretty="%s" 2>/dev/null | grep -qiE 'bug|fix|error|crash|broken|fail'; then
+	if ! git log --no-merges --all --pretty="%s" 2>/dev/null | grep -qiE 'bug|fix|error|crash|broken|fail'; then
 		return
 	fi
 
 	# Process matching commits
 	while IFS= read -r subject; do
-		# Check if commit message contains relevant keywords
 		if echo "$subject" | grep -qiE 'bug|fix|error|crash|broken|fail'; then
 			local cleaned_subject
-			cleaned_subject=$(echo "$subject" | head -c 150)
+			cleaned_subject="${subject:0:150}"
 			local owner="git"
 			echo "$cleaned_subject|$owner|bug-related commit|git"
 		fi
-	done < <(git --no-merges log --all --pretty="%s" 2>/dev/null || true)
+	done < <(git log --no-merges --all --pretty="%s" 2>/dev/null || true)
 }
 
 # =============================================================================
@@ -225,7 +224,7 @@ deduplicate_failures() {
 
 		# Normalize key for deduplication: lowercase + trim
 		local key
-		key=$(echo "$description | $owner" | tr '[:upper:]' '[:lower:]' | xargs)
+		key=$(echo "$description | $owner" | tr '[:upper:]' '[:lower:]' | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
 
 		if [[ -z "${SEEN[$key]:-}" ]]; then
 			SEEN[$key]=1

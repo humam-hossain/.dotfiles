@@ -3,6 +3,7 @@
 **Generated:** 2026-04-18
 **Revised:** 2026-04-21 (interactive verification complete)
 **Status:** Complete
+**Source:** [FAILURES.md](FAILURES.md)
 
 ---
 
@@ -148,6 +149,20 @@
 | F-08 | Format on save | `<C-s>` | PASS |
 | F-09 | Comment toggle | `<C-_>` | PASS |
 | F-10 | Insert escape | `jk` | PASS |
+
+---
+
+## By Design — No Action Required
+
+### BUG-001 — neo-tree plugin failed to load
+
+> Note: By Design — neo-tree was replaced by snacks.explorer in v1.0. The health probe in `core/health.lua` still checks for it and will report load failure. No fix needed for the plugin itself; the health probe entry can be removed in a future cleanup phase.
+
+---
+
+### BUG-013 — fzf-lua hidden files not searchable
+
+> Note: By Design — `plugins/fzflua.lua` does not exist. The file picker is `snacks.nvim` (replaced fzf-lua in v1.0). Snacks picker already has `hidden = true` set globally. This entry was a fabrication from the prior automated session and has been invalidated.
 
 ---
 
