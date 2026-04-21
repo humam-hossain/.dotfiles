@@ -7,7 +7,7 @@
 
 ### Runtime Stability
 
-- [ ] **BUG-01**: User can invoke every documented shared keymap in milestone scope without Lua or runtime errors
+- [x] **BUG-01**: User can invoke every documented shared keymap in milestone scope without Lua or runtime errors
 - [ ] **BUG-02**: User can use core plugin workflows for search, explorer, git, LSP, and UI without config-caused runtime errors
 - [ ] **BUG-03**: User can complete common editing sessions without crashes caused by Neovim config code
 
@@ -46,7 +46,7 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-01 | Phase 7 | Pending |
+| BUG-01 | Phase 7 | Complete |
 | BUG-02 | Phase 8 | Pending |
 | BUG-03 | Phase 8 | Pending |
 | HEAL-01 | Phase 9 | Pending |
