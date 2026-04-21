@@ -1,118 +1,122 @@
 # CHECKLIST.md — Reproduction Checklist (Final)
 
 **Generated:** 2026-04-18
-**Revised:** 2026-04-21 (interactive verification complete)
-**Status:** Complete
+**Revised:** 2026-04-22 (Phase 7-02 — converted to post-fix regression checklist; all BUG-01 entries verified fixed)
+**Status:** Regression Checklist (post-Phase 7)
 **Source:** [FAILURES.md](FAILURES.md)
 
 ---
 
-## Confirmed Bugs — Reproduction Steps
+## Post-Fix Regression Checklist (Phase 7+)
 
-### BUG-005 — `<cmd> enew <CR>` Leading Space → E488
-**lhs:** `<leader>b` | **Owner:** registry.lua:534
+These steps verify the Phase 7-01 fixes remain intact. Each entry replaces the original repro
+steps with regression-detection steps. Historical error details are preserved in FAILURES.md.
+
+### BUG-005 — `<leader>b` opens new buffer (was: E488 from `<cmd> enew <CR>`)
+**lhs:** `<leader>b` | **Owner:** registry.lua (M.global)
 
 1. Open Neovim
 2. Press `<leader>b`
-3. Error: `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: cmd> enew <CR>: <cmd> enew <CR>`
-   Stack: `lazy.lua:29 → vim.cmd("<cmd> enew <CR>")`
 
-**Expected:** New empty buffer opens
-**Fix:** `function() vim.cmd("enew") end`
+**Expected:** New empty buffer opens with no error or notification
+**Regression signal:** Any E488 or Lua error in the notification area
+**Fixed by:** Moved to `M.global`; action is `function() vim.cmd("enew") end`
 
 ---
 
-### BUG-006 — `<cmd>set wrap!<CR>` → E488
-**lhs:** `<leader>lw` | **Owner:** registry.lua:623
+### BUG-006 — `<leader>lw` toggles line wrap (was: E488 from `<cmd>set wrap!<CR>`)
+**lhs:** `<leader>lw` | **Owner:** registry.lua (M.global)
 
 1. Open Neovim
-2. Press `<leader>lw`
-3. Error: `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: cmd>set wrap!<CR>: <cmd>set wrap!<CR>`
-   Stack: `lazy.lua:29 → vim.cmd("<cmd>set wrap!<CR>")`
+2. Press `<leader>lw` — confirm wrap mode toggles (long lines wrap or unwrap)
+3. Press `<leader>lw` again — confirm it toggles back
 
-**Expected:** Line wrap toggles
-**Fix:** `function() vim.wo.wrap = not vim.wo.wrap end`
+**Expected:** `vim.wo.wrap` toggles each press with no error
+**Regression signal:** Any E488 or Lua error
+**Fixed by:** Moved to `M.global`; action is `function() vim.wo.wrap = not vim.wo.wrap end`
 
 ---
 
-### BUG-007 — `<cmd>noautocmd w <CR>` Trailing Space → E488
-**lhs:** `<leader>sn` | **Owner:** registry.lua:648
+### BUG-007 — `<leader>sn` saves without autocmds (was: E488 from `<cmd>noautocmd w <CR>`)
+**lhs:** `<leader>sn` | **Owner:** registry.lua (M.global)
 
 1. Open a file with unsaved changes
 2. Press `<leader>sn`
-3. Error: E488 pattern via `lazy.lua:29 → vim.cmd("<cmd>noautocmd w <CR>")`
 
-**Expected:** Saves without triggering autocmds
-**Fix:** `function() vim.cmd("noautocmd w") end`
+**Expected:** File saves without triggering format-on-save autocmds; no error
+**Regression signal:** Any E488 or Lua error
+**Fixed by:** Moved to `M.global`; action is `function() vim.cmd("noautocmd w") end`
 
 ---
 
-### BUG-008 — `":close<CR>"` → E488 Trailing `<CR>`
-**lhs:** `<leader>xs` | **Owner:** registry.lua:586
+### BUG-008 — `<leader>xs` closes current split (was: E488 from `":close<CR>"`)
+**lhs:** `<leader>xs` | **Owner:** registry.lua (M.global)
 
-1. Open a split (`:vsplit`)
+1. Open a split (`:vsplit` or `<leader>v`)
 2. Press `<leader>xs`
-3. Error: `Vim(close):E488: Trailing characters: <CR>: :close<CR>`
-   Stack: `lazy.lua:29 → vim.cmd(":close<CR>")`
 
-**Expected:** Split closes
-**Fix:** `function() vim.cmd("close") end`
+**Expected:** Current split closes, remaining window fills the space; no error
+**Regression signal:** Any E488 or Lua error
+**Fixed by:** Moved to `M.global`; action is `function() vim.cmd("close") end`
 
 ---
 
-### BUG-009 — `<C-w>v` via vim.cmd → E488
-**lhs:** `<leader>v` | **Owner:** registry.lua:556
+### BUG-009 — `<leader>v` opens vertical split (was: E488 from `<C-w>v` via vim.cmd)
+**lhs:** `<leader>v` | **Owner:** registry.lua (M.global)
 
 1. Press `<leader>v`
-2. Error: `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: C-w>v`
-   Stack: `lazy.lua:29 → vim.cmd("<C-w>v")`
 
-**Expected:** Vertical split opens
-**Fix:** `function() vim.cmd("vsplit") end`
+**Expected:** Vertical split opens showing same buffer; no error
+**Regression signal:** Any E488 or Lua error
+**Fixed by:** Moved to `M.global`; action is `function() vim.cmd("vsplit") end`
 
 ---
 
-### BUG-010 — `<C-w>s` via vim.cmd → E488
-**lhs:** `<leader>h` | **Owner:** registry.lua:566
+### BUG-010 — `<leader>h` opens horizontal split (was: E488 from `<C-w>s` via vim.cmd)
+**lhs:** `<leader>h` | **Owner:** registry.lua (M.global)
 
 1. Press `<leader>h`
-2. Error: E488 Trailing characters: C-w>s
 
-**Fix:** `function() vim.cmd("split") end`
-
----
-
-### BUG-011 — `<C-w>=` via vim.cmd → E488
-**lhs:** `<leader>se` | **Owner:** registry.lua:576
-
-1. Open splits, press `<leader>se`
-2. Error: E488 Trailing characters: C-w>=
-
-**Fix:** `function() vim.cmd("wincmd =") end`
+**Expected:** Horizontal split opens showing same buffer; no error
+**Regression signal:** Any E488 or Lua error
+**Fixed by:** Moved to `M.global`; action is `function() vim.cmd("split") end`
 
 ---
 
-### BUG-012 — `:Gitsigns preview_hunk<CR>` invalid format
-**lhs:** `<leader>gp` | **Owner:** registry.lua:461
+### BUG-011 — `<leader>se` equalizes splits (was: E488 from `<C-w>=` via vim.cmd)
+**lhs:** `<leader>se` | **Owner:** registry.lua (M.global)
 
-1. Open file with git changes
-2. Press `<leader>gp`
-3. Error: `preview_hunk<CR> is not a valid function or action`
+1. Open two or more splits of unequal size
+2. Press `<leader>se`
 
-**Expected:** Hunk preview popup
-**Fix:** `function() require("gitsigns").preview_hunk() end`
+**Expected:** All splits resize to equal dimensions; no error
+**Regression signal:** Any E488 or Lua error
+**Fixed by:** Moved to `M.global`; action is `function() vim.cmd("wincmd =") end`
 
 ---
 
-### BUG-015 — `:Gitsigns toggle_current_line_blame<CR>` invalid format
-**lhs:** `<leader>gt` | **Owner:** registry.lua:471
+### BUG-012 — `<leader>gp` previews hunk (was: invalid Gitsigns format)
+**lhs:** `<leader>gp` | **Owner:** registry.lua (M.global) | **Precondition:** file tracked by git with unstaged changes
 
-1. Open file with git history
+1. Open a file with git changes (unstaged hunk visible)
+2. Position cursor inside a changed hunk
+3. Press `<leader>gp`
+
+**Expected:** Gitsigns hunk preview float opens showing the diff; no error
+**Regression signal:** "not a valid function or action" error or Lua traceback
+**Fixed by:** Converted to `function() require("gitsigns").preview_hunk() end`
+
+---
+
+### BUG-015 — `<leader>gt` toggles line blame (was: invalid Gitsigns format)
+**lhs:** `<leader>gt` | **Owner:** registry.lua (M.global) | **Precondition:** file tracked by git with commit history
+
+1. Open a file with git commit history
 2. Press `<leader>gt`
-3. Error: `toggle_current_line_blame<CR> is not a valid function or action`
 
-**Expected:** Inline git blame toggles
-**Fix:** `function() require("gitsigns").toggle_current_line_blame() end`
+**Expected:** Inline git blame annotation appears at end of current line; no error
+**Regression signal:** "not a valid function or action" error or Lua traceback
+**Fixed by:** Converted to `function() require("gitsigns").toggle_current_line_blame() end`
 
 ---
 
@@ -175,12 +179,12 @@
 
 ---
 
-## Root Cause
+## Root Cause (Historical)
 
-All 10 confirmed bugs share one of two root causes:
+All 10 confirmed bugs shared one of two root causes:
 
-**RC-01 (8 bugs):** `core/keymaps/lazy.lua:29` calls `vim.cmd(map.action)` for string actions. In Neovim 0.12+, `vim.cmd()` → `nvim_exec2()` rejects `<cmd>...<CR>` notation, `":...<CR>"` colon strings, and `<C-w>X` keyseq strings.
+**RC-01 (8 bugs):** `core/keymaps/lazy.lua:29` called `vim.cmd(map.action)` for string actions. In Neovim 0.12+, `vim.cmd()` → `nvim_exec2()` rejects `<cmd>...<CR>` notation, `":...<CR>"` colon strings, and `<C-w>X` keyseq strings.
 
-**RC-02 (2 bugs):** `:Gitsigns command<CR>` strings are not valid gitsigns invocation format regardless of how they're called.
+**RC-02 (2 bugs):** `:Gitsigns command<CR>` strings were not a valid gitsigns invocation format regardless of execution path.
 
-**Fix strategy for Phase 7:** Convert all string actions in `M.lazy` to Lua functions. Do NOT fix `lazy.lua:29` alone — the string actions are semantically wrong regardless of execution path.
+**Phase 7 fix applied:** All 8 RC-01 entries moved from `M.lazy` to `M.global` with explicit Lua callback actions. Both RC-02 Gitsigns entries converted to `function() require("gitsigns").fn() end`. The `lazy.lua` dispatcher was also split (angle-bracket strings now route through `nvim_feedkeys`; plain ex-commands through `vim.cmd`) to prevent recurrence for any remaining `M.lazy` entries. All 9 target mappings passed interactive verification on 2026-04-22.
