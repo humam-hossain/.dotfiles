@@ -32,8 +32,8 @@ Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` w
 
 ## Failure Inventory
 
-| ID | Description | Owner | Status | lhs | Provenance |
-|----|-------------|-------|--------|-----|------------|
+| ID | Description | Owner | Status | Repro Steps / lhs | Provenance |
+|----|-------------|-------|--------|-------------------|------------|
 | BUG-001 | neo-tree plugin failed to load (module not found) | plugin | By Design | — | health |
 | BUG-005 | `<cmd> enew <CR>` → E488 (RC-01) | core/keymaps/registry.lua:534 | **Confirmed** | `<leader>b` | manual |
 | BUG-006 | `<cmd>set wrap!<CR>` → E488 (RC-01) | core/keymaps/registry.lua:623 | **Confirmed** | `<leader>lw` | manual |
