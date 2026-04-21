@@ -54,7 +54,7 @@ end
 --- Apply plugin-local mappings for neo-tree context
 --- @param bufnr number buffer number for neo-tree window
 function M.apply_neotree(bufnr)
-  local plugin_local_maps = registry.get_by_scope("plugin_local")
+  local plugin_local_maps = registry.get_by_scope("plugin-local")
   for _, map in ipairs(plugin_local_maps) do
     if map.attach == "neo-tree" then
       local opts = {
@@ -71,7 +71,7 @@ end
 --- Get all plugin-local mappings
 --- @return table[] mapping specs
 function M.get_plugin_local_maps()
-  return registry.get_by_scope("plugin_local")
+  return registry.get_by_scope("plugin-local")
 end
 
 --- Register LspAttach autocmd to apply buffer-local mappings
