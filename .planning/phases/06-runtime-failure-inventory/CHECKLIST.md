@@ -1,338 +1,171 @@
-# CHECKLIST.md — Interactive Verification Checklist
+# CHECKLIST.md — Reproduction Checklist (Final)
 
 **Generated:** 2026-04-18
-**Revised:** 2026-04-21
-**Status:** Partial — confirmed bugs below, interactive session pending for colon-format keymaps and feature tests
+**Revised:** 2026-04-21 (interactive verification complete)
+**Status:** Complete
 
 ---
 
-## SECTION A: Already Confirmed (from prior session + static analysis)
+## Confirmed Bugs — Reproduction Steps
 
 ### BUG-005 — `<cmd> enew <CR>` Leading Space → E488
-**lhs:** `<leader>b` | **registry.lua:534**
+**lhs:** `<leader>b` | **Owner:** registry.lua:534
 
-Steps: Open Neovim → press `<leader>b`
-Expected: New empty buffer opens
-Error: `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: cmd> enew <CR>`
-Fix: Replace `"<cmd> enew <CR>"` with `function() vim.cmd("enew") end`
+1. Open Neovim
+2. Press `<leader>b`
+3. Error: `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: cmd> enew <CR>: <cmd> enew <CR>`
+   Stack: `lazy.lua:29 → vim.cmd("<cmd> enew <CR>")`
+
+**Expected:** New empty buffer opens
+**Fix:** `function() vim.cmd("enew") end`
 
 ---
 
 ### BUG-006 — `<cmd>set wrap!<CR>` → E488
-**lhs:** `<leader>lw` | **registry.lua:623**
+**lhs:** `<leader>lw` | **Owner:** registry.lua:623
 
-Steps: Open Neovim → press `<leader>lw`
-Expected: Line wrap toggles
-Error: `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: cmd>set wrap!<CR>`
-Fix: Replace with `function() vim.wo.wrap = not vim.wo.wrap end`
+1. Open Neovim
+2. Press `<leader>lw`
+3. Error: `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: cmd>set wrap!<CR>: <cmd>set wrap!<CR>`
+   Stack: `lazy.lua:29 → vim.cmd("<cmd>set wrap!<CR>")`
+
+**Expected:** Line wrap toggles
+**Fix:** `function() vim.wo.wrap = not vim.wo.wrap end`
 
 ---
 
 ### BUG-007 — `<cmd>noautocmd w <CR>` Trailing Space → E488
-**lhs:** `<leader>sn` | **registry.lua:648**
+**lhs:** `<leader>sn` | **Owner:** registry.lua:648
 
-Steps: Open a file → press `<leader>sn`
-Expected: Saves without autocmds
-Error: `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: cmd>noautocmd w <CR>`
-Fix: Replace with `function() vim.cmd("noautocmd w") end`
+1. Open a file with unsaved changes
+2. Press `<leader>sn`
+3. Error: E488 pattern via `lazy.lua:29 → vim.cmd("<cmd>noautocmd w <CR>")`
 
----
-
-### BUG-008 — `":close<CR>"` → E488 Trailing Characters
-**lhs:** `<leader>xs` | **registry.lua:586**
-**Note:** Prior FAILURES.md had wrong action — actual action is `":close<CR>"` not `<cmd>enew`
-
-Steps: Open a split → press `<leader>xs`
-Expected: Closes the split
-Error: `Vim(close):E488: Trailing characters: <CR>: :close<CR>`
-Fix: Replace with `function() vim.cmd("close") end`
+**Expected:** Saves without triggering autocmds
+**Fix:** `function() vim.cmd("noautocmd w") end`
 
 ---
 
-### BUG-009 — `<C-w>v` String RHS → E488
-**lhs:** `<leader>v` | **registry.lua:556**
+### BUG-008 — `":close<CR>"` → E488 Trailing `<CR>`
+**lhs:** `<leader>xs` | **Owner:** registry.lua:586
 
-Steps: Press `<leader>v`
-Expected: Vertical split
-Error: `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: C-w>v`
-Fix: Replace with `function() vim.cmd("vsplit") end`
+1. Open a split (`:vsplit`)
+2. Press `<leader>xs`
+3. Error: `Vim(close):E488: Trailing characters: <CR>: :close<CR>`
+   Stack: `lazy.lua:29 → vim.cmd(":close<CR>")`
 
----
-
-### BUG-010 — `<C-w>s` String RHS → E488
-**lhs:** `<leader>h` | **registry.lua:566**
-
-Steps: Press `<leader>h`
-Expected: Horizontal split
-Error: `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: C-w>s`
-Fix: Replace with `function() vim.cmd("split") end`
+**Expected:** Split closes
+**Fix:** `function() vim.cmd("close") end`
 
 ---
 
-### BUG-011 — `<C-w>=` String RHS → E488
-**lhs:** `<leader>se` | **registry.lua:576**
+### BUG-009 — `<C-w>v` via vim.cmd → E488
+**lhs:** `<leader>v` | **Owner:** registry.lua:556
 
-Steps: Open splits → press `<leader>se`
-Expected: Windows equalized
-Error: `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: C-w>=`
-Fix: Replace with `function() vim.cmd("wincmd =") end`
+1. Press `<leader>v`
+2. Error: `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: C-w>v`
+   Stack: `lazy.lua:29 → vim.cmd("<C-w>v")`
 
----
-
-### BUG-012 — `:Gitsigns preview_hunk<CR>` Wrong Format
-**lhs:** `<leader>gp` | **registry.lua:461**
-
-Steps: Open file with git changes → press `<leader>gp`
-Expected: Hunk preview popup
-Error: `preview_hunk<CR> is not a valid function or action`
-Fix: Replace with `function() require("gitsigns").preview_hunk() end`
+**Expected:** Vertical split opens
+**Fix:** `function() vim.cmd("vsplit") end`
 
 ---
 
-## SECTION B: High-Confidence Discovered (Static Analysis — need confirmation)
+### BUG-010 — `<C-w>s` via vim.cmd → E488
+**lhs:** `<leader>h` | **Owner:** registry.lua:566
 
-### BUG-014 — `<C-w>w` String RHS → likely E488
-**lhs:** `<leader>ww` | **registry.lua:167**
+1. Press `<leader>h`
+2. Error: E488 Trailing characters: C-w>s
 
-Steps: Open splits → press `<leader>ww`
-Expected: Cycles to next window
-[ ] PASS — works correctly
-[ ] FAIL — E488 error (confirm and note exact error message)
+**Fix:** `function() vim.cmd("split") end`
 
 ---
 
-### BUG-015 — `:Gitsigns toggle_current_line_blame<CR>` Wrong Format
-**lhs:** `<leader>gt` | **registry.lua:471**
+### BUG-011 — `<C-w>=` via vim.cmd → E488
+**lhs:** `<leader>se` | **Owner:** registry.lua:576
 
-Steps: Open file with git history → press `<leader>gt`
-Expected: Toggles inline git blame
-[ ] PASS — blame toggles correctly
-[ ] FAIL — error (confirm and note exact error message)
+1. Open splits, press `<leader>se`
+2. Error: E488 Trailing characters: C-w>=
 
----
-
-## SECTION C: Interactive Verification Required — Colon-Format Keymaps
-
-These all use `":cmd<CR>"` string RHS. BUG-008 (`":close<CR>"`) confirmed broken.
-Test each — mark PASS or FAIL with error message if failing.
-
-### BUG-018 — `:wincmd k<CR>` — Window up
-**lhs:** `<C-k>` | **registry.lua:127**
-
-Steps: Open splits (`:vsplit`) → press `<C-k>`
-Expected: Focus moves to window above
-[ ] PASS
-[ ] FAIL — error:
+**Fix:** `function() vim.cmd("wincmd =") end`
 
 ---
 
-### BUG-019 — `:wincmd j<CR>` — Window down
-**lhs:** `<C-j>` | **registry.lua:137**
+### BUG-012 — `:Gitsigns preview_hunk<CR>` invalid format
+**lhs:** `<leader>gp` | **Owner:** registry.lua:461
 
-Steps: Open splits → press `<C-j>`
-Expected: Focus moves to window below
-[ ] PASS
-[ ] FAIL — error:
+1. Open file with git changes
+2. Press `<leader>gp`
+3. Error: `preview_hunk<CR> is not a valid function or action`
 
----
-
-### BUG-020 — `:wincmd h<CR>` — Window left
-**lhs:** `<C-h>` | **registry.lua:147**
-**Note:** Also conflicts with vim-tmux-navigator (BUG-017)
-
-Steps: Open vsplit → press `<C-h>`
-Expected: Focus moves to left window
-[ ] PASS
-[ ] FAIL — error:
-[ ] WRONG BEHAVIOR — vim-tmux-navigator taking over
+**Expected:** Hunk preview popup
+**Fix:** `function() require("gitsigns").preview_hunk() end`
 
 ---
 
-### BUG-021 — `:wincmd l<CR>` — Window right
-**lhs:** `<C-l>` | **registry.lua:157**
-**Note:** Also conflicts with vim-tmux-navigator (BUG-017)
+### BUG-015 — `:Gitsigns toggle_current_line_blame<CR>` invalid format
+**lhs:** `<leader>gt` | **Owner:** registry.lua:471
 
-Steps: Open vsplit → press `<C-l>`
-Expected: Focus moves to right window
-[ ] PASS
-[ ] FAIL — error:
-[ ] WRONG BEHAVIOR — vim-tmux-navigator taking over
+1. Open file with git history
+2. Press `<leader>gt`
+3. Error: `toggle_current_line_blame<CR> is not a valid function or action`
 
----
-
-### BUG-022 — `:resize +2<CR>` — Resize up
-**lhs:** `<Up>` | **registry.lua:179**
-
-Steps: Open splits → press `<Up>`
-Expected: Current window grows taller
-[ ] PASS
-[ ] FAIL — error:
+**Expected:** Inline git blame toggles
+**Fix:** `function() require("gitsigns").toggle_current_line_blame() end`
 
 ---
 
-### BUG-023 — `:resize -2<CR>` — Resize down
-**lhs:** `<Down>` | **registry.lua:189**
+## Verified Non-Issues
 
-Steps: Open splits → press `<Down>`
-[ ] PASS
-[ ] FAIL — error:
-
----
-
-### BUG-024 — `:vertical resize +2<CR>` — Resize left
-**lhs:** `<Left>` | **registry.lua:199**
-
-Steps: Open vsplit → press `<Left>`
-Expected: Current window grows wider
-[ ] PASS
-[ ] FAIL — error:
-
----
-
-### BUG-025 — `:vertical resize -2<CR>` — Resize right
-**lhs:** `<Right>` | **registry.lua:209**
-
-Steps: Open vsplit → press `<Right>`
-[ ] PASS
-[ ] FAIL — error:
+| ID | lhs | Verdict | Notes |
+|----|-----|---------|-------|
+| BUG-014 | `<leader>ww` | PASS | `<C-w>w` in M.global → apply.lua → vim.keymap.set, works |
+| BUG-018 | `<C-k>` | PASS | M.global colon-format via apply.lua |
+| BUG-019 | `<C-j>` | PASS | M.global colon-format via apply.lua |
+| BUG-020 | `<C-h>` | PASS | M.global, works (registry wins over tmux-nav) |
+| BUG-021 | `<C-l>` | PASS | M.global, works (registry wins over tmux-nav) |
+| BUG-022 | `<Up>` | PASS | resize, M.global |
+| BUG-023 | `<Down>` | PASS | resize, M.global |
+| BUG-024 | `<Left>` | PASS | resize, M.global |
+| BUG-025 | `<Right>` | PASS | resize, M.global |
+| BUG-026 | `<Tab>` | PASS | bnext, M.global |
+| BUG-027 | `<S-Tab>` | PASS | bprevious, M.global |
+| BUG-028 | `<leader>x` | PASS | bdelete, M.global |
 
 ---
 
-### BUG-026 — `:bnext<CR>` — Next buffer
-**lhs:** `<Tab>` | **registry.lua:221**
+## Feature Tests — All Pass
 
-Steps: Open 2+ buffers → press `<Tab>` in normal mode
-Expected: Cycles to next buffer
-[ ] PASS
-[ ] FAIL — error:
-
----
-
-### BUG-027 — `:bprevious<CR>` — Previous buffer
-**lhs:** `<S-Tab>` | **registry.lua:231**
-
-Steps: Open 2+ buffers → press `<S-Tab>` in normal mode
-[ ] PASS
-[ ] FAIL — error:
+| ID | Feature | lhs | Status |
+|----|---------|-----|--------|
+| F-01 | LSP rename | `<leader>cn` | PASS |
+| F-02 | LSP code action | `<leader>ca` | PASS |
+| F-03 | Snacks explorer | `<leader>e` | PASS |
+| F-04 | Snacks file picker | `<leader>ff` | PASS |
+| F-05 | LazyGit | `<leader>gg` | PASS |
+| F-06 | Folding (nvim-ufo) | `zM/zR/zK` | PASS |
+| F-07 | Completion (blink.cmp) | insert mode | PASS |
+| F-08 | Format on save | `<C-s>` | PASS |
+| F-09 | Comment toggle | `<C-_>` | PASS |
+| F-10 | Insert escape | `jk` | PASS |
 
 ---
 
-### BUG-028 — `:bdelete!<CR>` — Close buffer
-**lhs:** `<leader>x` | **registry.lua:544**
+## Discovered (Non-Crashing)
 
-Steps: Open a buffer → press `<leader>x`
-Expected: Buffer closes
-[ ] PASS
-[ ] FAIL — error:
-
----
-
-## SECTION D: Feature Tests (not yet covered)
-
-These areas have not been tested at all in prior sessions.
-
-### F-01 — LSP: Rename symbol
-**lhs:** `<leader>cn` (on LSP buffer)
-
-Steps: Open a .lua file, place cursor on a variable → `<leader>cn`
-Expected: Rename prompt appears
-[ ] PASS
-[ ] FAIL
+| ID | Description | Impact |
+|----|-------------|--------|
+| BUG-016 | `vim.tbl_flatten is deprecated` in startup/smoke/sync logs | Log noise, no crash |
+| BUG-017 | vim-tmux-navigator C-h/j/k/l overridden by registry at startup | Smart tmux-pane navigation silently lost |
 
 ---
 
-### F-02 — LSP: Code action
-**lhs:** `<leader>ca` (on LSP buffer)
+## Root Cause
 
-Steps: Open a .lua file, place cursor on code → `<leader>ca`
-Expected: Code action menu appears
-[ ] PASS
-[ ] FAIL
+All 10 confirmed bugs share one of two root causes:
 
----
+**RC-01 (8 bugs):** `core/keymaps/lazy.lua:29` calls `vim.cmd(map.action)` for string actions. In Neovim 0.12+, `vim.cmd()` → `nvim_exec2()` rejects `<cmd>...<CR>` notation, `":...<CR>"` colon strings, and `<C-w>X` keyseq strings.
 
-### F-03 — Snacks Explorer toggle
-**lhs:** `<leader>e`
+**RC-02 (2 bugs):** `:Gitsigns command<CR>` strings are not valid gitsigns invocation format regardless of how they're called.
 
-Steps: Press `<leader>e`
-Expected: File explorer opens/closes
-[ ] PASS
-[ ] FAIL
-
----
-
-### F-04 — Snacks file picker
-**lhs:** `<leader>ff`
-
-Steps: Press `<leader>ff`
-Expected: File picker opens with results including hidden files
-[ ] PASS
-[ ] FAIL
-
----
-
-### F-05 — LazyGit integration
-**lhs:** `<leader>gg`
-
-Steps: Press `<leader>gg`
-Expected: LazyGit window opens
-[ ] PASS
-[ ] FAIL — note: lazygit must be installed (`which lazygit`)
-
----
-
-### F-06 — Folding (nvim-ufo)
-**lhs:** `zM` (close all), `zR` (open all), `zK` (peek)
-
-Steps: Open a file with folds → press `zM`
-Expected: All folds close
-[ ] PASS
-[ ] FAIL
-
----
-
-### F-07 — Completion (blink.cmp)
-Steps: Open a .lua file, type `vim.` in insert mode
-Expected: Completion menu appears
-[ ] PASS
-[ ] FAIL
-
----
-
-### F-08 — Format on save (conform.nvim)
-Steps: Open a .lua file with inconsistent indentation → `<C-s>`
-Expected: File formats and saves
-[ ] PASS
-[ ] FAIL
-
----
-
-### F-09 — Comment toggle
-**lhs:** `<C-_>` (Ctrl+/)
-
-Steps: Open a file, normal mode → `<C-_>`
-Expected: Line gets commented/uncommented
-[ ] PASS
-[ ] FAIL
-
----
-
-### F-10 — Insert mode escape
-**lhs:** `jk`
-
-Steps: Enter insert mode → type `jk`
-Expected: Returns to normal mode
-[ ] PASS
-[ ] FAIL
-
----
-
-## Summary
-
-| Section | Total | Confirmed | Pending |
-|---------|-------|-----------|---------|
-| A: Already confirmed | 8 | 8 | 0 |
-| B: Static high-confidence | 2 | 0 | 2 |
-| C: Colon-format keymaps | 11 | 0 | 11 |
-| D: Feature tests | 10 | 0 | 10 |
-| **Total** | **31** | **8** | **23** |
+**Fix strategy for Phase 7:** Convert all string actions in `M.lazy` to Lua functions. Do NOT fix `lazy.lua:29` alone — the string actions are semantically wrong regardless of execution path.

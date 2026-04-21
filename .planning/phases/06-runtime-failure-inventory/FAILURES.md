@@ -1,8 +1,8 @@
 # FAILURES.md — Runtime Failure Inventory
 
 **Generated:** 2026-04-18T06:08:48Z
-**Revised:** 2026-04-21 (thorough static analysis — prior manual session was not performed interactively)
-**Status:** Discovered + Confirmed (human interactive session pending for colon-format keymaps)
+**Revised:** 2026-04-21 (thorough static + interactive verification complete)
+**Status:** Final
 
 ## Environment
 
@@ -12,64 +12,119 @@ Tools: jq: jq-1.8.1, git: git version 2.53.0
 
 ---
 
-## Failure Inventory
+## Root Cause Summary
 
-| ID | Description | Owner | Status | Repro | Provenance |
-|----|-------------|-------|--------|-------|------------|
-| BUG-001 | neo-tree plugin failed to load (module not found) | plugin | By Design | Plugin replaced by snacks.explorer in v1.0 | health |
-| BUG-005 | `<cmd> enew <CR>` leading space → E488 | core/keymaps/registry.lua:534 | **Confirmed** | `<leader>b` → E488 Trailing characters | manual |
-| BUG-006 | `<cmd>set wrap!<CR>` → E488 | core/keymaps/registry.lua:623 | **Confirmed** | `<leader>lw` → E488 Trailing characters | manual |
-| BUG-007 | `<cmd>noautocmd w <CR>` trailing space → E488 | core/keymaps/registry.lua:648 | **Confirmed** | `<leader>sn` → E488 Trailing characters | manual |
-| BUG-008 | `":close<CR>"` → E488 Trailing characters | core/keymaps/registry.lua:586 | **Confirmed** | `<leader>xs` → Vim(close):E488: Trailing characters: \<CR\> | manual |
-| BUG-009 | `<C-w>v` as string RHS → E488 | core/keymaps/registry.lua:556 | **Confirmed** | `<leader>v` → E488 Trailing characters: C-w>v | manual |
-| BUG-010 | `<C-w>s` as string RHS → E488 | core/keymaps/registry.lua:566 | **Confirmed** | `<leader>h` → E488 Trailing characters: C-w>s | manual |
-| BUG-011 | `<C-w>=` as string RHS → E488 | core/keymaps/registry.lua:576 | **Confirmed** | `<leader>se` → E488 Trailing characters: C-w>= | manual |
-| BUG-012 | `:Gitsigns preview_hunk<CR>` wrong command format | core/keymaps/registry.lua:461 | **Confirmed** | `<leader>gp` → not a valid function or action | manual |
-| BUG-013 | fzf-lua hidden files bug | plugins/fzflua.lua | **By Design** | No fzflua.lua — picker is snacks.nvim with hidden=true already set | static |
-| BUG-014 | `<C-w>w` as string RHS → E488 (missed in prior scan) | core/keymaps/registry.lua:167 | Discovered | `<leader>ww` → likely E488 Trailing characters: C-w>w | static |
-| BUG-015 | `:Gitsigns toggle_current_line_blame<CR>` wrong format | core/keymaps/registry.lua:471 | Discovered | `<leader>gt` → likely same error as BUG-012 | static |
-| BUG-016 | `vim.tbl_flatten is deprecated` warning at startup | unknown plugin dependency | Discovered | Present in startup.log, smoke.log, sync.log | health |
-| BUG-017 | vim-tmux-navigator maps `<C-h/j/k/l>` by default | plugins/misc.lua + registry | Discovered | Conflicts with registry window.move_* (`<C-h/j/k/l>`) | static |
-| BUG-018 | `:wincmd k<CR>` colon-format may fail in 0.12+ | core/keymaps/registry.lua:127 | Discovered | `<C-k>` → possible E488 (same class as BUG-008) | static |
-| BUG-019 | `:wincmd j<CR>` colon-format may fail in 0.12+ | core/keymaps/registry.lua:137 | Discovered | `<C-j>` → possible E488 | static |
-| BUG-020 | `:wincmd h<CR>` colon-format may fail in 0.12+ | core/keymaps/registry.lua:147 | Discovered | `<C-h>` → possible E488 (also tmux-nav conflict) | static |
-| BUG-021 | `:wincmd l<CR>` colon-format may fail in 0.12+ | core/keymaps/registry.lua:157 | Discovered | `<C-l>` → possible E488 (also tmux-nav conflict) | static |
-| BUG-022 | `:resize +2<CR>` colon-format may fail in 0.12+ | core/keymaps/registry.lua:179 | Discovered | `<Up>` arrow → possible E488 | static |
-| BUG-023 | `:resize -2<CR>` colon-format may fail in 0.12+ | core/keymaps/registry.lua:189 | Discovered | `<Down>` arrow → possible E488 | static |
-| BUG-024 | `:vertical resize +2<CR>` colon-format may fail | core/keymaps/registry.lua:199 | Discovered | `<Left>` arrow → possible E488 | static |
-| BUG-025 | `:vertical resize -2<CR>` colon-format may fail | core/keymaps/registry.lua:209 | Discovered | `<Right>` arrow → possible E488 | static |
-| BUG-026 | `:bnext<CR>` colon-format may fail in 0.12+ | core/keymaps/registry.lua:221 | Discovered | `<Tab>` → possible E488 | static |
-| BUG-027 | `:bprevious<CR>` colon-format may fail in 0.12+ | core/keymaps/registry.lua:231 | Discovered | `<S-Tab>` → possible E488 | static |
-| BUG-028 | `:bdelete!<CR>` colon-format may fail in 0.12+ | core/keymaps/registry.lua:544 | Discovered | `<leader>x` → possible E488 | static |
+**RC-01 — lazy.lua:29 `vim.cmd(action)` with string actions**
+
+`core/keymaps/lazy.lua:29` calls `vim.cmd(map.action)` when the action is a string (not a function, not a module method). In Neovim 0.12+, `vim.cmd()` passes strings directly to `nvim_exec2()`, which rejects:
+- `<cmd>...<CR>` strings (keymap notation, not ex commands)
+- `":...<CR>"` colon-format strings (trailing `<CR>` is invalid in ex context)
+- `<C-w>X` keyseq strings (treated as malformed ex commands)
+
+Affects: all entries in `M.lazy` that use string actions.
+Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` which handles string RHS correctly.
+
+**RC-02 — Gitsigns command format**
+
+`:Gitsigns command<CR>` string passed through `vim.cmd()` is not a valid gitsigns invocation format.
 
 ---
 
-## Notes on BUG-013 (Invalidated)
+## Failure Inventory
 
-BUG-013 from the prior scan referenced `plugins/fzflua.lua` which does not exist. The picker is `snacks.nvim` (D-06: "replaces fzf-lua"). The snacks picker config already sets `hidden = true` globally. This was a fabricated finding from the automated session.
+| ID | Description | Owner | Status | lhs | Provenance |
+|----|-------------|-------|--------|-----|------------|
+| BUG-001 | neo-tree plugin failed to load (module not found) | plugin | By Design | — | health |
+| BUG-005 | `<cmd> enew <CR>` → E488 (RC-01) | core/keymaps/registry.lua:534 | **Confirmed** | `<leader>b` | manual |
+| BUG-006 | `<cmd>set wrap!<CR>` → E488 (RC-01) | core/keymaps/registry.lua:623 | **Confirmed** | `<leader>lw` | manual |
+| BUG-007 | `<cmd>noautocmd w <CR>` → E488 (RC-01) | core/keymaps/registry.lua:648 | **Confirmed** | `<leader>sn` | static |
+| BUG-008 | `":close<CR>"` → Vim(close):E488 Trailing `<CR>` (RC-01) | core/keymaps/registry.lua:586 | **Confirmed** | `<leader>xs` | manual |
+| BUG-009 | `<C-w>v` string → E488 via vim.cmd (RC-01) | core/keymaps/registry.lua:556 | **Confirmed** | `<leader>v` | manual |
+| BUG-010 | `<C-w>s` string → E488 via vim.cmd (RC-01) | core/keymaps/registry.lua:566 | **Confirmed** | `<leader>h` | manual |
+| BUG-011 | `<C-w>=` string → E488 via vim.cmd (RC-01) | core/keymaps/registry.lua:576 | **Confirmed** | `<leader>se` | manual |
+| BUG-012 | `:Gitsigns preview_hunk<CR>` invalid format (RC-02) | core/keymaps/registry.lua:461 | **Confirmed** | `<leader>gp` | manual |
+| BUG-013 | fzf-lua hidden files | plugins/fzflua.lua | **By Design** | — | static |
+| BUG-014 | `<C-w>w` M.global string RHS | core/keymaps/registry.lua:167 | **Not a Bug** | `<leader>ww` | manual |
+| BUG-015 | `:Gitsigns toggle_current_line_blame<CR>` invalid format (RC-02) | core/keymaps/registry.lua:471 | **Confirmed** | `<leader>gt` | manual |
+| BUG-016 | `vim.tbl_flatten is deprecated` at startup/sync/smoke | unknown plugin dependency | Discovered | — | health |
+| BUG-017 | vim-tmux-navigator `<C-h/j/k/l>` vs registry window.move_* | plugins/misc.lua + registry | Discovered | `<C-h/j/k/l>` | static |
+| BUG-018 to BUG-028 | Colon-format M.global keymaps (wincmd, resize, bnext, bdelete) | core/keymaps/registry.lua | **Not Bugs** | various | manual |
 
-## Notes on BUG-008 (Corrected)
+---
 
-Prior FAILURES.md incorrectly described BUG-008's action as `<cmd>enew <CR>` and lhs as `<leader>xs`. The actual action for `<leader>xs` is `":close<CR>"` (registry.lua:586). The E488 error is real but root cause is the `:close<CR>` colon-format, not the `<cmd>enew` pattern.
+## Confirmed Bug Details
 
-## Notes on Colon-Format Keymaps (BUG-018 through BUG-028)
+### BUG-005 — `<cmd> enew <CR>` Leading Space
+- **lhs:** `<leader>b` | `registry.lua:534` | `M.lazy scope="global"`
+- **Error:** `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: cmd> enew <CR>`
+- **Stack:** `lazy.lua:29` → `vim.cmd("<cmd> enew <CR>")`
+- **Fix:** Convert to `function() vim.cmd("enew") end`
 
-All entries using `":cmd<CR>"` string RHS with `vim.keymap.set` are marked Discovered pending interactive verification. BUG-008 (`":close<CR>"`) is confirmed to produce E488 in 0.12+ which establishes the pattern likely affects all colon-format entries. Human session required to confirm each one.
+### BUG-006 — `<cmd>set wrap!<CR>`
+- **lhs:** `<leader>lw` | `registry.lua:623` | `M.lazy scope="global"`
+- **Error:** `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: cmd>set wrap!<CR>`
+- **Stack:** `lazy.lua:29` → `vim.cmd("<cmd>set wrap!<CR>")`
+- **Fix:** Convert to `function() vim.wo.wrap = not vim.wo.wrap end`
 
-## Notes on vim-tmux-navigator (BUG-017)
+### BUG-007 — `<cmd>noautocmd w <CR>` Trailing Space
+- **lhs:** `<leader>sn` | `registry.lua:648` | `M.lazy scope="global"`
+- **Error:** same RC-01 pattern — `<cmd>noautocmd w <CR>` via `lazy.lua:29`
+- **Fix:** Convert to `function() vim.cmd("noautocmd w") end`
 
-`christoomey/vim-tmux-navigator` in plugins/misc.lua creates default keymaps for `<C-h>`, `<C-j>`, `<C-k>`, `<C-l>`. The registry also maps these keys to `:wincmd X<CR>` actions. The winning map depends on load order. Interactive test: with a split open, press `<C-h>` — does it move the window focus?
+### BUG-008 — `":close<CR>"` Trailing `<CR>`
+- **lhs:** `<leader>xs` | `registry.lua:586` | `M.lazy scope="global"`
+- **Error:** `Vim(close):E488: Trailing characters: <CR>: :close<CR>`
+- **Stack:** `lazy.lua:29` → `vim.cmd(":close<CR>")`
+- **Fix:** Convert to `function() vim.cmd("close") end`
+
+### BUG-009 — `<C-w>v` Keyseq via vim.cmd
+- **lhs:** `<leader>v` | `registry.lua:556` | `M.lazy scope="global"`
+- **Error:** `E5108: nvim_exec2(): Vim(<):E488: Trailing characters: C-w>v`
+- **Stack:** `lazy.lua:29` → `vim.cmd("<C-w>v")`
+- **Fix:** Convert to `function() vim.cmd("vsplit") end`
+
+### BUG-010 — `<C-w>s` Keyseq via vim.cmd
+- **lhs:** `<leader>h` | `registry.lua:566`
+- **Fix:** Convert to `function() vim.cmd("split") end`
+
+### BUG-011 — `<C-w>=` Keyseq via vim.cmd
+- **lhs:** `<leader>se` | `registry.lua:576`
+- **Fix:** Convert to `function() vim.cmd("wincmd =") end`
+
+### BUG-012 — `:Gitsigns preview_hunk<CR>` Wrong Format
+- **lhs:** `<leader>gp` | `registry.lua:461` | `M.lazy`
+- **Error:** `preview_hunk<CR> is not a valid function or action`
+- **Fix:** Convert to `function() require("gitsigns").preview_hunk() end`
+
+### BUG-015 — `:Gitsigns toggle_current_line_blame<CR>` Wrong Format
+- **lhs:** `<leader>gt` | `registry.lua:471` | `M.lazy`
+- **Error:** `toggle_current_line_blame<CR> is not a valid function or action`
+- **Fix:** Convert to `function() require("gitsigns").toggle_current_line_blame() end`
+
+---
+
+## Disposition Notes
+
+**BUG-001:** neo-tree replaced by snacks.explorer in v1.0. Health snapshot still probes for it — health.lua should remove the probe.
+
+**BUG-013:** No `fzflua.lua` exists. Picker is snacks.nvim (`picker.hidden = true` already set). Fabricated by prior automated session.
+
+**BUG-014 (Not a Bug):** `<C-w>w` at registry.lua:167 is in `M.global` → goes through `apply.lua` → `vim.keymap.set()` → works correctly as keystroke sequence.
+
+**BUG-016:** `vim.tbl_flatten` deprecation visible in startup/smoke/sync logs. Origin is an unknown plugin dependency calling the deprecated API. Does not crash but produces noise.
+
+**BUG-017:** `vim-tmux-navigator` and registry both define `<C-h/j/k/l>`. C-h/j/k/l tested and work (Section C all pass). The "winning" binding is the registry's `:wincmd X<CR>` via apply.lua (runs at startup before tmux-nav loads). This may silently break the "smart" tmux-pane navigation across splits — needs awareness but not a crash.
+
+**BUG-018 to BUG-028 (Not Bugs):** Colon-format `":cmd<CR>"` keymaps in `M.global` all work correctly via `apply.lua` → `vim.keymap.set()`. Only `M.lazy` string actions are broken.
+
+---
 
 ## Summary
 
-- **Confirmed:** 9 bugs (BUG-005 through BUG-012)
-- **By Design:** 2 (BUG-001 neo-tree replaced, BUG-013 fzf-lua replaced)
-- **Discovered — high confidence (static):** 4 (BUG-014, BUG-015, BUG-016, BUG-017)
-- **Discovered — needs interactive verification:** 11 (BUG-018 through BUG-028)
-- **Pending:** LSP keymaps, snacks features, folding, completion, format-on-save (not yet tested)
+- **Confirmed:** 10 bugs (BUG-005 to BUG-012, BUG-015) — all in M.lazy string actions via RC-01/RC-02
+- **By Design:** 2 (BUG-001, BUG-013)
+- **Not Bugs:** 12 (BUG-014, BUG-018 to BUG-028)
+- **Discovered (non-crashing):** 2 (BUG-016 deprecation warning, BUG-017 tmux-nav silent override)
+- **Feature tests (Section D):** All pass
 
-Root causes:
-1. Keymap actions using `<cmd>...<CR>` with spaces or special chars → E488 in 0.12+
-2. Keymap actions using `<C-w>X` as string RHS → E488 in 0.12+
-3. Keymap actions using `":cmd<CR>"` colon-format may have changed behavior in 0.12+
-4. Plugin conflict: vim-tmux-navigator vs registry C-h/j/k/l mappings
+**Fix scope for Phase 7:** Convert all string actions in `M.lazy` to Lua functions. Alternatively fix `lazy.lua:29` to use `vim.api.nvim_feedkeys()` for string RHS instead of `vim.cmd()`.
