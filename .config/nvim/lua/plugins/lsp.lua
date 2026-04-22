@@ -65,7 +65,7 @@ return {
 			lua_ls = {
 				single_file_support = true,
 			},
-			basedpyright = {},
+			pyright = {},
 		}
 
 		-- Mason LSP servers to ensure installed (mason package names).
@@ -86,7 +86,7 @@ return {
 			"vim-language-server",
 			"yaml-language-server",
 			"lua-language-server",
-			"basedpyright",
+			"pyright",
 		}
 
 		-- Non-LSP mason tools (formatters, linters, etc.)
