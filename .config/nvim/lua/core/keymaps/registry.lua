@@ -116,47 +116,9 @@ M.global = {
     opts = { remap = true },
   },
 
-  -- Window navigation (preserved direct keys)
-  {
-    id = "window.move_up",
-    lhs = "<C-k>",
-    mode = "n",
-    desc = "Move to window above",
-    domain = "w",
-    scope = "global",
-    action = ":wincmd k<CR>",
-    opts = { noremap = true, silent = true },
-  },
-  {
-    id = "window.move_down",
-    lhs = "<C-j>",
-    mode = "n",
-    desc = "Move to window below",
-    domain = "w",
-    scope = "global",
-    action = ":wincmd j<CR>",
-    opts = { noremap = true, silent = true },
-  },
-  {
-    id = "window.move_left",
-    lhs = "<C-h>",
-    mode = "n",
-    desc = "Move to window left",
-    domain = "w",
-    scope = "global",
-    action = ":wincmd h<CR>",
-    opts = { noremap = true, silent = true },
-  },
-  {
-    id = "window.move_right",
-    lhs = "<C-l>",
-    mode = "n",
-    desc = "Move to window right",
-    domain = "w",
-    scope = "global",
-    action = ":wincmd l<CR>",
-    opts = { noremap = true, silent = true },
-  },
+  -- Window navigation: <C-h/j/k/l> are owned by vim-tmux-navigator (plugins/misc.lua).
+  -- Registry mappings removed per D-01/D-03 so the plugin's split+tmux-pane crossing works
+  -- without being shadowed by startup-time registry globals.
   {
     id = "window.cycle",
     lhs = "<leader>ww",

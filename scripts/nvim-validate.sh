@@ -18,7 +18,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 REPORT_DIR="$REPO_ROOT/.planning/tmp/nvim-validate"
 
 # --- Plugin and tool probe lists ---
-PLUGIN_LIST="{'snacks','lualine','neo-tree','lspconfig','conform','nvim-treesitter.configs','blink.cmp','gitsigns','ufo','bufferline','which-key','render-markdown'}"
+PLUGIN_LIST="{'snacks','lualine','lspconfig','conform','nvim-treesitter.configs','blink.cmp','gitsigns','ufo','bufferline','which-key','render-markdown'}"
 TOOL_LIST="{'stylua','black','isort','prettierd','prettier','clang-format','shfmt','rg','git','node','go','clangd','gopls','lua-language-server'}"
 
 # --- Install hints per tool ---
@@ -237,7 +237,7 @@ cmd_smoke() {
 	local lua_script
 	lua_script=$(cat <<'LUA'
 local plugins = {
-  'snacks','lualine','neo-tree','lspconfig','conform',
+  'snacks','lualine','lspconfig','conform',
   'nvim-treesitter.configs','blink.cmp','gitsigns',
   'ufo','bufferline','which-key','render-markdown',
 }
