@@ -2,6 +2,7 @@
 
 **Generated:** 2026-04-18T06:08:48Z
 **Revised:** 2026-04-22 (Phase 7 fix verification complete — BUG-005 to BUG-012, BUG-015 marked Fixed)
+**Revised:** 2026-04-22 (Phase 8-03 automated validation complete — startup and health pass; BUG-001/016 confirmed fixed; BUG-017 awaiting interactive verification in Task 2)
 **Status:** Updated
 
 ## Environment
@@ -9,6 +10,33 @@
 OS: Linux 6.19.11-arch1-1 x86_64
 Neovim: NVIM v0.12.1
 Tools: jq: jq-1.8.1, git: git version 2.53.0
+
+---
+
+## Phase 8-03 Automated Validation Results
+
+**Run date:** 2026-04-22
+**Commands:** `./scripts/nvim-validate.sh startup` and `./scripts/nvim-validate.sh health`
+
+| Check | Result | Notes |
+|-------|--------|-------|
+| `startup` | PASS | No `Error`, `E5108`, `E484`, or `stack traceback` keywords in startup.log |
+| `health` — plugins | PASS | All 11 probed plugins loaded=true (snacks, lualine, lspconfig, conform, nvim-treesitter.configs, blink.cmp, gitsigns, ufo, bufferline, which-key, render-markdown) |
+| `health` — tools | PASS | All 14 tools available (stylua, black, isort, prettierd, prettier, clang-format, shfmt, rg, git, node, go, clangd, gopls, lua-language-server) |
+| `health` — lazy | PASS | 28 loaded / 34 installed, 0 problems |
+
+### Residual Startup Warning — Environment Noise, Not a Config Defect
+
+**Warning observed in startup.log:**
+```
+vim.lsp.buf_get_clients() is deprecated. Run ":checkhealth vim.deprecated"
+```
+
+**Source:** `project.nvim` plugin — `/home/pera/.local/share/nvim/lazy/project.nvim/lua/project_nvim/project.lua` calls `vim.lsp.buf_get_clients()` unconditionally.
+
+**Classification: environment/plugin noise** — this is a third-party plugin calling a deprecated upstream API. Our config files contain no reference to `buf_get_clients`. The startup validator PASS is correct: the harness failure keywords (`Error`, `E5108`, `E484`, `stack traceback`) are absent.
+
+**Action:** None required. Documented here so future maintainers do not mistake this for a config regression introduced by Phase 8.
 
 ---
 
@@ -122,7 +150,7 @@ Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` w
 
 **BUG-016:** `vim.tbl_flatten` deprecation traced to `nvim-colorizer.lua` (norcalli/nvim-colorizer.lua) which calls the deprecated API unconditionally at startup. Plugin is unmaintained (last commit a065833, no upstream fix available). Removed from `misc.lua` and `lazy-lock.json` in Phase 8-01 per D-07 fallback. Startup validator confirms: no tbl_flatten deprecation in startup.log after removal.
 
-**BUG-017:** `vim-tmux-navigator` and registry both defined `<C-h/j/k/l>`. Registry `window.move_*` globals removed in Phase 8-01 (D-01/D-03) so vim-tmux-navigator owns split+tmux-pane navigation without startup-time shadowing.
+**BUG-017:** `vim-tmux-navigator` and registry both defined `<C-h/j/k/l>`. Registry `window.move_*` globals removed in Phase 8-01 (D-01/D-03) so vim-tmux-navigator owns split+tmux-pane navigation without startup-time shadowing. Per D-04, marking Fixed (static) pending Phase 8-03 Task 2 interactive verification: `:verbose nmap <C-h/j/k/l>` ownership check and live tmux-pane traversal must be recorded in CHECKLIST.md before this entry is considered fully closed.
 
 **BUG-018 to BUG-028 (Not Bugs):** Colon-format `":cmd<CR>"` keymaps in `M.global` all work correctly via `apply.lua` → `vim.keymap.set()`. Only `M.lazy` string actions are broken.
 
@@ -139,3 +167,5 @@ Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` w
 **Phase 7 outcome:** All 10 RC-01/RC-02 bugs resolved. Keymaps are now callback-based through `registry.lua` (`M.global` scope). Interactive re-verification of all 9 target mappings passed on 2026-04-22 with no Lua/E488 runtime errors.
 
 **Phase 8-01 outcome:** BUG-001, BUG-016, and BUG-017 resolved. Health validator passes with zero plugin failures. Startup log clear of tbl_flatten deprecation. vim-tmux-navigator now sole owner of `<C-h/j/k/l>`.
+
+**Phase 8-03 automated outcome (2026-04-22):** `startup` PASS — no error keywords. `health` PASS — all 11 plugins loaded, all 14 tools available, 0 lazy problems. One residual deprecation warning (`vim.lsp.buf_get_clients()`) classified as environment noise from `project.nvim` (third-party plugin); not a config defect. BUG-017 awaiting Phase 8-03 Task 2 interactive verification (tmux ownership and pane traversal).
