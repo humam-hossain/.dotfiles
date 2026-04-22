@@ -2,7 +2,8 @@
 
 **Generated:** 2026-04-18
 **Revised:** 2026-04-22 (Phase 7-02 — converted to post-fix regression checklist; all BUG-01 entries verified fixed)
-**Status:** Regression Checklist (post-Phase 7)
+**Revised:** 2026-04-22 (Phase 8-03 — Phase 8 regression results added; all workflows verified; tmux-navigation split finding recorded)
+**Status:** Regression Checklist (post-Phase 8)
 **Source:** [FAILURES.md](FAILURES.md)
 
 ---
@@ -176,6 +177,49 @@ steps with regression-detection steps. Historical error details are preserved in
 |----|-------------|--------|
 | BUG-016 | `vim.tbl_flatten is deprecated` in startup/smoke/sync logs | Log noise, no crash |
 | BUG-017 | vim-tmux-navigator C-h/j/k/l overridden by registry at startup | Smart tmux-pane navigation silently lost |
+
+---
+
+## Phase 8 Regression Results (2026-04-22)
+
+Interactive verification run after Phase 8-01 and 08-02 fixes. All items tested in the live dotfiles config.
+
+### Workflow Matrix
+
+| ID | Workflow | Result | Notes |
+|----|----------|--------|-------|
+| W-01 | Snacks file find (`<leader>ff`) | PASS | Picker opens, results navigable, no error |
+| W-02 | Snacks live grep | PASS | Live grep results appear correctly, no error |
+| W-03 | Snacks buffer picker | PASS | Buffer list shown, selection works, no error |
+| W-04 | Snacks explorer open/close/navigate (`<leader>e`) | PASS | Explorer opens and closes, file navigation works, no error |
+| W-05 | Gitsigns preview hunk (`<leader>gp`) | PASS | Hunk preview float opens in tracked file with changes, no error |
+| W-06 | Gitsigns line blame (`<leader>gt`) | PASS | Inline blame annotation toggles, no error |
+| W-07 | LazyGit (`<leader>gg`) | PASS | LazyGit UI opens, no error |
+| W-08 | LSP definition / hover / diagnostics | PASS | All three functions work on attached buffer, no crash |
+| W-09 | Format on save (`<C-s>`) | PASS | Save triggers formatter, no error |
+| W-10 | which-key popup | PASS | Popup renders on `<leader>`, no error |
+| W-11 | Notification / noice output | PASS | Notifications display correctly, no runtime error |
+| W-12 | Statusline / fold rendering | PASS | Lualine visible, ufo folds render normally |
+| W-13 | Linux external-open (`<C-S-o>`) | PASS | Opens externally or reports real OS error string |
+| W-14 | Tmux-navigation — Neovim split movement (outside tmux) | PASS | `<C-h/j/k/l>` navigate Neovim splits normally |
+| W-15 | Tmux-navigation — cross-pane traversal (inside tmux) | FAIL | Neovim mapping ownership correct; tmux.conf companion bindings absent (see BUG-019) |
+
+### BUG-017 — Tmux-Navigation Ownership Evidence (Phase 8-03)
+
+**`:verbose nmap <C-h>` output (verbatim from user):**
+```
+n  <C-H>       * :<C-U>TmuxNavigateLeft<CR>
+        Last set from ~/.local/share/nvim/lazy/vim-tmux-navigator/plugin/tmux_navigator.vim line 18
+```
+
+**Analysis:**
+- Owner: `vim-tmux-navigator` plugin — CONFIRMED (not registry.lua)
+- Phase 8-01 fix (remove registry `window.move_*` globals) is verified effective
+- Neovim-side ownership: FIXED
+- Cross-pane traversal: FAILS — the plugin script that tmux needs to call (`tmux-navigate` wrapper or `tmux_navigator.sh`) is not bound in `.tmux.conf`
+- This is an environment/config gap in `.tmux.conf`, not a Neovim config defect
+
+**Verdict for BUG-017:** Neovim side FIXED. Environment gap tracked separately as BUG-019.
 
 ---
 
