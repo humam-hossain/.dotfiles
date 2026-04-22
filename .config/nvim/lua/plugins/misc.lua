@@ -39,8 +39,11 @@ return {
 		"MeanderingProgrammer/render-markdown.nvim",
 		dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" }, -- if you use the mini.nvim suite
 		opts = {
-			-- Disable in nofile buffers (snacks picker previews) to avoid treesitter nil node crash
-			buftype = { nofile = { enabled = false } },
+			overrides = {
+				-- Disable in nofile buffers (snacks picker previews) to avoid treesitter nil node crash
+				-- buftype must be under overrides.buftype, not at the root level of opts
+				buftype = { nofile = { enabled = false } },
+			},
 		},
 	},
 	{
