@@ -208,10 +208,15 @@ M.global = {
     opts = { noremap = true, silent = true },
   },
 
-  -- Open file externally (preserved direct key)
+  -- Open file externally
+  -- <C-S-o> was the original lhs but terminals strip that chord before it reaches Neovim
+  -- (proved via :verbose nmap <C-S-o> — mapping registered but never triggered).
+  -- vim.ui.open() also fails silently inside Neovim due to missing DISPLAY/WAYLAND_DISPLAY
+  -- in spawned child processes (xdg-open from shell works fine).
+  -- Rebound to <leader>o per D-32 after Phase 9-01 Task 2 investigation.
   {
     id = "file.open_external",
-    lhs = "<C-S-o>",
+    lhs = "<leader>o",
     mode = "n",
     desc = "Open file with default application",
     domain = "f",
