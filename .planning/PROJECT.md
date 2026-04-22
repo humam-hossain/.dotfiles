@@ -25,6 +25,7 @@ One shared Neovim config gives a clean, modern, bug-resistant editing experience
 
 ### Validated
 
+- ✓ Config-caused E488/Lua errors removed from 9 shared keymaps; registry-driven mappings execute safely — v1.1 (BUG-01, validated Phase 7)
 - ✓ Modular Neovim config loads from `.config/nvim/init.lua` with `core/` and `plugins/` split — existing
 - ✓ Plugin management via `lazy.nvim` with pinned revisions in `lazy-lock.json` — existing
 - ✓ LSP, Mason, formatting, Treesitter, search, file explorer, git UI, statusline, folding, and theme — existing
@@ -105,4 +106,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-17 after milestone v1.1 start*
+*Last updated: 2026-04-22 after Phase 7 (keymap-reliability-fixes) complete*
