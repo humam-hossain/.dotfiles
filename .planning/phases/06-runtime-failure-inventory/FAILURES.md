@@ -34,7 +34,7 @@ Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` w
 
 | ID | Description | Owner | Status | Repro Steps / lhs | Provenance |
 |----|-------------|-------|--------|-------------------|------------|
-| BUG-001 | neo-tree plugin failed to load (module not found) | plugin | By Design | — | health |
+| BUG-001 | neo-tree plugin failed to load (module not found) | plugin | **Fixed** (Phase 8-01) | — | health |
 | BUG-005 | `<cmd> enew <CR>` → E488 (RC-01) | core/keymaps/registry.lua:534 | **Fixed** (Phase 7-01) | `<leader>b` | manual |
 | BUG-006 | `<cmd>set wrap!<CR>` → E488 (RC-01) | core/keymaps/registry.lua:623 | **Fixed** (Phase 7-01) | `<leader>lw` | manual |
 | BUG-007 | `<cmd>noautocmd w <CR>` → E488 (RC-01) | core/keymaps/registry.lua:648 | **Fixed** (Phase 7-01) | `<leader>sn` | static |
@@ -46,8 +46,8 @@ Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` w
 | BUG-013 | fzf-lua hidden files | plugins/fzflua.lua | **By Design** | — | static |
 | BUG-014 | `<C-w>w` M.global string RHS | core/keymaps/registry.lua:167 | **Not a Bug** | `<leader>ww` | manual |
 | BUG-015 | `:Gitsigns toggle_current_line_blame<CR>` invalid format (RC-02) | core/keymaps/registry.lua:471 | **Fixed** (Phase 7-01) | `<leader>gt` | manual |
-| BUG-016 | `vim.tbl_flatten is deprecated` at startup/sync/smoke | unknown plugin dependency | Discovered | — | health |
-| BUG-017 | vim-tmux-navigator `<C-h/j/k/l>` vs registry window.move_* | plugins/misc.lua + registry | Discovered | `<C-h/j/k/l>` | static |
+| BUG-016 | `vim.tbl_flatten is deprecated` at startup/sync/smoke | nvim-colorizer.lua (unmaintained) | **Fixed** (Phase 8-01) | — | health |
+| BUG-017 | vim-tmux-navigator `<C-h/j/k/l>` vs registry window.move_* | plugins/misc.lua + registry | **Fixed** (Phase 8-01) | `<C-h/j/k/l>` | static |
 | BUG-018 to BUG-028 | Colon-format M.global keymaps (wincmd, resize, bnext, bdelete) | core/keymaps/registry.lua | **Not Bugs** | various | manual |
 
 ---
@@ -114,15 +114,15 @@ Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` w
 
 ## Disposition Notes
 
-**BUG-001:** neo-tree replaced by snacks.explorer in v1.0. Health snapshot still probes for it — health.lua should remove the probe.
+**BUG-001:** neo-tree replaced by snacks.explorer in v1.0. Health snapshot and nvim-validate.sh probe list updated to remove neo-tree in Phase 8-01 (D-09). Health validator now passes with zero plugin failures.
 
 **BUG-013:** No `fzflua.lua` exists. Picker is snacks.nvim (`picker.hidden = true` already set). Fabricated by prior automated session.
 
 **BUG-014 (Not a Bug):** `<C-w>w` at registry.lua:167 is in `M.global` → goes through `apply.lua` → `vim.keymap.set()` → works correctly as keystroke sequence.
 
-**BUG-016:** `vim.tbl_flatten` deprecation visible in startup/smoke/sync logs. Origin is an unknown plugin dependency calling the deprecated API. Does not crash but produces noise.
+**BUG-016:** `vim.tbl_flatten` deprecation traced to `nvim-colorizer.lua` (norcalli/nvim-colorizer.lua) which calls the deprecated API unconditionally at startup. Plugin is unmaintained (last commit a065833, no upstream fix available). Removed from `misc.lua` and `lazy-lock.json` in Phase 8-01 per D-07 fallback. Startup validator confirms: no tbl_flatten deprecation in startup.log after removal.
 
-**BUG-017:** `vim-tmux-navigator` and registry both define `<C-h/j/k/l>`. C-h/j/k/l tested and work (Section C all pass). The "winning" binding is the registry's `:wincmd X<CR>` via apply.lua (runs at startup before tmux-nav loads). This may silently break the "smart" tmux-pane navigation across splits — needs awareness but not a crash.
+**BUG-017:** `vim-tmux-navigator` and registry both defined `<C-h/j/k/l>`. Registry `window.move_*` globals removed in Phase 8-01 (D-01/D-03) so vim-tmux-navigator owns split+tmux-pane navigation without startup-time shadowing.
 
 **BUG-018 to BUG-028 (Not Bugs):** Colon-format `":cmd<CR>"` keymaps in `M.global` all work correctly via `apply.lua` → `vim.keymap.set()`. Only `M.lazy` string actions are broken.
 
@@ -131,9 +131,11 @@ Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` w
 ## Summary
 
 - **Fixed (Phase 7-01, verified Phase 7-02):** 10 bugs (BUG-005 to BUG-012, BUG-015) — all shared keymaps moved to `M.global` with callback-based actions in `registry.lua`; Gitsigns entries converted to direct `require("gitsigns").fn()` calls
-- **By Design:** 2 (BUG-001, BUG-013)
+- **Fixed (Phase 8-01):** 3 bugs (BUG-001, BUG-016, BUG-017) — neo-tree probe removed from health validator; nvim-colorizer.lua removed (BUG-016 tbl_flatten source); registry window.move_* globals removed so vim-tmux-navigator owns `<C-h/j/k/l>`
+- **By Design:** 1 (BUG-013)
 - **Not Bugs:** 12 (BUG-014, BUG-018 to BUG-028)
-- **Discovered (non-crashing):** 2 (BUG-016 deprecation warning, BUG-017 tmux-nav silent override)
 - **Feature tests (Section D):** All pass
 
-**Phase 7 outcome:** All 10 RC-01/RC-02 bugs resolved. Keymaps are now callback-based through `registry.lua` (`M.global` scope). Interactive re-verification of all 9 target mappings passed on 2026-04-22 with no Lua/E488 runtime errors. BUG-017 remains deferred.
+**Phase 7 outcome:** All 10 RC-01/RC-02 bugs resolved. Keymaps are now callback-based through `registry.lua` (`M.global` scope). Interactive re-verification of all 9 target mappings passed on 2026-04-22 with no Lua/E488 runtime errors.
+
+**Phase 8-01 outcome:** BUG-001, BUG-016, and BUG-017 resolved. Health validator passes with zero plugin failures. Startup log clear of tbl_flatten deprecation. vim-tmux-navigator now sole owner of `<C-h/j/k/l>`.
