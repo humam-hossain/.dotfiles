@@ -3,6 +3,7 @@
 **Generated:** 2026-04-18T06:08:48Z
 **Revised:** 2026-04-22 (Phase 7 fix verification complete — BUG-005 to BUG-012, BUG-015 marked Fixed)
 **Revised:** 2026-04-22 (Phase 8-03 automated validation complete — startup and health pass; BUG-001/016 confirmed fixed; BUG-017 awaiting interactive verification in Task 2)
+**Revised:** 2026-04-22 (Phase 8-03 interactive verification complete — BUG-017 Neovim side confirmed Fixed; tmux.conf gap tracked as BUG-019)
 **Status:** Updated
 
 ## Environment
@@ -75,8 +76,9 @@ Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` w
 | BUG-014 | `<C-w>w` M.global string RHS | core/keymaps/registry.lua:167 | **Not a Bug** | `<leader>ww` | manual |
 | BUG-015 | `:Gitsigns toggle_current_line_blame<CR>` invalid format (RC-02) | core/keymaps/registry.lua:471 | **Fixed** (Phase 7-01) | `<leader>gt` | manual |
 | BUG-016 | `vim.tbl_flatten is deprecated` at startup/sync/smoke | nvim-colorizer.lua (unmaintained) | **Fixed** (Phase 8-01) | — | health |
-| BUG-017 | vim-tmux-navigator `<C-h/j/k/l>` vs registry window.move_* | plugins/misc.lua + registry | **Fixed** (Phase 8-01) | `<C-h/j/k/l>` | static |
+| BUG-017 | vim-tmux-navigator `<C-h/j/k/l>` vs registry window.move_* | plugins/misc.lua + registry | **Fixed** (Phase 8-01, Neovim side) | `<C-h/j/k/l>` | static |
 | BUG-018 to BUG-028 | Colon-format M.global keymaps (wincmd, resize, bnext, bdelete) | core/keymaps/registry.lua | **Not Bugs** | various | manual |
+| BUG-019 | tmux.conf missing vim-tmux-navigator companion bindings — cross-pane traversal fails | .tmux.conf (environment) | **Open** (environment gap) | `<C-h/j/k/l>` in tmux | interactive |
 
 ---
 
@@ -150,7 +152,18 @@ Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` w
 
 **BUG-016:** `vim.tbl_flatten` deprecation traced to `nvim-colorizer.lua` (norcalli/nvim-colorizer.lua) which calls the deprecated API unconditionally at startup. Plugin is unmaintained (last commit a065833, no upstream fix available). Removed from `misc.lua` and `lazy-lock.json` in Phase 8-01 per D-07 fallback. Startup validator confirms: no tbl_flatten deprecation in startup.log after removal.
 
-**BUG-017:** `vim-tmux-navigator` and registry both defined `<C-h/j/k/l>`. Registry `window.move_*` globals removed in Phase 8-01 (D-01/D-03) so vim-tmux-navigator owns split+tmux-pane navigation without startup-time shadowing. Per D-04, marking Fixed (static) pending Phase 8-03 Task 2 interactive verification: `:verbose nmap <C-h/j/k/l>` ownership check and live tmux-pane traversal must be recorded in CHECKLIST.md before this entry is considered fully closed.
+**BUG-017:** `vim-tmux-navigator` and registry both defined `<C-h/j/k/l>`. Registry `window.move_*` globals removed in Phase 8-01 (D-01/D-03) so vim-tmux-navigator owns split+tmux-pane navigation without startup-time shadowing. Phase 8-03 Task 2 interactive verification confirmed via `:verbose nmap <C-h>`:
+
+```
+n  <C-H>       * :<C-U>TmuxNavigateLeft<CR>
+        Last set from ~/.local/share/nvim/lazy/vim-tmux-navigator/plugin/tmux_navigator.vim line 18
+```
+
+Neovim-side ownership: CONFIRMED Fixed. The registry conflict is fully resolved.
+
+**Split finding:** Cross-pane traversal inside tmux still fails. Root cause is that `.tmux.conf` is missing the companion `bind-key` entries that call the vim-tmux-navigator shell script — without these, tmux does not forward `<C-h/j/k/l>` to the navigator when Neovim is focused. This is an environment/config gap in `.tmux.conf`, not a Neovim config defect. Tracked separately as BUG-019.
+
+**BUG-019:** `.tmux.conf` is missing the `bind-key -n C-h/j/k/l` companion bindings required by vim-tmux-navigator for cross-pane traversal. The plugin's README requires these entries to be present in `.tmux.conf` alongside the Neovim-side plugin installation. Without them, pressing `<C-h/j/k/l>` inside a tmux session does nothing at the tmux layer — only Neovim-internal split movement works (which uses the same keys but never crosses pane boundaries). Resolution requires adding the four `bind-key` entries and sourcing `.tmux.conf`. This is an environment gap, not a code regression.
 
 **BUG-018 to BUG-028 (Not Bugs):** Colon-format `":cmd<CR>"` keymaps in `M.global` all work correctly via `apply.lua` → `vim.keymap.set()`. Only `M.lazy` string actions are broken.
 
@@ -159,7 +172,8 @@ Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` w
 ## Summary
 
 - **Fixed (Phase 7-01, verified Phase 7-02):** 10 bugs (BUG-005 to BUG-012, BUG-015) — all shared keymaps moved to `M.global` with callback-based actions in `registry.lua`; Gitsigns entries converted to direct `require("gitsigns").fn()` calls
-- **Fixed (Phase 8-01):** 3 bugs (BUG-001, BUG-016, BUG-017) — neo-tree probe removed from health validator; nvim-colorizer.lua removed (BUG-016 tbl_flatten source); registry window.move_* globals removed so vim-tmux-navigator owns `<C-h/j/k/l>`
+- **Fixed (Phase 8-01):** 2 bugs fully resolved + 1 Neovim-side fix (BUG-001, BUG-016 fixed; BUG-017 Neovim-side fixed — neo-tree probe removed from health validator; nvim-colorizer.lua removed; registry window.move_* globals removed so vim-tmux-navigator owns `<C-h/j/k/l>` in Neovim)
+- **Open — environment gap:** 1 (BUG-019) — `.tmux.conf` missing companion bindings for cross-pane traversal; requires `.tmux.conf` update outside Neovim config
 - **By Design:** 1 (BUG-013)
 - **Not Bugs:** 12 (BUG-014, BUG-018 to BUG-028)
 - **Feature tests (Section D):** All pass
@@ -168,4 +182,6 @@ Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` w
 
 **Phase 8-01 outcome:** BUG-001, BUG-016, and BUG-017 resolved. Health validator passes with zero plugin failures. Startup log clear of tbl_flatten deprecation. vim-tmux-navigator now sole owner of `<C-h/j/k/l>`.
 
-**Phase 8-03 automated outcome (2026-04-22):** `startup` PASS — no error keywords. `health` PASS — all 11 plugins loaded, all 14 tools available, 0 lazy problems. One residual deprecation warning (`vim.lsp.buf_get_clients()`) classified as environment noise from `project.nvim` (third-party plugin); not a config defect. BUG-017 awaiting Phase 8-03 Task 2 interactive verification (tmux ownership and pane traversal).
+**Phase 8-03 automated outcome (2026-04-22):** `startup` PASS — no error keywords. `health` PASS — all 11 plugins loaded, all 14 tools available, 0 lazy problems. One residual deprecation warning (`vim.lsp.buf_get_clients()`) classified as environment noise from `project.nvim` (third-party plugin); not a config defect.
+
+**Phase 8-03 interactive outcome (2026-04-22):** All 13 workflows passed (search, explorer, git, LSP, UI, external-open, Neovim-internal split navigation). BUG-017 Neovim-side ownership confirmed Fixed via `:verbose nmap <C-h>` — vim-tmux-navigator owns the mapping. Cross-pane tmux traversal fails due to missing `.tmux.conf` companion bindings (BUG-019) — this is an environment gap, not a config regression introduced by Phase 8.
