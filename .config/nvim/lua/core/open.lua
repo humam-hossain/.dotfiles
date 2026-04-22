@@ -16,13 +16,18 @@ function M.open(target)
 		return
 	end
 
-	local success, err = pcall(vim.ui.open, target)
-	if not success then
-		notify_error("Failed to open: " .. tostring(err))
+	-- vim.ui.open() returns (cmd, errmsg?) — capture both values directly.
+	-- Do NOT wrap in pcall; doing so drops the returned errmsg and replaces
+	-- it with a Lua exception string that is often empty or misleading.
+	local cmd, err = vim.ui.open(target)
+	if err then
+		notify_error("Failed to open: " .. err)
 		return
 	end
 
-	if err == nil or err == false then
+	-- cmd is the SystemObj / job handle.  A nil cmd with no err means the
+	-- opener was called but produced no usable handle; surface that too.
+	if not cmd then
 		notify_error("Could not open: " .. target)
 		return
 	end
