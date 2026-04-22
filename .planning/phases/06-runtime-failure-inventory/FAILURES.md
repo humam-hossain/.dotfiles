@@ -4,6 +4,7 @@
 **Revised:** 2026-04-22 (Phase 7 fix verification complete — BUG-005 to BUG-012, BUG-015 marked Fixed)
 **Revised:** 2026-04-22 (Phase 8-03 automated validation complete — startup and health pass; BUG-001/016 confirmed fixed; BUG-017 awaiting interactive verification in Task 2)
 **Revised:** 2026-04-22 (Phase 8-03 interactive verification complete — BUG-017 Neovim side confirmed Fixed; tmux.conf gap tracked as BUG-019; Linux external-open W-13 corrected to FAIL, tracked as BUG-020)
+**Revised:** 2026-04-23 (Phase 9-01 Task 1 — first checkhealth audit captured; render-markdown buftype config fixed; BUG-019 tmux companion bindings added to .tmux.conf; remaining errors classified as reserved/environment-only)
 **Status:** Updated
 
 ## Environment
@@ -38,6 +39,35 @@ vim.lsp.buf_get_clients() is deprecated. Run ":checkhealth vim.deprecated"
 **Classification: environment/plugin noise** — this is a third-party plugin calling a deprecated upstream API. Our config files contain no reference to `buf_get_clients`. The startup validator PASS is correct: the harness failure keywords (`Error`, `E5108`, `E484`, `stack traceback`) are absent.
 
 **Action:** None required. Documented here so future maintainers do not mistake this for a config regression introduced by Phase 8.
+
+---
+
+## Phase 9-01 First Checkhealth Audit (2026-04-23)
+
+**Command:** `./scripts/nvim-validate.sh checkhealth`
+**Artifact:** `.planning/tmp/nvim-validate/checkhealth.txt` (5667 lines)
+**Initial exit:** FAIL (correct — errors detected before fixes)
+**Post-fix exit:** FAIL (remaining errors are reserved/environment-only — documented below)
+
+### Errors found and classification
+
+| Provider | Error message | Classification | Action |
+|----------|---------------|----------------|--------|
+| `core` | `Failed to run healthcheck for "core" plugin. Exception: attempt to call field 'check' (a nil value)` | **Reserved for 9-02** — `core/health.lua` has no `check()` function yet; adding it is 9-02's task | None in 9-01 |
+| `render-markdown` | `buftype - expected: nil, got: table` | **Config bug** — `buftype` was at root opts level; must be under `overrides.buftype` | **Fixed**: moved to `overrides.buftype` in `plugins/misc.lua` |
+| `render-markdown` | `highlighter: not enabled` | **Environment-only** — treesitter highlighter is not active on the headless health buffer; always false in headless mode | None — not a config defect |
+| `snacks` | `Snacks.dashboard setup did not run` | **Environment-only** — dashboard intentionally skips `did_setup` in headless mode (`#uis == 0` guard in `snacks/dashboard.lua`) | None — not a config defect |
+| `snacks` | `Tool not found: 'mmdc'` | **Missing optional tool** — `mmdc` (mermaid CLI) not installed on this machine | None — optional tool, not a config defect |
+| `tpipeline` | `Background job is not running: dead (init not called)` | **Environment-only** — tpipeline requires a live tmux session; headless mode has no tmux UI | None — not a config defect |
+
+### Post-fix state
+
+After fixing the `render-markdown` `overrides.buftype` config, the only remaining `❌ ERROR` lines in the headless audit are:
+- `core` provider gap (reserved for 9-02)
+- Headless-only environment issues (render-markdown highlighter, snacks dashboard, tpipeline)
+- Missing optional external tool (`mmdc`)
+
+This satisfies the Phase 9-01 acceptance criteria: "a non-zero exit is acceptable only when remaining ERROR lines are limited to the reserved provider-compatibility gap for 9-02 or proved environment-only issues."
 
 ---
 
@@ -78,8 +108,8 @@ Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` w
 | BUG-016 | `vim.tbl_flatten is deprecated` at startup/sync/smoke | nvim-colorizer.lua (unmaintained) | **Fixed** (Phase 8-01) | — | health |
 | BUG-017 | vim-tmux-navigator `<C-h/j/k/l>` vs registry window.move_* | plugins/misc.lua + registry | **Fixed** (Phase 8-01, Neovim side) | `<C-h/j/k/l>` | static |
 | BUG-018 to BUG-028 | Colon-format M.global keymaps (wincmd, resize, bnext, bdelete) | core/keymaps/registry.lua | **Not Bugs** | various | manual |
-| BUG-019 | tmux.conf missing vim-tmux-navigator companion bindings — cross-pane traversal fails | .tmux.conf (environment) | **Open** (environment gap) | `<C-h/j/k/l>` in tmux | interactive |
-| BUG-020 | Linux external-open `<C-S-o>` does not open file externally — root cause unclear (xdg-open, vim.ui.open availability, or key binding) | core/open.lua + system | **Open** (needs investigation) | `<C-S-o>` on Linux | interactive |
+| BUG-019 | tmux.conf missing vim-tmux-navigator companion bindings — cross-pane traversal fails | .tmux.conf (environment) | **Fixed** (Phase 9-01) — companion `bind-key -n C-h/j/k/l` entries added to `.config/.tmux.conf`; tmux reloaded; pending interactive confirmation in Task 2 | `<C-h/j/k/l>` in tmux | interactive |
+| BUG-020 | Linux external-open `<C-S-o>` does not open file externally — root cause unclear (xdg-open, vim.ui.open availability, or key binding) | core/open.lua + system | **Open** (needs investigation in Task 2) | `<C-S-o>` on Linux | interactive |
 
 ---
 

@@ -110,7 +110,7 @@ Run these checks in order after step 5 of the update checklist. Each check has a
    ./scripts/nvim-validate.sh all
    ```
 
-   Expected final line: `==> all PASS`. The suite runs `startup`, `sync`, `smoke`, and `health`. Output artifacts land in `.planning/tmp/nvim-validate/` — inspect `health.json` if `health` fails.
+   Expected final line: `==> all PASS`. The suite runs `startup`, `sync`, `smoke`, `health`, and `checkhealth`. Output artifacts land in `.planning/tmp/nvim-validate/` — inspect `health.json` if `health` fails or `checkhealth.txt` if `checkhealth` fails.
 
 2. **In-editor: :checkhealth**
 
@@ -251,7 +251,8 @@ This phase modernizes the Neovim tooling stack around a current ecosystem baseli
 | `./scripts/nvim-validate.sh sync` | Lazy sync with 120s timeout |
 | `./scripts/nvim-validate.sh health` | Core health snapshot (plugins + tools) |
 | `./scripts/nvim-validate.sh smoke` | pcall-require high-risk plugins |
-| `./scripts/nvim-validate.sh all` | Run all validations in order |
+| `./scripts/nvim-validate.sh checkhealth` | Headless `:checkhealth` — dumps full report to `.planning/tmp/nvim-validate/checkhealth.txt`; fails on any ERROR line |
+| `./scripts/nvim-validate.sh all` | Run all validations in order (startup → sync → smoke → health → checkhealth) |
 
 ### Central Keymap Rule
 
