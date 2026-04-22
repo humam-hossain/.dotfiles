@@ -43,7 +43,7 @@ One shared Neovim config gives a clean, modern, bug-resistant editing experience
 ### Active
 
 - [ ] v1.1 bug-fix milestone removes config-caused runtime errors from keymaps, plugins, and crash-prone flows
-- [ ] v1.1 milestone makes `:checkhealth` a trustworthy first-line diagnostic for this setup
+- ✓ v1.1 milestone makes `:checkhealth` a trustworthy first-line diagnostic for this setup — validated Phase 9
 - [ ] v1.1 milestone expands validation so regressions blocked by scripts are reproducible when `:checkhealth` alone is not enough
 
 ### Out of Scope
@@ -85,8 +85,8 @@ v1.1 is a brownfield stabilization milestone. Work should start from real failur
 | snacks.nvim replaces dashboard, indent, input, notifier, scope (5 plugins) | UX coherence: one well-maintained plugin over several overlapping plugins | ✓ Shipped in v1.0 |
 | Format-on-save with filetype safety policy | Avoid polluting commit messages, markdown, and scratch buffers with formatter noise | ✓ Exclusion list well-tested |
 | Headless validation harness lives in-repo | Catch regressions without full UI session | ✓ `scripts/nvim-validate.sh` shipped |
-| v1.1 bug-fix milestone treats `:checkhealth` as first diagnostic surface | Health output is fastest shared debugging entry point across machines | — Pending |
-| Add scripts only where `:checkhealth` cannot prove setup correctness | Avoid duplicate validation surfaces and keep maintenance cost bounded | — Pending |
+| v1.1 bug-fix milestone treats `:checkhealth` as first diagnostic surface | Health output is fastest shared debugging entry point across machines | ✓ `config.health` provider ships with 6 sections, required/optional severity classification, and environment gap guidance |
+| Add scripts only where `:checkhealth` cannot prove setup correctness | Avoid duplicate validation surfaces and keep maintenance cost bounded | ✓ `checkhealth` subcommand added to validator; `core.health` is shared probe infrastructure |
 
 ## Evolution
 
@@ -106,4 +106,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-22 after Phase 8 (plugin-runtime-hardening) complete*
+*Last updated: 2026-04-23 after Phase 9 (health-signal-cleanup) complete*
