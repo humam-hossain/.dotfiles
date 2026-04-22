@@ -2,7 +2,7 @@
 
 **Generated:** 2026-04-18
 **Revised:** 2026-04-22 (Phase 7-02 — converted to post-fix regression checklist; all BUG-01 entries verified fixed)
-**Revised:** 2026-04-22 (Phase 8-03 — Phase 8 regression results added; all workflows verified; tmux-navigation split finding recorded)
+**Revised:** 2026-04-22 (Phase 8-03 — Phase 8 regression results added; W-13 Linux external-open corrected to FAIL; tmux-navigation split finding recorded)
 **Status:** Regression Checklist (post-Phase 8)
 **Source:** [FAILURES.md](FAILURES.md)
 
@@ -200,9 +200,10 @@ Interactive verification run after Phase 8-01 and 08-02 fixes. All items tested 
 | W-10 | which-key popup | PASS | Popup renders on `<leader>`, no error |
 | W-11 | Notification / noice output | PASS | Notifications display correctly, no runtime error |
 | W-12 | Statusline / fold rendering | PASS | Lualine visible, ufo folds render normally |
-| W-13 | Linux external-open (`<C-S-o>`) | PASS | Opens externally or reports real OS error string |
+| W-13 | Linux external-open (`<C-S-o>`) | FAIL | Does not open file externally on Linux; root cause unclear (xdg-open, vim.ui.open availability, or key binding issue); open.lua hardening correct but underlying open fails; needs follow-up investigation |
 | W-14 | Tmux-navigation — Neovim split movement (outside tmux) | PASS | `<C-h/j/k/l>` navigate Neovim splits normally |
 | W-15 | Tmux-navigation — cross-pane traversal (inside tmux) | FAIL | Neovim mapping ownership correct; tmux.conf companion bindings absent (see BUG-019) |
+| W-16 | Windows external-open (`<C-S-o>`) | DEFERRED | No Windows machine available for verification |
 
 ### BUG-017 — Tmux-Navigation Ownership Evidence (Phase 8-03)
 

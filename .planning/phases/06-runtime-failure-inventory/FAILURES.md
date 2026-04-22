@@ -3,7 +3,7 @@
 **Generated:** 2026-04-18T06:08:48Z
 **Revised:** 2026-04-22 (Phase 7 fix verification complete — BUG-005 to BUG-012, BUG-015 marked Fixed)
 **Revised:** 2026-04-22 (Phase 8-03 automated validation complete — startup and health pass; BUG-001/016 confirmed fixed; BUG-017 awaiting interactive verification in Task 2)
-**Revised:** 2026-04-22 (Phase 8-03 interactive verification complete — BUG-017 Neovim side confirmed Fixed; tmux.conf gap tracked as BUG-019)
+**Revised:** 2026-04-22 (Phase 8-03 interactive verification complete — BUG-017 Neovim side confirmed Fixed; tmux.conf gap tracked as BUG-019; Linux external-open W-13 corrected to FAIL, tracked as BUG-020)
 **Status:** Updated
 
 ## Environment
@@ -79,6 +79,7 @@ Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` w
 | BUG-017 | vim-tmux-navigator `<C-h/j/k/l>` vs registry window.move_* | plugins/misc.lua + registry | **Fixed** (Phase 8-01, Neovim side) | `<C-h/j/k/l>` | static |
 | BUG-018 to BUG-028 | Colon-format M.global keymaps (wincmd, resize, bnext, bdelete) | core/keymaps/registry.lua | **Not Bugs** | various | manual |
 | BUG-019 | tmux.conf missing vim-tmux-navigator companion bindings — cross-pane traversal fails | .tmux.conf (environment) | **Open** (environment gap) | `<C-h/j/k/l>` in tmux | interactive |
+| BUG-020 | Linux external-open `<C-S-o>` does not open file externally — root cause unclear (xdg-open, vim.ui.open availability, or key binding) | core/open.lua + system | **Open** (needs investigation) | `<C-S-o>` on Linux | interactive |
 
 ---
 
@@ -167,6 +168,8 @@ Neovim-side ownership: CONFIRMED Fixed. The registry conflict is fully resolved.
 
 **BUG-018 to BUG-028 (Not Bugs):** Colon-format `":cmd<CR>"` keymaps in `M.global` all work correctly via `apply.lua` → `vim.keymap.set()`. Only `M.lazy` string actions are broken.
 
+**BUG-020:** Linux external-open `<C-S-o>` does not open the file externally on Linux. Phase 8-02 correctly hardened `core/open.lua` to capture the `vim.ui.open()` return tuple directly so the real OS error string surfaces. However the underlying open itself still fails. Possible root causes: (1) `xdg-open` is missing or misconfigured on this system, (2) `vim.ui.open()` is unavailable or behaves differently on this Neovim version, (3) the key binding `<C-S-o>` is not reaching the handler (terminal strips `<C-S-o>`). The hardening fix is correct and should be retained. Root cause investigation and fix are deferred to a follow-up phase.
+
 ---
 
 ## Summary
@@ -174,6 +177,8 @@ Neovim-side ownership: CONFIRMED Fixed. The registry conflict is fully resolved.
 - **Fixed (Phase 7-01, verified Phase 7-02):** 10 bugs (BUG-005 to BUG-012, BUG-015) — all shared keymaps moved to `M.global` with callback-based actions in `registry.lua`; Gitsigns entries converted to direct `require("gitsigns").fn()` calls
 - **Fixed (Phase 8-01):** 2 bugs fully resolved + 1 Neovim-side fix (BUG-001, BUG-016 fixed; BUG-017 Neovim-side fixed — neo-tree probe removed from health validator; nvim-colorizer.lua removed; registry window.move_* globals removed so vim-tmux-navigator owns `<C-h/j/k/l>` in Neovim)
 - **Open — environment gap:** 1 (BUG-019) — `.tmux.conf` missing companion bindings for cross-pane traversal; requires `.tmux.conf` update outside Neovim config
+- **Open — needs investigation:** 1 (BUG-020) — Linux external-open `<C-S-o>` does not work; open.lua hardening correct but underlying open fails; root cause (xdg-open, vim.ui.open, key binding) needs follow-up
+- **Deferred:** Windows external-open — no Windows machine available for verification
 - **By Design:** 1 (BUG-013)
 - **Not Bugs:** 12 (BUG-014, BUG-018 to BUG-028)
 - **Feature tests (Section D):** All pass
@@ -184,4 +189,4 @@ Neovim-side ownership: CONFIRMED Fixed. The registry conflict is fully resolved.
 
 **Phase 8-03 automated outcome (2026-04-22):** `startup` PASS — no error keywords. `health` PASS — all 11 plugins loaded, all 14 tools available, 0 lazy problems. One residual deprecation warning (`vim.lsp.buf_get_clients()`) classified as environment noise from `project.nvim` (third-party plugin); not a config defect.
 
-**Phase 8-03 interactive outcome (2026-04-22):** All 13 workflows passed (search, explorer, git, LSP, UI, external-open, Neovim-internal split navigation). BUG-017 Neovim-side ownership confirmed Fixed via `:verbose nmap <C-h>` — vim-tmux-navigator owns the mapping. Cross-pane tmux traversal fails due to missing `.tmux.conf` companion bindings (BUG-019) — this is an environment gap, not a config regression introduced by Phase 8.
+**Phase 8-03 interactive outcome (2026-04-22):** 13 of 15 workflows passed (search, explorer, git, LSP, UI, Neovim-internal split navigation). BUG-017 Neovim-side ownership confirmed Fixed via `:verbose nmap <C-h>` — vim-tmux-navigator owns the mapping. Cross-pane tmux traversal fails due to missing `.tmux.conf` companion bindings (BUG-019) — environment gap, not a config regression. Linux external-open (`<C-S-o>`) FAILS on Linux (BUG-020) — open.lua hardening is correct but the underlying open does not complete; root cause unclear (xdg-open, vim.ui.open availability, or key binding); needs follow-up investigation. Windows external-open: DEFERRED — no Windows machine available.
