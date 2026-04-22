@@ -134,8 +134,29 @@ return {
 		vim.api.nvim_create_autocmd("LspAttach", {
 			group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
 			callback = function(event)
+				-- Guard 1: client must exist and be valid.
+				-- vim.lsp.get_client_by_id() returns nil for already-detached or
+				-- never-registered client IDs; proceeding without a client would
+				-- crash any client method call below.
 				local client = vim.lsp.get_client_by_id(event.data.client_id)
 				if not client then
+					return
+				end
+
+				-- Guard 2: buffer must be a real, valid Neovim buffer.
+				-- Invalid buffer handles (e.g. after :bdelete during async attach)
+				-- cause nvim_buf_* API calls to throw E523.
+				if not vim.api.nvim_buf_is_valid(event.buf) then
+					return
+				end
+
+				-- Guard 3: only attach extras to normal file buffers.
+				-- Special buffers (nofile, terminal, quickfix, fugitive, snacks
+				-- picker previews, etc.) must not receive per-buffer LSP keymaps
+				-- or document-highlight autocmds — they are either read-only,
+				-- ephemeral, or explicitly managed by their owning plugin.
+				local buftype = vim.bo[event.buf].buftype
+				if buftype ~= "" then
 					return
 				end
 
