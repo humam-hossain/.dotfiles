@@ -298,3 +298,44 @@ All 10 confirmed bugs shared one of two root causes:
 **RC-02 (2 bugs):** `:Gitsigns command<CR>` strings were not a valid gitsigns invocation format regardless of execution path.
 
 **Phase 7 fix applied:** All 8 RC-01 entries moved from `M.lazy` to `M.global` with explicit Lua callback actions. Both RC-02 Gitsigns entries converted to `function() require("gitsigns").fn() end`. The `lazy.lua` dispatcher was also split (angle-bracket strings now route through `nvim_feedkeys`; plain ex-commands through `vim.cmd`) to prevent recurrence for any remaining `M.lazy` entries. All 9 target mappings passed interactive verification on 2026-04-22.
+
+---
+
+## Phase 10 Regression Checks
+
+**Added:** 2026-04-23 (Phase 10-02 — scripted subcommands added; LSP attach safety and follow-up steps documented here)
+
+These checks cover the two regression surfaces that Phase 10 scripted automation cannot reach headlessly, plus a companion step to pair the new scripted subcommands with interactive follow-up when a log shows FAIL.
+
+---
+
+### LSP attach safety
+
+Verify that LSP servers attach cleanly to representative file types without triggering Lua errors at attach time.
+
+1. Open Neovim and navigate to a Lua source file in the repo (e.g., `.config/nvim/lua/core/keymaps/registry.lua`)
+2. Wait 2–3 seconds for LSP attach (watch the statusline for the server name or run `:LspInfo`)
+3. Check the notification area and `:messages` for any Lua errors or attach-time tracebacks
+4. Repeat with a Go file if one is available in the workspace
+
+**Expected:** LSP server attaches silently; no Lua errors, no `E5108`, no `stack traceback` in notifications or `:messages`
+
+**Regression signal:** Any Lua error, `E5108 Error executing Lua`, or `stack traceback` appearing in the notification area or `:messages` immediately after LSP attach — indicates an autocmd or `on_attach` handler is throwing
+
+---
+
+### Scripted regression subcommands — interactive follow-up
+
+Run the Phase 10 scripted checks and investigate any FAIL lines before committing a rollout.
+
+1. Run `./scripts/nvim-validate.sh keymaps`
+   - Expected: `PASS: keymaps OK — 3 probe(s) passed`
+   - If FAIL: inspect `.planning/tmp/nvim-validate/keymap-regression.log` for which action family regressed; check `core/keymaps/lazy.lua` dispatcher logic and registry entries for the failing action type
+2. Run `./scripts/nvim-validate.sh formats`
+   - Expected: `PASS: formats OK — 3 probe(s) passed`
+   - If FAIL: inspect `.planning/tmp/nvim-validate/format-regression.log` for which guard case regressed; check `plugins/conform.lua` `format_on_save` guard conditions
+3. Optionally run `./scripts/nvim-validate.sh all` as a full pre-rollout gate
+
+**Expected:** Both subcommands exit zero with all PASS lines
+
+**Regression signal:** Any `FAIL:` line in `keymap-regression.log` or `format-regression.log`, or non-zero exit from either subcommand — indicates a guard condition or dispatcher branch has regressed and must be investigated before rollout
