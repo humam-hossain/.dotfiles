@@ -90,5 +90,5 @@ Plans:
 | 7. Keymap Reliability Fixes | 2/2 | Complete   | 2026-04-21 |
 | 8. Plugin Runtime Hardening | v1.1 | 0/3 | ⬜ Pending |
 | 9. Health Signal Cleanup | v1.1 | 0/2 | ⬜ Pending |
-| 10. Validation Harness Expansion | 4/4 | Complete   | 2026-04-23 |
+| 10. Validation Harness Expansion | 4/4 | Complete    | 2026-04-23 |
 | 11. Milestone Verification and Rollout Confidence | v1.1 | 0/2 | ⬜ Pending |
