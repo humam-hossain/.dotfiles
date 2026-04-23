@@ -5,7 +5,7 @@ status: ready
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-04-22
-updated: 2026-04-22
+updated: 2026-04-24
 ---
 
 # Phase 07 — Validation Strategy
@@ -39,10 +39,10 @@ updated: 2026-04-22
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 07-01-01 | 01 | 1 | BUG-01 | T-07-01 | Broken shared keymaps are function actions, not fragile string notations | integration | `./scripts/nvim-validate.sh startup && ./scripts/nvim-validate.sh smoke` | ✅ | ⬜ pending |
-| 07-01-02 | 01 | 1 | BUG-01 | T-07-02 | Attachment helper uses valid registry scope token for plugin-local maps | static | `rg -n 'plugin-local|plugin_local' .config/nvim/lua/core/keymaps/attach.lua .config/nvim/lua/core/keymaps/registry.lua` | ✅ | ⬜ pending |
-| 07-02-01 | 02 | 2 | BUG-01 | T-07-03 | Every confirmed shared keymap from Phase 6 executes without E488/Lua runtime error | manual | `./scripts/nvim-validate.sh all` | ✅ | ⬜ pending |
-| 07-02-02 | 02 | 2 | BUG-01 | T-07-04 | Failure inventory and checklist reflect fixed status and post-fix expectations | static | `rg -n 'BUG-005|BUG-012|Fixed|Expected:' .planning/phases/06-runtime-failure-inventory/FAILURES.md .planning/phases/06-runtime-failure-inventory/CHECKLIST.md` | ✅ | ⬜ pending |
+| 07-01-01 | 01 | 1 | BUG-01 | T-07-01 | Broken shared keymaps are function actions, not fragile string notations | integration | `./scripts/nvim-validate.sh startup && ./scripts/nvim-validate.sh smoke` | ✅ | ✅ green |
+| 07-01-02 | 01 | 1 | BUG-01 | T-07-02 | Attachment helper uses valid registry scope token for plugin-local maps | static | `rg -n 'plugin-local|plugin_local' .config/nvim/lua/core/keymaps/attach.lua .config/nvim/lua/core/keymaps/registry.lua` | ✅ | ✅ green |
+| 07-02-01 | 02 | 2 | BUG-01 | T-07-03 | Every confirmed shared keymap from Phase 6 executes without E488/Lua runtime error | manual | `./scripts/nvim-validate.sh all` | ✅ | ✅ green |
+| 07-02-02 | 02 | 2 | BUG-01 | T-07-04 | Failure inventory and checklist reflect fixed status and post-fix expectations | static | `rg -n 'BUG-005|BUG-012|Fixed|Expected:' .planning/phases/06-runtime-failure-inventory/FAILURES.md .planning/phases/06-runtime-failure-inventory/CHECKLIST.md` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -77,3 +77,15 @@ updated: 2026-04-22
 - [x] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** Phase 07 ready for execution
+
+---
+
+## Validation Audit 2026-04-24
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+
+All 4 tasks verified green. `nyquist_compliant: true` confirmed.
