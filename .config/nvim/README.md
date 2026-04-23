@@ -324,7 +324,10 @@ The repo ships a shell-orchestrated headless validation harness so maintainers c
 | `./scripts/nvim-validate.sh sync` | Run headless `Lazy! sync` with a 120s timeout; fail on timeout or stack traceback |
 | `./scripts/nvim-validate.sh health` | Invoke `core.health.snapshot` and write JSON to `.planning/tmp/nvim-validate/health.json`; fail on any plugin with `loaded=false` |
 | `./scripts/nvim-validate.sh smoke` | pcall-require the high-risk plugin modules one by one; fail on any load failure |
-| `./scripts/nvim-validate.sh all` | Run startup, sync, smoke, health in order; fail fast |
+| `./scripts/nvim-validate.sh checkhealth` | Run headless `:checkhealth`, dump full report to `.planning/tmp/nvim-validate/checkhealth.txt`; fail on any ERROR line |
+| `./scripts/nvim-validate.sh keymaps` | pcall-test the keymap dispatcher against Phase 7 error-prone action string types; fail on any error thrown; artifact: `keymap-regression.log` |
+| `./scripts/nvim-validate.sh formats` | Call the `format_on_save` guard directly with mock buffer contexts (nofile, unnamed, acwrite); verify correct false/options return; artifact: `format-regression.log` |
+| `./scripts/nvim-validate.sh all` | Run startup → sync → smoke → health → checkhealth → keymaps → formats in order; fail fast |
 
 ### Report Output
 
@@ -335,6 +338,9 @@ All reports are written to `.planning/tmp/nvim-validate/` (gitignored):
 - `smoke.log` — per-plugin pcall results
 - `health.json` — machine-readable snapshot (schema below)
 - `health.log` — stderr from the health invocation
+- `checkhealth.txt` — full rendered `:checkhealth` output
+- `keymap-regression.log` — per-action-type pcall results from the keymap dispatcher probe
+- `format-regression.log` — per-buffer-context guard return values from the format-on-save probe
 
 ### Health Snapshot Schema
 

@@ -6,13 +6,59 @@
 **Revised:** 2026-04-22 (Phase 8-03 interactive verification complete — BUG-017 Neovim side confirmed Fixed; tmux.conf gap tracked as BUG-019; Linux external-open W-13 corrected to FAIL, tracked as BUG-020)
 **Revised:** 2026-04-23 (Phase 9-01 Task 1 — first checkhealth audit captured; render-markdown buftype config fixed; BUG-019 tmux companion bindings added to .tmux.conf; remaining errors classified as reserved/environment-only)
 **Revised:** 2026-04-23 (Phase 9-01 Task 2 — BUG-019 interactively confirmed Fixed; BUG-020 root cause proved: terminal strips <C-S-o>, vim.ui.open env gap; registry.lua rebound to <leader>o)
+**Revised:** 2026-04-23 (Phase 10-04 Task 1 — fresh warning audit; which-key duplicate-prefix warnings classified as config-caused; all other warning families classified)
 **Status:** Updated
 
 ## Environment
 
 OS: Linux 6.19.11-arch1-1 x86_64
-Neovim: NVIM v0.12.1
+Neovim: NVIM v0.12.2+v0.12.2
 Tools: jq: jq-1.8.1, git: git version 2.53.0
+
+---
+
+## Phase 10-04 Warning Audit (2026-04-23)
+
+**Command:** `./scripts/nvim-validate.sh checkhealth`
+**Artifact:** `.planning/tmp/nvim-validate/checkhealth.txt` (fresh run, 5784 lines)
+**Neovim version:** NVIM v0.12.2+v0.12.2
+**Purpose:** Classify all current WARNING families as config-caused, environment-only, or optional-tool gap. Fix config-caused warnings per D-15/D-16.
+
+### Warning families found and classification
+
+| Provider | Warning | Classification | Disposition | Action |
+|----------|---------|----------------|-------------|--------|
+| `blink.cmp` | "Some providers may show up as 'disabled' but are enabled dynamically (e.g. cmdline)" | **Informational-by-design** — blink.cmp emits this note when cmdline provider is dynamically enabled | **By Design** | None — this is a plugin informational note, not a config defect |
+| `config` / `core` | "ts_ls not found — affects: TypeScript LSP" | **Optional-tool gap** — ts_ls (typescript-language-server) is not installed via Mason on this machine | **Won't Fix** | Install via `:MasonInstall ts_ls` when TypeScript work requires it; not a shared config defect |
+| `config` / `core` | "tmux companion bindings: if `<C-h/j/k/l>` do not cross pane boundaries..." | **By Design** — health provider advisory note explaining the environment gap; fixed in Phase 9-01 (bindings added to `.config/.tmux.conf`); note remains as guidance | **By Design** | None — note is intentional guidance; actual fix deployed in Phase 9-01 |
+| `config` / `core` | "Linux external-open (`<leader>o`): opens the current file with xdg-open via vim.ui.open()..." | **By Design** — health provider advisory note explaining the env gap; BUG-020 closed in Phase 9-01 | **By Design** | None — note is intentional guidance; rebind to `<leader>o` deployed in Phase 9-01 |
+| `lazy.nvim` | "`lua` version `5.1` needed, but found `Lua 5.5.0`" | **Optional-tool gap** — luarocks requires lua 5.1 for some plugins; lazy.nvim itself notes "no plugins require luarocks, so you can ignore" | **Won't Fix** | lua 5.1 is not installed; but lazy.nvim explicitly says it can be ignored since no plugins use luarocks |
+| `lazy.nvim` | "{lua5.1} or {lua} or {lua-5.1} version 5.1 not installed" | **Optional-tool gap** — same luarocks lua-5.1 family as above | **Won't Fix** | Same — ignored per lazy.nvim's own "no plugins require luarocks" OK check |
+| `mason` | "Ruby: not available", "RubyGem: not available", "Composer: not available", "PHP: not available", "julia: not available" | **Optional-tool gap** — these language runtimes are not installed on this machine; Mason warns when they are absent for potential Mason server installations | **Won't Fix** | Not installed on this Arch Linux machine; not required for current dev workflows |
+| `render-markdown` | "none installed: { 'utftex', 'latex2text' }" | **Optional-tool gap** — latex rendering tools for render-markdown's latex support; not installed | **Won't Fix** | Optional; disable latex support to suppress: `latex = { enabled = false }` in render-markdown opts |
+| `render-markdown` | "setup {disabled}" (multiple) | **Environment-only** — render-markdown disables itself in headless/nofile buffers (same pattern as Phase 9-01 snacks dashboard) | **By Design** | None — correct headless behavior |
+| `render-markdown` | "Image rendering in docs with missing treesitter parsers won't work" | **Optional-tool gap** — treesitter parsers for some obscure languages not installed | **Won't Fix** | Not required for primary Markdown editing; install specific parsers if needed |
+| `snacks` | "setup {disabled}" (dashboard, multiple) | **Environment-only** — snacks dashboard intentionally skips `did_setup` in headless mode | **By Design** | None — same classification as Phase 9-01 |
+| `vim.deprecated` | "vim.lsp.buf_get_clients() is deprecated. Feature was removed in Nvim 0.12" | **Environment/plugin noise** — emitted by `project.nvim` third-party plugin (same classification as Phase 8-03); our config files contain no reference to this API | **Won't Fix** | Third-party plugin (`project.nvim`) issue; no fix available upstream |
+| `vim.provider` | "Missing 'neovim' npm (or yarn, pnpm) package" | **Optional-tool gap** — node.js provider package not installed; not required for current workflows | **Won't Fix** | Install `npm install -g neovim` if node provider is needed; not a config defect |
+| `vim.provider` | "'Neovim::Ext' cpan module is not installed", "No usable perl executable found" | **Optional-tool gap** — Perl provider not available; not required | **Won't Fix** | Perl is not used in this setup |
+| `vim.provider` | "`ruby` and `gem` must be in $PATH" | **Optional-tool gap** — Ruby provider not available; not required | **Won't Fix** | Ruby is not used in this setup |
+| `which-key` | "mini.icons is not installed" | **Optional-tool gap** — which-key can use mini.icons or nvim-web-devicons; nvim-web-devicons IS installed (shown as OK in same section) | **Won't Fix** | nvim-web-devicons is present and sufficient; mini.icons not needed |
+| `which-key` | "In mode `n`, `<Space>x` overlaps with `<Space>xs`" | **Informational overlap** — which-key itself marks these as "only reported for informational purposes" | **By Design** | `<leader>x` (close buffer) and `<leader>xs` (close split) are intentionally distinct mappings sharing a prefix |
+| `which-key` | "In mode `n`, `gc` overlaps with `gcc`" | **Informational overlap** — which-key marks these as informational; both are nvim-comment built-ins | **By Design** | Standard comment plugin behavior; not a config defect |
+| `which-key` | "Duplicates for `<leader>e` in mode `n`" | **Config-caused** — `whichkey.lua` registers `<leader>e` as group "Explorer" via `registry.groups` (prefix = "e"), AND the same lhs is a real mapping "Toggle file explorer" in `M.lazy`. Both get registered to which-key causing a duplicate. | **Fixed (Task 2)** | `whichkey.lua` modified to skip group registration when the exact `<leader><prefix>` lhs is already claimed by a mapping in the registry |
+| `which-key` | "Duplicates for `<leader>b` in mode `n`" | **Config-caused** — `whichkey.lua` registers `<leader>b` as group "Buffers" via `registry.groups` (prefix = "b"), AND the same lhs is a real mapping "New buffer" in `M.global`. Both get registered to which-key causing a duplicate. | **Fixed (Task 2)** | Same fix as `<leader>e` — group registration skip when exact lhs is already a real mapping |
+| `nvim-ufo` | "setup {disabled}" (various setup disabled notices) | **Environment-only** — some plugins report setup disabled in headless mode | **By Design** | None |
+| `treesitter` / language filetypes | "Unknown filetype 'gotmpl'", "Unknown filetype 'markdown.mdx'", "yaml.docker-compose", "yaml.gitlab", "yaml.helm-values" | **Optional-tool gap** — treesitter parsers for these specialized filetypes are not installed | **Won't Fix** | Install parsers via `:TSInstall <lang>` if working with those file types |
+
+### Summary of config-caused warnings requiring a fix
+
+| Warning | Root cause | Status |
+|---------|------------|--------|
+| which-key `Duplicates for <leader>e` | `whichkey.lua` group registration conflicts with real mapping registration for same lhs | **Fixed in Task 2** |
+| which-key `Duplicates for <leader>b` | Same as above for `<leader>b` | **Fixed in Task 2** |
+
+All other warning families are environment-only, optional-tool gap, or informational-by-design. No additional config changes are warranted.
 
 ---
 

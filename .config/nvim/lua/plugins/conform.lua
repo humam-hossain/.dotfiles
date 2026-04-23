@@ -1,4 +1,3 @@
---- TODO: Format-on-save dispatcher - conform.nvim ---
 return {
 	"stevearc/conform.nvim",
 	opts = {
