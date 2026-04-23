@@ -39,7 +39,7 @@ Tools: jq: jq-1.8.1, git: git version 2.53.0
 | `render-markdown` | "setup {disabled}" (multiple) | **Environment-only** — render-markdown disables itself in headless/nofile buffers (same pattern as Phase 9-01 snacks dashboard) | **By Design** | None — correct headless behavior |
 | `render-markdown` | "Image rendering in docs with missing treesitter parsers won't work" | **Optional-tool gap** — treesitter parsers for some obscure languages not installed | **Won't Fix** | Not required for primary Markdown editing; install specific parsers if needed |
 | `snacks` | "setup {disabled}" (dashboard, multiple) | **Environment-only** — snacks dashboard intentionally skips `did_setup` in headless mode | **By Design** | None — same classification as Phase 9-01 |
-| `vim.deprecated` | "vim.lsp.buf_get_clients() is deprecated. Feature was removed in Nvim 0.12" | **Environment/plugin noise** — emitted by `project.nvim` third-party plugin (same classification as Phase 8-03); our config files contain no reference to this API | **Won't Fix** | Third-party plugin (`project.nvim`) issue; no fix available upstream |
+| `vim.deprecated` | "vim.lsp.buf_get_clients() is deprecated. Feature was removed in Nvim 0.12" | **Config-caused via plugin configuration** — `project.nvim` default `detection_methods = { "lsp", "pattern" }` triggers its deprecated LSP probe on Neovim 0.12 | **Fixed** | `.config/nvim/lua/plugins/project.lua` now configures `detection_methods = { "pattern" }`, preserving project root detection without the deprecated API path |
 | `vim.provider` | "Missing 'neovim' npm (or yarn, pnpm) package" | **Optional-tool gap** — node.js provider package not installed; not required for current workflows | **Won't Fix** | Install `npm install -g neovim` if node provider is needed; not a config defect |
 | `vim.provider` | "'Neovim::Ext' cpan module is not installed", "No usable perl executable found" | **Optional-tool gap** — Perl provider not available; not required | **Won't Fix** | Perl is not used in this setup |
 | `vim.provider` | "`ruby` and `gem` must be in $PATH" | **Optional-tool gap** — Ruby provider not available; not required | **Won't Fix** | Ruby is not used in this setup |
@@ -74,18 +74,18 @@ All other warning families are environment-only, optional-tool gap, or informati
 | `health` — tools | PASS | All 14 tools available (stylua, black, isort, prettierd, prettier, clang-format, shfmt, rg, git, node, go, clangd, gopls, lua-language-server) |
 | `health` — lazy | PASS | 28 loaded / 34 installed, 0 problems |
 
-### Residual Startup Warning — Environment Noise, Not a Config Defect
+### Residual Startup Warning — Resolved In Current Config
 
-**Warning observed in startup.log:**
+**Warning previously observed in startup.log:**
 ```
 vim.lsp.buf_get_clients() is deprecated. Run ":checkhealth vim.deprecated"
 ```
 
-**Source:** `project.nvim` plugin — `/home/pera/.local/share/nvim/lazy/project.nvim/lua/project_nvim/project.lua` calls `vim.lsp.buf_get_clients()` unconditionally.
+**Source:** `project.nvim` plugin — its default LSP detection path calls `vim.lsp.buf_get_clients()` internally.
 
-**Classification: environment/plugin noise** — this is a third-party plugin calling a deprecated upstream API. Our config files contain no reference to `buf_get_clients`. The startup validator PASS is correct: the harness failure keywords (`Error`, `E5108`, `E484`, `stack traceback`) are absent.
+**Current classification: fixed in repo config** — the plugin remains in use, but `.config/nvim/lua/plugins/project.lua` now forces `detection_methods = { "pattern" }`, so the deprecated LSP probe path is no longer used under Neovim 0.12.
 
-**Action:** None required. Documented here so future maintainers do not mistake this for a config regression introduced by Phase 8.
+**Verification:** `nvim --headless -u .config/nvim/init.lua '+checkhealth vim.deprecated'` now reports `No deprecated functions detected` (headless run still emits unrelated treesitter/ShaDa sandbox noise in this workspace, but the deprecated-function check itself is clean).
 
 ---
 
