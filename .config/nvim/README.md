@@ -342,6 +342,29 @@ All reports are written to `.planning/tmp/nvim-validate/` (gitignored):
 - `keymap-regression.log` — per-action-type pcall results from the keymap dispatcher probe
 - `format-regression.log` — per-buffer-context guard return values from the format-on-save probe
 
+### Reading validation output
+
+Each artifact maps to one subcommand and one triage action when it fails:
+
+| Artifact | Produced by | First response on failure |
+|----------|-------------|--------------------------|
+| `startup.log` | `startup` | Config or plugin-load regression — fix in repo code before rollout |
+| `sync.log` | `sync` | Plugin install/lock failure — rerun `:Lazy sync` or restore `lazy-lock.json` |
+| `smoke.log` | `smoke` | High-risk plugin failed to load — trace the module error in `smoke.log` and fix the spec |
+| `health.json` | `health` | Missing required plugin (`loaded=false`) blocks rollout; missing tool is machine setup gap only |
+| `health.log` | `health` | Stderr from health invocation — inspect for Lua errors, not tool warnings |
+| `checkhealth.txt` | `checkhealth` | Classify each `WARNING:` line: config regression → fix repo code; environment gap → document or install; optional tool gap → mark By Design/Won't Fix |
+| `keymap-regression.log` | `keymaps` | Phase 7 lazy dispatcher regression — a string-action type (`<cmd>…`, `<C-…>`, `:…`) threw an error; trace to `keymaps/lazy.lua` |
+| `format-regression.log` | `formats` | `format_on_save` guard regression — a buffer-context case returned the wrong value; trace to `plugins/conform.lua` |
+
+#### Triage decision path
+
+Reuse the Phase 9 classification taxonomy — do not create a separate TRIAGE.md:
+
+- **Config regression** → fix repo code before rollout. Caused by a change in `.config/nvim/lua/` that breaks the affected behavior. The scripted probes (`keymaps`, `formats`) are the authoritative signal for the Phase 7/10 surfaces; `:checkhealth config` and `checkhealth.txt` cover the rest.
+- **Environment gap** → document the required tool or install it on the target machine. Not a repo defect. Record in `FAILURES.md` as Won't Fix with the install hint.
+- **Optional tool gap** → keep as `WARNING:` or mark By Design/Won't Fix when the feature is intentionally absent on that machine. Do not attempt to silence these by removing valid config.
+
 ### Health Snapshot Schema
 
 `health.json` is produced by `require('core.health').snapshot({...})` and conforms to:
