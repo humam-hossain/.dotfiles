@@ -16,12 +16,28 @@ function M.setup()
 		return
 	end
 
-	-- Register domain groups
+	-- Build a set of lhs values already claimed by real mappings (global + lazy).
+	-- Group registration is skipped for any <leader><prefix> whose exact lhs
+	-- is already a real mapping — which-key would otherwise emit a "Duplicates"
+	-- warning for that key (e.g. <leader>e "Explorer" group vs. <leader>e
+	-- "Toggle file explorer" mapping both registering for the same lhs).
+	local claimed = {}
+	for _, m in ipairs(registry.get_by_scope("global")) do
+		claimed[m.lhs] = true
+	end
+	for _, m in ipairs(registry.get_by_scope("lazy")) do
+		claimed[m.lhs] = true
+	end
+
+	-- Register domain groups (skip any whose <leader><prefix> is already a mapping)
 	local groups = registry.groups
 	for _, g in ipairs(groups) do
-		which_key.add({
-			{ "<leader>" .. g.prefix, group = g.label },
-		})
+		local group_lhs = "<leader>" .. g.prefix
+		if not claimed[group_lhs] then
+			which_key.add({
+				{ group_lhs, group = g.label },
+			})
+		end
 	end
 
 	-- Register global mappings with descriptions
