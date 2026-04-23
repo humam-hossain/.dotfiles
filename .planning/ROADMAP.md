@@ -64,11 +64,11 @@ Plans:
 **Goal:** Extend repo validation only where `:checkhealth` cannot prove correctness for bug-prone flows
 **Requirements:** TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 6, Phase 7, Phase 8, Phase 9
-**Plans:** 0/4 plans executed
+**Plans:** 1/4 plans executed
 
 Plans:
 - [ ] 10-01-PLAN.md — Lock the Phase 10 validator contract and clean stale format-on-save TODO noise
-- [ ] 10-02-PLAN.md — Add `keymaps` and `formats` regression subcommands plus Phase 10 manual follow-up checks
+- [x] 10-02-PLAN.md — Add `keymaps` and `formats` regression subcommands plus Phase 10 manual follow-up checks
 - [ ] 10-03-PLAN.md — Add README guidance for reading validation artifacts and triaging failures
 - [ ] 10-04-PLAN.md — Re-audit `checkhealth` warnings, fix repo-owned warning noise, and update warning dispositions
 
@@ -90,5 +90,5 @@ Plans:
 | 7. Keymap Reliability Fixes | 2/2 | Complete   | 2026-04-21 |
 | 8. Plugin Runtime Hardening | v1.1 | 0/3 | ⬜ Pending |
 | 9. Health Signal Cleanup | v1.1 | 0/2 | ⬜ Pending |
-| 10. Validation Harness Expansion | 0/4 | Planned    |  |
+| 10. Validation Harness Expansion | 1/4 | In Progress|  |
 | 11. Milestone Verification and Rollout Confidence | v1.1 | 0/2 | ⬜ Pending |
