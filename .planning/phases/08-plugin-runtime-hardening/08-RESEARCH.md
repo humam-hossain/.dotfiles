@@ -337,17 +337,15 @@ vim.api.nvim_create_autocmd("LspAttach", {
 |---|-------|---------|---------------|
 | None | All research claims below are verified or cited. [VERIFIED: this document] | — | — |
 
-## Open Questions
+## Open Questions (RESOLVED FOR PLANNING)
 
 1. **Which exact pinned plugin is BUG-016?**
-   - What we know: startup timing loads `nvim-treesitter.compat`, and current local plugin sources for `nvim-treesitter`, `lualine.nvim`, `nvim-colorizer.lua`, and `plenary.nvim` still contain `vim.tbl_flatten()` references. [VERIFIED: startuptime log, local plugin grep]
-   - What's unclear: which one is emitting the warning in this repo’s real startup path. [VERIFIED: validator output does not include stack attribution]
-   - Recommendation: make the first task in `8-01` a trace-and-confirm step, then bump or remove exactly one plugin. [VERIFIED: 08-CONTEXT.md]
+   - Resolved planning disposition: the exact caller remains an execution-time trace gate inside Plan `08-01`, not an open planning blocker. The plan now requires trace-confirm-first, then one surgical lockfile change only after attribution is confirmed. [VERIFIED: 08-CONTEXT.md, 08-01-PLAN.md]
+   - Current bounded candidate set: `nvim-treesitter.compat` remains the strongest candidate from startup timing, but the executor must record the actual plugin name in the summary before editing `lazy-lock.json`. [VERIFIED: startuptime log, local plugin grep, 08-01-PLAN.md]
 
 2. **Should Treesitter parser install paths be hardened later?**
-   - What we know: `nvim-treesitter` expects a writable parser install dir, and this sandbox run failed because the current default path resolved into the plugin directory. [VERIFIED: startup.log][CITED: https://github.com/nvim-treesitter/nvim-treesitter/wiki/Supported-Languages-Information]
-   - What's unclear: whether this affects normal user machines outside the agent sandbox. [VERIFIED: local run only]
-   - Recommendation: keep it out of the core Phase 8 fix list unless it reproduces on a real workstation; otherwise track it as validator hardening for Phase 10. [VERIFIED: phase scope docs]
+   - Resolved planning disposition: this is out of core Phase 8 scope unless it reproduces outside the agent sandbox on a normal workstation. Treat it as validator/environment triage, not a gated Phase 8 code requirement. [VERIFIED: phase scope docs, 08-RESEARCH.md Summary]
+   - Routing decision: if workstation repro appears during execution, record it as follow-up validation hardening for Phase 10 rather than widening Phase 8 opportunistically. [VERIFIED: REQUIREMENTS.md, ROADMAP.md]
 
 ## Environment Availability
 

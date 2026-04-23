@@ -313,17 +313,15 @@ end
 |---|-------|---------|---------------|
 | A1 | Native Windows environments may not provide GNU `timeout`, so any plan that treats `timeout` as universally available should document whether the harness is expected to run under Git Bash/MSYS, WSL, or another POSIX layer. [ASSUMED] | Environment Availability / Common Pitfalls | Medium — rollout guidance could be incomplete for Windows maintainers. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Should the roadmap be updated to reflect the new 10-04 plan?**
-   - What we know: `10-CONTEXT.md` says Phase 10 now has 4 plans, including 10-04 warning cleanup. [VERIFIED: `10-CONTEXT.md`]
-   - What's unclear: `.planning/ROADMAP.md` still lists 3 plans for Phase 10. [VERIFIED: `.planning/ROADMAP.md`]
-   - Recommendation: Make plan-count alignment an explicit early planning task so downstream artifacts stop disagreeing. [VERIFIED: `10-CONTEXT.md`, `.planning/ROADMAP.md`]
+1. **Should the roadmap reflect the new 10-04 plan?**
+   - Resolution: Yes. `.planning/ROADMAP.md` already lists Phase 10 with 4 plans, including `10-04-PLAN.md`, so the stale 3-plan concern is closed. [VERIFIED: `.planning/ROADMAP.md`, `10-CONTEXT.md`]
+   - Planning impact: None beyond preserving that 4-plan structure consistently across research, validation, and plan artifacts. [VERIFIED: `.planning/ROADMAP.md`, `.planning/phases/10-validation-harness-expansion/10-01-PLAN.md`, `.planning/phases/10-validation-harness-expansion/10-04-PLAN.md`]
 
 2. **What shell contract is supported for Windows validation runs?**
-   - What we know: The project is explicitly cross-platform, but the validator is a bash script that already uses GNU-style `timeout`. [VERIFIED: `AGENTS.md`, `.planning/PROJECT.md`, `scripts/nvim-validate.sh`]
-   - What's unclear: Whether Windows maintainers are expected to use Git Bash, WSL, or only run a subset of commands. [VERIFIED: `.planning/PROJECT.md`, `scripts/nvim-validate.sh`] 
-   - Recommendation: The plan should at least document the expected shell/runtime for Windows execution, even if no code change lands in this phase. [ASSUMED]
+   - Resolution: Phase 10 should treat the validator as a POSIX-shell contract on Windows, not a native PowerShell or `cmd.exe` contract. This is an inference from the current repo-owned harness: `scripts/nvim-validate.sh` is a bash script and already depends on GNU-style `timeout`, so Windows maintainers are expected to run validation through Git Bash, MSYS2, WSL, or an equivalent POSIX-compatible shell. Native Windows shells are out of scope for this phase unless a future phase adds a separate contract. [VERIFIED: `AGENTS.md`, `.planning/PROJECT.md`, `scripts/nvim-validate.sh`] [INFERRED]
+   - Planning impact: Keep the Phase 10 scope unchanged, but require the README validation guidance added in Plans 10-01 and 10-03 to document that Windows validation runs require a POSIX-compatible shell. [VERIFIED: `.planning/phases/10-validation-harness-expansion/10-01-PLAN.md`, `.planning/phases/10-validation-harness-expansion/10-03-PLAN.md`] [INFERRED]
 
 ## Environment Availability
 

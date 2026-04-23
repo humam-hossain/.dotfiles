@@ -19,7 +19,7 @@ result: [pending]
 
 Steps:
 1. Open a Lua file: `nvim .config/nvim/lua/core/keymaps/registry.lua`
-2. Wait for LSP to attach (`:LspInfo` shows `lua_ls` active)
+2. Wait for LSP to attach (`:checkhealth vim.lsp` or `:lua print(vim.inspect(vim.lsp.get_clients({ bufnr = 0 })))` shows `lua_ls` active for current buffer)
 3. Check `:messages` — no E5108, no stack traceback, no attach errors
 4. Repeat with a Go file if available
 5. Confirm `<leader>e` and `<leader>b` which-key groups still appear (no regression in group registration)

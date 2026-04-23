@@ -314,7 +314,7 @@ These checks cover the two regression surfaces that Phase 10 scripted automation
 Verify that LSP servers attach cleanly to representative file types without triggering Lua errors at attach time.
 
 1. Open Neovim and navigate to a Lua source file in the repo (e.g., `.config/nvim/lua/core/keymaps/registry.lua`)
-2. Wait 2–3 seconds for LSP attach (watch the statusline for the server name or run `:LspInfo`)
+2. Wait 2–3 seconds for LSP attach (watch the statusline for the server name, run `:checkhealth vim.lsp`, or run `:lua print(vim.inspect(vim.lsp.get_clients({ bufnr = 0 })))`)
 3. Check the notification area and `:messages` for any Lua errors or attach-time tracebacks
 4. Repeat with a Go file if one is available in the workspace
 
