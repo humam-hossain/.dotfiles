@@ -18,9 +18,9 @@
 
 ### Validation Coverage
 
-- [ ] **TEST-01**: Maintainer can run repo validation commands to verify startup, plugin load, and health status before rollout
-- [ ] **TEST-02**: Maintainer can reproduce and validate bug-prone keymap or plugin flows with scripts when `:checkhealth` is insufficient
-- [ ] **TEST-03**: Maintainer can inspect validation artifacts that clearly separate config regressions from external dependency gaps
+- [x] **TEST-01**: Maintainer can run repo validation commands to verify startup, plugin load, and health status before rollout
+- [x] **TEST-02**: Maintainer can reproduce and validate bug-prone keymap or plugin flows with scripts when `:checkhealth` is insufficient
+- [x] **TEST-03**: Maintainer can inspect validation artifacts that clearly separate config regressions from external dependency gaps
 
 ## v2 Requirements
 
@@ -51,9 +51,9 @@
 | BUG-03 | Phase 8 | Pending |
 | HEAL-01 | Phase 9 | Pending |
 | HEAL-02 | Phase 9 | Pending |
-| TEST-01 | Phase 10 | Pending |
-| TEST-02 | Phase 10 | Pending |
-| TEST-03 | Phase 10 | Pending |
+| TEST-01 | Phase 10 | Complete |
+| TEST-02 | Phase 10 | Complete |
+| TEST-03 | Phase 10 | Complete |
 
 **Coverage:**
 - v1 requirements: 8 total
