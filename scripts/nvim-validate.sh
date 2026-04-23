@@ -524,6 +524,181 @@ LUA
 }
 
 # =============================================================================
+# Subcommand: formats
+# =============================================================================
+
+cmd_formats() {
+	local log="$REPORT_DIR/format-regression.log"
+	echo "==> formats: probing format-on-save guard function regression cases..."
+
+	# Call the format_on_save guard directly for three concrete buffer scenarios.
+	# Each scenario sets up a real nvim buffer with the target properties, then
+	# calls the extracted guard function and checks the return value.
+	# Results are written as PASS/FAIL lines to format-regression.log.
+	# No BufWritePre simulation — direct function call per D-06.
+	local lua_script
+	lua_script=$(cat <<'LUA'
+local log_path = vim.fn.expand(os.getenv('FORMAT_LOG') or '')
+local lines = {}
+local any_fail = false
+
+-- Load the conform plugin spec and extract format_on_save guard
+local ok, spec = pcall(require, 'plugins.conform')
+if not ok then
+  local msg = 'FAIL: could not load plugins.conform: ' .. tostring(spec)
+  table.insert(lines, msg)
+  io.stderr:write(msg .. '\n')
+  vim.fn.writefile(lines, log_path)
+  vim.cmd('cq')
+end
+
+local guard = spec and spec.opts and spec.opts.format_on_save
+if type(guard) ~= 'function' then
+  local msg = 'FAIL: opts.format_on_save is not a function (got ' .. type(guard) .. ')'
+  table.insert(lines, msg)
+  io.stderr:write(msg .. '\n')
+  vim.fn.writefile(lines, log_path)
+  vim.cmd('cq')
+end
+
+-- Helper: create a scratch buffer with specific properties for testing
+local function make_buf(opts)
+  local bufnr = vim.api.nvim_create_buf(false, true)
+  vim.bo[bufnr].buftype    = opts.buftype    or ''
+  vim.bo[bufnr].modifiable = opts.modifiable ~= false  -- default true
+  vim.bo[bufnr].filetype   = opts.filetype   or ''
+  if opts.name and opts.name ~= '' then
+    -- Use nvim_buf_set_name for buffers that need a path
+    pcall(vim.api.nvim_buf_set_name, bufnr, opts.name)
+  end
+  return bufnr
+end
+
+-- Helper: deep-check a result table for required keys/values
+local function check_format_opts(result, expected)
+  if type(result) ~= 'table' then
+    return false, 'expected table, got ' .. type(result)
+  end
+  for k, v in pairs(expected) do
+    if result[k] ~= v then
+      return false, 'key ' .. tostring(k) .. ': expected ' .. tostring(v) .. ', got ' .. tostring(result[k])
+    end
+  end
+  return true, nil
+end
+
+-- Case 1: nofile buftype, modifiable=true, name="" → expect false
+do
+  local bufnr = make_buf({ buftype = 'nofile', modifiable = true, name = '' })
+  local result = guard(bufnr)
+  vim.api.nvim_buf_delete(bufnr, { force = true })
+  local label = 'case1: nofile buftype → false'
+  if result == false then
+    table.insert(lines, 'PASS: ' .. label)
+  else
+    local msg = 'FAIL: ' .. label .. ' — got ' .. tostring(result)
+    table.insert(lines, msg)
+    io.stderr:write(msg .. '\n')
+    any_fail = true
+  end
+end
+
+-- Case 2: empty buftype, modifiable=true, name="" → expect false (unnamed buffer guard)
+do
+  local bufnr = make_buf({ buftype = '', modifiable = true, name = '' })
+  local result = guard(bufnr)
+  vim.api.nvim_buf_delete(bufnr, { force = true })
+  local label = 'case2: unnamed buffer (buftype="", name="") → false'
+  if result == false then
+    table.insert(lines, 'PASS: ' .. label)
+  else
+    local msg = 'FAIL: ' .. label .. ' — got ' .. tostring(result)
+    table.insert(lines, msg)
+    io.stderr:write(msg .. '\n')
+    any_fail = true
+  end
+end
+
+-- Case 3: acwrite buftype, modifiable=true, filetype=lua, name=/tmp/phase10.lua
+--         → expect table with timeout_ms=500 and lsp_format="fallback"
+do
+  local bufnr = make_buf({
+    buftype    = 'acwrite',
+    modifiable = true,
+    filetype   = 'lua',
+    name       = '/tmp/phase10.lua',
+  })
+  local result = guard(bufnr)
+  vim.api.nvim_buf_delete(bufnr, { force = true })
+  local label = 'case3: acwrite lua buffer → {timeout_ms=500, lsp_format="fallback"}'
+  local ok2, err2 = check_format_opts(result, { timeout_ms = 500, lsp_format = 'fallback' })
+  if ok2 then
+    table.insert(lines, 'PASS: ' .. label)
+  else
+    local msg = 'FAIL: ' .. label .. ' — ' .. tostring(err2)
+    table.insert(lines, msg)
+    io.stderr:write(msg .. '\n')
+    any_fail = true
+  end
+end
+
+vim.fn.writefile(lines, log_path)
+
+if any_fail then
+  vim.cmd('cq')
+else
+  vim.cmd('qa!')
+end
+LUA
+)
+
+	local lua_tmp
+	lua_tmp=$(mktemp)
+	printf '%s' "$lua_script" > "$lua_tmp"
+
+	local nvim_log
+	nvim_log=$(mktemp)
+
+	FORMAT_LOG="$log" nvim --headless \
+		-u "$REPO_ROOT/.config/nvim/init.lua" \
+		--cmd "set rtp^=$REPO_ROOT/.config/nvim" \
+		-l "$lua_tmp" \
+		> "$nvim_log" 2>&1
+	local rc=$?
+	rm -f "$lua_tmp"
+
+	if [[ $rc -ne 0 ]]; then
+		echo "FAIL: formats probe exited with code $rc" >&2
+		print_tail "$nvim_log"
+		if [[ -f "$log" ]]; then
+			echo "--- format-regression.log ---" >&2
+			cat "$log" >&2
+			echo "---" >&2
+		fi
+		rm -f "$nvim_log"
+		return 1
+	fi
+	rm -f "$nvim_log"
+
+	if [[ ! -f "$log" ]]; then
+		echo "FAIL: format-regression.log was not written" >&2
+		return 1
+	fi
+
+	if grep -q '^FAIL:' "$log" 2>/dev/null; then
+		echo "FAIL: format-on-save guard regression detected:" >&2
+		grep '^FAIL:' "$log" >&2
+		echo "Artifact: $log"
+		return 1
+	fi
+
+	local pass_count
+	pass_count=$(grep -c '^PASS:' "$log" 2>/dev/null || true)
+	echo "PASS: formats OK — $pass_count probe(s) passed; artifact: $log"
+	return 0
+}
+
+# =============================================================================
 # Subcommand: all
 # =============================================================================
 
@@ -549,8 +724,11 @@ cmd_all() {
 	cmd_keymaps || rc=$?
 	if [[ $rc -ne 0 ]]; then echo "==> all ABORTED at keymaps" >&2; exit $rc; fi
 
+	cmd_formats || rc=$?
+	if [[ $rc -ne 0 ]]; then echo "==> all ABORTED at formats" >&2; exit $rc; fi
+
 	echo ""
-	echo "==> all PASS: startup, sync, smoke, health, checkhealth, keymaps all succeeded"
+	echo "==> all PASS: startup, sync, smoke, health, checkhealth, keymaps, formats all succeeded"
 	return 0
 }
 
@@ -568,6 +746,7 @@ case "$SUBCMD" in
 	smoke)       cmd_smoke ;;
 	checkhealth) cmd_checkhealth ;;
 	keymaps)     cmd_keymaps ;;
+	formats)     cmd_formats ;;
 	all)         cmd_all ;;
 	*)           usage; exit 2 ;;
 esac
