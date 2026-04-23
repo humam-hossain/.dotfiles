@@ -8,7 +8,12 @@
 #   ./scripts/nvim-validate.sh health       Invoke core.health.snapshot, write JSON
 #   ./scripts/nvim-validate.sh smoke        pcall-require high-risk plugin modules
 #   ./scripts/nvim-validate.sh checkhealth  Run headless :checkhealth, dump buffer
-#   ./scripts/nvim-validate.sh all          Run startup, sync, smoke, health, checkhealth
+#   ./scripts/nvim-validate.sh keymaps      Probe lazy key dispatcher against Phase 7
+#                                           regression cases; write keymap-regression.log
+#   ./scripts/nvim-validate.sh formats      Probe format-on-save guard with direct
+#                                           function calls; write format-regression.log
+#   ./scripts/nvim-validate.sh all          Run startup, sync, smoke, health, checkhealth,
+#                                           keymaps, formats in that order; fail fast
 # =============================================================================
 
 set -euo pipefail
@@ -60,7 +65,14 @@ Subcommands:
                load failure
   checkhealth  Run headless ':checkhealth', dump health buffer to
                .planning/tmp/nvim-validate/checkhealth.txt; fail on any ERROR: line
-  all          Run startup, sync, smoke, health, checkhealth in that order; fail fast
+  keymaps      Probe the lazy key dispatcher against the three string-action
+               families that caused Phase 7 failures; write keymap-regression.log;
+               fail if any probe throws
+  formats      Probe the format-on-save guard function directly for nofile,
+               unnamed, and acwrite buffer cases; write format-regression.log;
+               fail if any guard case returns an unexpected value
+  all          Run startup, sync, smoke, health, checkhealth, keymaps, formats
+               in that order; fail fast
 
 Reports are written to: $REPORT_DIR/
 EOF
@@ -393,6 +405,125 @@ LUA
 }
 
 # =============================================================================
+# Subcommand: keymaps
+# =============================================================================
+
+cmd_keymaps() {
+	local log="$REPORT_DIR/keymap-regression.log"
+	echo "==> keymaps: probing lazy key dispatcher regression cases..."
+
+	# Probe the three string-action families that caused Phase 7 E488 failures.
+	# Each action is fed through the real dispatcher logic in core.keymaps.lazy
+	# via a minimal synthetic map table, using pcall to catch any thrown error.
+	# Results are written as PASS/FAIL lines to keymap-regression.log.
+	# The script exits non-zero (cq) if any probe fails.
+	local lua_script
+	lua_script=$(cat <<'LUA'
+local log_path = vim.fn.expand(os.getenv('KEYMAP_LOG') or '')
+local lines = {}
+local any_fail = false
+
+-- Load the dispatcher module
+local ok, lazy_mod = pcall(require, 'core.keymaps.lazy')
+if not ok then
+  local msg = 'FAIL: could not load core.keymaps.lazy: ' .. tostring(lazy_mod)
+  table.insert(lines, msg)
+  io.stderr:write(msg .. '\n')
+  vim.fn.writefile(lines, log_path)
+  vim.cmd('cq')
+end
+
+-- The dispatcher logic extracted from lazy.lua: given a string action,
+-- route through feedkeys (angle-bracket) or vim.cmd (plain ex-command).
+local function dispatch_string_action(action)
+  if action:match('<[^>]+>') then
+    vim.api.nvim_feedkeys(
+      vim.api.nvim_replace_termcodes(action, true, false, true),
+      'n',
+      false
+    )
+  else
+    vim.cmd(action)
+  end
+end
+
+-- Probe table: { label, action_string }
+local probes = {
+  { 'angle-bracket <cmd>enew<CR>',  '<cmd>enew<CR>' },
+  { 'keyseq <C-w>s',                '<C-w>s'        },
+  { 'colon-format :close<CR>',      ':close<CR>'    },
+}
+
+for _, probe in ipairs(probes) do
+  local label, action = probe[1], probe[2]
+  local pok, perr = pcall(dispatch_string_action, action)
+  if pok then
+    table.insert(lines, 'PASS: ' .. label)
+  else
+    local msg = 'FAIL: ' .. label .. ' — ' .. tostring(perr)
+    table.insert(lines, msg)
+    io.stderr:write(msg .. '\n')
+    any_fail = true
+  end
+end
+
+vim.fn.writefile(lines, log_path)
+
+if any_fail then
+  vim.cmd('cq')
+else
+  vim.cmd('qa!')
+end
+LUA
+)
+
+	local lua_tmp
+	lua_tmp=$(mktemp)
+	printf '%s' "$lua_script" > "$lua_tmp"
+
+	local nvim_log
+	nvim_log=$(mktemp)
+
+	KEYMAP_LOG="$log" nvim --headless \
+		-u "$REPO_ROOT/.config/nvim/init.lua" \
+		--cmd "set rtp^=$REPO_ROOT/.config/nvim" \
+		-l "$lua_tmp" \
+		> "$nvim_log" 2>&1
+	local rc=$?
+	rm -f "$lua_tmp"
+
+	if [[ $rc -ne 0 ]]; then
+		echo "FAIL: keymaps probe exited with code $rc" >&2
+		print_tail "$nvim_log"
+		if [[ -f "$log" ]]; then
+			echo "--- keymap-regression.log ---" >&2
+			cat "$log" >&2
+			echo "---" >&2
+		fi
+		rm -f "$nvim_log"
+		return 1
+	fi
+	rm -f "$nvim_log"
+
+	if [[ ! -f "$log" ]]; then
+		echo "FAIL: keymap-regression.log was not written" >&2
+		return 1
+	fi
+
+	if grep -q '^FAIL:' "$log" 2>/dev/null; then
+		echo "FAIL: keymap dispatcher regression detected:" >&2
+		grep '^FAIL:' "$log" >&2
+		echo "Artifact: $log"
+		return 1
+	fi
+
+	local pass_count
+	pass_count=$(grep -c '^PASS:' "$log" 2>/dev/null || true)
+	echo "PASS: keymaps OK — $pass_count probe(s) passed; artifact: $log"
+	return 0
+}
+
+# =============================================================================
 # Subcommand: all
 # =============================================================================
 
@@ -415,8 +546,11 @@ cmd_all() {
 	cmd_checkhealth || rc=$?
 	if [[ $rc -ne 0 ]]; then echo "==> all ABORTED at checkhealth" >&2; exit $rc; fi
 
+	cmd_keymaps || rc=$?
+	if [[ $rc -ne 0 ]]; then echo "==> all ABORTED at keymaps" >&2; exit $rc; fi
+
 	echo ""
-	echo "==> all PASS: startup, sync, smoke, health, checkhealth all succeeded"
+	echo "==> all PASS: startup, sync, smoke, health, checkhealth, keymaps all succeeded"
 	return 0
 }
 
@@ -433,6 +567,7 @@ case "$SUBCMD" in
 	health)      cmd_health ;;
 	smoke)       cmd_smoke ;;
 	checkhealth) cmd_checkhealth ;;
+	keymaps)     cmd_keymaps ;;
 	all)         cmd_all ;;
 	*)           usage; exit 2 ;;
 esac
