@@ -1,6 +1,6 @@
 # Cross-Platform Neovim Dotfiles
 
-**Last updated:** 2026-04-17 — Milestone v1.1 started for Neovim setup bug fixes.
+**Last updated:** 2026-04-23 — Phase 10 complete; validation harness expanded with keymaps+formats regression probes.
 
 ## What This Is
 
@@ -44,7 +44,7 @@ One shared Neovim config gives a clean, modern, bug-resistant editing experience
 
 - [ ] v1.1 bug-fix milestone removes config-caused runtime errors from keymaps, plugins, and crash-prone flows
 - ✓ v1.1 milestone makes `:checkhealth` a trustworthy first-line diagnostic for this setup — validated Phase 9
-- [ ] v1.1 milestone expands validation so regressions blocked by scripts are reproducible when `:checkhealth` alone is not enough
+- ✓ v1.1 milestone expands validation so regressions blocked by scripts are reproducible when `:checkhealth` alone is not enough — validated Phase 10
 
 ### Out of Scope
 
