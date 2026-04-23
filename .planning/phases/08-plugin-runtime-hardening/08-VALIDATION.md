@@ -1,7 +1,7 @@
 ---
 phase: 08
 slug: plugin-runtime-hardening
-status: draft
+status: approved
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-04-22
@@ -38,12 +38,12 @@ created: 2026-04-22
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 08-01-01 | 01 | 1 | BUG-02 | T-08-03 | Active plugin/runtime config matches shipped stack; no stale `neo-tree` health probe and no registry conflict for tmux navigation keys | integration | `rg -n 'window\\.move_(up|down|left|right)|neo-tree' .config/nvim/lua scripts` | ✅ `scripts/nvim-validate.sh` | ⬜ pending |
-| 08-01-02 | 01 | 1 | BUG-02 | T-08-04 | Targeted BUG-016 trace identifies one caller before any lockfile pin change, and Python LSP runtime/install tables both target `pyright` | integration | `rg -n 'pyright|basedpyright' .config/nvim/lua/plugins/lsp.lua .config/nvim/lazy-lock.json && ./scripts/nvim-validate.sh startup` | ✅ `.planning/tmp/nvim-validate/` | ⬜ pending |
-| 08-02-01 | 02 | 2 | BUG-03 | T-08-05 | External-open, autosave, and format-on-save paths bail safely on special or invalid buffers | integration | `rg -n 'vim\\.ui\\.open|buftype|modifiable|bufname' .config/nvim/lua/core/open.lua .config/nvim/lua/core/keymaps.lua .config/nvim/lua/plugins/conform.lua && ./scripts/nvim-validate.sh startup` | ✅ `.config/nvim/lua/core/open.lua` | ⬜ pending |
-| 08-02-02 | 02 | 2 | BUG-02, BUG-03 | T-08-08 | LSP attach/highlight, options autocmds, and plugin init-order review cover crash-prone runtime paths without widening scope unnecessarily | integration | `rg -n 'LspAttach|document_highlight|which-key|treesitter|FocusLost' .config/nvim/lua && ./scripts/nvim-validate.sh startup` | ✅ `.config/nvim/lua/plugins/lsp.lua` | ⬜ pending |
-| 08-03-01 | 03 | 3 | BUG-02 | T-08-09 | Automated validator outcomes are reflected in inventory with config-vs-environment triage | integration | `./scripts/nvim-validate.sh startup && ./scripts/nvim-validate.sh health` | ✅ `.planning/phases/06-runtime-failure-inventory/FAILURES.md` | ⬜ pending |
-| 08-03-02 | 03 | 3 | BUG-02, BUG-03 | T-08-10 | Interactive search, explorer, git, LSP, UI, tmux-navigation, and external-open workflows are recorded in checklist and failure inventory | manual | `./scripts/nvim-validate.sh startup` | ✅ `.planning/phases/06-runtime-failure-inventory/CHECKLIST.md` | ⬜ pending |
+| 08-01-01 | 01 | 1 | BUG-02 | T-08-03 | Active plugin/runtime config matches shipped stack; no stale `neo-tree` health probe and no registry conflict for tmux navigation keys | integration | `rg -n 'window\\.move_(up|down|left|right)' .config/nvim/lua/core/keymaps/registry.lua .config/nvim/lua/core/health.lua scripts/nvim-validate.sh; rg -n 'neo-tree' .config/nvim/lua/core/health.lua scripts/nvim-validate.sh` | ✅ `scripts/nvim-validate.sh` | ✅ green |
+| 08-01-02 | 01 | 1 | BUG-02 | T-08-04 | Targeted BUG-016 trace identifies one caller before any lockfile pin change, and Python LSP runtime/install tables both target `pyright` | integration | `rg -n 'pyright|basedpyright' .config/nvim/lua/plugins/lsp.lua .config/nvim/lazy-lock.json && ./scripts/nvim-validate.sh startup` | ✅ `.planning/tmp/nvim-validate/` | ✅ green |
+| 08-02-01 | 02 | 2 | BUG-03 | T-08-05 | External-open, autosave, and format-on-save paths bail safely on special or invalid buffers | integration | `rg -n 'vim\\.ui\\.open|buftype|modifiable|bufname' .config/nvim/lua/core/open.lua .config/nvim/lua/core/keymaps.lua .config/nvim/lua/plugins/conform.lua && ./scripts/nvim-validate.sh startup` | ✅ `.config/nvim/lua/core/open.lua` | ✅ green |
+| 08-02-02 | 02 | 2 | BUG-02, BUG-03 | T-08-08 | LSP attach/highlight, options autocmds, and plugin init-order review cover crash-prone runtime paths without widening scope unnecessarily | integration | `rg -n 'LspAttach|document_highlight|which-key|treesitter|FocusLost' .config/nvim/lua && ./scripts/nvim-validate.sh startup` | ✅ `.config/nvim/lua/plugins/lsp.lua` | ✅ green |
+| 08-03-01 | 03 | 3 | BUG-02 | T-08-09 | Automated validator outcomes are reflected in inventory with config-vs-environment triage | integration | `./scripts/nvim-validate.sh startup && ./scripts/nvim-validate.sh health` | ✅ `.planning/phases/06-runtime-failure-inventory/FAILURES.md` | ✅ green |
+| 08-03-02 | 03 | 3 | BUG-02, BUG-03 | T-08-10 | Interactive search, explorer, git, LSP, UI, tmux-navigation, and external-open workflows are recorded in checklist and failure inventory | manual | `./scripts/nvim-validate.sh startup` | ✅ `.planning/phases/06-runtime-failure-inventory/CHECKLIST.md` | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -78,4 +78,13 @@ created: 2026-04-22
 - [x] Feedback latency < 30s for task-level probes; slower startup/health reserved for wave and phase gates
 - [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** 2026-04-24
+
+---
+
+## Validation Audit 2026-04-24
+| Metric | Count |
+|--------|-------|
+| Gaps found | 1 |
+| Resolved | 1 |
+| Escalated | 0 |
