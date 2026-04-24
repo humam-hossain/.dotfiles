@@ -58,7 +58,7 @@ Run these steps in order from the dotfiles repo root. Each step is idempotent.
    ./scripts/nvim-validate.sh sync
    ```
 
-   This runs `:Lazy! sync` headlessly with a 120-second timeout. It installs newly added plugins (like `folke/snacks.nvim` introduced in Phase 5) and uninstalls anything removed from the spec tree (`noice.nvim`, `nvim-notify`, `alpha.nvim`, `indent-blankline`, `fzf-lua`). Expected last line: `PASS: sync OK`.
+   This runs `:Lazy! sync` headlessly with a 120-second timeout. It installs newly added plugins and uninstalls removed plugins according to the current `lazy-lock.json` spec. Expected last line: `PASS: sync OK`.
 
    If you prefer the interactive path, open Neovim and run `:Lazy sync` then quit.
 
@@ -70,7 +70,7 @@ Run these steps in order from the dotfiles repo root. Each step is idempotent.
    :MasonUpdate
    ```
 
-   This refreshes the Mason registry so LSP servers, formatters, and linters pull in any new versions. Tools installed system-wide (outside Mason) are untouched — the config's system-binary fallback (Phase 4) handles those.
+   This refreshes the Mason registry so LSP servers, formatters, and linters pull in any new versions. Tools installed system-wide (outside Mason) are untouched — the config's system-binary fallback (see Tooling and Ecosystem Modernization section) handles those.
 
 5. **Run the full validation harness**
 
@@ -78,7 +78,7 @@ Run these steps in order from the dotfiles repo root. Each step is idempotent.
    ./scripts/nvim-validate.sh all
    ```
 
-   This runs `startup`, `sync`, `smoke`, and `health` in order and fails fast. Expected final line: `==> all PASS`. See **Post-Deploy Verification** below for what to do on failure.
+   This runs `startup`, `sync`, `smoke`, `health`, `checkhealth`, `keymaps`, and `formats` in order and fails fast. Expected final line: `==> all PASS`. See **Post-Deploy Verification** below for what to do on failure.
 
 6. **Launch Neovim and confirm the UI**
 
@@ -86,7 +86,7 @@ Run these steps in order from the dotfiles repo root. Each step is idempotent.
    nvim
    ```
 
-   You should see the snacks.nvim dashboard, not the old alpha banner. Press `<leader>ff` to confirm `snacks.picker` opens for file search. Press `<leader>gg` to confirm `snacks.lazygit` opens the lazygit float. These three checks cover the Phase 5 UX-01 coherence surface.
+   You should see the snacks.nvim dashboard. Press `<leader>ff` to confirm `snacks.picker` opens for file search. Press `<leader>gg` to confirm `snacks.lazygit` opens the lazygit float.
 
 ### Phase-by-Phase Change Summary
 
