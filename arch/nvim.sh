@@ -3,6 +3,8 @@ set -euo pipefail
 set -x
 
 echo "[INSTALL] pynvim"
+# NOTE: caller must run `pacman -Syu` first; -Sy without -u is intentional here
+# to avoid an unattended full-system upgrade in a targeted install script.
 sudo pacman -Sy --noconfirm --needed python-pynvim fd
 
 echo "[INSTALL] luarocks"
