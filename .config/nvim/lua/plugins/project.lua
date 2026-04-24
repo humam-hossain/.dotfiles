@@ -1,4 +1,5 @@
---- TODO: Project scoping - project.nvim ---
+-- project.nvim: use pattern-only detection to avoid vim.lsp.buf_get_clients()
+-- deprecation warnings on Neovim 0.12+.
 return {
 	"ahmedkhalf/project.nvim",
 	init = function()
