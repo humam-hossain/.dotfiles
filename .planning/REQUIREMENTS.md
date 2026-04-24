@@ -51,10 +51,10 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | BUG-01 | Phase 7 | Complete |
-| BUG-02 | Phase 8 | Pending |
-| BUG-03 | Phase 8 | Pending |
-| HEAL-01 | Phase 9 | Pending |
-| HEAL-02 | Phase 9 | Pending |
+| BUG-02 | Phase 8 | Complete |
+| BUG-03 | Phase 8 | Complete |
+| HEAL-01 | Phase 9 | Complete |
+| HEAL-02 | Phase 9 | Complete |
 | TEST-01 | Phase 10 | Complete |
 | TEST-02 | Phase 10 | Complete |
 | TEST-03 | Phase 10 | Complete |
