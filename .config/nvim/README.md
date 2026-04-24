@@ -254,7 +254,7 @@ This phase modernizes the Neovim tooling stack around a current ecosystem baseli
 | `./scripts/nvim-validate.sh health` | Core health snapshot (plugins + tools) |
 | `./scripts/nvim-validate.sh smoke` | pcall-require high-risk plugins |
 | `./scripts/nvim-validate.sh checkhealth` | Headless `:checkhealth` — dumps full report to `.planning/tmp/nvim-validate/checkhealth.txt`; fails on unexpected ERROR lines, tolerates known headless/env-only provider errors |
-| `./scripts/nvim-validate.sh all` | Run all validations in order (startup → sync → smoke → health → checkhealth) |
+| `./scripts/nvim-validate.sh all` | Run startup → sync → smoke → health → checkhealth → keymaps → formats in order (fail fast) |
 
 ### Central Keymap Rule
 
