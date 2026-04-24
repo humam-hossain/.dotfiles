@@ -7,6 +7,7 @@
 **Revised:** 2026-04-23 (Phase 9-01 Task 1 — first checkhealth audit captured; render-markdown buftype config fixed; BUG-019 tmux companion bindings added to .tmux.conf; remaining errors classified as reserved/environment-only)
 **Revised:** 2026-04-23 (Phase 9-01 Task 2 — BUG-019 interactively confirmed Fixed; BUG-020 root cause proved: terminal strips <C-S-o>, vim.ui.open env gap; registry.lua rebound to <leader>o)
 **Revised:** 2026-04-23 (Phase 10-04 Task 1 — fresh warning audit; which-key duplicate-prefix warnings classified as config-caused; all other warning families classified)
+**Revised:** 2026-04-24 (Phase 11-01 — milestone close-out sweep; all entries confirmed terminal)
 **Status:** Updated
 
 ## Environment
