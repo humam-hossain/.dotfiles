@@ -220,7 +220,7 @@ nvim   # confirm dashboard, <leader>ff, <leader>gg interactively
 If the harness is still red after rollback, the breakage is upstream of the reverted commit range — widen the revert window or open a fresh branch and bisect with `git bisect` against `./scripts/nvim-validate.sh startup`.
 
 
-## Phase 4: Tooling and Ecosystem Modernization
+## Tooling and Ecosystem Modernization
 
 This phase modernizes the Neovim tooling stack around a current ecosystem baseline: Neovim 0.11+ native LSP registration, safe format-on-save, and productivity-first defaults.
 
@@ -258,9 +258,9 @@ This phase modernizes the Neovim tooling stack around a current ecosystem baseli
 
 ### Central Keymap Rule
 
-Per Phase 2 architecture, all user-facing mappings are declared in `lua/core/keymaps/registry.lua`. Plugin specs must NOT introduce inline `keys = { ... }` — instead, they reference the registry via `require("core.keymaps.lazy").*_keys()`.
+All user-facing mappings are declared in `lua/core/keymaps/registry.lua`. Plugin specs must NOT introduce inline `keys = { ... }` — instead, they reference the registry via `require("core.keymaps.lazy").*_keys()`.
 
-## Phase 2: Central Command and Keymap Architecture
+## Central Keymap Architecture
 
 This phase centralizes all custom keymaps under a declarative registry for discoverability and maintainability.
 
@@ -299,7 +299,7 @@ These non-leader keys are intentionally preserved:
 - **global**: Applied immediately at startup via `core.keymaps.apply`
 - **lazy**: Loaded on key trigger via `lazy.nvim` — defined in registry, consumed by plugin specs
 - **buffer**: Applied on LSP attach via `core.keymaps.attach`
-- **plugin-local**: Context-specific (neo-tree windows, treesitter incremental)
+- **plugin-local**: Context-specific (treesitter incremental and similar plugin-owned contexts)
 
 ### Registry Architecture
 
@@ -314,7 +314,7 @@ lua/core/keymaps/
 
 All custom mappings are declared in `registry.lua` with: `id`, `lhs`, `mode`, `desc`, `domain`, `scope`, `plugin`, `action`.
 
-## Phase 3: Validation Harness
+## Validation Harness
 
 The repo ships a shell-orchestrated headless validation harness so maintainers can catch startup, sync, health, and plugin-load regressions without launching an interactive Neovim.
 
@@ -330,6 +330,10 @@ The repo ships a shell-orchestrated headless validation harness so maintainers c
 | `./scripts/nvim-validate.sh keymaps` | pcall-test the keymap dispatcher against Phase 7 error-prone action string types; fail on any error thrown; artifact: `keymap-regression.log` |
 | `./scripts/nvim-validate.sh formats` | Call the `format_on_save` guard directly with mock buffer contexts (nofile, unnamed, acwrite); verify correct false/options return; artifact: `format-regression.log` |
 | `./scripts/nvim-validate.sh all` | Run startup → sync → smoke → health → checkhealth → keymaps → formats in order; fail fast |
+
+### Interactive health provider
+
+`:checkhealth config` (backed by `lua/config/health.lua`) shows plugin load status, required tool availability, and known environment gaps interactively inside Neovim. It is the first-line diagnostic for any setup issue not caught by the scripted harness.
 
 ### Report Output
 
@@ -361,7 +365,7 @@ Each artifact maps to one subcommand and one triage action when it fails:
 
 #### Triage decision path
 
-Reuse the Phase 9 classification taxonomy — do not create a separate TRIAGE.md:
+Use the standard classification taxonomy — do not create a separate TRIAGE.md:
 
 - **Config regression** → fix repo code before rollout. Caused by a change in `.config/nvim/lua/` that breaks the affected behavior. The scripted probes (`keymaps`, `formats`) are the authoritative signal for the Phase 7/10 surfaces; `:checkhealth config` and `checkhealth.txt` cover the rest.
 - **Environment gap** → document the required tool or install it on the target machine. Not a repo defect. Record in `FAILURES.md` as Won't Fix with the install hint.
@@ -385,7 +389,7 @@ Missing external tools are reported as `available: false` with install hints pri
 
 ### Missing Tool Policy
 
-Per Phase 3 decisions D-07 through D-09:
+Per repo policy:
 
 - Runtime startup does NOT emit `vim.notify` warnings when external tools (formatters, LSP binaries) are missing. Startup stays graceful and silent.
 - Missing tools are surfaced ONLY through `./scripts/nvim-validate.sh health` and the `core.health.snapshot` JSON.
@@ -404,7 +408,6 @@ WARN: missing tool 'gopls' — affects Go LSP — install: mason: :MasonInstall 
 
 - After any change in `.config/nvim/lua/plugins/*.lua`: `./scripts/nvim-validate.sh startup`
 - After refreshing `lazy-lock.json`: `./scripts/nvim-validate.sh all`
-- Before concluding Phase 3 or starting Phase 4: `./scripts/nvim-validate.sh all`
 
 ## Phase 1: Reliability and Portability Baseline
 
