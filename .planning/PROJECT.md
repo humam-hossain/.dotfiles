@@ -25,6 +25,7 @@ One shared Neovim config gives a clean, modern, bug-resistant editing experience
 
 ### Validated
 
+- ✓ v1.1 bug-fix milestone removes config-caused runtime errors from keymaps, plugins, and crash-prone flows — validated Phase 11
 - ✓ Config-caused E488/Lua errors removed from 9 shared keymaps; registry-driven mappings execute safely — v1.1 (BUG-01, validated Phase 7)
 - ✓ Modular Neovim config loads from `.config/nvim/init.lua` with `core/` and `plugins/` split — existing
 - ✓ Plugin management via `lazy.nvim` with pinned revisions in `lazy-lock.json` — existing
@@ -42,7 +43,6 @@ One shared Neovim config gives a clean, modern, bug-resistant editing experience
 
 ### Active
 
-- [ ] v1.1 bug-fix milestone removes config-caused runtime errors from keymaps, plugins, and crash-prone flows
 - ✓ v1.1 milestone makes `:checkhealth` a trustworthy first-line diagnostic for this setup — validated Phase 9
 - ✓ v1.1 milestone expands validation so regressions blocked by scripts are reproducible when `:checkhealth` alone is not enough — validated Phase 10
 
