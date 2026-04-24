@@ -445,7 +445,7 @@ This config is designed to work across Arch Linux, Debian/Ubuntu, and Windows wi
 2. **External open**: Press `<C-S-o>` - should open in system default app
 3. **Neo-tree open**: In neo-tree, press `<c-o>` on a file - should open externally
 4. **Buffer close**: Press `<C-q>` on modified buffer - should prompt for confirmation
-. **Split close**: Press `<leader>xs>` - should close only current split
+5. **Split close**: Press `<leader>xs` - should close only current split
 6. **Autosave**: Edit a file, switch focus away - should auto-save (FocusLost)
 
 ## Manual LSP Verification
