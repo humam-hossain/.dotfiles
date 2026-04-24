@@ -382,7 +382,7 @@ for _, name in ipairs(plugins) do
   end
 end
 if #failed > 0 then
-  local f = io.open('SMOKE_FAIL', 'w')
+  local f = io.open(os.getenv('SMOKE_FAIL_PATH') or 'SMOKE_FAIL', 'w')
   for _, msg in ipairs(failed) do f:write(msg .. '\n') end
   f:close()
   vim.cmd('cq')
@@ -398,7 +398,7 @@ LUA
 	lua_tmp=$(mktemp)
 	printf '%s' "$lua_script" > "$lua_tmp"
 
-	nvim --headless \
+	SMOKE_FAIL_PATH="$REPORT_DIR/SMOKE_FAIL" nvim --headless \
 		-u "$REPO_ROOT/.config/nvim/init.lua" \
 		--cmd "set rtp^=$REPO_ROOT/.config/nvim" \
 		-l "$lua_tmp" \
