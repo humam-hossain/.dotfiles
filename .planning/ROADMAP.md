@@ -23,11 +23,11 @@
 **Goal:** Turn reported and known Neovim setup failures into a ranked inventory with reliable repro steps and ownership labels
 **Requirements:** BUG-01, BUG-02, BUG-03
 **Depends on:** —
-**Plans:** 2 plans ✓ 1/2 COMPLETE
+**Plans:** 2/2 plans complete (2026-04-18)
 
 Plans:
 - [x] 6-01-PLAN.md — Audit current runtime failures from keymaps, plugins, crashes, and `:checkhealth`
-- [ ] 6-02-PLAN.md — Create reproducible validation checklist for confirmed failures
+- [x] 6-02-PLAN.md — Create reproducible validation checklist for confirmed failures
 
 ### Phase 7: Keymap Reliability Fixes
 **Goal:** Remove config-caused errors from shared keymaps and ensure registry-driven mappings execute safely
@@ -36,29 +36,29 @@ Plans:
 **Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 7-01-PLAN.md — Fix broken or miswired keymaps in registry and attachment helpers
-- [ ] 7-02-PLAN.md — Verify keymap execution paths and update mapping docs if behavior changed
+- [x] 7-01-PLAN.md — Fix broken or miswired keymaps in registry and attachment helpers
+- [x] 7-02-PLAN.md — Verify keymap execution paths and update mapping docs if behavior changed
 
 ### Phase 8: Plugin Runtime Hardening
 **Goal:** Fix plugin misconfigurations and crash-prone runtime paths across core editing workflows
 **Requirements:** BUG-02, BUG-03
 **Depends on:** Phase 6
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete (2026-04-22)
 
 Plans:
-- [ ] 8-01-PLAN.md — Fix plugin config defects exposed by startup/smoke/runtime usage
-- [ ] 8-02-PLAN.md — Fix crash-prone editor flows and unsafe runtime assumptions
-- [ ] 8-03-PLAN.md — Re-verify core plugin workflows for search, explorer, git, LSP, and UI
+- [x] 8-01-PLAN.md — Fix plugin config defects exposed by startup/smoke/runtime usage
+- [x] 8-02-PLAN.md — Fix crash-prone editor flows and unsafe runtime assumptions
+- [x] 8-03-PLAN.md — Re-verify core plugin workflows for search, explorer, git, LSP, and UI
 
 ### Phase 9: Health Signal Cleanup
 **Goal:** Make `:checkhealth` trustworthy by fixing config-caused errors and classifying actionable warnings
 **Requirements:** HEAL-01, HEAL-02
 **Depends on:** Phase 6, Phase 8
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete (2026-04-23)
 
 Plans:
-- [ ] 9-01-PLAN.md — Resolve config-caused `:checkhealth` failures and missing guards
-- [ ] 9-02-PLAN.md — Improve health messaging for optional tools and known environment-only warnings
+- [x] 9-01-PLAN.md — Resolve config-caused `:checkhealth` failures and missing guards
+- [x] 9-02-PLAN.md — Improve health messaging for optional tools and known environment-only warnings
 
 ### Phase 10: Validation Harness Expansion
 **Goal:** Extend repo validation only where `:checkhealth` cannot prove correctness for bug-prone flows
@@ -86,9 +86,9 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status |
 |-------|-----------|----------------|--------|
-| 6. Runtime Failure Inventory and Reproduction | v1.1 | 2/2 | ✅ Complete |
+| 6. Runtime Failure Inventory and Reproduction | v1.1 | 2/2 | ✅ Complete | 2026-04-18 |
 | 7. Keymap Reliability Fixes | 2/2 | Complete   | 2026-04-21 |
-| 8. Plugin Runtime Hardening | v1.1 | 0/3 | ⬜ Pending |
-| 9. Health Signal Cleanup | v1.1 | 0/2 | ⬜ Pending |
+| 8. Plugin Runtime Hardening | v1.1 | 3/3 | ✅ Complete | 2026-04-22 |
+| 9. Health Signal Cleanup | v1.1 | 2/2 | ✅ Complete | 2026-04-23 |
 | 10. Validation Harness Expansion | 4/4 | Complete    | 2026-04-23 |
 | 11. Milestone Verification and Rollout Confidence | v1.1 | 0/2 | ⬜ Pending |
