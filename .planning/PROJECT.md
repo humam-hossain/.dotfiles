@@ -87,6 +87,7 @@ v1.1 is a brownfield stabilization milestone. Work should start from real failur
 | Headless validation harness lives in-repo | Catch regressions without full UI session | ✓ `scripts/nvim-validate.sh` shipped |
 | v1.1 bug-fix milestone treats `:checkhealth` as first diagnostic surface | Health output is fastest shared debugging entry point across machines | ✓ `config.health` provider ships with 6 sections, required/optional severity classification, and environment gap guidance |
 | Add scripts only where `:checkhealth` cannot prove setup correctness | Avoid duplicate validation surfaces and keep maintenance cost bounded | ✓ `checkhealth` subcommand added to validator; `core.health` is shared probe infrastructure |
+| which-key group registration guard: build claimed-lhs set from global+lazy mappings; skip group add() when lhs already owned by real mapping | which-key warns on duplicate lhs registration; `<leader>e` and `<leader>b` were both group specs and real mappings | ✓ Duplicate-prefix warnings eliminated for those two prefixes in Phase 10 |
 
 ## Evolution
 
@@ -106,4 +107,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-23 after Phase 9 (health-signal-cleanup) complete*
+*Last updated: 2026-04-24 after Phase 10 (validation-harness-expansion) complete*
