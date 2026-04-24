@@ -76,10 +76,10 @@ Plans:
 **Goal:** Verify v1.1 bug-fix requirements end-to-end and refresh rollout guidance for stable machine updates
 **Requirements:** BUG-01, BUG-02, BUG-03, HEAL-01, HEAL-02, TEST-01, TEST-02, TEST-03
 **Depends on:** Phase 7, Phase 8, Phase 9, Phase 10
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 11-01-PLAN.md — Run milestone verification against requirements and regression suite
+- [x] 11-01-PLAN.md — Run milestone verification against requirements and regression suite
 - [ ] 11-02-PLAN.md — Update README and maintenance workflow for bug-fix milestone outcomes
 
 ## Progress
@@ -91,4 +91,4 @@ Plans:
 | 8. Plugin Runtime Hardening | v1.1 | 3/3 | ✅ Complete | 2026-04-22 |
 | 9. Health Signal Cleanup | v1.1 | 2/2 | ✅ Complete | 2026-04-23 |
 | 10. Validation Harness Expansion | 4/4 | Complete    | 2026-04-23 |
-| 11. Milestone Verification and Rollout Confidence | v1.1 | 0/2 | ⬜ Pending |
+| 11. Milestone Verification and Rollout Confidence | 1/2 | In Progress|  |
