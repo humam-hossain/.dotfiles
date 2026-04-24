@@ -1,6 +1,6 @@
 # Cross-Platform Neovim Dotfiles
 
-**Last updated:** 2026-04-23 — Phase 10 complete; validation harness expanded with keymaps+formats regression probes.
+**Last updated:** 2026-04-24 — Phase 11 complete; v1.1 milestone verified end-to-end, rollout docs refreshed.
 
 ## What This Is
 
