@@ -251,7 +251,7 @@ This phase modernizes the Neovim tooling stack around a current ecosystem baseli
 | `./scripts/nvim-validate.sh sync` | Lazy sync with 120s timeout |
 | `./scripts/nvim-validate.sh health` | Core health snapshot (plugins + tools) |
 | `./scripts/nvim-validate.sh smoke` | pcall-require high-risk plugins |
-| `./scripts/nvim-validate.sh checkhealth` | Headless `:checkhealth` — dumps full report to `.planning/tmp/nvim-validate/checkhealth.txt`; fails on any ERROR line |
+| `./scripts/nvim-validate.sh checkhealth` | Headless `:checkhealth` — dumps full report to `.planning/tmp/nvim-validate/checkhealth.txt`; fails on unexpected ERROR lines, tolerates known headless/env-only provider errors |
 | `./scripts/nvim-validate.sh all` | Run all validations in order (startup → sync → smoke → health → checkhealth) |
 
 ### Central Keymap Rule
@@ -324,7 +324,7 @@ The repo ships a shell-orchestrated headless validation harness so maintainers c
 | `./scripts/nvim-validate.sh sync` | Run headless `Lazy! sync` with a 120s timeout; fail on timeout or stack traceback |
 | `./scripts/nvim-validate.sh health` | Invoke `core.health.snapshot` and write JSON to `.planning/tmp/nvim-validate/health.json`; fail on any plugin with `loaded=false` |
 | `./scripts/nvim-validate.sh smoke` | pcall-require the high-risk plugin modules one by one; fail on any load failure |
-| `./scripts/nvim-validate.sh checkhealth` | Run headless `:checkhealth`, dump full report to `.planning/tmp/nvim-validate/checkhealth.txt`; fail on any ERROR line |
+| `./scripts/nvim-validate.sh checkhealth` | Run headless `:checkhealth`, dump full report to `.planning/tmp/nvim-validate/checkhealth.txt`; fail on unexpected ERROR lines while tolerating documented headless/env-only provider errors |
 | `./scripts/nvim-validate.sh keymaps` | pcall-test the keymap dispatcher against Phase 7 error-prone action string types; fail on any error thrown; artifact: `keymap-regression.log` |
 | `./scripts/nvim-validate.sh formats` | Call the `format_on_save` guard directly with mock buffer contexts (nofile, unnamed, acwrite); verify correct false/options return; artifact: `format-regression.log` |
 | `./scripts/nvim-validate.sh all` | Run startup → sync → smoke → health → checkhealth → keymaps → formats in order; fail fast |
@@ -455,10 +455,11 @@ tail -50 ~/.local/state/nvim/lsp.log
 In Neovim, open a file and run:
 
 ```
-:LspInfo
+:checkhealth vim.lsp
+:lua print(vim.inspect(vim.lsp.get_clients({ bufnr = 0 })))
 ```
 
-Shows active LSP clients for the current buffer.
+The health check shows active/enabled LSP state. The Lua command prints active clients for the current buffer.
 
 ### Per-Language Test
 
