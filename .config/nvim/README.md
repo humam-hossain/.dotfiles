@@ -111,7 +111,7 @@ Run these checks in order after step 5 of the update checklist. Each check has a
    ./scripts/nvim-validate.sh all
    ```
 
-   Expected final line: `==> all PASS`. The suite runs `startup`, `sync`, `smoke`, `health`, and `checkhealth`. Output artifacts land in `.planning/tmp/nvim-validate/` — inspect `health.json` if `health` fails or `checkhealth.txt` if `checkhealth` fails.
+   Expected final line: `==> all PASS`. The suite runs `startup`, `sync`, `smoke`, `health`, `checkhealth`, `keymaps`, and `formats`. Output artifacts land in `.planning/tmp/nvim-validate/` — inspect `health.json` if `health` fails, `checkhealth.txt` if `checkhealth` fails, `keymap-regression.log` if `keymaps` fails, or `format-regression.log` if `formats` fails.
 
 2. **In-editor: :checkhealth**
 
@@ -121,7 +121,7 @@ Run these checks in order after step 5 of the update checklist. Each check has a
    :checkhealth
    ```
 
-   Scroll through each section. Expected: no errors (`ERROR:` lines) from `snacks`, `lazy`, `lspconfig`, `mason`, `blink.cmp`, `gitsigns`, `neo-tree`, `lualine`, `treesitter`. Warnings (`WARNING:`) about optional tooling (e.g., a missing language LSP you do not use) are acceptable.
+   Scroll through each section. Expected: no errors (`ERROR:` lines) from `snacks`, `lazy`, `lspconfig`, `mason`, `blink.cmp`, `gitsigns`, `lualine`, `treesitter`. Informational overlaps from `which-key` (`<Space>x/<Space>xs`, `gc/gcc`) are expected and not actionable. Warnings (`WARNING:`) about optional tooling (e.g., a missing language LSP you do not use) are acceptable.
 
 3. **Manual keymap smoke**
 
@@ -133,6 +133,7 @@ Run these checks in order after step 5 of the update checklist. Each check has a
    | `<leader>cd` | snacks.picker jumps to LSP definition (on a symbol) |
    | `<leader>cr` | snacks.picker lists LSP references |
    | `:echo "test"` + Enter | Bottom-right notification toast appears (snacks.notif) |
+   | `<leader>o` | Current file opens externally via `xdg-open` (Linux) or `vim.ui.open()` |
 
 4. **Statusline placement check**
 
