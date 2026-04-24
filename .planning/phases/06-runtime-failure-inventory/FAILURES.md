@@ -155,7 +155,7 @@ Not affected: `M.global` entries go through `apply.lua` → `vim.keymap.set()` w
 | BUG-015 | `:Gitsigns toggle_current_line_blame<CR>` invalid format (RC-02) | core/keymaps/registry.lua:471 | **Fixed** (Phase 7-01) | `<leader>gt` | manual |
 | BUG-016 | `vim.tbl_flatten is deprecated` at startup/sync/smoke | nvim-colorizer.lua (unmaintained) | **Fixed** (Phase 8-01) | — | health |
 | BUG-017 | vim-tmux-navigator `<C-h/j/k/l>` vs registry window.move_* | plugins/misc.lua + registry | **Fixed** (Phase 8-01, Neovim side) | `<C-h/j/k/l>` | static |
-| BUG-018 to BUG-028 | Colon-format M.global keymaps (wincmd, resize, bnext, bdelete) | core/keymaps/registry.lua | **Not Bugs** | various | manual |
+| BUG-018 to BUG-028 | Colon-format M.global keymaps (wincmd, resize, bnext, bdelete) | core/keymaps/registry.lua | **Not a Bug** | various | manual |
 | BUG-019 | tmux.conf missing vim-tmux-navigator companion bindings — cross-pane traversal fails | .tmux.conf (environment) | **Fixed** (Phase 9-01) — companion `bind-key -n C-h/j/k/l` entries added to `.config/.tmux.conf`; tmux reloaded; interactively confirmed 2026-04-23 | `<C-h/j/k/l>` in tmux | interactive |
 | BUG-020 | Linux external-open `<C-S-o>` does not open file externally — terminal strips chord; vim.ui.open env gap | registry.lua + terminal/env | **Fixed** (Phase 9-01) — root cause proved: terminal strips `<C-S-o>`; `vim.ui.open()` also fails silently inside Neovim (missing DISPLAY/WAYLAND_DISPLAY); rebound to `<leader>o` in registry.lua | `<leader>o` on Linux | interactive |
 
