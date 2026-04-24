@@ -8,13 +8,17 @@
 ### Runtime Stability
 
 - [x] **BUG-01**: User can invoke every documented shared keymap in milestone scope without Lua or runtime errors
-- [ ] **BUG-02**: User can use core plugin workflows for search, explorer, git, LSP, and UI without config-caused runtime errors
-- [ ] **BUG-03**: User can complete common editing sessions without crashes caused by Neovim config code
+- [x] **BUG-02**: User can use core plugin workflows for search, explorer, git, LSP, and UI without config-caused runtime errors
+  ✓ v1.1 Phase 8 — validated via nvim-validate.sh all PASS + 08-VERIFICATION.md
+- [x] **BUG-03**: User can complete common editing sessions without crashes caused by Neovim config code
+  ✓ v1.1 Phase 8 — validated via nvim-validate.sh all PASS + 08-VERIFICATION.md
 
 ### Health Quality
 
-- [ ] **HEAL-01**: User can run `:checkhealth` without config-caused `ERROR:` entries
-- [ ] **HEAL-02**: User can distinguish fix-now health findings from optional environment/tooling warnings
+- [x] **HEAL-01**: User can run `:checkhealth` without config-caused `ERROR:` entries
+  ✓ v1.1 Phase 9 — validated via nvim-validate.sh all PASS + 09-VERIFICATION.md
+- [x] **HEAL-02**: User can distinguish fix-now health findings from optional environment/tooling warnings
+  ✓ v1.1 Phase 9 — validated via nvim-validate.sh all PASS + 09-VERIFICATION.md
 
 ### Validation Coverage
 
