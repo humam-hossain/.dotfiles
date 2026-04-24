@@ -5,7 +5,7 @@ status: ready
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-04-22
-updated: 2026-04-22
+updated: 2026-04-24
 ---
 
 # Phase 09 — Validation Strategy
@@ -39,10 +39,10 @@ updated: 2026-04-22
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 09-01-01 | 01 | 1 | HEAL-01 | T-09-01, T-09-02 | Validator captures full `:checkhealth` report to artifact, hardcodes required-tool fail gate in bash, and documents any reserved provider-only failures for 09-02 | integration | `./scripts/nvim-validate.sh checkhealth || (test -f .planning/tmp/nvim-validate/checkhealth.txt && rg -n '^ERROR:' .planning/tmp/nvim-validate/checkhealth.txt)` | ✅ `scripts/nvim-validate.sh` | ⬜ pending |
-| 09-01-02 | 01 | 1 | HEAL-01 | T-09-03, T-09-04 | Tmux companion bindings and BUG-020 investigation leave evidence-backed outcomes in checklist and failure inventory | manual | `./scripts/nvim-validate.sh checkhealth` | ✅ `.planning/phases/06-runtime-failure-inventory/CHECKLIST.md` | ⬜ pending |
-| 09-02-01 | 02 | 2 | HEAL-01, HEAL-02 | T-09-05 | `core.health` exports reusable probes, owns required metadata, and no longer behaves as a broken auto-discovered provider | integration | `nvim --headless -u .config/nvim/init.lua --cmd \"set rtp^=.config/nvim\" +\"lua local h=require('core.health'); assert(type(h.probe_tool)=='function'); assert(type(h.probe_plugin)=='function'); vim.cmd('qa!')\"` | ✅ `.config/nvim/lua/core/health.lua` | ⬜ pending |
-| 09-02-02 | 02 | 2 | HEAL-01, HEAL-02 | T-09-06, T-09-07, T-09-08 | `:checkhealth config` renders required/optional/env tiers and validator docs expose `checkhealth` command | integration | `./scripts/nvim-validate.sh health && ./scripts/nvim-validate.sh checkhealth && rg -n 'nvim-validate\\.sh checkhealth' .config/nvim/README.md` | ✅ `.config/nvim/lua/config/health.lua` | ⬜ pending |
+| 09-01-01 | 01 | 1 | HEAL-01 | T-09-01, T-09-02 | Validator captures full `:checkhealth` report to artifact, hardcodes required-tool fail gate in bash, and documents any reserved provider-only failures for 09-02 | integration | `./scripts/nvim-validate.sh checkhealth || (test -f .planning/tmp/nvim-validate/checkhealth.txt && rg -n '^ERROR:' .planning/tmp/nvim-validate/checkhealth.txt)` | ✅ `scripts/nvim-validate.sh` | ✅ green |
+| 09-01-02 | 01 | 1 | HEAL-01 | T-09-03, T-09-04 | Tmux companion bindings and BUG-020 investigation leave evidence-backed outcomes in checklist and failure inventory | manual | `./scripts/nvim-validate.sh checkhealth` | ✅ `.planning/phases/06-runtime-failure-inventory/CHECKLIST.md` | ✅ green |
+| 09-02-01 | 02 | 2 | HEAL-01, HEAL-02 | T-09-05 | `core.health` exports reusable probes, owns required metadata, and no longer behaves as a broken auto-discovered provider | integration | `nvim --headless -u .config/nvim/init.lua --cmd \"set rtp^=.config/nvim\" +\"lua local h=require('core.health'); assert(type(h.probe_tool)=='function'); assert(type(h.probe_plugin)=='function'); vim.cmd('qa!')\"` | ✅ `.config/nvim/lua/core/health.lua` | ✅ green |
+| 09-02-02 | 02 | 2 | HEAL-01, HEAL-02 | T-09-06, T-09-07, T-09-08 | `:checkhealth config` renders required/optional/env tiers and validator docs expose `checkhealth` command | integration | `./scripts/nvim-validate.sh health && ./scripts/nvim-validate.sh checkhealth && rg -n 'nvim-validate\\.sh checkhealth' .config/nvim/README.md` | ✅ `.config/nvim/lua/config/health.lua` | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -78,3 +78,15 @@ updated: 2026-04-22
 - [x] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** Phase 09 ready for execution
+
+---
+
+## Validation Audit 2026-04-24
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 4 (all pending → ran for first time) |
+| Resolved | 4 |
+| Escalated | 0 |
+
+All automated commands executed green. Manual task 09-01-02 confirmed via CHECKLIST.md (BUG-019/BUG-020 closed 2026-04-23).
