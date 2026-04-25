@@ -1,20 +1,21 @@
 ---
 phase: 07-keymap-reliability-fixes
-verified: 2026-04-22T12:00:00Z
-status: human_needed
-score: 7/8 must-haves verified
+verified: 2026-04-24T00:00:00Z
+status: verified
+score: 8/8 must-haves verified
 overrides_applied: 0
 human_verification:
   - test: "Interactively press each of the 9 BUG-01 target mappings in a live Neovim session after pulling latest dotfiles"
     expected: "No E488, Lua error, or 'not a valid function or action' for: <leader>b, <leader>lw, <leader>sn, <leader>xs, <leader>v, <leader>h, <leader>se, <leader>gp, <leader>gt"
     why_human: "07-02 SUMMARY records interactive pass on 2026-04-22, but the dotfiles live path sync deviation (edits copied to ~/.config/nvim rather than loaded directly from worktree) means automated headless checks cannot confirm the worktree source files are the ones actually executing. A human running nvim from the worktree or after a fresh stow/symlink confirms the fix is live."
+    result: "PASS — 2026-04-24, all 9 mappings confirmed by developer in live Neovim session"
 ---
 
 # Phase 7: Keymap Reliability Fixes Verification Report
 
 **Phase Goal:** Remove config-caused errors from shared keymaps and ensure registry-driven mappings execute safely
 **Verified:** 2026-04-22T12:00:00Z
-**Status:** human_needed
+**Status:** verified
 **Re-verification:** No — initial verification
 
 ## Goal Achievement
@@ -30,9 +31,9 @@ human_verification:
 | 5 | Every confirmed Phase 6 BUG-01 keymap is re-checked after registry normalization with no Lua/E488 runtime error | VERIFIED | FAILURES.md and CHECKLIST.md both confirm interactive re-verification of all 9 target mappings on 2026-04-22; FAILURES.md detail sections include per-BUG fix notes and verification date |
 | 6 | FAILURES.md marks Phase 7-fixed items as Fixed instead of Confirmed | VERIFIED | BUG-005 through BUG-012 and BUG-015 all show `**Fixed** (Phase 7-01)` in the inventory table |
 | 7 | CHECKLIST.md becomes a usable post-fix regression checklist | VERIFIED | All 9 BUG sections contain `Expected:`, `Regression signal:`, and `Fixed by:` fields; header updated to "Regression Checklist (post-Phase 7)" |
-| 8 | Interactive keypress confirmation of all 9 target mappings can be independently reproduced from the dotfiles worktree | HUMAN NEEDED | 07-02 SUMMARY records interactive pass but notes that headless validation runs against `~/.config/nvim` (live path), not the dotfiles worktree. The dotfiles source files are the artifacts being verified here. A human re-run from the live config after stow/symlink confirms the worktree source is what executes. |
+| 8 | Interactive keypress confirmation of all 9 target mappings can be independently reproduced from the dotfiles worktree | VERIFIED | Developer confirmed all 9 mappings pass in live Neovim session on 2026-04-24 |
 
-**Score:** 7/8 truths verified
+**Score:** 8/8 truths verified
 
 ### Required Artifacts
 
@@ -72,7 +73,7 @@ human_verification:
 | M.lazy section contains zero string actions | `sed -n '448,705p' registry.lua \| grep 'action = "'` | No output | PASS |
 | `attach.lua` has no `"plugin_local"` string token | `grep '"plugin_local"' attach.lua` | No output | PASS |
 | lazy.lua dispatcher has feedkeys path | `grep 'nvim_feedkeys' lazy.lua` | Found at lines 33 and 125 | PASS |
-| Interactive keypress of 9 BUG-01 mappings | Manual Neovim session | PASS per 07-02-SUMMARY.md | HUMAN (recorded in SUMMARY, needs independent confirmation from worktree) |
+| Interactive keypress of 9 BUG-01 mappings | Manual Neovim session | PASS — confirmed 2026-04-24 by developer | PASS |
 
 ### Requirements Coverage
 
