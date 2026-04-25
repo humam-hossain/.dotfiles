@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Neovim Setup Bug Fixes
-status: executing
-stopped_at: Phase 11 context gathered
-last_updated: "2026-04-24T11:34:45.555Z"
+status: complete
+stopped_at: v1.1 milestone archived
+last_updated: "2026-04-25T00:00:00.000Z"
 progress:
   total_phases: 6
   completed_phases: 6
@@ -17,18 +17,18 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-24)
+See: .planning/PROJECT.md (updated 2026-04-25)
 
 **Core value:** One shared Neovim config gives a clean, modern, bug-resistant editing experience across Linux and Windows without the setup fighting the user.
-**Current focus:** Phase 11 — milestone-verification-and-rollout-confidence
+**Current focus:** Planning next milestone — run `/gsd-new-milestone` to define v1.2
 
 ## Current Position
 
-Phase: 11
-Plan: Not started
-Status: Executing Phase 11
+Phase: —
+Plan: —
+Status: v1.1 milestone complete and archived
 
-Progress: [████████████████████] 13/13 plans (100%)
+Progress: [████████████████████] 15/15 plans (100%)
 
 ## Accumulated Context
 
@@ -36,14 +36,10 @@ Progress: [████████████████████] 13/13 p
 
 All key decisions recorded in PROJECT.md Key Decisions table.
 
-- [Phase 07-keymap-reliability-fixes]: README left unchanged — plugin-local terminology already correct; no user-visible wording drift from Phase 7-01
-- [Phase 07-keymap-reliability-fixes]: FAILURES.md and CHECKLIST.md converted to accurate post-fix sources of truth; all 10 BUG-01 entries marked Fixed with 2026-04-22 interactive verification evidence
-- [Phase 10-validation-harness-expansion]: which-key group registration guard — skip group add() when lhs already owned by a real mapping; eliminates duplicate-prefix warnings for <leader>e and <leader>b
-- [Phase 10-validation-harness-expansion]: keymaps+formats regression subcommands added to nvim-validate.sh; headless pcall probes cover Phase 7 E488 families and format-on-save guard cases
-
 ### Roadmap Evolution
 
-- v1.0 milestone completed and archived as shipped baseline plus follow-up gap-closure/history
+- v1.0 milestone completed and archived (2026-04-15)
+- v1.1 milestone completed and archived (2026-04-25) — 6 phases, 15 plans, 8/8 requirements satisfied
 
 ### Pending Todos
 
@@ -53,8 +49,14 @@ None.
 
 None.
 
-## Session Continuity
+## Deferred Items
 
-Last session: 2026-04-24T03:03:30.544Z
-Stopped at: Phase 11 context gathered
-Resume file: .planning/phases/11-milestone-verification-and-rollout-confidence/11-CONTEXT.md
+Items acknowledged and deferred at milestone close on 2026-04-25 (from v1.1 audit):
+
+| Category | Item | Status |
+|----------|------|--------|
+| tech_debt | `attach.lua` dead code: `apply_neotree`, `setup_lsp_attach` | deferred |
+| tech_debt | Windows `<leader>o` interactive verification — no Windows machine | deferred |
+| tech_debt | README Validation Commands summary table missing `keymaps`/`formats` rows | deferred |
+| tech_debt | `colortheme.lua:14` stale neo-tree comment | deferred |
+| tech_debt | SUMMARY frontmatter `requirements-completed` missing in phases 8/10 | deferred |
