@@ -51,12 +51,62 @@
 
 ---
 
+## Milestone: v1.1 — Neovim Setup Bug Fixes
+
+**Shipped:** 2026-04-25
+**Phases:** 6 | **Plans:** 15
+
+### What Was Built
+
+- Ranked failure inventory (20+ bugs) via `nvim-audit-failures.sh` + `FAILURES.md` with repro steps
+- All 10 BUG-01 shared keymaps fixed — M.global/M.lazy split corrected, safe lazy.lua dispatcher, Gitsigns direct Lua callbacks
+- Plugin misconfigs removed: neo-tree globals cleared, pyright added to mason/lsp, `vim.tbl_flatten` deprecation eliminated
+- External-open rebound from `<C-S-o>` (undeliverable in terminal) to `<leader>o` — root cause proven, not assumed
+- `:checkhealth config` provider with 6 sections and required/optional severity classification
+- `nvim-validate.sh` expanded with `keymaps` and `formats` regression subcommands (7 total)
+- README Machine Update Checklist and Post-Deploy Verification table refreshed for rollout
+
+### What Worked
+
+- Failure inventory first (Phase 6) — having a ranked list with root causes made every downstream phase faster and more targeted
+- `:checkhealth` as primary diagnostic before scripting — avoided building redundant validation surfaces
+- Atomic commit-per-finding discipline in Phase 11 — easy to bisect and verify each fix independently
+- Verification-driven planning — each phase had clear VERIFICATION.md criteria before execution started
+
+### What Was Inefficient
+
+- SUMMARY.md `one_liner` field not populated in most phases — CLI extraction produced garbage output, accomplishments had to be manually recovered
+- Phase 8 SUMMARY frontmatter missing `requirements-completed` entries for BUG-02/BUG-03 — audit found gap, purely documentation debt
+- `gsd-tools audit-open` CLI has a bug (ReferenceError: output is not defined) — had to check for open artifacts manually at milestone close
+
+### Patterns Established
+
+- Failure inventory phase as standard milestone opener for bug-fix cycles — gives ranked work queue before any coding
+- `:checkhealth` health provider pattern: `lua/config/health.lua` with `required`/`optional` severity tiers
+- `nvim-validate.sh` subcommand pattern: each logical check is a standalone `cmd_*` function, composed by `cmd_all`
+- which-key guard pattern: build claimed-lhs set before registering group specs to prevent duplicate-prefix warnings
+
+### Key Lessons
+
+- Populate SUMMARY.md `one_liner` field — CLI tooling depends on it; blank fields cause milestone close friction
+- Check `gsd-tools` CLI health before starting milestone close — audit-open bug would have blocked a less manual workflow
+- Tech debt items from audit (`attach.lua` dead code, README table gaps) are fine to defer — document them in audit and move on
+
+### Cost Observations
+
+- Model mix: balanced profile (sonnet for execution, opus for planning/research agents)
+- Sessions: ~7 days (2026-04-17 to 2026-04-25)
+- Notable: 159 commits, 6 phases — lower velocity than v1.0 due to brownfield nature and interactive verification requirements
+
+---
+
 ## Cross-Milestone Trends
 
-| Metric | v1.0 |
-|--------|------|
-| Phases | 5 |
-| Plans | 15 |
-| Timeline | 1 day |
-| Traceability gaps | 18 requirements never updated during exec |
-| Key pattern | Central registry + headless harness |
+| Metric | v1.0 | v1.1 |
+|--------|------|------|
+| Phases | 5 | 6 |
+| Plans | 15 | 15 |
+| Timeline | 1 day | 7 days |
+| Traceability gaps | 18 requirements never updated during exec | SUMMARY one_liner field unpopulated in most phases |
+| Key pattern | Central registry + headless harness | Failure inventory first; `:checkhealth` as primary diagnostic |
+| Tech debt at close | None noted | 13 items, all non-blocking (dead code, cosmetics, Windows verification) |

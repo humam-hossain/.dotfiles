@@ -1,21 +1,22 @@
 # Cross-Platform Neovim Dotfiles
 
-**Last updated:** 2026-04-24 — Phase 11 complete; v1.1 milestone verified end-to-end, rollout docs refreshed.
+**Last updated:** 2026-04-25 after v1.1 milestone (Neovim Setup Bug Fixes) shipped.
 
 ## What This Is
 
-A shared Neovim configuration inside a `.dotfiles` repo that runs across Arch Linux, Debian/Ubuntu, and Windows via OS-specific guards inside one codebase. The v1.0 milestone delivered a modernized, modular setup; v1.1 shifts focus from feature churn to bug removal, health cleanup, and stronger regression detection so the setup stays predictable under daily use.
+A shared Neovim configuration inside a `.dotfiles` repo that runs across Arch Linux, Debian/Ubuntu, and Windows via OS-specific guards inside one codebase. v1.0 delivered a modernized, modular setup; v1.1 removed config-caused runtime errors, made `:checkhealth` a trustworthy diagnostic, and expanded scripted regression coverage for bug-prone flows.
 
-## Current Milestone: v1.1 Neovim Setup Bug Fixes
+## Current State
 
-**Goal:** Make the shared Neovim setup bug-free and predictable for daily editing.
+**Shipped:** v1.1 Neovim Setup Bug Fixes (2026-04-25)
 
-**Target features:**
-- Fix broken or erroring keymaps
-- Fix plugin runtime bugs and misconfigurations
-- Fix crashes caused by config behavior
-- Resolve actionable `:checkhealth` errors and warnings
-- Strengthen validation with `:checkhealth` first, scripted checks second when health is insufficient
+- All 10 BUG-01 shared keymaps fixed — no Lua/E488 errors on invocation
+- Plugin runtime misconfigurations removed; crash-prone editor flows hardened
+- `:checkhealth config` provider ships with 6 sections and required/optional severity classification
+- `nvim-validate.sh` expanded with `keymaps` and `formats` regression subcommands
+- README Machine Update Checklist and Post-Deploy Verification refreshed for stable rollout
+
+**Next:** Next milestone not yet defined. Run `/gsd-new-milestone` to plan v1.2.
 
 ## Core Value
 
@@ -25,8 +26,10 @@ One shared Neovim config gives a clean, modern, bug-resistant editing experience
 
 ### Validated
 
-- ✓ v1.1 bug-fix milestone removes config-caused runtime errors from keymaps, plugins, and crash-prone flows — validated Phase 11
-- ✓ Config-caused E488/Lua errors removed from 9 shared keymaps; registry-driven mappings execute safely — v1.1 (BUG-01, validated Phase 7)
+- ✓ All config-caused runtime errors removed from keymaps, plugins, and crash-prone flows — v1.1 (BUG-01–03, validated Phase 11)
+- ✓ Config-caused E488/Lua errors removed from 9 shared keymaps; registry-driven mappings execute safely — v1.1 (BUG-01, Phase 7)
+- ✓ `:checkhealth` is trustworthy first-line diagnostic — 6-section provider, required/optional severity classification — v1.1 (HEAL-01–02, Phase 9)
+- ✓ Regression detection expanded: `keymaps` and `formats` subcommands cover flows `:checkhealth` cannot probe — v1.1 (TEST-01–03, Phase 10)
 - ✓ Modular Neovim config loads from `.config/nvim/init.lua` with `core/` and `plugins/` split — existing
 - ✓ Plugin management via `lazy.nvim` with pinned revisions in `lazy-lock.json` — existing
 - ✓ LSP, Mason, formatting, Treesitter, search, file explorer, git UI, statusline, folding, and theme — existing
@@ -43,34 +46,37 @@ One shared Neovim config gives a clean, modern, bug-resistant editing experience
 
 ### Active
 
-- ✓ v1.1 milestone makes `:checkhealth` a trustworthy first-line diagnostic for this setup — validated Phase 9
-- ✓ v1.1 milestone expands validation so regressions blocked by scripts are reproducible when `:checkhealth` alone is not enough — validated Phase 10
+(None — next milestone not yet defined)
 
 ### Out of Scope
 
-- New feature expansion unrelated to bug fixing — milestone is stabilization-first
 - Forked per-OS Neovim configs — one shared config remains source of truth
-- Eliminating warnings caused only by optional user tooling or machine-local preferences — document and classify instead
-- CI-based multi-OS automation — still deferred until local validation is strong enough
-- Machine-role optional plugin profiles — still deferred until core setup is stable
+- Eliminating warnings caused only by optional user tooling or machine-local preferences — classify and document instead
+- CI-based multi-OS automation — deferred until local validation surface is proven stable (AUTO-01, AUTO-02)
+- Machine-role optional plugin profiles — deferred until core setup is stable across machines (PROF-01)
 
 ## Context
 
-Shipped v1.0 on 2026-04-15, then closed remaining gap and documentation work through phases 6-12 on 2026-04-17. Current config already has:
-- Modular Lua structure under `.config/nvim/`
-- Central keymap registry and helper layers
-- Headless validator in `scripts/nvim-validate.sh`
-- Rollout docs in `.config/nvim/README.md`
+Shipped v1.0 on 2026-04-15, v1.1 on 2026-04-25. Current config has:
+- Modular Lua structure under `.config/nvim/` — `core/`, `plugins/`, `config/`
+- Central keymap registry (`lua/core/registry.lua`) with domain taxonomy; safe dispatcher in `lazy.lua`
+- `:checkhealth config` provider (`lua/config/health.lua`) with 6 sections and severity classification
+- Headless validator (`scripts/nvim-validate.sh`) with 7 subcommands: startup, sync, health, smoke, keymaps, formats, all
+- Rollout docs in `.config/nvim/README.md` — Machine Update Checklist + Post-Deploy Verification table
+- ~3800 LOC Lua + shell
 
-v1.1 is a brownfield stabilization milestone. Work should start from real failures: keymaps that throw, plugin configs that misbehave at runtime, crashes during normal workflows, and `:checkhealth` output that points to config bugs or missing guards. `:checkhealth` is primary signal; additional scripted checks should cover flows that health cannot validate reliably.
+Known deferred tech debt (non-blocking):
+- Two dead functions in `attach.lua` (`apply_neotree`, `setup_lsp_attach`) — no callers since Phase 8 neo-tree removal
+- Windows external-open (`<leader>o`) interactive verification — no Windows machine available
+- README "Validation Commands" summary table missing `keymaps`/`formats` rows (full Entrypoint table at line 325 is correct)
 
 ## Constraints
 
 - **Platform**: One shared config across Arch Linux, Debian/Ubuntu, and Windows — portability remains first-class
-- **Workflow**: This lives in a `.dotfiles` repo — fixes must be safe for rollout onto existing machines
+- **Workflow**: This lives in a `.dotfiles` repo — changes must be safe for rollout onto existing machines
 - **Reliability**: Bug fixes outrank feature additions — regression prevention is part of done
-- **Validation**: `:checkhealth` should catch what it can; scripts cover the remaining runtime gaps
-- **Compatibility**: Preserve existing modern v1.0 architecture unless a bug requires targeted rollback or replacement
+- **Validation**: `:checkhealth` is primary signal; scripts cover runtime gaps health cannot prove
+- **Compatibility**: Preserve existing modern architecture unless a bug requires targeted rollback or replacement
 
 ## Key Decisions
 
@@ -85,9 +91,9 @@ v1.1 is a brownfield stabilization milestone. Work should start from real failur
 | snacks.nvim replaces dashboard, indent, input, notifier, scope (5 plugins) | UX coherence: one well-maintained plugin over several overlapping plugins | ✓ Shipped in v1.0 |
 | Format-on-save with filetype safety policy | Avoid polluting commit messages, markdown, and scratch buffers with formatter noise | ✓ Exclusion list well-tested |
 | Headless validation harness lives in-repo | Catch regressions without full UI session | ✓ `scripts/nvim-validate.sh` shipped |
-| v1.1 bug-fix milestone treats `:checkhealth` as first diagnostic surface | Health output is fastest shared debugging entry point across machines | ✓ `config.health` provider ships with 6 sections, required/optional severity classification, and environment gap guidance |
-| Add scripts only where `:checkhealth` cannot prove setup correctness | Avoid duplicate validation surfaces and keep maintenance cost bounded | ✓ `checkhealth` subcommand added to validator; `core.health` is shared probe infrastructure |
-| which-key group registration guard: build claimed-lhs set from global+lazy mappings; skip group add() when lhs already owned by real mapping | which-key warns on duplicate lhs registration; `<leader>e` and `<leader>b` were both group specs and real mappings | ✓ Duplicate-prefix warnings eliminated for those two prefixes in Phase 10 |
+| v1.1 treats `:checkhealth` as first diagnostic surface | Health output is fastest shared debugging entry point across machines | ✓ `config.health` provider ships with 6 sections, required/optional severity classification |
+| Add scripts only where `:checkhealth` cannot prove setup correctness | Avoid duplicate validation surfaces and keep maintenance cost bounded | ✓ `checkhealth` subcommand added; `core.health` is shared probe infrastructure |
+| which-key group registration guard: skip group add() when lhs already owned by real mapping | `<leader>e` and `<leader>b` were both group specs and real mappings — which-key warned on duplicate | ✓ Duplicate-prefix warnings eliminated in Phase 10 |
 
 ## Evolution
 
@@ -107,4 +113,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-24 after Phase 10 (validation-harness-expansion) complete*
+*Last updated: 2026-04-25 after v1.1 milestone (Neovim Setup Bug Fixes)*

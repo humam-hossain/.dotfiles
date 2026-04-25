@@ -1,5 +1,28 @@
 # Milestones
 
+## v1.1 Neovim Setup Bug Fixes (Shipped: 2026-04-25)
+
+**Phases completed:** 6 phases, 15 plans, 19 tasks
+
+**Key accomplishments:**
+
+- Created:
+- Plan:
+- All 10 confirmed BUG-01 keymaps fixed: mislabeled M.lazy entries moved to M.global with callback actions, Gitsigns converted to direct Lua calls, lazy.lua dispatcher split for safe string routing, attach.lua scope token normalized.
+- Phase 6 failure inventory updated: all 10 BUG-01 shared keymap entries marked Fixed with interactive verification evidence; CHECKLIST.md converted from pre-fix repro log to post-fix regression checklist.
+- One-liner:
+- One-liner:
+- One-liner:
+- Headless `:checkhealth` validator added to nvim-validate.sh with buffer-dump capture, first audit artifact captured, render-markdown config error fixed, tmux companion bindings added (BUG-019 closed), and external-open rebound from `<C-S-o>` to `<leader>o` after proving terminal delivery failure (BUG-020 closed).
+- `core.health` refactored into exported probe infrastructure with required/optional classification, new `lua/config/health.lua` provider ships `:checkhealth config` with six sections, and the pre-existing `core` provider nil-check crash is eliminated via a compatibility shim.
+- One-liner:
+- One-liner:
+- Fresh checkhealth warning audit classified 20+ warning families across all providers; config-caused which-key duplicate-prefix warnings for `<leader>e` and `<leader>b` fixed by adding a claimed-lhs guard to group registration in `whichkey.lua`.
+- One-liner:
+- One-liner:
+
+---
+
 ## v1.0 Neovim Modernization (Shipped: 2026-04-15)
 
 **Phases completed:** 5 phases, 15 plans, 15 tasks
