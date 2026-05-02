@@ -1,5 +1,6 @@
 pragma Singleton
 import Quickshell
+import QtQuick
 
 Singleton {
     // 26 canonical Catppuccin Mocha values (surface0 is project override per D-02)
