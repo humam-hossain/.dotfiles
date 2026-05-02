@@ -92,15 +92,37 @@
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| BAR-01–06 | Phase 12 | planned |
-| WS-01–03 | Phase 13 | planned |
-| AUDIO-01–03 | Phase 13 | planned |
-| TRAY-01–03 | Phase 13 | planned |
-| SYS-01–04 | Phase 14 | planned |
-| CUST-01–04 | Phase 14 | planned |
-| CTRL-01–03 | Phase 14 | planned |
-| POPUP-01–03 | Phase 15 | planned |
-| ANIM-01–02 | Phase 16 | planned |
+| BAR-01 | Phase 12 | Pending |
+| BAR-02 | Phase 12 | Pending |
+| BAR-03 | Phase 12 | Pending |
+| BAR-04 | Phase 12 | Pending |
+| BAR-05 | Phase 12 | Pending |
+| BAR-06 | Phase 12 | Pending |
+| WS-01 | Phase 13 | Pending |
+| WS-02 | Phase 13 | Pending |
+| WS-03 | Phase 13 | Pending |
+| AUDIO-01 | Phase 13 | Pending |
+| AUDIO-03 | Phase 13 | Pending |
+| TRAY-01 | Phase 13 | Pending |
+| SYS-01 | Phase 14 | Pending |
+| SYS-02 | Phase 14 | Pending |
+| SYS-03 | Phase 14 | Pending |
+| SYS-04 | Phase 14 | Pending |
+| CUST-01 | Phase 14 | Pending |
+| CUST-02 | Phase 14 | Pending |
+| CUST-03 | Phase 14 | Pending |
+| CUST-04 | Phase 14 | Pending |
+| CTRL-01 | Phase 14 | Pending |
+| CTRL-02 | Phase 14 | Pending |
+| CTRL-03 | Phase 14 | Pending |
+| AUDIO-02 | Phase 14 | Pending |
+| TRAY-02 | Phase 14 | Pending |
+| TRAY-03 | Phase 14 | Pending |
+| POPUP-01 | Phase 15 | Pending |
+| POPUP-02 | Phase 15 | Pending |
+| POPUP-03 | Phase 15 | Pending |
+| ANIM-01 | Phase 16 | Pending |
+| ANIM-02 | Phase 16 | Pending |
 
 ---
-*Last updated: 2026-05-02 — v1.2 requirements defined*
+*Last updated: 2026-05-02 — v1.2 roadmap created; traceability table populated*
