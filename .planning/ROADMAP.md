@@ -54,7 +54,10 @@
   3. The bar renders left/center/right sections with pill-shaped module containers in Catppuccin Mocha colors (Base background, Mauve accent) using JetBrainsMono Nerd Font
   4. `arch/quickshell.sh` runs to completion, installs quickshell/ddcutil/i2c-tools, adds user to i2c group, and persists i2c-dev in /etc/modules-load.d/
   5. Waybar continues to render and function normally alongside the running Quickshell bar
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 12-01-PLAN.md — Theme singleton, shared QML components (BarGroup, ModulePill), shell/Bar/BarContent with three-section pill layout (BAR-01, BAR-02, BAR-03, BAR-04, BAR-06)
+- [ ] 12-02-PLAN.md — `arch/quickshell.sh` install script: pacman packages, i2c kernel module + group, config symlink (BAR-05)
 **UI hint**: yes
 
 ### Phase 13: Native API Widgets
@@ -122,7 +125,7 @@
 | 9. Health Signal Cleanup | v1.1 | 2/2 | ✅ Complete | 2026-04-23 |
 | 10. Validation Harness Expansion | v1.1 | 4/4 | ✅ Complete | 2026-04-23 |
 | 11. Milestone Verification and Rollout Confidence | v1.1 | 2/2 | ✅ Complete | 2026-04-24 |
-| 12. Bar Skeleton and Theme | v1.2 | 0/? | Not started | — |
+| 12. Bar Skeleton and Theme | v1.2 | 0/2 | Not started | — |
 | 13. Native API Widgets | v1.2 | 0/? | Not started | — |
 | 14. Script-Backed Widgets | v1.2 | 0/? | Not started | — |
 | 15. Popup Panels | v1.2 | 0/? | Not started | — |
