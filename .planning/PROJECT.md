@@ -1,10 +1,21 @@
-# Cross-Platform Neovim Dotfiles
+# Cross-Platform Dotfiles
 
-**Last updated:** 2026-04-25 after v1.1 milestone (Neovim Setup Bug Fixes) shipped.
+**Last updated:** 2026-05-02 — v1.2 milestone (Waybar → Quickshell Migration) started.
 
 ## What This Is
 
-A shared Neovim configuration inside a `.dotfiles` repo that runs across Arch Linux, Debian/Ubuntu, and Windows via OS-specific guards inside one codebase. v1.0 delivered a modernized, modular setup; v1.1 removed config-caused runtime errors, made `:checkhealth` a trustworthy diagnostic, and expanded scripted regression coverage for bug-prone flows.
+A `.dotfiles` repo that ships a complete Hyprland desktop environment across Arch Linux and Debian/Ubuntu. Includes a shared Neovim configuration (cross-platform, with Windows OS guards), a Waybar status bar with custom widgets, swaync notifications, and supporting scripts. v1.0–v1.1 modernized and hardened the Neovim config; v1.2 replaces Waybar with a Quickshell/QML bar.
+
+## Current Milestone: v1.2 Waybar → Quickshell Migration
+
+**Goal:** Build a Quickshell/QML status bar for Hyprland that replaces Waybar with full widget parity, popup panels, and animations — parallel deployment so Waybar stays live until the new bar is verified.
+
+**Target features:**
+- Bar shell: Quickshell `Bar.qml` with left/center/right `BarGroup` layout, Catppuccin Mocha theme, pill-shaped modules, JetBrainsMono Nerd Font
+- Widget parity: workspaces (Hyprland IPC), disk, CPU, memory, network, ping monitor, weather ×2, clock, tray, music, volume, backlight, lock, power, notification count
+- Popup panels: calendar (clock click), volume OSD (scroll), network panel (network click), notification center
+- Animations: module hover transitions, popup open/close
+- Parallel deploy: Waybar untouched until verified; `arch/quickshell.sh` install script
 
 ## Current State
 
@@ -16,11 +27,11 @@ A shared Neovim configuration inside a `.dotfiles` repo that runs across Arch Li
 - `nvim-validate.sh` expanded with `keymaps` and `formats` regression subcommands
 - README Machine Update Checklist and Post-Deploy Verification refreshed for stable rollout
 
-**Next:** Next milestone not yet defined. Run `/gsd-new-milestone` to plan v1.2.
+**Active:** v1.2 Waybar → Quickshell Migration (started 2026-05-02)
 
 ## Core Value
 
-One shared Neovim config gives a clean, modern, bug-resistant editing experience across Linux and Windows without the setup fighting the user.
+One dotfiles repo gives a clean, modern, bug-resistant desktop and editor experience across Linux (and Windows for Neovim) without the setup fighting the user.
 
 ## Requirements
 
@@ -46,7 +57,18 @@ One shared Neovim config gives a clean, modern, bug-resistant editing experience
 
 ### Active
 
-(None — next milestone not yet defined)
+- BAR-01: Quickshell bar renders at top of screen on Hyprland startup — v1.2
+- BAR-02: Bar has left/center/right layout with Catppuccin Mocha pill modules — v1.2
+- WS-01: Workspaces widget shows Hyprland workspaces; active highlighted in Mauve — v1.2
+- SYS-01: CPU, memory, disk, network widgets with system monitor popup — v1.2
+- CUST-01: Ping widget fetches from `localhost:8765` ping monitor server — v1.2
+- CUST-02: Weather (current + forecast) widgets via open-meteo — v1.2
+- CUST-03: Clock widget (Asia/Dhaka) with calendar popup on click — v1.2
+- MEDIA-01: Music widget (playerctl), volume widget (PulseAudio), backlight (ddcutil) — v1.2
+- NOTIF-01: System tray, swaync notification count, lock + power buttons — v1.2
+- POPUP-01: Popup panels: calendar, volume OSD, network, notification center — v1.2
+- ANIM-01: Module hover transitions and popup open/close animations — v1.2
+- DEPLOY-01: Parallel deploy — Waybar stays live; `arch/quickshell.sh` install script — v1.2
 
 ### Out of Scope
 
@@ -113,4 +135,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-25 after v1.1 milestone (Neovim Setup Bug Fixes)*
+*Last updated: 2026-05-02 — v1.2 milestone (Waybar → Quickshell Migration) started*

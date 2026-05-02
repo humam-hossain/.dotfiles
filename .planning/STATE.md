@@ -1,34 +1,32 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Neovim Setup Bug Fixes
-status: complete
-stopped_at: v1.1 milestone archived
-last_updated: "2026-04-25T00:00:00.000Z"
+milestone: v1.2
+milestone_name: Waybar → Quickshell Migration
+status: in_progress
+stopped_at: null
+last_updated: "2026-05-02T00:00:00.000Z"
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 15
-  completed_plans: 15
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-25)
+See: .planning/PROJECT.md (updated 2026-05-02)
 
-**Core value:** One shared Neovim config gives a clean, modern, bug-resistant editing experience across Linux and Windows without the setup fighting the user.
-**Current focus:** Planning next milestone — run `/gsd-new-milestone` to define v1.2
+**Core value:** One dotfiles repo gives a clean, modern, bug-resistant desktop and editor experience across Linux (and Windows for Neovim) without the setup fighting the user.
+**Current focus:** v1.2 — Waybar → Quickshell Migration
 
 ## Current Position
 
-Phase: —
+Phase: Not started (defining requirements)
 Plan: —
-Status: v1.1 milestone complete and archived
-
-Progress: [████████████████████] 15/15 plans (100%)
+Status: Defining requirements for v1.2
 
 ## Accumulated Context
 
@@ -40,6 +38,7 @@ All key decisions recorded in PROJECT.md Key Decisions table.
 
 - v1.0 milestone completed and archived (2026-04-15)
 - v1.1 milestone completed and archived (2026-04-25) — 6 phases, 15 plans, 8/8 requirements satisfied
+- v1.2 milestone started (2026-05-02) — Waybar → Quickshell Migration
 
 ### Pending Todos
 
@@ -51,7 +50,7 @@ None.
 
 ## Deferred Items
 
-Items acknowledged and deferred at milestone close on 2026-04-25 (from v1.1 audit):
+Carried forward from v1.1 audit (2026-04-25):
 
 | Category | Item | Status |
 |----------|------|--------|
