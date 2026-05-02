@@ -4,11 +4,9 @@ Scope {
     Variants {
         model: Quickshell.screens
 
-        delegate: Component {
-            BarContent {
-                required property var modelData
-                screen: modelData
-            }
+        delegate: BarContent {
+            required property var modelData
+            screen: modelData
         }
     }
 }
