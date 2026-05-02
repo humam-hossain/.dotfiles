@@ -1,47 +1,72 @@
-# Project Research: Stack for v1.1 Bug-Fix Milestone
+# Project Research: Stack for v1.2 Waybar → Quickshell Migration
 
-**Project:** Cross-Platform Neovim Dotfiles
-**Milestone:** v1.1 Neovim Setup Bug Fixes
-**Researched:** 2026-04-17
+**Project:** Cross-Platform Dotfiles
+**Milestone:** v1.2 Waybar → Quickshell Migration
+**Researched:** 2026-05-02
 
-## Existing Stack To Keep
+## New Package Dependencies (Arch Linux)
 
-- Neovim `0.11+` config model already adopted
-- `lazy.nvim` remains plugin manager and lockfile authority
-- Lua module layout under `.config/nvim/lua/` remains correct for maintenance
-- `scripts/nvim-validate.sh` plus `core.health.snapshot()` remain baseline validation entry points
+| Package | Source | Purpose |
+|---------|--------|---------|
+| `quickshell` | `[extra]` (0.2.1-6) | QML shell framework — all modules compiled in |
+| `ddcutil` | `[extra]` | External monitor brightness via DDC/CI |
+| `i2c-tools` | `[extra]` | i2c bus access required by ddcutil |
 
-## Stack Additions Needed
+**No AUR needed.** `quickshell` in `[extra]` includes all required modules:
+- Hyprland IPC (`Quickshell.Hyprland`)
+- PipeWire audio (`Quickshell.Services.Pipewire`)
+- MPRIS media (`Quickshell.Services.Mpris`)
+- System tray (`Quickshell.Services.SystemTray`)
+- Networking (`Quickshell.Networking`)
 
-### Runtime Triage
+**Install script additions** (`arch/quickshell.sh`):
+```bash
+sudo pacman -S quickshell ddcutil i2c-tools
+sudo modprobe i2c-dev
+sudo usermod -aG i2c "$USER"
+```
+i2c group membership and module load are required at install time — cannot defer to runtime.
 
-- Structured use of `:checkhealth` as milestone gate for actionable config defects
-- More health probes inside `core.health` when current plugin/tool checks miss known failure modes
-- Small diagnostic helpers around high-risk modules and keymap surfaces rather than broad new framework additions
+## Native QML Integrations (No Shell Scripts)
 
-### Validation
+| Widget | QML Module | Import |
+|--------|-----------|--------|
+| Workspaces | `Quickshell.Hyprland` | `Hyprland.workspaces` model |
+| Active window title | `Quickshell.Hyprland` | `HyprlandFocusedClient.title` |
+| Volume / mute | `Quickshell.Services.Pipewire` | `PwObjectTracker` → sink audio |
+| Music (MPRIS) | `Quickshell.Services.Mpris` | `Mpris.players` model |
+| System tray | `Quickshell.Services.SystemTray` | `SystemTray.items` model |
+| Network status | `Quickshell.Networking` | NM backend, `NetworkManager` |
+| Clock | Qt built-in | `Qt.formatDateTime(new Date(), ...)` |
 
-- Extend `scripts/nvim-validate.sh` with bug-fix-focused checks only where `:checkhealth` cannot prove correctness
-- Add scripted regression coverage for keymap invocation, plugin load paths, and crash repros if they are reproducible headlessly
-- Keep report artifacts under `.planning/tmp/nvim-validate/` as single debug location
+**`playerctl` is redundant** — `Quickshell.Services.Mpris` replaces it natively over D-Bus.
+**`pactl`/`pamixer` are redundant** — `Quickshell.Services.Pipewire` replaces them natively.
 
-## What Not To Add
+## Script-Backed Integrations (Process)
 
-- No new plugin manager, testing framework, or feature suite just for milestone optics
-- No duplicate validation layer that overlaps fully with `:checkhealth`
-- No broad plugin replacements unless a plugin is root cause of unresolved crashes or health failures
+| Widget | Script | Method |
+|--------|--------|--------|
+| Ping monitor | `ping_status.sh` | `Process` + `StdioCollector` + 5s `Timer` |
+| Weather current | `curr_weather.sh` | `Process` + `StdioCollector` + 200s `Timer` |
+| Weather forecast | `forcast_weather.sh` | `Process` + `StdioCollector` + 200s `Timer` |
+| Memory | `memory.sh` | `Process` + `StdioCollector` + 5s `Timer` |
+| Backlight | `ddcutil getvcp 10` | `Process` + `StdioCollector` + 5s `Timer` + signal on change |
+| swaync count | `swaync-client -s` | `Process` + `StdioLineParser` (streaming) |
+| Lock | `hyprlock` | `Process.startDetached()` on click |
+| Power | `wlogout` | `Process.startDetached()` on click |
 
-## Integration Points
+**Important:** `Process` does not expand `~` or `$HOME` in command arrays.
+Use `["bash", "-c", "$HOME/.config/waybar/scripts/..."]` wrapper.
 
-- `.config/nvim/lua/core/health.lua`
-- `scripts/nvim-validate.sh`
-- `.config/nvim/lua/core/keymaps/**`
-- `.config/nvim/lua/plugins/*.lua`
-- `.config/nvim/README.md` rollout + verification docs if validation commands change
+## Swaync Coexistence Constraint
 
-## Stack Recommendation
+**Quickshell's `NotificationServer` and swaync both claim `org.freedesktop.Notifications` on D-Bus — they cannot coexist.**
 
-Use current stack. Improve observability and hardening around it. v1.1 is stabilization on top of v1.0 architecture, not another modernization wave.
+Resolution: Keep swaync as the notification daemon. Do NOT use `Quickshell.Services.Notifications.NotificationServer`. Read swaync count and state via `swaync-client -s` (streaming Process). Notification center panel calls `swaync-client -t` to toggle swaync's native panel.
+
+## PipeWire Note
+
+`PwObjectTracker` binding is required before reading PipeWire node audio properties — this is a non-obvious prerequisite. Volume widget phase must bind tracker first.
 
 ---
-*Research completed: 2026-04-17*
+*Research completed: 2026-05-02*
