@@ -1,10 +1,9 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.2
-milestone_name: Waybar → Quickshell Migration
-status: in_progress
-stopped_at: null
-last_updated: "2026-05-02T00:00:00.000Z"
+milestone: v1.0
+milestone_name: milestone
+status: Not started
+last_updated: "2026-05-02T14:05:29.831Z"
 progress:
   total_phases: 5
   completed_phases: 0
@@ -54,6 +53,7 @@ All key decisions recorded in PROJECT.md Key Decisions table.
 ### Architecture Notes (v1.2)
 
 Critical patterns established in ARCHITECTURE.md / research/SUMMARY.md:
+
 - Use `PopupWindow` (not a second `PanelWindow`) for all popups
 - Use `HyprlandFocusGrab` (not `grabFocus: true`) for popup dismiss
 - Use `visible: false` (not `opacity: 0`) to fully remove popups from input tree
