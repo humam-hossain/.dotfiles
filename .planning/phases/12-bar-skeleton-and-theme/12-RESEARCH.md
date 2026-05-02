@@ -729,17 +729,19 @@ singleton Colours Colours.qml
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **BarContent as PanelWindow vs BarContent wrapping PanelWindow**
    - What we know: CONTEXT.md D-21 file list shows `BarContent.qml` as the PanelWindow content root. Bar.qml owns `Variants { model: Quickshell.screens }`.
    - What's unclear: Whether `BarContent.qml` IS the PanelWindow (root type PanelWindow) or wraps PanelWindow content (root type Item, instantiated inside a PanelWindow in Bar.qml). ARCHITECTURE.md section 8 builds list includes a plain `PanelWindow` in step 2, suggesting Bar.qml has the PanelWindow and BarContent is its content.
    - Recommendation: Planner should verify the delegation pattern — both approaches work. The simpler approach is BarContent.qml is the PanelWindow itself (root type PanelWindow), and Bar.qml's Variants delegate instantiates it directly.
+   - RESOLVED: `BarContent.qml` IS the PanelWindow (root type PanelWindow). Bar.qml's Variants delegate instantiates it directly with `screen: modelData`.
 
 2. **`import qs.theme` vs relative import in BarGroup/ModulePill**
    - What we know: Quickshell supports `import qs.<path>` for subdirectory imports relative to shell.qml.
    - What's unclear: Whether files in the root `.config/quickshell/` directory can reference `Colours` without an explicit import if `theme/qmldir` is present and the theme directory is adjacent.
    - Recommendation: Add `import qs.theme` explicitly to every QML file that uses `Colours.*`. Explicit over implicit.
+   - RESOLVED: Explicit `import qs.theme` used in every QML file that references `Colours.*`.
 
 ---
 
