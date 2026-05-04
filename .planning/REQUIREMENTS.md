@@ -20,8 +20,8 @@
 ### WS — Workspaces
 
 - [x] **WS-01**: Workspaces widget shows all Hyprland workspaces using `Quickshell.Hyprland` module (`Hyprland.workspaces` ObjectModel) — reactive, not raw IPC socket
-- [ ] **WS-02**: Active workspace highlighted in Catppuccin Mauve; occupied workspaces visually distinct from empty; urgent workspace has distinct indicator
-- [ ] **WS-03**: Click workspace activates it via `workspace.activate()`; scroll cycles workspaces via `HyprlandIpc.dispatch`
+- [x] **WS-02**: Active workspace highlighted in Catppuccin Mauve; occupied workspaces visually distinct from empty; urgent workspace has distinct indicator
+- [x] **WS-03**: Click workspace activates it via `workspace.activate()`; scroll cycles workspaces via `HyprlandIpc.dispatch`
 
 ### AUDIO — Audio & Media
 
@@ -99,8 +99,8 @@
 | BAR-05 | Phase 12 | Pending |
 | BAR-06 | Phase 12 | Pending |
 | WS-01 | Phase 13 | Complete |
-| WS-02 | Phase 13 | Pending |
-| WS-03 | Phase 13 | Pending |
+| WS-02 | Phase 13 | Complete |
+| WS-03 | Phase 13 | Complete |
 | AUDIO-01 | Phase 13 | Complete |
 | AUDIO-03 | Phase 13 | Complete |
 | TRAY-01 | Phase 13 | Pending |

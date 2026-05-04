@@ -69,10 +69,10 @@ Plans:
   2. The volume widget shows the current PipeWire default sink volume percentage and mute state without any shell script; clicking it opens pavucontrol
   3. The music widget shows the current MPRIS player's artist and title; clicking toggles play/pause; the widget is hidden when no player is active
   4. The system tray renders SNI application icons; right-clicking an icon opens its context menu
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 Plans:
 - [x] 13-01-PLAN.md — Service singletons: AudioService, MprisService, HyprWorkspaces (WS-01 data, AUDIO-01 data, AUDIO-03 data)
-- [ ] 13-02-PLAN.md — WorkspacesWidget + VolumeWidget; widgets/qmldir registers all 4 widget types (WS-01, WS-02, WS-03, AUDIO-01)
+- [x] 13-02-PLAN.md — WorkspacesWidget + VolumeWidget; widgets/qmldir registers all 4 widget types (WS-01, WS-02, WS-03, AUDIO-01)
 - [ ] 13-03-PLAN.md — MusicWidget + TrayWidget; wire BarContent.qml to import qs.widgets per D-56 layout (AUDIO-03, TRAY-01)
 **UI hint**: yes
 
@@ -130,7 +130,7 @@ Plans:
 | 10. Validation Harness Expansion | v1.1 | 4/4 | ✅ Complete | 2026-04-23 |
 | 11. Milestone Verification and Rollout Confidence | v1.1 | 2/2 | ✅ Complete | 2026-04-24 |
 | 12. Bar Skeleton and Theme | v1.2 | 0/2 | Not started | — |
-| 13. Native API Widgets | v1.2 | 1/3 | In Progress|  |
+| 13. Native API Widgets | v1.2 | 2/3 | In Progress|  |
 | 14. Script-Backed Widgets | v1.2 | 0/? | Not started | — |
 | 15. Popup Panels | v1.2 | 0/? | Not started | — |
 | 16. Animation Polish and Cutover | v1.2 | 0/? | Not started | — |
