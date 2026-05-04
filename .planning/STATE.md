@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-05-04T03:25:34.017Z"
+last_updated: "2026-05-04T15:58:18.194Z"
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 5
-  completed_plans: 2
-  percent: 40
+  completed_plans: 3
+  percent: 60
 ---
 
 # Project State
@@ -19,14 +19,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-02)
 
 **Core value:** One dotfiles repo gives a clean, modern, bug-resistant desktop and editor experience across Linux (and Windows for Neovim) without the setup fighting the user.
-**Current focus:** Phase 12 — bar-skeleton-and-theme
+**Current focus:** Phase 13 — native-api-widgets
 
 ## Current Position
 
-Phase: 12 (bar-skeleton-and-theme) — EXECUTING
-Plan: 1 of 2
+Phase: 13 (native-api-widgets) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Progress: 0/5 phases complete [░░░░░░░░░░░░░░░░░░░░] 0%
+Progress: 3/5 plans complete [██████░░░░] 60%
 
 ## Performance Metrics
 
@@ -34,14 +34,16 @@ Progress: 0/5 phases complete [░░░░░░░░░░░░░░░░�
 |--------|-------|
 | Phases complete | 0/5 |
 | Plans complete | 0/? |
-| Current phase | 12 |
+| Current phase | 13 |
 | Milestone | v1.2 |
+| Phase 13-native-api-widgets P01 | 4 min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
 ### Decisions
 
-All key decisions recorded in PROJECT.md Key Decisions table.
+- Phase 13 Plan 01: Use no-version `services/qmldir` singleton registrations to match the existing `qs.theme` convention.
+- Phase 13 Plan 01: Keep PipeWire, MPRIS, and Hyprland native APIs behind `qs.services` wrappers for downstream widgets.
 
 ### Roadmap Evolution
 
@@ -84,4 +86,4 @@ Carried forward from v1.1 audit (2026-04-25):
 
 ## Session Continuity
 
-Next action: `/gsd-plan-phase 12` — Plan Phase 12: Bar Skeleton and Theme
+Next action: `/gsd-execute-phase 13-native-api-widgets` — Execute Plan 13-02: WorkspacesWidget + VolumeWidget

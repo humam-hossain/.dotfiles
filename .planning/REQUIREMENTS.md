@@ -19,15 +19,15 @@
 
 ### WS — Workspaces
 
-- [ ] **WS-01**: Workspaces widget shows all Hyprland workspaces using `Quickshell.Hyprland` module (`Hyprland.workspaces` ObjectModel) — reactive, not raw IPC socket
+- [x] **WS-01**: Workspaces widget shows all Hyprland workspaces using `Quickshell.Hyprland` module (`Hyprland.workspaces` ObjectModel) — reactive, not raw IPC socket
 - [ ] **WS-02**: Active workspace highlighted in Catppuccin Mauve; occupied workspaces visually distinct from empty; urgent workspace has distinct indicator
 - [ ] **WS-03**: Click workspace activates it via `workspace.activate()`; scroll cycles workspaces via `HyprlandIpc.dispatch`
 
 ### AUDIO — Audio & Media
 
-- [ ] **AUDIO-01**: Volume widget shows PipeWire default sink volume percentage and mute state via `Quickshell.Services.Pipewire` (`PwObjectTracker` bound before reading `.audio`); click opens pavucontrol
+- [x] **AUDIO-01**: Volume widget shows PipeWire default sink volume percentage and mute state via `Quickshell.Services.Pipewire` (`PwObjectTracker` bound before reading `.audio`); click opens pavucontrol
 - [ ] **AUDIO-02**: Volume OSD auto-hide overlay (standalone `PanelWindow` at `WlrLayer.Overlay`) appears when default sink volume changes; auto-hides after 1.5s via `Timer`; shows pill progress bar with current volume
-- [ ] **AUDIO-03**: Music widget shows MPRIS current artist and title via `Quickshell.Services.Mpris`; click toggles play/pause; hidden when no player active
+- [x] **AUDIO-03**: Music widget shows MPRIS current artist and title via `Quickshell.Services.Mpris`; click toggles play/pause; hidden when no player active
 
 ### TRAY — Tray & Notifications
 
@@ -98,11 +98,11 @@
 | BAR-04 | Phase 12 | Pending |
 | BAR-05 | Phase 12 | Pending |
 | BAR-06 | Phase 12 | Pending |
-| WS-01 | Phase 13 | Pending |
+| WS-01 | Phase 13 | Complete |
 | WS-02 | Phase 13 | Pending |
 | WS-03 | Phase 13 | Pending |
-| AUDIO-01 | Phase 13 | Pending |
-| AUDIO-03 | Phase 13 | Pending |
+| AUDIO-01 | Phase 13 | Complete |
+| AUDIO-03 | Phase 13 | Complete |
 | TRAY-01 | Phase 13 | Pending |
 | SYS-01 | Phase 14 | Pending |
 | SYS-02 | Phase 14 | Pending |
