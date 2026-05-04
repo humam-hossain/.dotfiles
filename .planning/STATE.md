@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-last_updated: "2026-05-04T15:58:18.194Z"
+last_updated: "2026-05-04T16:07:36.685Z"
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 5
-  completed_plans: 3
-  percent: 60
+  completed_plans: 4
+  percent: 80
 ---
 
 # Project State
@@ -24,9 +24,9 @@ See: .planning/PROJECT.md (updated 2026-05-02)
 ## Current Position
 
 Phase: 13 (native-api-widgets) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
-Progress: 3/5 plans complete [██████░░░░] 60%
+Progress: 4/5 plans complete [████████░░] 80%
 
 ## Performance Metrics
 
@@ -37,6 +37,7 @@ Progress: 3/5 plans complete [██████░░░░] 60%
 | Current phase | 13 |
 | Milestone | v1.2 |
 | Phase 13-native-api-widgets P01 | 4 min | 3 tasks | 4 files |
+| Phase 13-native-api-widgets P02 | 6 min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -44,6 +45,9 @@ Progress: 3/5 plans complete [██████░░░░] 60%
 
 - Phase 13 Plan 01: Use no-version `services/qmldir` singleton registrations to match the existing `qs.theme` convention.
 - Phase 13 Plan 01: Keep PipeWire, MPRIS, and Hyprland native APIs behind `qs.services` wrappers for downstream widgets.
+- [Phase 13-native-api-widgets]: Pre-register all four Phase 13 widgets in widgets/qmldir so Plan 13-03 can add MusicWidget and TrayWidget without touching the manifest.
+- [Phase 13-native-api-widgets]: Keep empty-vs-occupied workspace differentiation deferred per A4; all listed non-active workspaces render with Colours.textColor.
+- [Phase 13-native-api-widgets]: Keep Hyprland dispatch and pavucontrol launch command surfaces static to satisfy T-13-HYP-02 and T-13-VOL-01.
 
 ### Roadmap Evolution
 
@@ -86,4 +90,4 @@ Carried forward from v1.1 audit (2026-04-25):
 
 ## Session Continuity
 
-Next action: `/gsd-execute-phase 13-native-api-widgets` — Execute Plan 13-02: WorkspacesWidget + VolumeWidget
+Next action: `/gsd-execute-phase 13-native-api-widgets` — Execute Plan 13-03: MusicWidget + TrayWidget + BarContent composition
