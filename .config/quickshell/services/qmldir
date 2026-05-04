@@ -1,0 +1,3 @@
+singleton AudioService AudioService.qml
+singleton MprisService MprisService.qml
+singleton HyprWorkspaces HyprWorkspaces.qml
