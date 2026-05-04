@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import qs.theme
+import qs.widgets
 
 PanelWindow {
     id: root
@@ -47,44 +48,18 @@ PanelWindow {
         }
         spacing: 0
 
-        BarGroup {
-            ModulePill {
-                Text {
-                    text:           "Left"        // D-01 placeholder
-                    font.family:    "JetBrainsMono Nerd Font"
-                    font.pixelSize: 14
-                    font.bold:      true
-                    color:          Colours.textColor
-                }
-            }
-        }
+        BarGroup { WorkspacesWidget {} }
+
+        Item { Layout.fillWidth: true }   // flexible spacer
+
+        BarGroup { /* center empty - Phase 14 fills */ }
 
         Item { Layout.fillWidth: true }   // flexible spacer
 
         BarGroup {
-            ModulePill {
-                Text {
-                    text:           "Center"      // D-01 placeholder
-                    font.family:    "JetBrainsMono Nerd Font"
-                    font.pixelSize: 14
-                    font.bold:      true
-                    color:          Colours.textColor
-                }
-            }
-        }
-
-        Item { Layout.fillWidth: true }   // flexible spacer
-
-        BarGroup {
-            ModulePill {
-                Text {
-                    text:           "Right"       // D-01 placeholder
-                    font.family:    "JetBrainsMono Nerd Font"
-                    font.pixelSize: 14
-                    font.bold:      true
-                    color:          Colours.textColor
-                }
-            }
+            MusicWidget {}
+            VolumeWidget {}
+            TrayWidget {}
         }
     }
 }
