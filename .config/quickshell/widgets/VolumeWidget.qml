@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import Quickshell.Io
 import qs.theme
 import qs.services
@@ -43,7 +44,9 @@ Local.ModulePill {
     }
 
     MouseArea {
+        id: interactionArea
         anchors.fill: parent
+        hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         onClicked: mouse => {
@@ -56,7 +59,6 @@ Local.ModulePill {
         }
     }
 
-    ToolTip.visible: hover.hovered
+    ToolTip.visible: interactionArea.containsMouse
     ToolTip.text: "Default sink: " + AudioService.sinkName + " — " + AudioService.volumePercent + "%" + (AudioService.muted ? " (muted)" : "")
-    HoverHandler { id: hover }
 }
