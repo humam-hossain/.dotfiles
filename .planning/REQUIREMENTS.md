@@ -31,7 +31,7 @@
 
 ### TRAY — Tray & Notifications
 
-- [ ] **TRAY-01**: System tray renders SNI application indicators via `Quickshell.Services.SystemTray`; icons load correctly; right-click opens context menu
+- [x] **TRAY-01**: System tray renders SNI application indicators via `Quickshell.Services.SystemTray`; icons load correctly; right-click opens context menu
 - [ ] **TRAY-02**: Notification count badge reflects swaync unread count via `swaync-client -c`; updates on a 5-second timer
 - [ ] **TRAY-03**: Click notification badge toggles swaync panel via `swaync-client -t`
 
@@ -103,7 +103,7 @@
 | WS-03 | Phase 13 | Complete |
 | AUDIO-01 | Phase 13 | Complete |
 | AUDIO-03 | Phase 13 | Complete |
-| TRAY-01 | Phase 13 | Pending |
+| TRAY-01 | Phase 13 | Complete |
 | SYS-01 | Phase 14 | Pending |
 | SYS-02 | Phase 14 | Pending |
 | SYS-03 | Phase 14 | Pending |
