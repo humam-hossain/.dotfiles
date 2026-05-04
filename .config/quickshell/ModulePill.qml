@@ -2,7 +2,7 @@ import QtQuick
 import qs.theme
 
 Rectangle {
-    default property alias content: inner.children
+    default property alias content: inner.data
 
     color:  Colours.moduleBg   // #1e1e2e D-06
     radius: 8                  // D-03 border-radius
