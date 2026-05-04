@@ -788,21 +788,21 @@ onWheel: wheel => {
 | A8 | `Process.startDetached()` for pavucontrol is non-blocking and ignores stdout/stderr | Pattern 5 | If the user wants to surface "pavucontrol not installed" warnings, the inline Process pattern with `running: true` + `onExited` handler must be used instead of `.startDetached()`. D-23 chooses startDetached + the `onExited` on a non-detached helper would not fire — accept that pavucontrol failure will be silent. |
 | A9 | Each `BarContent` Variants delegate instantiates its own `TrayWidget`, meaning each monitor has its own `QsMenuAnchor` and its own `HyprlandFocusGrab` instance. The menu opens against the bar of the clicked monitor only | Pattern 7 | Per-monitor menu instances are correct; no shared state needed. Confirm by visual UAT D-57. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **What signals an "occupied" workspace beyond active/focused?**
    - What we know: `HyprlandWorkspace` documentation surfaces `hasFullscreen` but not a `toplevels` count or `windowCount`.
    - What's unclear: whether reading `lastIpcObject.windows` (after a `refreshWorkspaces()` call) is the canonical approach, or whether tracking via `Hyprland.toplevels` ObjectModel + filter is preferred.
-   - Recommendation: Adopt A4 path (a) — every listed workspace is treated as occupied; subtextColor only renders for the focused-but-empty workspace. Quickest path to Phase 13 UAT; acceptable visual fidelity. Defer richer occupancy to a Phase 16 polish ticket if user reports inadequate distinction.
+   - **RESOLVED:** Adopt A4 path (a) — every listed workspace is treated as occupied; subtextColor only renders for the focused-but-empty workspace. Quickest path to Phase 13 UAT; acceptable visual fidelity. Defer richer occupancy (option c, rawEvent toplevel tracking) to a Phase 16 polish ticket if user reports inadequate distinction during UAT.
 
 2. **What is the exact rawEvent format for urgent?**
    - What we know: `Hyprland.rawEvent` is the canonical channel for events; the Hyprland IPC `urgent` event includes a window address.
    - What's unclear: whether Quickshell pre-parses the address or if the workspace id must be derived via `toplevels` mapping.
-   - Recommendation: During Phase 13 implementation, add temporary `console.log` on rawEvent to verify payload shape before finalizing `HyprWorkspaces.urgentIds` logic. If complex, accept that the urgent indicator may be approximate for v1.2 UAT.
+   - **RESOLVED (best-effort):** Phase 13 implementation adds a temporary `console.log` on rawEvent during execute to verify payload shape, then finalizes `HyprWorkspaces.urgentIds` parser. If runtime payload is `urgent>>WINDOW_ADDRESS` (window, not workspace), HyprWorkspaces maps via `Hyprland.toplevels` lookup. Treat the urgent indicator as best-effort for v1.2 UAT — defer to post-UAT iteration if event mapping is wrong.
 
 3. **Is `Mpris.players` ObjectModel iterable inside a binding without `.values`?**
    - What we know: `Repeater { model: Mpris.players }` works directly (ObjectModel is a Qt model). `.values` is required for `.find` / `.filter`.
-   - Confirmed via [VERIFIED] docs. No further action needed.
+   - **RESOLVED:** Confirmed via [VERIFIED] docs. No further action needed.
 
 ## Environment Availability
 

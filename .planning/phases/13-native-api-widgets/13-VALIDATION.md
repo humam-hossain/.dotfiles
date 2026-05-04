@@ -1,9 +1,9 @@
 ---
 phase: 13
 slug: native-api-widgets
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: ready
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-05-03
 ---
 
@@ -38,12 +38,12 @@ created: 2026-05-03
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | TBD | WS-01 | — | reactive workspace list, no IPC polling | manual | `quickshell` + observe Hyprland workspace add/remove | N/A | ⬜ pending |
-| TBD | TBD | TBD | WS-02 | — | active workspace = Mauve fill | manual | visual diff against ROADMAP success criteria | N/A | ⬜ pending |
-| TBD | TBD | TBD | WS-03 | — | click activates, scroll cycles | manual | click each workspace pill; scroll wheel up/down on bar group | N/A | ⬜ pending |
-| TBD | TBD | TBD | AUDIO-01 | — | reads default sink only, no privileged ops | manual | change volume via media keys, observe widget update; click → pavucontrol opens | N/A | ⬜ pending |
-| TBD | TBD | TBD | AUDIO-03 | — | hidden when no MPRIS player | manual | close all media; verify widget invisible; open spotify/mpv; verify widget visible | N/A | ⬜ pending |
-| TBD | TBD | TBD | TRAY-01 | — | SNI items render, right-click context menu | manual | observe nm-applet/blueman/etc. icons appear; right-click each | N/A | ⬜ pending |
+| 13-01-T3 | 13-01 | 1 | WS-01 | T-13-HYP-02 | reactive workspace list via HyprWorkspaces singleton, no IPC polling | manual | `quickshell` + observe Hyprland workspace add/remove | yes | ⬜ pending |
+| 13-02-T2 | 13-02 | 2 | WS-01, WS-02 | T-13-HYP-02 | active workspace = Mauve (Colours.accent) fill | manual | visual diff against ROADMAP success criteria | yes | ⬜ pending |
+| 13-02-T2 | 13-02 | 2 | WS-03 | T-13-HYP-02 | click activates via `modelData.activate()`; scroll dispatches `workspace e±1` static literals | manual | click each workspace glyph; scroll wheel up/down on widget | yes | ⬜ pending |
+| 13-01-T1, 13-02-T3 | 13-01, 13-02 | 1, 2 | AUDIO-01 | T-13-AUD-01, T-13-VOL-01 | reads default sink via PwObjectTracker; bumpVolume clamps 0-100; pavucontrol Process is literal `["pavucontrol"]` | manual | change volume via media keys, observe widget update; click → pavucontrol opens; right-click toggles mute | yes | ⬜ pending |
+| 13-01-T2, 13-03-T1 | 13-01, 13-03 | 1, 3 | AUDIO-03 | T-13-MPRIS-01 | MusicWidget hidden when MprisService.activePlayer === null; togglePlaying() (corrected from D-31) | manual | close all media; verify widget invisible; open spotify/mpv; click toggles play/pause | yes | ⬜ pending |
+| 13-03-T2 | 13-03 | 3 | TRAY-01 | T-13-TRAY-01, T-13-TRAY-04 | SNI items render via Quickshell.IconImage (sandboxed); QsMenuAnchor + HyprlandFocusGrab (no grabFocus:true) | manual | observe nm-applet/blueman/etc. icons appear; right-click each | yes | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
