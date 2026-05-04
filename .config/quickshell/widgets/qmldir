@@ -1,0 +1,4 @@
+WorkspacesWidget WorkspacesWidget.qml
+VolumeWidget VolumeWidget.qml
+MusicWidget MusicWidget.qml
+TrayWidget TrayWidget.qml
