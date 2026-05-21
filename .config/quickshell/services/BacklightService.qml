@@ -52,6 +52,7 @@ Singleton {
             writeProc.running = true
             root.brightnessPercent = target
             root.formatted = (target < 10 ? "  " : target < 100 ? " " : "") + target + "%"
+            root._pendingDelta = 0
         }
     }
 
