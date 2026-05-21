@@ -20,7 +20,7 @@ Singleton {
 
     Process {
         id: proc
-        command: ["bash", "-c", "$HOME/.config/waybar/scripts/system/memory.sh"]
+        command: ["bash", "-c", Qt.getenv("HOME") + "/.config/waybar/scripts/system/memory.sh"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
