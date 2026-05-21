@@ -30,8 +30,12 @@ Singleton {
                     if (!isNaN(val) && val >= 0 && val <= 100) {
                         root.brightnessPercent = val
                         root.formatted = (val < 10 ? "  " : val < 100 ? " " : "") + val + "%"
+                    } else {
+                        root.formatted = "err"
                     }
-                } catch (e) { }
+                } catch (e) {
+                    root.formatted = "err"
+                }
             }
         }
     }
