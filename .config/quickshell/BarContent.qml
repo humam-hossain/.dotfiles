@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import Qt5Compat.GraphicalEffects
 import qs.theme
 import qs.widgets
+import "./popups/" as Popups
 
 PanelWindow {
     id: root
@@ -48,18 +49,36 @@ PanelWindow {
         }
         spacing: 0
 
-        BarGroup { WorkspacesWidget {} }
+        BarGroup {
+            WorkspacesWidget {}
+            CpuWidget {}
+            MemoryWidget {}
+            DiskWidget {}
+            NetworkWidget {}
+            PingWidget {}
+        }
 
-        Item { Layout.fillWidth: true }   // flexible spacer
+        Item { Layout.fillWidth: true }
 
-        BarGroup { /* center empty - Phase 14 fills */ }
+        BarGroup {
+            WeatherWidget {}
+            ClockWidget {}
+            ForecastWidget {}
+        }
 
-        Item { Layout.fillWidth: true }   // flexible spacer
+        Item { Layout.fillWidth: true }
 
         BarGroup {
             MusicWidget {}
             VolumeWidget {}
+            BacklightWidget {}
+            NotificationWidget {}
             TrayWidget {}
         }
+    }
+
+    Popups.VolumeOsd {
+        id: volumeOsd
+        anchor.window: root
     }
 }
