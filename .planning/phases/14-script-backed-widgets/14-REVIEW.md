@@ -1,25 +1,31 @@
 ---
 phase: 14-script-backed-widgets
-status: advisory
-review_date: 2026-05-21
-reviewer: gsd-execute
-depth: standard
+plan: 04
+type: gap_closure
+review_depth: quick
+status: clean
 ---
 
-## Code Review: Phase 14 — Script-Backed Widgets
+## Review Summary
 
-### Summary
-3 plans reviewed: 10 service singletons, 10 widgets, BarContent wiring, Volume OSD.
-All files checked: QML syntax, Process command safety, pattern compliance, threat model adherence.
+**Scope:** 6 modified widget files (MemoryWidget, DiskWidget, NetworkWidget, PingWidget, WeatherWidget, ForecastWidget)
+**Change type:** Pure QML import addition — no logic, no data flow, no behavior change
 
-### Findings
+| Category | Count |
+|----------|-------|
+| Bugs | 0 |
+| Security | 0 |
+| Code Quality | 0 |
+| Warnings | 0 |
 
-| Severity | File | Issue | Status |
-|----------|------|-------|--------|
-| INFO | BacklightService.qml:47 | `writeProc.command` uses string interpolation for numeric `target` (clamped 0-100) | Acceptable per T-14-PROC-02. Numeric-only, no injection vector. |
-| GOOD | All services | `pragma Singleton` on line 1, all follow Timer+Process+StdioCollector pattern | ✓ |
-| GOOD | All widgets | `Local.ModulePill` root, `import qs.services`, `import "../" as Local` | ✓ |
-| GOOD | All services/widgets | No `Component.onCompleted` (P-18 compliance) | ✓ |
-| GOOD | VolumeOsd.qml | Uses `PopupWindow`, `visible: false`, `WlrKeyboardFocus.None`, no `opacity: 0` | ✓ |
-| GOOD | BarContent.qml | Lock/Power absent; all 14 widgets wired correctly | ✓ |
-| GOOD | Threat model | T-14-PROC-01 (injection), T-14-PROC-02 (tampering), T-14-DOS-01 (DoS), T-14-PROC-03 (parsing) all mitigated | ✓ |
+## Findings
+
+None. Each file had `import QtQuick.Controls` added as line 2 between `import QtQuick` and the existing second import. This matches the established pattern from Phase 13 widgets (MusicWidget, VolumeWidget) which already use this import for ToolTip attached properties.
+
+## Verification
+
+- ✓ All 6 files still have `import QtQuick` on line 1
+- ✓ All 6 files have `import QtQuick.Controls` on line 2
+- ✓ All `ToolTip.visible` and `ToolTip.text` references preserved
+- ✓ No syntactic issues (QML imports are order-independent)
+- ✓ Matches working Phase 13 widget pattern
