@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import qs.theme
 import qs.services
 import "../" as Local
