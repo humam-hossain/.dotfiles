@@ -19,13 +19,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-05-02)
 
 **Core value:** One dotfiles repo gives a clean, modern, bug-resistant desktop and editor experience across Linux (and Windows for Neovim) without the setup fighting the user.
-**Current focus:** Phase 14 — script-backed-widgets
+**Current focus:** Phase 15 — popup-panels
 
 ## Current Position
 
-Phase: 14 (script-backed-widgets) — VERIFIED
+Phase: 14 (script-backed-widgets) — COMPLETE ✓
 Plan: All 4 plans complete
-Status: Ready for Phase 15
+Status: Phase 14 done — ready for Phase 15
 Progress: 4/4 plans complete [██████████] 100%
 
 ## Performance Metrics
@@ -97,4 +97,4 @@ Carried forward from v1.1 audit (2026-04-25):
 
 ## Session Continuity
 
-Next action: `/gsd-execute-phase 15-popup-panels` — Execute Phase 15: Calendar, network panel, and notification center popups
+Next action: `/gsd-discuss-phase 15` — Discuss Phase 15 before planning
