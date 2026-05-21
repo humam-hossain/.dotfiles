@@ -48,7 +48,7 @@ Singleton {
         onTriggered: {
             const current = root.brightnessPercent
             const target  = Math.max(0, Math.min(100, current + root._pendingDelta))
-            writeProc.command = ["bash", "-c", "ddcutil setvcp 10 " + target]
+            writeProc.command = ["ddcutil", "setvcp", "10", String(target)]
             writeProc.running = true
             root.brightnessPercent = target
             root.formatted = (target < 10 ? "  " : target < 100 ? " " : "") + target + "%"
