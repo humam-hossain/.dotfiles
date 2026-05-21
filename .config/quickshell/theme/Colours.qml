@@ -40,4 +40,18 @@ Singleton {
     readonly property color warning:      yellow     // #f9e2af
     readonly property color critical:     red        // #f38ba8
     readonly property color success:      green      // #a6e3a1
+
+    // Phase 14 semantic aliases (D-61)
+    readonly property color diskColor:      blue       // #89b4fa
+    readonly property color cpuColor:       sapphire   // #74c7ec
+    readonly property color memoryColor:    sky        // #89dceb
+    readonly property color networkColor:   teal       // #94e2d5
+    readonly property color pingGood:       blue       // #89b4fa
+    readonly property color pingMedium:     yellow     // #f9e2af
+    readonly property color pingBad:        peach      // #fab387
+    readonly property color pingCritical:   red        // #f38ba8
+    readonly property color pingDead:       mauve      // #cba6f7
+    readonly property color clockColor:     rosewater  // #f5e0dc
+    readonly property color backlightColor: rosewater  // #f5e0dc
+    readonly property color notifColor:     lavender   // #b4befe
 }
