@@ -36,7 +36,7 @@
 
 - [ ] **Phase 12: Bar Skeleton and Theme** — visible PanelWindow with Colours.qml, pill layout, multi-monitor, install script, Waybar parallel deploy
 - [ ] **Phase 13: Native API Widgets** — workspaces, volume, media, system tray; zero shell scripts; validates Hyprland/PipeWire/MPRIS/SystemTray APIs
-- [ ] **Phase 14: Script-Backed Widgets** — full Waybar widget parity via existing scripts; CPU, memory, disk, network, ping, weather, clock, backlight, notifications, lock, power
+- [x] **Phase 14: Script-Backed Widgets** — full Waybar widget parity via existing scripts; CPU, memory, disk, network, ping, weather, clock, backlight, notifications, lock, power
 - [ ] **Phase 15: Popup Panels** — calendar, network panel, volume OSD, notification center toggle
 - [ ] **Phase 16: Animation Polish and Cutover** — Behavior blocks on all interactive modules and popups; pre-switch verification; Waybar disabled
 
@@ -79,15 +79,19 @@ Plans:
 ### Phase 14: Script-Backed Widgets
 **Goal**: Every widget from the current Waybar config is present and live in the Quickshell bar — full widget parity achieved
 **Depends on**: Phase 13
-**Requirements**: SYS-01, SYS-02, SYS-03, SYS-04, CUST-01, CUST-02, CUST-03, CUST-04, CTRL-01, CTRL-02, CTRL-03, AUDIO-02, TRAY-02, TRAY-03
+**Requirements**: SYS-01, SYS-02, SYS-03, SYS-04, CUST-01, CUST-02, CUST-03, CUST-04, CTRL-01, AUDIO-02, TRAY-02, TRAY-03
 **Success Criteria** (what must be TRUE):
-  1. CPU, memory, disk, and network widgets display live values; CPU and memory change color at warning (≥50%) and critical (≥90%) thresholds; clicking the network widget opens nmtui in a kitty terminal
-  2. Ping, weather (current), weather (forecast), and clock widgets are live; each uses its existing Waybar script via Process with correct polling intervals; the clock shows Asia/Dhaka time and updates every second
-  3. Backlight widget shows current external monitor brightness; the value updates every 30 seconds; clicks adjust brightness with a 300 ms debounced ddcutil write
-  4. Lock and power buttons invoke hyprlock and wlogout respectively via Process.startDetached()
-  5. The volume OSD overlay appears when the default sink volume changes, shows a pill progress bar with current volume, and auto-hides after 1.5 seconds
-  6. The notification count badge reflects swaync unread count (updated every 5 seconds); clicking the badge toggles the swaync panel
-**Plans**: TBD
+   1. CPU, memory, disk, and network widgets display live values; CPU and memory change color at warning (≥50%) and critical (≥90%) thresholds; clicking the network widget opens nmtui in a kitty terminal
+   2. Ping, weather (current), weather (forecast), and clock widgets are live; each uses its existing Waybar script via Process with correct polling intervals; the clock shows Asia/Dhaka time and updates every second
+   3. Backlight widget shows current external monitor brightness; the value updates every 30 seconds; clicks adjust brightness with a 300 ms debounced ddcutil write
+   4. Lock and power buttons are explicitly skipped per user decision (CTRL-02/03 deferred)
+   5. The volume OSD overlay appears when the default sink volume changes, shows a pill progress bar with current volume, and auto-hides after 1.5 seconds
+   6. The notification count badge reflects swaync unread count (updated every 5 seconds); clicking the badge toggles the swaync panel
+**Plans:** 3 plans
+Plans:
+- [x] 14-01-PLAN.md — Colours semantic aliases + 10 service singletons + services/qmldir (SYS-01..04, CUST-01..04, CTRL-01, TRAY-02)
+- [x] 14-02-PLAN.md — All 10 widgets + widgets/qmldir (SYS-01..04, CUST-01..04, CTRL-01, TRAY-02/03)
+- [x] 14-03-PLAN.md — BarContent wiring + Volume OSD popup (AUDIO-02, TRAY-02/03, all system requirements)
 **UI hint**: yes
 
 ### Phase 15: Popup Panels
@@ -131,6 +135,6 @@ Plans:
 | 11. Milestone Verification and Rollout Confidence | v1.1 | 2/2 | ✅ Complete | 2026-04-24 |
 | 12. Bar Skeleton and Theme | v1.2 | 0/2 | Not started | — |
 | 13. Native API Widgets | v1.2 | 3/3 | Complete   | 2026-05-04 |
-| 14. Script-Backed Widgets | v1.2 | 0/? | Not started | — |
+| 14. Script-Backed Widgets | v1.2 | 3/3 | Complete   | 2026-05-21 |
 | 15. Popup Panels | v1.2 | 0/? | Not started | — |
 | 16. Animation Polish and Cutover | v1.2 | 0/? | Not started | — |
