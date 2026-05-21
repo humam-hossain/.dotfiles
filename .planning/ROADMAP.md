@@ -87,11 +87,12 @@ Plans:
    4. Lock and power buttons are explicitly skipped per user decision (CTRL-02/03 deferred)
    5. The volume OSD overlay appears when the default sink volume changes, shows a pill progress bar with current volume, and auto-hides after 1.5 seconds
    6. The notification count badge reflects swaync unread count (updated every 5 seconds); clicking the badge toggles the swaync panel
-**Plans:** 3 plans
+**Plans:** 4 plans
 Plans:
 - [x] 14-01-PLAN.md — Colours semantic aliases + 10 service singletons + services/qmldir (SYS-01..04, CUST-01..04, CTRL-01, TRAY-02)
 - [x] 14-02-PLAN.md — All 10 widgets + widgets/qmldir (SYS-01..04, CUST-01..04, CTRL-01, TRAY-02/03)
 - [x] 14-03-PLAN.md — BarContent wiring + Volume OSD popup (AUDIO-02, TRAY-02/03, all system requirements)
+- [ ] 14-04-PLAN.md — Gap closure: add import QtQuick.Controls to 6 widgets (fixes quickshell load crash, all UAT blockers)
 **UI hint**: yes
 
 ### Phase 15: Popup Panels
