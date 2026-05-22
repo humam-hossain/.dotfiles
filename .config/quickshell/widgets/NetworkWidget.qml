@@ -40,7 +40,7 @@ Local.ModulePill {
                 p = p.parent
             }
             if (p) {
-                p.openPopup(p.networkPopup)
+                p.openPopup(p.popupNetwork)
             }
         }
     }

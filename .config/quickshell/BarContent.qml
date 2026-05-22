@@ -13,6 +13,8 @@ PanelWindow {
     screen: modelData
 
     property Item currentPopup: null
+    property alias popupCalendar: calendarPopup
+    property alias popupNetwork: networkPopup
 
     function openPopup(popup) {
         if (currentPopup && currentPopup !== popup) {

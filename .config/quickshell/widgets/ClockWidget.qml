@@ -23,7 +23,7 @@ Local.ModulePill {
                 p = p.parent
             }
             if (p) {
-                p.openPopup(p.calendarPopup)
+                p.openPopup(p.popupCalendar)
             }
         }
     }
