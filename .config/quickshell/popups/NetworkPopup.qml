@@ -4,7 +4,6 @@ import Quickshell.Hyprland
 import Quickshell.Io
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Controls
 import qs.theme
 import qs.services
 
@@ -32,7 +31,7 @@ PopupWindow {
     property string passwordInput: ""
 
     visible: false
-    width: Math.min(Math.max(contentWidth + 16, 300), 420)
+    width: Math.min(420, 300)
     height: Math.min(implicitHeight, 500)
 
     anchor.rect.x: parentWindow.width / 2 - implicitWidth / 2
@@ -48,7 +47,6 @@ PopupWindow {
 
         Item { focus: true; Keys.onEscapePressed: root.close() }
 
-        // Section 1: Connection Status
         Rectangle {
             id: statusSection
             Layout.fillWidth: true
@@ -122,39 +120,48 @@ PopupWindow {
                     visible: connType !== ""
                 }
 
-                Text {
+                RowLayout {
                     Layout.fillWidth: true
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 11
-                    color: Colours.subtextColor
-                    text: "Signal: " + signalIcon(parseInt(connSignal)) + " " + connSignal + "%"
-                    visible: connSignal !== "" && connSignal !== "0"
-                }
+                    spacing: 8
 
-                Button {
-                    Layout.alignment: Qt.AlignLeft
-                    text: "Disconnect"
-                    flat: true
-                    font.family: "JetBrainsMono Nerd Font"
-                    font.pixelSize: 12
-                    contentItem: Text {
-                        text: parent.text
-                        font: parent.font
-                        color: Colours.critical
+                    Text {
+                        font.family: "JetBrainsMono Nerd Font"
+                        font.pixelSize: 11
+                        color: Colours.subtextColor
+                        text: "Signal: " + signalIcon(parseInt(connSignal)) + " " + connSignal + "%"
+                        visible: connSignal !== "" && connSignal !== "0"
                     }
-                    background: Rectangle {
+
+                    Item { Layout.fillWidth: true }
+
+                    Rectangle {
+                        id: disconnectBtn
+                        Layout.preferredWidth: 80
+                        Layout.preferredHeight: 22
+                        radius: 4
                         color: "transparent"
                         border.color: Colours.critical
                         border.width: 1
-                        radius: 4
+                        visible: connState === "connected"
+
+                        Text {
+                            anchors.centerIn: parent
+                            font.family: "JetBrainsMono Nerd Font"
+                            font.pixelSize: 11
+                            color: Colours.critical
+                            text: "Disconnect"
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: disconnectProc.running = true
+                        }
                     }
-                    onClicked: disconnectProc.running = true
-                    visible: connState === "connected"
                 }
             }
         }
 
-        // Section 2: Available Networks
         Text {
             Layout.fillWidth: true
             font.family: "JetBrainsMono Nerd Font"
@@ -163,7 +170,6 @@ PopupWindow {
             text: "Available Networks"
         }
 
-        // Password Prompt (inline, above network list)
         Rectangle {
             id: passwordPrompt
             Layout.fillWidth: true
@@ -189,23 +195,27 @@ PopupWindow {
                     Layout.fillWidth: true
                     spacing: 4
 
-                    TextField {
-                        id: passwordField
+                    Rectangle {
                         Layout.fillWidth: true
-                        font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: 12
-                        echoMode: showPassword ? TextInput.Normal : TextInput.Password
-                        placeholderText: "Password"
-                        color: Colours.textColor
-                        background: Rectangle {
-                            color: Colours.surface0
-                            radius: 4
-                            border.color: Colours.subtextColor
-                            border.width: 1
-                            opacity: 0.5
+                        Layout.preferredHeight: 28
+                        radius: 4
+                        color: Colours.surface0
+                        border.color: Colours.subtextColor
+                        border.width: 1
+                        opacity: 0.5
+
+                        TextInput {
+                            id: passwordField
+                            anchors.fill: parent
+                            anchors.margins: 4
+                            font.family: "JetBrainsMono Nerd Font"
+                            font.pixelSize: 12
+                            echoMode: showPassword ? TextInput.Normal : TextInput.Password
+                            color: Colours.textColor
+                            focus: true
+                            onTextChanged: passwordInput = text
+                            Keys.onReturnPressed: connectToNetwork(pendingPasswordForSsid, text)
                         }
-                        onTextChanged: passwordInput = text
-                        Keys.onReturnPressed: connectToNetwork(pendingPasswordForSsid, text)
                     }
 
                     Text {
@@ -221,7 +231,6 @@ PopupWindow {
                     }
                 }
 
-                // Error message
                 Text {
                     Layout.fillWidth: true
                     font.family: "JetBrainsMono Nerd Font"
@@ -236,54 +245,68 @@ PopupWindow {
                     Layout.fillWidth: true
                     spacing: 8
 
-                    Button {
-                        text: "Cancel"
-                        flat: true
-                        font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: 12
-                        contentItem: Text {
-                            text: parent.text
-                            font: parent.font
+                    Rectangle {
+                        Layout.preferredWidth: 60
+                        Layout.preferredHeight: 24
+                        radius: 4
+                        color: "transparent"
+                        border.color: Colours.subtextColor
+                        border.width: 1
+                        opacity: 0.5
+
+                        Text {
+                            anchors.centerIn: parent
+                            font.family: "JetBrainsMono Nerd Font"
+                            font.pixelSize: 12
                             color: Colours.subtextColor
+                            text: "Cancel"
                         }
-                        background: Rectangle {
-                            color: "transparent"
-                            border.color: Colours.subtextColor
-                            border.width: 1
-                            radius: 4
-                            opacity: 0.5
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: closePasswordPrompt()
                         }
-                        onClicked: closePasswordPrompt()
                     }
 
-                    Button {
-                        text: "Connect"
-                        font.family: "JetBrainsMono Nerd Font"
-                        font.pixelSize: 12
-                        enabled: passwordField.text.length > 0 && !connecting
-                        contentItem: Text {
-                            text: connecting ? "\uF100" : parent.text
-                            font: parent.font
+                    Rectangle {
+                        Layout.preferredWidth: 66
+                        Layout.preferredHeight: 24
+                        radius: 4
+                        color: {
+                            if (connecting) return Colours.subtextColor
+                            if (passwordField.text.length > 0) return Colours.accent
+                            return Colours.subtextColor
+                        }
+                        opacity: passwordField.text.length > 0 && !connecting ? 1 : 0.5
+
+                        Text {
+                            anchors.centerIn: parent
+                            font.family: "JetBrainsMono Nerd Font"
+                            font.pixelSize: 12
                             color: "#ffffff"
+                            text: connecting ? "\uF100" : "Connect"
                         }
-                        background: Rectangle {
-                            color: connecting ? Colours.subtextColor : Colours.accent
-                            radius: 4
-                            opacity: enabled ? 1 : 0.5
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            enabled: passwordField.text.length > 0 && !connecting
+                            onClicked: connectToNetwork(pendingPasswordForSsid, passwordField.text)
                         }
-                        onClicked: connectToNetwork(pendingPasswordForSsid, passwordField.text)
                     }
                 }
             }
         }
 
-        // Network list / empty state
-        ScrollView {
+        Flickable {
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
+            contentHeight: networkListContent.height
 
             ColumnLayout {
+                id: networkListContent
                 width: parent.width
                 spacing: 2
 
@@ -308,7 +331,6 @@ PopupWindow {
             }
         }
 
-        // Section 3: Footer
         Text {
             Layout.fillWidth: true
             Layout.topMargin: 4
@@ -331,7 +353,6 @@ PopupWindow {
         onCleared: root.close()
     }
 
-    // nmcli Process for network info
     Process {
         id: connInfoProc
         command: ["bash", "-c", "nmcli -g GENERAL.TYPE,GENERAL.STATE,GENERAL.CONNECTION dev show $(nmcli -t -f DEVICE,TYPE dev status | grep -m1 ':wifi\\|:ethernet' | cut -d: -f1) 2>/dev/null || true"]
@@ -340,9 +361,8 @@ PopupWindow {
                 var lines = connInfoProc.stdout.trim().split("\n")
                 if (lines.length >= 3) {
                     root.connType = lines[0].trim()
-                    root.connStateRaw = lines[1].trim()
                     root.connName = lines[2].trim()
-                    root.connState = root.connStateRaw.indexOf("connected") >= 0 ? "connected" : ""
+                    root.connState = lines[1].trim().indexOf("connected") >= 0 ? "connected" : ""
                     root.connSsid = root.connName
                 } else {
                     root.connState = ""
@@ -375,7 +395,6 @@ PopupWindow {
         running: false
     }
 
-    // WiFi scan Process (self-contained per D-21)
     Process {
         id: scanProc
         command: ["nmcli", "--get-values", "SSID,SECURITY,SIGNAL", "dev", "wifi", "list"]
@@ -416,17 +435,15 @@ PopupWindow {
         running: false
     }
 
-    // nmtui Process (footer)
     Process {
         id: nmtuiProc
         command: ["kitty", "-e", "nmtui"]
         running: false
     }
 
-    // Disconnect Process
     Process {
         id: disconnectProc
-        command: ["bash", "-c", "nmcli con down id \"" + connName + "\" 2>/dev/null || true"]
+        command: ["bash", "-c", "nmcli con down id \"" + root.connName + "\" 2>/dev/null || true"]
         stdout: StdioCollector {
             onStreamFinished: {
                 refreshInfo()
@@ -435,7 +452,6 @@ PopupWindow {
         running: false
     }
 
-    // Connect Process
     Process {
         id: connectProc
         property string targetSsid: ""
@@ -460,7 +476,6 @@ PopupWindow {
         running: false
     }
 
-    // Auto-refresh timer (10s per D-22)
     Timer {
         id: scanTimer
         interval: 10000
