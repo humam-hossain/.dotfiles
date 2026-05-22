@@ -26,12 +26,11 @@ Singleton {
             onStreamFinished: {
                 const line = this.text.trim()
                 if (line) {
-                    const lastColon = line.lastIndexOf(":")
-                    const secondLast = line.lastIndexOf(":", lastColon - 1)
-                    if (secondLast >= 0) {
-                        const sig = parseInt(line.substring(secondLast + 1, lastColon), 10) || 0
-                        const firstColon = line.indexOf(":")
-                        const ssid  = line.substring(firstColon + 1, secondLast) || "WiFi"
+                    const firstColon = line.indexOf(":")
+                    const lastColon  = line.lastIndexOf(":")
+                    if (firstColon > 0 && lastColon > firstColon) {
+                        const sig  = parseInt(line.substring(lastColon + 1), 10) || 0
+                        const ssid = line.substring(firstColon + 1, lastColon) || "WiFi"
                         root.ssid      = ssid
                         root.connected = true
                         root.iconText  = sig <= 20  ? "󰤯"

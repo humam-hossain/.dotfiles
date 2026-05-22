@@ -12,7 +12,7 @@ Singleton {
     property int __prevTotal: -1
 
     Timer {
-        interval: 3000
+        interval: 300
         running: true
         repeat: true
         triggeredOnStart: true
@@ -21,7 +21,7 @@ Singleton {
 
     Process {
         id: proc
-        command: ["bash", "-c", "awk '/^cpu / {print $5, $2+$3+$4+$5}' /proc/stat || echo '0 0'"]
+        command: ["bash", "-c", "awk '/^cpu / {idle=$5; total=0; for(i=2;i<=NF;i++) total+=$i; print idle, total}' /proc/stat || echo '0 0'"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {

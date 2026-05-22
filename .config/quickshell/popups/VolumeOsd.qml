@@ -12,18 +12,18 @@ PopupWindow {
 
     visible: false
 
-    implicitWidth:  150
-    implicitHeight: 8
+    width:  250
+    height: 16
 
-    // Anchor below the bar (anchor.window set in BarContent.qml)
-    anchor.edges: Edges.Bottom
-    anchor.gravity: Edges.Bottom
-    anchor.margins.top: 2
+    // Position below bar center
+    anchor.rect.x: parentWindow.width / 2 - implicitWidth / 2
+    anchor.rect.y: parentWindow.height + 12
 
     Rectangle {
         anchors.fill: parent
         color: Colours.moduleBg
         radius: 4
+        clip: true
 
         Rectangle {
             id: barFill
@@ -34,7 +34,7 @@ PopupWindow {
             }
             width: parent.width * AudioService.volume
             radius: 4
-            color: AudioService.muted ? Colours.critical : Colours.accent
+            color: AudioService.muted ? Colours.critical : "#ffffff"
             opacity: 0.85
         }
 
@@ -43,7 +43,7 @@ PopupWindow {
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 7
             font.bold: true
-            color: Colours.textColor
+            color: "#1e1e2e"
             text: AudioService.volumePercent + "%"
             visible: AudioService.volumePercent > 0
         }

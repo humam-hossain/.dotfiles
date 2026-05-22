@@ -7,22 +7,25 @@ import "../" as Local
 Local.ModulePill {
     id: root
 
-    Row {
-        spacing: 4
+    Item {
+        width: bellIcon.implicitWidth + 6
+        height: 16
         Text {
+            id: bellIcon
             font.family: "JetBrainsMono Nerd Font"
             font.pixelSize: 14
             font.bold: true
             color: Colours.notifColor
             text: "󰂚"
         }
-        Text {
-            font.family: "JetBrainsMono Nerd Font"
-            font.pixelSize: 14
-            font.bold: true
-            color: Colours.notifColor
+        Rectangle {
+            width: 6
+            height: 6
+            radius: 3
+            color: "#f38ba8"
             visible: NotificationService.count > 0
-            text: NotificationService.formatted
+            anchors.top: parent.top
+            anchors.right: parent.right
         }
     }
 
