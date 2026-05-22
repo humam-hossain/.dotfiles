@@ -36,7 +36,7 @@
 
 - [ ] **Phase 12: Bar Skeleton and Theme** — visible PanelWindow with Colours.qml, pill layout, multi-monitor, install script, Waybar parallel deploy
 - [ ] **Phase 13: Native API Widgets** — workspaces, volume, media, system tray; zero shell scripts; validates Hyprland/PipeWire/MPRIS/SystemTray APIs
-- [x] **Phase 14: Script-Backed Widgets** — full Waybar widget parity via existing scripts; CPU, memory, disk, network, ping, weather, clock, backlight, notifications, lock, power
+- [x] **Phase 14: Script-Backed Widgets** — full Waybar widget parity via existing scripts; CPU, memory, disk, network, ping, weather, clock, backlight, notifications, lock, power (gap closure in progress)
 - [ ] **Phase 15: Popup Panels** — calendar, network panel, volume OSD, notification center toggle
 - [ ] **Phase 16: Animation Polish and Cutover** — Behavior blocks on all interactive modules and popups; pre-switch verification; Waybar disabled
 
@@ -87,13 +87,15 @@ Plans:
    4. Lock and power buttons are explicitly skipped per user decision (CTRL-02/03 deferred)
    5. The volume OSD overlay appears when the default sink volume changes, shows a pill progress bar with current volume, and auto-hides after 1.5 seconds
    6. The notification count badge reflects swaync unread count (updated every 5 seconds); clicking the badge toggles the swaync panel
-**Plans:** 5 plans
+**Plans:** 7 plans
 Plans:
 - [x] 14-01-PLAN.md — Colours semantic aliases + 10 service singletons + services/qmldir (SYS-01..04, CUST-01..04, CTRL-01, TRAY-02)
 - [x] 14-02-PLAN.md — All 10 widgets + widgets/qmldir (SYS-01..04, CUST-01..04, CTRL-01, TRAY-02/03)
 - [x] 14-03-PLAN.md — BarContent wiring + Volume OSD popup (AUDIO-02, TRAY-02/03, all system requirements)
 - [x] 14-04-PLAN.md — Gap closure: add import QtQuick.Controls to 6 widgets (fixes quickshell load crash, all UAT blockers)
-- [ ] 14-05-PLAN.md — Gap closure: fix service bugs, remove tooltips, fix icons, add error handling, volume OSD workaround
+- [x] 14-05-PLAN.md — Gap closure: fix service bugs, remove tooltips, fix icons, add error handling, volume OSD workaround
+- [ ] 14-06-PLAN.md — Gap closure: fix Qt.getenv regression + CPU/Disk "err" investigation (SYS-01, SYS-02, CUST-01, CUST-02, CUST-04)
+- [ ] 14-07-PLAN.md — Gap closure: fix Network nmcli parsing + Volume OSD wpctl polling (SYS-04, AUDIO-02)
 **UI hint**: yes
 
 ### Phase 15: Popup Panels
@@ -137,6 +139,6 @@ Plans:
 | 11. Milestone Verification and Rollout Confidence | v1.1 | 2/2 | ✅ Complete | 2026-04-24 |
 | 12. Bar Skeleton and Theme | v1.2 | 0/2 | Not started | — |
 | 13. Native API Widgets | v1.2 | 3/3 | Complete   | 2026-05-04 |
-| 14. Script-Backed Widgets | v1.2 | 3/3 | Complete   | 2026-05-21 |
+| 14. Script-Backed Widgets | v1.2 | 5/7 | Gap closure   | 2026-05-22 |
 | 15. Popup Panels | v1.2 | 0/? | Not started | — |
 | 16. Animation Polish and Cutover | v1.2 | 0/? | Not started | — |

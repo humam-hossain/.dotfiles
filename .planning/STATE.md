@@ -23,10 +23,10 @@ See: .planning/PROJECT.md (updated 2026-05-02)
 
 ## Current Position
 
-Phase: 14 (script-backed-widgets) — COMPLETE ✓
-Plan: All 5 plans complete (incl. gap closure 14-04, 14-05)
-Status: Phase 14 done — ready for Phase 15
-Progress: 5/5 plans complete [██████████] 100%
+Phase: 14 (script-backed-widgets) — GAP CLOSURE IN PROGRESS ⚠
+Plan: 5/7 plans complete (UAT revealed 9 gaps; 14-05 fix caused Qt.getenv regression)
+Status: Phase 14 gap closure — 14-06 and 14-07 pending
+Progress: 5/7 plans complete [████████░░] 71%
 
 ## Performance Metrics
 
@@ -40,7 +40,9 @@ Progress: 5/5 plans complete [██████████] 100%
 | Phase 14 P02 | 3 tasks | 11 files | Widgets + qmldir |
 | Phase 14 P03 | 2 tasks | 2 files | BarContent + Volume OSD |
 | Phase 14 P04 | 1 task | 6 files | ToolTip import fix (gap closure) |
-| Phase 14 P05 | 4 tasks | 22 files | 9 UAT gap fixes (gap closure) |
+| Phase 14 P05 | 4 tasks | 22 files | 9 UAT gap fixes (gap closure) — regression introduced |
+| Phase 14 P06 | 3 tasks | 6 files | Qt.getenv regression fix + CPU/Disk investigation (gap closure) |
+| Phase 14 P07 | 2 tasks | 3 files | Network nmcli fix + Volume OSD wpctl polling (gap closure) |
 
 ## Accumulated Context
 
@@ -76,6 +78,13 @@ Critical patterns established in ARCHITECTURE.md / research/SUMMARY.md:
 - Never instantiate `NotificationServer` — conflicts with swaync on org.freedesktop.Notifications D-Bus
 - Set `WlrKeyboardFocus.None` on the bar PanelWindow unconditionally
 
+### Lessons Learned (Phase 14 gap closure)
+
+- **Qt.getenv does NOT exist in QS 0.2.1** — Two separate code reviews (14-REVIEW WR-03, 14-05-REVIEW WR-01) incorrectly recommended `Qt.getenv("HOME")` over `"$HOME"` shell expansion. The correct pattern is `["bash", "-c", "$HOME/.config/waybar/scripts/..."]` — Process.command passes through bash -c which expands $HOME correctly.
+- **Pipewire API readonly bindings broken in QS 0.2.1** (issue #807) — Timer polling `Pipewire.defaultAudioSink.audio.volume` always returns stale/cached values. Workaround: poll via `wpctl get-volume @DEFAULT_AUDIO_SINK@` subprocess which queries the real Pipewire daemon.
+- **DiskService pipe-delimited parsing bug**: `parts.length === 3` check but awk outputs only 2 pipe-delimited fields. Fix: use `parts.length >= 2`.
+- **nmcli -t field delimiter conflict**: nmcli uses `:` as delimiter which clashes with colons in SSIDs. Fix: parse from end of line backward (lastIndexOf) instead of forward split.
+
 ### Pending Todos
 
 None.
@@ -98,4 +107,5 @@ Carried forward from v1.1 audit (2026-04-25):
 
 ## Session Continuity
 
-Next action: `/gsd-discuss-phase 15` — Discuss Phase 15 before planning
+Next action: `/gsd-execute-phase 14 --gaps-only` — Execute gap closure plans 14-06 and 14-07
+After gap closure: Re-run UAT tests, then `/gsd-discuss-phase 15`
