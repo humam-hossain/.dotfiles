@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-last_updated: "2026-05-21T20:29:00.000Z"
+last_updated: "2026-05-22T00:00:00.000Z"
 progress:
   total_phases: 5
   completed_phases: 3
   total_plans: 5
-  completed_plans: 5
+  completed_plans: 7
   percent: 100
 ---
 
@@ -24,9 +24,9 @@ See: .planning/PROJECT.md (updated 2026-05-02)
 ## Current Position
 
 Phase: 14 (script-backed-widgets) — COMPLETE ✓
-Plan: All 4 plans complete
+Plan: All 5 plans complete (incl. gap closure 14-04, 14-05)
 Status: Phase 14 done — ready for Phase 15
-Progress: 4/4 plans complete [██████████] 100%
+Progress: 5/5 plans complete [██████████] 100%
 
 ## Performance Metrics
 
@@ -40,6 +40,7 @@ Progress: 4/4 plans complete [██████████] 100%
 | Phase 14 P02 | 3 tasks | 11 files | Widgets + qmldir |
 | Phase 14 P03 | 2 tasks | 2 files | BarContent + Volume OSD |
 | Phase 14 P04 | 1 task | 6 files | ToolTip import fix (gap closure) |
+| Phase 14 P05 | 4 tasks | 22 files | 9 UAT gap fixes (gap closure) |
 
 ## Accumulated Context
 
