@@ -25,9 +25,9 @@ Singleton {
             onStreamFinished: {
                 try {
                     const parts = this.text.trim().split("|")
-                    if (parts.length === 3) {
-                        root.text    = parts[0] + "/" + parts[1]
-                        root.percent = parseInt(parts[2], 10) || 0
+                    if (parts.length >= 2) {
+                        root.text    = parts[0]
+                        root.percent = parseInt(parts[1], 10) || 0
                         root.tooltip = "Disk: " + root.text + " (" + root.percent + "%)"
                     } else {
                         root.text = "err"
