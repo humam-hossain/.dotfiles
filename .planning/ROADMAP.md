@@ -106,7 +106,11 @@ Plans:
   1. Clicking the clock widget opens a calendar popup anchored near the clock; the popup shows the current month in a 7-column grid with today highlighted; prev/next month navigation works; clicking anywhere outside the popup closes it without stealing keyboard focus from the active application
   2. Clicking the network widget opens a network panel showing available networks and the current IP; clicking outside dismisses it without stealing keyboard focus
   3. Clicking the notification count widget opens and closes the swaync native notification panel
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 15-01-PLAN.md — CalendarService singleton + CalendarPopup PopupWindow (POPUP-01)
+- [ ] 15-02-PLAN.md — NetworkPopup with WiFi scan, connection status, password prompt, dismiss (POPUP-02)
+- [ ] 15-03-PLAN.md — Wire popups into BarContent, ClockWidget/NetworkWidget click handlers (POPUP-01, POPUP-02, POPUP-03)
 **UI hint**: yes
 
 ### Phase 16: Animation Polish and Cutover

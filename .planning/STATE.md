@@ -23,24 +23,24 @@ See: .planning/PROJECT.md (updated 2026-05-02)
 
 ## Current Position
 
-Phase: 14 (script-backed-widgets) — COMPLETE ✓
-Plan: 7/7 plans complete (all 9 UAT gaps resolved via 14-06 and 14-07)
-Status: All plans executed, all gaps closed
-Progress: 7/7 plans complete [██████████] 100%
+Phase: 15 (popup-panels) — PLANNED ✓
+Plan: 3 plans ready for execution
+Status: All plans created (CalendarService+CalendarPopup, NetworkPopup, Wiring)
+Progress: 0/3 plans complete [░░░░░░░░░░] 0%
 
 ## Session — Phase 15 Context
 
-Phase: 15 (popup-panels) — CONTEXT CAPTURED
-Status: 25+ decisions captured for calendar popup, network panel, notification center, and popup infrastructure
-Next: `/gsd-plan-phase 15` — plan and execute popup panels
+Phase: 15 (popup-panels) — PLANNED ✓
+Status: 3 plans created (CalendarService+CalendarPopup, NetworkPopup, Wiring)
+Next: `/gsd-execute-phase 15` — execute popup panels
 
 ## Performance Metrics
 
 | Metric | Value |
 |--------|-------|
 | Phases complete | 2/5 |
-| Plans complete | 0/? |
-| Current phase | 14 |
+| Plans complete | 0/3 |
+| Current phase | 15 |
 | Milestone | v1.2 |
 | Phase 14 P01 | 3 tasks | 12 files | Services + Colours + qmldir |
 | Phase 14 P02 | 3 tasks | 11 files | Widgets + qmldir |
@@ -114,5 +114,7 @@ Carried forward from v1.1 audit (2026-04-25):
 
 ## Session Continuity
 
-Phase 14 gap closure complete. All 9 UAT gaps resolved, all 7 plans done.
-Next: `/gsd-discuss-phase 15` — discuss popup-panels phase
+Phase 15 planning complete. 3 plans ready for execution.
+Next: `/gsd-execute-phase 15` — execute popup panels
+Wave 1: Plans 01 (Calendar) + 02 (NetworkPopup) in parallel
+Wave 2: Plan 03 (Wiring) after both complete
