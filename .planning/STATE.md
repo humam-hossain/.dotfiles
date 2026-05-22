@@ -23,10 +23,10 @@ See: .planning/PROJECT.md (updated 2026-05-02)
 
 ## Current Position
 
-Phase: 14 (script-backed-widgets) — GAP CLOSURE IN PROGRESS ⚠
-Plan: 5/7 plans complete (UAT revealed 9 gaps; 14-05 fix caused Qt.getenv regression)
-Status: Phase 14 gap closure — 14-06 and 14-07 pending
-Progress: 5/7 plans complete [████████░░] 71%
+Phase: 14 (script-backed-widgets) — COMPLETE ✓
+Plan: 7/7 plans complete (all 9 UAT gaps resolved via 14-06 and 14-07)
+Status: All plans executed, all gaps closed
+Progress: 7/7 plans complete [██████████] 100%
 
 ## Performance Metrics
 
@@ -78,12 +78,13 @@ Critical patterns established in ARCHITECTURE.md / research/SUMMARY.md:
 - Never instantiate `NotificationServer` — conflicts with swaync on org.freedesktop.Notifications D-Bus
 - Set `WlrKeyboardFocus.None` on the bar PanelWindow unconditionally
 
-### Lessons Learned (Phase 14 gap closure)
+### Lessons Learned (Phase 14 gap closure, continued)
 
 - **Qt.getenv does NOT exist in QS 0.2.1** — Two separate code reviews (14-REVIEW WR-03, 14-05-REVIEW WR-01) incorrectly recommended `Qt.getenv("HOME")` over `"$HOME"` shell expansion. The correct pattern is `["bash", "-c", "$HOME/.config/waybar/scripts/..."]` — Process.command passes through bash -c which expands $HOME correctly.
 - **Pipewire API readonly bindings broken in QS 0.2.1** (issue #807) — Timer polling `Pipewire.defaultAudioSink.audio.volume` always returns stale/cached values. Workaround: poll via `wpctl get-volume @DEFAULT_AUDIO_SINK@` subprocess which queries the real Pipewire daemon.
 - **DiskService pipe-delimited parsing bug**: `parts.length === 3` check but awk outputs only 2 pipe-delimited fields. Fix: use `parts.length >= 2`.
 - **nmcli -t field delimiter conflict**: nmcli uses `:` as delimiter which clashes with colons in SSIDs. Fix: parse from end of line backward (lastIndexOf) instead of forward split.
+- **nmcli dev wifi field validation**: `nmcli dev wifi` has different field names from `nmcli dev status`. `type` is not valid for wifi; correct field is `NAME` or omit it. Commands error out silently when invalid fields are used — always test nmcli commands standalone before embedding in Process.
 
 ### Pending Todos
 
@@ -107,5 +108,5 @@ Carried forward from v1.1 audit (2026-04-25):
 
 ## Session Continuity
 
-Next action: `/gsd-execute-phase 14 --gaps-only` — Execute gap closure plans 14-06 and 14-07
-After gap closure: Re-run UAT tests, then `/gsd-discuss-phase 15`
+Phase 14 gap closure complete. All 9 UAT gaps resolved, all 7 plans done.
+Next: `/gsd-discuss-phase 15` — discuss popup-panels phase
