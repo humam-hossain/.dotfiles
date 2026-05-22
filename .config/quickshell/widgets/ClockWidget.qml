@@ -13,4 +13,18 @@ Local.ModulePill {
         color: Colours.clockColor
         text: ClockService.text
     }
+
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        onClicked: {
+            var p = root.parent
+            while (p && typeof p.openPopup === 'undefined') {
+                p = p.parent
+            }
+            if (p) {
+                p.openPopup(p.calendarPopup)
+            }
+        }
+    }
 }
