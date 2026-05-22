@@ -36,7 +36,7 @@
 
 - [ ] **Phase 12: Bar Skeleton and Theme** — visible PanelWindow with Colours.qml, pill layout, multi-monitor, install script, Waybar parallel deploy
 - [ ] **Phase 13: Native API Widgets** — workspaces, volume, media, system tray; zero shell scripts; validates Hyprland/PipeWire/MPRIS/SystemTray APIs
-- [x] **Phase 14: Script-Backed Widgets** — full Waybar widget parity via existing scripts; CPU, memory, disk, network, ping, weather, clock, backlight, notifications, lock, power (gap closure in progress)
+- [x] **Phase 14: Script-Backed Widgets** — full Waybar widget parity via existing scripts; CPU, memory, disk, network, ping, weather, clock, backlight, notifications, lock, power (completed 2026-05-22)
 - [ ] **Phase 15: Popup Panels** — calendar, network panel, volume OSD, notification center toggle
 - [ ] **Phase 16: Animation Polish and Cutover** — Behavior blocks on all interactive modules and popups; pre-switch verification; Waybar disabled
 
