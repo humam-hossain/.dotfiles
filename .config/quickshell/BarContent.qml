@@ -12,6 +12,18 @@ PanelWindow {
     required property var modelData
     screen: modelData
 
+    property Item currentPopup: null
+
+    function openPopup(popup) {
+        if (currentPopup && currentPopup !== popup) {
+            currentPopup.visible = false
+            currentPopup.open = false
+        }
+        currentPopup = popup
+        popup.visible = true
+        popup.open = true
+    }
+
     height: 36
 
     color: "transparent"          // D-04
@@ -81,6 +93,16 @@ PanelWindow {
 
     Popups.VolumeOsd {
         id: volumeOsd
+        anchor.window: root
+    }
+
+    Popups.CalendarPopup {
+        id: calendarPopup
+        anchor.window: root
+    }
+
+    Popups.NetworkPopup {
+        id: networkPopup
         anchor.window: root
     }
 }
