@@ -20,7 +20,7 @@ Singleton {
 
     Process {
         id: proc
-        command: ["bash", "-c", Qt.getenv("HOME") + "/.config/waybar/scripts/network/ping_status.sh"]
+        command: ["bash", "-c", "$HOME/.config/waybar/scripts/network/ping_status.sh"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
