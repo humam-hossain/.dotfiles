@@ -6,8 +6,10 @@ import QtQuick
 Singleton {
     id: root
 
-    readonly property real cpuPercent:       0
-    readonly property string cpuPercentFormatted: " 0%"
+    property real cpuPercent:       0
+    property string cpuPercentFormatted: " 0%"
+    property int __prevIdle: -1
+    property int __prevTotal: -1
 
     Timer {
         interval: 3000
@@ -19,18 +21,32 @@ Singleton {
 
     Process {
         id: proc
-        command: ["bash", "-c", "awk '/^cpu / {print 100-($5/($2+$3+$4+$5))*100}' /proc/stat"]
+        command: ["bash", "-c", "awk '/^cpu / {print $5, $2+$3+$4+$5}' /proc/stat"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
-                    const val = parseFloat(this.text.trim())
-                    if (!isNaN(val)) {
-                        root.cpuPercent = Math.round(val * 10) / 10
-                        const pct = Math.round(val)
-                        root.cpuPercentFormatted = (pct < 10 ? "  " : pct < 100 ? " " : "") + pct + "%"
+                    const parts = this.text.trim().split(/\s+/)
+                    if (parts.length < 2) { root.cpuPercentFormatted = "err"; return }
+                    const idle = parseInt(parts[0], 10)
+                    const total = parseInt(parts[1], 10)
+                    if (isNaN(idle) || isNaN(total)) { root.cpuPercentFormatted = "err"; return }
+
+                    let pct
+                    if (root.__prevTotal < 0) {
+                        pct = (1 - idle / total) * 100
                     } else {
-                        root.cpuPercentFormatted = "err"
+                        const deltaIdle = idle - root.__prevIdle
+                        const deltaTotal = total - root.__prevTotal
+                        if (deltaTotal <= 0) { root.cpuPercentFormatted = "err"; return }
+                        pct = (1 - deltaIdle / deltaTotal) * 100
                     }
+
+                    root.__prevIdle = idle
+                    root.__prevTotal = total
+
+                    root.cpuPercent = Math.round(pct * 10) / 10
+                    const pctRounded = Math.round(pct)
+                    root.cpuPercentFormatted = (pctRounded < 10 ? "  " : pctRounded < 100 ? " " : "") + pctRounded + "%"
                 } catch (e) {
                     root.cpuPercentFormatted = "err"
                 }

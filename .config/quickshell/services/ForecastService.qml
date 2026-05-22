@@ -6,8 +6,8 @@ import QtQuick
 Singleton {
     id: root
 
-    readonly property string text:    "err"
-    readonly property string tooltip: ""
+    property string text:    "err"
+    property string tooltip: ""
 
     Timer {
         interval: 200000
@@ -19,7 +19,7 @@ Singleton {
 
     Process {
         id: proc
-        command: ["bash", "-c", Qt.getenv("HOME") + "/.config/waybar/scripts/weather/forcast_weather.sh"]
+        command: ["bash", "-c", "$HOME/.config/waybar/scripts/weather/forcast_weather.sh"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {

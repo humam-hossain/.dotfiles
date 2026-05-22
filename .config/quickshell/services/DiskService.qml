@@ -6,9 +6,9 @@ import QtQuick
 Singleton {
     id: root
 
-    readonly property string text:    "err"
-    readonly property string tooltip: "err"
-    readonly property int    percent: 0
+    property string text:    "err"
+    property string tooltip: "err"
+    property int    percent: 0
 
     Timer {
         interval: 30000

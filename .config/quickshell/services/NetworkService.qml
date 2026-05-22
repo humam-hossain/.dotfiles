@@ -6,10 +6,10 @@ import QtQuick
 Singleton {
     id: root
 
-    readonly property string ssid:         "No Network"
-    readonly property string iconText:     "󰤮"
-    readonly property bool   connected:    false
-    readonly property string tooltipText:  "Disconnected"
+    property string ssid:         "No Network"
+    property string iconText:     "󰤮"
+    property bool   connected:    false
+    property string tooltipText:  "Disconnected"
 
     Timer {
         interval: 10000

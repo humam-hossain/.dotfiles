@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls
 import Quickshell.Io
 import qs.theme
 import qs.services
@@ -18,7 +17,7 @@ Local.ModulePill {
             else if (pct >= 50) return Colours.warning
             else                return Colours.diskColor
         }
-        text: " " + DiskService.text
+        text: " " + DiskService.text
     }
 
     Process {
@@ -30,10 +29,13 @@ Local.ModulePill {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: nautilusProc.startDetached()
+        onClicked: {
+            try {
+                nautilusProc.startDetached()
+            } catch (e) {
+                console.warn("DiskWidget: failed to launch nautilus:", e)
+            }
+        }
     }
 
-    ToolTip.visible: hover.hovered
-    ToolTip.text: DiskService.tooltip
-    HoverHandler { id: hover }
 }

@@ -6,8 +6,8 @@ import QtQuick
 Singleton {
     id: root
 
-    readonly property int    count: 0
-    readonly property string formatted: ""
+    property int    count: 0
+    property string formatted: ""
 
     Timer {
         interval: 5000

@@ -7,16 +7,18 @@ import qs.services
 PopupWindow {
     id: root
 
-    WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-
     property int volumePercent: AudioService.volumePercent
     onVolumePercentChanged: show()
 
     visible: false
 
-    width:  150
-    height: 8
+    implicitWidth:  150
+    implicitHeight: 8
+
+    // Anchor below the bar (anchor.window set in BarContent.qml)
+    anchor.edges: Edges.Bottom
+    anchor.gravity: Edges.Bottom
+    anchor.margins.top: 2
 
     Rectangle {
         anchors.fill: parent

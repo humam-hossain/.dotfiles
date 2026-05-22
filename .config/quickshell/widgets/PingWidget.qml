@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls
 import Quickshell.Io
 import qs.theme
 import qs.services
@@ -23,7 +22,7 @@ Local.ModulePill {
         font.pixelSize: 14
         font.bold: true
         color: root.pingColor
-        text: "󰀶 " + PingService.text
+        text: PingService.text
     }
 
     Connections {
@@ -45,7 +44,4 @@ Local.ModulePill {
         onClicked: browserProc.startDetached()
     }
 
-    ToolTip.visible: hover.hovered
-    ToolTip.text: PingService.tooltip || "Ping: " + PingService.text
-    HoverHandler { id: hover }
 }

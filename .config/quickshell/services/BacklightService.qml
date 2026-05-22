@@ -6,8 +6,8 @@ import QtQuick
 Singleton {
     id: root
 
-    readonly property int    brightnessPercent: 0
-    readonly property string formatted:         "err"
+    property int    brightnessPercent: 0
+    property string formatted:         "err"
 
     property int _pendingDelta: 0
 

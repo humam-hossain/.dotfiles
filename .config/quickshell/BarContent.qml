@@ -12,6 +12,8 @@ PanelWindow {
     required property var modelData
     screen: modelData
 
+    height: 36
+
     color: "transparent"          // D-04
     exclusiveZone: height          // D-12 dynamic, content-driven
 
