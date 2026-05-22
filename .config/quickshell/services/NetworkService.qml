@@ -21,21 +21,28 @@ Singleton {
 
     Process {
         id: wifiProc
-        command: ["bash", "-c", "nmcli -t -f active,ssid,signal,type dev wifi | grep '^yes' | head -1"]
+        command: ["bash", "-c", "nmcli -t -f active,ssid,signal dev wifi | grep '^yes' | head -1"]
         stdout: StdioCollector {
             onStreamFinished: {
                 const line = this.text.trim()
                 if (line) {
-                    const parts = line.split(":")
-                    const sig    = parseInt(parts[2], 10) || 0
-                    root.ssid    = parts[1] || "WiFi"
-                    root.connected = true
-                    root.iconText = sig <= 20  ? "󰤯"
-                                 : sig <= 40  ? "󰤟"
-                                 : sig <= 60  ? "󰤢"
-                                 : sig <= 80  ? "󰤥"
-                                 :               "󰤨"
-                    root.tooltipText = "SSID: " + root.ssid + " (" + sig + "%)"
+                    const lastColon = line.lastIndexOf(":")
+                    const secondLast = line.lastIndexOf(":", lastColon - 1)
+                    if (secondLast >= 0) {
+                        const sig = parseInt(line.substring(secondLast + 1, lastColon), 10) || 0
+                        const firstColon = line.indexOf(":")
+                        const ssid  = line.substring(firstColon + 1, secondLast) || "WiFi"
+                        root.ssid      = ssid
+                        root.connected = true
+                        root.iconText  = sig <= 20  ? "󰤯"
+                                     : sig <= 40  ? "󰤟"
+                                     : sig <= 60  ? "󰤢"
+                                     : sig <= 80  ? "󰤥"
+                                     :               "󰤨"
+                        root.tooltipText = "SSID: " + ssid + " (" + sig + "%)"
+                    } else {
+                        ethProc.running = true
+                    }
                 } else {
                     ethProc.running = true
                 }
@@ -45,12 +52,12 @@ Singleton {
 
     Process {
         id: ethProc
-        command: ["bash", "-c", "nmcli -t -f device,type,state dev status | grep 'ethernet:connected' | head -1"]
+        command: ["bash", "-c", "nmcli -t -f device,type,state dev status | grep 'ethernet' | head -1"]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
                 const line = this.text.trim()
-                if (line) {
+                if (line && line.indexOf(":connected") >= 0) {
                     root.ssid      = "eth0"
                     root.connected = true
                     root.iconText  = "󰈀"
