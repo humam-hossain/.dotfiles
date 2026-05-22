@@ -94,8 +94,8 @@ Plans:
 - [x] 14-03-PLAN.md — BarContent wiring + Volume OSD popup (AUDIO-02, TRAY-02/03, all system requirements)
 - [x] 14-04-PLAN.md — Gap closure: add import QtQuick.Controls to 6 widgets (fixes quickshell load crash, all UAT blockers)
 - [x] 14-05-PLAN.md — Gap closure: fix service bugs, remove tooltips, fix icons, add error handling, volume OSD workaround
-- [ ] 14-06-PLAN.md — Gap closure: fix Qt.getenv regression + CPU/Disk "err" investigation (SYS-01, SYS-02, CUST-01, CUST-02, CUST-04)
-- [ ] 14-07-PLAN.md — Gap closure: fix Network nmcli parsing + Volume OSD wpctl polling (SYS-04, AUDIO-02)
+- [x] 14-06-PLAN.md — Gap closure: fix Qt.getenv regression + CPU/Disk "err" investigation (SYS-01, SYS-02, CUST-01, CUST-02, CUST-04)
+- [x] 14-07-PLAN.md — Gap closure: fix Network nmcli parsing + Volume OSD wpctl polling (SYS-04, AUDIO-02)
 **UI hint**: yes
 
 ### Phase 15: Popup Panels
@@ -139,6 +139,6 @@ Plans:
 | 11. Milestone Verification and Rollout Confidence | v1.1 | 2/2 | ✅ Complete | 2026-04-24 |
 | 12. Bar Skeleton and Theme | v1.2 | 0/2 | Not started | — |
 | 13. Native API Widgets | v1.2 | 3/3 | Complete   | 2026-05-04 |
-| 14. Script-Backed Widgets | v1.2 | 5/7 | Gap closure   | 2026-05-22 |
+| 14. Script-Backed Widgets | v1.2 | 7/7 | Complete   | 2026-05-22 |
 | 15. Popup Panels | v1.2 | 0/? | Not started | — |
 | 16. Animation Polish and Cutover | v1.2 | 0/? | Not started | — |

@@ -1,6 +1,6 @@
 # Cross-Platform Dotfiles
 
-**Last updated:** 2026-05-02 — v1.2 milestone (Waybar → Quickshell Migration) started.
+**Last updated:** 2026-05-22 — Phase 14 complete (script-backed widgets). v1.2 Waybar → Quickshell Migration.
 
 ## What This Is
 
@@ -28,6 +28,8 @@ A `.dotfiles` repo that ships a complete Hyprland desktop environment across Arc
 - README Machine Update Checklist and Post-Deploy Verification refreshed for stable rollout
 
 **Active:** v1.2 Waybar → Quickshell Migration (started 2026-05-02)
+
+Phase 14 (script-backed widgets) complete 2026-05-22 — all 14 widgets live via Process-backed services. 12/12 UAT tests passed, all 9 gap closures resolved.
 
 ## Core Value
 
