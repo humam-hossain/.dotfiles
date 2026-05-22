@@ -6,9 +6,9 @@ import QtQuick
 Singleton {
     id: root
 
-    readonly property string text:     "err"
-    readonly property string cssClass: "dead"
-    readonly property string tooltip:  ""
+    property string text:     "err"
+    property string cssClass: "dead"
+    property string tooltip:  ""
 
     Timer {
         interval: 5000
@@ -20,7 +20,7 @@ Singleton {
 
     Process {
         id: proc
-        command: ["bash", "-c", Qt.getenv("HOME") + "/.config/waybar/scripts/network/ping_status.sh"]
+        command: ["bash", "-c", "$HOME/.config/waybar/scripts/network/ping_status.sh"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {

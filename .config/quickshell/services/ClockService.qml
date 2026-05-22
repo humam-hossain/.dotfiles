@@ -5,9 +5,9 @@ import QtQuick
 Singleton {
     id: root
 
-    readonly property string text: Qt.formatDateTime(new Date(), "{:%a %Y-%m-%d %I:%M:%S %p}")
+    property string text: Qt.formatDateTime(new Date(), "ddd yyyy-MM-dd hh:mm:ss AP")
 
-    readonly property var rawDate: new Date()
+    property var rawDate: new Date()
 
     Timer {
         interval: 1000
@@ -15,7 +15,7 @@ Singleton {
         repeat: true
         triggeredOnStart: true
         onTriggered: {
-            root.text = Qt.formatDateTime(new Date(), "{:%a %Y-%m-%d %I:%M:%S %p}")
+            root.text = Qt.formatDateTime(new Date(), "ddd yyyy-MM-dd hh:mm:ss AP")
             root.rawDate = new Date()
         }
     }

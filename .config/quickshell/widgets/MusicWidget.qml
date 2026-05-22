@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls
 import qs.theme
 import qs.services
 import "../" as Local
@@ -36,13 +35,4 @@ Local.ModulePill {
         onClicked: { if (p) p.togglePlaying() }
     }
 
-    ToolTip.visible: clickArea.containsMouse && p
-    ToolTip.text: {
-        if (!p) return ""
-        const lines = []
-        if (p.trackArtist) lines.push(p.trackArtist)
-        if (p.trackTitle)  lines.push(p.trackTitle)
-        if (p.trackAlbum)  lines.push(p.trackAlbum)
-        return lines.join("\n")
-    }
 }

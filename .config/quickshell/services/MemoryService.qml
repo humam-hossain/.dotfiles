@@ -6,9 +6,9 @@ import QtQuick
 Singleton {
     id: root
 
-    readonly property string text:    "err"
-    readonly property string tooltip: ""
-    readonly property int    percent: 0
+    property string text:    "err"
+    property string tooltip: ""
+    property int    percent: 0
 
     Timer {
         interval: 5000
@@ -20,7 +20,7 @@ Singleton {
 
     Process {
         id: proc
-        command: ["bash", "-c", Qt.getenv("HOME") + "/.config/waybar/scripts/system/memory.sh"]
+        command: ["bash", "-c", "$HOME/.config/waybar/scripts/system/memory.sh"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {

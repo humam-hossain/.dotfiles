@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls
 import qs.theme
 import qs.services
 import "../" as Local
@@ -15,7 +14,4 @@ Local.ModulePill {
         text: WeatherService.text
     }
 
-    ToolTip.visible: hover.hovered
-    ToolTip.text: WeatherService.tooltip
-    HoverHandler { id: hover }
 }

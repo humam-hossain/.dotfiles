@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls
 import Quickshell.Io
 import qs.theme
 import qs.services
@@ -35,10 +34,13 @@ Local.ModulePill {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: nmtuiProc.startDetached()
+        onClicked: {
+            try {
+                nmtuiProc.startDetached()
+            } catch (e) {
+                console.warn("NetworkWidget: failed to launch nmtui:", e)
+            }
+        }
     }
 
-    ToolTip.visible: hover.hovered
-    ToolTip.text: NetworkService.tooltipText
-    HoverHandler { id: hover }
 }

@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Controls
 import Quickshell.Io
 import qs.theme
 import qs.services
@@ -59,6 +58,4 @@ Local.ModulePill {
         }
     }
 
-    ToolTip.visible: interactionArea.containsMouse
-    ToolTip.text: "Default sink: " + AudioService.sinkName + " — " + AudioService.volumePercent + "%" + (AudioService.muted ? " (muted)" : "")
 }

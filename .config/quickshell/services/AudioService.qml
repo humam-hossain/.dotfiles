@@ -7,10 +7,10 @@ Singleton {
     id: root
 
     readonly property var  defaultSink:    Pipewire.defaultAudioSink
-    readonly property real volume:         defaultSink && defaultSink.audio ? defaultSink.audio.volume : 0
-    readonly property bool muted:          defaultSink && defaultSink.audio ? defaultSink.audio.muted  : false
-    readonly property int  volumePercent:  Math.round(volume * 100)
-    readonly property string sinkName:     defaultSink ? (defaultSink.description || defaultSink.name || "Audio") : ""
+    property real volume:         0.0
+    property bool muted:          false
+    property int  volumePercent:  0
+    property string sinkName:     ""
 
     function setVolume(percent) {
         if (!defaultSink || !defaultSink.audio) return
@@ -24,5 +24,23 @@ Singleton {
 
     PwObjectTracker {
         objects: root.defaultSink ? [root.defaultSink] : []
+    }
+
+    // QS 0.2.1 workaround: Pipewire readonly binding propagation broken (issue #807)
+    // Polling Timer reads Pipewire API directly and updates writable properties.
+    // This triggers volumePercentChanged() downstream → VolumeOsd.show()
+    Timer {
+        interval: 500
+        running: true
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            const sink = Pipewire.defaultAudioSink
+            if (!sink || !sink.audio) return
+            root.volume = sink.audio.volume
+            root.muted = sink.audio.muted
+            root.volumePercent = Math.round(sink.audio.volume * 100)
+            root.sinkName = sink.description || sink.name || "Audio"
+        }
     }
 }
