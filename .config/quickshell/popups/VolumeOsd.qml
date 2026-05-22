@@ -32,7 +32,7 @@ PopupWindow {
                 top:    parent.top
                 bottom: parent.bottom
             }
-            width: parent.width * (AudioService.volume / 1.0)
+            width: parent.width * AudioService.volume
             radius: 4
             color: AudioService.muted ? Colours.critical : Colours.accent
             opacity: 0.85
