@@ -27,20 +27,40 @@ Singleton {
     }
 
     // QS 0.2.1 workaround: Pipewire readonly binding propagation broken (issue #807)
-    // Polling Timer reads Pipewire API directly and updates writable properties.
-    // This triggers volumePercentChanged() downstream → VolumeOsd.show()
+    // Poll via wpctl subprocess instead of reading Pipewire API directly.
+    // wpctl returns real daemon state, bypassing QS binding cache.
     Timer {
         interval: 500
         running: true
         repeat: true
         triggeredOnStart: true
         onTriggered: {
-            const sink = Pipewire.defaultAudioSink
-            if (!sink || !sink.audio) return
-            root.volume = sink.audio.volume
-            root.muted = sink.audio.muted
-            root.volumePercent = Math.round(sink.audio.volume * 100)
-            root.sinkName = sink.description || sink.name || "Audio"
+            wpctlProc.running = true
+        }
+    }
+
+    Process {
+        id: wpctlProc
+        command: ["bash", "-c", "wpctl get-volume @DEFAULT_AUDIO_SINK@"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const out = this.text.trim()
+                const match = out.match(/Volume:\s*([\d.]+)/)
+                if (!match) return
+                const vol = parseFloat(match[1])
+                if (isNaN(vol)) return
+
+                const rounded = Math.round(vol * 100) / 100
+                root.muted = out.indexOf("[MUTED]") >= 0
+
+                // Detect real volume change to trigger VolumeOsd
+                if (Math.abs(root.volume - rounded) > 0.001) {
+                    root.volume = rounded
+                    root.volumePercent = Math.round(rounded * 100)
+                    root.sinkName = "Default Audio Sink"
+                }
+            }
         }
     }
 }
