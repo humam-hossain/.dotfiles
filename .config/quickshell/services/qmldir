@@ -11,3 +11,4 @@ singleton ForecastService ForecastService.qml
 singleton ClockService ClockService.qml
 singleton BacklightService BacklightService.qml
 singleton NotificationService NotificationService.qml
+singleton CalendarService CalendarService.qml
