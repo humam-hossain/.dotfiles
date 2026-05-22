@@ -35,10 +35,12 @@ Local.ModulePill {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
         onClicked: {
-            try {
-                nmtuiProc.startDetached()
-            } catch (e) {
-                console.warn("NetworkWidget: failed to launch nmtui:", e)
+            var p = root.parent
+            while (p && typeof p.openPopup === 'undefined') {
+                p = p.parent
+            }
+            if (p) {
+                p.openPopup(p.networkPopup)
             }
         }
     }
