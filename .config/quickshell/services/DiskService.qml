@@ -20,7 +20,7 @@ Singleton {
 
     Process {
         id: proc
-        command: ["bash", "-c", "df -h / | awk 'NR==2 {printf \"%s/%s|%d\", $3, $2, $5}'"]
+        command: ["bash", "-c", "df -h / | awk 'NR==2 {printf \"%s/%s|%d\", $4, $2, $5}'"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
