@@ -7,6 +7,8 @@ import "../" as Local
 Local.ModulePill {
     id: root
 
+    signal popupRequested()
+
     Row {
         spacing: 4
         Text {
@@ -34,15 +36,7 @@ Local.ModulePill {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: {
-            var p = root.parent
-            while (p && typeof p.openPopup === 'undefined') {
-                p = p.parent
-            }
-            if (p) {
-                p.openPopup(p.popupNetwork)
-            }
-        }
+        onClicked: root.popupRequested()
     }
 
 }

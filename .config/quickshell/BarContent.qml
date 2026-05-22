@@ -70,7 +70,9 @@ PanelWindow {
             CpuWidget {}
             MemoryWidget {}
             DiskWidget {}
-            NetworkWidget {}
+            NetworkWidget {
+                onPopupRequested: root.openPopup(root.popupNetwork)
+            }
             PingWidget {}
         }
 
@@ -78,7 +80,9 @@ PanelWindow {
 
         BarGroup {
             WeatherWidget {}
-            ClockWidget {}
+            ClockWidget {
+                onPopupRequested: root.openPopup(root.popupCalendar)
+            }
             ForecastWidget {}
         }
 

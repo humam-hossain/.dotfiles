@@ -6,6 +6,8 @@ import "../" as Local
 Local.ModulePill {
     id: root
 
+    signal popupRequested()
+
     Text {
         font.family: "JetBrainsMono Nerd Font"
         font.pixelSize: 14
@@ -17,14 +19,6 @@ Local.ModulePill {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: {
-            var p = root.parent
-            while (p && typeof p.openPopup === 'undefined') {
-                p = p.parent
-            }
-            if (p) {
-                p.openPopup(p.popupCalendar)
-            }
-        }
+        onClicked: root.popupRequested()
     }
 }
