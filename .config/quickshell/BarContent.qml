@@ -12,7 +12,7 @@ PanelWindow {
     required property var modelData
     screen: modelData
 
-    property Item currentPopup: null
+    property var currentPopup: null
     property alias popupCalendar: calendarPopup
     property alias popupNetwork: networkPopup
 
