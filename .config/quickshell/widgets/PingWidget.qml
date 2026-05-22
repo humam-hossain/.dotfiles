@@ -41,7 +41,13 @@ Local.ModulePill {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: browserProc.startDetached()
+        onClicked: {
+            try {
+                browserProc.startDetached()
+            } catch (e) {
+                console.warn("PingWidget: failed to launch browser:", e)
+            }
+        }
     }
 
 }

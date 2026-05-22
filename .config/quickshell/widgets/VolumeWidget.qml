@@ -49,8 +49,15 @@ Local.ModulePill {
         cursorShape: Qt.PointingHandCursor
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         onClicked: mouse => {
-            if (mouse.button === Qt.LeftButton)       pavucontrolProc.startDetached()
-            else if (mouse.button === Qt.RightButton) AudioService.toggleMute()
+            if (mouse.button === Qt.LeftButton) {
+                try {
+                    pavucontrolProc.startDetached()
+                } catch (e) {
+                    console.warn("VolumeWidget: failed to launch pavucontrol:", e)
+                }
+            } else if (mouse.button === Qt.RightButton) {
+                AudioService.toggleMute()
+            }
         }
         onWheel: wheel => {
             const step = 5 * Math.sign(wheel.angleDelta.y)
