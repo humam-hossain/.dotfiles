@@ -21,7 +21,7 @@ Singleton {
 
     Process {
         id: proc
-        command: ["bash", "-c", "awk '/^cpu / {print $5, $2+$3+$4+$5}' /proc/stat"]
+        command: ["bash", "-c", "awk '/^cpu / {print $5, $2+$3+$4+$5}' /proc/stat || echo '0 0'"]
         stdout: StdioCollector {
             onStreamFinished: {
                 try {
