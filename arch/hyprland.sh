@@ -20,6 +20,11 @@ echo "[CONFIG] Hyprland config"
 mkdir -p ~/.config/hypr
 cp -rf .config/hypr/* ~/.config/hypr/
 
+echo "[CONFIG] graphical-session.target bootstrap (xdg-desktop-portal / screen-share fix)"
+mkdir -p ~/.config/systemd/user
+cp -f .config/systemd/user/hyprland-session.service ~/.config/systemd/user/
+systemctl --user daemon-reload || true
+
 echo "[CONFIG] Swaync config"
 mkdir -p ~/.config/swaync
 cp -rf .config/swaync/* ~/.config/swaync/

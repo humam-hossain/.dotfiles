@@ -1,0 +1,15 @@
+# Bootstraps graphical-session.target on a bare Hyprland session (started by
+# start-hyprland from TTY, with no systemd session manager / uwsm). The target
+# refuses *manual* start but may be pulled up as a dependency, which is what
+# Wants= does here. This satisfies xdg-desktop-portal's Requisite=graphical-
+# session.target, fixing screen share (ScreenCast). Started from hyprland.conf
+# via: exec-once = systemctl --user start hyprland-session.service
+[Unit]
+Description=Bootstrap graphical-session.target for bare Hyprland
+Wants=graphical-session.target
+Before=graphical-session.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/true
