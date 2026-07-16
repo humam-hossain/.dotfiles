@@ -18,7 +18,7 @@
     "tray",
     "custom/music",
     "pulseaudio",
-    "custom/backlight",
+    // "custom/backlight",
     "custom/lock",
     "custom/power",
     "custom/notification"
@@ -130,7 +130,7 @@
     "return-type": "json",
     "exec": "~/.config/waybar/scripts/system/memory.sh",
     "tooltip": true,
-    "on-click": "kitty -e btop" 
+    "on-click": "kitty -e btop"
   },
   "pulseaudio": {
     "format": "{icon} {volume}%",
@@ -144,12 +144,12 @@
     },
     "on-click": "pavucontrol"
   },
-  "custom/backlight": {
-    "format": " {}%",
-    "exec": "ddcutil getvcp 10 2>/dev/null | awk '/current value/ { gsub(/,/, \"\", $9); print $9 }' || echo 0",
-    "interval": 5,
-    "signal": 1
-  },
+  // "custom/backlight": {
+  //   "format": " {}%",
+  //   "exec": "ddcutil getvcp 10 2>/dev/null | awk '/current value/ { gsub(/,/, \"\", $9); print $9 }' || echo 0",
+  //   "interval": 5,
+  //   "signal": 1
+  // },
   "custom/notification": {
     "tooltip": false,
     "format": "{icon}",
