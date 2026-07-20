@@ -1,5 +1,15 @@
 # Quickshell Desktop Shell
 
+## Current Milestone: v0.1 Core Framework & Basic Bar
+
+**Goal:** Establish the Quickshell foundation and replace basic Waybar functionality.
+
+**Target features:**
+- Material theme system integration
+- Custom Quickshell shell (Waybar replacement)
+- Essential bar modules (workspaces, clock, tray, network)
+- Global shortcuts / IPC (foundation)
+
 ## What This Is
 
 A custom Quickshell (QML) desktop shell for the Hyprland Wayland session, built fresh and modeled on the `dots-hyprland` `ii` quickshell architecture. It replaces three separate tools — Waybar (status bar), rofi (launcher + clipboard manager), and swaync (notification daemon) — with one unified, themeable, runtime-configurable shell. It is part of the `.dotfiles` personal Linux desktop environment.
@@ -115,4 +125,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-20 after initialization*
+*Last updated: 2026-07-20 starting milestone v0.1*
