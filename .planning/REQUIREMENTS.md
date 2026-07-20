@@ -95,29 +95,29 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FWK-01 | — | Pending |
-| FWK-02 | — | Pending |
-| FWK-03 | — | Pending |
-| FWK-04 | — | Pending |
-| FWK-05 | — | Pending |
-| THM-01 | — | Pending |
-| THM-02 | — | Pending |
-| BAR-01 | — | Pending |
-| BAR-02 | — | Pending |
-| BAR-03 | — | Pending |
-| BAR-04 | — | Pending |
-| BAR-05 | — | Pending |
-| BAR-06 | — | Pending |
-| BAR-07 | — | Pending |
-| BAR-08 | — | Pending |
-| IPC-01 | — | Pending |
-| IPC-02 | — | Pending |
-| IPC-03 | — | Pending |
+| FWK-01 | Phase 1 | Pending |
+| FWK-02 | Phase 4 | Pending |
+| FWK-03 | Phase 1 | Pending |
+| FWK-04 | Phase 1 | Pending |
+| FWK-05 | Phase 1 | Pending |
+| THM-01 | Phase 1 | Pending |
+| THM-02 | Phase 1 | Pending |
+| BAR-01 | Phase 2 | Pending |
+| BAR-02 | Phase 2 | Pending |
+| BAR-03 | Phase 2 | Pending |
+| BAR-04 | Phase 2 | Pending |
+| BAR-05 | Phase 3 | Pending |
+| BAR-06 | Phase 3 | Pending |
+| BAR-07 | Phase 3 | Pending |
+| BAR-08 | Phase 3 | Pending |
+| IPC-01 | Phase 4 | Pending |
+| IPC-02 | Phase 4 | Pending |
+| IPC-03 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18 ⚠️
+- Mapped to phases: 18
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-07-20*
