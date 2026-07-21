@@ -12,8 +12,10 @@ LazyLoader {
     property Item hoverTarget
     default property Item contentItem
     property real popupBackgroundMargin: 0
+    // Optional pin so click can keep popup open without hover (default false: other consumers unchanged)
+    property bool forceActive: false
 
-    active: hoverTarget && hoverTarget.containsMouse
+    active: forceActive || (hoverTarget && hoverTarget.containsMouse)
 
     component: PanelWindow {
         id: popupWindow
