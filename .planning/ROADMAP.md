@@ -61,7 +61,22 @@
 4. Network module shows wifi SSID/signal or ethernet status, and correctly reflects disconnected state
 
 **Plans:**
-5/5 plans complete
+
+- [x] 02-01-PLAN.md
+
+8/8 plans executed
+
+8/8 plans executed
+
+- [x] 02-02-PLAN.md
+- [x] 02-03-PLAN.md
+- [x] 02-04-PLAN.md
+- [x] 02-05-PLAN.md
+- [x] 02-06-PLAN.md
+- [x] 02-07-PLAN.md
+- [x] 02-08-PLAN.md
+
+6/8 plans executed
 
 - [x] 02-01 Wave 0 live config assert harness
 - [x] 02-02 Dual-write Config.qml + live config.json (clock/tray/workspaces)
@@ -117,7 +132,7 @@ graph LR
 | Phase | Name | Status | Date |
 |-------|------|--------|------|
 | 1 | Shell Foundation & Theme | Complete | 2026-07-21 |
-| 2 | Core Bar Modules | Plans complete (UAT pending) | 2026-07-21 |
+| 2 | Core Bar Modules | In Progress| 2026-07-21 |
 | 3 | System & Audio Modules | Not started | — |
 | 4 | IPC, Keybinds & Integration | Not started | — |
 

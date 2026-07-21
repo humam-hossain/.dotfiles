@@ -4,15 +4,15 @@ milestone: v0.1
 milestone_name: Core Framework & Basic Bar
 current_phase: 02
 current_phase_name: core-bar-modules
-status: plans_complete
+status: executing
 stopped_at: Phase 2 plans complete — ready for human UAT / verify-work
-last_updated: "2026-07-21T18:00:00.000Z"
-last_activity: 2026-07-21
-last_activity_desc: Phase 02 all 5 plans complete (automated gates green)
+last_updated: "2026-07-21T18:22:14.702Z"
+last_activity: 2026-07-22
+last_activity_desc: Phase 02 execution started
 progress:
-  total_phases: 4
+  total_phases: 2
   completed_phases: 1
-  total_plans: 9
+  total_plans: 12
   completed_plans: 9
 ---
 
@@ -20,10 +20,10 @@ progress:
 
 ## Current Position
 
-Phase: 02 (core-bar-modules) — PLANS COMPLETE
-Plan: 5 of 5
-Status: All plans executed; automated validation green; human UAT pending
-Last activity: 2026-07-21 — Phase 02 plan 02-05 closed (nyquist_compliant)
+Phase: 02 (core-bar-modules) — EXECUTING
+Plan: 1 of 8
+Status: Executing Phase 02
+Last activity: 2026-07-22 — Phase 02 execution started
 
 Progress: [█████░░░░░░░░░░░░░░░] 1/4 phases complete · Phase 2 plans 5/5
 
@@ -38,7 +38,7 @@ Progress: [█████░░░░░░░░░░░░░░░] 1/4 pha
 See: .planning/PROJECT.md (updated 2026-07-21)
 
 **Core value:** Reproduce every current Waybar module's functionality before cutover — while gaining a unified, themeable shell.
-**Current focus:** Phase 02 human UAT (BAR-01..04) then Phase 3
+**Current focus:** Phase 02 — core-bar-modules
 
 ## Accumulated Context
 
