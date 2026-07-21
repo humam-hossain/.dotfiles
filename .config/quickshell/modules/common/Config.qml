@@ -108,13 +108,15 @@ Singleton {
                 property bool extraBackgroundTint: true
                 property int fakeScreenRounding: 2 // 0: None | 1: Always | 2: When not fullscreen
                 property JsonObject fonts: JsonObject {
-                    property string main: "Google Sans Flex"
-                    property string numbers: "Google Sans Flex"
-                    property string title: "Google Sans Flex"
-                    property string iconNerd: "JetBrains Mono NF"
-                    property string monospace: "JetBrains Mono NF"
-                    property string reading: "Readex Pro"
-                    property string expressive: "Space Grotesk"
+                    // Fallbacks for hosts without Google Sans Flex / Readex / Space Grotesk.
+                    // Material Symbols Rounded comes from ttf-material-symbols-variable (Appearance.iconMaterial).
+                    property string main: "Noto Sans"
+                    property string numbers: "Noto Sans"
+                    property string title: "Noto Sans"
+                    property string iconNerd: "JetBrainsMono Nerd Font"
+                    property string monospace: "JetBrainsMono Nerd Font"
+                    property string reading: "Noto Sans"
+                    property string expressive: "Noto Sans"
                 }
                 property JsonObject transparency: JsonObject {
                     property bool enable: false

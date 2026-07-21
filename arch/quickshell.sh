@@ -16,6 +16,8 @@ PACKAGES=(
   i2c-tools
   python-materialyoucolor-git
   syntax-highlighting  # org.kde.syntaxhighlighting QML bindings (optional for AI code blocks)
+  # Material Symbols Rounded — required for MaterialSymbol.qml bar/chrome icons
+  ttf-material-symbols-variable
 )
 
 install_packages() {
