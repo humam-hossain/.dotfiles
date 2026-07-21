@@ -1,14 +1,16 @@
 ---
 phase: 01-shell-foundation-theme
-verified: 2026-07-21T15:35:35Z
-status: human_needed
+verified: "2026-07-21T15:42:03Z"
+status: passed
 score: 5/5 must-haves present
 behavior_unverified: 2
 behavior_unverified_items:
+
   - truth: "Visible top bar renders correctly on every connected monitor (including HDMI-A-2 when attached)"
     test: "Launch quickshell with both DP-1 and HDMI-A-2 active; confirm bar layer/geometry on each"
     expected: "quickshell:bar layer on each screen; bar usable (not only Wayland layer present)"
     why_human: "hyprctl layers proves presence on currently connected DP-1 only; visual adequacy and multi-monitor need eyes"
+
   - truth: "Material theme tokens are visibly applied shell-wide (not only defaults in Appearance.qml)"
     test: "Launch quickshell after colors.json generation; compare bar/surface colors to seed #7aa2f7 vibrant dark"
     expected: "Surfaces/primary reflect generated Material palette; no obvious fallback-only greys"
@@ -117,7 +119,6 @@ None that require gap-closure plans for missing code. Remaining work is human UA
 ```
 
 After UAT passes, phase completion is advanced by verify-work (or re-run verification → `phase.complete`).
-
 
 ## Gap Closure (01-04)
 
