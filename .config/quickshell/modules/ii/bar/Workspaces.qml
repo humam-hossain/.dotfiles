@@ -30,6 +30,8 @@ ButtonMouseArea {
     property real workspaceIconSizeShrinked: workspaceButtonWidth * 0.55
     property real workspaceIconOpacityShrinked: 1
     property real workspaceIconMarginShrinked: -4
+    // Consumed by BarContent middleCenterGroup: padding: workspacesWidget.widgetPadding
+    property real widgetPadding: 0
     property int workspaceIndexInGroup: (monitor?.activeWorkspace?.id - 1) % wsModel.shownCount
     property real specialTextSize: workspaceButtonWidth * 0.5
 
@@ -54,7 +56,8 @@ ButtonMouseArea {
     }
 
     function switchWorkspaceToHovered() {
-        Hyprland.dispatch(`hl.dsp.focus({workspace = ${wsModel.getWorkspaceIdAt(hoverIndex)}})`);
+        // Stock Hyprland dispatcher (hl.dsp.focus requires a plugin we do not ship)
+        Hyprland.dispatch(`workspace ${wsModel.getWorkspaceIdAt(hoverIndex)}`);
     }
     onPressed: mouse => {
         if (mouse.button == Qt.LeftButton)
@@ -64,9 +67,9 @@ ButtonMouseArea {
     }
     onWheel: event => {
         if (event.angleDelta.y < 0)
-            Hyprland.dispatch(`hl.dsp.focus({workspace = "r+1"})`);
+            Hyprland.dispatch("workspace r+1");
         else if (event.angleDelta.y > 0)
-            Hyprland.dispatch(`hl.dsp.focus({workspace = "r-1"})`);
+            Hyprland.dispatch("workspace r-1");
     }
 
     // Indications
