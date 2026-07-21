@@ -89,17 +89,11 @@ Item { // Bar content region
                 colBackground: barLeftSideMouseArea.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
             }
 
-            ActiveWindow {
-                Layout.leftMargin: 10 + (leftSidebarButton.visible ? 0 : Appearance.rounding.screenRounding)
-                Layout.rightMargin: Appearance.rounding.screenRounding
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                visible: root.useShortenedForm === 0
-            }
-
+            // ActiveWindow removed — UAT G-02-7a (space)
             Workspaces {
                 id: workspacesWidget
                 Layout.fillHeight: true
+                Layout.leftMargin: 10
                 Layout.rightMargin: 4
                 MouseArea {
                     // Right-click to toggle overview
