@@ -23,6 +23,7 @@
 **Requirements:** FWK-01, FWK-03, FWK-04, FWK-05, THM-01, THM-02
 
 **Success Criteria:**
+
 1. Running `quickshell` renders a top bar on every connected monitor (DP-1, HDMI-A-2)
 2. Directory structure matches dots-hyprland conventions with modules/, services/, scripts/, defaults/, assets/ and qmldir manifests
 3. shell.qml loads a panel family via PanelLoader (at least one family defined)
@@ -36,6 +37,7 @@
 **Requirements:** BAR-01, BAR-02, BAR-03, BAR-04
 
 **Success Criteria:**
+
 1. User can see Hyprland workspace indicators and click them to switch workspaces
 2. Current date and time display in the bar, updating in real-time
 3. System tray icons from running applications (e.g., Discord, Steam, nm-applet) are visible and interactive
@@ -48,6 +50,7 @@
 **Requirements:** BAR-05, BAR-06, BAR-07, BAR-08
 
 **Success Criteria:**
+
 1. CPU utilization percentage updates in real-time in the bar
 2. RAM usage (used/total or percentage) updates in real-time in the bar
 3. Disk space information for the root partition is visible in the bar
@@ -60,6 +63,7 @@
 **Requirements:** FWK-02, IPC-01, IPC-02, IPC-03
 
 **Success Criteria:**
+
 1. Shell listens on an IPC socket and responds to commands (at minimum: show, hide, reload)
 2. A Hyprland keybind (e.g., SUPER+B) toggles bar visibility via the IPC socket
 3. Shell reloads gracefully without losing tray connections or requiring a full restart
