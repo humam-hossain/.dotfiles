@@ -464,7 +464,7 @@ Singleton {
             }
 
             property JsonObject tray: JsonObject {
-                property bool monochromeIcons: true
+                property bool monochromeIcons: false
                 property bool showItemId: false
                 property bool invertPinnedItems: true // Makes the below a whitelist for the tray and blacklist for the pinned area
                 property list<var> pinnedItems: [ "Fcitx" ]
@@ -565,7 +565,7 @@ Singleton {
 
             property JsonObject time: JsonObject {
                 // https://doc.qt.io/qt-6/qtime.html#toString
-                property string format: "hh:mm"
+                property string format: "ddd yyyy-MM-dd hh:mm:ss AP"
                 property string shortDateFormat: "dd/MM"
                 property string dateWithYearFormat: "dd/MM/yyyy"
                 property string dateFormat: "ddd, dd/MM"
@@ -575,7 +575,7 @@ Singleton {
                     property int focus: 1500
                     property int longBreak: 900
                 }
-                property bool secondPrecision: false
+                property bool secondPrecision: true
             }
 
             property JsonObject updates: JsonObject {
