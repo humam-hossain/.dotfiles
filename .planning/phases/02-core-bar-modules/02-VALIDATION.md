@@ -5,7 +5,7 @@ slug: core-bar-modules
 # audit-milestone §5.5 distinguishes NOT-VALIDATED (draft) from PARTIAL (validated + nyquist_compliant: false) (#2117)
 status: draft
 nyquist_compliant: false
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-07-21
 ---
 
@@ -23,7 +23,7 @@ created: 2026-07-21
 | **Framework** | Manual QML validation (quickshell runtime) + shell smoke (same as Phase 1) |
 | **Config file** | none — no unit test framework for QML |
 | **Quick run command** | `timeout 4 quickshell 2>&1 \| rg 'Configuration Loaded\|Error\|WARN.*hl\\.dsp'` |
-| **Full suite command** | smoke launch + live config key asserts + `hyprctl layers` + human UAT |
+| **Full suite command** | smoke launch + `python3 scripts/phase02-config-assert.py` + `hyprctl layers` + human UAT |
 | **Estimated runtime** | ~10–30 seconds (smoke + config asserts); UAT separate |
 
 ---
@@ -31,7 +31,7 @@ created: 2026-07-21
 ## Sampling Rate
 
 - **After every task commit:** Run `timeout 4 quickshell 2>&1 | rg 'Configuration Loaded|Error|hl\.dsp'`
-- **After every plan wave:** Run smoke + python live-config asserts for `time.*` / `tray.monochromeIcons` / `bar.workspaces` / `bar.weather.enable`
+- **After every plan wave:** Run smoke + `python3 scripts/phase02-config-assert.py`
 - **Before `/gsd:verify-work`:** Full smoke green + UAT checklist for BAR-01..04
 - **Max feedback latency:** ~30 seconds for automated smoke/asserts
 
@@ -41,46 +41,34 @@ created: 2026-07-21
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | 01+ | 0–N | BAR-01 | T-02-01 / — | No new Process injection | smoke + static | `rg -n 'workspace \$\{|workspace r' .config/quickshell/modules/ii/bar/Workspaces.qml` | ✅ source | ⬜ pending |
-| TBD | 01+ | 0–N | BAR-01 | — | Config keys shown/showAppIcons/monochrome | config assert | python live `bar.workspaces` dump | ❌ Wave 0 | ⬜ pending |
-| TBD | 01+ | 0–N | BAR-02 | — | format has ss + AP; secondPrecision | config assert | python live `time.*` | ❌ Wave 0 | ⬜ pending |
-| TBD | 01+ | 0–N | BAR-02 | — | showDate false; ClockWidgetPopup only | static | `rg -n 'showDate|ClockWidgetPopup|calendar.google' BarContent/ClockWidget` | ✅ after implement | ⬜ pending |
-| TBD | 01+ | 0–N | BAR-03 | — | monochromeIcons false; pin policy | config assert | python live `tray.*` | ❌ Wave 0 | ⬜ pending |
-| TBD | 01+ | 0–N | BAR-04 | T-02-01 | Network.materialSymbol only; no bash -c SSID | static + manual | `rg -n 'Network.materialSymbol' BarContent.qml` | ✅ | ⬜ pending |
-| TBD | layout | — | D-15/D-19 | — | L→R module + indicators order | static + UAT | child order + visual checklist | ✅ after implement | ⬜ pending |
-| TBD | smoke | — | Smoke | T-02-04 | Configuration Loaded; valid JSON config | smoke | `timeout 4 quickshell 2>&1 \| rg 'Configuration Loaded'` | ✅ Phase 1 pattern | ⬜ pending |
+| 02-01-01 | 02-01 | 0 | Wave 0 | — | Live config assert harness | config assert | `python3 scripts/phase02-config-assert.py` | ✅ script | ⬜ red until 02-02 |
+| 02-01-02 | 02-01 | 0 | Wave 0 | — | VALIDATION wiring | static | `rg -n phase02-config-assert 02-VALIDATION.md` | ✅ | ✅ green |
+| 02-02-01 / 02-02-02 | 02-02 | 2 | BAR-01 / BAR-02 / BAR-03 | T-02-03 | Dual-write time/tray/workspaces/weather keys | config assert | `python3 scripts/phase02-config-assert.py` | ✅ after 02-02 | ⬜ pending |
+| 02-03-01 / 02-03-02 | 02-03 | 3 | BAR-01 / BAR-02 | — | Left/center D-15; showDate false; ClockWidgetPopup only | static + smoke | `rg -n 'showDate|ClockWidgetPopup|Workspaces' BarContent.qml` | ✅ after implement | ⬜ pending |
+| 02-04-01 / 02-04-02 | 02-04 | 4 | BAR-03 / BAR-04 | T-02-01 | Right LTR + D-19 indicators; Network.materialSymbol only | static + smoke | `rg -n 'Network.materialSymbol\|SysTray\|volume_off' BarContent.qml` | ✅ after implement | ⬜ pending |
+| 02-05-01 | 02-05 | 5 | BAR-01..04 | T-02-01 / T-02-11 | Stock workspace dispatch; no plugin hl.dsp; layout markers | static | `rg -n 'workspace \$\{|workspace r' Workspaces.qml` | ✅ source | ⬜ pending |
+| 02-05-02 | 02-05 | 5 | Smoke | T-02-04 | Configuration Loaded; valid JSON config | smoke + assert | `timeout 4 quickshell 2>&1 \| rg 'Configuration Loaded'`; `python3 scripts/phase02-config-assert.py` | ✅ Phase 1 pattern | ⬜ pending |
+| 02-03/04 UAT | layout | — | D-15/D-19 | — | L→R module + indicators order | static + UAT | child order + visual checklist | ✅ after implement | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
-*Task IDs refined by planner when PLAN.md files are written.*
+*Task IDs map to plans 02-01..02-05.*
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] Plan-inline or `scripts/` **live config assert** snippet (python dump of `~/.config/illogical-impulse/config.json` keys: workspaces shown/showAppIcons/monochromeIcons, weather.enable, time.format/secondPrecision, tray.monochromeIcons/invertPinnedItems/pinnedItems)
+- [x] Plan-inline or `scripts/` **live config assert** — `python3 scripts/phase02-config-assert.py` (keys: workspaces shown/showAppIcons/monochromeIcons, weather.enable, time.format/secondPrecision, tray.monochromeIcons/invertPinnedItems/pinnedItems)
 - [ ] Phase 2 UAT checklist (during verify/UAT, not blocking plan) covering D-15 order, clock string, tray color, network icon + sidebar SSID
-- [ ] Framework install: **none** — reuse Phase 1 smoke pattern
+- [x] Framework install: **none** — reuse Phase 1 smoke pattern
 
-### Suggested automated config assert (Wave 0 / per-wave)
+### Automated config assert (Wave 0 / per-wave)
 
 ```bash
-python3 - <<'PY'
-import json
-from pathlib import Path
-c = json.loads(Path.home().joinpath(".config/illogical-impulse/config.json").read_text())
-assert c["bar"]["workspaces"]["shown"] == 10
-assert c["bar"]["workspaces"]["showAppIcons"] is True
-assert c["bar"]["workspaces"]["monochromeIcons"] is True
-assert c["bar"]["weather"]["enable"] is False
-assert c["time"]["secondPrecision"] is True
-assert "ss" in c["time"]["format"] and ("AP" in c["time"]["format"] or "ap" in c["time"]["format"])
-assert c["tray"]["monochromeIcons"] is False
-assert c["tray"]["invertPinnedItems"] is True
-assert "Fcitx" in c["tray"]["pinnedItems"]
-print("config asserts OK")
-PY
+python3 scripts/phase02-config-assert.py
 ```
+
+Expected until plan 02-02 dual-write: non-zero exit (red). After 02-02: prints `config asserts OK` and exits 0.
 
 ---
 
