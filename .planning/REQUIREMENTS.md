@@ -13,7 +13,7 @@ Requirements for milestone v0.1: Core Framework & Basic Bar.
 - [ ] **FWK-02**: User sees Quickshell auto-start via Hyprland exec-once at login
 - [x] **FWK-03**: Shell uses service-singleton pattern (services expose state, widgets render it)
 - [x] **FWK-04**: Shell entry point (shell.qml) loads panel families via PanelLoader architecture
-- [ ] **FWK-05**: Shell directory structure follows dots-hyprland conventions (modules/, services/, scripts/, defaults/, assets/, qmldir manifests)
+- [x] **FWK-05**: Shell directory structure follows dots-hyprland conventions (modules/, services/, scripts/, defaults/, assets/, qmldir manifests)
 
 ### Theme
 
@@ -99,7 +99,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FWK-02 | Phase 4 | Pending |
 | FWK-03 | Phase 1 | Complete |
 | FWK-04 | Phase 1 | Complete |
-| FWK-05 | Phase 1 | Pending |
+| FWK-05 | Phase 1 | Complete |
 | THM-01 | Phase 1 | Complete |
 | THM-02 | Phase 1 | Complete |
 | BAR-01 | Phase 2 | Pending |
