@@ -2,22 +2,26 @@
 phase: 01-shell-foundation-theme
 status: issues
 depth: standard
-reviewed: 2026-07-21T11:56:17Z
-reviewer: orchestrator-inline (gsd-code-reviewer rate-limited)
+reviewed: 2026-07-21T12:50:00Z
+reviewer: orchestrator-inline (gap-closure re-review after 01-04)
 scope:
+  - arch/fonts.sh
   - arch/quickshell.sh
-  - .config/quickshell/modules/ii/sidebarLeft/aiChat/MessageCodeBlock.qml
-  - .config/quickshell/modules/common/widgets/shapes/**
-  - .config/quickshell/shell.qml (entry, wholesale)
+  - .config/quickshell/modules/common/Config.qml
+  - .config/quickshell/modules/common/Appearance.qml
+  - .config/quickshell/modules/ii/bar/Workspaces.qml
+  - .config/quickshell/modules/ii/notificationPopup/NotificationPopup.qml
+  - .config/quickshell/modules/settings/InterfaceConfig.qml
+  - prior: shapes, MessageCodeBlock, symlink_config
 summary:
   critical: 0
-  warning: 3
+  warning: 2
   info: 2
 ---
 
-# Phase 01 Code Review
+# Phase 01 Code Review (post gap-closure 01-04)
 
-**Scope:** Intentional phase changes (provisioning, hard-error fixes, entry wiring). Wholesale dots-hyprland tree reviewed only where phase-introduced risk is clear.
+**Scope:** Gap-closure fixes for G-01-1 plus prior phase intentional changes.
 
 **Status:** issues (advisory — no Critical)
 
@@ -25,34 +29,32 @@ summary:
 
 ### Warning
 
-1. **`arch/quickshell.sh` — `symlink_config` uses `rm -rf "$QS_DST"`**
-   - **Risk:** If `QS_DST` were ever a real directory with local edits (not a symlink), this deletes it without backup.
-   - **Mitigation present:** Script documents single-directory symlink pattern; current home path is already a symlink to the repo.
-   - **Suggestion:** Guard with `if [ -L "$QS_DST" ] || [ ! -e "$QS_DST" ]; then ...; else die "refusing to rm non-symlink"; fi`.
+1. **`arch/quickshell.sh` — `symlink_config` uses `rm -rf "$QS_DST"`** (pre-existing)
+   - **Risk:** Non-symlink destination would be deleted without backup.
+   - **Suggestion:** Guard with `if [ -L "$QS_DST" ] || [ ! -e "$QS_DST" ]; then ...; else die; fi`.
 
-2. **`arch/quickshell.sh` — still installs `ddcutil` / configures i2c**
-   - **Risk:** PROJECT.md documents ddcutil DDC/CI polling as iGPU crash risk; brightness is out of scope.
-   - **Note:** Pre-existing provisioning intent for ddcutil group/module; Phase 1 plans did not remove it. Shell must not poll ddcutil (enforced by plan prohibitions, not by package absence).
-   - **Suggestion:** Later phase or explicit decision to drop ddcutil/i2c from PACKAGES if never used.
-
-3. **`MessageCodeBlock.qml` — save-to-file still shells out with interpolated content**
-   - **Location:** save button `onClicked` → `bash -c` with `echo '…' > path`
-   - **Risk:** Relies on `StringUtils.shellSingleQuoteEscape`; path/`segmentLang` less controlled. Pre-existing wholesale code; phase only removed SyntaxHighlighter import.
-   - **Suggestion:** Prefer `FileView` / Qt file APIs without shell when AI chat is re-enabled.
+2. **Material Symbols system package not installed via pacman** (this session)
+   - **Mitigation:** User-local fonts under `~/.local/share/fonts/MaterialSymbols` + scripts install `ttf-material-symbols-variable` on next `arch/fonts.sh` / `arch/quickshell.sh` with sudo.
+   - **Risk:** New machines without user fonts or package still hit missing icons until scripts run.
 
 ### Info
 
-1. **`generate_theme` SCSS→JSON converter** — robust enough for Material tokens; fails if `materialyoucolor` missing (correct fail-closed under `set -e`). System package install needs sudo/`yay` once.
+1. **Config font defaults changed** from Google Sans Flex / Readex / Space Grotesk → Noto Sans + JetBrainsMono Nerd Font. Live `~/.config/illogical-impulse/config.json` also updated (outside repo) so persisted override matches.
 
-2. **`Appearance.qml` lacks `m3primaryDim`** while generator emits `primary_dim` → MaterialThemeLoader warns at runtime; non-fatal. Add property or filter unknown keys in loader later.
+2. **`hl.dsp.focus` → stock `workspace`** is intentional host integration (no Hyprland plugins). Upstream dots-hyprland may reintroduce plugin dispatch on wholesale updates — re-apply if needed.
 
-## Positive
+### Gap-closure changes (clean)
 
-- Shapes module vendored completely (hard-crash root cause fixed).
-- AI code blocks no longer hard-block shell load without KDE syntax-highlighting.
-- `generate_theme` produces snake_case JSON matching MaterialThemeLoader/matugen contract.
-- Entry `shell.qml` correctly calls `MaterialThemeLoader.reapplyTheme()` and loads panel families via LazyLoader.
+- `widgetPadding: 0` on Workspaces — fixes BarContent undefined double.
+- `notifications.monitor` alignment — NotificationPopup + InterfaceConfig.
+- Appearance `m3*Dim` + palette key props — clears MaterialThemeLoader assign warnings.
+- Font package lines in `arch/fonts.sh` / `arch/quickshell.sh` — correct dep for MaterialSymbol glyphs.
+
+### Positive
+
+- Smoke launch after fixes: `Configuration Loaded`; no m3primaryDim / forceMonitor / undefined padding / hl.dsp.focus warnings.
+- Gap plan commits atomic (01-04 tasks).
 
 ## Recommendation
 
-No Critical blockers for Phase 1 ship. Consider addressing Warning #1 before broader provisioning reuse. Optional: `/gsd-code-review 1 --fix` when rate limit resets for automated fixes.
+No Critical blockers. Re-run human UAT (`/gsd-verify-work 1`) for visual bar quality. Optional: `/gsd-code-review 1 --fix` for Warning #1 only.

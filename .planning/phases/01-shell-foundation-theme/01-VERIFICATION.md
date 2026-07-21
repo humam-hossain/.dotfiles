@@ -1,6 +1,6 @@
 ---
 phase: 01-shell-foundation-theme
-verified: 2026-07-21T11:56:17Z
+verified: 2026-07-21T15:35:35Z
 status: human_needed
 score: 5/5 must-haves present
 behavior_unverified: 2
@@ -46,7 +46,7 @@ next_command: "/gsd-verify-work 1"
 | `.config/quickshell/shell.qml` | Entry with family loaders + theme reapply | ✓ EXISTS + SUBSTANTIVE | MaterialThemeLoader.reapplyTheme(); PanelFamilyLoader ii/waffle |
 | `.config/quickshell/panelFamilies/IllogicalImpulseFamily.qml` | Default panel family | ✓ EXISTS + SUBSTANTIVE | Loads Bar, Background, sidebars, etc. |
 | `.config/quickshell/services/MaterialThemeLoader.qml` | Theme singleton | ✓ EXISTS + SUBSTANTIVE | FileView on colors.json path |
-| `.config/quickshell/modules/common/Appearance.qml` | m3 token properties | ✓ EXISTS + SUBSTANTIVE | m3primary, m3surface, … (missing m3primaryDim) |
+| `.config/quickshell/modules/common/Appearance.qml` | m3 token properties | ✓ EXISTS + SUBSTANTIVE | m3primary, m3surface, m3primaryDim, … (gap 01-04 added *Dim) |
 | `arch/quickshell.sh` | Install + theme gen | ✓ EXISTS + SUBSTANTIVE | yay, generate_theme, symlink |
 | shapes module | MaterialShape dependency | ✓ EXISTS + SUBSTANTIVE | Vendored ShapeCanvas + material-shapes.js |
 
@@ -61,7 +61,7 @@ next_command: "/gsd-verify-work 1"
 | IllogicalImpulseFamily | Bar | PanelLoader component Bar | ✓ WIRED | family file PanelLoader Bar {} |
 | Bar | monitors | Variants model Quickshell.screens | ✓ WIRED | Bar.qml:17-25 |
 | generate_theme | colors.json | python pipeline | ✓ WIRED | arch/quickshell.sh generate_theme |
-| MaterialThemeLoader | Appearance.m3colors | applyColors JSON parse | ✓ WIRED | warns on unknown m3primaryDim |
+| MaterialThemeLoader | Appearance.m3colors | applyColors JSON parse | ✓ WIRED | *Dim props present post 01-04; no assign warnings |
 
 **Wiring:** 6/6 connections verified
 
@@ -74,7 +74,7 @@ next_command: "/gsd-verify-work 1"
 | FWK-04: PanelLoader / panel families | ✓ SATISFIED | shell + panelFamilies + IllogicalImpulseFamily |
 | FWK-05: Directory structure conventions | ✓ SATISFIED | modules/, services/, scripts/, defaults/, assets/, panelFamilies |
 | THM-01: Material scheme via MaterialThemeLoader | ⚠️ NEEDS HUMAN | Pipeline + reapplyTheme wired; visual palette check |
-| THM-02: Theme tokens as QML properties | ✓ SATISFIED | Appearance.m3colors properties; partial key map gap (primaryDim) non-blocking |
+| THM-02: Theme tokens as QML properties | ✓ SATISFIED | Appearance.m3colors including *Dim after 01-04 gap closure |
 
 **Coverage:** 4/6 fully automated; 2 need human visual confirmation (not code gaps)
 
@@ -117,3 +117,19 @@ None that require gap-closure plans for missing code. Remaining work is human UA
 ```
 
 After UAT passes, phase completion is advanced by verify-work (or re-run verification → `phase.complete`).
+
+
+## Gap Closure (01-04)
+
+Executed 2026-07-21 after UAT G-01-1:
+
+| Fix | Status |
+|-----|--------|
+| Material Symbols + font fallbacks | Done (user-local fonts + script packages) |
+| Workspaces.widgetPadding + stock workspace dispatch | Done |
+| notifications.monitor key alignment | Done |
+| Appearance m3*Dim properties | Done |
+
+Automated re-check: `Configuration Loaded`; gap-related warnings absent.
+
+**Still requires human:** visual bar quality (icons, layout, multi-monitor) via `/gsd-verify-work 1`.
