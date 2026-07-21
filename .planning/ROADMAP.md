@@ -14,6 +14,13 @@
 | 3 | System & Audio Modules | Add system metrics and audio control modules | BAR-05, BAR-06, BAR-07, BAR-08 | 4 |
 | 4 | IPC, Keybinds & Integration | Wire up IPC socket, Hyprland keybinds, graceful reload, and auto-start | FWK-02, IPC-01, IPC-02, IPC-03 | 5 |
 
+### Phase checklist
+
+- [x] **Phase 1: Shell Foundation & Theme** — Complete 2026-07-21
+- [ ] **Phase 2: Core Bar Modules**
+- [ ] **Phase 3: System & Audio Modules**
+- [ ] **Phase 4: IPC, Keybinds & Integration**
+
 ## Phase Details
 
 ### Phase 1: Shell Foundation & Theme
