@@ -17,8 +17,8 @@ Requirements for milestone v0.1: Core Framework & Basic Bar.
 
 ### Theme
 
-- [ ] **THM-01**: User sees a Material color scheme applied shell-wide on startup via MaterialThemeLoader
-- [ ] **THM-02**: Theme tokens (primary, secondary, surface, etc.) are exposed as QML properties usable by all widgets
+- [x] **THM-01**: User sees a Material color scheme applied shell-wide on startup via MaterialThemeLoader
+- [x] **THM-02**: Theme tokens (primary, secondary, surface, etc.) are exposed as QML properties usable by all widgets
 
 ### Bar Modules
 
@@ -100,8 +100,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FWK-03 | Phase 1 | Complete |
 | FWK-04 | Phase 1 | Complete |
 | FWK-05 | Phase 1 | Pending |
-| THM-01 | Phase 1 | Pending |
-| THM-02 | Phase 1 | Pending |
+| THM-01 | Phase 1 | Complete |
+| THM-02 | Phase 1 | Complete |
 | BAR-01 | Phase 2 | Pending |
 | BAR-02 | Phase 2 | Pending |
 | BAR-03 | Phase 2 | Pending |
