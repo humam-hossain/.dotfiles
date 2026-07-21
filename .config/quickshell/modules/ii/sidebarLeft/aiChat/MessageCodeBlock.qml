@@ -8,7 +8,9 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
-import org.kde.syntaxhighlighting
+// org.kde.syntaxhighlighting (package: syntax-highlighting) is optional.
+// Without it the shell must still load; code blocks render as plain monospace text.
+// Install via arch/quickshell.sh PACKAGES when available.
 
 ColumnLayout {
     id: root
@@ -56,7 +58,7 @@ ColumnLayout {
                 font.pixelSize: Appearance.font.pixelSize.small
                 font.weight: Font.DemiBold
                 color: Appearance.colors.colOnLayer2
-                text: root.displayLang ? Repository.definitionForName(root.displayLang).name : "plain"
+                text: root.displayLang || "plain"
             }
 
             Item { Layout.fillWidth: true }
@@ -238,14 +240,8 @@ ColumnLayout {
                                 event.accepted = true;
                             }
                         }
-
-                        SyntaxHighlighter {
-                            id: highlighter
-                            textEdit: codeTextArea
-                            repository: Repository
-                            definition: Repository.definitionForName(root.displayLang || "plaintext")
-                            theme: Appearance.syntaxHighlightingTheme
-                        }
+                        // SyntaxHighlighter omitted when org.kde.syntaxhighlighting is unavailable.
+                        // Plain monospace TextArea still supports copy/edit for AI code blocks.
                     }
                 }
                 Loader {
