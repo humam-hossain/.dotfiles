@@ -32,14 +32,18 @@ Existing infrastructure the new shell builds on (not replaced by this project):
 - ✓ Quickshell + ddcutil/i2c provisioning (`arch/quickshell.sh`) — existing (ddcutil re-introduction risk; see Constraints)
 - ✓ Hyprland session bootstrap (`hyprland-session.service` → `graphical-session.target`) — existing
 
+### Validated (this milestone)
+
+- ✓ Material theme system (MaterialThemeLoader + scheme) adopted from dots-hyprland — Phase 1
+- ✓ Quickshell foundation: directory structure, PanelLoader / panel families, service singletons, visible top bar — Phase 1 (FWK-01/03/04/05, THM-01/02)
+
 ### Active
 
-- [ ] Custom Quickshell shell that replaces Waybar as the status bar
+- [ ] Custom Quickshell shell that fully replaces Waybar as the status bar (parity + cutover still open)
 - [ ] App launcher that replaces rofi's `drun` mode
 - [ ] Clipboard manager that replaces rofi's clipboard history mode
 - [ ] Notification daemon + control center that replaces swaync
-- [ ] Material theme system (MaterialThemeLoader + scheme) adopted from dots-hyprland
-- [ ] Switchable panel families (multiple bar layouts, runtime-switchable)
+- [ ] Switchable panel families (multiple bar layouts, runtime-switchable) — structure present; productized switching later
 - [ ] GUI settings app to tweak the shell without editing files
 - [ ] Waybar-parity bar modules: workspaces, disk, cpu, memory, network, ping, weather (current), clock, weather (forecast), tray, music, volume, notifications, power
 - [ ] OSD + popups: volume OSD, calendar popup, network popup, notification popups/center
@@ -99,13 +103,15 @@ Existing infrastructure the new shell builds on (not replaced by this project):
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Fresh build, not iterating on old Quickshell | Old attempt deleted in working tree; adopt dots-hyprland architecture cleanly rather than refactor | — Pending |
-| Replace waybar + rofi + swaync with one Quickshell shell | Consolidate tools; gain unified richer shell | — Pending |
-| Adopt Material theme + panel families + GUI settings app | Maximalist "broad desktop shell" per user choice | — Pending |
-| Skip brightness/backlight (no ddcutil) | iGPU crash risk per `2026-07-16` post-mortem | — Pending |
-| Keep hyprlock (no Quickshell lock screen) | hyprlock works; lock screen panel not wanted | — Pending |
-| Theming: Catppuccin via Material vs Material defaults | Existing desktop is Catppuccin Mocha; Material system is dots-hyprland default | — Pending (resolve in planning) |
-| Primary target Arch only | debian/ubuntu parity is a separate concern | — Pending |
+| Fresh build, not iterating on old Quickshell | Old attempt deleted in working tree; adopt dots-hyprland architecture cleanly rather than refactor | Done — wholesale ii tree (Phase 1) |
+| Replace waybar + rofi + swaync with one Quickshell shell | Consolidate tools; gain unified richer shell | In progress — foundation up; Waybar still coexists |
+| Adopt Material theme + panel families + GUI settings app | Maximalist "broad desktop shell" per user choice | Theme + families done (Phase 1); settings app later |
+| Skip brightness/backlight (no ddcutil) | iGPU crash risk per `2026-07-16` post-mortem | Accepted — ddcutil still in packages; no Phase 1 backlight goal |
+| Keep hyprlock (no Quickshell lock screen) | hyprlock works; lock screen panel not wanted | Held |
+| Theming: Material vibrant dark seed #7aa2f7 | Static theme gen for MaterialThemeLoader | Done Phase 1 — user confirmed colors applied |
+| Font fallbacks: Noto Sans + Material Symbols | Google Sans Flex / missing Material Symbols broke bar icons | Done Phase 1 gap 01-04 |
+| Stock Hyprland `workspace` dispatch | `hl.dsp.focus` needs plugin not installed | Done Phase 1 gap 01-04 |
+| Primary target Arch only | debian/ubuntu parity is a separate concern | Held |
 
 ## Evolution
 
@@ -125,4 +131,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-20 starting milestone v0.1*
+*Last updated: 2026-07-21 after Phase 1*
