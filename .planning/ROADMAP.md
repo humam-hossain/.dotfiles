@@ -106,7 +106,7 @@ graph LR
 | Phase | Name | Status | Date |
 |-------|------|--------|------|
 | 1 | Shell Foundation & Theme | Complete | 2026-07-21 |
-| 2 | Core Bar Modules | Not started | — |
+| 2 | Core Bar Modules | In Progress| — |
 | 3 | System & Audio Modules | Not started | — |
 | 4 | IPC, Keybinds & Integration | Not started | — |
 
