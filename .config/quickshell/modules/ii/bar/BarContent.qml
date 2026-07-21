@@ -96,46 +96,11 @@ Item { // Bar content region
                 Layout.fillHeight: true
                 visible: root.useShortenedForm === 0
             }
-        }
-    }
-
-    Row { // Middle section
-        id: middleSection
-        anchors {
-            top: parent.top
-            bottom: parent.bottom
-            horizontalCenter: parent.horizontalCenter
-        }
-        spacing: 4
-
-        BarGroup {
-            id: leftCenterGroup
-            anchors.verticalCenter: parent.verticalCenter
-            implicitWidth: root.centerSideModuleWidth
-
-            Resources {
-                alwaysShowAllResources: root.useShortenedForm === 2
-                Layout.fillWidth: root.useShortenedForm === 2
-            }
-
-            Media {
-                visible: root.useShortenedForm < 2
-                Layout.fillWidth: true
-            }
-        }
-
-        VerticalBarSeparator {
-            visible: Config.options?.bar.borderless
-        }
-
-        BarGroup {
-            id: middleCenterGroup
-            anchors.verticalCenter: parent.verticalCenter
-            padding: workspacesWidget.widgetPadding
 
             Workspaces {
                 id: workspacesWidget
                 Layout.fillHeight: true
+                Layout.rightMargin: 4
                 MouseArea {
                     // Right-click to toggle overview
                     anchors.fill: parent
@@ -148,41 +113,37 @@ Item { // Bar content region
                     }
                 }
             }
-        }
 
-        VerticalBarSeparator {
-            visible: Config.options?.bar.borderless
+            Resources {
+                alwaysShowAllResources: root.useShortenedForm === 2
+                Layout.fillHeight: true
+                Layout.rightMargin: Appearance.rounding.screenRounding
+            }
         }
+    }
 
-        MouseArea {
-            id: rightCenterGroup
+    Row { // Middle section — D-15 center: ClockWidget + UtilButtons only
+        id: middleSection
+        anchors {
+            top: parent.top
+            bottom: parent.bottom
+            horizontalCenter: parent.horizontalCenter
+        }
+        spacing: 4
+
+        BarGroup {
+            id: centerGroup
             anchors.verticalCenter: parent.verticalCenter
-            implicitWidth: root.centerSideModuleWidth
-            implicitHeight: rightCenterGroupContent.implicitHeight
 
-            onPressed: {
-                GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
+            ClockWidget {
+                showDate: false
+                Layout.alignment: Qt.AlignVCenter
+                Layout.fillWidth: true
             }
 
-            BarGroup {
-                id: rightCenterGroupContent
-                anchors.fill: parent
-
-                ClockWidget {
-                    showDate: (Config.options.bar.verbose && root.useShortenedForm < 2)
-                    Layout.alignment: Qt.AlignVCenter
-                    Layout.fillWidth: true
-                }
-
-                UtilButtons {
-                    visible: (Config.options.bar.verbose && root.useShortenedForm === 0)
-                    Layout.alignment: Qt.AlignVCenter
-                }
-
-                BatteryIndicator {
-                    visible: (root.useShortenedForm < 2 && Battery.available)
-                    Layout.alignment: Qt.AlignVCenter
-                }
+            UtilButtons {
+                visible: (Config.options.bar.verbose && root.useShortenedForm === 0)
+                Layout.alignment: Qt.AlignVCenter
             }
         }
     }
@@ -222,9 +183,33 @@ Item { // Bar content region
             id: rightSectionRowLayout
             anchors.fill: parent
             spacing: 5
-            layoutDirection: Qt.RightToLeft
+            // D-15 right: LTR with leading fill so modules hug the right edge
+            // Order: Media → Battery → SysTray → Indicators (weather gated off)
 
-            RippleButton { // Right sidebar button
+            Item {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
+
+            Media {
+                visible: root.useShortenedForm < 2
+                Layout.fillWidth: false
+                Layout.fillHeight: true
+            }
+
+            BatteryIndicator {
+                visible: (root.useShortenedForm < 2 && Battery.available)
+                Layout.alignment: Qt.AlignVCenter
+            }
+
+            SysTray {
+                visible: root.useShortenedForm === 0
+                Layout.fillWidth: false
+                Layout.fillHeight: true
+                invertSide: Config?.options.bar.bottom
+            }
+
+            RippleButton { // Right sidebar button / indicators pill
                 id: rightSidebarButton
 
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
@@ -258,6 +243,7 @@ Item { // Bar content region
                     property real realSpacing: 15
                     spacing: 0
 
+                    // D-19 order: mute → mic → xkb → Bluetooth → Network → notif
                     Revealer {
                         reveal: Audio.sink?.audio?.muted ?? false
                         Layout.fillHeight: true
@@ -289,47 +275,32 @@ Item { // Bar content region
                         Layout.rightMargin: indicatorsRowLayout.realSpacing
                         color: rightSidebarButton.colText
                     }
-                    Revealer {
-                        reveal: Notifications.silent || Notifications.unread > 0
-                        Layout.fillHeight: true
-                        Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
-                        implicitHeight: reveal ? notificationUnreadCount.implicitHeight : 0
-                        implicitWidth: reveal ? notificationUnreadCount.implicitWidth : 0
-                        Behavior on Layout.rightMargin {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-                        }
-                        NotificationUnreadCount {
-                            id: notificationUnreadCount
-                        }
-                    }
                     MaterialSymbol {
-                        text: Network.materialSymbol
-                        iconSize: Appearance.font.pixelSize.larger
-                        color: rightSidebarButton.colText
-                    }
-                    MaterialSymbol {
-                        Layout.leftMargin: indicatorsRowLayout.realSpacing
+                        Layout.rightMargin: indicatorsRowLayout.realSpacing
                         visible: BluetoothStatus.available
                         text: BluetoothStatus.connected ? "bluetooth_connected" : BluetoothStatus.enabled ? "bluetooth" : "bluetooth_disabled"
                         iconSize: Appearance.font.pixelSize.larger
                         color: rightSidebarButton.colText
                     }
+                    MaterialSymbol {
+                        Layout.rightMargin: indicatorsRowLayout.realSpacing
+                        text: Network.materialSymbol
+                        iconSize: Appearance.font.pixelSize.larger
+                        color: rightSidebarButton.colText
+                    }
+                    Revealer {
+                        reveal: Notifications.silent || Notifications.unread > 0
+                        Layout.fillHeight: true
+                        implicitHeight: reveal ? notificationUnreadCount.implicitHeight : 0
+                        implicitWidth: reveal ? notificationUnreadCount.implicitWidth : 0
+                        NotificationUnreadCount {
+                            id: notificationUnreadCount
+                        }
+                    }
                 }
             }
 
-            SysTray {
-                visible: root.useShortenedForm === 0
-                Layout.fillWidth: false
-                Layout.fillHeight: true
-                invertSide: Config?.options.bar.bottom
-            }
-
-            Item {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-            }
-
-            // Weather
+            // Weather (inactive when Config.options.bar.weather.enable is false — D-16)
             Loader {
                 Layout.leftMargin: 4
                 active: Config.options.bar.weather.enable
