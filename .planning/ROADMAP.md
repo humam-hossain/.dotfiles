@@ -60,6 +60,17 @@
 3. System tray icons from running applications (e.g., Discord, Steam, nm-applet) are visible and interactive
 4. Network module shows wifi SSID/signal or ethernet status, and correctly reflects disconnected state
 
+**Plans:**
+5/5 plans complete
+
+- [x] 02-01 Wave 0 live config assert harness
+- [x] 02-02 Dual-write Config.qml + live config.json (clock/tray/workspaces)
+- [x] 02-03 Left/center bar rewire (D-15, showDate false)
+- [x] 02-04 Right LTR + D-19 indicators + Network.materialSymbol
+- [x] 02-05 Static gates + smoke + VALIDATION nyquist sign-off
+
+**Status:** Plans complete (2026-07-21) — automated gates green; human UAT pending (`/gsd-verify-work`)
+
 ### Phase 3: System & Audio Modules
 
 **Goal:** Add system resource monitoring (CPU, memory, disk) and audio volume control to the bar, approaching Waybar feature parity for hardware/system indicators.
@@ -106,10 +117,10 @@ graph LR
 | Phase | Name | Status | Date |
 |-------|------|--------|------|
 | 1 | Shell Foundation & Theme | Complete | 2026-07-21 |
-| 2 | Core Bar Modules | In Progress| — |
+| 2 | Core Bar Modules | Plans complete (UAT pending) | 2026-07-21 |
 | 3 | System & Audio Modules | Not started | — |
 | 4 | IPC, Keybinds & Integration | Not started | — |
 
 ---
 *Roadmap created: 2026-07-20*
-*Last updated: 2026-07-21 after Phase 1 complete*
+*Last updated: 2026-07-21 after Phase 2 plans complete (automated gates green; UAT pending)*
