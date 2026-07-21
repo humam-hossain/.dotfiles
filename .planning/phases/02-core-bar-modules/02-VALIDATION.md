@@ -3,8 +3,8 @@ phase: 2
 slug: core-bar-modules
 # status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
 # audit-milestone §5.5 distinguishes NOT-VALIDATED (draft) from PARTIAL (validated + nyquist_compliant: false) (#2117)
-status: draft
-nyquist_compliant: false
+status: validated
+nyquist_compliant: true
 wave_0_complete: true
 created: 2026-07-21
 ---
@@ -41,14 +41,14 @@ created: 2026-07-21
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 02-01-01 | 02-01 | 0 | Wave 0 | — | Live config assert harness | config assert | `python3 scripts/phase02-config-assert.py` | ✅ script | ⬜ red until 02-02 |
+| 02-01-01 | 02-01 | 0 | Wave 0 | — | Live config assert harness | config assert | `python3 scripts/phase02-config-assert.py` | ✅ script | ✅ green |
 | 02-01-02 | 02-01 | 0 | Wave 0 | — | VALIDATION wiring | static | `rg -n phase02-config-assert 02-VALIDATION.md` | ✅ | ✅ green |
-| 02-02-01 / 02-02-02 | 02-02 | 2 | BAR-01 / BAR-02 / BAR-03 | T-02-03 | Dual-write time/tray/workspaces/weather keys | config assert | `python3 scripts/phase02-config-assert.py` | ✅ after 02-02 | ⬜ pending |
-| 02-03-01 / 02-03-02 | 02-03 | 3 | BAR-01 / BAR-02 | — | Left/center D-15; showDate false; ClockWidgetPopup only | static + smoke | `rg -n 'showDate|ClockWidgetPopup|Workspaces' BarContent.qml` | ✅ after implement | ⬜ pending |
-| 02-04-01 / 02-04-02 | 02-04 | 4 | BAR-03 / BAR-04 | T-02-01 | Right LTR + D-19 indicators; Network.materialSymbol only | static + smoke | `rg -n 'Network.materialSymbol\|SysTray\|volume_off' BarContent.qml` | ✅ after implement | ⬜ pending |
-| 02-05-01 | 02-05 | 5 | BAR-01..04 | T-02-01 / T-02-11 | Stock workspace dispatch; no plugin hl.dsp; layout markers | static | `rg -n 'workspace \$\{|workspace r' Workspaces.qml` | ✅ source | ⬜ pending |
-| 02-05-02 | 02-05 | 5 | Smoke | T-02-04 | Configuration Loaded; valid JSON config | smoke + assert | `timeout 4 quickshell 2>&1 \| rg 'Configuration Loaded'`; `python3 scripts/phase02-config-assert.py` | ✅ Phase 1 pattern | ⬜ pending |
-| 02-03/04 UAT | layout | — | D-15/D-19 | — | L→R module + indicators order | static + UAT | child order + visual checklist | ✅ after implement | ⬜ pending |
+| 02-02-01 / 02-02-02 | 02-02 | 2 | BAR-01 / BAR-02 / BAR-03 | T-02-03 | Dual-write time/tray/workspaces/weather keys | config assert | `python3 scripts/phase02-config-assert.py` | ✅ | ✅ green |
+| 02-03-01 / 02-03-02 | 02-03 | 3 | BAR-01 / BAR-02 | — | Left/center D-15; showDate false; ClockWidgetPopup only | static + smoke | `rg -n 'showDate|ClockWidgetPopup|Workspaces' BarContent.qml` | ✅ | ✅ green |
+| 02-04-01 / 02-04-02 | 02-04 | 4 | BAR-03 / BAR-04 | T-02-01 | Right LTR + D-19 indicators; Network.materialSymbol only | static + smoke | `rg -n 'Network.materialSymbol\|SysTray\|volume_off' BarContent.qml` | ✅ | ✅ green |
+| 02-05-01 | 02-05 | 5 | BAR-01..04 | T-02-01 / T-02-11 | Stock workspace dispatch; no plugin hl.dsp; layout markers | static | `rg -n 'workspace \$\{|workspace r' Workspaces.qml` | ✅ source | ✅ green |
+| 02-05-02 | 02-05 | 5 | Smoke | T-02-04 | Configuration Loaded; valid JSON config | smoke + assert | `timeout 4 quickshell 2>&1 \| rg 'Configuration Loaded'`; `python3 scripts/phase02-config-assert.py` | ✅ | ✅ green |
+| 02-03/04 UAT | layout | — | D-15/D-19 | — | L→R module + indicators order | static + UAT | child order + visual checklist | ✅ static order | ⬜ manual UAT |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -68,7 +68,7 @@ created: 2026-07-21
 python3 scripts/phase02-config-assert.py
 ```
 
-Expected until plan 02-02 dual-write: non-zero exit (red). After 02-02: prints `config asserts OK` and exits 0.
+After plan 02-02 dual-write: prints `config asserts OK` and exits 0. Re-verified green at plan 02-05 (2026-07-21).
 
 ---
 
@@ -90,11 +90,11 @@ Expected until plan 02-02 dual-write: non-zero exit (red). After 02-02: prints `
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s (automated)
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s (automated)
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Automated approval:** 2026-07-21 (plan 02-05) — config assert green, static layout/dispatch gates green, `Configuration Loaded` smoke green. Manual-Only table remains for human UAT via `/gsd-verify-work`.
