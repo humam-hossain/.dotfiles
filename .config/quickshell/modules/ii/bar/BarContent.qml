@@ -183,6 +183,7 @@ Item { // Bar content region
             id: rightSectionRowLayout
             anchors.fill: parent
             spacing: 5
+            layoutDirection: Qt.LeftToRight
             // D-15 right: LTR with leading fill so modules hug the right edge
             // Order: Media → Battery → SysTray → Indicators (weather gated off)
 
