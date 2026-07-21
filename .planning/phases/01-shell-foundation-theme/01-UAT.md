@@ -1,26 +1,20 @@
 ---
-status: testing
+status: complete
 phase: 01-shell-foundation-theme
 source: [01-VERIFICATION.md, 01-04-SUMMARY.md]
 started: 2026-07-21T11:56:17Z
-updated: 2026-07-21T12:50:00Z
+updated: 2026-07-21T13:05:00Z
 ---
 
 ## Current Test
 
-number: 1
-name: Bar visible and usable on all connected monitors (retest after gap closure)
-expected: |
-  Top bar from IllogicalImpulseFamily on each connected monitor
-  (DP-1 and HDMI-A-2 if attached). Material icons render (not empty boxes);
-  text not overlapping; layout coherent. Workspace click switches workspace.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
 ### 1. Bar visible and usable on all connected monitors
 expected: Top bar from IllogicalImpulseFamily on each connected monitor (DP-1 and HDMI-A-2 if attached); Material icons render; text not overlapping; workspace click works
-result: [pending]
+result: pass
 retest_of: issue
 prior_reported: "bar shows up but lots of image missing, text overlapping, design is not consistent"
 fixed_by: 01-04-PLAN.md
@@ -32,9 +26,9 @@ result: pass
 ## Summary
 
 total: 2
-passed: 1
+passed: 2
 issues: 0
-pending: 1
+pending: 0
 skipped: 0
 blocked: 0
 
@@ -45,30 +39,8 @@ blocked: 0
   status: resolved
   resolved_by: 01-04-PLAN.md
   resolved_at: 2026-07-21
-  reason: "User reported: bar shows up but lots of image missing, text overlapping, design is not consistent. Logs also show: Cannot assign to non-existent property m3primaryDim; Unable to assign [undefined] to double (BarContent.qml); Could not load icon image-missing; Unable to assign [undefined] to QQuickItem* (ToolbarTabBar.qml); NotificationPopup enable of undefined; Invalid dispatcher hl.dsp.focus"
+  reason: "User reported: bar shows up but lots of image missing, text overlapping, design is not consistent."
   severity: major
   test: 1
-  root_cause: "Missing runtime fonts (Material Symbols Rounded, Google Sans Flex, Readex Pro, Space Grotesk; JetBrains family name mismatch) so MaterialSymbol glyphs and UI text metrics fail — primary cause of missing icons / overlapping text. Contributing: Workspaces.widgetPadding undefined (BarContent:134), Config notifications.forceMonitor vs .monitor key skew, hl.dsp.focus dispatcher with no Hyprland plugins, incomplete Appearance.m3colors *Dim props."
-  artifacts:
-    - path: "arch/fonts.sh"
-      issue: "Does not install Material Symbols or ii UI fonts"
-    - path: "arch/quickshell.sh"
-      issue: "PACKAGES omit font deps required by shell chrome"
-    - path: ".config/quickshell/modules/common/Config.qml"
-      issue: "Default fonts unavailable; notifications.monitor not forceMonitor"
-    - path: ".config/quickshell/modules/ii/bar/BarContent.qml"
-      issue: "padding: workspacesWidget.widgetPadding is undefined"
-    - path: ".config/quickshell/modules/ii/bar/Workspaces.qml"
-      issue: "No widgetPadding; uses hl.dsp.focus without plugin"
-    - path: ".config/quickshell/modules/ii/notificationPopup/NotificationPopup.qml"
-      issue: "Reads forceMonitor which Config does not define"
-    - path: ".config/quickshell/modules/common/Appearance.qml"
-      issue: "Missing m3*Dim properties vs colors.json keys"
-  missing:
-    - "Install ttf-material-symbols-variable and wire into fonts/quickshell provisioning"
-    - "Fallback Config.appearance.fonts to installed families (Noto Sans / JetBrainsMono Nerd Font)"
-    - "Add Workspaces.widgetPadding or fix BarContent padding binding"
-    - "Align forceMonitor/monitor Config key across consumers"
-    - "Replace hl.dsp.focus with stock workspace dispatcher"
-    - "Optionally declare m3primaryDim and other *Dim properties on Appearance.m3colors"
+  root_cause: "Missing runtime fonts and related QML/Config defects (fixed in 01-04)"
   debug_session: ".planning/debug/bar-visual-icons-layout.md"
