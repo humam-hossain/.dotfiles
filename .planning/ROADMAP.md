@@ -30,15 +30,15 @@
 4. Material color scheme is applied on startup and theme tokens (primary, secondary, surface, onSurface, etc.) are accessible as QML properties in any widget
 5. At least one service singleton is implemented and consumable by a widget (proving the pattern works)
 
-
 **Plans:**
+4/4 plans complete
+
 - [x] 01-01 Directory Bootstrap and Wholesale Copy
 - [x] 01-02 Provisioning and Material Theme Setup
 - [x] 01-03 Integration and Service Singleton Verification
 - [x] 01-04 Gap closure — bar visual fonts and QML defects (G-01-1)
 
-**Status:** Plans complete — human re-UAT pending (`/gsd-verify-work 1`)
-
+**Status:** Complete (2026-07-21) — UAT 2/2 pass, verification passed, security threats_open: 0
 
 ### Phase 2: Core Bar Modules
 
@@ -94,6 +94,15 @@ graph LR
 - **Phase 3 depends on Phase 1:** Same foundation dependency.
 - **Phase 4 depends on Phases 2 & 3:** Integration/cutover needs all modules working first.
 
+## Progress
+
+| Phase | Name | Status | Date |
+|-------|------|--------|------|
+| 1 | Shell Foundation & Theme | Complete | 2026-07-21 |
+| 2 | Core Bar Modules | Not started | — |
+| 3 | System & Audio Modules | Not started | — |
+| 4 | IPC, Keybinds & Integration | Not started | — |
+
 ---
 *Roadmap created: 2026-07-20*
-*Last updated: 2026-07-20*
+*Last updated: 2026-07-21 after Phase 1 complete*

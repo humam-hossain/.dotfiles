@@ -3,20 +3,10 @@ phase: 01-shell-foundation-theme
 verified: "2026-07-21T15:42:03Z"
 status: passed
 score: 5/5 must-haves present
-behavior_unverified: 2
-behavior_unverified_items:
-
-  - truth: "Visible top bar renders correctly on every connected monitor (including HDMI-A-2 when attached)"
-    test: "Launch quickshell with both DP-1 and HDMI-A-2 active; confirm bar layer/geometry on each"
-    expected: "quickshell:bar layer on each screen; bar usable (not only Wayland layer present)"
-    why_human: "hyprctl layers proves presence on currently connected DP-1 only; visual adequacy and multi-monitor need eyes"
-
-  - truth: "Material theme tokens are visibly applied shell-wide (not only defaults in Appearance.qml)"
-    test: "Launch quickshell after colors.json generation; compare bar/surface colors to seed #7aa2f7 vibrant dark"
-    expected: "Surfaces/primary reflect generated Material palette; no obvious fallback-only greys"
-    why_human: "Loader runs and JSON exists; m3primaryDim assign warning means partial token map; visual check confirms applied palette"
-next_action: "Run human UAT via /gsd-verify-work 1"
-next_command: "/gsd-verify-work 1"
+behavior_unverified: 0
+behavior_unverified_items: []
+next_action: "Verification passed — phase complete"
+next_command: ""
 ---
 
 # Phase 1: Shell Foundation & Theme — Verification Report
@@ -24,8 +14,8 @@ next_command: "/gsd-verify-work 1"
 **Phase Goal:** Create the Quickshell directory structure, entry point, service-singleton pattern, PanelLoader architecture, and Material theme system — resulting in a visible (but mostly empty) bar on each monitor.
 
 **Verified:** 2026-07-21T11:56:17Z  
-**Status:** human_needed  
-**Verifier:** orchestrator-inline (gsd-verifier rate-limited; evidence re-checked live)
+**Status:** passed (UAT 2/2 + automated re-check after 01-04)  
+**Verifier:** orchestrator-inline + human UAT 2026-07-21
 
 ## Goal Achievement
 
