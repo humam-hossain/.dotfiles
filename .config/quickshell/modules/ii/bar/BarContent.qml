@@ -236,61 +236,37 @@ Item { // Bar content region
                     id: indicatorsRowLayout
                     anchors.centerIn: parent
                     property real realSpacing: 15
-                    spacing: 0
+                    // Always-visible D-19 strip: spacing only (no orphan Layout.rightMargin after Network)
+                    spacing: realSpacing
 
                     // D-19 order: mute → mic → xkb → Bluetooth → Network → notif
-                    Revealer {
-                        reveal: Audio.sink?.audio?.muted ?? false
-                        Layout.fillHeight: true
-                        Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
-                        Behavior on Layout.rightMargin {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-                        }
-                        MaterialSymbol {
-                            text: "volume_off"
-                            iconSize: Appearance.font.pixelSize.larger
-                            color: rightSidebarButton.colText
-                        }
-                    }
-                    Revealer {
-                        reveal: Audio.source?.audio?.muted ?? false
-                        Layout.fillHeight: true
-                        Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
-                        Behavior on Layout.rightMargin {
-                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
-                        }
-                        MaterialSymbol {
-                            text: "mic_off"
-                            iconSize: Appearance.font.pixelSize.larger
-                            color: rightSidebarButton.colText
-                        }
-                    }
-                    HyprlandXkbIndicator {
-                        Layout.alignment: Qt.AlignVCenter
-                        Layout.rightMargin: indicatorsRowLayout.realSpacing
-                        color: rightSidebarButton.colText
-                    }
                     MaterialSymbol {
-                        Layout.rightMargin: indicatorsRowLayout.realSpacing
-                        visible: BluetoothStatus.available
-                        text: BluetoothStatus.connected ? "bluetooth_connected" : BluetoothStatus.enabled ? "bluetooth" : "bluetooth_disabled"
+                        text: Audio.sink?.audio?.muted ? "volume_off" : "volume_up"
                         iconSize: Appearance.font.pixelSize.larger
                         color: rightSidebarButton.colText
                     }
                     MaterialSymbol {
-                        Layout.rightMargin: indicatorsRowLayout.realSpacing
+                        text: Audio.source?.audio?.muted ? "mic_off" : "mic"
+                        iconSize: Appearance.font.pixelSize.larger
+                        color: rightSidebarButton.colText
+                    }
+                    HyprlandXkbIndicator {
+                        Layout.alignment: Qt.AlignVCenter
+                        color: rightSidebarButton.colText
+                    }
+                    MaterialSymbol {
+                        // Always show; disabled glyph when bluez/adapters unavailable
+                        text: !BluetoothStatus.available ? "bluetooth_disabled" : BluetoothStatus.connected ? "bluetooth_connected" : BluetoothStatus.enabled ? "bluetooth" : "bluetooth_disabled"
+                        iconSize: Appearance.font.pixelSize.larger
+                        color: rightSidebarButton.colText
+                    }
+                    MaterialSymbol {
                         text: Network.materialSymbol
                         iconSize: Appearance.font.pixelSize.larger
                         color: rightSidebarButton.colText
                     }
-                    Revealer {
-                        reveal: Notifications.silent || Notifications.unread > 0
-                        Layout.fillHeight: true
-                        implicitHeight: reveal ? notificationUnreadCount.implicitHeight : 0
-                        implicitWidth: reveal ? notificationUnreadCount.implicitWidth : 0
-                        NotificationUnreadCount {
-                            id: notificationUnreadCount
-                        }
+                    NotificationUnreadCount {
+                        id: notificationUnreadCount
                     }
                 }
             }
