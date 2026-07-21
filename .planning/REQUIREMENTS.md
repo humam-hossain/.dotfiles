@@ -9,10 +9,10 @@ Requirements for milestone v0.1: Core Framework & Basic Bar.
 
 ### Framework
 
-- [ ] **FWK-01**: User can launch a Quickshell shell that renders a top bar on each connected monitor
+- [x] **FWK-01**: User can launch a Quickshell shell that renders a top bar on each connected monitor
 - [ ] **FWK-02**: User sees Quickshell auto-start via Hyprland exec-once at login
-- [ ] **FWK-03**: Shell uses service-singleton pattern (services expose state, widgets render it)
-- [ ] **FWK-04**: Shell entry point (shell.qml) loads panel families via PanelLoader architecture
+- [x] **FWK-03**: Shell uses service-singleton pattern (services expose state, widgets render it)
+- [x] **FWK-04**: Shell entry point (shell.qml) loads panel families via PanelLoader architecture
 - [ ] **FWK-05**: Shell directory structure follows dots-hyprland conventions (modules/, services/, scripts/, defaults/, assets/, qmldir manifests)
 
 ### Theme
@@ -95,10 +95,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FWK-01 | Phase 1 | Pending |
+| FWK-01 | Phase 1 | Complete |
 | FWK-02 | Phase 4 | Pending |
-| FWK-03 | Phase 1 | Pending |
-| FWK-04 | Phase 1 | Pending |
+| FWK-03 | Phase 1 | Complete |
+| FWK-04 | Phase 1 | Complete |
 | FWK-05 | Phase 1 | Pending |
 | THM-01 | Phase 1 | Pending |
 | THM-02 | Phase 1 | Pending |
@@ -115,6 +115,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | IPC-03 | Phase 4 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 18 total
 - Mapped to phases: 18
 - Unmapped: 0 ✓
