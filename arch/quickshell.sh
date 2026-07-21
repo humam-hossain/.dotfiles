@@ -15,6 +15,7 @@ PACKAGES=(
   ddcutil
   i2c-tools
   python-materialyoucolor-git
+  syntax-highlighting  # org.kde.syntaxhighlighting QML bindings (optional for AI code blocks)
 )
 
 install_packages() {
