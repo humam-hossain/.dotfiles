@@ -60,31 +60,18 @@
 3. System tray icons from running applications (e.g., Discord, Steam, nm-applet) are visible and interactive
 4. Network module shows wifi SSID/signal or ethernet status, and correctly reflects disconnected state
 
-**Plans:**
+**Plans:** 8/8 complete
 
-- [x] 02-01-PLAN.md
+- [x] 02-01-PLAN.md — Wave 0 live config assert harness
+- [x] 02-02-PLAN.md — Dual-write Config.qml + live config.json (clock/tray/workspaces)
+- [x] 02-03-PLAN.md — Left/center bar rewire (D-15, showDate false)
+- [x] 02-04-PLAN.md — Right LTR + D-19 indicators + Network.materialSymbol
+- [x] 02-05-PLAN.md — Static gates + smoke + VALIDATION nyquist sign-off
+- [x] 02-06-PLAN.md — Gap G-02-4: clock click pin via forceActive
+- [x] 02-07-PLAN.md — Gap G-02-7a: remove ActiveWindow from left
+- [x] 02-08-PLAN.md — Gaps G-02-7b/G-02-8: always-visible indicator strip
 
-8/8 plans executed
-
-8/8 plans executed
-
-- [x] 02-02-PLAN.md
-- [x] 02-03-PLAN.md
-- [x] 02-04-PLAN.md
-- [x] 02-05-PLAN.md
-- [x] 02-06-PLAN.md
-- [x] 02-07-PLAN.md
-- [x] 02-08-PLAN.md
-
-6/8 plans executed
-
-- [x] 02-01 Wave 0 live config assert harness
-- [x] 02-02 Dual-write Config.qml + live config.json (clock/tray/workspaces)
-- [x] 02-03 Left/center bar rewire (D-15, showDate false)
-- [x] 02-04 Right LTR + D-19 indicators + Network.materialSymbol
-- [x] 02-05 Static gates + smoke + VALIDATION nyquist sign-off
-
-**Status:** Plans complete (2026-07-21) — automated gates green; human UAT pending (`/gsd-verify-work`)
+**Status:** All plans + gap-closure executed (2026-07-22) — automated verification green; human re-UAT for gap fixes (`/gsd-verify-work 2`)
 
 ### Phase 3: System & Audio Modules
 
@@ -132,10 +119,10 @@ graph LR
 | Phase | Name | Status | Date |
 |-------|------|--------|------|
 | 1 | Shell Foundation & Theme | Complete | 2026-07-21 |
-| 2 | Core Bar Modules | In Progress| 2026-07-21 |
+| 2 | Core Bar Modules | Awaiting re-UAT | 2026-07-22 |
 | 3 | System & Audio Modules | Not started | — |
 | 4 | IPC, Keybinds & Integration | Not started | — |
 
 ---
 *Roadmap created: 2026-07-20*
-*Last updated: 2026-07-21 after Phase 2 plans complete (automated gates green; UAT pending)*
+*Last updated: 2026-07-22 after Phase 2 gap-closure (02-06..02-08); re-UAT pending*
