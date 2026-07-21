@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: retest
 phase: 02-core-bar-modules
-source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md, 02-VALIDATION.md Manual-Only
+source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md, 02-06-SUMMARY.md, 02-07-SUMMARY.md, 02-08-SUMMARY.md, 02-VERIFICATION.md
 started: 2026-07-21T17:34:11Z
-updated: 2026-07-22T19:00:00Z
+updated: 2026-07-21T18:33:16Z
 ---
 
 ## Current Test
@@ -107,9 +107,11 @@ result: pass
 
 ### 4. Clock click opens ClockWidgetPopup
 expected: Click clock; popup shows date/uptime/todos — not Google Calendar
-result: issue
+result: pending_retest
 reported: "hover shows a popup with date, uptime, todo but clicking does not do anything"
 severity: major
+fix_plan: 02-06
+fix_note: "forceActive pin + onClicked shipped — re-verify click open/pin"
 
 
 ### 5. Tray icons full-color + interactive
@@ -123,17 +125,21 @@ result: pass
 
 
 ### 7. Module L→R order (D-15)
-expected: Left: sidebar → window → workspaces → resources; Center: clock → utils; Right: media → battery → tray → indicators
-result: issue
+expected: Left: sidebar → workspaces → resources (no ActiveWindow); Center: clock → utils; Right: media → battery → tray → indicators
+result: pending_retest
 reported: "i would like to remove window, it is taking too much space and there is no need. on the indicator only network is there, after it a space only"
 severity: major
+fix_plan: 02-07, 02-08
+fix_note: "ActiveWindow removed; always-visible indicators — re-verify layout + strip"
 
 
 ### 8. Indicators pill order (D-19)
 expected: Indicators order left-to-right: mute → mic → xkb → Bluetooth → Network → notif
-result: issue
+result: pending_retest
 reported: "no just network"
 severity: major
+fix_plan: 02-08
+fix_note: "Always-visible D-19 strip shipped — re-verify full pill"
 
 
 ### 9. Dual-monitor workspaces 1–10
@@ -146,7 +152,8 @@ reason: HDMI-A-2 is not connected at the moment
 
 total: 22
 passed: 18
-issues: 3
+issues: 0
+pending_retest: 3
 pending: 0
 skipped: 1
 blocked: 0
@@ -155,62 +162,41 @@ blocked: 0
 
 - gap_id: G-02-4
   truth: "Click clock; popup shows date/uptime/todos — not Google Calendar"
-  status: failed
-  reason: "User reported: hover shows a popup with date, uptime, todo but clicking does not do anything"
+  status: pending_retest
+  reason: "Code fix shipped in 02-06 (forceActive + onClicked); needs human re-UAT"
   severity: major
   test: 4
-  root_cause: "ClockWidgetPopup uses StyledPopup which only activates on hoverTarget.containsMouse; ClockWidget MouseArea has no onClicked/pin path, so click is a no-op"
-  artifacts:
-    - path: .config/quickshell/modules/ii/bar/ClockWidget.qml
-      issue: "MouseArea has no onClicked; popup is hoverTarget only"
-    - path: .config/quickshell/modules/ii/bar/StyledPopup.qml
-      issue: "active gated solely on containsMouse; no pin/forceActive"
-  missing:
-    - "StyledPopup pin/forceActive OR into active"
-    - "ClockWidget onClicked toggles pin so click opens/keeps popup"
-  debug_session: ".planning/debug/clock-click-no-op.md"
+  fixed_by: 02-06
+  commits: [3a852d3, 14eea6e]
+  debug_session: ".planning/debug/resolved/clock-click-no-op.md"
 
 - gap_id: G-02-7a
-  truth: "Left region includes ActiveWindow after sidebar per D-15"
-  status: failed
-  reason: "User reported: want to remove window, taking too much space and no need"
+  truth: "Left region has no ActiveWindow; workspaces have room"
+  status: pending_retest
+  reason: "Code fix shipped in 02-07 (ActiveWindow removed); needs human re-UAT"
   severity: major
   test: 7
-  root_cause: "ActiveWindow is in leftSectionRowLayout with Layout.fillWidth true per D-15/D-17; UAT overrides — remove ActiveWindow to reclaim space"
-  artifacts:
-    - path: .config/quickshell/modules/ii/bar/BarContent.qml
-      issue: "ActiveWindow block fillWidth expands and crowds workspaces"
-  missing:
-    - "Remove ActiveWindow from left section"
-    - "Left order: LeftSidebarButton → Workspaces → Resources"
-  debug_session: ".planning/debug/remove-active-window.md"
+  fixed_by: 02-07
+  commits: [113b10a]
+  debug_session: ".planning/debug/resolved/remove-active-window.md"
 
 - gap_id: G-02-7b
   truth: "Indicators pill shows mute → mic → xkb → Bluetooth → Network → notif (D-19)"
-  status: failed
-  reason: "User reported: on the indicator only network is there, after it a space only"
+  status: pending_retest
+  reason: "Code fix shipped in 02-08 (always-visible strip); needs human re-UAT"
   severity: major
   test: 7
-  root_cause: "Mute/mic/notif use Revealers (hidden when idle); Bluetooth hidden when !available; xkb hidden for single layout — only Network always visible. Network Layout.rightMargin leaves orphan empty space"
-  artifacts:
-    - path: .config/quickshell/modules/ii/bar/BarContent.qml
-      issue: "indicatorsRowLayout conditional Revealers + Network trailing margin"
-  missing:
-    - "Always-visible mute/mic/bluetooth/network/notif with state glyphs"
-    - "No orphan trailing space after last visible icon"
-  debug_session: ".planning/debug/indicators-only-network.md"
+  fixed_by: 02-08
+  commits: [71022b9]
+  debug_session: ".planning/debug/resolved/indicators-only-network.md"
 
 - gap_id: G-02-8
   truth: "Indicators order left-to-right: mute → mic → xkb → Bluetooth → Network → notif"
-  status: failed
-  reason: "User reported: no just network"
+  status: pending_retest
+  reason: "Code fix shipped in 02-08 (same strip as G-02-7b); needs human re-UAT"
   severity: major
   test: 8
-  root_cause: "Same as G-02-7b — conditional visibility leaves only Network; empty gap from trailing margin"
-  artifacts:
-    - path: .config/quickshell/modules/ii/bar/BarContent.qml
-      issue: "indicatorsRowLayout visibility gates hide all but Network"
-  missing:
-    - "Always-visible indicator strip in D-19 order (same fix as G-02-7b)"
-  debug_session: ".planning/debug/indicators-only-network.md"
+  fixed_by: 02-08
+  commits: [71022b9]
+  debug_session: ".planning/debug/resolved/indicators-only-network.md"
 
