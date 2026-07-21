@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 02-core-bar-modules
 source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md, 02-VALIDATION.md Manual-Only
 started: 2026-07-21T17:34:11Z
-updated: 2026-07-22T18:15:42Z
+updated: 2026-07-22T19:00:00Z
 ---
 
 ## Current Test
@@ -159,10 +159,16 @@ blocked: 0
   reason: "User reported: hover shows a popup with date, uptime, todo but clicking does not do anything"
   severity: major
   test: 4
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "ClockWidgetPopup uses StyledPopup which only activates on hoverTarget.containsMouse; ClockWidget MouseArea has no onClicked/pin path, so click is a no-op"
+  artifacts:
+    - path: .config/quickshell/modules/ii/bar/ClockWidget.qml
+      issue: "MouseArea has no onClicked; popup is hoverTarget only"
+    - path: .config/quickshell/modules/ii/bar/StyledPopup.qml
+      issue: "active gated solely on containsMouse; no pin/forceActive"
+  missing:
+    - "StyledPopup pin/forceActive OR into active"
+    - "ClockWidget onClicked toggles pin so click opens/keeps popup"
+  debug_session: ".planning/debug/clock-click-no-op.md"
 
 - gap_id: G-02-7a
   truth: "Left region includes ActiveWindow after sidebar per D-15"
@@ -170,10 +176,14 @@ blocked: 0
   reason: "User reported: want to remove window, taking too much space and no need"
   severity: major
   test: 7
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "ActiveWindow is in leftSectionRowLayout with Layout.fillWidth true per D-15/D-17; UAT overrides — remove ActiveWindow to reclaim space"
+  artifacts:
+    - path: .config/quickshell/modules/ii/bar/BarContent.qml
+      issue: "ActiveWindow block fillWidth expands and crowds workspaces"
+  missing:
+    - "Remove ActiveWindow from left section"
+    - "Left order: LeftSidebarButton → Workspaces → Resources"
+  debug_session: ".planning/debug/remove-active-window.md"
 
 - gap_id: G-02-7b
   truth: "Indicators pill shows mute → mic → xkb → Bluetooth → Network → notif (D-19)"
@@ -181,10 +191,14 @@ blocked: 0
   reason: "User reported: on the indicator only network is there, after it a space only"
   severity: major
   test: 7
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "Mute/mic/notif use Revealers (hidden when idle); Bluetooth hidden when !available; xkb hidden for single layout — only Network always visible. Network Layout.rightMargin leaves orphan empty space"
+  artifacts:
+    - path: .config/quickshell/modules/ii/bar/BarContent.qml
+      issue: "indicatorsRowLayout conditional Revealers + Network trailing margin"
+  missing:
+    - "Always-visible mute/mic/bluetooth/network/notif with state glyphs"
+    - "No orphan trailing space after last visible icon"
+  debug_session: ".planning/debug/indicators-only-network.md"
 
 - gap_id: G-02-8
   truth: "Indicators order left-to-right: mute → mic → xkb → Bluetooth → Network → notif"
@@ -192,8 +206,11 @@ blocked: 0
   reason: "User reported: no just network"
   severity: major
   test: 8
-  root_cause: ""
-  artifacts: []
-  missing: []
-  debug_session: ""
+  root_cause: "Same as G-02-7b — conditional visibility leaves only Network; empty gap from trailing margin"
+  artifacts:
+    - path: .config/quickshell/modules/ii/bar/BarContent.qml
+      issue: "indicatorsRowLayout visibility gates hide all but Network"
+  missing:
+    - "Always-visible indicator strip in D-19 order (same fix as G-02-7b)"
+  debug_session: ".planning/debug/indicators-only-network.md"
 
