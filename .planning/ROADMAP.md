@@ -30,6 +30,16 @@
 4. Material color scheme is applied on startup and theme tokens (primary, secondary, surface, onSurface, etc.) are accessible as QML properties in any widget
 5. At least one service singleton is implemented and consumable by a widget (proving the pattern works)
 
+
+**Plans:**
+- [x] 01-01 Directory Bootstrap and Wholesale Copy
+- [x] 01-02 Provisioning and Material Theme Setup
+- [x] 01-03 Integration and Service Singleton Verification
+- [x] 01-04 Gap closure — bar visual fonts and QML defects (G-01-1)
+
+**Status:** Plans complete — human re-UAT pending (`/gsd-verify-work 1`)
+
+
 ### Phase 2: Core Bar Modules
 
 **Goal:** Implement the four most essential bar modules — workspaces, clock, system tray, and network — giving the bar its core day-to-day functionality.

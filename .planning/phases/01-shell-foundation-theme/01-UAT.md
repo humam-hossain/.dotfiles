@@ -1,22 +1,29 @@
 ---
-status: diagnosed
+status: testing
 phase: 01-shell-foundation-theme
-source: [01-VERIFICATION.md]
+source: [01-VERIFICATION.md, 01-04-SUMMARY.md]
 started: 2026-07-21T11:56:17Z
-updated: 2026-07-21T12:36:27Z
+updated: 2026-07-21T12:50:00Z
 ---
 
 ## Current Test
 
-[testing complete]
+number: 1
+name: Bar visible and usable on all connected monitors (retest after gap closure)
+expected: |
+  Top bar from IllogicalImpulseFamily on each connected monitor
+  (DP-1 and HDMI-A-2 if attached). Material icons render (not empty boxes);
+  text not overlapping; layout coherent. Workspace click switches workspace.
+awaiting: user response
 
 ## Tests
 
 ### 1. Bar visible and usable on all connected monitors
-expected: Top bar from IllogicalImpulseFamily on each connected monitor (DP-1 and HDMI-A-2 if attached); not hidden / missing
-result: issue
-reported: "bar shows up but lots of image missing, text overlapping, design is not consistent"
-severity: major
+expected: Top bar from IllogicalImpulseFamily on each connected monitor (DP-1 and HDMI-A-2 if attached); Material icons render; text not overlapping; workspace click works
+result: [pending]
+retest_of: issue
+prior_reported: "bar shows up but lots of image missing, text overlapping, design is not consistent"
+fixed_by: 01-04-PLAN.md
 
 ### 2. Material colors look applied
 expected: Bar/background surfaces reflect generated dark vibrant Material palette (seed #7aa2f7), not only greyscale Appearance defaults
@@ -26,8 +33,8 @@ result: pass
 
 total: 2
 passed: 1
-issues: 1
-pending: 0
+issues: 0
+pending: 1
 skipped: 0
 blocked: 0
 
@@ -35,7 +42,9 @@ blocked: 0
 
 - gap_id: G-01-1
   truth: "Top bar from IllogicalImpulseFamily on each connected monitor (DP-1 and HDMI-A-2 if attached); not hidden / missing"
-  status: failed
+  status: resolved
+  resolved_by: 01-04-PLAN.md
+  resolved_at: 2026-07-21
   reason: "User reported: bar shows up but lots of image missing, text overlapping, design is not consistent. Logs also show: Cannot assign to non-existent property m3primaryDim; Unable to assign [undefined] to double (BarContent.qml); Could not load icon image-missing; Unable to assign [undefined] to QQuickItem* (ToolbarTabBar.qml); NotificationPopup enable of undefined; Invalid dispatcher hl.dsp.focus"
   severity: major
   test: 1
