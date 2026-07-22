@@ -80,7 +80,7 @@ Item { // Bar content region
         RowLayout {
             id: leftSectionRowLayout
             anchors.fill: parent
-            spacing: 0
+            spacing: 6
 
             LeftSidebarButton { // Left sidebar button
                 id: leftSidebarButton
@@ -93,8 +93,7 @@ Item { // Bar content region
             Workspaces {
                 id: workspacesWidget
                 Layout.fillHeight: true
-                Layout.leftMargin: 10
-                Layout.rightMargin: 4
+
                 MouseArea {
                     // Right-click to toggle overview
                     anchors.fill: parent
@@ -111,7 +110,6 @@ Item { // Bar content region
             Resources {
                 alwaysShowAllResources: root.useShortenedForm === 2
                 Layout.fillHeight: true
-                Layout.rightMargin: Appearance.rounding.screenRounding
             }
         }
     }
