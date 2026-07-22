@@ -242,11 +242,21 @@ Item { // Bar content region
                         text: Audio.sink?.audio?.muted ? "volume_off" : "volume_up"
                         iconSize: Appearance.font.pixelSize.larger
                         color: rightSidebarButton.colText
+                        MouseArea {
+                            anchors.fill: parent
+                            z: 10
+                            onClicked: (mouse) => { Audio.toggleMute(); mouse.accepted = true; }
+                        }
                     }
                     MaterialSymbol {
                         text: Audio.source?.audio?.muted ? "mic_off" : "mic"
                         iconSize: Appearance.font.pixelSize.larger
                         color: rightSidebarButton.colText
+                        MouseArea {
+                            anchors.fill: parent
+                            z: 10
+                            onClicked: (mouse) => { Audio.toggleMicMute(); mouse.accepted = true; }
+                        }
                     }
                     HyprlandXkbIndicator {
                         Layout.alignment: Qt.AlignVCenter
