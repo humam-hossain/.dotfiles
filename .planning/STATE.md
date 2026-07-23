@@ -5,15 +5,15 @@ milestone_name: Core Framework & Basic Bar
 current_phase: 03
 current_phase_name: system-audio-modules
 status: executing
-stopped_at: Completed 03-03-PLAN.md
-last_updated: "2026-07-23T10:03:04.511Z"
+stopped_at: Completed 03-04-PLAN.md
+last_updated: "2026-07-23T10:06:37.586Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 25
-  completed_plans: 19
+  completed_plans: 20
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 ## Current Position
 
 Phase: 03 (system-audio-modules) — EXECUTING
-Plan: 3 of 8
+Plan: 4 of 8
 Status: Ready to execute
 Last activity: 2026-07-23 — Phase 03 execution started
 
-Progress: [████████░░] 76%
+Progress: [████████░░] 80%
 
 ## Session
 
-**Last session:** 2026-07-23T10:03:04.505Z
-**Stopped at:** Completed 03-03-PLAN.md
+**Last session:** 2026-07-23T10:06:37.579Z
+**Stopped at:** Completed 03-04-PLAN.md
 **Resume file:** None
 **Next command:** `/gsd-execute-phase 3`
 
@@ -103,6 +103,7 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 |------|----------|-------|-------|
 | Phase 03 P01 | 1min | 2 tasks | 2 files |
 | Phase 03 P03 | 5min | 2 tasks | 1 files |
+| Phase 03 P04 | 2min | 2 tasks | 3 files |
 
 ## Decisions
 
@@ -110,3 +111,5 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 - [Phase ?]: Warning tier uses Appearance.colors.colPrimary (no colWarning token)
 - [Phase ?]: errorThreshold default 100 keeps error tier off until parent sets lower
 - [Phase ?]: TextMetrics binds to labelText or '100%' so layout matches content
+- [Phase ?]: maxVolume 1.30 on Audio independent of protection dual-write; dedicated auto-unmute Connections not gated on protection.enable
+- [Phase ?]: Hyprland XF86 raise -l 1.3 for keyboard 130% parity with UI maxVolume
