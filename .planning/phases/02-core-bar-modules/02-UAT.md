@@ -1,20 +1,14 @@
 ---
-status: testing
+status: complete
 phase: 02-core-bar-modules
 source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md, 02-06-SUMMARY.md, 02-07-SUMMARY.md, 02-08-SUMMARY.md, 02-09-SUMMARY.md, 02-10-SUMMARY.md, 02-11-SUMMARY.md, 02-12-SUMMARY.md, 02-13-SUMMARY.md, 02-VERIFICATION.md
 started: 2026-07-21T17:34:11Z
-updated: 2026-07-23T04:36:42Z
+updated: 2026-07-23T04:50:00Z
 ---
 
 ## Current Test
 
-number: 16
-name: Left sidebar opens only on button click (retest after 02-12)
-expected: |
-  Click empty space on the left half of the bar → left sidebar stays closed.
-  Hover/enter top-left corner → left sidebar stays closed.
-  Click the left-sidebar button (distro icon) → left sidebar opens; click again → closes.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
@@ -174,27 +168,27 @@ note: "Spacing confirmed fine. New issues filed as tests 14–15."
 
 ### 14. Left sidebar opens only on button click
 expected: Left sidebar opens only when clicking the left-sidebar button (distro icon); empty bar space and hover must not open it
-result: issue
-reported: "the left sidebar behavior: clicking on empty space in the top bar opens left sidebar no need and mouse hovering in the left top corner also opens the left sidebar. the left sidebar should open only when i click on it."
-severity: major
-note: "Fix plan 02-12 executed — retesting as test 16."
+result: pass
+note: "Closed by retest 16 after fix plan 02-12."
+retest_of: G-02-13
+fix_plan: 02-12
 
 ### 15. Workspaces shown count is 4
 expected: Bar workspaces strip shows 4 workspace indicators (not 10)
-result: issue
-reported: "workspaces have 10 or something like that only 4 would be enough."
-severity: minor
-note: "Fix plan 02-13 executed — retesting as test 17."
+result: pass
+note: "Closed by retest 17 after fix plan 02-13 (UAT overrides D-02)."
+retest_of: G-02-14
+fix_plan: 02-13
 
 ### 16. Left sidebar opens only on button click (retest after 02-12)
 expected: Empty left-bar click and top-left corner hover do not open left sidebar; only LeftSidebarButton click toggles it
-result: [pending]
+result: pass
 retest_of: G-02-13
 fix_plan: 02-12
 
 ### 17. Workspaces shown count is 4 (retest after 02-13)
 expected: Bar workspaces strip shows exactly 4 workspace indicators
-result: [pending]
+result: pass
 retest_of: G-02-14
 fix_plan: 02-13
 
@@ -202,10 +196,10 @@ fix_plan: 02-13
 ## Summary
 
 total: 30
-passed: 24
-issues: 2
+passed: 28
+issues: 0
 pending_retest: 0
-pending: 2
+pending: 0
 skipped: 1
 blocked: 0
 
