@@ -5,15 +5,15 @@ milestone_name: Core Framework & Basic Bar
 current_phase: 03
 current_phase_name: system-audio-modules
 status: executing
-stopped_at: Completed 03-05-PLAN.md
-last_updated: "2026-07-23T10:28:02.360Z"
+stopped_at: Completed 03-06-PLAN.md
+last_updated: "2026-07-23T11:48:20.267Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 25
-  completed_plans: 23
+  completed_plans: 24
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 ## Current Position
 
 Phase: 03 (system-audio-modules) — EXECUTING
-Plan: 7 of 8
+Plan: 8 of 8
 Status: Ready to execute
 Last activity: 2026-07-23 — Phase 03 execution started
 
-Progress: [█████████░] 92%
+Progress: [██████████] 96%
 
 ## Session
 
-**Last session:** 2026-07-23T10:28:02.353Z
-**Stopped at:** Completed 03-05-PLAN.md
+**Last session:** 2026-07-23T11:48:20.260Z
+**Stopped at:** Completed 03-06-PLAN.md
 **Resume file:** None
 **Next command:** `/gsd-execute-phase 3`
 
@@ -107,6 +107,7 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 | Phase 03 P02 | 2min | 2 tasks | 2 files |
 | Phase 03 P07 | 3min | 2 tasks | 1 files |
 | Phase 03 P05 | 2min | 2 tasks | 1 files |
+| Phase 03 P06 | 2min | 2 tasks | 1 files |
 
 ## Decisions
 
@@ -121,3 +122,5 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 - [Phase ?]: Mute/mic stay in indicators pill with icon+% unmuted and icon-only muted (D-17..D-19)
 - [Phase ?]: Middle/right on mute/mic open Config.options.apps.volumeMixer; left toggles mute (D-23/D-26)
 - [Phase ?]: df argv form for ResourceUsage disk metrics (LANG=C); multi-rate elapsed counters 1s/3s/10s
+- [Phase ?]: Resources strip: CPU→RAM→Disk always-visible rings; dual Config thresholds; capacity labels; no swap/popup/click (03-06)
+- [Phase ?]: Disk bar icon: hard_drive Material Symbol; ResourcesPopup left on disk unattached

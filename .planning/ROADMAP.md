@@ -91,7 +91,7 @@
 3. Disk space information for the root partition is visible in the bar
 4. Volume level is displayed, scrolling on the module adjusts volume, and clicking toggles mute
 
-**Plans:** 6/8 plans executed
+**Plans:** 7/8 plans executed
 
 **Wave 1**
 
@@ -110,7 +110,7 @@
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 03-06-PLAN.md — Resources.qml strip CPU→RAM→Disk, no swap, no ResourcesPopup
+- [x] 03-06-PLAN.md — Resources.qml strip CPU→RAM→Disk, no swap, no ResourcesPopup
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
