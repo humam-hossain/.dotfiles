@@ -102,7 +102,7 @@ Each task was committed atomically:
 1. **Task 1: Disk properties + df Process for root /** - `b68103c` (feat)
 2. **Task 2: Multi-rate poll (CPU ~1s, RAM ~3s, disk ~10s)** - `5a9bd66` (feat)
 
-**Plan metadata:** `3e37449` (docs: complete plan)
+**Plan metadata:** `6317f5e` (docs: complete plan)
 
 ## Files Created/Modified
 - `.config/quickshell/services/ResourceUsage.qml` - Disk metrics, formatBytes, multi-rate poll
