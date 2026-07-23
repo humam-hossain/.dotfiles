@@ -91,7 +91,7 @@
 3. Disk space information for the root partition is visible in the bar
 4. Volume level is displayed, scrolling on the module adjusts volume, and clicking toggles mute
 
-**Plans:** 7/8 plans executed
+**Plans:** 8/8 plans executed
 
 **Wave 1**
 
@@ -114,7 +114,7 @@
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 03-08-PLAN.md — Static gates + smoke + VALIDATION nyquist sign-off
+- [x] 03-08-PLAN.md — Static gates + smoke + VALIDATION nyquist sign-off
 
 **Cross-cutting constraints:**
 
