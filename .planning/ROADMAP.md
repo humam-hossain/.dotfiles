@@ -91,7 +91,10 @@
 3. Disk space information for the root partition is visible in the bar
 4. Volume level is displayed, scrolling on the module adjusts volume, and clicking toggles mute
 
-**Plans:** 8/8 plans executed
+**Plans:** 10/10 plans executed
+
+- [x] 03-09-PLAN.md
+- [x] 03-10-PLAN.md
 
 **Wave 1**
 
