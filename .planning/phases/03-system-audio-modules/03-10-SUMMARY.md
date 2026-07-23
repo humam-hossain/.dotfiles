@@ -85,7 +85,7 @@ Each task was committed atomically:
 1. **Task 1: Apply keyboard volume ceiling 130% to live Hyprland** - `(no commit — already applied)`
 2. **Task 2: Fix volumeMixer launch (script + config dual-write)** - `9f3d2ae` (feat)
 
-**Plan metadata:** (pending docs commit)
+**Plan metadata:** `d8a6446` (docs: complete plan)
 
 _Note: Task 1 found both repo and live already at `-l 1.3` (different inodes; live previously patched). No repo file change; `hyprctl reload` applied._
 
