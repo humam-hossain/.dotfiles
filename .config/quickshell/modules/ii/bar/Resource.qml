@@ -8,12 +8,16 @@ Item {
     required property string iconName
     required property double percentage
     property int warningThreshold: 100
+    property int errorThreshold: 100
     property bool shown: true
     clip: true
     visible: width > 0 && height > 0
     implicitWidth: resourceRowLayout.x < 0 ? 0 : resourceRowLayout.implicitWidth
     implicitHeight: Appearance.sizes.barHeight
-    property bool warning: percentage * 100 >= warningThreshold
+
+    readonly property real pct: percentage * 100
+    readonly property bool isError: pct >= errorThreshold
+    readonly property bool isWarning: !isError && pct >= warningThreshold
 
     RowLayout {
         id: resourceRowLayout
@@ -29,8 +33,12 @@ Item {
             lineWidth: Appearance.rounding.unsharpen
             value: percentage
             implicitSize: 20
-            colPrimary: root.warning ? Appearance.colors.colError : Appearance.colors.colOnSecondaryContainer
-            accountForLightBleeding: !root.warning
+            colPrimary: root.isError
+                ? Appearance.colors.colError
+                : root.isWarning
+                    ? Appearance.colors.colPrimary
+                    : Appearance.colors.colOnSecondaryContainer
+            accountForLightBleeding: !(root.isError || root.isWarning)
             enableAnimation: false
 
             Item {
@@ -72,7 +80,7 @@ Item {
         Behavior on x {
             animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
         }
-    }
+}
 
     MouseArea {
         id: mouseArea
