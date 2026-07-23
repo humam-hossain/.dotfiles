@@ -1,9 +1,9 @@
 ---
-status: testing
+status: diagnosed
 phase: 02-core-bar-modules
-source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md, 02-06-SUMMARY.md, 02-07-SUMMARY.md, 02-08-SUMMARY.md, 02-09-SUMMARY.md, 02-10-SUMMARY.md, 02-VERIFICATION.md
+source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md, 02-06-SUMMARY.md, 02-07-SUMMARY.md, 02-08-SUMMARY.md, 02-09-SUMMARY.md, 02-10-SUMMARY.md, 02-11-SUMMARY.md, 02-VERIFICATION.md
 started: 2026-07-21T17:34:11Z
-updated: 2026-07-23T03:59:43Z
+updated: 2026-07-23T04:35:00Z
 ---
 
 ## Current Test
@@ -124,18 +124,14 @@ result: pass
 
 ### 7. Module L→R order (D-15)
 expected: Left: sidebar → workspaces → resources (no ActiveWindow); Center: clock → utils; Right: media → battery → tray → indicators
-result: issue
-reported: "the spacing between sidebar, workspaces and resources are not coherent. they are spaced too long between each other which looks odd. the rest works but the indicators click thing need to be individual i think, like clicking in audio input should toggle between mute and unmute; clicking audio output should toggle too, the reset 3 - bluetooth, wifi, notif click should open right sidebar as usual that would be fine. Another thing is clicking on the media opens popup not in the right place, i think it opens in the position before we positioned media differently when we rearranged everything by ordered list of modules"
-severity: major
-note: "Order OK (ActiveWindow gone). New gaps: left spacing (cosmetic), indicator per-icon clicks (major), media popup position (major). Fix plans 02-09, 02-10 executed — retesting."
+result: pass
+note: "Order OK. Sub-issues closed via retests 10–13 (spacing), 11 (indicators), 12 (media popup)."
 
 
 ### 8. Indicators pill order (D-19)
 expected: Indicators order left-to-right: mute → mic → xkb → Bluetooth → Network → notif
-result: issue
-reported: "indicators click thing need to be individual i think, like clicking in audio input should toggle between mute and unmute; clicking audio output should toggle too, the reset 3 - bluetooth, wifi, notif click should open right sidebar as usual"
-severity: major
-note: "Visibility/order accepted after 02-08; interaction is whole-pill sidebar toggle only. Fix plan 02-09 executed — retesting."
+result: pass
+note: "Order/visibility accepted after 02-08; per-icon clicks verified in retest 11."
 
 
 ### 9. Dual-monitor workspaces 1–10
@@ -146,9 +142,8 @@ reason: HDMI-A-2 is not connected at the moment
 
 ### 10. Left module spacing (retest)
 expected: Left modules (sidebar → workspaces → resources) sit with tight, coherent spacing — no large dead gaps between them
-result: issue
-reported: "no the spacing hasn't change"
-severity: cosmetic
+result: pass
+note: "Failed after 02-09; closed by 02-11 retest (test 13)."
 retest_of: G-02-9
 fix_plan: 02-09
 
@@ -164,12 +159,31 @@ result: pass
 retest_of: G-02-11
 fix_plan: 02-10
 
+### 13. Left module spacing (retest after 02-11)
+expected: Left modules (sidebar → workspaces → resources) sit tight on the left edge with coherent spacing; no large dead gap between Resources and center clock
+result: pass
+retest_of: G-02-12
+fix_plan: 02-11
+note: "Spacing confirmed fine. New issues filed as tests 14–15."
+
+### 14. Left sidebar opens only on button click
+expected: Left sidebar opens only when clicking the left-sidebar button (distro icon); empty bar space and hover must not open it
+result: issue
+reported: "the left sidebar behavior: clicking on empty space in the top bar opens left sidebar no need and mouse hovering in the left top corner also opens the left sidebar. the left sidebar should open only when i click on it."
+severity: major
+
+### 15. Workspaces shown count is 4
+expected: Bar workspaces strip shows 4 workspace indicators (not 10)
+result: issue
+reported: "workspaces have 10 or something like that only 4 would be enough."
+severity: minor
+
 
 ## Summary
 
-total: 25
-passed: 21
-issues: 3
+total: 28
+passed: 24
+issues: 2
 pending_retest: 0
 pending: 0
 skipped: 1
@@ -246,8 +260,11 @@ blocked: 0
 
 - gap_id: G-02-12
   truth: "Left modules (sidebar → workspaces → resources) sit with coherent, tight spacing"
-  status: failed
-  reason: "User reported: no the spacing hasn't change (retest of G-02-9 after fix plan 02-09)"
+  status: resolved
+  resolved_by: 02-11-SUMMARY.md
+  resolved_at: 2026-07-23
+  fixed_by: 02-11
+  reason: "User reported: no the spacing hasn't change (retest of G-02-9 after fix plan 02-09). Fix plan 02-11 executed — retesting."
   severity: cosmetic
   test: 10
   root_cause: "The spacing:6 fix on leftSectionRowLayout IS applied, but the RowLayout has anchors.fill:parent which fills the entire FocusedScrollMouseArea (anchored from parent.left to middleSection.left). The three modules don't use Layout.fillWidth, so they cluster at their natural sizes in a container that spans half the screen. The visual dead space is between Resources (last left module) and the center clock — not between the modules themselves. The fix needs to either (a) remove anchors.fill and let the RowLayout be implicitWidth-sized, or (b) NOT use anchors.fill on leftSectionRowLayout so modules hug left edge tightly."
@@ -300,3 +317,45 @@ blocked: 0
     - "Reposition media popup under/near right-side Media module (right-edge or mapFromItem)"
     - "Keep vertical-bar path working"
   debug_session: ".planning/debug/media-popup-position.md"
+
+- gap_id: G-02-13
+  truth: "Left sidebar opens only when clicking the left-sidebar button; empty bar space and hover do not open it"
+  status: failed
+  reason: "User reported: clicking on empty space in the top bar opens left sidebar no need and mouse hovering in the left top corner also opens the left sidebar. the left sidebar should open only when i click on it."
+  severity: major
+  test: 14
+  root_cause: "Two open paths besides LeftSidebarButton: (1) barLeftSideMouseArea.onPressed toggles sidebarLeftOpen on any left-click across the entire left half of the bar; (2) ScreenCorners TopLeft action + live sidebar.cornerOpen.clicklessCornerEnd=true fires the same toggle when the pointer enters the top-left corner edge (≤2px), without a button click. Logs from AiChat/Anime/ToolbarTabBar are load side-effects after open, not the trigger."
+  artifacts:
+    - path: ".config/quickshell/modules/ii/bar/BarContent.qml"
+      lines: "65-68"
+      issue: "barLeftSideMouseArea left-click toggles left sidebar on empty space"
+    - path: ".config/quickshell/modules/ii/screenCorners/ScreenCorners.qml"
+      lines: "16-17, 81-95"
+      issue: "TopLeft/BottomLeft cornerOpen + clicklessCornerEnd hover toggle"
+    - path: ".config/quickshell/modules/common/Config.qml"
+      issue: "sidebar.cornerOpen.enable true, clicklessCornerEnd true defaults"
+  missing:
+    - "Remove sidebarLeftOpen toggle from barLeftSideMouseArea.onPressed (keep brightness scroll)"
+    - "Disable corner-open path for left sidebar (enable false and/or clicklessCornerEnd false + dual-write)"
+    - "LeftSidebarButton remains sole open/close control"
+  debug_session: ".planning/debug/left-sidebar-empty-click-hover.md"
+
+- gap_id: G-02-14
+  truth: "Bar workspaces strip shows 4 workspace indicators (not 10)"
+  status: failed
+  reason: "User reported: workspaces have 10 or something like that only 4 would be enough."
+  severity: minor
+  test: 15
+  root_cause: "bar.workspaces.shown is 10 by design (Phase 2 D-02 dual-written to Config.qml + live config.json; phase02-config-assert expects 10). WorkspaceModel.shownCount binds that value. Not a layout bug — UAT preference overrides D-02 to shown: 4."
+  artifacts:
+    - path: ".config/quickshell/modules/common/Config.qml"
+      issue: "property int shown: 10"
+    - path: "~/.config/illogical-impulse/config.json"
+      issue: "bar.workspaces.shown: 10"
+    - path: "scripts/phase02-config-assert.py"
+      issue: "assert shown == 10"
+  missing:
+    - "Dual-write shown: 4 in Config.qml and live config.json"
+    - "Update phase02-config-assert.py to expect 4"
+    - "Document D-02 override from UAT preference"
+  debug_session: ".planning/debug/workspaces-shown-count.md"
