@@ -5,40 +5,41 @@ milestone_name: Core Framework & Basic Bar
 current_phase: 3
 current_phase_name: System & Audio Modules
 status: planning
-stopped_at: Gap-closure executed; run `/gsd-verify-work 2` for human re-UAT
-last_updated: "2026-07-23T04:42:42.771Z"
+stopped_at: Phase 2 complete — ready to plan Phase 3
+last_updated: "2026-07-23T04:55:00Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 02 complete, transitioned to Phase 3
 progress:
-  total_phases: 2
+  total_phases: 4
   completed_phases: 2
   total_plans: 17
   completed_plans: 17
+  percent: 50
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 3 — System & Audio Modules
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-07-23 — Phase 02 complete, transitioned to Phase 3
+Phase: 3 — System & Audio Modules  
+Plan: Not started  
+Status: Ready to plan  
+Last activity: 2026-07-23 — Phase 02 complete (UAT 29 pass, verification passed, security threats_open: 0)
 
-Progress: [█████░░░░░░░░░░░░░░░] 1/4 phases complete · Phase 2 plans 8/8
+Progress: [██████████░░░░░░░░░░] 2/4 phases complete
 
 ## Session
 
-**Last session:** 2026-07-22
-**Stopped at:** Gap-closure executed; run `/gsd-verify-work 2` for human re-UAT
-**Resume file:** .planning/phases/02-core-bar-modules/02-VERIFICATION.md
+**Last session:** 2026-07-23  
+**Stopped at:** Phase 2 verify-work complete; Phase 3 not started  
+**Resume file:** none (start `/gsd-plan-phase 3` or `/gsd-discuss-phase 3`)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-07-21)
 
-**Core value:** Reproduce every current Waybar module's functionality before cutover — while gaining a unified, themeable shell.
-**Current focus:** Phase 02 — core-bar-modules
+**Core value:** Reproduce every current Waybar module's functionality before cutover — while gaining a unified, themeable shell.  
+**Current focus:** Phase 03 — System & Audio Modules
 
 ## Accumulated Context
 
@@ -56,17 +57,24 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 - **UAT override:** remove ActiveWindow from left (G-02-7a space)
 - **UAT override:** always-visible indicator strip (not hide-when-idle Revealers)
 - **UAT fix:** StyledPopup.forceActive + ClockWidget onClicked for click-to-pin
+- **UAT override:** `bar.workspaces.shown: 4` (G-02-14; overrides D-02 shown:10)
+- **UAT fix:** left sidebar opens only via LeftSidebarButton; cornerOpen disabled (G-02-13)
 
-### Phase 2 deliverables
+### Phase 2 deliverables (complete)
 
-- `scripts/phase02-config-assert.py` — live config asserts (green)
-- Config.qml time/tray defaults dual-written to live config.json
+- `scripts/phase02-config-assert.py` — live config asserts (green, shown==4)
+- Config.qml time/tray/workspace defaults dual-written to live config.json
 - BarContent.qml left/center/right rewired; ActiveWindow removed; full D-19 strip
+- Per-icon mute/mic; media popup right-aligned; left spacing content-sized
+- Left sidebar button-only open; cornerOpen.enable false
 - StyledPopup forceActive pin; ClockWidget click toggle
 - VALIDATION.md nyquist automated green
-- 02-VERIFICATION.md status `human_needed` — 4 visual retests
+- 02-UAT.md complete (29 pass, 0 issues)
+- 02-VERIFICATION.md status `passed`
+- 02-SECURITY.md status `verified`, threats_open: 0
+- Plans 02-01..02-13 all have SUMMARYs
 
 ### Next
 
-1. `/gsd-verify-work 2` — re-UAT G-02-4, G-02-7a, G-02-7b, G-02-8
-2. After UAT pass: phase complete → Phase 3 System & Audio Modules
+1. `/gsd-discuss-phase 3` or `/gsd-plan-phase 3` — System & Audio Modules (BAR-05..08)
+2. Optional: `/gsd-ui-review 2` if visual audit desired (ui_review config off)

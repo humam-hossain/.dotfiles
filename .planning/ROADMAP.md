@@ -62,11 +62,6 @@
 
 **Plans:** 13/13 plans complete
 
-- [x] 02-11-PLAN.md
-
-- [x] 02-09-PLAN.md
-- [x] 02-10-PLAN.md
-
 - [x] 02-01-PLAN.md — Wave 0 live config assert harness
 - [x] 02-02-PLAN.md — Dual-write Config.qml + live config.json (clock/tray/workspaces)
 - [x] 02-03-PLAN.md — Left/center bar rewire (D-15, showDate false)
@@ -75,8 +70,13 @@
 - [x] 02-06-PLAN.md — Gap G-02-4: clock click pin via forceActive
 - [x] 02-07-PLAN.md — Gap G-02-7a: remove ActiveWindow from left
 - [x] 02-08-PLAN.md — Gaps G-02-7b/G-02-8: always-visible indicator strip
+- [x] 02-09-PLAN.md — Gaps G-02-9/G-02-10: left spacing + per-icon mute/mic
+- [x] 02-10-PLAN.md — Gap G-02-11: media popup right position
+- [x] 02-11-PLAN.md — Gap G-02-12: left RowLayout content-sized anchors
+- [x] 02-12-PLAN.md — Gap G-02-13: left sidebar button-only open
+- [x] 02-13-PLAN.md — Gap G-02-14: workspaces shown:4
 
-**Status:** All plans + gap-closure executed (2026-07-22) — automated verification green; human re-UAT for gap fixes (`/gsd-verify-work 2`)
+**Status:** Complete (2026-07-23) — UAT 29/29 pass, verification passed, security threats_open: 0
 
 ### Phase 3: System & Audio Modules
 
@@ -124,10 +124,10 @@ graph LR
 | Phase | Name | Status | Date |
 |-------|------|--------|------|
 | 1 | Shell Foundation & Theme | Complete | 2026-07-21 |
-| 2 | Core Bar Modules | Complete    | 2026-07-22 |
+| 2 | Core Bar Modules | Complete | 2026-07-23 |
 | 3 | System & Audio Modules | Not started | — |
 | 4 | IPC, Keybinds & Integration | Not started | — |
 
 ---
 *Roadmap created: 2026-07-20*
-*Last updated: 2026-07-22 after Phase 2 gap-closure (02-06..02-08); re-UAT pending*
+*Last updated: 2026-07-23 — Phase 2 complete (UAT + verification + security); next Phase 3*
