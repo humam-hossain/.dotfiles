@@ -116,7 +116,7 @@ Each task was committed atomically:
 1. **Task 1: Run full automated static + assert + smoke suite** - _(no commit — all gates green, no product fix)_
 2. **Task 2: Update VALIDATION.md Nyquist sign-off** - `c61d361` (docs)
 
-**Plan metadata:** `d3052d6` (docs: complete plan)
+**Plan metadata:** `5a3fdf8` (docs: complete plan)
 
 _Note: TDD not used for this plan (`tdd: false`)_
 
