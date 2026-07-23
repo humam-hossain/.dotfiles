@@ -265,7 +265,16 @@ Item { // Bar content region
                         MouseArea {
                             anchors.fill: parent
                             z: 10
-                            onClicked: (mouse) => { Audio.toggleMute(); mouse.accepted = true; }
+                            // D-23/D-26: left = toggle mute; middle/right = pavucontrol via Config volumeMixer
+                            acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
+                            onClicked: (mouse) => {
+                                if (mouse.button === Qt.LeftButton) {
+                                    Audio.toggleMute();
+                                } else {
+                                    Quickshell.execDetached(["bash", "-c", Config.options.apps.volumeMixer]);
+                                }
+                                mouse.accepted = true;
+                            }
                         }
                     }
                     // D-19: unmuted = mic icon + input volume %; muted = mic_off only
@@ -295,7 +304,16 @@ Item { // Bar content region
                         MouseArea {
                             anchors.fill: parent
                             z: 10
-                            onClicked: (mouse) => { Audio.toggleMicMute(); mouse.accepted = true; }
+                            // D-23/D-26: left = toggle mic mute; middle/right = pavucontrol via Config volumeMixer
+                            acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
+                            onClicked: (mouse) => {
+                                if (mouse.button === Qt.LeftButton) {
+                                    Audio.toggleMicMute();
+                                } else {
+                                    Quickshell.execDetached(["bash", "-c", Config.options.apps.volumeMixer]);
+                                }
+                                mouse.accepted = true;
+                            }
                         }
                     }
                     HyprlandXkbIndicator {
