@@ -91,7 +91,7 @@
 3. Disk space information for the root partition is visible in the bar
 4. Volume level is displayed, scrolling on the module adjusts volume, and clicking toggles mute
 
-**Plans:** 5/8 plans executed
+**Plans:** 6/8 plans executed
 
 **Wave 1**
 
@@ -106,7 +106,7 @@
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 03-05-PLAN.md — ResourceUsage multi-rate poll + root `/` disk via `df`
+- [x] 03-05-PLAN.md — ResourceUsage multi-rate poll + root `/` disk via `df`
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
