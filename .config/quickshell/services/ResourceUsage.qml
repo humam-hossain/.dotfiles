@@ -51,6 +51,21 @@ Singleton {
         return (n / (1024 * 1024 * 1024)).toFixed(1) + " GB"
     }
 
+    /**
+     * Pair label: "used/total UNIT" with single shared unit suffix (D-15, G-03-2).
+     * Promotes to TB when either side ≥ 1 TiB; otherwise GB.
+     * Input is bytes for both arguments.
+     */
+    function formatPair(aBytes, bBytes) {
+        const a = Number(aBytes) || 0
+        const b = Number(bBytes) || 0
+        const tib = 1024 * 1024 * 1024 * 1024
+        if (a >= tib || b >= tib)
+            return (a / tib).toFixed(1) + "/" + (b / tib).toFixed(1) + " TB"
+        const gib = 1024 * 1024 * 1024
+        return (a / gib).toFixed(1) + "/" + (b / gib).toFixed(1) + " GB"
+    }
+
     function kbToGbString(kb) {
         return formatBytes((Number(kb) || 0) * 1024)
     }
