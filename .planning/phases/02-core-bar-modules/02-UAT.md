@@ -1,9 +1,9 @@
 ---
-status: retest
+status: fix-shipped
 phase: 02-core-bar-modules
 source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md, 02-06-SUMMARY.md, 02-07-SUMMARY.md, 02-08-SUMMARY.md, 02-VERIFICATION.md
 started: 2026-07-21T17:34:11Z
-updated: 2026-07-21T18:33:16Z
+updated: 2026-07-23T03:54:00Z
 ---
 
 ## Current Test
@@ -107,11 +107,9 @@ result: pass
 
 ### 4. Clock click opens ClockWidgetPopup
 expected: Click clock; popup shows date/uptime/todos — not Google Calendar
-result: pending_retest
-reported: "hover shows a popup with date, uptime, todo but clicking does not do anything"
-severity: major
+result: pass
+retest_of: pending_retest
 fix_plan: 02-06
-fix_note: "forceActive pin + onClicked shipped — re-verify click open/pin"
 
 
 ### 5. Tray icons full-color + interactive
@@ -126,20 +124,18 @@ result: pass
 
 ### 7. Module L→R order (D-15)
 expected: Left: sidebar → workspaces → resources (no ActiveWindow); Center: clock → utils; Right: media → battery → tray → indicators
-result: pending_retest
-reported: "i would like to remove window, it is taking too much space and there is no need. on the indicator only network is there, after it a space only"
+result: issue
+reported: "the spacing between sidebar, workspaces and resources are not coherent. they are spaced too long between each other which looks odd. the rest works but the indicators click thing need to be individual i think, like clicking in audio input should toggle between mute and unmute; clicking audio output should toggle too, the reset 3 - bluetooth, wifi, notif click should open right sidebar as usual that would be fine. Another thing is clicking on the media opens popup not in the right place, i think it opens in the position before we positioned media differently when we rearranged everything by ordered list of modules"
 severity: major
-fix_plan: 02-07, 02-08
-fix_note: "ActiveWindow removed; always-visible indicators — re-verify layout + strip"
+note: "Order OK (ActiveWindow gone). New gaps: left spacing (cosmetic), indicator per-icon clicks (major), media popup position (major)."
 
 
 ### 8. Indicators pill order (D-19)
 expected: Indicators order left-to-right: mute → mic → xkb → Bluetooth → Network → notif
-result: pending_retest
-reported: "no just network"
+result: issue
+reported: "indicators click thing need to be individual i think, like clicking in audio input should toggle between mute and unmute; clicking audio output should toggle too, the reset 3 - bluetooth, wifi, notif click should open right sidebar as usual"
 severity: major
-fix_plan: 02-08
-fix_note: "Always-visible D-19 strip shipped — re-verify full pill"
+note: "Visibility/order accepted after 02-08; interaction is whole-pill sidebar toggle only."
 
 
 ### 9. Dual-monitor workspaces 1–10
@@ -151,9 +147,9 @@ reason: HDMI-A-2 is not connected at the moment
 ## Summary
 
 total: 22
-passed: 18
-issues: 0
-pending_retest: 3
+passed: 19
+issues: 2
+pending_retest: 0
 pending: 0
 skipped: 1
 blocked: 0
@@ -162,41 +158,103 @@ blocked: 0
 
 - gap_id: G-02-4
   truth: "Click clock; popup shows date/uptime/todos — not Google Calendar"
-  status: pending_retest
-  reason: "Code fix shipped in 02-06 (forceActive + onClicked); needs human re-UAT"
+  status: resolved
+  reason: "Code fix shipped in 02-06 (forceActive + onClicked); re-UAT passed"
   severity: major
   test: 4
   fixed_by: 02-06
+  resolved_by: 02-06
+  resolved_at: 2026-07-22
   commits: [3a852d3, 14eea6e]
   debug_session: ".planning/debug/resolved/clock-click-no-op.md"
 
 - gap_id: G-02-7a
   truth: "Left region has no ActiveWindow; workspaces have room"
-  status: pending_retest
-  reason: "Code fix shipped in 02-07 (ActiveWindow removed); needs human re-UAT"
+  status: resolved
+  reason: "ActiveWindow removed (02-07); user confirmed rest of left order works"
   severity: major
   test: 7
   fixed_by: 02-07
+  resolved_by: 02-07
+  resolved_at: 2026-07-22
   commits: [113b10a]
   debug_session: ".planning/debug/resolved/remove-active-window.md"
 
 - gap_id: G-02-7b
   truth: "Indicators pill shows mute → mic → xkb → Bluetooth → Network → notif (D-19)"
-  status: pending_retest
-  reason: "Code fix shipped in 02-08 (always-visible strip); needs human re-UAT"
+  status: resolved
+  reason: "Always-visible strip shipped (02-08); user moved on to per-icon interaction (new gap G-02-10)"
   severity: major
   test: 7
   fixed_by: 02-08
+  resolved_by: 02-08
+  resolved_at: 2026-07-22
   commits: [71022b9]
   debug_session: ".planning/debug/resolved/indicators-only-network.md"
 
 - gap_id: G-02-8
   truth: "Indicators order left-to-right: mute → mic → xkb → Bluetooth → Network → notif"
-  status: pending_retest
-  reason: "Code fix shipped in 02-08 (same strip as G-02-7b); needs human re-UAT"
+  status: resolved
+  reason: "Order/visibility accepted after 02-08; remaining work is per-icon click (G-02-10)"
   severity: major
   test: 8
   fixed_by: 02-08
+  resolved_by: 02-08
+  resolved_at: 2026-07-22
   commits: [71022b9]
   debug_session: ".planning/debug/resolved/indicators-only-network.md"
 
+- gap_id: G-02-9
+  truth: "Left modules (sidebar → workspaces → resources) sit with coherent, tight spacing"
+  status: fix-shipped
+  fixed_by: 02-09
+  reason: "User reported: the spacing between sidebar, workspaces and resources are not coherent. they are spaced too long between each other which looks odd."
+  severity: cosmetic
+  test: 7
+  root_cause: "Left cluster is a bare RowLayout with anchors.fill over the full left half of the bar; margins are uneven (screenRounding on outer edges, Layout.leftMargin: 10 on Workspaces) and modules are not grouped. After ActiveWindow (fillWidth spacer) was removed, the three remaining modules keep ad-hoc margins tuned for the old four-module layout, so inter-module rhythm looks sparse/incoherent."
+  artifacts:
+    - path: ".config/quickshell/modules/ii/bar/BarContent.qml"
+      issue: "leftSectionRowLayout spacing:0 + uneven Layout margins; no BarGroup wrapper; fill-to-center mouse area"
+  missing:
+    - "Uniform small inter-item spacing (e.g. 4–8) for left cluster"
+    - "Optional BarGroup wrap so left modules read as one compact unit"
+    - "Drop leftover ActiveWindow-era leftMargin:10 if it creates a dead gap"
+  debug_session: ".planning/debug/left-module-spacing.md"
+
+- gap_id: G-02-10
+  truth: "Mute and mic icons toggle mute on click; Bluetooth/Network/notif open right sidebar"
+  status: fix-shipped
+  fixed_by: 02-09
+  reason: "User reported: indicators click thing need to be individual — audio output and input toggle mute; bluetooth, wifi, notif open right sidebar as usual"
+  severity: major
+  test: 8
+  root_cause: "D-19 icons are pure MaterialSymbol children inside one RippleButton whose onPressed always toggles GlobalStates.sidebarRightOpen. barRightSideMouseArea also opens the sidebar on any left-click in the right half. Mute/mic have no MouseArea and never call Audio.toggleMute()/toggleMicMute(). No per-icon hit targets exist."
+  artifacts:
+    - path: ".config/quickshell/modules/ii/bar/BarContent.qml"
+      issue: "indicatorsRowLayout icons are display-only; whole pill is one sidebar toggle"
+    - path: ".config/quickshell/services/Audio.qml"
+      issue: "toggleMute/toggleMicMute exist but are not wired to bar icons"
+  missing:
+    - "MouseArea (or clickable wrapper) on mute → Audio.toggleMute()"
+    - "MouseArea on mic → Audio.toggleMicMute()"
+    - "Bluetooth/Network/notif keep sidebar open (or whole-pill fallback for non-audio icons)"
+    - "Stop parent RippleButton / barRightSideMouseArea from swallowing mute/mic clicks"
+  debug_session: ".planning/debug/indicator-per-icon-clicks.md"
+
+- gap_id: G-02-11
+  truth: "Media controls popup opens aligned under/near the bar Media module (right side)"
+  status: fix-shipped
+  fixed_by: 02-10
+  reason: "User reported: clicking on the media opens popup not in the right place — position from before media was rearranged to right module order"
+  severity: major
+  test: 7
+  root_cause: "MediaControls PanelWindow uses a hard-coded left margin formula that places the popup left-of-center: ((screen.width/2) - (osdWidth/2) - widgetWidth). That matched the old center-left media placement. After D-15, Media lives on the right (Media → Battery → SysTray → Indicators), but MediaControls.qml was never re-anchored to the Media widget or right edge."
+  artifacts:
+    - path: ".config/quickshell/modules/ii/mediaControls/MediaControls.qml"
+      issue: "margins.left hard-coded to center-left; anchors.left true for horizontal bar"
+    - path: ".config/quickshell/modules/ii/bar/Media.qml"
+      issue: "only toggles GlobalStates.mediaControlsOpen; no position anchor for popup"
+  missing:
+    - "Reposition media popup under/near right-side Media module (right-edge or mapFromItem)"
+    - "Keep vertical-bar path working"
+  debug_session: ".planning/debug/media-popup-position.md"
