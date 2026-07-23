@@ -270,7 +270,7 @@ blocked: 0
     - "Uniform small inter-item spacing (e.g. 4–8) for left cluster"
     - "Optional BarGroup wrap so left modules read as one compact unit"
     - "Drop leftover ActiveWindow-era leftMargin:10 if it creates a dead gap"
-  debug_session: ".planning/debug/left-module-spacing.md"
+  debug_session: ".planning/debug/resolved/left-module-spacing.md"
 
 - gap_id: G-02-12
   truth: "Left modules (sidebar → workspaces → resources) sit with coherent, tight spacing"
@@ -310,7 +310,7 @@ blocked: 0
     - "MouseArea on mic → Audio.toggleMicMute()"
     - "Bluetooth/Network/notif keep sidebar open (or whole-pill fallback for non-audio icons)"
     - "Stop parent RippleButton / barRightSideMouseArea from swallowing mute/mic clicks"
-  debug_session: ".planning/debug/indicator-per-icon-clicks.md"
+  debug_session: ".planning/debug/resolved/indicator-per-icon-clicks.md"
 
 - gap_id: G-02-11
   truth: "Media controls popup opens aligned under/near the bar Media module (right side)"
@@ -330,7 +330,7 @@ blocked: 0
   missing:
     - "Reposition media popup under/near right-side Media module (right-edge or mapFromItem)"
     - "Keep vertical-bar path working"
-  debug_session: ".planning/debug/media-popup-position.md"
+  debug_session: ".planning/debug/resolved/media-popup-position.md"
 
 - gap_id: G-02-13
   truth: "Left sidebar opens only when clicking the left-sidebar button; empty bar space and hover do not open it"
@@ -355,7 +355,7 @@ blocked: 0
     - "Remove sidebarLeftOpen toggle from barLeftSideMouseArea.onPressed (keep brightness scroll)"
     - "Disable corner-open path for left sidebar (enable false and/or clicklessCornerEnd false + dual-write)"
     - "LeftSidebarButton remains sole open/close control"
-  debug_session: ".planning/debug/left-sidebar-empty-click-hover.md"
+  debug_session: ".planning/debug/resolved/left-sidebar-empty-click-hover.md"
 
 - gap_id: G-02-14
   truth: "Bar workspaces strip shows 4 workspace indicators (not 10)"
@@ -378,4 +378,4 @@ blocked: 0
     - "Dual-write shown: 4 in Config.qml and live config.json"
     - "Update phase02-config-assert.py to expect 4"
     - "Document D-02 override from UAT preference"
-  debug_session: ".planning/debug/workspaces-shown-count.md"
+  debug_session: ".planning/debug/resolved/workspaces-shown-count.md"
