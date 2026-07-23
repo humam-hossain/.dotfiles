@@ -123,7 +123,7 @@ Each task was committed atomically:
 1. **Task 1: Mute and mic icon + percent display** - `fbc3a85` (feat)
 2. **Task 2: Multi-button clicks — toggle mute + open pavucontrol** - `648350f` (feat)
 
-**Plan metadata:** (pending docs commit)
+**Plan metadata:** `ef32df8` (docs: complete plan)
 
 ## Files Created/Modified
 
