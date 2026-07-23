@@ -5,15 +5,15 @@ milestone_name: Core Framework & Basic Bar
 current_phase: 03
 current_phase_name: system-audio-modules
 status: executing
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-07-23T10:13:52.177Z"
+stopped_at: Completed 03-07-PLAN.md
+last_updated: "2026-07-23T10:20:37.151Z"
 last_activity: 2026-07-23
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 3
   completed_phases: 2
   total_plans: 25
-  completed_plans: 21
+  completed_plans: 22
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 ## Current Position
 
 Phase: 03 (system-audio-modules) — EXECUTING
-Plan: 5 of 8
+Plan: 6 of 8
 Status: Ready to execute
 Last activity: 2026-07-23 — Phase 03 execution started
 
-Progress: [████████░░] 84%
+Progress: [█████████░] 88%
 
 ## Session
 
-**Last session:** 2026-07-23T10:13:52.169Z
-**Stopped at:** Completed 03-02-PLAN.md
+**Last session:** 2026-07-23T10:20:37.144Z
+**Stopped at:** Completed 03-07-PLAN.md
 **Resume file:** None
 **Next command:** `/gsd-execute-phase 3`
 
@@ -105,6 +105,7 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 | Phase 03 P03 | 5min | 2 tasks | 1 files |
 | Phase 03 P04 | 2min | 2 tasks | 3 files |
 | Phase 03 P02 | 2min | 2 tasks | 2 files |
+| Phase 03 P07 | 3min | 2 tasks | 1 files |
 
 ## Decisions
 
@@ -116,3 +117,5 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 - [Phase ?]: Hyprland XF86 raise -l 1.3 for keyboard 130% parity with UI maxVolume
 - [Phase ?]: Phase 3 dual-write: CPU 40/80 RAM 75/95 disk 80/95 alwaysShowSwap false maxAllowed 130
 - [Phase ?]: Split intervals dual-written: updateInterval=1000 memoryUpdateInterval=3000 diskUpdateInterval=10000
+- [Phase ?]: Mute/mic stay in indicators pill with icon+% unmuted and icon-only muted (D-17..D-19)
+- [Phase ?]: Middle/right on mute/mic open Config.options.apps.volumeMixer; left toggles mute (D-23/D-26)
