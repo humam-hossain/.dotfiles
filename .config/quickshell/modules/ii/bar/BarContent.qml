@@ -62,10 +62,8 @@ Item { // Bar content region
         onScrollDown: Brightness.decreaseBrightness()
         onScrollUp: Brightness.increaseBrightness()
         onMovedAway: GlobalStates.osdBrightnessOpen = false
-        onPressed: event => {
-            if (event.button === Qt.LeftButton)
-                GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen;
-        }
+        // G-02-13: empty left-bar click must NOT open left sidebar —
+        // LeftSidebarButton is the sole open/close control.
 
         // Visual content
         ScrollHint {

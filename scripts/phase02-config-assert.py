@@ -28,7 +28,7 @@ def main() -> int:
 
     try:
         workspaces = config["bar"]["workspaces"]
-        assert workspaces["shown"] == 10, f"bar.workspaces.shown={workspaces.get('shown')!r} want 10"
+        assert workspaces["shown"] == 4, f"bar.workspaces.shown={workspaces.get('shown')!r} want 4"
         assert workspaces["showAppIcons"] is True, (
             f"bar.workspaces.showAppIcons={workspaces.get('showAppIcons')!r} want True"
         )

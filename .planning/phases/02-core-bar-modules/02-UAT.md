@@ -1,14 +1,20 @@
 ---
-status: diagnosed
+status: testing
 phase: 02-core-bar-modules
-source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md, 02-06-SUMMARY.md, 02-07-SUMMARY.md, 02-08-SUMMARY.md, 02-09-SUMMARY.md, 02-10-SUMMARY.md, 02-11-SUMMARY.md, 02-VERIFICATION.md
+source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md, 02-06-SUMMARY.md, 02-07-SUMMARY.md, 02-08-SUMMARY.md, 02-09-SUMMARY.md, 02-10-SUMMARY.md, 02-11-SUMMARY.md, 02-12-SUMMARY.md, 02-13-SUMMARY.md, 02-VERIFICATION.md
 started: 2026-07-21T17:34:11Z
-updated: 2026-07-23T04:35:00Z
+updated: 2026-07-23T04:36:42Z
 ---
 
 ## Current Test
 
-[testing complete]
+number: 16
+name: Left sidebar opens only on button click (retest after 02-12)
+expected: |
+  Click empty space on the left half of the bar → left sidebar stays closed.
+  Hover/enter top-left corner → left sidebar stays closed.
+  Click the left-sidebar button (distro icon) → left sidebar opens; click again → closes.
+awaiting: user response
 
 ## Tests
 
@@ -171,21 +177,35 @@ expected: Left sidebar opens only when clicking the left-sidebar button (distro 
 result: issue
 reported: "the left sidebar behavior: clicking on empty space in the top bar opens left sidebar no need and mouse hovering in the left top corner also opens the left sidebar. the left sidebar should open only when i click on it."
 severity: major
+note: "Fix plan 02-12 executed — retesting as test 16."
 
 ### 15. Workspaces shown count is 4
 expected: Bar workspaces strip shows 4 workspace indicators (not 10)
 result: issue
 reported: "workspaces have 10 or something like that only 4 would be enough."
 severity: minor
+note: "Fix plan 02-13 executed — retesting as test 17."
+
+### 16. Left sidebar opens only on button click (retest after 02-12)
+expected: Empty left-bar click and top-left corner hover do not open left sidebar; only LeftSidebarButton click toggles it
+result: [pending]
+retest_of: G-02-13
+fix_plan: 02-12
+
+### 17. Workspaces shown count is 4 (retest after 02-13)
+expected: Bar workspaces strip shows exactly 4 workspace indicators
+result: [pending]
+retest_of: G-02-14
+fix_plan: 02-13
 
 
 ## Summary
 
-total: 28
+total: 30
 passed: 24
 issues: 2
 pending_retest: 0
-pending: 0
+pending: 2
 skipped: 1
 blocked: 0
 
@@ -320,8 +340,11 @@ blocked: 0
 
 - gap_id: G-02-13
   truth: "Left sidebar opens only when clicking the left-sidebar button; empty bar space and hover do not open it"
-  status: failed
-  reason: "User reported: clicking on empty space in the top bar opens left sidebar no need and mouse hovering in the left top corner also opens the left sidebar. the left sidebar should open only when i click on it."
+  status: resolved
+  resolved_by: 02-12-SUMMARY.md
+  resolved_at: 2026-07-23
+  fixed_by: 02-12
+  reason: "User reported: clicking on empty space in the top bar opens left sidebar no need and mouse hovering in the left top corner also opens the left sidebar. the left sidebar should open only when i click on it. Fix plan 02-12 executed — retesting."
   severity: major
   test: 14
   root_cause: "Two open paths besides LeftSidebarButton: (1) barLeftSideMouseArea.onPressed toggles sidebarLeftOpen on any left-click across the entire left half of the bar; (2) ScreenCorners TopLeft action + live sidebar.cornerOpen.clicklessCornerEnd=true fires the same toggle when the pointer enters the top-left corner edge (≤2px), without a button click. Logs from AiChat/Anime/ToolbarTabBar are load side-effects after open, not the trigger."
@@ -342,8 +365,11 @@ blocked: 0
 
 - gap_id: G-02-14
   truth: "Bar workspaces strip shows 4 workspace indicators (not 10)"
-  status: failed
-  reason: "User reported: workspaces have 10 or something like that only 4 would be enough."
+  status: resolved
+  resolved_by: 02-13-SUMMARY.md
+  resolved_at: 2026-07-23
+  fixed_by: 02-13
+  reason: "User reported: workspaces have 10 or something like that only 4 would be enough. Fix plan 02-13 executed — retesting."
   severity: minor
   test: 15
   root_cause: "bar.workspaces.shown is 10 by design (Phase 2 D-02 dual-written to Config.qml + live config.json; phase02-config-assert expects 10). WorkspaceModel.shownCount binds that value. Not a layout bug — UAT preference overrides D-02 to shown: 4."
