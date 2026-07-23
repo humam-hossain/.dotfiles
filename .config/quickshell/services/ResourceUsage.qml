@@ -73,54 +73,80 @@ Singleton {
             cpuUsageHistory.shift()
         }
     }
-    function updateHistories() {
-        updateMemoryUsageHistory()
-        updateSwapUsageHistory()
-        updateCpuUsageHistory()
-    }
-
     function refreshDisk() {
         // Re-run df: toggle running so Process restarts if already finished
         diskProc.running = false
         diskProc.running = true
     }
 
+    function parseCpu() {
+        fileStat.reload()
+        const textStat = fileStat.text()
+        const cpuLine = textStat.match(/^cpu\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/)
+        if (cpuLine) {
+            const stats = cpuLine.slice(1).map(Number)
+            const total = stats.reduce((a, b) => a + b, 0)
+            const idle = stats[3]
+
+            if (previousCpuStats) {
+                const totalDiff = total - previousCpuStats.total
+                const idleDiff = idle - previousCpuStats.idle
+                cpuUsage = totalDiff > 0 ? (1 - idleDiff / totalDiff) : 0
+            }
+
+            previousCpuStats = { total, idle }
+        }
+        updateCpuUsageHistory()
+    }
+
+    function parseMemory() {
+        fileMeminfo.reload()
+        const textMeminfo = fileMeminfo.text()
+        memoryTotal = Number(textMeminfo.match(/MemTotal: *(\d+)/)?.[1] ?? 1)
+        memoryFree = Number(textMeminfo.match(/MemAvailable: *(\d+)/)?.[1] ?? 0)
+        swapTotal = Number(textMeminfo.match(/SwapTotal: *(\d+)/)?.[1] ?? 1)
+        swapFree = Number(textMeminfo.match(/SwapFree: *(\d+)/)?.[1] ?? 0)
+        updateMemoryUsageHistory()
+        updateSwapUsageHistory()
+    }
+
+    // Multi-rate poll (D-08, D-14): base ~1s CPU; RAM ~3s; disk ~10s (not every CPU tick)
+    property int memoryElapsedMs: 0
+    property int diskElapsedMs: 0
+
     Timer {
         interval: 1
         running: true
         repeat: true
         onTriggered: {
-            // Reload files
-            fileMeminfo.reload()
-            fileStat.reload()
+            const cpuInterval = Config.options?.resources?.updateInterval ?? 1000
+            const memInterval = Config.options?.resources?.memoryUpdateInterval ?? 3000
+            const diskInterval = Config.options?.resources?.diskUpdateInterval ?? 10000
 
-            // Parse memory and swap usage
-            const textMeminfo = fileMeminfo.text()
-            memoryTotal = Number(textMeminfo.match(/MemTotal: *(\d+)/)?.[1] ?? 1)
-            memoryFree = Number(textMeminfo.match(/MemAvailable: *(\d+)/)?.[1] ?? 0)
-            swapTotal = Number(textMeminfo.match(/SwapTotal: *(\d+)/)?.[1] ?? 1)
-            swapFree = Number(textMeminfo.match(/SwapFree: *(\d+)/)?.[1] ?? 0)
+            // Always refresh CPU on base tick (D-08)
+            root.parseCpu()
 
-            // Parse CPU usage
-            const textStat = fileStat.text()
-            const cpuLine = textStat.match(/^cpu\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/)
-            if (cpuLine) {
-                const stats = cpuLine.slice(1).map(Number)
-                const total = stats.reduce((a, b) => a + b, 0)
-                const idle = stats[3]
-
-                if (previousCpuStats) {
-                    const totalDiff = total - previousCpuStats.total
-                    const idleDiff = idle - previousCpuStats.idle
-                    cpuUsage = totalDiff > 0 ? (1 - idleDiff / totalDiff) : 0
-                }
-
-                previousCpuStats = { total, idle }
+            // RAM/swap on memoryUpdateInterval (~3s)
+            root.memoryElapsedMs += cpuInterval
+            if (root.memoryElapsedMs >= memInterval) {
+                root.memoryElapsedMs = 0
+                root.parseMemory()
             }
 
-            root.updateHistories()
-            interval = Config.options?.resources?.updateInterval ?? 3000
+            // Disk Process on diskUpdateInterval (~10s) — not every 1s tick (T-03-03)
+            root.diskElapsedMs += cpuInterval
+            if (root.diskElapsedMs >= diskInterval) {
+                root.diskElapsedMs = 0
+                root.refreshDisk()
+            }
+
+            interval = cpuInterval
         }
+    }
+
+    // Initial RAM parse so labels are not empty until first memory tick
+    Component.onCompleted: {
+        root.parseMemory()
     }
 
     FileView { id: fileMeminfo; path: "/proc/meminfo" }
