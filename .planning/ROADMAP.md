@@ -91,7 +91,7 @@
 3. Disk space information for the root partition is visible in the bar
 4. Volume level is displayed, scrolling on the module adjusts volume, and clicking toggles mute
 
-**Plans:** 3/8 plans executed
+**Plans:** 4/8 plans executed
 
 **Wave 1**
 
@@ -101,7 +101,7 @@
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 03-02-PLAN.md — Dual-write Config.qml + live config.json (thresholds, intervals, maxAllowed 130)
+- [x] 03-02-PLAN.md — Dual-write Config.qml + live config.json (thresholds, intervals, maxAllowed 130)
 - [ ] 03-07-PLAN.md — BarContent mute/mic icon+% + pavucontrol middle/right click
 
 **Wave 3** *(blocked on Wave 2 completion)*
