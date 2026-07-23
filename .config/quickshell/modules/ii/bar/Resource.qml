@@ -9,6 +9,7 @@ Item {
     required property double percentage
     property int warningThreshold: 100
     property int errorThreshold: 100
+    property string labelText: ""
     property bool shown: true
     clip: true
     visible: width > 0 && height > 0
@@ -64,7 +65,8 @@ Item {
 
             TextMetrics {
                 id: fullPercentageTextMetrics
-                text: "100"
+                // Bind to displayed string so capacity labels (e.g. 99.9/99.9 GB) do not clip
+                text: root.labelText.length > 0 ? root.labelText : "100%"
                 font.pixelSize: Appearance.font.pixelSize.small
             }
 
@@ -73,7 +75,9 @@ Item {
                 anchors.centerIn: parent
                 color: Appearance.colors.colOnLayer1
                 font.pixelSize: Appearance.font.pixelSize.small
-                text: `${Math.round(percentage * 100).toString()}`
+                text: root.labelText.length > 0
+                    ? root.labelText
+                    : `${Math.round(percentage * 100)}%`
             }
         }
 
