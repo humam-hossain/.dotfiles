@@ -79,7 +79,9 @@ Item { // Bar content region
 
         RowLayout {
             id: leftSectionRowLayout
-            anchors.fill: parent
+            anchors.left: parent.left
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
             spacing: 6
 
             LeftSidebarButton { // Left sidebar button
