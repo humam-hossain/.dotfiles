@@ -238,20 +238,60 @@ Item { // Bar content region
                     spacing: realSpacing
 
                     // D-19 order: mute → mic → xkb → Bluetooth → Network → notif
-                    MaterialSymbol {
-                        text: Audio.sink?.audio?.muted ? "volume_off" : "volume_up"
-                        iconSize: Appearance.font.pixelSize.larger
-                        color: rightSidebarButton.colText
+                    // D-18: unmuted = volume icon + %; muted = volume_off only
+                    Item {
+                        Layout.alignment: Qt.AlignVCenter
+                        implicitWidth: muteIndicatorRow.implicitWidth
+                        implicitHeight: muteIndicatorRow.implicitHeight
+
+                        RowLayout {
+                            id: muteIndicatorRow
+                            anchors.centerIn: parent
+                            spacing: 2
+
+                            MaterialSymbol {
+                                text: Audio.sink?.audio?.muted ? "volume_off" : "volume_up"
+                                iconSize: Appearance.font.pixelSize.larger
+                                color: rightSidebarButton.colText
+                            }
+                            StyledText {
+                                visible: !(Audio.sink?.audio?.muted ?? false)
+                                text: `${Math.round((Audio.sink?.audio?.volume ?? 0) * 100)}%`
+                                font.pixelSize: Appearance.font.pixelSize.small
+                                color: rightSidebarButton.colText
+                            }
+                        }
+
                         MouseArea {
                             anchors.fill: parent
                             z: 10
                             onClicked: (mouse) => { Audio.toggleMute(); mouse.accepted = true; }
                         }
                     }
-                    MaterialSymbol {
-                        text: Audio.source?.audio?.muted ? "mic_off" : "mic"
-                        iconSize: Appearance.font.pixelSize.larger
-                        color: rightSidebarButton.colText
+                    // D-19: unmuted = mic icon + input volume %; muted = mic_off only
+                    Item {
+                        Layout.alignment: Qt.AlignVCenter
+                        implicitWidth: micIndicatorRow.implicitWidth
+                        implicitHeight: micIndicatorRow.implicitHeight
+
+                        RowLayout {
+                            id: micIndicatorRow
+                            anchors.centerIn: parent
+                            spacing: 2
+
+                            MaterialSymbol {
+                                text: Audio.source?.audio?.muted ? "mic_off" : "mic"
+                                iconSize: Appearance.font.pixelSize.larger
+                                color: rightSidebarButton.colText
+                            }
+                            StyledText {
+                                visible: !(Audio.source?.audio?.muted ?? false)
+                                text: `${Math.round((Audio.source?.audio?.volume ?? 0) * 100)}%`
+                                font.pixelSize: Appearance.font.pixelSize.small
+                                color: rightSidebarButton.colText
+                            }
+                        }
+
                         MouseArea {
                             anchors.fill: parent
                             z: 10
