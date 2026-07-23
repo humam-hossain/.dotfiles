@@ -95,18 +95,20 @@
 
 **Wave 1**
 - [ ] 03-01-PLAN.md — Wave 0 live config assert harness (`phase03-config-assert.py` + VALIDATION wiring)
-
-**Wave 2** *(blocked on Wave 1 completion for 03-02 only; 03-03/03-04 parallel)*
-- [ ] 03-02-PLAN.md — Dual-write Config.qml + live config.json (thresholds, intervals, maxAllowed 130)
 - [ ] 03-03-PLAN.md — Resource.qml dual thresholds + labelText + TextMetrics
 - [ ] 03-04-PLAN.md — Audio 130% + auto-unmute + ScreenCorners/Hyprland raise paths
 
-**Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 03-05-PLAN.md — ResourceUsage multi-rate poll + root `/` disk via `df`
-- [ ] 03-06-PLAN.md — Resources.qml strip CPU→RAM→Disk, no swap, no ResourcesPopup
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 03-02-PLAN.md — Dual-write Config.qml + live config.json (thresholds, intervals, maxAllowed 130)
 - [ ] 03-07-PLAN.md — BarContent mute/mic icon+% + pavucontrol middle/right click
 
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 03-05-PLAN.md — ResourceUsage multi-rate poll + root `/` disk via `df`
+
 **Wave 4** *(blocked on Wave 3 completion)*
+- [ ] 03-06-PLAN.md — Resources.qml strip CPU→RAM→Disk, no swap, no ResourcesPopup
+
+**Wave 5** *(blocked on Wave 4 completion)*
 - [ ] 03-08-PLAN.md — Static gates + smoke + VALIDATION nyquist sign-off
 
 **Cross-cutting constraints:**
