@@ -147,7 +147,7 @@ Singleton {
                     // Prevent sudden bangs
                     property bool enable: false
                     property real maxAllowedIncrease: 10
-                    property real maxAllowed: 99
+                    property real maxAllowed: 130
                 }
             }
 
@@ -244,11 +244,15 @@ Singleton {
                 property bool verbose: true
                 property bool vertical: false
                 property JsonObject resources: JsonObject {
-                    property bool alwaysShowSwap: true
+                    property bool alwaysShowSwap: false
                     property bool alwaysShowCpu: true
-                    property int memoryWarningThreshold: 95
+                    property int memoryWarningThreshold: 75
+                    property int memoryErrorThreshold: 95
                     property int swapWarningThreshold: 85
-                    property int cpuWarningThreshold: 90
+                    property int cpuWarningThreshold: 40
+                    property int cpuErrorThreshold: 80
+                    property int diskWarningThreshold: 80
+                    property int diskErrorThreshold: 95
                 }
                 property list<string> screenList: [] // List of names, like "eDP-1", find out with 'hyprctl monitors' command
                 property JsonObject utilButtons: JsonObject {
@@ -459,7 +463,9 @@ Singleton {
             }
 
             property JsonObject resources: JsonObject {
-                property int updateInterval: 3000
+                property int updateInterval: 1000
+                property int memoryUpdateInterval: 3000
+                property int diskUpdateInterval: 10000
                 property int historyLength: 60
             }
 
