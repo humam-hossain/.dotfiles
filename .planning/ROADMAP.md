@@ -91,12 +91,12 @@
 3. Disk space information for the root partition is visible in the bar
 4. Volume level is displayed, scrolling on the module adjusts volume, and clicking toggles mute
 
-**Plans:** 1/8 plans executed
+**Plans:** 2/8 plans executed
 
 **Wave 1**
 
 - [x] 03-01-PLAN.md — Wave 0 live config assert harness (`phase03-config-assert.py` + VALIDATION wiring)
-- [ ] 03-03-PLAN.md — Resource.qml dual thresholds + labelText + TextMetrics
+- [x] 03-03-PLAN.md — Resource.qml dual thresholds + labelText + TextMetrics
 - [ ] 03-04-PLAN.md — Audio 130% + auto-unmute + ScreenCorners/Hyprland raise paths
 
 **Wave 2** *(blocked on Wave 1 completion)*
