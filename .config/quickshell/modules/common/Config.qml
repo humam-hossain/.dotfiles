@@ -262,7 +262,7 @@ Singleton {
                 }
                 property JsonObject workspaces: JsonObject {
                     property bool monochromeIcons: true
-                    property int shown: 10
+                    property int shown: 4 // UAT G-02-14 overrides D-02 (was 10)
                     property bool showAppIcons: true
                     property bool alwaysShowNumbers: false
                     property int showNumberDelay: 300 // milliseconds
@@ -515,7 +515,7 @@ Singleton {
                     }
                 }
                 property JsonObject cornerOpen: JsonObject {
-                    property bool enable: true
+                    property bool enable: false // G-02-13: no corner hover/click open; button only
                     property bool bottom: false
                     property bool valueScroll: true
                     property bool clickless: false
