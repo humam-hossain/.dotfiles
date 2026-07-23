@@ -22,7 +22,8 @@ Item {
 
     RowLayout {
         id: resourceRowLayout
-        spacing: 2
+        // Wider spacing for capacity labels (e.g. 12.3/31.2 GB) to match CPU visual rhythm
+        spacing: root.labelText.length > 0 ? 4 : 2
         x: shown ? 0 : -resourceRowLayout.width
         anchors {
             verticalCenter: parent.verticalCenter
