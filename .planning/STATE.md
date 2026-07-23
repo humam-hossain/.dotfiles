@@ -4,16 +4,18 @@ milestone: v0.1
 milestone_name: Core Framework & Basic Bar
 current_phase: 3
 current_phase_name: System & Audio Modules
-status: executing
-stopped_at: Phase 3 context gathered
-last_updated: "2026-07-23T06:15:37.516Z"
+status: ready_to_execute
+stopped_at: Phase 3 planned — 8 plans ready
+last_updated: "2026-07-23T06:20:00.000Z"
 last_activity: 2026-07-23
-last_activity_desc: "Phase 02 complete (UAT 29 pass, verification passed, security threats_open: 0)"
+last_activity_desc: "Phase 3 planned: 8 plans (03-01..03-08), research + patterns + validation complete"
 progress:
-  total_phases: 3
+  total_phases: 4
   completed_phases: 2
-  total_plans: 17
+  total_plans: 25
   completed_plans: 17
+  phase_3_plans: 8
+  phase_3_plans_complete: 0
 ---
 
 # Project State
@@ -21,24 +23,25 @@ progress:
 ## Current Position
 
 Phase: 3 — System & Audio Modules  
-Plan: Not started  
-Status: Ready to execute
-Last activity: 2026-07-23 — Phase 02 complete (UAT 29 pass, verification passed, security threats_open: 0)
+Plan: 0/8 complete (03-01..03-08 planned)  
+Status: Ready to execute  
+Last activity: 2026-07-23 — Phase 3 planned (research, patterns, validation, 8 PLAN.md files)
 
 Progress: [██████████░░░░░░░░░░] 2/4 phases complete
 
 ## Session
 
-**Last session:** 2026-07-23T05:47:44.875Z
-**Stopped at:** Phase 3 context gathered
-**Resume file:** .planning/phases/03-system-audio-modules/03-CONTEXT.md
+**Last session:** 2026-07-23  
+**Stopped at:** Phase 3 plan-phase complete  
+**Resume file:** `.planning/phases/03-system-audio-modules/03-01-PLAN.md`  
+**Next command:** `/gsd-execute-phase 3`
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-07-21)
 
 **Core value:** Reproduce every current Waybar module's functionality before cutover — while gaining a unified, themeable shell.  
-**Current focus:** Phase 03 — System & Audio Modules
+**Current focus:** Phase 03 — System & Audio Modules (BAR-05..08)
 
 ## Accumulated Context
 
@@ -58,6 +61,7 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 - **UAT fix:** StyledPopup.forceActive + ClockWidget onClicked for click-to-pin
 - **UAT override:** `bar.workspaces.shown: 4` (G-02-14; overrides D-02 shown:10)
 - **UAT fix:** left sidebar opens only via LeftSidebarButton; cornerOpen disabled (G-02-13)
+- **Phase 3:** CPU→RAM→Disk rings; dual thresholds; no swap/popup on strip; mute/mic icon+%; 130% volume + auto-unmute; pavucontrol middle/right (D-01..D-26)
 
 ### Phase 2 deliverables (complete)
 
@@ -73,7 +77,23 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 - 02-SECURITY.md status `verified`, threats_open: 0
 - Plans 02-01..02-13 all have SUMMARYs
 
+### Phase 3 planning artifacts (ready)
+
+| Artifact | Path |
+|----------|------|
+| Context | `03-CONTEXT.md` (D-01..D-26 locked) |
+| Research | `03-RESEARCH.md` (HIGH confidence) |
+| Patterns | `03-PATTERNS.md` (9/9 analogs) |
+| Validation | `03-VALIDATION.md` (draft Wave 0 strategy) |
+| Plans | `03-01` .. `03-08` PLAN.md (4 waves) |
+
+**Coverage gates (plan-phase):**
+- Requirements BAR-05..08: 4/4 covered
+- CONTEXT decisions D-01..D-26: 26/26 covered
+- Post-planning gap analysis: 30/30 covered
+
 ### Next
 
-1. `/gsd-discuss-phase 3` or `/gsd-plan-phase 3` — System & Audio Modules (BAR-05..08)
-2. Optional: `/gsd-ui-review 2` if visual audit desired (ui_review config off)
+1. `/gsd-execute-phase 3` — execute Wave 1→4 plans for System & Audio Modules
+2. After execute + verify: human UAT for BAR-05..08 visual/interaction criteria
+3. Optional: `/gsd-ui-review 2` if visual audit of Phase 2 desired (ui_review config off)
