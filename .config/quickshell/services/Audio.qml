@@ -16,6 +16,7 @@ Singleton {
     property PwNode sink: Pipewire.defaultAudioSink
     property PwNode source: Pipewire.defaultAudioSource
     readonly property real hardMaxValue: 2.00 // People keep joking about setting volume to 5172% so...
+    readonly property real maxVolume: 1.30 // D-22: intentional boost ceiling (130% linear)
     property string audioTheme: Config.options.sounds.theme
     property real value: sink?.audio.volume ?? 0
     
@@ -58,15 +59,24 @@ Singleton {
     }
 
     function incrementVolume() {
-        const currentVolume = Audio.value;
-        const step = currentVolume < 0.1 ? 0.01 : 0.02 || 0.2;
-        Audio.sink.audio.volume = Math.min(1, Audio.sink.audio.volume + step);
+        if (!sink?.audio) return;
+        // D-21: volume change while muted unmutes (scroll / UI path)
+        if (sink.audio.muted)
+            sink.audio.muted = false;
+        const currentVolume = value;
+        const step = currentVolume < 0.1 ? 0.01 : 0.02;
+        // D-22: raise ceiling is maxVolume (1.30), not 1.0
+        sink.audio.volume = Math.min(maxVolume, sink.audio.volume + step);
     }
     
     function decrementVolume() {
-        const currentVolume = Audio.value;
-        const step = currentVolume < 0.1 ? 0.01 : 0.02 || 0.2;
-        Audio.sink.audio.volume -= step;
+        if (!sink?.audio) return;
+        // D-21: volume change while muted unmutes
+        if (sink.audio.muted)
+            sink.audio.muted = false;
+        const currentVolume = value;
+        const step = currentVolume < 0.1 ? 0.01 : 0.02;
+        sink.audio.volume = Math.max(0, sink.audio.volume - step);
     }
 
     function setDefaultSink(node) {
@@ -80,6 +90,38 @@ Singleton {
     // Internals
     PwObjectTracker {
         objects: [sink, source]
+    }
+
+    // D-21: auto-unmute on external sink volume changes (keyboard wpctl, etc.).
+    // Dedicated Connections so auto-unmute is NOT gated on protection.enable.
+    Connections {
+        target: sink?.audio ?? null
+        property real lastVolume: -1
+        function onVolumeChanged() {
+            if (!sink?.audio) return;
+            const newVolume = sink.audio.volume;
+            if (isNaN(newVolume) || newVolume === undefined || newVolume === null)
+                return;
+            // Unmute when volume actually changed while muted
+            if (sink.audio.muted && lastVolume >= 0 && newVolume !== lastVolume)
+                sink.audio.muted = false;
+            lastVolume = newVolume;
+        }
+    }
+
+    // D-21 symmetry: auto-unmute mic when input volume changes while muted
+    Connections {
+        target: source?.audio ?? null
+        property real lastVolume: -1
+        function onVolumeChanged() {
+            if (!source?.audio) return;
+            const newVolume = source.audio.volume;
+            if (isNaN(newVolume) || newVolume === undefined || newVolume === null)
+                return;
+            if (source.audio.muted && lastVolume >= 0 && newVolume !== lastVolume)
+                source.audio.muted = false;
+            lastVolume = newVolume;
+        }
     }
 
     Connections { // Protection against sudden volume changes
