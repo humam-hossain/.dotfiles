@@ -99,7 +99,7 @@ Each task was committed atomically:
 2. **Task 2: Disable ResourcesPopup and strip interactivity** - `8433953` (feat)
 3. **Task 2 fix: keep alwaysShowAllResources for BarContent API** - `eb4ad54` (fix)
 
-**Plan metadata:** (pending docs commit)
+**Plan metadata:** `a525aae` (docs: complete plan)
 
 _Note: TDD not used for this plan (`tdd: false`)_
 
