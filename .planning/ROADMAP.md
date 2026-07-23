@@ -91,27 +91,33 @@
 3. Disk space information for the root partition is visible in the bar
 4. Volume level is displayed, scrolling on the module adjusts volume, and clicking toggles mute
 
-**Plans:** 0/8 plans complete
+**Plans:** 1/8 plans executed
 
 **Wave 1**
-- [ ] 03-01-PLAN.md — Wave 0 live config assert harness (`phase03-config-assert.py` + VALIDATION wiring)
+
+- [x] 03-01-PLAN.md — Wave 0 live config assert harness (`phase03-config-assert.py` + VALIDATION wiring)
 - [ ] 03-03-PLAN.md — Resource.qml dual thresholds + labelText + TextMetrics
 - [ ] 03-04-PLAN.md — Audio 130% + auto-unmute + ScreenCorners/Hyprland raise paths
 
 **Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 03-02-PLAN.md — Dual-write Config.qml + live config.json (thresholds, intervals, maxAllowed 130)
 - [ ] 03-07-PLAN.md — BarContent mute/mic icon+% + pavucontrol middle/right click
 
 **Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 03-05-PLAN.md — ResourceUsage multi-rate poll + root `/` disk via `df`
 
 **Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 03-06-PLAN.md — Resources.qml strip CPU→RAM→Disk, no swap, no ResourcesPopup
 
 **Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 03-08-PLAN.md — Static gates + smoke + VALIDATION nyquist sign-off
 
 **Cross-cutting constraints:**
+
 - Dual-write Config.qml + live `~/.config/illogical-impulse/config.json` for all new thresholds/intervals and `audio.protection.maxAllowed: 130`
 - No brightness/ddcutil; no dedicated volume module; no ResourcesPopup; no swap on bar; no new volume OSD
 - Volume user ceiling 1.30 linear with auto-unmute on volume change (D-21/D-22)
@@ -152,7 +158,7 @@ graph LR
 |-------|------|--------|------|
 | 1 | Shell Foundation & Theme | Complete | 2026-07-21 |
 | 2 | Core Bar Modules | Complete | 2026-07-23 |
-| 3 | System & Audio Modules | Planned (8 plans) | 2026-07-23 |
+| 3 | System & Audio Modules | In Progress| 2026-07-23 |
 | 4 | IPC, Keybinds & Integration | Not started | — |
 
 ---
