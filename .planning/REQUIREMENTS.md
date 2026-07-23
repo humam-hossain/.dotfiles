@@ -22,10 +22,10 @@ Requirements for milestone v0.1: Core Framework & Basic Bar.
 
 ### Bar Modules
 
-- [ ] **BAR-01**: User can see and click Hyprland workspace indicators to switch workspaces
-- [ ] **BAR-02**: User sees current date and time in the bar
-- [ ] **BAR-03**: User sees system tray icons from running applications
-- [ ] **BAR-04**: User sees network connection status (wifi/ethernet/disconnected)
+- [x] **BAR-01**: User can see and click Hyprland workspace indicators to switch workspaces
+- [x] **BAR-02**: User sees current date and time in the bar
+- [x] **BAR-03**: User sees system tray icons from running applications
+- [x] **BAR-04**: User sees network connection status (wifi/ethernet/disconnected)
 - [ ] **BAR-05**: User sees current CPU utilization in the bar
 - [ ] **BAR-06**: User sees current RAM utilization in the bar
 - [ ] **BAR-07**: User sees disk space information in the bar
@@ -102,10 +102,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FWK-05 | Phase 1 | Complete |
 | THM-01 | Phase 1 | Complete |
 | THM-02 | Phase 1 | Complete |
-| BAR-01 | Phase 2 | Pending |
-| BAR-02 | Phase 2 | Pending |
-| BAR-03 | Phase 2 | Pending |
-| BAR-04 | Phase 2 | Pending |
+| BAR-01 | Phase 2 | Complete |
+| BAR-02 | Phase 2 | Complete |
+| BAR-03 | Phase 2 | Complete |
+| BAR-04 | Phase 2 | Complete |
 | BAR-05 | Phase 3 | Pending |
 | BAR-06 | Phase 3 | Pending |
 | BAR-07 | Phase 3 | Pending |

@@ -60,7 +60,7 @@
 3. System tray icons from running applications (e.g., Discord, Steam, nm-applet) are visible and interactive
 4. Network module shows wifi SSID/signal or ethernet status, and correctly reflects disconnected state
 
-**Plans:** 11/11 plans complete
+**Plans:** 13/13 plans complete
 
 - [x] 02-11-PLAN.md
 
@@ -124,7 +124,7 @@ graph LR
 | Phase | Name | Status | Date |
 |-------|------|--------|------|
 | 1 | Shell Foundation & Theme | Complete | 2026-07-21 |
-| 2 | Core Bar Modules | Awaiting re-UAT | 2026-07-22 |
+| 2 | Core Bar Modules | Complete    | 2026-07-22 |
 | 3 | System & Audio Modules | Not started | — |
 | 4 | IPC, Keybinds & Integration | Not started | — |
 

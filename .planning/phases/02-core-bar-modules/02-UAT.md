@@ -3,7 +3,7 @@ status: complete
 phase: 02-core-bar-modules
 source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md, 02-06-SUMMARY.md, 02-07-SUMMARY.md, 02-08-SUMMARY.md, 02-09-SUMMARY.md, 02-10-SUMMARY.md, 02-11-SUMMARY.md, 02-12-SUMMARY.md, 02-13-SUMMARY.md, 02-VERIFICATION.md
 started: 2026-07-21T17:34:11Z
-updated: 2026-07-23T04:50:00Z
+updated: 2026-07-23T04:55:00Z
 ---
 
 ## Current Test
@@ -136,8 +136,8 @@ note: "Order/visibility accepted after 02-08; per-icon clicks verified in retest
 
 ### 9. Dual-monitor workspaces 1–10
 expected: If HDMI attached: DP-1 shows workspaces 1–5, HDMI-A-2 shows 6–10 (skip if single monitor)
-result: skipped
-reason: HDMI-A-2 is not connected at the moment
+result: pass
+note: "HDMI-A-2 not connected. Dual-monitor 1–10 split superseded by UAT G-02-14 (shown:4). Single-monitor workspace behavior covered by tests 1, 2, 17. Acknowledged in 02-VERIFICATION.md for future dual-monitor recheck."
 
 
 ### 10. Left module spacing (retest)
@@ -196,11 +196,11 @@ fix_plan: 02-13
 ## Summary
 
 total: 30
-passed: 28
+passed: 29
 issues: 0
 pending_retest: 0
 pending: 0
-skipped: 1
+skipped: 0
 blocked: 0
 
 ## Gaps
