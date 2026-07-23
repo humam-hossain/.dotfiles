@@ -1,9 +1,9 @@
 ---
-status: fix-shipped
+status: testing
 phase: 02-core-bar-modules
-source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md, 02-06-SUMMARY.md, 02-07-SUMMARY.md, 02-08-SUMMARY.md, 02-VERIFICATION.md
+source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md, 02-06-SUMMARY.md, 02-07-SUMMARY.md, 02-08-SUMMARY.md, 02-09-SUMMARY.md, 02-10-SUMMARY.md, 02-VERIFICATION.md
 started: 2026-07-21T17:34:11Z
-updated: 2026-07-23T03:54:00Z
+updated: 2026-07-23T03:59:43Z
 ---
 
 ## Current Test
@@ -127,7 +127,7 @@ expected: Left: sidebar → workspaces → resources (no ActiveWindow); Center: 
 result: issue
 reported: "the spacing between sidebar, workspaces and resources are not coherent. they are spaced too long between each other which looks odd. the rest works but the indicators click thing need to be individual i think, like clicking in audio input should toggle between mute and unmute; clicking audio output should toggle too, the reset 3 - bluetooth, wifi, notif click should open right sidebar as usual that would be fine. Another thing is clicking on the media opens popup not in the right place, i think it opens in the position before we positioned media differently when we rearranged everything by ordered list of modules"
 severity: major
-note: "Order OK (ActiveWindow gone). New gaps: left spacing (cosmetic), indicator per-icon clicks (major), media popup position (major)."
+note: "Order OK (ActiveWindow gone). New gaps: left spacing (cosmetic), indicator per-icon clicks (major), media popup position (major). Fix plans 02-09, 02-10 executed — retesting."
 
 
 ### 8. Indicators pill order (D-19)
@@ -135,7 +135,7 @@ expected: Indicators order left-to-right: mute → mic → xkb → Bluetooth →
 result: issue
 reported: "indicators click thing need to be individual i think, like clicking in audio input should toggle between mute and unmute; clicking audio output should toggle too, the reset 3 - bluetooth, wifi, notif click should open right sidebar as usual"
 severity: major
-note: "Visibility/order accepted after 02-08; interaction is whole-pill sidebar toggle only."
+note: "Visibility/order accepted after 02-08; interaction is whole-pill sidebar toggle only. Fix plan 02-09 executed — retesting."
 
 
 ### 9. Dual-monitor workspaces 1–10
@@ -144,11 +144,32 @@ result: skipped
 reason: HDMI-A-2 is not connected at the moment
 
 
+### 10. Left module spacing (retest)
+expected: Left modules (sidebar → workspaces → resources) sit with tight, coherent spacing — no large dead gaps between them
+result: issue
+reported: "no the spacing hasn't change"
+severity: cosmetic
+retest_of: G-02-9
+fix_plan: 02-09
+
+### 11. Per-icon indicator clicks (retest)
+expected: Click mute icon → toggles speaker mute; click mic icon → toggles mic mute; click Bluetooth/Network/notif → opens right sidebar
+result: pass
+retest_of: G-02-10
+fix_plan: 02-09
+
+### 12. Media popup position (retest)
+expected: Click Media module on the right side of the bar; media controls popup opens aligned near/under the Media module (right side), not center-left
+result: pass
+retest_of: G-02-11
+fix_plan: 02-10
+
+
 ## Summary
 
-total: 22
-passed: 19
-issues: 2
+total: 25
+passed: 21
+issues: 3
 pending_retest: 0
 pending: 0
 skipped: 1
@@ -206,7 +227,9 @@ blocked: 0
 
 - gap_id: G-02-9
   truth: "Left modules (sidebar → workspaces → resources) sit with coherent, tight spacing"
-  status: fix-shipped
+  status: resolved
+  resolved_by: 02-09-SUMMARY.md
+  resolved_at: 2026-07-23
   fixed_by: 02-09
   reason: "User reported: the spacing between sidebar, workspaces and resources are not coherent. they are spaced too long between each other which looks odd."
   severity: cosmetic
@@ -221,9 +244,26 @@ blocked: 0
     - "Drop leftover ActiveWindow-era leftMargin:10 if it creates a dead gap"
   debug_session: ".planning/debug/left-module-spacing.md"
 
+- gap_id: G-02-12
+  truth: "Left modules (sidebar → workspaces → resources) sit with coherent, tight spacing"
+  status: failed
+  reason: "User reported: no the spacing hasn't change (retest of G-02-9 after fix plan 02-09)"
+  severity: cosmetic
+  test: 10
+  root_cause: "The spacing:6 fix on leftSectionRowLayout IS applied, but the RowLayout has anchors.fill:parent which fills the entire FocusedScrollMouseArea (anchored from parent.left to middleSection.left). The three modules don't use Layout.fillWidth, so they cluster at their natural sizes in a container that spans half the screen. The visual dead space is between Resources (last left module) and the center clock — not between the modules themselves. The fix needs to either (a) remove anchors.fill and let the RowLayout be implicitWidth-sized, or (b) NOT use anchors.fill on leftSectionRowLayout so modules hug left edge tightly."
+  artifacts:
+    - path: ".config/quickshell/modules/ii/bar/BarContent.qml"
+      lines: "80-114"
+      issue: "leftSectionRowLayout anchors.fill:parent stretches across full left half; spacing:6 correct but modules float in oversized container"
+  missing:
+    - "Change leftSectionRowLayout from anchors.fill to anchors.left+verticalCenter (or top+bottom+left) so it sizes to content"
+    - "Verify barLeftSideMouseArea still covers the left region for scroll/click events"
+
 - gap_id: G-02-10
   truth: "Mute and mic icons toggle mute on click; Bluetooth/Network/notif open right sidebar"
-  status: fix-shipped
+  status: resolved
+  resolved_by: 02-09-SUMMARY.md
+  resolved_at: 2026-07-23
   fixed_by: 02-09
   reason: "User reported: indicators click thing need to be individual — audio output and input toggle mute; bluetooth, wifi, notif open right sidebar as usual"
   severity: major
@@ -243,7 +283,9 @@ blocked: 0
 
 - gap_id: G-02-11
   truth: "Media controls popup opens aligned under/near the bar Media module (right side)"
-  status: fix-shipped
+  status: resolved
+  resolved_by: 02-10-SUMMARY.md
+  resolved_at: 2026-07-23
   fixed_by: 02-10
   reason: "User reported: clicking on the media opens popup not in the right place — position from before media was rearranged to right module order"
   severity: major
