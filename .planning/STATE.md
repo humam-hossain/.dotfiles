@@ -4,26 +4,27 @@ milestone: v0.1
 milestone_name: Core Framework & Basic Bar
 current_phase: 02
 current_phase_name: core-bar-modules
-status: awaiting_human_uat
+status: executing
 stopped_at: Phase 2 gap-closure complete — re-UAT G-02-4, G-02-7a, G-02-7b, G-02-8
-last_updated: "2026-07-21T18:33:16Z"
+last_updated: "2026-07-22T17:30:52.484Z"
 last_activity: 2026-07-22
-last_activity_desc: Gap plans 02-06..02-08 executed; VERIFICATION human_needed
+last_activity_desc: Phase 02 execution started
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 12
+  total_plans: 14
   completed_plans: 12
+  percent: 25
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 02 (core-bar-modules) — AWAITING HUMAN UAT
-Plan: 8 of 8 (all complete including gap-closure)
-Status: Code complete; re-verify gap fixes visually
-Last activity: 2026-07-22 — gap-closure wave 6 done + VERIFICATION.md
+Phase: 02 (core-bar-modules) — EXECUTING
+Plan: 1 of 10
+Status: Executing Phase 02
+Last activity: 2026-07-22 — Phase 02 execution started
 
 Progress: [█████░░░░░░░░░░░░░░░] 1/4 phases complete · Phase 2 plans 8/8
 
@@ -38,7 +39,7 @@ Progress: [█████░░░░░░░░░░░░░░░] 1/4 pha
 See: .planning/PROJECT.md (updated 2026-07-21)
 
 **Core value:** Reproduce every current Waybar module's functionality before cutover — while gaining a unified, themeable shell.
-**Current focus:** Phase 02 re-UAT after gap closure (clock click, ActiveWindow removal, full indicators)
+**Current focus:** Phase 02 — core-bar-modules
 
 ## Accumulated Context
 
