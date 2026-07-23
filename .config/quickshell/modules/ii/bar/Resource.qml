@@ -37,7 +37,7 @@ Item {
             colPrimary: root.isError
                 ? Appearance.colors.colError
                 : root.isWarning
-                    ? Appearance.colors.colPrimary
+                    ? Appearance.colors.colWarning
                     : Appearance.colors.colOnSecondaryContainer
             accountForLightBleeding: !(root.isError || root.isWarning)
             enableAnimation: false

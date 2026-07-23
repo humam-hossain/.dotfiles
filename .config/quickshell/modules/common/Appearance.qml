@@ -206,6 +206,9 @@ Singleton {
         property color colErrorContainerHover: ColorUtils.mix(m3colors.m3errorContainer, m3colors.m3onErrorContainer, 0.90)
         property color colErrorContainerActive: ColorUtils.mix(m3colors.m3errorContainer, m3colors.m3onErrorContainer, 0.70)
         property color colOnErrorContainer: m3colors.m3onErrorContainer
+        // Warning — warm amber distinct from colPrimary (lavender) and colError (red).
+        // M3 tokens have no warning/amber equivalent; fixed hex for clear two-tier feedback (D-07).
+        property color colWarning: "#FFB74D"
     }
 
     rounding: QtObject {
