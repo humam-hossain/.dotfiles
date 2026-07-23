@@ -10,7 +10,7 @@
 | # | Phase | Goal | Requirements | Success Criteria |
 |---|-------|------|--------------|------------------|
 | 1 | Shell Foundation & Theme | Bootstrap Quickshell shell with Material theming, service pattern, and directory structure | FWK-01, FWK-03, FWK-04, FWK-05, THM-01, THM-02 | 5 |
-| 2 | Core Bar Modules | 10/10 | Complete   | 2026-07-23 |
+| 2 | Core Bar Modules | 11/11 | Complete   | 2026-07-23 |
 | 3 | System & Audio Modules | Add system metrics and audio control modules | BAR-05, BAR-06, BAR-07, BAR-08 | 4 |
 | 4 | IPC, Keybinds & Integration | Wire up IPC socket, Hyprland keybinds, graceful reload, and auto-start | FWK-02, IPC-01, IPC-02, IPC-03 | 5 |
 
@@ -60,7 +60,9 @@
 3. System tray icons from running applications (e.g., Discord, Steam, nm-applet) are visible and interactive
 4. Network module shows wifi SSID/signal or ethernet status, and correctly reflects disconnected state
 
-**Plans:** 10/10 plans complete
+**Plans:** 11/11 plans complete
+
+- [x] 02-11-PLAN.md
 
 - [x] 02-09-PLAN.md
 - [x] 02-10-PLAN.md
