@@ -5,7 +5,7 @@ slug: system-audio-modules
 # audit-milestone §5.5 distinguishes NOT-VALIDATED (draft) from PARTIAL (validated + nyquist_compliant: false) (#2117)
 status: draft
 nyquist_compliant: false
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-07-23
 ---
 
@@ -41,33 +41,36 @@ created: 2026-07-23
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 03-W0-01 | 00 | 0 | BAR-05..08 | T-03-01 | Dual-write thresholds trusted defaults | config assert | `python3 scripts/phase03-config-assert.py` | ❌ W0 | ⬜ pending |
-| 03-xx | TBD | 1+ | BAR-05 | — | N/A | static + smoke | `rg -n 'cpuUsage' .config/quickshell/modules/ii/bar/Resources.qml` | ✅ source | ⬜ pending |
-| 03-xx | TBD | 1+ | BAR-06 | — | N/A | static | `rg -n 'swap_horiz' .config/quickshell/modules/ii/bar/Resources.qml` (expect no bar instance) | ✅ source | ⬜ pending |
-| 03-xx | TBD | 1+ | BAR-07 | T-03-03 | df argv array; ~10s interval | static | `rg -n 'disk\|df ' .config/quickshell/services/ResourceUsage.qml` | ❌ until impl | ⬜ pending |
-| 03-xx | TBD | 1+ | BAR-08 | T-03-04 | volume clamp ≤ 1.30 | static | `rg -n '1\.3|maxVolume|Math.min\\(1' .config/quickshell/services/Audio.qml` | ✅ after edit | ⬜ pending |
-| 03-xx | TBD | 1+ | BAR-08 | T-03-02 | volumeMixer from Config only | static | `rg -n 'volumeMixer' .config/quickshell/modules/ii/bar/BarContent.qml` | ❌ until impl | ⬜ pending |
-| 03-xx | TBD | 1+ | D-09 | — | N/A | static | `rg -n 'ResourcesPopup' .config/quickshell/modules/ii/bar/Resources.qml` expect absent/disabled | ✅ after edit | ⬜ pending |
+| 03-01-01 | 01 | 0 | BAR-05..08 | T-03-01 | Dual-write thresholds trusted defaults | config assert | `python3 scripts/phase03-config-assert.py` | ✅ script | ⬜ red until 03-02 |
+| 03-01-02 | 01 | 0 | BAR-05..08 | T-03-01 | VALIDATION Wave 0 task map wired | docs | `rg -n 'phase03-config-assert\|wave_0_complete' .planning/phases/03-system-audio-modules/03-VALIDATION.md` | ✅ docs | ✅ green |
+| 03-02-* | 02 | 1 | BAR-05..08 | T-03-01/T-03-04 | Dual-write Config.qml + live JSON | config assert | `python3 scripts/phase03-config-assert.py` (expect green) | ❌ until 03-02 | ⬜ pending |
+| 03-03-* | 03 | 2 | BAR-05 | — | Resource.qml dual thresholds / labels | static + smoke | `rg -n 'cpuWarningThreshold\|cpuErrorThreshold' .config/quickshell/modules/common/widgets/Resource.qml` | ✅ source | ⬜ pending |
+| 03-04-* | 04 | 2 | BAR-08 | T-03-04 | Audio 130% + auto-unmute + clamp paths | static | `rg -n '1\.3\|maxVolume\|Math.min\\(1' .config/quickshell/services/Audio.qml` | ✅ after edit | ⬜ pending |
+| 03-05-* | 05 | 2 | BAR-07 | T-03-03 | ResourceUsage multi-rate + disk; df ~10s | static | `rg -n 'disk\|df \|diskUpdateInterval' .config/quickshell/services/ResourceUsage.qml` | ❌ until impl | ⬜ pending |
+| 03-06-* | 06 | 3 | BAR-05..07 | T-03-05 | Resources.qml strip CPU→RAM→Disk; no swap/popup | static | `rg -n 'cpuUsage\|swap_horiz\|ResourcesPopup' .config/quickshell/modules/ii/bar/Resources.qml` | ✅ source | ⬜ pending |
+| 03-07-* | 07 | 3 | BAR-08 | T-03-02 | BarContent mute/mic % + volumeMixer from Config | static | `rg -n 'volumeMixer\|muted\|microphone' .config/quickshell/modules/ii/bar/BarContent.qml` | ❌ until impl | ⬜ pending |
+| 03-08-* | 08 | 4 | BAR-05..08 | — | Static gates + nyquist sign-off | static + assert | full suite + set `nyquist_compliant: true` | ✅ after 03-08 | ⬜ pending |
 | smoke | all | all | — | — | N/A | smoke | `timeout 4 quickshell 2>&1 \| rg 'Configuration Loaded'` | ✅ runtime | ⬜ pending |
 
-*Planner must replace TBD Task IDs with concrete plan/task IDs. Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] `scripts/phase03-config-assert.py` — asserts dual-written keys:
+- [x] `scripts/phase03-config-assert.py` — command: `python3 scripts/phase03-config-assert.py` — asserts dual-written keys:
   - `bar.resources.cpuWarningThreshold == 40`
-  - `bar.resources.cpuErrorThreshold == 80` (or agreed key names)
+  - `bar.resources.cpuErrorThreshold == 80`
   - `bar.resources.memoryWarningThreshold == 75`
   - `bar.resources.memoryErrorThreshold == 95`
   - `bar.resources.diskWarningThreshold == 80`
   - `bar.resources.diskErrorThreshold == 95`
   - `bar.resources.alwaysShowCpu is True`
-  - CPU/RAM/disk intervals match D-08/D-14 (if dual-written)
+  - `bar.resources.alwaysShowSwap is False`
+  - `resources.updateInterval == 1000` / `memoryUpdateInterval == 3000` / `diskUpdateInterval == 10000` (D-08/D-14)
   - `audio.protection.maxAllowed >= 130`
 - [ ] Static gate snippets for: Resources order (CPU→RAM→Disk), no swap UI, no ResourcesPopup attach, Audio maxVolume ≥ 1.30, mute % visibility, volumeMixer click
-- [ ] Framework install: **none** — reuse Phase 1/2 smoke pattern
+- [x] Framework install: **none** — reuse Phase 1/2 smoke pattern
 
 ---
 
