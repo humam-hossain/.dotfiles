@@ -31,8 +31,8 @@ Singleton {
     property string maxAvailableMemoryString: formatBytes(memoryTotal * 1024)
     property string maxAvailableSwapString: formatBytes(swapTotal * 1024)
     property string maxAvailableCpuString: "--"
-    property string memoryUsedTotalString: formatBytes(memoryUsed * 1024) + "/" + formatBytes(memoryTotal * 1024)
-    property string diskFreeTotalString: formatBytes(diskAvail) + "/" + formatBytes(diskTotal)
+    property string memoryUsedTotalString: formatPair(memoryUsed * 1024, memoryTotal * 1024)
+    property string diskFreeTotalString: formatPair(diskAvail, diskTotal)
 
     readonly property int historyLength: Config?.options.resources.historyLength ?? 60
     property list<real> cpuUsageHistory: []
@@ -53,6 +53,23 @@ Singleton {
 
     function kbToGbString(kb) {
         return formatBytes((Number(kb) || 0) * 1024)
+    }
+
+    /**
+     * Format a used/total (or free/total) byte pair with a single shared unit suffix.
+     * Unit is determined by the larger value (TB when ≥ 1 TiB, else GB).
+     * Example output: "12.3/31.2 GB" or "1.2/2.0 TB"
+     */
+    function formatPair(bytesA, bytesB) {
+        const a = Number(bytesA) || 0
+        const b = Number(bytesB) || 0
+        const tib = 1024 * 1024 * 1024 * 1024
+        const larger = Math.max(a, b)
+        if (larger >= tib) {
+            return (a / tib).toFixed(1) + "/" + (b / tib).toFixed(1) + " TB"
+        }
+        const gib = 1024 * 1024 * 1024
+        return (a / gib).toFixed(1) + "/" + (b / gib).toFixed(1) + " GB"
     }
 
     function updateMemoryUsageHistory() {
