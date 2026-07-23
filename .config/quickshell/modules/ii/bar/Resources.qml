@@ -3,13 +3,12 @@ import qs.services
 import QtQuick
 import QtQuick.Layouts
 
-MouseArea {
+// Display-only strip (D-09, D-25): no hover popup, no click actions.
+Item {
     id: root
     property bool borderless: Config.options.bar.borderless
-    property bool alwaysShowAllResources: false
     implicitWidth: rowLayout.implicitWidth + rowLayout.anchors.leftMargin + rowLayout.anchors.rightMargin
     implicitHeight: Appearance.sizes.barHeight
-    hoverEnabled: !Config.options.bar.tooltips.clickToShow
 
     RowLayout {
         id: rowLayout
@@ -48,9 +47,5 @@ MouseArea {
             errorThreshold: Config.options.bar.resources.diskErrorThreshold
             labelText: ResourceUsage.diskFreeTotalString
         }
-    }
-
-    ResourcesPopup {
-        hoverTarget: root
     }
 }
