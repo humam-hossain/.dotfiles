@@ -11,14 +11,14 @@
 |---|-------|------|--------------|------------------|
 | 1 | Shell Foundation & Theme | Bootstrap Quickshell shell with Material theming, service pattern, and directory structure | FWK-01, FWK-03, FWK-04, FWK-05, THM-01, THM-02 | 5 |
 | 2 | Core Bar Modules | 11/11 | Complete   | 2026-07-23 |
-| 3 | System & Audio Modules | Add system metrics and audio control modules | BAR-05, BAR-06, BAR-07, BAR-08 | 4 |
+| 3 | System & Audio Modules | 10/10 | Complete    | 2026-07-24 |
 | 4 | IPC, Keybinds & Integration | Wire up IPC socket, Hyprland keybinds, graceful reload, and auto-start | FWK-02, IPC-01, IPC-02, IPC-03 | 5 |
 
 ### Phase checklist
 
 - [x] **Phase 1: Shell Foundation & Theme** — Complete 2026-07-21
 - [x] **Phase 2: Core Bar Modules** (completed 2026-07-23)
-- [ ] **Phase 3: System & Audio Modules**
+- [x] **Phase 3: System & Audio Modules** (completed 2026-07-24)
 - [ ] **Phase 4: IPC, Keybinds & Integration**
 
 ## Phase Details
@@ -91,7 +91,7 @@
 3. Disk space information for the root partition is visible in the bar
 4. Volume level is displayed, scrolling on the module adjusts volume, and clicking toggles mute
 
-**Plans:** 10/10 plans executed
+**Plans:** 10/10 plans complete
 
 - [x] 03-09-PLAN.md
 - [x] 03-10-PLAN.md

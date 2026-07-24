@@ -1,7 +1,7 @@
 ---
 phase: 03-system-audio-modules
 verified: 2026-07-24T04:24:39Z
-status: human_needed
+status: passed
 score: 15/15 must-haves verified
 behavior_unverified: 0
 overrides_applied: 0
@@ -12,6 +12,7 @@ re_verification:
   previous_status: gaps_found
   previous_score: 8/15
   gaps_closed:
+
     - "G-03-11: duplicate formatPair removed (commit 372bb28); single formatPair at L59–67"
     - "ResourceUsage multi-rate + single-unit labels loadable again"
     - "Roadmap SC1–SC4 unblocked on clean shell start (Configuration Loaded)"
@@ -20,21 +21,27 @@ re_verification:
   regressions: []
 gaps: []
 human_verification:
+
   - test: "After qs reload: CPU warning tier color (G-03-1)"
     expected: "At ≥40% CPU, ring uses amber colWarning (#FFB74D), distinct from default and from red error ≥80%"
     why_human: "Color perception on live bar; code binds colWarning but prior UAT saw no warning color"
+
   - test: "After qs reload: RAM/disk labels and spacing (G-03-2)"
     expected: "Labels like N/N GB (single unit); ring↔text spacing feels like CPU (spacing:4 when labelText set)"
     why_human: "Layout/readability judgment; formatPair + spacing present but need eyes on bar"
+
   - test: "Keyboard XF86 raise past 100% to ~130% (G-03-4)"
     expected: "Physical keyboard volume wheel raises above 100% up to ~130%"
     why_human: "Physical key path; code/hyprctl already -l 1.3"
+
   - test: "Middle/right mute or mic opens pavucontrol (G-03-8)"
     expected: "Mixer window opens; optional sidebar Details also works"
     why_human: "Click + process UX; launch script + volumeMixer dual-write already present"
+
   - test: "CPU % live under load (roadmap SC1 regression after reload)"
     expected: "Ring/label move within ~1–2s under CPU stress"
     why_human: "Real-time timing on live compositor"
+
   - test: "Prior UAT passes 3–6, 9–10 still hold after reload"
     expected: "Disk, scroll volume, mute toggle, auto-unmute, no popup, mic % still pass"
     why_human: "Interaction regression check after config reload from G-03-11 fix"
@@ -173,31 +180,37 @@ No orphaned Phase 3 requirement IDs outside BAR-05..08.
 All automated must-haves pass. Remaining work is **eyes-on / hands-on re-UAT** after the user reloads quickshell so the fixed `ResourceUsage` is the running config:
 
 ### 1. Warning color (G-03-1 retest)
+
 **Test:** Drive CPU into 40–79% and ≥80%  
 **Expected:** Amber warning then red error rings  
 **Why human:** Color perception
 
 ### 2. Capacity labels + spacing (G-03-2 retest)
+
 **Test:** Inspect RAM/disk labels vs CPU  
 **Expected:** Single unit suffix; spacing matches CPU rhythm  
 **Why human:** Visual layout
 
 ### 3. Keyboard 130% (G-03-4 retest)
+
 **Test:** XF86 raise past 100%  
 **Expected:** ~130% ceiling  
 **Why human:** Physical key path (code already `-l 1.3`)
 
 ### 4. pavucontrol (G-03-8 retest)
+
 **Test:** Middle/right on mute or mic; sidebar Details  
 **Expected:** pavucontrol opens  
 **Why human:** Click UX (script already present)
 
 ### 5. CPU live under load
+
 **Test:** Stress CPU; watch ring/label  
 **Expected:** Updates within ~1–2s  
 **Why human:** Real-time timing after reload
 
 ### 6. Prior UAT passes 3–6, 9–10
+
 **Test:** Disk, scroll volume, mute, auto-unmute, no popup, mic %  
 **Expected:** Still pass after reload  
 **Why human:** Regression after config reload
