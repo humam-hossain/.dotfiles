@@ -70,23 +70,6 @@ Singleton {
         return formatBytes((Number(kb) || 0) * 1024)
     }
 
-    /**
-     * Format a used/total (or free/total) byte pair with a single shared unit suffix.
-     * Unit is determined by the larger value (TB when ≥ 1 TiB, else GB).
-     * Example output: "12.3/31.2 GB" or "1.2/2.0 TB"
-     */
-    function formatPair(bytesA, bytesB) {
-        const a = Number(bytesA) || 0
-        const b = Number(bytesB) || 0
-        const tib = 1024 * 1024 * 1024 * 1024
-        const larger = Math.max(a, b)
-        if (larger >= tib) {
-            return (a / tib).toFixed(1) + "/" + (b / tib).toFixed(1) + " TB"
-        }
-        const gib = 1024 * 1024 * 1024
-        return (a / gib).toFixed(1) + "/" + (b / gib).toFixed(1) + " GB"
-    }
-
     function updateMemoryUsageHistory() {
         memoryUsageHistory = [...memoryUsageHistory, memoryUsedPercentage]
         if (memoryUsageHistory.length > historyLength) {
