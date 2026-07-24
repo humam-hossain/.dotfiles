@@ -4,15 +4,15 @@ milestone: v0.1
 milestone_name: Core Framework & Basic Bar
 current_phase: 4
 current_phase_name: IPC, Keybinds & Integration
-status: completed
-stopped_at: Phase 4 context gathered
-last_updated: "2026-07-24T11:19:49.980Z"
+status: ready_to_execute
+stopped_at: Phase 4 plans verified
+last_updated: "2026-07-24T12:25:00.000Z"
 last_activity: 2026-07-24
-last_activity_desc: Phase 03 complete, transitioned to Phase 4
+last_activity_desc: Phase 4 planned (4 plans) — ready to execute
 progress:
   total_phases: 4
   completed_phases: 3
-  total_plans: 27
+  total_plans: 31
   completed_plans: 27
 ---
 
@@ -20,26 +20,26 @@ progress:
 
 ## Current Position
 
-Phase: 4 — IPC, Keybinds & Integration
-Plan: Not started
-Status: Plans complete — human re-UAT required (G-03-1/2/4/8)
-Last activity: 2026-07-24 — Phase 03 complete, transitioned to Phase 4
+Phase: 4 — IPC, Keybinds & Integration  
+Plan: 0/4 complete (ready to execute)  
+Status: Ready to execute  
+Last activity: 2026-07-24 — Phase 4 plan-phase complete (research → plans → checker passed)
 
-Progress: [██████████] 100%
+Progress: [████████░░] ~75% milestone (3/4 phases complete; Phase 4 planned)
 
 ## Session
 
-**Last session:** 2026-07-24T11:19:49.972Z
-**Stopped at:** Phase 4 context gathered
-**Resume file:** .planning/phases/04-ipc-keybinds-integration/04-CONTEXT.md
-**Next command:** `/gsd-verify-work 3`
+**Last session:** 2026-07-24  
+**Stopped at:** Phase 4 plans verified — ready for execute  
+**Resume file:** `.planning/phases/04-ipc-keybinds-integration/04-01-PLAN.md`  
+**Next command:** `/gsd-execute-phase 4`
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-07-21)
 
 **Core value:** Reproduce every current Waybar module's functionality before cutover — while gaining a unified, themeable shell.  
-**Current focus:** Phase 03 — system-audio-modules
+**Current focus:** Phase 04 — ipc-keybinds-integration (IPC-01 + IPC-03 verify; FWK-02/IPC-02 deferred)
 
 ## Accumulated Context
 
@@ -60,42 +60,41 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 - **UAT override:** `bar.workspaces.shown: 4` (G-02-14; overrides D-02 shown:10)
 - **UAT fix:** left sidebar opens only via LeftSidebarButton; cornerOpen disabled (G-02-13)
 - **Phase 3:** CPU→RAM→Disk rings; dual thresholds; no swap/popup on strip; mute/mic icon+%; 130% volume + auto-unmute; pavucontrol middle/right (D-01..D-26)
+- **Phase 4 scope (D-01..D-03):** This pass = IPC-01 + IPC-03 verify/UAT only; IPC-02 keybind and FWK-02 exec-once deferred finishing touches
+- **Phase 4 reload (research):** Quickshell 0.3.0 has no `qs reload` CLI — soft reload via file-watch content change (same PID); no custom reload IPC (D-07)
+- **Phase 4 productization (D-13):** Assert/UAT stock surfaces; fix QML only if verification red
 
-### Phase 2 deliverables (complete)
-
-- `scripts/phase02-config-assert.py` — live config asserts (green, shown==4)
-- Config.qml time/tray/workspace defaults dual-written to live config.json
-- BarContent.qml left/center/right rewired; ActiveWindow removed; full D-19 strip
-- Per-icon mute/mic; media popup right-aligned; left spacing content-sized
-- Left sidebar button-only open; cornerOpen.enable false
-- StyledPopup forceActive pin; ClockWidget click toggle
-- VALIDATION.md nyquist automated green
-- 02-UAT.md complete (29 pass, 0 issues)
-- 02-VERIFICATION.md status `passed`
-- 02-SECURITY.md status `verified`, threats_open: 0
-- Plans 02-01..02-13 all have SUMMARYs
-
-### Phase 3 planning artifacts (ready)
+### Phase 4 planning artifacts (ready)
 
 | Artifact | Path |
 |----------|------|
-| Context | `03-CONTEXT.md` (D-01..D-26 locked) |
-| Research | `03-RESEARCH.md` (HIGH confidence) |
-| Patterns | `03-PATTERNS.md` (9/9 analogs) |
-| Validation | `03-VALIDATION.md` (draft Wave 0 strategy) |
-| Plans | `03-01` .. `03-08` PLAN.md (4 waves) |
+| Context | `04-CONTEXT.md` (D-01..D-13 locked) |
+| Research | `04-RESEARCH.md` (HIGH confidence; Open Questions RESOLVED) |
+| Patterns | `04-PATTERNS.md` (5/5 analogs) |
+| UI-SPEC | `04-UI-SPEC.md` (no visual redesign; visibility + silent reload contracts) |
+| Validation | `04-VALIDATION.md` (draft Wave 0 strategy) |
+| Plans | `04-01` .. `04-04` PLAN.md (3 waves) |
 
 **Coverage gates (plan-phase):**
 
-- Requirements BAR-05..08: 4/4 covered
-- CONTEXT decisions D-01..D-26: 26/26 covered
-- Post-planning gap analysis: 30/30 covered
+- Requirements FWK-02, IPC-01, IPC-02, IPC-03: 4/4 covered (FWK-02/IPC-02 as deferred via 04-04)
+- CONTEXT decisions D-01..D-13: 13/13 covered
+- Post-planning gap analysis: 17/17 covered
+- Plan-checker: VERIFICATION PASSED (iteration 2 after fail-loud / mandatory soft-reload fixes)
+
+### Wave layout
+
+| Wave | Plans | Focus |
+|------|-------|--------|
+| 1 | 04-01 | Wave 0 assert harness + VALIDATION wire |
+| 2 | 04-02, 04-04 | IPC-01 live UAT; deferred backlog packaging |
+| 3 | 04-03 | IPC-03 soft-reload + tray UAT |
 
 ### Next
 
-1. `/gsd-execute-phase 3` — execute Wave 1→4 plans for System & Audio Modules
-2. After execute + verify: human UAT for BAR-05..08 visual/interaction criteria
-3. Optional: `/gsd-ui-review 2` if visual audit of Phase 2 desired (ui_review config off)
+1. `/gsd-execute-phase 4` — execute Wave 1→3 plans (IPC verify + soft-reload UAT + deferred packaging)
+2. Human checkpoints: multi-monitor bar hide/show (04-02); silent reload + tray (04-03)
+3. After execute + verify: finishing-touch pass for FWK-02/IPC-02 when bar is solid
 
 ## Performance Metrics
 
@@ -118,18 +117,4 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 - [Phase ?]: Warning tier uses Appearance.colors.colPrimary (no colWarning token)
 - [Phase ?]: errorThreshold default 100 keeps error tier off until parent sets lower
 - [Phase ?]: TextMetrics binds to labelText or '100%' so layout matches content
-- [Phase ?]: maxVolume 1.30 on Audio independent of protection dual-write; dedicated auto-unmute Connections not gated on protection.enable
-- [Phase ?]: Hyprland XF86 raise -l 1.3 for keyboard 130% parity with UI maxVolume
-- [Phase ?]: Phase 3 dual-write: CPU 40/80 RAM 75/95 disk 80/95 alwaysShowSwap false maxAllowed 130
-- [Phase ?]: Split intervals dual-written: updateInterval=1000 memoryUpdateInterval=3000 diskUpdateInterval=10000
-- [Phase ?]: Mute/mic stay in indicators pill with icon+% unmuted and icon-only muted (D-17..D-19)
-- [Phase ?]: Middle/right on mute/mic open Config.options.apps.volumeMixer; left toggles mute (D-23/D-26)
-- [Phase ?]: df argv form for ResourceUsage disk metrics (LANG=C); multi-rate elapsed counters 1s/3s/10s
-- [Phase ?]: Resources strip: CPU→RAM→Disk always-visible rings; dual Config thresholds; capacity labels; no swap/popup/click (03-06)
-- [Phase ?]: Disk bar icon: hard_drive Material Symbol; ResourcesPopup left on disk unattached
-- [Phase ?]: 03-08: No product fixes required — automated BAR-05..08 suite already green after 03-02..03-07
-- [Phase ?]: 03-08: nyquist_compliant true + status validated for automated gates; Manual-Only UAT left pending (Phase 2 pattern)
-- [Phase 03]: colWarning #FFB74D amber token for warning tier — M3 tokens lack warning/amber; fixed hex distinct from colPrimary and colError
-- [Phase 03]: formatPair shared-unit label for capacity (used/total UNIT); dynamic spacing 4px capacity vs 2px CPU
-- [Phase ?]: Keyboard ceiling is Hyprland wpctl -l; live hyprland.conf separate inode — patch in place, do not assume stow
-- [Phase ?]: Ship launch_first_available.sh for volumeMixer (pavucontrol-qt then pavucontrol); Config.qml default already correct
+- [Phase 4]: IPC + soft-reload verify only this pass; FWK-02/IPC-02 deferred; stock bar IPC + file-watch soft reload; no hyprland.conf product edits

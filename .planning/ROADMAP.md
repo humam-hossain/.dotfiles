@@ -141,6 +141,33 @@
 4. Quickshell is added to Hyprland exec-once and starts automatically at login
 5. After all phases, no Waybar-parity module is missing from the bar (workspaces, clock, tray, network, CPU, memory, disk, volume all functional)
 
+**This pass acceptance (D-01..D-03):** SC-1 (IPC show/hide) and SC-3 (graceful soft reload) are in scope. SC-2 (keybind) and SC-4 (exec-once) are deferred finishing touches — see `04-DEFERRED.md` (plan 04-04). SC-5 remains a milestone gate, not new Phase 4 module work. Soft reload uses file-watch content change (Quickshell 0.3.0 has no `qs reload` CLI).
+
+**Plans:** 0/4 plans complete
+
+**Wave 1**
+
+- [ ] 04-01-PLAN.md — Wave 0 IPC/reload assert harness (`phase04-ipc-reload-assert.py` + VALIDATION wiring)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 04-02-PLAN.md — IPC-01 live bar open/close/toggle + multi-monitor UAT
+- [ ] 04-04-PLAN.md — Deferred backlog packaging (FWK-02, IPC-02, Waybar cutover)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 04-03-PLAN.md — IPC-03 soft-reload same-PID + silent UX + tray UAT
+
+**Cross-cutting constraints:**
+
+- Stock `IpcHandler` target `bar` only — no new IPC targets, no custom reload IPC
+- Soft reload = content-change file-watch (same PID); do not invent a missing reload CLI
+- Silent reload: keep `QS_NO_RELOAD_POPUP=1`; no ReloadPopup enable
+- Zero `hyprland.conf` product edits this pass (keybind/exec-once deferred)
+- Fix QML only if verification finds break (D-13)
+
+**Status:** Planned (2026-07-24) — ready for `/gsd-execute-phase 4`
+
 ## Dependencies
 
 ```mermaid
@@ -162,8 +189,8 @@ graph LR
 | 1 | Shell Foundation & Theme | Complete | 2026-07-21 |
 | 2 | Core Bar Modules | Complete | 2026-07-23 |
 | 3 | System & Audio Modules | In Progress| 2026-07-23 |
-| 4 | IPC, Keybinds & Integration | Not started | — |
+| 4 | IPC, Keybinds & Integration | Planned | 2026-07-24 |
 
 ---
 *Roadmap created: 2026-07-20*
-*Last updated: 2026-07-23 — Phase 3 planned (8 plans, 4 waves); ready to execute*
+*Last updated: 2026-07-24 — Phase 4 planned (4 plans, 3 waves); ready to execute*
