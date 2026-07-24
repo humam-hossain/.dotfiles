@@ -486,24 +486,23 @@ qs ipc call bar open
 
 ---
 
-## Open Questions / Deferred
+## Open Questions / Deferred (RESOLVED)
 
-1. **`qs reload` wording in D-07/D-11 vs 0.3.0 reality**
+1. **`qs reload` wording in D-07/D-11 vs 0.3.0 reality** — **RESOLVED**
    - What we know: no CLI; soft reload is file-watch / `Quickshell.reload`.
-   - What's unclear: whether user expected a future CLI or meant “stock hot-reload.”
-   - Recommendation: Planner interprets D-07/D-11 as **stock soft reload**; document correction in plan notes; do not invent CLI.
+   - Adopted: Planner interprets D-07/D-11 as **stock soft reload** (content-change file-watch, same PID); document correction in plan notes; do not invent CLI. Plans 04-01/04-03 encode this path.
 
-2. **Does REQUIREMENTS IPC-01 “reload” require an IPC method?**
+2. **Does REQUIREMENTS IPC-01 “reload” require an IPC method?** — **RESOLVED**
    - What we know: D-07 forbids custom reload IPC; roadmap phrasing is looser.
-   - Recommendation: Satisfy IPC-01 with show/hide IPC + separate IPC-03 soft reload; note requirement text vs locked decision in verification.
+   - Adopted: Satisfy IPC-01 with show/hide IPC + separate IPC-03 soft reload; **no reload IPC method**. Plans 04-02 (IPC-01) and 04-03 (IPC-03) split accordingly.
 
-3. **Tray pass criteria under dual hosts (Waybar + QS)**
+3. **Tray pass criteria under dual hosts (Waybar + QS)** — **RESOLVED**
    - What we know: SNI warnings already in logs.
-   - Recommendation: Human UAT on QS bar tray icons only; optional “kill waybar temporarily” note for isolation — but do **not** remove Waybar from exec-once (deferred cutover).
+   - Adopted: Human UAT on QS bar tray icons only; dual-host log noise alone is not failure; do **not** remove Waybar from exec-once (deferred cutover). Plan 04-03 backstop truths encode this.
 
-4. **Deferred backlog packaging**
-   - FWK-02, IPC-02, Waybar cutover, hard-restart keybind → finishing-touch plan after bar solid.
-   - Recommendation: Explicit “Deferred backlog” section in PLAN.md / ROADMAP note; zero implementation tasks this pass.
+4. **Deferred backlog packaging** — **RESOLVED**
+   - FWK-02, IPC-02, Waybar cutover, hard-restart keybind → finishing-touch after bar solid.
+   - Adopted: Explicit deferred backlog in plan 04-04 (`04-DEFERRED.md` + ROADMAP/STATE notes); zero product/Hyprland implementation tasks this pass.
 
 ---
 
