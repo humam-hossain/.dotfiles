@@ -1,32 +1,28 @@
 ---
-status: testing
+status: complete
 phase: 03-system-audio-modules
 source:
   - 03-VERIFICATION.md
   - 03-VALIDATION.md
 started: 2026-07-23T12:30:00Z
-updated: 2026-07-24T04:30:00Z
+updated: 2026-07-24T04:39:35Z
 ---
 
 ## Current Test
 
-number: 1
-name: After qs reload — CPU warning tier color (G-03-1)
-expected: |
-  At ≥40% CPU, ring uses amber colWarning (#FFB74D), distinct from default and from red error ≥80%
-awaiting: user response
+[testing complete]
 
 ## Tests
 
 ### 1. CPU % updates live under load
 expected: Ring/label react within ~1–2s under CPU stress; warning ≥40% amber, error ≥80% red
-result: pending
+result: pass
 note: "Prior issue G-03-1 (no warning color). Code fix: colWarning #FFB74D + Resource isWarning bind (03-09). Re-UAT after qs reload. Also G-03-11 load fix (372bb28)."
 why_human: Real-time visual timing + color (roadmap SC1 / G-03-1)
 
 ### 2. RAM GB label sensible vs free -h
 expected: used/total as single unit (e.g. 12.3/31.2 GB); ring↔text spacing like CPU
-result: pending
+result: pass
 note: "Prior issue G-03-2. Code fix: formatPair single unit + dynamic spacing:4 (03-09); duplicate formatPair removed (372bb28)."
 why_human: Units and layout (roadmap SC2 / G-03-2)
 
@@ -52,13 +48,13 @@ why_human: D-21 runtime path
 
 ### 7. Volume can reach ~130%
 expected: Scroll/keyboard raise past 100% up to ~130%
-result: pending
+result: pass
 note: "Prior issue G-03-4 (keyboard capped at 100%). Code fix: live + repo hyprland XF86 use wpctl -l 1.3; hyprctl reload (03-10). Scroll already worked."
 why_human: D-22 keyboard path re-UAT (G-03-4)
 
 ### 8. Middle/right on mute or mic opens pavucontrol
 expected: volumeMixer launches mixer window; sidebar Details also works
-result: pending
+result: pass
 note: "Prior issue G-03-8 (missing launch script). Code fix: launch_first_available.sh + volumeMixer dual-write (03-10)."
 why_human: D-23/D-26 process UX re-UAT (G-03-8)
 
@@ -74,16 +70,16 @@ why_human: Source volume binding live (D-19)
 
 ### 11. Shell loads after G-03-11 fix
 expected: qs reload / restart reaches Configuration Loaded; bar resources visible
-result: pending
+result: pass
 note: "Automated smoke already green (Configuration Loaded). Confirm live session after reload."
 why_human: Live session reload confirmation
 
 ## Summary
 
 total: 11
-passed: 6
+passed: 11
 issues: 0
-pending: 5
+pending: 0
 skipped: 0
 blocked: 0
 
