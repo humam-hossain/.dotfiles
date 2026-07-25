@@ -2,36 +2,36 @@
 gsd_state_version: 1.0
 milestone: v0.1
 milestone_name: Core Framework & Basic Bar
-current_phase: 4
-current_phase_name: IPC, Keybinds & Integration
-status: ready_to_execute
-stopped_at: Phase 4 plans verified
-last_updated: "2026-07-24T12:25:00.000Z"
+current_phase: 04
+current_phase_name: ipc-keybinds-integration
+status: executing
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-07-24T12:32:47.689Z"
 last_activity: 2026-07-24
-last_activity_desc: Phase 4 planned (4 plans) — ready to execute
+last_activity_desc: Phase 04 execution started
 progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 31
-  completed_plans: 27
+  completed_plans: 28
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 4 — IPC, Keybinds & Integration  
-Plan: 0/4 complete (ready to execute)  
-Status: Ready to execute  
-Last activity: 2026-07-24 — Phase 4 plan-phase complete (research → plans → checker passed)
+Phase: 04 (ipc-keybinds-integration) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-07-24 — Phase 04 execution started
 
-Progress: [████████░░] ~75% milestone (3/4 phases complete; Phase 4 planned)
+Progress: [████████░░] ~[█████████░] 90% milestone (3/4 phases complete; Phase 4 planned)
 
 ## Session
 
-**Last session:** 2026-07-24  
-**Stopped at:** Phase 4 plans verified — ready for execute  
-**Resume file:** `.planning/phases/04-ipc-keybinds-integration/04-01-PLAN.md`  
+**Last session:** 2026-07-24T12:32:47.683Z
+**Stopped at:** Completed 04-01-PLAN.md
+**Resume file:** None
 **Next command:** `/gsd-execute-phase 4`
 
 ## Project Reference
@@ -39,7 +39,7 @@ Progress: [████████░░] ~75% milestone (3/4 phases complete; 
 See: .planning/PROJECT.md (updated 2026-07-21)
 
 **Core value:** Reproduce every current Waybar module's functionality before cutover — while gaining a unified, themeable shell.  
-**Current focus:** Phase 04 — ipc-keybinds-integration (IPC-01 + IPC-03 verify; FWK-02/IPC-02 deferred)
+**Current focus:** Phase 04 — ipc-keybinds-integration
 
 ## Accumulated Context
 
@@ -110,6 +110,7 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 | Phase 03 P08 | 8min | 2 tasks | 1 files |
 | Phase 03 P09 | 1min | 3 tasks | 3 files |
 | Phase 03 P10 | 1min | 2 tasks | 1 files |
+| Phase 04 P01 | 3min | 2 tasks | 2 files |
 
 ## Decisions
 
@@ -118,3 +119,4 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 - [Phase ?]: errorThreshold default 100 keeps error tier off until parent sets lower
 - [Phase ?]: TextMetrics binds to labelText or '100%' so layout matches content
 - [Phase 4]: IPC + soft-reload verify only this pass; FWK-02/IPC-02 deferred; stock bar IPC + file-watch soft reload; no hyprland.conf product edits
+- [Phase ?]: Wave 0 phase04-ipc-reload-assert.py: stock bar IPC + content-change soft-reload same-PID; no product QML

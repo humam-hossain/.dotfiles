@@ -143,11 +143,11 @@
 
 **This pass acceptance (D-01..D-03):** SC-1 (IPC show/hide) and SC-3 (graceful soft reload) are in scope. SC-2 (keybind) and SC-4 (exec-once) are deferred finishing touches — see `04-DEFERRED.md` (plan 04-04). SC-5 remains a milestone gate, not new Phase 4 module work. Soft reload uses file-watch content change (Quickshell 0.3.0 has no `qs reload` CLI).
 
-**Plans:** 0/4 plans complete
+**Plans:** 1/4 plans executed
 
 **Wave 1**
 
-- [ ] 04-01-PLAN.md — Wave 0 IPC/reload assert harness (`phase04-ipc-reload-assert.py` + VALIDATION wiring)
+- [x] 04-01-PLAN.md — Wave 0 IPC/reload assert harness (`phase04-ipc-reload-assert.py` + VALIDATION wiring)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -189,7 +189,7 @@ graph LR
 | 1 | Shell Foundation & Theme | Complete | 2026-07-21 |
 | 2 | Core Bar Modules | Complete | 2026-07-23 |
 | 3 | System & Audio Modules | In Progress| 2026-07-23 |
-| 4 | IPC, Keybinds & Integration | Planned | 2026-07-24 |
+| 4 | IPC, Keybinds & Integration | In Progress| 2026-07-24 |
 
 ---
 *Roadmap created: 2026-07-20*
