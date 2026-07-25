@@ -66,7 +66,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 05-03: Verify pin and nested submodules; path-scoped parent pin commit
+- [x] 05-03: Verify pin and nested submodules; path-scoped parent pin commit
 
 ### Phase 6: Thin Setup Wrapper & Safe Defaults
 
