@@ -6,7 +6,7 @@ source:
   - 04-UI-SPEC.md
   - scripts/phase04-ipc-reload-assert.py
 started: 2026-07-25T05:34:00Z
-updated: 2026-07-25T05:38:41Z
+updated: 2026-07-25T05:39:17Z
 ---
 
 # Phase 4 UAT — IPC show/hide & soft reload
@@ -88,22 +88,68 @@ Notes:
 
 ## IPC-03 — Soft reload
 
-*(Section filled by plan 04-03. Placeholder until automated soft-reload task runs.)*
+### Trigger (prescriptive — Quickshell 0.3.0)
 
-Primary path on Quickshell **0.3.0**: **content-change file-watch soft reload** (same PID).  
-There is **no** `qs reload` CLI — do not treat a missing reload subcommand as the primary operator path.
+Primary path: **content-change file-watch soft reload** (same process PID).
 
-### Human soft-reload + tray UAT (pending 04-03)
+There is **no** `qs reload` CLI on Quickshell 0.3.0. Do **not** use a missing reload subcommand as the operator happy path. Do **not** kill+relaunch as the graceful path.
+
+**Operator steps (safe probe):**
+
+```bash
+# 1. Note PID
+qs list
+# Process ID: <PID>  — config path must contain quickshell/shell.qml
+
+# 2. Automated preferred:
+python3 scripts/phase04-ipc-reload-assert.py
+# Expect: ipc/reload asserts OK (includes same-PID soft-reload + restore + post-reload bar open)
+
+# 3. Manual content-change (if not using the script):
+#    Append a unique comment line to ~/.config/quickshell/shell.qml
+#    Wait ~1–3s for Configuration Loaded
+#    Confirm same PID still running
+#    Restore the file exactly (remove probe line)
+#    qs ipc call bar open   # exit 0
+```
+
+**Silent UX (D-10):** `//@ pragma Env QS_NO_RELOAD_POPUP=1` in `shell.qml` must remain. Expect **no** top-of-screen ReloadPopup / reload banner.
+
+**Hide-state survival:** not required across reload. After reload, run `qs ipc call bar open` if bars are not visible.
+
+**Failed reload recovery (D-12):** fix QML syntax, then **manual** `qs` relaunch. No auto-relaunch daemon; no hard-restart keybind this pass (see `04-DEFERRED.md`).
+
+### Expected after successful soft reload
+
+| Area | Expectation |
+|------|-------------|
+| Process | Same PID (not kill+relaunch) |
+| Popup | None (silent pragma) |
+| Bar modules | Usable — clock ticks; CPU/RAM/resources update under load |
+| Tray | Interactive on **Quickshell** bar (icons present + clickable). Dual Waybar SNI noise alone is not failure. |
+| IPC | `qs ipc call bar close` then `open` still exit 0 |
+
+### Automated proof (2026-07-25)
+
+| Check | Result | Evidence |
+|-------|--------|----------|
+| `QS_NO_RELOAD_POPUP=1` in shell.qml | **pass** | static `rg` |
+| No reload IpcHandler on bar | **pass** | Bar.qml stock toggle/open/close only |
+| `python3 scripts/phase04-ipc-reload-assert.py` | **pass** | exit 0, includes Section C soft-reload |
+| Manual content-change same PID | **pass** | PID 63412 → 63412; probe restored |
+| Post-reload `qs ipc call bar open` | **pass** | exit 0 |
+
+### Human soft-reload + tray UAT
 
 | # | Check | expected | result | note |
 |---|-------|----------|--------|------|
-| IPC-03-1 | Soft reload silent | No top-of-screen reload popup/banner | pending | Keep `QS_NO_RELOAD_POPUP=1` |
-| IPC-03-2 | Same PID | Long-lived process, not kill+relaunch | pending | |
+| IPC-03-1 | Soft reload silent | No top-of-screen reload popup/banner | pending | Keep pragma |
+| IPC-03-2 | Same PID | Long-lived process, not kill+relaunch | pending | `qs list` |
 | IPC-03-3 | Bar usable after reload | Clock ticks; resources update under load | pending | |
-| IPC-03-4 | QS tray interactive | Icons present + clickable on **Quickshell** bar | pending | Dual Waybar SNI noise OK |
+| IPC-03-4 | QS tray interactive | Icons present + clickable on **Quickshell** bar | pending | Dual Waybar SNI noise OK; empty tray OK if no apps |
 | IPC-03-5 | IPC after reload | `qs ipc call bar close` then `open` still work | pending | |
 
----
+**Resume signal:** type `approved` if silent soft reload + bar + tray pass, or describe failures.
 
 ## Explicit non-goals (this pass)
 
