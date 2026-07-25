@@ -11,8 +11,8 @@ Requirements for this milestone only. Each maps to roadmap phases (continuing af
 ### Ownership & Pin
 
 - [x] **OWN-01**: Operator has a personal GitHub fork of end-4/dots-hyprland with `origin` pointing at the fork and `upstream` pointing at `https://github.com/end-4/dots-hyprland.git`
-- [ ] **OWN-02**: `.dotfiles` includes a git submodule at `vendor/dots-hyprland` whose URL targets the personal fork and whose commit SHA is pinned in the parent repo
-- [ ] **OWN-03**: Nested submodules inside dots-hyprland (including shapes / rounded-polygon) initialize successfully via recursive submodule update
+- [x] **OWN-02**: `.dotfiles` includes a git submodule at `vendor/dots-hyprland` whose URL targets the personal fork and whose commit SHA is pinned in the parent repo
+- [x] **OWN-03**: Nested submodules inside dots-hyprland (including shapes / rounded-polygon) initialize successfully via recursive submodule update
 
 ### Install Wrapper
 
@@ -81,8 +81,8 @@ Which phases cover which requirements. Updated with v0.2 roadmap.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | OWN-01 | Phase 5 | Complete |
-| OWN-02 | Phase 5 | Pending |
-| OWN-03 | Phase 5 | Pending |
+| OWN-02 | Phase 5 | Complete |
+| OWN-03 | Phase 5 | Complete |
 | WRAP-01 | Phase 6 | Pending |
 | WRAP-02 | Phase 6 | Pending |
 | WRAP-03 | Phase 6 | Pending |
