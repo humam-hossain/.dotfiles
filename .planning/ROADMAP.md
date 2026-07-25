@@ -48,20 +48,20 @@ Phase artifacts: [milestones/v0.1-phases/](milestones/v0.1-phases/)
   2. `.dotfiles` has `vendor/dots-hyprland` registered in `.gitmodules` with a pinned submodule commit in the parent repo
   3. `git submodule update --init --recursive` yields a complete tree including nested shapes (no missing submodule paths)
 
-**Plans:** TBD
+**Plans:** 3/3 planned
 
 Plans:
 **Wave 1**
 
-- [ ] 05-01: Create/configure personal fork and dual remotes
+- [ ] 05-01: Create personal public fork of end-4/dots-hyprland (gh; dual remotes in 05-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 05-02: Add `vendor/dots-hyprland` submodule + recursive init
+- [ ] 05-02: Add `vendor/dots-hyprland` submodule + recursive init + dual remotes
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 05-03: Verify pin and nested submodules; commit parent metadata
+- [ ] 05-03: Verify pin and nested submodules; path-scoped parent pin commit
 
 ### Phase 6: Thin Setup Wrapper & Safe Defaults
 

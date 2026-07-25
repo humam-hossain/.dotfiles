@@ -3,16 +3,16 @@ gsd_state_version: 1.0
 milestone: v0.2
 milestone_name: Adopt dots-hyprland
 current_phase: 5
-current_phase_name: next
-status: ready_to_plan
-stopped_at: Phase 5 context gathered
-last_updated: "2026-07-25T09:57:02.112Z"
+current_phase_name: Fork & Submodule Pin
+status: ready_to_execute
+stopped_at: Phase 5 planned — 3 plans ready
+last_updated: "2026-07-25T12:00:00.000Z"
 last_activity: 2026-07-25
-last_activity_desc: v0.2 requirements + roadmap drafted
+last_activity_desc: Phase 5 planning complete — 3 plans ready
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
+  total_plans: 3
   completed_plans: 0
   percent: 0
 ---
@@ -21,24 +21,24 @@ progress:
 
 ## Current Position
 
-Phase: 5 (next) — Fork & Submodule Pin
-Plan: —
-Status: Ready to plan Phase 5
-Last activity: 2026-07-25 — v0.2 requirements + roadmap drafted
+Phase: 5 — Fork & Submodule Pin
+Plan: 1 of 3
+Status: Ready to execute
+Last activity: 2026-07-25 — Phase 5 planning complete
 
 ## Session
 
-**Last session:** 2026-07-25T09:57:02.105Z
-**Stopped at:** Phase 5 context gathered
-**Resume file:** .planning/phases/05-fork-submodule-pin/05-CONTEXT.md
-**Next command:** `/gsd-discuss-phase 5` or `/gsd-plan-phase 5`
+**Last session:** 2026-07-25
+**Stopped at:** Phase 5 planned — 3 plans ready (05-01, 05-02, 05-03)
+**Resume file:** .planning/phases/05-fork-submodule-pin/05-01-PLAN.md
+**Next command:** `/gsd-execute-phase 5`
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-07-25)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays (parity before cutover).  
-**Current focus:** v0.2 Adopt dots-hyprland — start Phase 5
+**Current focus:** v0.2 Adopt dots-hyprland — execute Phase 5 (fork + submodule pin)
 
 ## Deferred Items
 
@@ -68,7 +68,14 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Soft reload via file-watch content change (no `qs reload` CLI on QS 0.3.0)
 - FWK-02/IPC-02 deferred intentionally (zero hyprland.conf product edits in Phase 4)
 
-Full decision log: PROJECT.md Key Decisions table.
+### Phase 5 planning (2026-07-25)
+
+- Research + pattern map + validation strategy complete
+- 3 plans / 3 waves verified by plan-checker
+- OWN-01/02/03 + D-01…D-16 covered
+- Pin only — no install (D-16)
+
+Full decision log: PROJECT.md Key Decisions table; Phase 5: `05-CONTEXT.md`.
 
 ### Resolved blockers
 
@@ -76,6 +83,6 @@ None open for next-milestone planning.
 
 ## Operator Next Steps
 
-1. `/gsd-discuss-phase 5` — gather context for fork + submodule
-2. Or `/gsd-plan-phase 5` — plan Phase 5 directly
+1. `/gsd-execute-phase 5` — run all 3 plans (fork → submodule → pin commit)
+2. After Phase 5: `/gsd-discuss-phase 6` or `/gsd-plan-phase 6` — thin setup wrapper
 3. Keep Waybar dual-run until a later cutover milestone
