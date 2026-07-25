@@ -22,6 +22,8 @@ Usable Quickshell top bar dual-running with Waybar (Material-themed ii shell). T
 
 **Stats at v0.1 ship:** 4 phases · 31 plans · 39 tasks · ~589 QML files · ~57k LOC under `.config/quickshell/`
 
+**Phase 5 complete (2026-07-25):** Public fork `humam-hossain/dots-hyprland` + submodule pin at `vendor/dots-hyprland` (`1a9ffb78`, dual remotes, nested shapes). Install/wrapper still Phase 6+.
+
 ## What This Is
 
 A personal Hyprland desktop shell setup, part of the `.dotfiles` Linux environment. **v0.2+ delivery model:** adopt upstream **illogical-impulse** (dots-hyprland) as a managed dependency — fork for ownership, submodule for pin/repro, thin Arch install wrappers for the existing `.dotfiles` style — then customize later for Waybar-parity needs.
@@ -58,10 +60,15 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 *Note: v0.1 validated capabilities describe the retired local tree. v0.2 re-establishes a live shell via upstream install; parity of specific modules is re-verified against the installed product, not assumed from the deleted tree.*
 
+
+### Validated — v0.2
+
+- ✓ Personal public fork of end-4/dots-hyprland with dual remotes (origin=fork, upstream=end-4) — Validated in Phase 5: Fork & Submodule Pin
+- ✓ Git submodule at `vendor/dots-hyprland` pinned in parent (mode 160000) — Validated in Phase 5
+- ✓ Nested shapes submodule initializes recursively (OWN-03) — Validated in Phase 5
+
 ### Active (v0.2)
 
-- [ ] Personal fork of end-4/dots-hyprland (`origin` = fork, `upstream` = end-4)
-- [ ] Git submodule at `vendor/dots-hyprland` in `.dotfiles`
 - [ ] Thin `arch/` wrapper around upstream `./setup` (install / deps / files)
 - [ ] Live session uses installed illogical-impulse shell
 - [ ] Remove local `.config/quickshell` product tree and retire `arch/quickshell.sh`
@@ -145,4 +152,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-25 — start milestone v0.2 Adopt dots-hyprland*
+*Last updated: 2026-07-25 — Phase 5 Fork & Submodule Pin complete*

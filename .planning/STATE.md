@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v0.2
 milestone_name: Adopt dots-hyprland
-current_phase: 5
-current_phase_name: fork-submodule-pin
-status: phase_complete
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-07-25T13:17:31.000Z"
+current_phase: 6
+current_phase_name: Thin Setup Wrapper & Safe Defaults
+status: planning
+stopped_at: Phase 5 plans complete — run verify
+last_updated: "2026-07-25T13:36:13.054Z"
 last_activity: 2026-07-25
-last_activity_desc: Phase 5 execute complete — 3/3 plans
+last_activity_desc: Phase 5 complete, transitioned to Phase 6
 progress:
   total_phases: 5
   completed_phases: 1
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 5 (fork-submodule-pin) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready to verify
-Last activity: 2026-07-25 — Phase 5 all plans executed (05-01/02/03)
+Phase: 6 — Thin Setup Wrapper & Safe Defaults
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-07-25 — Phase 5 complete, transitioned to Phase 6
 
 ## Session
 
