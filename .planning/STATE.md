@@ -2,9 +2,13 @@
 gsd_state_version: 1.0
 milestone: v0.2
 milestone_name: Adopt dots-hyprland
+current_phase: 5
+current_phase_name: next
 status: ready_to_plan
-last_updated: "2026-07-25T07:15:52.690Z"
+stopped_at: Phase 5 context gathered
+last_updated: "2026-07-25T09:57:02.112Z"
 last_activity: 2026-07-25
+last_activity_desc: v0.2 requirements + roadmap drafted
 progress:
   total_phases: 5
   completed_phases: 0
@@ -24,9 +28,9 @@ Last activity: 2026-07-25 — v0.2 requirements + roadmap drafted
 
 ## Session
 
-**Last session:** 2026-07-25T06:10:00Z  
-**Stopped at:** Milestone v0.1 complete — archives + tag  
-**Resume file:** None  
+**Last session:** 2026-07-25T09:57:02.105Z
+**Stopped at:** Phase 5 context gathered
+**Resume file:** .planning/phases/05-fork-submodule-pin/05-CONTEXT.md
 **Next command:** `/gsd-discuss-phase 5` or `/gsd-plan-phase 5`
 
 ## Project Reference
