@@ -5,7 +5,7 @@ milestone_name: Core Framework & Basic Bar
 current_phase: 04
 status: completed
 stopped_at: Phase 04 complete — all 4 plans done; FWK-02/IPC-02 deferred
-last_updated: "2026-07-25T05:44:54.733Z"
+last_updated: "2026-07-25T05:52:37Z"
 last_activity: 2026-07-25
 last_activity_desc: Phase 04 complete
 progress:
@@ -21,15 +21,15 @@ current_phase_name: ipc-keybinds-integration
 ## Current Position
 
 Phase: 04
-Plan: Not started
-Status: All phases complete
+Plan: 4/4 complete
+Status: Phase 04 complete (milestone phases done; finishing touches deferred)
 Last activity: 2026-07-25 — Phase 04 complete
 
 Progress: [██████████] 100% milestone phases (4/4 complete; finishing touches deferred)
 
 ## Session
 
-**Last session:** 2026-07-25T05:43:04Z
+**Last session:** 2026-07-25T05:52:37Z
 **Stopped at:** Phase 04 complete — all 4 plans done; FWK-02/IPC-02 deferred
 **Resume file:** None
 **Next command:** `/gsd-complete-milestone` or finishing-touch for FWK-02/IPC-02 when ready
@@ -92,9 +92,9 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 
 ### Next
 
-1. `/gsd-execute-phase 4` — execute Wave 1→3 plans (IPC verify + soft-reload UAT + deferred packaging)
-2. Human checkpoints: multi-monitor bar hide/show (04-02); silent reload + tray (04-03)
-3. After execute + verify: finishing-touch pass for FWK-02/IPC-02 when bar is solid
+1. `/gsd-complete-milestone` — archive v0.1 when ready (SC-5 Waybar-parity checklist still a milestone gate)
+2. Finishing-touch plan later: FWK-02 exec-once + IPC-02 keybind per `04-DEFERRED.md`
+3. Optional: Waybar cutover after SC-5 parity confirmed
 
 ## Performance Metrics
 
