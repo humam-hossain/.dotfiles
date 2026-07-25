@@ -41,12 +41,12 @@ created: 2026-07-24
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 04-01-01 | 04-01 | 1 | Wave 0 | T-04-01 / T-04-04 | IPC/reload assert harness (static + live + soft-reload) | live smoke | `python3 scripts/phase04-ipc-reload-assert.py` | ✅ harness | ⬜ pending (run at plan execute) |
-| 04-01-02 | 04-01 | 1 | Wave 0 | — | VALIDATION.md wired to concrete plan/task IDs | docs | `rg -n 'phase04-ipc-reload-assert\|wave_0_complete\|04-0[1-4]' 04-VALIDATION.md` | ✅ docs | ⬜ pending |
-| 04-02-01 | 04-02 | 2 | IPC-01 | T-04-01 | Stock `bar` IPC only; no new targets | static | `rg -n 'target: "bar"' .config/quickshell/modules/ii/bar/Bar.qml` | ✅ source | ⬜ pending |
-| 04-02-02 | 04-02 | 2 | IPC-01 | T-04-01 | `toggle`/`open`/`close` functions present | static | `rg -n 'function toggle\|function open\|function close' .config/quickshell/modules/ii/bar/Bar.qml` | ✅ source | ⬜ pending |
-| 04-02-03 | 04-02 | 2 | IPC-01 | T-04-01 | Live instance exposes target `bar` | live smoke | `python3 scripts/phase04-ipc-reload-assert.py` (Section B) / `qs ipc show` | ✅ runtime | ⬜ pending |
-| 04-02-04 | 04-02 | 2 | IPC-01 | T-04-01 | `open`/`close`/`toggle` exit 0 + multi-monitor UAT | live smoke + manual | `qs ipc call bar close; qs ipc call bar open; qs ipc call bar toggle` | ✅ runtime | ⬜ pending |
+| 04-01-01 | 04-01 | 1 | Wave 0 | T-04-01 / T-04-04 | IPC/reload assert harness (static + live + soft-reload) | live smoke | `python3 scripts/phase04-ipc-reload-assert.py` | ✅ harness | ✅ green |
+| 04-01-02 | 04-01 | 1 | Wave 0 | — | VALIDATION.md wired to concrete plan/task IDs | docs | `rg -n 'phase04-ipc-reload-assert\|wave_0_complete\|04-0[1-4]' 04-VALIDATION.md` | ✅ docs | ✅ green |
+| 04-02-01 | 04-02 | 2 | IPC-01 | T-04-01 | Stock `bar` IPC only; no new targets | static | `rg -n 'target: "bar"' .config/quickshell/modules/ii/bar/Bar.qml` | ✅ source | ✅ green |
+| 04-02-02 | 04-02 | 2 | IPC-01 | T-04-01 | `toggle`/`open`/`close` functions present | static | `rg -n 'function toggle\|function open\|function close' .config/quickshell/modules/ii/bar/Bar.qml` | ✅ source | ✅ green |
+| 04-02-03 | 04-02 | 2 | IPC-01 | T-04-01 | Live instance exposes target `bar` | live smoke | `python3 scripts/phase04-ipc-reload-assert.py` (Section B) / `qs ipc show` | ✅ runtime | ✅ green |
+| 04-02-04 | 04-02 | 2 | IPC-01 | T-04-01 | `open`/`close`/`toggle` exit 0 + multi-monitor UAT | live smoke + manual | `qs ipc call bar close; qs ipc call bar open; qs ipc call bar toggle` | ✅ runtime | ⚠️ automated green; manual UAT pending |
 | 04-03-01 | 04-03 | 3 | IPC-03 | T-04-02 | Silent reload pragma retained | static | `rg -n 'QS_NO_RELOAD_POPUP=1' .config/quickshell/shell.qml` | ✅ source | ⬜ pending |
 | 04-03-02 | 04-03 | 3 | IPC-03 | T-04-04 | Soft reload same PID + post-reload IPC | live smoke | `python3 scripts/phase04-ipc-reload-assert.py` (Section C) | ✅ runtime | ⬜ pending |
 | 04-03-03 | 04-03 | 3 | IPC-03 | — | IPC works after soft reload | live smoke | after reload: `qs ipc call bar open` exit 0 | ✅ runtime | ⬜ pending |
@@ -69,7 +69,7 @@ created: 2026-07-24
   - Soft-reload probe with content-change + try/finally restore + same-PID assert + post-reload `bar open`
   - Command: `python3 scripts/phase04-ipc-reload-assert.py` (success line: `ipc/reload asserts OK`)
 - [x] Static gates documented below (no new framework install)
-- [ ] Human UAT checklist covering visual hide/show + post-reload tray (`04-UAT.md` during verify)
+- [x] Human UAT checklist covering visual hide/show + post-reload tray (`04-UAT.md` — IPC-01 rows pending human; IPC-03 section pending 04-03)
 - [x] Framework install: **none**
 
 ### Prescriptive automated suite
