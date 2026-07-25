@@ -3,17 +3,17 @@ gsd_state_version: 1.0
 milestone: v0.2
 milestone_name: Adopt dots-hyprland
 current_phase: 5
-current_phase_name: Fork & Submodule Pin
-status: ready_to_execute
-stopped_at: Phase 5 planned — 3 plans ready
-last_updated: "2026-07-25T12:00:00.000Z"
+current_phase_name: fork-submodule-pin
+status: executing
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-07-25T12:22:35.091Z"
 last_activity: 2026-07-25
-last_activity_desc: Phase 5 planning complete — 3 plans ready
+last_activity_desc: Phase 5 execution started
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 3
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -21,16 +21,16 @@ progress:
 
 ## Current Position
 
-Phase: 5 — Fork & Submodule Pin
-Plan: 1 of 3
+Phase: 5 (fork-submodule-pin) — EXECUTING
+Plan: 2 of 3
 Status: Ready to execute
-Last activity: 2026-07-25 — Phase 5 planning complete
+Last activity: 2026-07-25 — Phase 5 execution started
 
 ## Session
 
-**Last session:** 2026-07-25
-**Stopped at:** Phase 5 planned — 3 plans ready (05-01, 05-02, 05-03)
-**Resume file:** .planning/phases/05-fork-submodule-pin/05-01-PLAN.md
+**Last session:** 2026-07-25T12:22:35.083Z
+**Stopped at:** Completed 05-01-PLAN.md
+**Resume file:** None
 **Next command:** `/gsd-execute-phase 5`
 
 ## Project Reference
@@ -38,7 +38,7 @@ Last activity: 2026-07-25 — Phase 5 planning complete
 See: .planning/PROJECT.md (updated 2026-07-25)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays (parity before cutover).  
-**Current focus:** v0.2 Adopt dots-hyprland — execute Phase 5 (fork + submodule pin)
+**Current focus:** Phase 5 — fork-submodule-pin
 
 ## Deferred Items
 
@@ -86,3 +86,13 @@ None open for next-milestone planning.
 1. `/gsd-execute-phase 5` — run all 3 plans (fork → submodule → pin commit)
 2. After Phase 5: `/gsd-discuss-phase 6` or `/gsd-plan-phase 6` — thin setup wrapper
 3. Keep Waybar dual-run until a later cutover milestone
+
+## Performance Metrics
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 05 P01 | 2min | 2 tasks | 0 files |
+
+## Decisions
+
+- [Phase ?]: Created public fork humam-hossain/dots-hyprland via gh repo fork end-4/dots-hyprland --clone=false (D-01); sibling left alone (D-02/D-14)
