@@ -1,12 +1,12 @@
 ---
-status: in_progress
+status: complete
 phase: 04-ipc-keybinds-integration
 source:
   - 04-VALIDATION.md
   - 04-UI-SPEC.md
   - scripts/phase04-ipc-reload-assert.py
 started: 2026-07-25T05:34:00Z
-updated: 2026-07-25T05:39:17Z
+updated: 2026-07-25T05:42:27Z
 ---
 
 # Phase 4 UAT — IPC show/hide & soft reload
@@ -143,13 +143,13 @@ python3 scripts/phase04-ipc-reload-assert.py
 
 | # | Check | expected | result | note |
 |---|-------|----------|--------|------|
-| IPC-03-1 | Soft reload silent | No top-of-screen reload popup/banner | pending | Keep pragma |
-| IPC-03-2 | Same PID | Long-lived process, not kill+relaunch | pending | `qs list` |
-| IPC-03-3 | Bar usable after reload | Clock ticks; resources update under load | pending | |
-| IPC-03-4 | QS tray interactive | Icons present + clickable on **Quickshell** bar | pending | Dual Waybar SNI noise OK; empty tray OK if no apps |
-| IPC-03-5 | IPC after reload | `qs ipc call bar close` then `open` still work | pending | |
+| IPC-03-1 | Soft reload silent | No top-of-screen reload popup/banner | **pass** | Human approved 2026-07-25; Keep pragma |
+| IPC-03-2 | Same PID | Long-lived process, not kill+relaunch | **pass** | Human approved 2026-07-25 |
+| IPC-03-3 | Bar usable after reload | Clock ticks; resources update under load | **pass** | Human approved 2026-07-25 |
+| IPC-03-4 | QS tray interactive | Icons present + clickable on **Quickshell** bar | **pass** | Human approved 2026-07-25; Dual Waybar SNI noise OK |
+| IPC-03-5 | IPC after reload | `qs ipc call bar close` then `open` still work | **pass** | Human approved 2026-07-25 |
 
-**Resume signal:** type `approved` if silent soft reload + bar + tray pass, or describe failures.
+**Human signal:** `approved` (2026-07-25) — silent soft reload + bar + tray + post-reload IPC pass.
 
 ## Explicit non-goals (this pass)
 

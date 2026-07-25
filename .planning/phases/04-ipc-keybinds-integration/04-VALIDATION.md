@@ -2,9 +2,9 @@
 phase: 4
 slug: ipc-keybinds-integration
 # status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
-# audit-milestone §5.5 distinguishes NOT-VALIDATED (draft) from PARTIAL (validated + nyquist_compliant: false) (#2117)
-status: draft
-nyquist_compliant: false
+# audit-milestone §5.5 distinguishes NOT-VALIDATED (draft) from PARTIAL (validated + nyquist_compliant: true) (#2117)
+status: validated
+nyquist_compliant: true
 wave_0_complete: true
 created: 2026-07-24
 ---
@@ -50,8 +50,8 @@ created: 2026-07-24
 | 04-03-01 | 04-03 | 3 | IPC-03 | T-04-02 | Silent reload pragma retained | static | `rg -n 'QS_NO_RELOAD_POPUP=1' .config/quickshell/shell.qml` | ✅ source | ✅ green |
 | 04-03-02 | 04-03 | 3 | IPC-03 | T-04-04 | Soft reload same PID + post-reload IPC | live smoke | `python3 scripts/phase04-ipc-reload-assert.py` (Section C) | ✅ runtime | ✅ green |
 | 04-03-03 | 04-03 | 3 | IPC-03 | — | IPC works after soft reload | live smoke | after reload: `qs ipc call bar open` exit 0 | ✅ runtime | ✅ green |
-| 04-UAT-01 | UAT | — | IPC-03 / D-11 | — | Bar modules usable post-reload | manual | Visual: workspaces/clock/resources update | ❌ | ⬜ pending |
-| 04-UAT-02 | UAT | — | IPC-03 / D-11 | — | Tray usable post-reload on QS bar | manual | Visual: tray icons present + clickable | ❌ | ⬜ pending |
+| 04-UAT-01 | UAT | — | IPC-03 / D-11 | — | Bar modules usable post-reload | manual | Visual: workspaces/clock/resources update | ✅ | ✅ green |
+| 04-UAT-02 | UAT | — | IPC-03 / D-11 | — | Tray usable post-reload on QS bar | manual | Visual: tray icons present + clickable | ✅ | ✅ green |
 | 04-04-01 | 04-04 | 2 | IPC-02 / FWK-02 | — | Deferred packaging — no product tests this pass | N/A | N/A | N/A | ⏭ deferred |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky · ⏭ deferred*
@@ -69,7 +69,7 @@ created: 2026-07-24
   - Soft-reload probe with content-change + try/finally restore + same-PID assert + post-reload `bar open`
   - Command: `python3 scripts/phase04-ipc-reload-assert.py` (success line: `ipc/reload asserts OK`)
 - [x] Static gates documented below (no new framework install)
-- [x] Human UAT checklist covering visual hide/show + post-reload tray (`04-UAT.md` — IPC-01 rows pending human; IPC-03 section pending 04-03)
+- [x] Human UAT checklist covering visual hide/show + post-reload tray (`04-UAT.md` — IPC-01 + IPC-03 human pass 2026-07-25)
 - [x] Framework install: **none**
 
 ### Prescriptive automated suite
@@ -115,11 +115,11 @@ pgrep -a quickshell   # still one long-lived process preferred
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s (automated)
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s (automated)
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-07-25 (automated + human UAT IPC-01/IPC-03)
