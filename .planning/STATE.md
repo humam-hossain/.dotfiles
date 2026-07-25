@@ -5,10 +5,10 @@ milestone_name: Adopt dots-hyprland
 current_phase: 6
 current_phase_name: Thin Setup Wrapper & Safe Defaults
 status: planning
-stopped_at: "Phase 5 complete — ready to plan Phase 6"
-last_updated: "2026-07-25T13:36:56.000Z"
+stopped_at: "Phase 5 UAT complete — ready to plan Phase 6"
+last_updated: "2026-07-25T15:06:40.829Z"
 last_activity: 2026-07-25
-last_activity_desc: Phase 5 complete, transitioned to Phase 6
+last_activity_desc: Phase 05 complete, transitioned to Phase 6
 progress:
   total_phases: 5
   completed_phases: 1
@@ -24,12 +24,12 @@ progress:
 Phase: 6 — Thin Setup Wrapper & Safe Defaults
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-07-25 — Phase 5 complete, transitioned to Phase 6
+Last activity: 2026-07-25 — Phase 05 complete, transitioned to Phase 6
 
 ## Session
 
 **Last session:** 2026-07-25T12:22:35.083Z
-**Stopped at:** Phase 5 complete (verified, secured, reviewed)
+**Stopped at:** Phase 5 UAT complete (10/10 passed); next Phase 6
 **Resume file:** .planning/ROADMAP.md (Phase 6)
 **Next command:** `/gsd-discuss-phase 6` or `/gsd-plan-phase 6`
 
@@ -86,7 +86,6 @@ None open for next-milestone planning.
 1. `/gsd-discuss-phase 6` or `/gsd-plan-phase 6` — thin setup wrapper & safe defaults
 2. Keep Waybar dual-run until a later cutover milestone
 3. Optional: `/gsd-progress` for roadmap view
-
 
 ## Performance Metrics
 
