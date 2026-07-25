@@ -1,31 +1,26 @@
 ---
 gsd_state_version: 1.0
-milestone: v0.1
-milestone_name: Core Framework & Basic Bar
-status: Awaiting next milestone
-stopped_at: Milestone v0.1 archived (override_closeout)
-last_updated: "2026-07-25T06:10:00Z"
+milestone: v0.2
+milestone_name: Adopt dots-hyprland
+status: planning
+last_updated: "2026-07-25T07:15:52.690Z"
 last_activity: 2026-07-25
-last_activity_desc: Milestone v0.1 completed and archived
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 31
-  completed_plans: 31
-current_phase: —
-current_phase_name: —
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: Milestone v0.1 complete  
-Plan: —  
-Status: Awaiting next milestone  
-Last activity: 2026-07-25 — Milestone v0.1 archived (override_closeout)
-
-Progress: [██████████] 100% v0.1 (4/4 phases; known gaps deferred)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-07-25 — Milestone v0.2 started
 
 ## Session
 
