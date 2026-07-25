@@ -35,7 +35,7 @@ Requirements for milestone v0.1: Core Framework & Basic Bar.
 
 - [x] **IPC-01**: Shell exposes an IPC socket for external commands (show/hide bar, reload)
 - [ ] **IPC-02**: User can toggle bar visibility via a Hyprland keybind
-- [ ] **IPC-03**: Shell supports graceful reload without full restart (preserves runtime state)
+- [x] **IPC-03**: Shell supports graceful reload without full restart (preserves runtime state)
 
 ## v2 Requirements
 
@@ -112,7 +112,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BAR-08 | Phase 3 | Complete |
 | IPC-01 | Phase 4 | Complete |
 | IPC-02 | Phase 4 | Pending |
-| IPC-03 | Phase 4 | Pending |
+| IPC-03 | Phase 4 | Complete |
 
 **Coverage:**
 

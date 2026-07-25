@@ -143,7 +143,7 @@
 
 **This pass acceptance (D-01..D-03):** SC-1 (IPC show/hide) and SC-3 (graceful soft reload) are in scope. SC-2 (keybind) and SC-4 (exec-once) are deferred finishing touches — see `04-DEFERRED.md` (plan 04-04). SC-5 remains a milestone gate, not new Phase 4 module work. Soft reload uses file-watch content change (Quickshell 0.3.0 has no `qs reload` CLI).
 
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans executed
 
 **Wave 1**
 
@@ -156,7 +156,7 @@
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 04-03-PLAN.md — IPC-03 soft-reload same-PID + silent UX + tray UAT
+- [x] 04-03-PLAN.md — IPC-03 soft-reload same-PID + silent UX + tray UAT
 
 **Cross-cutting constraints:**
 
@@ -166,7 +166,7 @@
 - Zero `hyprland.conf` product edits this pass (keybind/exec-once deferred)
 - Fix QML only if verification finds break (D-13)
 
-**Status:** Planned (2026-07-24) — ready for `/gsd-execute-phase 4`
+**Status:** Complete (2026-07-25) — IPC-01 + IPC-03 verified; FWK-02/IPC-02 deferred (`04-DEFERRED.md`)
 
 ## Dependencies
 
@@ -189,7 +189,7 @@ graph LR
 | 1 | Shell Foundation & Theme | Complete | 2026-07-21 |
 | 2 | Core Bar Modules | Complete | 2026-07-23 |
 | 3 | System & Audio Modules | In Progress| 2026-07-23 |
-| 4 | IPC, Keybinds & Integration | In Progress| 2026-07-24 |
+| 4 | IPC, Keybinds & Integration | Complete | 2026-07-25 |
 
 ---
 *Roadmap created: 2026-07-20*

@@ -4,35 +4,35 @@ milestone: v0.1
 milestone_name: Core Framework & Basic Bar
 current_phase: 04
 current_phase_name: ipc-keybinds-integration
-status: executing
-stopped_at: Completed 04-02-PLAN.md
-last_updated: "2026-07-25T05:38:42Z"
+status: complete
+stopped_at: Phase 04 complete — IPC-01 + IPC-03 verified
+last_updated: "2026-07-25T05:42:27Z"
 last_activity: 2026-07-24
-last_activity_desc: Phase 04 execution started
+last_activity_desc: Phase 04 execution complete
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 31
-  completed_plans: 28
+  completed_plans: 31
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 04 (ipc-keybinds-integration) — EXECUTING
-Plan: 3 of 4
-Status: Ready to execute
+Phase: 04 (ipc-keybinds-integration) — COMPLETE
+Plan: 4 of 4
+Status: Phase complete
 Last activity: 2026-07-24 — Phase 04 execution started
 
-Progress: [████████░░] ~[█████████░] 90% milestone (3/4 phases complete; Phase 4 planned)
+Progress: [██████████] 100% milestone phases (4/4 complete; finishing touches deferred)
 
 ## Session
 
 **Last session:** 2026-07-24T12:32:47.683Z
-**Stopped at:** Completed 04-02-PLAN.md — next 04-03 soft-reload UAT
+**Stopped at:** Phase 04 complete — all 4 plans done; FWK-02/IPC-02 deferred
 **Resume file:** None
-**Next command:** `/gsd-execute-phase 4`
+**Next command:** `/gsd-complete-milestone` or finishing-touch for FWK-02/IPC-02 when ready
 
 ## Project Reference
 
@@ -112,6 +112,8 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 | Phase 03 P10 | 1min | 2 tasks | 1 files |
 | Phase 04 P01 | 3min | 2 tasks | 2 files |
 | Phase 04 P02 | 15min | 2 tasks | 2 files |
+| Phase 04 P03 | 20min | 2 tasks | 2 files |
+| Phase 04 P04 | 5min | 2 tasks | 3 files |
 
 ## Decisions
 
