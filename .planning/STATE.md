@@ -33,7 +33,7 @@ Last activity: 2026-07-25 — v0.2 requirements + roadmap drafted
 
 See: .planning/PROJECT.md (updated 2026-07-25)
 
-**Core value:** Reproduce every current Waybar module's functionality before cutover — while gaining a unified, themeable shell.  
+**Core value:** Desktop capability via upstream dots-hyprland + personal overlays (parity before cutover).  
 **Current focus:** v0.2 Adopt dots-hyprland — start Phase 5
 
 ## Deferred Items
