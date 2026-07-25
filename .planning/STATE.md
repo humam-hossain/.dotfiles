@@ -5,8 +5,8 @@ milestone_name: Adopt dots-hyprland
 current_phase: 6
 current_phase_name: Thin Setup Wrapper & Safe Defaults
 status: planning
-stopped_at: "Phase 5 UAT complete — ready to plan Phase 6"
-last_updated: "2026-07-25T15:06:40.829Z"
+stopped_at: Phase 6 context gathered
+last_updated: "2026-07-25T15:55:31.792Z"
 last_activity: 2026-07-25
 last_activity_desc: Phase 05 complete, transitioned to Phase 6
 progress:
@@ -28,9 +28,9 @@ Last activity: 2026-07-25 — Phase 05 complete, transitioned to Phase 6
 
 ## Session
 
-**Last session:** 2026-07-25T12:22:35.083Z
-**Stopped at:** Phase 5 UAT complete (10/10 passed); next Phase 6
-**Resume file:** .planning/ROADMAP.md (Phase 6)
+**Last session:** 2026-07-25T15:55:31.785Z
+**Stopped at:** Phase 6 context gathered
+**Resume file:** .planning/phases/06-thin-setup-wrapper-safe-defaults/06-CONTEXT.md
 **Next command:** `/gsd-discuss-phase 6` or `/gsd-plan-phase 6`
 
 ## Project Reference
