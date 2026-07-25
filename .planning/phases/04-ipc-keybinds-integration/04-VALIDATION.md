@@ -46,7 +46,7 @@ created: 2026-07-24
 | 04-02-01 | 04-02 | 2 | IPC-01 | T-04-01 | Stock `bar` IPC only; no new targets | static | `rg -n 'target: "bar"' .config/quickshell/modules/ii/bar/Bar.qml` | ✅ source | ✅ green |
 | 04-02-02 | 04-02 | 2 | IPC-01 | T-04-01 | `toggle`/`open`/`close` functions present | static | `rg -n 'function toggle\|function open\|function close' .config/quickshell/modules/ii/bar/Bar.qml` | ✅ source | ✅ green |
 | 04-02-03 | 04-02 | 2 | IPC-01 | T-04-01 | Live instance exposes target `bar` | live smoke | `python3 scripts/phase04-ipc-reload-assert.py` (Section B) / `qs ipc show` | ✅ runtime | ✅ green |
-| 04-02-04 | 04-02 | 2 | IPC-01 | T-04-01 | `open`/`close`/`toggle` exit 0 + multi-monitor UAT | live smoke + manual | `qs ipc call bar close; qs ipc call bar open; qs ipc call bar toggle` | ✅ runtime | ⚠️ automated green; manual UAT pending |
+| 04-02-04 | 04-02 | 2 | IPC-01 | T-04-01 | `open`/`close`/`toggle` exit 0 + multi-monitor UAT | live smoke + manual | `qs ipc call bar close; qs ipc call bar open; qs ipc call bar toggle` | ✅ runtime | ✅ green |
 | 04-03-01 | 04-03 | 3 | IPC-03 | T-04-02 | Silent reload pragma retained | static | `rg -n 'QS_NO_RELOAD_POPUP=1' .config/quickshell/shell.qml` | ✅ source | ⬜ pending |
 | 04-03-02 | 04-03 | 3 | IPC-03 | T-04-04 | Soft reload same PID + post-reload IPC | live smoke | `python3 scripts/phase04-ipc-reload-assert.py` (Section C) | ✅ runtime | ⬜ pending |
 | 04-03-03 | 04-03 | 3 | IPC-03 | — | IPC works after soft reload | live smoke | after reload: `qs ipc call bar open` exit 0 | ✅ runtime | ⬜ pending |
