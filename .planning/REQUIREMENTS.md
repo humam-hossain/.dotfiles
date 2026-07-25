@@ -76,31 +76,31 @@ Deferred beyond v0.2. Tracked but not in this roadmap.
 
 ## Traceability
 
-Which phases cover which requirements. Filled during roadmap creation.
+Which phases cover which requirements. Updated with v0.2 roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| OWN-01 | — | Pending |
-| OWN-02 | — | Pending |
-| OWN-03 | — | Pending |
-| WRAP-01 | — | Pending |
-| WRAP-02 | — | Pending |
-| WRAP-03 | — | Pending |
-| WRAP-04 | — | Pending |
-| LIVE-01 | — | Pending |
-| LIVE-02 | — | Pending |
-| LIVE-03 | — | Pending |
-| LIVE-04 | — | Pending |
-| RET-01 | — | Pending |
-| RET-02 | — | Pending |
-| DOC-01 | — | Pending |
-| DOC-02 | — | Pending |
+| OWN-01 | Phase 5 | Pending |
+| OWN-02 | Phase 5 | Pending |
+| OWN-03 | Phase 5 | Pending |
+| WRAP-01 | Phase 6 | Pending |
+| WRAP-02 | Phase 6 | Pending |
+| WRAP-03 | Phase 6 | Pending |
+| WRAP-04 | Phase 6 | Pending |
+| LIVE-01 | Phase 7 | Pending |
+| LIVE-02 | Phase 7 | Pending |
+| LIVE-03 | Phase 7 | Pending |
+| LIVE-04 | Phase 7 | Pending |
+| RET-01 | Phase 8 | Pending |
+| RET-02 | Phase 8 | Pending |
+| DOC-01 | Phase 9 | Pending |
+| DOC-02 | Phase 9 | Pending |
 
 **Coverage:**
 - v0.2 requirements: 15 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 15
+- Mapped to phases: 15
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-07-25*  
-*Last updated: 2026-07-25 after v0.2 scoping*
+*Last updated: 2026-07-25 after v0.2 roadmap mapping*
