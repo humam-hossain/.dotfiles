@@ -48,13 +48,13 @@ Phase artifacts: [milestones/v0.1-phases/](milestones/v0.1-phases/)
   2. `.dotfiles` has `vendor/dots-hyprland` registered in `.gitmodules` with a pinned submodule commit in the parent repo
   3. `git submodule update --init --recursive` yields a complete tree including nested shapes (no missing submodule paths)
 
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans executed
 
 Plans:
 
 - [x] 05-01-PLAN.md
-- [ ] 05-02-PLAN.md
-- [ ] 05-03-PLAN.md
+- [x] 05-02-PLAN.md
+- [x] 05-03-PLAN.md
 
 **Wave 1**
 
@@ -62,7 +62,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 05-02: Add `vendor/dots-hyprland` submodule + recursive init + dual remotes
+- [x] 05-02: Add `vendor/dots-hyprland` submodule + recursive init + dual remotes
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -154,7 +154,7 @@ Plans:
 | 2. Core Bar Modules | v0.1 | 13/13 | Complete | 2026-07-23 |
 | 3. System & Audio Modules | v0.1 | 10/10 | Complete | 2026-07-24 |
 | 4. IPC, Keybinds & Integration | v0.1 | 4/4 | Complete | 2026-07-25 |
-| 5. Fork & Submodule Pin | v0.2 | 1/3 | In Progress|  |
+| 5. Fork & Submodule Pin | v0.2 | 3/3 | In Progress|  |
 | 6. Thin Setup Wrapper & Safe Defaults | v0.2 | 0/TBD | Not started | - |
 | 7. Install, Session Hooks & Dual-Run Verify | v0.2 | 0/TBD | Not started | - |
 | 8. Retire Local Quickshell Product | v0.2 | 0/TBD | Not started | - |
