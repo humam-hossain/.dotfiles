@@ -38,78 +38,105 @@ Phase artifacts: [milestones/v0.1-phases/](milestones/v0.1-phases/)
 ## Phase Details
 
 ### Phase 5: Fork & Submodule Pin
+
 **Goal:** Own and pin dots-hyprland inside `.dotfiles` before any install mutates the machine  
 **Depends on:** v0.1 complete (no code dependency; process start)  
 **Requirements:** OWN-01, OWN-02, OWN-03  
 **Success Criteria** (what must be TRUE):
+
   1. Operator can `git remote -v` inside the vendored tree and see `origin` → personal fork and `upstream` → end-4
   2. `.dotfiles` has `vendor/dots-hyprland` registered in `.gitmodules` with a pinned submodule commit in the parent repo
   3. `git submodule update --init --recursive` yields a complete tree including nested shapes (no missing submodule paths)
+
 **Plans:** TBD
 
 Plans:
+**Wave 1**
+
 - [ ] 05-01: Create/configure personal fork and dual remotes
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 05-02: Add `vendor/dots-hyprland` submodule + recursive init
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 05-03: Verify pin and nested submodules; commit parent metadata
 
 ### Phase 6: Thin Setup Wrapper & Safe Defaults
+
 **Goal:** Provide a `.dotfiles`-native entrypoint that drives upstream setup without destroying personal Hyprland config  
 **Depends on:** Phase 5  
 **Requirements:** WRAP-01, WRAP-02, WRAP-03, WRAP-04  
 **Success Criteria** (what must be TRUE):
+
   1. From REPO_ROOT, operator can invoke the wrapper for install / install-deps / install-setups / install-files and see it call `vendor/dots-hyprland/./setup` (not a reimplemented package list)
   2. Default invocation includes safe dual-run flags equivalent to `--core --skip-hyprland` (personal `hyprland.conf` not renamed by defaults)
   3. Wrapper prints or enforces a backup reminder/gate before files step and does not default to `--skip-backup`
   4. Extra flags passed to the wrapper reach `./setup` unchanged
+
 **Plans:** TBD
 
 Plans:
+
 - [ ] 06-01: Implement `arch/dots-hyprland.sh` (REPO_ROOT, subcommands, passthrough)
 - [ ] 06-02: Encode safe default flag profile + backup messaging
 - [ ] 06-03: Smoke-test wrapper help/dry paths against submodule `./setup -h`
 
 ### Phase 7: Install, Session Hooks & Dual-Run Verify
+
 **Goal:** Land a running illogical-impulse shell beside Waybar using personal session ownership  
 **Depends on:** Phase 6  
 **Requirements:** LIVE-01, LIVE-02, LIVE-03, LIVE-04  
 **Success Criteria** (what must be TRUE):
+
   1. After files install, `~/.config/quickshell` is a real directory tree from upstream (not a symlink into `.dotfiles/.config/quickshell`)
   2. Personal Hyprland config sets `ILLOGICAL_IMPULSE_VIRTUAL_ENV` and starts `qs -c ii` on session start
   3. Waybar (and existing notification/launcher session pieces as currently configured) still start — dual-run intact
   4. Operator observes the installed ii/Quickshell chrome running in the Hyprland session
+
 **Plans:** TBD
 
 Plans:
+
 - [ ] 07-01: Pre-install backup + retarget/remove live QS symlink if present
 - [ ] 07-02: Run wrapper install (deps/setups/files) with safe defaults
 - [ ] 07-03: Add personal hypr env + `qs -c ii` exec-once; verify dual-run
 
 ### Phase 8: Retire Local Quickshell Product
+
 **Goal:** Single product path — remove the v0.1 in-repo Quickshell tree and old installer  
 **Depends on:** Phase 7 (LIVE-04 must hold)  
 **Requirements:** RET-01, RET-02  
 **Success Criteria** (what must be TRUE):
+
   1. `.dotfiles` no longer ships the v0.1 `.config/quickshell` product tree as an installable source
   2. `arch/quickshell.sh` is gone or is only a deprecation stub pointing at the new wrapper (cannot install the old product path)
   3. Live session still runs ii from the installed `~/.config/quickshell` after retirement (no regression to symlink-at-repo)
+
 **Plans:** TBD
 
 Plans:
+
 - [ ] 08-01: Confirm LIVE-04 checklist green on machine
 - [ ] 08-02: Delete in-repo `.config/quickshell` product tree
 - [ ] 08-03: Retire `arch/quickshell.sh`; grep for stale references
 
 ### Phase 9: Workflow Documentation & Update Contract
+
 **Goal:** Operator can reinstall and update without tribal knowledge  
 **Depends on:** Phases 5–8 (docs can draft earlier; complete after retirement paths exist)  
 **Requirements:** DOC-01, DOC-02  
 **Success Criteria** (what must be TRUE):
+
   1. Docs describe clone → recursive submodule init → wrapper install → hypr hooks → dual-run expectations end-to-end
   2. Docs describe pin-bump update (fetch upstream on fork/submodule, bump parent SHA, re-run setup) and explicitly mark `exp-merge` / online cache install as non-primary
   3. A new machine (or clean read of docs) has enough information to reach a dual-run ii session without reading chat history
+
 **Plans:** TBD
 
 Plans:
+
 - [ ] 09-01: Write install/adopt section (aligned with `arch/*.sh` style)
 - [ ] 09-02: Write update/pin-bump + non-goals (exp-merge, cutover, customs)
 - [ ] 09-03: Cross-link PROJECT/REQUIREMENTS and retire any quickshell-only install docs
