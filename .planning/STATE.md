@@ -118,5 +118,5 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 - [Phase ?]: Warning tier uses Appearance.colors.colPrimary (no colWarning token)
 - [Phase ?]: errorThreshold default 100 keeps error tier off until parent sets lower
 - [Phase ?]: TextMetrics binds to labelText or '100%' so layout matches content
-- [Phase 4]: IPC + soft-reload verify only this pass; FWK-02/IPC-02 deferred; stock bar IPC + file-watch soft reload; no hyprland.conf product edits
+- [Phase 4]: IPC + soft-reload verify only this pass; FWK-02/IPC-02 deferred (04-DEFERRED.md); stock bar IPC + file-watch soft reload; no hyprland.conf product edits
 - [Phase ?]: Wave 0 phase04-ipc-reload-assert.py: stock bar IPC + content-change soft-reload same-PID; no product QML
