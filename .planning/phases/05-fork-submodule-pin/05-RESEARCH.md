@@ -446,17 +446,19 @@ echo "[DONE] OWN-01/02/03 PASS"
 
 **If this table is empty:** N/A — four low-risk assumptions listed; none block planning.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Should Phase 5 add a committed verification script under `scripts/`?**
+1. **Should Phase 5 add a committed verification script under `scripts/`?** — **RESOLVED**
    - What we know: Repo has no general test framework; nvim has `scripts/nvim-validate.sh`; conventions use `[VERIFY]` labels.
    - What's unclear: User did not lock a script vs inline plan checks (discretion).
    - Recommendation: Prefer **inline verification commands in PLAN** for minimal surface; optional small assert script only if planner wants re-runnable gate. Do not frame it as clone bootstrap (D-15).
+   - **RESOLVED:** Plans use **inline plan verifies only**. No required `scripts/phase05-submodule-assert.sh` (or any Phase 5 assert script). Optional script remains out of scope; D-15 still holds.
 
-2. **Should parent pin commit be pushed to `origin` in this phase?**
+2. **Should parent pin commit be pushed to `origin` in this phase?** — **RESOLVED**
    - What we know: Parent is already 9 commits ahead; push not required for local OWN checklist.
    - What's unclear: Whether executor should `git push` after pin.
    - Recommendation: Commit locally is required for D-11 proof via `git ls-tree HEAD`; **push is optional** unless operator wants remote backup — not required for OWN success criteria as written.
+   - **RESOLVED:** **Push is optional.** Local pin commit + `git ls-tree HEAD` proof satisfies OWN success; `git push` is not required for phase completion (05-03 Task 2).
 
 ## Environment Availability
 

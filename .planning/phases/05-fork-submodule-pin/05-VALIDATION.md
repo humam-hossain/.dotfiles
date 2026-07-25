@@ -4,8 +4,8 @@ slug: fork-submodule-pin
 # status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
 # audit-milestone §5.5 distinguishes NOT-VALIDATED (draft) from PARTIAL (validated + nyquist_compliant: false) (#2117)
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-25
 ---
 
@@ -19,17 +19,17 @@ created: 2026-07-25
 
 | Property | Value |
 |----------|-------|
-| **Framework** | None — shell / git assertions (no Bats/pytest/jest) |
+| **Framework** | None — shell / git / gh assertions (no Bats/pytest/jest) |
 | **Config file** | none |
-| **Quick run command** | Inline OWN-01/02/03 git checks (see map below) |
-| **Full suite command** | Full OWN-01 + OWN-02 + OWN-03 sequence |
+| **Quick run command** | Inline OWN-01/02/03 git+gh checks (see map below) |
+| **Full suite command** | Full OWN-01 + OWN-02 + OWN-03 sequence (05-03 Task 1 verify) |
 | **Estimated runtime** | ~5–15 seconds |
 
 ---
 
 ## Sampling Rate
 
-- **After every task commit:** Run the OWN checks affected by that task
+- **After every task commit:** Run the automated command for that task row
 - **After every plan wave:** Run full OWN-01 + OWN-02 + OWN-03 sequence
 - **Before `/gsd:verify-work`:** Full checklist green; no `./setup`, no session tests
 - **Max feedback latency:** 15 seconds
@@ -40,21 +40,26 @@ created: 2026-07-25
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 05-01-* | 01 | 1 | OWN-01 | T-05-01 / — | Fork URL fixed; no tokens in repo | smoke | `git -C vendor/dots-hyprland remote get-url origin`; `… upstream` | ❌ W0 (inline) | ⬜ pending |
-| 05-02-* | 02 | 1–2 | OWN-02 | T-05-02 / — | `.gitmodules` URL = fork only | smoke | `git config -f .gitmodules --get submodule.vendor/dots-hyprland.url`; `git ls-tree HEAD vendor/dots-hyprland` | ❌ W0 (inline) | ⬜ pending |
-| 05-03-* | 03 | 2 | OWN-03 | T-05-03 / — | Nested shapes host remains end-4 | smoke | `git submodule update --init --recursive`; `test -f vendor/dots-hyprland/dots/.config/quickshell/ii/modules/common/widgets/shapes/LICENSE` | ❌ W0 (inline) | ⬜ pending |
+| 05-01-T1 | 01 | 1 | OWN-01 | T-05-01 | Fork only of end-4; no tokens logged | smoke | `gh repo view humam-hossain/dots-hyprland --json name,isFork,visibility,url,parent --jq 'select(.isFork==true and .name=="dots-hyprland") \| .name'` | ✅ inline | ⬜ pending |
+| 05-01-T2 | 01 | 1 | OWN-01 | T-05-01 / T-05-02 | Public fork; parent end-4; no secrets | smoke | `gh repo view humam-hossain/dots-hyprland --json isFork,visibility,parent --jq 'select(.isFork==true and (.visibility\|ascii_upcase)=="PUBLIC" and .parent.nameWithOwner=="end-4/dots-hyprland") \| "OWN-01-fork-ok"'` | ✅ inline | ⬜ pending |
+| 05-02-T1 | 02 | 2 | OWN-02 | T-05-01 / T-05-06 | `.gitmodules` url = fork SSH; no branch auto-track | smoke | `test -f .gitmodules && git config -f .gitmodules --get submodule.vendor/dots-hyprland.url \| grep -q 'git@github.com:humam-hossain/dots-hyprland.git' && ! grep -E '^\s*branch\s*=' .gitmodules && test -e vendor/dots-hyprland/.git && git submodule status vendor/dots-hyprland \| grep -E '^[ +][0-9a-f]{40} vendor/dots-hyprland'` | ✅ inline | ⬜ pending |
+| 05-02-T2 | 02 | 2 | OWN-01, OWN-03 | T-05-02 / T-05-03 | Nested shapes end-4 host; dual remotes; no setup | smoke | `git submodule update --init --recursive && test -f vendor/dots-hyprland/dots/.config/quickshell/ii/modules/common/widgets/shapes/LICENSE && ! git -C vendor/dots-hyprland submodule status --recursive \| grep -E '^-' && git -C vendor/dots-hyprland remote get-url origin \| grep -q 'git@github.com:humam-hossain/dots-hyprland.git' && git -C vendor/dots-hyprland remote get-url upstream \| grep -q 'https://github.com/end-4/dots-hyprland.git' && git -C vendor/dots-hyprland config -f .gitmodules --get-regexp url \| grep -q 'rounded-polygon-qmljs'` | ✅ inline | ⬜ pending |
+| 05-03-T1 | 03 | 3 | OWN-01, OWN-02, OWN-03 | T-05-01 / T-05-03 | Full pre-commit OWN checklist; no setup | smoke | `SM=vendor/dots-hyprland; SHAPES="$SM/dots/.config/quickshell/ii/modules/common/widgets/shapes"; git -C "$SM" remote get-url origin \| grep -q 'git@github.com:humam-hossain/dots-hyprland.git' && git -C "$SM" remote get-url upstream \| grep -q 'https://github.com/end-4/dots-hyprland.git' && test -f .gitmodules && git config -f .gitmodules --get submodule.vendor/dots-hyprland.url \| grep -q 'git@github.com:humam-hossain/dots-hyprland.git' && ! grep -E '^\s*branch\s*=' .gitmodules && git submodule update --init --recursive && test -f "$SHAPES/LICENSE" && ! git -C "$SM" submodule status --recursive \| grep -E '^-' && PIN=$(git -C "$SM" rev-parse HEAD) && git submodule status "$SM" \| grep -q "$PIN"` | ✅ inline | ⬜ pending |
+| 05-03-T2 | 03 | 3 | OWN-01, OWN-02, OWN-03 | T-05-02 / T-05-06 | Path-scoped pin; 160000 gitlink; push optional | smoke | `git ls-tree HEAD vendor/dots-hyprland \| grep -qE '^160000 commit [0-9a-f]{40}' && test -f .gitmodules && git rev-parse HEAD:.gitmodules >/dev/null && PIN=$(git -C vendor/dots-hyprland rev-parse HEAD) && git ls-tree HEAD vendor/dots-hyprland \| grep -q "$PIN" && git -C vendor/dots-hyprland remote get-url origin \| grep -q 'humam-hossain/dots-hyprland' && git -C vendor/dots-hyprland remote get-url upstream \| grep -q 'end-4/dots-hyprland' && test -f vendor/dots-hyprland/dots/.config/quickshell/ii/modules/common/widgets/shapes/LICENSE && ! grep -E '^\s*branch\s*=' .gitmodules` | ✅ inline | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+
+*All six tasks embed `<automated>` verifies in PLAN.md — no missing test files; no Wave 0 scaffold required.*
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] Embed OWN assert commands in each plan's `## Verification` (preferred) OR optional `scripts/phase05-submodule-assert.sh`
-- [ ] No framework install required
-- [ ] Do not gate on nvim-validate or quickshell session health
+- [x] Embed OWN assert commands in each plan's `<verify><automated>` (inline preferred; no `scripts/phase05-submodule-assert.sh` required)
+- [x] No framework install required
+- [x] Do not gate on nvim-validate or quickshell session health
 
-*Existing nvim harness is irrelevant to Phase 5.*
+*Existing nvim harness is irrelevant to Phase 5. Wave 0 complete — all verifies are inline.*
 
 ---
 
@@ -69,11 +74,11 @@ created: 2026-07-25
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 15s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify (no MISSING / Wave 0 test-file gaps)
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (none — inline only)
+- [x] No watch-mode flags
+- [x] Feedback latency < 15s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** pending (map matches 05-01/02/03 PLAN verifies; execute-phase will flip task Status)
