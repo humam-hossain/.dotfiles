@@ -2,99 +2,84 @@
 gsd_state_version: 1.0
 milestone: v0.1
 milestone_name: Core Framework & Basic Bar
-current_phase: 04
-status: completed
-stopped_at: Phase 04 complete — all 4 plans done; FWK-02/IPC-02 deferred
-last_updated: "2026-07-25T05:52:37Z"
+status: Awaiting next milestone
+stopped_at: Milestone v0.1 archived (override_closeout)
+last_updated: "2026-07-25T06:10:00Z"
 last_activity: 2026-07-25
-last_activity_desc: Phase 04 complete
+last_activity_desc: Milestone v0.1 completed and archived
 progress:
   total_phases: 4
   completed_phases: 4
   total_plans: 31
   completed_plans: 31
-current_phase_name: ipc-keybinds-integration
+current_phase: —
+current_phase_name: —
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 04
-Plan: 4/4 complete
-Status: Phase 04 complete (milestone phases done; finishing touches deferred)
-Last activity: 2026-07-25 — Phase 04 complete
+Phase: Milestone v0.1 complete  
+Plan: —  
+Status: Awaiting next milestone  
+Last activity: 2026-07-25 — Milestone v0.1 archived (override_closeout)
 
-Progress: [██████████] 100% milestone phases (4/4 complete; finishing touches deferred)
+Progress: [██████████] 100% v0.1 (4/4 phases; known gaps deferred)
 
 ## Session
 
-**Last session:** 2026-07-25T05:52:37Z
-**Stopped at:** Phase 04 complete — all 4 plans done; FWK-02/IPC-02 deferred
-**Resume file:** None
-**Next command:** `/gsd-complete-milestone` or finishing-touch for FWK-02/IPC-02 when ready
+**Last session:** 2026-07-25T06:10:00Z  
+**Stopped at:** Milestone v0.1 complete — archives + tag  
+**Resume file:** None  
+**Next command:** `/gsd-new-milestone`
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-21)
+See: .planning/PROJECT.md (updated 2026-07-25)
 
 **Core value:** Reproduce every current Waybar module's functionality before cutover — while gaining a unified, themeable shell.  
-**Current focus:** Phase 04 complete; FWK-02/IPC-02 deferred (04-DEFERRED.md)
+**Current focus:** Planning next milestone (v0.1 shipped)
+
+## Deferred Items
+
+Items acknowledged and deferred at milestone close on 2026-07-25:
+
+| Category | Item | Status |
+|----------|------|--------|
+| debug | cpu-warning-color-missing | unknown (acknowledged) |
+| debug | keyboard-volume-ceiling | unknown (acknowledged) |
+| debug | pavucontrol-launch-broken | unknown (acknowledged) |
+| debug | ram-label-spacing | unknown (acknowledged) |
+| requirement | FWK-02 (exec-once auto-start) | deferred finishing touch |
+| requirement | IPC-02 (bar toggle keybind) | deferred finishing touch |
+| backlog | Waybar cutover | deferred until SC-5 parity accepted |
+
+See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 
 ## Accumulated Context
 
-### Decisions (recent)
+### Decisions (carry-forward highlights)
 
-- Wholesale dots-hyprland `ii` tree as foundation (Phase 1)
+- Wholesale dots-hyprland `ii` tree as foundation
 - Material theme via `colors.json` + MaterialThemeLoader (seed #7aa2f7 vibrant dark)
-- Font stack: Material Symbols + Noto Sans / JetBrainsMono Nerd Font fallbacks
-- Stock Hyprland `workspace` dispatch (no `hl.dsp.focus` plugin)
 - Dual-write Config.qml + `~/.config/illogical-impulse/config.json`
-- Clock format `ddd yyyy-MM-dd hh:mm:ss AP` with secondPrecision true
-- Tray full-color (`monochromeIcons: false`); pin policy invert + Fcitx
 - Bar D-15 L→R layout; indicators D-19 mute→mic→xkb→BT→Network→notif
-- Network icon-only on bar via `Network.materialSymbol`; SSID via right sidebar
-- **UAT override:** remove ActiveWindow from left (G-02-7a space)
-- **UAT override:** always-visible indicator strip (not hide-when-idle Revealers)
-- **UAT fix:** StyledPopup.forceActive + ClockWidget onClicked for click-to-pin
-- **UAT override:** `bar.workspaces.shown: 4` (G-02-14; overrides D-02 shown:10)
-- **UAT fix:** left sidebar opens only via LeftSidebarButton; cornerOpen disabled (G-02-13)
-- **Phase 3:** CPU→RAM→Disk rings; dual thresholds; no swap/popup on strip; mute/mic icon+%; 130% volume + auto-unmute; pavucontrol middle/right (D-01..D-26)
-- **Phase 4 scope (D-01..D-03):** This pass = IPC-01 + IPC-03 verify/UAT only; IPC-02 keybind and FWK-02 exec-once deferred finishing touches
-- **Phase 4 reload (research):** Quickshell 0.3.0 has no `qs reload` CLI — soft reload via file-watch content change (same PID); no custom reload IPC (D-07)
-- **Phase 4 productization (D-13):** Assert/UAT stock surfaces; fix QML only if verification red
+- CPU→RAM→Disk rings; dual thresholds; volume 130% + auto-unmute
+- Soft reload via file-watch content change (no `qs reload` CLI on QS 0.3.0)
+- FWK-02/IPC-02 deferred intentionally (zero hyprland.conf product edits in Phase 4)
 
-### Phase 4 planning artifacts (ready)
+Full decision log: PROJECT.md Key Decisions table.
 
-| Artifact | Path |
-|----------|------|
-| Context | `04-CONTEXT.md` (D-01..D-13 locked) |
-| Research | `04-RESEARCH.md` (HIGH confidence; Open Questions RESOLVED) |
-| Patterns | `04-PATTERNS.md` (5/5 analogs) |
-| UI-SPEC | `04-UI-SPEC.md` (no visual redesign; visibility + silent reload contracts) |
-| Validation | `04-VALIDATION.md` (draft Wave 0 strategy) |
-| Plans | `04-01` .. `04-04` PLAN.md (3 waves) |
+### Resolved blockers
 
-**Coverage gates (plan-phase):**
+None open for next-milestone planning.
 
-- Requirements FWK-02, IPC-01, IPC-02, IPC-03: 4/4 covered (FWK-02/IPC-02 as deferred via 04-04)
-- CONTEXT decisions D-01..D-13: 13/13 covered
-- Post-planning gap analysis: 17/17 covered
-- Plan-checker: VERIFICATION PASSED (iteration 2 after fail-loud / mandatory soft-reload fixes)
+## Operator Next Steps
 
-### Wave layout
-
-| Wave | Plans | Focus |
-|------|-------|--------|
-| 1 | 04-01 | Wave 0 assert harness + VALIDATION wire |
-| 2 | 04-02, 04-04 | IPC-01 live UAT; deferred backlog packaging |
-| 3 | 04-03 | IPC-03 soft-reload + tray UAT |
-
-### Next
-
-1. `/gsd-complete-milestone` — archive v0.1 when ready (SC-5 Waybar-parity checklist still a milestone gate)
-2. Finishing-touch plan later: FWK-02 exec-once + IPC-02 keybind per `04-DEFERRED.md`
-3. Optional: Waybar cutover after SC-5 parity confirmed
+1. `/gsd-new-milestone` — define next version (requirements → research → roadmap)
+2. Optionally fold FWK-02/IPC-02 + open debug sessions into the next milestone
+3. Keep dual-run Waybar until cutover is planned
 
 ## Performance Metrics
 
@@ -114,12 +99,3 @@ See: .planning/PROJECT.md (updated 2026-07-21)
 | Phase 04 P02 | 15min | 2 tasks | 2 files |
 | Phase 04 P03 | 20min | 2 tasks | 2 files |
 | Phase 04 P04 | 5min | 2 tasks | 3 files |
-
-## Decisions
-
-- [Phase ?]: Phase 3 Wave 0: split interval dual-write keys updateInterval=1000/memoryUpdateInterval=3000/diskUpdateInterval=10000; maxAllowed>=130 floor
-- [Phase ?]: Warning tier uses Appearance.colors.colPrimary (no colWarning token)
-- [Phase ?]: errorThreshold default 100 keeps error tier off until parent sets lower
-- [Phase ?]: TextMetrics binds to labelText or '100%' so layout matches content
-- [Phase 4]: IPC + soft-reload verify only this pass; FWK-02/IPC-02 deferred (04-DEFERRED.md); stock bar IPC + file-watch soft reload; no hyprland.conf product edits
-- [Phase ?]: Wave 0 phase04-ipc-reload-assert.py: stock bar IPC + content-change soft-reload same-PID; no product QML
