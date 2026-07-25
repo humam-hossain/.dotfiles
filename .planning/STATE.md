@@ -4,17 +4,17 @@ milestone: v0.2
 milestone_name: Adopt dots-hyprland
 current_phase: 5
 current_phase_name: fork-submodule-pin
-status: executing
+status: phase_complete
 stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-07-25T12:22:35.091Z"
+last_updated: "2026-07-25T13:17:31.000Z"
 last_activity: 2026-07-25
-last_activity_desc: Completed 05-01 personal fork plan
+last_activity_desc: Phase 5 execute complete — 3/3 plans
 progress:
   total_phases: 5
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 1
-  percent: 33
+  completed_plans: 3
+  percent: 20
 ---
 
 # Project State
@@ -23,22 +23,22 @@ progress:
 
 Phase: 5 (fork-submodule-pin) — EXECUTING
 Plan: 2 of 3
-Status: Ready to execute
-Last activity: 2026-07-25 — Completed 05-01 (personal fork created)
+Status: Phase complete — ready to verify
+Last activity: 2026-07-25 — Phase 5 all plans executed (05-01/02/03)
 
 ## Session
 
 **Last session:** 2026-07-25T12:22:35.083Z
-**Stopped at:** Completed 05-01-PLAN.md
-**Resume file:** None
-**Next command:** `/gsd-execute-phase 5`
+**Stopped at:** Phase 5 plans complete — run verify
+**Resume file:** .planning/phases/05-fork-submodule-pin/05-03-SUMMARY.md
+**Next command:** `/gsd-verify-work` or proceed to Phase 6
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-07-25)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays (parity before cutover).  
-**Current focus:** Phase 5 — fork-submodule-pin
+**Current focus:** v0.2 — Phase 5 complete; next Phase 6 thin setup wrapper
 
 ## Deferred Items
 
