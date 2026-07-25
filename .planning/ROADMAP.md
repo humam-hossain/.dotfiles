@@ -143,7 +143,7 @@
 
 **This pass acceptance (D-01..D-03):** SC-1 (IPC show/hide) and SC-3 (graceful soft reload) are in scope. SC-2 (keybind) and SC-4 (exec-once) are deferred finishing touches — see `04-DEFERRED.md` (plan 04-04). SC-5 remains a milestone gate, not new Phase 4 module work. Soft reload uses file-watch content change (Quickshell 0.3.0 has no `qs reload` CLI).
 
-**Plans:** 4/4 plans executed
+**Plans:** 4/4 plans complete
 
 **Wave 1**
 
@@ -189,7 +189,7 @@ graph LR
 | 1 | Shell Foundation & Theme | Complete | 2026-07-21 |
 | 2 | Core Bar Modules | Complete | 2026-07-23 |
 | 3 | System & Audio Modules | Complete | 2026-07-24 |
-| 4 | IPC, Keybinds & Integration | Complete | 2026-07-25 |
+| 4 | IPC, Keybinds & Integration | Complete    | 2026-07-25 |
 
 ---
 *Roadmap created: 2026-07-20*
