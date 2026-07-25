@@ -6,7 +6,7 @@ source:
   - 04-UI-SPEC.md
   - scripts/phase04-ipc-reload-assert.py
 started: 2026-07-25T05:34:00Z
-updated: 2026-07-25T05:34:00Z
+updated: 2026-07-25T05:38:41Z
 ---
 
 # Phase 4 UAT — IPC show/hide & soft reload
@@ -77,12 +77,12 @@ Notes:
 
 | # | Check | expected | result | note |
 |---|-------|----------|--------|------|
-| IPC-01-1 | `qs ipc call bar close` | QS bar gone on **all** active monitors | pending | Ignore Waybar |
-| IPC-01-2 | `qs ipc call bar open` | QS bars back on all monitors; modules updating | pending | |
-| IPC-01-3 | `qs ipc call bar toggle` twice | One hide + one show flip | pending | |
-| IPC-01-4 | No IPC chrome | No toast/badge/status line for IPC | pending | |
+| IPC-01-1 | `qs ipc call bar close` | QS bar gone on **all** active monitors | **pass** | Human approved 2026-07-25; Ignore Waybar |
+| IPC-01-2 | `qs ipc call bar open` | QS bars back on all monitors; modules updating | **pass** | Human approved 2026-07-25 |
+| IPC-01-3 | `qs ipc call bar toggle` twice | One hide + one show flip | **pass** | Human approved 2026-07-25 |
+| IPC-01-4 | No IPC chrome | No toast/badge/status line for IPC | **pass** | Human approved 2026-07-25 |
 
-**Resume signal:** type `approved` if all IPC-01 rows pass, or describe which monitor/action failed.
+**Human signal:** `approved` (2026-07-25) — multi-monitor hide/show/toggle pass.
 
 ---
 
