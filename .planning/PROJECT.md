@@ -1,22 +1,35 @@
 # Quickshell Desktop Shell
 
-## Current Milestone: v0.1 Core Framework & Basic Bar
+## Current State
 
-**Goal:** Establish the Quickshell foundation and replace basic Waybar functionality.
+**Shipped:** v0.1 Core Framework & Basic Bar (2026-07-25)
 
-**Target features:**
-- Material theme system integration
-- Custom Quickshell shell (Waybar replacement)
-- Essential bar modules (workspaces, clock, tray, network)
-- Global shortcuts / IPC (foundation)
+Usable Quickshell top bar dual-running with Waybar. Material-themed IllogicalImpulseFamily shell with workspaces, clock, tray, network, CPU/RAM/disk rings, volume indicators, stock bar IPC, and same-PID soft reload. Finishing touches (exec-once, bar keybind) and full Waybar cutover remain for a later milestone.
+
+**Stats at ship:** 4 phases · 31 plans · 39 tasks · ~589 QML files · ~57k LOC under `.config/quickshell/`
+
+## Next Milestone Goals
+
+Define via `/gsd-new-milestone`. Likely candidates (not locked):
+
+- Finishing touches: FWK-02 exec-once + IPC-02 bar keybind
+- Resolve open debug sessions (resource colors, volume ceiling, pavucontrol launch, RAM spacing)
+- Waybar cutover when SC-5 parity is accepted
+- Custom modules: weather, ping monitor, earthquake alerts
+- Launcher / clipboard (rofi replacement)
+- Notification daemon (swaync replacement)
 
 ## What This Is
 
 A custom Quickshell (QML) desktop shell for the Hyprland Wayland session, built fresh and modeled on the `dots-hyprland` `ii` quickshell architecture. It replaces three separate tools — Waybar (status bar), rofi (launcher + clipboard manager), and swaync (notification daemon) — with one unified, themeable, runtime-configurable shell. It is part of the `.dotfiles` personal Linux desktop environment.
 
+**v0.1 status:** Bar foundation and core modules ship; Waybar still coexists until cutover.
+
 ## Core Value
 
 The shell must reproduce every current Waybar module's functionality (workspaces, system metrics, network, ping monitor, weather, clock, music, volume, tray, notifications, power) so the desktop loses no capability in the switch — while gaining a launcher, clipboard manager, OSDs, quick toggles, and a GUI settings app.
+
+*Still correct after v0.1 — core value remains full parity before cutover, not feature sprawl.*
 
 ## Requirements
 
@@ -32,26 +45,33 @@ Existing infrastructure the new shell builds on (not replaced by this project):
 - ✓ Quickshell + ddcutil/i2c provisioning (`arch/quickshell.sh`) — existing (ddcutil re-introduction risk; see Constraints)
 - ✓ Hyprland session bootstrap (`hyprland-session.service` → `graphical-session.target`) — existing
 
-### Validated (this milestone)
+### Validated — v0.1
 
-- ✓ Material theme system (MaterialThemeLoader + scheme) adopted from dots-hyprland — Phase 1
-- ✓ Quickshell foundation: directory structure, PanelLoader / panel families, service singletons, visible top bar — Phase 1 (FWK-01/03/04/05, THM-01/02)
+- ✓ Material theme system (MaterialThemeLoader + scheme) — v0.1 Phase 1
+- ✓ Quickshell foundation: directory structure, PanelLoader / panel families, service singletons, visible top bar — v0.1 (FWK-01/03/04/05, THM-01/02)
+- ✓ Core bar modules: workspaces, clock, system tray, network status — v0.1 Phase 2 (BAR-01..04)
+- ✓ System metrics: CPU, RAM, disk rings with dual thresholds — v0.1 Phase 3 (BAR-05..07)
+- ✓ Audio volume from bar (scroll, mute, 130% ceiling, auto-unmute) — v0.1 Phase 3 (BAR-08)
+- ✓ IPC socket for bar open/close/toggle — v0.1 Phase 4 (IPC-01)
+- ✓ Graceful soft reload without full restart (same PID, silent) — v0.1 Phase 4 (IPC-03)
 
-### Active
+### Active (carry-forward / next milestones)
 
+- [ ] FWK-02: Quickshell auto-start via Hyprland exec-once (deferred from v0.1)
+- [ ] IPC-02: Hyprland keybind to toggle bar visibility (deferred from v0.1)
+- [ ] Cutover: remove Waybar/rofi/swaync from Hyprland `exec-once` once parity is verified
 - [ ] Custom Quickshell shell that fully replaces Waybar as the status bar (parity + cutover still open)
 - [ ] App launcher that replaces rofi's `drun` mode
 - [ ] Clipboard manager that replaces rofi's clipboard history mode
 - [ ] Notification daemon + control center that replaces swaync
-- [ ] Switchable panel families (multiple bar layouts, runtime-switchable) — structure present; productized switching later
+- [ ] Switchable panel families (structure present; productized switching later)
 - [ ] GUI settings app to tweak the shell without editing files
-- [ ] Waybar-parity bar modules: workspaces, disk, cpu, memory, network, ping, weather (current), clock, weather (forecast), tray, music, volume, notifications, power
-- [ ] OSD + popups: volume OSD, calendar popup, network popup, notification popups/center
+- [ ] Remaining Waybar-parity modules: ping, weather (current + forecast), music, notifications, power
+- [ ] OSD + popups productization beyond stock surfaces
 - [ ] Quick toggles: bluetooth, night-light (hyprsunset), idle inhibitor, easyeffects, power profiles
 - [ ] Productivity widgets: emoji picker, timer/stopwatch, todo, system-updates checker
 - [ ] Ping monitor integration (shell reads `localhost:8765/api/status`)
-- [ ] Global shortcuts / IPC to trigger launcher, clipboard, emoji picker, toggles
-- [ ] Cutover: remove Waybar/rofi/swaync from Hyprland `exec-once` once parity is verified
+- [ ] Global shortcuts / IPC for launcher, clipboard, emoji picker, toggles
 
 ### Out of Scope
 
@@ -68,50 +88,50 @@ Existing infrastructure the new shell builds on (not replaced by this project):
 - Iterating on the old deleted Quickshell (git HEAD) — this is a fresh build; the old code is reference only, not a baseline.
 - Debian/Ubuntu parity for the new shell — primary target is Arch; distro parity is a separate concern.
 
+*Out-of-scope reasons still valid after v0.1.*
+
 ## Context
 
-**Current state (from `.planning/codebase/`):**
-- The repo is a Hyprland (Wayland) personal desktop with per-distro Bash provisioning (arch/debian/ubuntu) and declarative configs under `.config/`.
-- Waybar is the active status bar (`config.jsonc` + `style.css` + `mocha.css` + custom scripts: `system/memory.sh`, `alerts/earthquake.sh`, `weather/{curr_weather,forcast_weather,functions}.sh`, `network/ping_status.sh`).
-- rofi handles app launching (`drun`) and clipboard history; swaync handles notifications + control center.
-- An earlier Quickshell attempt exists in git HEAD (14 services, 15 widgets, 3 popups) but is **deleted in the working tree** (39 unstaged deletions). It is treated as reference only.
-- `dots-hyprland` (`../dots-hyprland/`, a separate repo) is the inspiration source: its quickshell lives at `dots/.config/quickshell/ii/` — 586 QML files, 46 services, organized as `modules/{common,ii,settings,waffle}`, `panelFamilies/`, `services/`, `scripts/`, `defaults/`, `assets/`, plus `shell.qml`, `settings.qml`, `GlobalStates.qml`, `killDialog.qml`, `ReloadPopup.qml`. Entry point `shell.qml` loads panel families via `PanelLoader`, applies Material theme on startup, and wires global shortcuts/IPC.
+**Shipped v0.1 (2026-07-25):**
+- `.config/quickshell/` is a live dots-hyprland-derived shell (~589 QML files, ~57k LOC).
+- Dual-write config: `Config.qml` + `~/.config/illogical-impulse/config.json`.
+- Bar layout: left sidebar button → workspaces → resources; center clock+utils; right indicators + tray.
+- Waybar still runs in parallel; Quickshell is not yet on `exec-once`.
+- Soft reload: content-change file-watch (Quickshell 0.3.0 has no `qs reload` CLI).
+- Open polish items tracked as deferred debug sessions + FWK-02/IPC-02 finishing touches.
 
 **Why this project:**
 - Consolidate three separate tools (waybar + rofi + swaync) into one coherent, customizable shell.
-- Gain a richer shell (launcher, clipboard, OSDs, quick toggles, productivity widgets, GUI settings) that waybar/rofi/swaync don't provide unified.
-- Adopt dots-hyprland's proven QML architecture (services singletons, panel families, Material theming, settings UI) rather than hand-rolling.
-
-**Inspiration source specifics (dots-hyprland `ii/`):**
-- Services pattern: singletons expose state; widget components render it; `qmldir` manifests per directory.
-- Panel families: `IllogicalImpulseFamily` (ii) and `WaffleFamily` (waffle), switchable via `Config.options.panelFamily` + `PanelLoader` (LazyLoader).
-- Theming: `MaterialThemeLoader.reapplyTheme()` on startup; `AdaptedMaterialScheme` model.
-- Settings: `settings.qml` (22k chars) + `Config.qml` + `Persistent.qml`.
-- Quick toggles model: `modules/common/models/quickToggles/` (Audio, Bluetooth, ColorPicker, DarkMode, EasyEffects, GameMode, IdleInhibitor, Mic, NightLight, Notification, PowerProfiles, ScreenSnip, ...).
+- Gain a richer shell (launcher, clipboard, OSDs, quick toggles, productivity widgets, GUI settings).
+- Adopt dots-hyprland's proven QML architecture rather than hand-rolling.
 
 ## Constraints
 
-- **Tech stack**: QML + Quickshell on Qt/Wayland; Hyprland compositor. Inspiration source is dots-hyprland's `ii` quickshell. — The shell must run under the existing Hyprland session.
-- **Parity floor**: Every current Waybar module must have a working equivalent before Waybar is removed. — No functionality regression in the cutover.
-- **No ddcutil polling**: No brightness/backlight widget using DDC/CI. — The `2026-07-16` post-mortem shows ddcutil bus hammering caused an iGPU hang/flicker; `arch/quickshell.sh` re-introduces ddcutil so any future backlight work must follow the post-mortem mitigation (sane polling interval + failure backoff), but this project skips backlight entirely.
-- **Keep hyprlock**: Do not replace the screen lock. — User decision; hyprlock is working and stays.
-- **Catppuccin vs Material theming**: The existing desktop is Catppuccin Mocha everywhere; dots-hyprland's Material theme system is being adopted. Whether to preserve Catppuccin colors via the Material scheme or move to Material defaults is a planning-phase decision. — Affects the entire look and must be resolved before widget styling.
-- **Working-tree state**: 39 unstaged deletions under `.config/quickshell/` (the old attempt). GSD must not stage or revert these without explicit confirmation; planning docs commit only `.planning/` artifacts. — Prevents clobbering in-progress/uncommitted state.
-- **Personal / machine-specific**: Hardcoded monitor names (DP-1, HDMI-A-2), timezone (Asia/Dhaka), ping monitor bind host, conda paths. — Acceptable for a personal dotfiles repo; document machine-specific knobs in the shell config.
+- **Tech stack**: QML + Quickshell on Qt/Wayland; Hyprland compositor. Inspiration source is dots-hyprland's `ii` quickshell.
+- **Parity floor**: Every current Waybar module must have a working equivalent before Waybar is removed.
+- **No ddcutil polling**: No brightness/backlight widget using DDC/CI.
+- **Keep hyprlock**: Do not replace the screen lock.
+- **Catppuccin vs Material theming**: Desktop was Catppuccin Mocha; v0.1 ships Material vibrant dark seed `#7aa2f7`. Further Catppuccin adapter is optional later work.
+- **Personal / machine-specific**: Hardcoded monitor names (DP-1, HDMI-A-2), timezone (Asia/Dhaka), ping monitor bind host, conda paths.
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Fresh build, not iterating on old Quickshell | Old attempt deleted in working tree; adopt dots-hyprland architecture cleanly rather than refactor | Done — wholesale ii tree (Phase 1) |
-| Replace waybar + rofi + swaync with one Quickshell shell | Consolidate tools; gain unified richer shell | In progress — foundation up; Waybar still coexists |
-| Adopt Material theme + panel families + GUI settings app | Maximalist "broad desktop shell" per user choice | Theme + families done (Phase 1); settings app later |
-| Skip brightness/backlight (no ddcutil) | iGPU crash risk per `2026-07-16` post-mortem | Accepted — ddcutil still in packages; no Phase 1 backlight goal |
-| Keep hyprlock (no Quickshell lock screen) | hyprlock works; lock screen panel not wanted | Held |
-| Theming: Material vibrant dark seed #7aa2f7 | Static theme gen for MaterialThemeLoader | Done Phase 1 — user confirmed colors applied |
-| Font fallbacks: Noto Sans + Material Symbols | Google Sans Flex / missing Material Symbols broke bar icons | Done Phase 1 gap 01-04 |
-| Stock Hyprland `workspace` dispatch | `hl.dsp.focus` needs plugin not installed | Done Phase 1 gap 01-04 |
-| Primary target Arch only | debian/ubuntu parity is a separate concern | Held |
+| Fresh build, not iterating on old Quickshell | Old attempt deleted in working tree; adopt dots-hyprland architecture cleanly | ✓ Good — wholesale ii tree (v0.1 P1) |
+| Replace waybar + rofi + swaync with one Quickshell shell | Consolidate tools; gain unified richer shell | ⚠️ Revisit — foundation up; Waybar still coexists |
+| Adopt Material theme + panel families + GUI settings app | Maximalist "broad desktop shell" per user choice | ✓ Theme + families done; settings app later |
+| Skip brightness/backlight (no ddcutil) | iGPU crash risk per `2026-07-16` post-mortem | ✓ Good |
+| Keep hyprlock (no Quickshell lock screen) | hyprlock works; lock screen panel not wanted | ✓ Good |
+| Theming: Material vibrant dark seed #7aa2f7 | Static theme gen for MaterialThemeLoader | ✓ Good |
+| Font fallbacks: Noto Sans + Material Symbols | Missing fonts broke bar icons | ✓ Good |
+| Stock Hyprland `workspace` dispatch | `hl.dsp.focus` needs plugin not installed | ✓ Good |
+| Dual-write Config.qml + live config.json | Runtime-active defaults without losing QML defaults | ✓ Good |
+| Always-visible indicator strip (not hide-when-idle) | UAT: empty network-only pill was confusing | ✓ Good |
+| Volume ceiling 130% + auto-unmute all paths | Match desired desktop behavior; no silent 100% cap | ✓ Good (debug: keyboard ceiling polish open) |
+| Phase 4: verify stock IPC/reload only; defer keybind/exec-once | Avoid hyprland.conf product edits until ready | ✓ Good — packaged in 04-DEFERRED.md |
+| Soft reload = file-watch content change | QS 0.3.0 has no reload CLI | ✓ Good |
+| Primary target Arch only | debian/ubuntu parity is a separate concern | ✓ Good |
 
 ## Evolution
 
@@ -124,11 +144,11 @@ This document evolves at phase transitions and milestone boundaries.
 4. Decisions to log? → Add to Key Decisions
 5. "What This Is" still accurate? → Update if drifted
 
-**After each milestone** (via `/gsd:complete-milestone`):
+**After each milestone** (via `/gsd-complete-milestone`):
 1. Full review of all sections
 2. Core Value check — still the right priority?
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-21 after Phase 1*
+*Last updated: 2026-07-25 after v0.1 milestone*
