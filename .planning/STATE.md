@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 5 (fork-submodule-pin) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Phase complete — ready to verify
 Last activity: 2026-07-25 — Phase 5 all plans executed (05-01/02/03)
 
@@ -83,8 +83,8 @@ None open for next-milestone planning.
 
 ## Operator Next Steps
 
-1. Continue Phase 5: execute 05-02 (submodule add) then 05-03 (parent pin commit)
-2. After Phase 5: `/gsd-discuss-phase 6` or `/gsd-plan-phase 6` — thin setup wrapper
+1. `/gsd-verify-work` — UAT for Phase 5 OWN criteria (optional if goal-backward verify passes)
+2. `/gsd-discuss-phase 6` or `/gsd-plan-phase 6` — thin setup wrapper
 3. Keep Waybar dual-run until a later cutover milestone
 
 ## Performance Metrics
