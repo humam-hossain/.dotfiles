@@ -10,7 +10,7 @@ Requirements for milestone v0.1: Core Framework & Basic Bar.
 ### Framework
 
 - [x] **FWK-01**: User can launch a Quickshell shell that renders a top bar on each connected monitor
-- [x] **FWK-02**: User sees Quickshell auto-start via Hyprland exec-once at login
+- [ ] **FWK-02**: User sees Quickshell auto-start via Hyprland exec-once at login
 - [x] **FWK-03**: Shell uses service-singleton pattern (services expose state, widgets render it)
 - [x] **FWK-04**: Shell entry point (shell.qml) loads panel families via PanelLoader architecture
 - [x] **FWK-05**: Shell directory structure follows dots-hyprland conventions (modules/, services/, scripts/, defaults/, assets/, qmldir manifests)
@@ -34,7 +34,7 @@ Requirements for milestone v0.1: Core Framework & Basic Bar.
 ### IPC & Shortcuts
 
 - [x] **IPC-01**: Shell exposes an IPC socket for external commands (show/hide bar, reload)
-- [x] **IPC-02**: User can toggle bar visibility via a Hyprland keybind
+- [ ] **IPC-02**: User can toggle bar visibility via a Hyprland keybind
 - [x] **IPC-03**: Shell supports graceful reload without full restart (preserves runtime state)
 
 ## v2 Requirements
@@ -96,7 +96,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | FWK-01 | Phase 1 | Complete |
-| FWK-02 | Phase 4 | Complete |
+| FWK-02 | Phase 4 | Deferred (04-DEFERRED.md) |
 | FWK-03 | Phase 1 | Complete |
 | FWK-04 | Phase 1 | Complete |
 | FWK-05 | Phase 1 | Complete |
@@ -111,7 +111,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BAR-07 | Phase 3 | Complete |
 | BAR-08 | Phase 3 | Complete |
 | IPC-01 | Phase 4 | Complete |
-| IPC-02 | Phase 4 | Complete |
+| IPC-02 | Phase 4 | Deferred (04-DEFERRED.md) |
 | IPC-03 | Phase 4 | Complete |
 
 **Coverage:**
