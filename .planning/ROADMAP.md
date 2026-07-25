@@ -143,7 +143,7 @@
 
 **This pass acceptance (D-01..D-03):** SC-1 (IPC show/hide) and SC-3 (graceful soft reload) are in scope. SC-2 (keybind) and SC-4 (exec-once) are deferred finishing touches — see `04-DEFERRED.md` (plan 04-04). SC-5 remains a milestone gate, not new Phase 4 module work. Soft reload uses file-watch content change (Quickshell 0.3.0 has no `qs reload` CLI).
 
-**Plans:** 1/4 plans executed
+**Plans:** 2/4 plans executed
 
 **Wave 1**
 
@@ -152,7 +152,7 @@
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [ ] 04-02-PLAN.md — IPC-01 live bar open/close/toggle + multi-monitor UAT
-- [ ] 04-04-PLAN.md — Deferred backlog packaging (FWK-02, IPC-02, Waybar cutover)
+- [x] 04-04-PLAN.md — Deferred backlog packaging (FWK-02, IPC-02, Waybar cutover)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
