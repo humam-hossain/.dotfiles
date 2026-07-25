@@ -1,0 +1,3 @@
+[submodule "vendor/dots-hyprland"]
+	path = vendor/dots-hyprland
+	url = git@github.com:humam-hossain/dots-hyprland.git
