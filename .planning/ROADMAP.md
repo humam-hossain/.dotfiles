@@ -80,15 +80,15 @@ Plans:
   3. Wrapper prints or enforces a backup reminder/gate before files step and does not default to `--skip-backup`
   4. Extra flags passed to the wrapper reach `./setup` unchanged
 
-**Plans:** 0/3 plans executed
+**Plans:** 3/3 plans executed
 
 Plans:
 
-- [ ] 06-01-PLAN.md
-- [ ] 06-02-PLAN.md
-- [ ] 06-03-PLAN.md
+- [x] 06-01-PLAN.md
+- [x] 06-02-PLAN.md
+- [x] 06-03-PLAN.md
 
-- [ ] 06-01: Implement `arch/dots-hyprland.sh` (REPO_ROOT, subcommands, passthrough)
+- [x] 06-01: Implement `arch/dots-hyprland.sh` (REPO_ROOT, subcommands, passthrough)
 - [ ] 06-02: Encode safe default flag profile + backup messaging
 - [ ] 06-03: Smoke-test wrapper help/dry paths against submodule `./setup -h`
 
@@ -159,7 +159,7 @@ Plans:
 | 3. System & Audio Modules | v0.1 | 10/10 | Complete | 2026-07-24 |
 | 4. IPC, Keybinds & Integration | v0.1 | 4/4 | Complete | 2026-07-25 |
 | 5. Fork & Submodule Pin | v0.2 | 3/3 | Complete    | 2026-07-25 |
-| 6. Thin Setup Wrapper & Safe Defaults | v0.2 | 0/3 | Planned    |  |
+| 6. Thin Setup Wrapper & Safe Defaults | v0.2 | 3/3 | In Progress|  |
 | 7. Install, Session Hooks & Dual-Run Verify | v0.2 | 0/TBD | Not started | - |
 | 8. Retire Local Quickshell Product | v0.2 | 0/TBD | Not started | - |
 | 9. Workflow Documentation & Update Contract | v0.2 | 0/TBD | Not started | - |
