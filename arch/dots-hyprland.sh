@@ -63,6 +63,20 @@ is_allowlisted() {
   return 1
 }
 
+# D-14 / D-15: require initialized submodule + executable setup; never auto-fix.
+preflight() {
+  if [[ ! -e "$II_ROOT/.git" ]]; then
+    echo "[FAIL] vendor/dots-hyprland is not an initialized submodule (missing .git)." >&2
+    echo "[FAIL] Fix (from REPO_ROOT): git submodule update --init --recursive" >&2
+    exit 1
+  fi
+  if [[ ! -x "$SETUP" ]]; then
+    echo "[FAIL] $SETUP missing or not executable." >&2
+    echo "[FAIL] Fix: git submodule update --init --recursive && chmod +x vendor/dots-hyprland/setup" >&2
+    exit 1
+  fi
+}
+
 main() {
   # 1) bare / help → wrapper usage, exit 0 (D-02, D-03)
   if [[ $# -eq 0 ]]; then
@@ -87,10 +101,49 @@ main() {
   local subcmd="$1"
   shift
 
-  # Task 2 / plan 06-02 complete the path: meta-flag scan, preflight,
-  # SAFE_DEFAULTS injection, backup_gate, dry-run, array-exec of ./setup.
-  echo "[FAIL] Subcommand '$subcmd' accepted but exec path not yet wired (06-01 Task 2)." >&2
-  exit 1
+  # 3) Scan remaining args: strip wrapper-owned meta flags; preserve order (WRAP-04)
+  local dry_run=0
+  local allow_skip_backup=0
+  local -a user_flags=()
+  local arg
+  for arg in "$@"; do
+    case "$arg" in
+      --dry-run)
+        dry_run=1
+        ;;
+      --allow-skip-backup)
+        allow_skip_backup=1
+        ;;
+      *)
+        user_flags+=("$arg")
+        ;;
+    esac
+  done
+  # allow_skip_backup stored for plan 06-02 skip-backup policy; not forwarded.
+  : "${allow_skip_backup}"
+
+  # 4) Preflight before any path that invokes setup (D-14)
+  preflight
+
+  # 5) Build argv as bash array — no SAFE_DEFAULTS injection yet (06-02)
+  local -a cmd=(./setup "$subcmd")
+  if ((${#user_flags[@]} > 0)); then
+    cmd+=("${user_flags[@]}")
+  fi
+
+  echo "[INSTALL] ${cmd[*]}  (cwd=$II_ROOT)"
+
+  # 6) --dry-run: print would-exec, exit 0 without calling setup (D-16)
+  if ((dry_run)); then
+    echo "[CONFIG] dry-run: would exec from $II_ROOT: ${cmd[*]}"
+    exit 0
+  fi
+
+  # 7) Array exec only — never eval a concatenated command string (T-06-04)
+  (
+    cd "$II_ROOT"
+    "${cmd[@]}"
+  )
 }
 
 main "$@"
