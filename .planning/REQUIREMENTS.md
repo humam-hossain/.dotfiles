@@ -16,7 +16,7 @@ Requirements for this milestone only. Each maps to roadmap phases (continuing af
 
 ### Install Wrapper
 
-- [ ] **WRAP-01**: Operator can run a thin `arch/dots-hyprland.sh` (or agreed name) from REPO_ROOT that invokes upstream `./setup` for `install`, `install-deps`, `install-setups`, and `install-files` without reimplementing package lists
+- [x] **WRAP-01**: Operator can run a thin `arch/dots-hyprland.sh` (or agreed name) from REPO_ROOT that invokes upstream `./setup` for `install`, `install-deps`, `install-setups`, and `install-files` without reimplementing package lists
 - [ ] **WRAP-02**: Wrapper defaults to a safe dual-run profile including `--core` and `--skip-hyprland` so personal `hyprland.conf` / hyprlock are not renamed or replaced on first adoption
 - [ ] **WRAP-03**: Wrapper surfaces a backup gate or explicit reminder before the files step and does not encourage `--skip-backup` on first adoption
 - [ ] **WRAP-04**: Wrapper accepts additional `./setup` flags via passthrough so operators can override defaults intentionally
@@ -83,7 +83,7 @@ Which phases cover which requirements. Updated with v0.2 roadmap.
 | OWN-01 | Phase 5 | Complete |
 | OWN-02 | Phase 5 | Complete |
 | OWN-03 | Phase 5 | Complete |
-| WRAP-01 | Phase 6 | Pending |
+| WRAP-01 | Phase 6 | Complete |
 | WRAP-02 | Phase 6 | Pending |
 | WRAP-03 | Phase 6 | Pending |
 | WRAP-04 | Phase 6 | Pending |
