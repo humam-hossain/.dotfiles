@@ -30,7 +30,7 @@ Phase artifacts: [milestones/v0.1-phases/](milestones/v0.1-phases/)
 ### v0.2 Adopt dots-hyprland
 
 - [x] **Phase 5: Fork & Submodule Pin** — Personal fork, remotes, `vendor/dots-hyprland` recursive pin
-- [ ] **Phase 6: Thin Setup Wrapper & Safe Defaults** — `arch/dots-hyprland.sh` → `./setup` with non-destructive defaults
+- [x] **Phase 6: Thin Setup Wrapper & Safe Defaults** — `arch/dots-hyprland.sh` → `./setup` with non-destructive defaults
 - [ ] **Phase 7: Install, Session Hooks & Dual-Run Verify** — Live ii shell + personal hypr hooks; Waybar preserved
 - [ ] **Phase 8: Retire Local Quickshell Product** — Delete in-repo QS tree; retire `arch/quickshell.sh`
 - [ ] **Phase 9: Workflow Documentation & Update Contract** — Clone/install/update/dual-run playbook
@@ -89,8 +89,8 @@ Plans:
 - [x] 06-03-PLAN.md
 
 - [x] 06-01: Implement `arch/dots-hyprland.sh` (REPO_ROOT, subcommands, passthrough)
-- [ ] 06-02: Encode safe default flag profile + backup messaging
-- [ ] 06-03: Smoke-test wrapper help/dry paths against submodule `./setup -h`
+- [x] 06-02: Encode safe default flag profile + backup messaging
+- [x] 06-03: Smoke-test wrapper help/dry paths against submodule `./setup -h`
 
 ### Phase 7: Install, Session Hooks & Dual-Run Verify
 
@@ -159,7 +159,7 @@ Plans:
 | 3. System & Audio Modules | v0.1 | 10/10 | Complete | 2026-07-24 |
 | 4. IPC, Keybinds & Integration | v0.1 | 4/4 | Complete | 2026-07-25 |
 | 5. Fork & Submodule Pin | v0.2 | 3/3 | Complete    | 2026-07-25 |
-| 6. Thin Setup Wrapper & Safe Defaults | v0.2 | 3/3 | In Progress|  |
+| 6. Thin Setup Wrapper & Safe Defaults | v0.2 | 3/3 | Complete | 2026-07-26 |
 | 7. Install, Session Hooks & Dual-Run Verify | v0.2 | 0/TBD | Not started | - |
 | 8. Retire Local Quickshell Product | v0.2 | 0/TBD | Not started | - |
 | 9. Workflow Documentation & Update Contract | v0.2 | 0/TBD | Not started | - |
@@ -167,4 +167,4 @@ Plans:
 **Coverage:** 15/15 v0.2 requirements mapped · 0 unmapped
 
 ---
-*Last updated: 2026-07-25 — v0.2 roadmap drafted*
+*Last updated: 2026-07-26 — Phase 6 Thin Setup Wrapper complete*

@@ -2,36 +2,36 @@
 gsd_state_version: 1.0
 milestone: v0.2
 milestone_name: Adopt dots-hyprland
-current_phase: 6
-current_phase_name: Thin Setup Wrapper & Safe Defaults
+current_phase: 7
+current_phase_name: Install, Session Hooks & Dual-Run Verify
 status: planning
-stopped_at: Phase 6 plans executed — ready for verify
-last_updated: "2026-07-26T05:12:11.269Z"
+stopped_at: "Phase 6 complete — ready for Phase 7"
+last_updated: "2026-07-26T05:15:12.700Z"
 last_activity: 2026-07-25
 last_activity_desc: Phase 05 complete, transitioned to Phase 6
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
   completed_plans: 6
-  percent: 20
+  percent: 40
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 6 — Thin Setup Wrapper & Safe Defaults
+Phase: 7 — Install, Session Hooks & Dual-Run Verify
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-07-25 — Phase 05 complete, transitioned to Phase 6
+Last activity: 2026-07-26 — Phase 06 complete, transitioned to Phase 7
 
 ## Session
 
-**Last session:** 2026-07-26T05:12:11.260Z
-**Stopped at:** Phase 6 plans executed — ready for verify
-**Resume file:** .planning/phases/06-thin-setup-wrapper-safe-defaults/06-03-SUMMARY.md
-**Next command:** `/gsd-discuss-phase 6` or `/gsd-plan-phase 6`
+**Last session:** 2026-07-26T05:15:12.692Z
+**Stopped at:** Phase 6 complete — ready for Phase 7
+**Resume file:** .planning/ROADMAP.md (Phase 7)OADMAP.md
+**Next command:** `/gsd-discuss-phase 7` or `/gsd-plan-phase 7`
 
 ## Project Reference
 

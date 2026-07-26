@@ -22,6 +22,8 @@ Usable Quickshell top bar dual-running with Waybar (Material-themed ii shell). T
 
 **Stats at v0.1 ship:** 4 phases · 31 plans · 39 tasks · ~589 QML files · ~57k LOC under `.config/quickshell/`
 
+**Phase 6 complete (2026-07-26):** `arch/dots-hyprland.sh` thin wrapper with safe defaults + backup gate (WRAP-01..04). Live install still Phase 7+.
+
 **Phase 5 complete (2026-07-25):** Public fork `humam-hossain/dots-hyprland` + submodule pin at `vendor/dots-hyprland` (`1a9ffb78`, dual remotes, nested shapes). Install/wrapper still Phase 6+.
 
 ## What This Is
@@ -67,9 +69,12 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Git submodule at `vendor/dots-hyprland` pinned in parent (mode 160000) — Validated in Phase 5
 - ✓ Nested shapes submodule initializes recursively (OWN-03) — Validated in Phase 5
 
+### Validated — v0.2 (Phase 6)
+
+- ✓ Thin `arch/dots-hyprland.sh` wrapper around upstream `./setup` with safe dual-run defaults and backup gate — Validated in Phase 6
+
 ### Active (v0.2)
 
-- [ ] Thin `arch/` wrapper around upstream `./setup` (install / deps / files)
 - [ ] Live session uses installed illogical-impulse shell
 - [ ] Remove local `.config/quickshell` product tree and retire `arch/quickshell.sh`
 - [ ] Document `.dotfiles` workflow for fork/submodule/install/update
@@ -125,7 +130,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Fresh build, not iterating on old Quickshell | Old attempt deleted; adopt dots-hyprland architecture cleanly | ✓ Good for v0.1 learning |
 | v0.2: Adopt real dots-hyprland (fork + submodule) instead of local rewrite | Upstream good enough; reduce maintenance; customize later | — Pending v0.2 |
 | Submodule at `vendor/dots-hyprland` | Clear third-party boundary inside `.dotfiles` | — Pending v0.2 |
-| Thin wrapper around `./setup` | Keep end-4 installer as source of truth; match `arch/*.sh` style | — Pending v0.2 |
+| Thin wrapper around `./setup` | Keep end-4 installer as source of truth; match `arch/*.sh` style | ✓ Phase 6 |
 | Delete local `.config/quickshell` product this milestone | Single live shell path; avoid dual product confusion | — Pending v0.2 |
 | Personal fork + upstream remote | Own customizations; still pull end-4 updates | — Pending v0.2 |
 | Defer Waybar custom ports | Install foundation first; customs need live shell | — Explicit |
@@ -152,4 +157,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-25 — Phase 5 Fork & Submodule Pin complete*
+*Last updated: 2026-07-26 — Phase 6 Thin Setup Wrapper & Safe Defaults complete*
