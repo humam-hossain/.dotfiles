@@ -30,7 +30,7 @@ Last activity: 2026-07-26 — Phase 06 complete, transitioned to Phase 7
 
 **Last session:** 2026-07-26T05:15:12.692Z
 **Stopped at:** Phase 6 complete — ready for Phase 7
-**Resume file:** .planning/ROADMAP.md (Phase 7)OADMAP.md
+**Resume file:** .planning/ROADMAP.md (Phase 7)
 **Next command:** `/gsd-discuss-phase 7` or `/gsd-plan-phase 7`
 
 ## Project Reference
