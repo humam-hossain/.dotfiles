@@ -5,16 +5,16 @@ milestone_name: Adopt dots-hyprland
 current_phase: 8
 current_phase_name: Retire Local Quickshell Product
 status: planning
-stopped_at: Phase 7 UAT+security+Nyquist closed; ready for Phase 8
-last_updated: "2026-07-27T12:20:00Z"
+stopped_at: Phase 8 context gathered
+last_updated: "2026-07-27T12:39:25.015Z"
 last_activity: 2026-07-27
-last_activity_desc: Phase 7 UAT 14/14, SECURITY threats_open 0, Nyquist validated; transitioned to Phase 8
+last_activity_desc: Phase 7 fully verified (UAT/security/Nyquist); ready for Phase 8
 progress:
   total_phases: 5
-  completed_phases: 3
-  total_plans: 9
+  completed_phases: 2
+  total_plans: 10
   completed_plans: 9
-  percent: 60
+  percent: 40
 ---
 
 # Project State
@@ -28,9 +28,9 @@ Last activity: 2026-07-27 — Phase 7 fully verified (UAT/security/Nyquist); rea
 
 ## Session
 
-**Last session:** 2026-07-27T12:20:00Z
-**Stopped at:** Phase 7 UAT+security+Nyquist closed; ready for Phase 8
-**Resume file:** none (Phase 7 complete)
+**Last session:** 2026-07-27T12:39:25.005Z
+**Stopped at:** Phase 8 context gathered
+**Resume file:** .planning/phases/08-retire-local-quickshell-product/08-CONTEXT.md
 **Next command:** `/gsd-plan-phase 8`
 
 ## Project Reference
@@ -39,6 +39,7 @@ See: .planning/PROJECT.md (updated 2026-07-27)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays (parity before cutover).  
 **Current focus:** Phase 08 — retire-local-quickshell-product
+
 ## Deferred Items
 
 Items acknowledged and deferred at milestone close on 2026-07-25:
@@ -102,6 +103,7 @@ None open for next-milestone planning.
 2. Keep Waybar dual-run until a later cutover milestone (Phase 7 preserves it)
 3. Re-run live smoke anytime: `./scripts/phase07-live-smoke.sh`
 4. Optional: `/gsd-progress` for roadmap view
+
 ## Performance Metrics
 
 | Plan | Duration | Tasks | Files |
