@@ -23,10 +23,10 @@ Requirements for this milestone only. Each maps to roadmap phases (continuing af
 
 ### Live Session & Dual-Run
 
-- [ ] **LIVE-01**: After install-files, `~/.config/quickshell` is a real installed tree synced from upstream (not a symlink to `.dotfiles/.config/quickshell`)
-- [ ] **LIVE-02**: Personal Hyprland config (owned by `.dotfiles`) sets `ILLOGICAL_IMPULSE_VIRTUAL_ENV` to the ii venv path and starts the shell with `qs -c ii` (exec-once or equivalent)
-- [ ] **LIVE-03**: After adoption steps, Waybar (and existing swaync/rofi session pieces as currently configured) still start — dual-run is preserved; no cutover removal this milestone
-- [ ] **LIVE-04**: Operator can verify the installed illogical-impulse shell is running in the Hyprland session (visible bar/shell chrome from `qs -c ii`)
+- [x] **LIVE-01**: After install-files, `~/.config/quickshell` is a real installed tree synced from upstream (not a symlink to `.dotfiles/.config/quickshell`)
+- [x] **LIVE-02**: Personal Hyprland config (owned by `.dotfiles`) sets `ILLOGICAL_IMPULSE_VIRTUAL_ENV` to the ii venv path and starts the shell with `qs -c ii` (exec-once or equivalent)
+- [x] **LIVE-03**: After adoption steps, Waybar (and existing swaync/rofi session pieces as currently configured) still start — dual-run is preserved; no cutover removal this milestone
+- [x] **LIVE-04**: Operator can verify the installed illogical-impulse shell is running in the Hyprland session (visible bar/shell chrome from `qs -c ii`)
 
 ### Product Retirement
 
@@ -87,10 +87,10 @@ Which phases cover which requirements. Updated with v0.2 roadmap.
 | WRAP-02 | Phase 6 | Complete |
 | WRAP-03 | Phase 6 | Complete |
 | WRAP-04 | Phase 6 | Complete |
-| LIVE-01 | Phase 7 | Pending |
-| LIVE-02 | Phase 7 | Pending |
-| LIVE-03 | Phase 7 | Pending |
-| LIVE-04 | Phase 7 | Pending |
+| LIVE-01 | Phase 7 | Complete |
+| LIVE-02 | Phase 7 | Complete |
+| LIVE-03 | Phase 7 | Complete |
+| LIVE-04 | Phase 7 | Complete |
 | RET-01 | Phase 8 | Pending |
 | RET-02 | Phase 8 | Pending |
 | DOC-01 | Phase 9 | Pending |

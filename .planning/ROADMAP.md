@@ -31,7 +31,7 @@ Phase artifacts: [milestones/v0.1-phases/](milestones/v0.1-phases/)
 
 - [x] **Phase 5: Fork & Submodule Pin** — Personal fork, remotes, `vendor/dots-hyprland` recursive pin
 - [x] **Phase 6: Thin Setup Wrapper & Safe Defaults** — `arch/dots-hyprland.sh` → `./setup` with non-destructive defaults
-- [ ] **Phase 7: Install, Session Hooks & Dual-Run Verify** — Live ii shell + personal hypr hooks; Waybar preserved
+- [x] **Phase 7: Install, Session Hooks & Dual-Run Verify** — Live ii shell + personal hypr hooks; Waybar preserved
 - [ ] **Phase 8: Retire Local Quickshell Product** — Delete in-repo QS tree; retire `arch/quickshell.sh`
 - [ ] **Phase 9: Workflow Documentation & Update Contract** — Clone/install/update/dual-run playbook
 
@@ -104,7 +104,7 @@ Plans:
   3. Waybar (and existing notification/launcher session pieces as currently configured) still start — dual-run intact
   4. Operator observes the installed ii/Quickshell chrome running in the Hyprland session
 
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 **Wave 1**
@@ -113,11 +113,11 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 07-02-PLAN.md — Dry-run then live one-shot wrapper install; LIVE-01 real tree
+- [x] 07-02-PLAN.md — Dry-run then live one-shot wrapper install; LIVE-01 real tree
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 07-03-PLAN.md — Personal hypr env + qs -c ii hooks; dual-run LIVE-02..04 verify
+- [x] 07-03-PLAN.md — Personal hypr env + qs -c ii hooks; dual-run LIVE-02..04 verify
 
 ### Phase 8: Retire Local Quickshell Product
 
@@ -167,11 +167,11 @@ Plans:
 | 4. IPC, Keybinds & Integration | v0.1 | 4/4 | Complete | 2026-07-25 |
 | 5. Fork & Submodule Pin | v0.2 | 3/3 | Complete    | 2026-07-25 |
 | 6. Thin Setup Wrapper & Safe Defaults | v0.2 | 3/3 | Complete | 2026-07-26 |
-| 7. Install, Session Hooks & Dual-Run Verify | v0.2 | 1/3 | In Progress|  |
+| 7. Install, Session Hooks & Dual-Run Verify | v0.2 | 3/3 | Complete    | 2026-07-27 |
 | 8. Retire Local Quickshell Product | v0.2 | 0/TBD | Not started | - |
 | 9. Workflow Documentation & Update Contract | v0.2 | 0/TBD | Not started | - |
 
-**Coverage:** 15/15 v0.2 requirements mapped · 0 unmapped
+**Coverage:** 15/15 v0.2 requirements mapped · LIVE-01..04 complete · RET/DOC remaining
 
 ---
-*Last updated: 2026-07-26 — Phase 6 Thin Setup Wrapper complete*
+*Last updated: 2026-07-27 — Phase 7 Install, Session Hooks & Dual-Run Verify complete*
