@@ -107,9 +107,16 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
+**Wave 1**
 
 - [ ] 07-01-PLAN.md — Pre-install: stop qs, unlink live QS symlink, leave path absent
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 07-02-PLAN.md — Dry-run then live one-shot wrapper install; LIVE-01 real tree
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 07-03-PLAN.md — Personal hypr env + qs -c ii hooks; dual-run LIVE-02..04 verify
 
 ### Phase 8: Retire Local Quickshell Product
