@@ -5,16 +5,16 @@ milestone_name: Adopt dots-hyprland
 current_phase: 8
 current_phase_name: Retire Local Quickshell Product
 status: planning
-stopped_at: Phase 7 complete; ready for Phase 8
-last_updated: "2026-07-27T09:38:35.178Z"
+stopped_at: Phase 7 UAT+security+Nyquist closed; ready for Phase 8
+last_updated: "2026-07-27T12:20:00Z"
 last_activity: 2026-07-27
-last_activity_desc: Phase 07 complete, transitioned to Phase 8
+last_activity_desc: Phase 7 UAT 14/14, SECURITY threats_open 0, Nyquist validated; transitioned to Phase 8
 progress:
   total_phases: 5
-  completed_phases: 2
-  total_plans: 10
+  completed_phases: 3
+  total_plans: 9
   completed_plans: 9
-  percent: 40
+  percent: 60
 ---
 
 # Project State
@@ -24,22 +24,21 @@ progress:
 Phase: 8 — Retire Local Quickshell Product
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-07-27 — Phase 07 complete, transitioned to Phase 8
+Last activity: 2026-07-27 — Phase 7 fully verified (UAT/security/Nyquist); ready for Phase 8
 
 ## Session
 
-**Last session:** 2026-07-27T09:38:35.170Z
-**Stopped at:** Phase 7 complete; ready for Phase 8
+**Last session:** 2026-07-27T12:20:00Z
+**Stopped at:** Phase 7 UAT+security+Nyquist closed; ready for Phase 8
 **Resume file:** none (Phase 7 complete)
 **Next command:** `/gsd-plan-phase 8`
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-25)
+See: .planning/PROJECT.md (updated 2026-07-27)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays (parity before cutover).  
 **Current focus:** Phase 08 — retire-local-quickshell-product
-
 ## Deferred Items
 
 Items acknowledged and deferred at milestone close on 2026-07-25:
@@ -83,6 +82,14 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Machine-mutating: pre-install symlink break → wrapper install → hypr hooks + dual-run verify
 - Open Questions RESOLVED (qs-process env mid-session; interactive backup)
 
+### Phase 7 complete (2026-07-27)
+
+- Execution: 07-01..03 SUMMARY complete; VERIFICATION passed
+- UAT: 14/14 pass (11 automated coverage + 2 re-verified host + 1 chrome human)
+- Security: 07-SECURITY.md threats_open 0 (ASVS L1)
+- Nyquist: 07-VALIDATION.md validated; `scripts/phase07-live-smoke.sh` green (15 PASS)
+- LIVE-01..04 marked complete in REQUIREMENTS.md
+
 Full decision log: PROJECT.md Key Decisions table; Phase 7: `07-CONTEXT.md`.
 
 ### Resolved blockers
@@ -91,10 +98,10 @@ None open for next-milestone planning.
 
 ## Operator Next Steps
 
-1. `/gsd-execute-phase 7` — pre-install unlink, live wrapper install, hypr hooks + dual-run verify
+1. `/gsd-plan-phase 8` — Retire local Quickshell product (RET-01/RET-02)
 2. Keep Waybar dual-run until a later cutover milestone (Phase 7 preserves it)
-3. Optional: `/gsd-progress` for roadmap view
-
+3. Re-run live smoke anytime: `./scripts/phase07-live-smoke.sh`
+4. Optional: `/gsd-progress` for roadmap view
 ## Performance Metrics
 
 | Plan | Duration | Tasks | Files |
@@ -107,5 +114,5 @@ None open for next-milestone planning.
 ## Decisions
 
 - [Phase 5]: Created public fork humam-hossain/dots-hyprland via gh repo fork end-4/dots-hyprland --clone=false (D-01); sibling left alone (D-02/D-14)
-- [Phase ?]: SAFE_DEFAULTS constant defined in arch/dots-hyprland.sh; injection deferred to 06-02
-- [Phase ?]: Wrapper-owned --dry-run/--allow-skip-backup stripped before setup getopt; array-exec only
+- [Phase 6]: SAFE_DEFAULTS + backup gate on arch/dots-hyprland.sh; array-exec only
+- [Phase 7]: Wrapper one-shot live install; personal hypr env + qs -c ii hooks; dual-run waybar preserved; no arch/quickshell.sh re-symlink

@@ -22,9 +22,11 @@ Usable Quickshell top bar dual-running with Waybar (Material-themed ii shell). T
 
 **Stats at v0.1 ship:** 4 phases · 31 plans · 39 tasks · ~589 QML files · ~57k LOC under `.config/quickshell/`
 
-**Phase 6 complete (2026-07-26):** `arch/dots-hyprland.sh` thin wrapper with safe defaults + backup gate (WRAP-01..04). Live install still Phase 7+.
+**Phase 7 complete (2026-07-27):** Live wrapper install + personal hypr hooks; dual-run waybar + `qs -c ii`; LIVE-01..04 verified (UAT 14/14, security threats_open 0, Nyquist compliant).
 
-**Phase 5 complete (2026-07-25):** Public fork `humam-hossain/dots-hyprland` + submodule pin at `vendor/dots-hyprland` (`1a9ffb78`, dual remotes, nested shapes). Install/wrapper still Phase 6+.
+**Phase 6 complete (2026-07-26):** `arch/dots-hyprland.sh` thin wrapper with safe defaults + backup gate (WRAP-01..04).
+
+**Phase 5 complete (2026-07-25):** Public fork `humam-hossain/dots-hyprland` + submodule pin at `vendor/dots-hyprland` (`1a9ffb78`, dual remotes, nested shapes).
 
 ## What This Is
 
@@ -73,9 +75,15 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 - ✓ Thin `arch/dots-hyprland.sh` wrapper around upstream `./setup` with safe dual-run defaults and backup gate — Validated in Phase 6
 
+### Validated — v0.2 (Phase 7)
+
+- ✓ Live session uses installed illogical-impulse shell (real `~/.config/quickshell` tree, not symlink into git) — LIVE-01
+- ✓ Personal Hyprland hooks: `ILLOGICAL_IMPULSE_VIRTUAL_ENV` + `exec-once = qs -c ii` — LIVE-02
+- ✓ Waybar dual-run preserved (session pieces policy) — LIVE-03
+- ✓ Operator-visible ii/Quickshell chrome with `qs -c ii` + venv env — LIVE-04
+
 ### Active (v0.2)
 
-- [ ] Live session uses installed illogical-impulse shell
 - [ ] Remove local `.config/quickshell` product tree and retire `arch/quickshell.sh`
 - [ ] Document `.dotfiles` workflow for fork/submodule/install/update
 
@@ -131,8 +139,9 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | v0.2: Adopt real dots-hyprland (fork + submodule) instead of local rewrite | Upstream good enough; reduce maintenance; customize later | — Pending v0.2 |
 | Submodule at `vendor/dots-hyprland` | Clear third-party boundary inside `.dotfiles` | — Pending v0.2 |
 | Thin wrapper around `./setup` | Keep end-4 installer as source of truth; match `arch/*.sh` style | ✓ Phase 6 |
-| Delete local `.config/quickshell` product this milestone | Single live shell path; avoid dual product confusion | — Pending v0.2 |
-| Personal fork + upstream remote | Own customizations; still pull end-4 updates | — Pending v0.2 |
+| Live install via wrapper only; personal hypr hooks (no full ii hypr tree) | D-05/D-09/D-10 — one-shot install + inline env/exec-once; dual-run OK | ✓ Phase 7 |
+| Delete local `.config/quickshell` product this milestone | Single live shell path; avoid dual product confusion | — Pending Phase 8 |
+| Personal fork + upstream remote | Own customizations; still pull end-4 updates | ✓ Phase 5 |
 | Defer Waybar custom ports | Install foundation first; customs need live shell | — Explicit |
 | Skip brightness/backlight (no ddcutil) | iGPU crash risk per `2026-07-16` post-mortem | ✓ Good |
 | Keep hyprlock (no Quickshell lock screen) | hyprlock works; lock screen panel not wanted as replacement | ✓ Good |
@@ -157,4 +166,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-26 — Phase 6 Thin Setup Wrapper & Safe Defaults complete*
+*Last updated: 2026-07-27 — Phase 7 Install, Session Hooks & Dual-Run Verify complete*
