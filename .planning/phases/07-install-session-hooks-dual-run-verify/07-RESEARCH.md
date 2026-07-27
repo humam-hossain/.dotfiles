@@ -474,17 +474,17 @@ pgrep -x qs && { echo "[FAIL] qs still running"; exit 1; } || true
 
 **If this table is empty:** N/A — assumptions listed above need planner awareness (A1 especially for D-17).
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Does LIVE-04 (2) require compositor-level env or qs-process env?**
+1. **Does LIVE-04 (2) require compositor-level env or qs-process env?** — **RESOLVED**
    - What we know: D-16 says “set in the Hyprland session”; mid-session reload cannot set compositor env (A1).
-   - What's unclear: Whether operator re-login is required before phase sign-off.
-   - Recommendation: Pass LIVE-04 mid-session if **qs process** has the env and chrome is visible; note in UAT that full session inheritance is verified on next Hyprland start (optional extra check). Prefer not blocking on re-login given D-17.
+   - **Resolution:** Mid-session LIVE-04(2) is satisfied when the **qs process** has `ILLOGICAL_IMPULSE_VIRTUAL_ENV` in `/proc/.../environ` (env-prefixed launch after `hyprctl reload`, per D-17 / A1 and 07-03 Task 2). Full compositor-level inheritance is optional on next Hyprland start — do **not** block phase sign-off on re-login.
+   - Implemented in: `07-03-PLAN.md` Task 2 (env-prefixed `qs -c ii -d`) + Task 3 LIVE-04 asserts.
 
-2. **Upstream backup prompt non-interactive policy**
+2. **Upstream backup prompt non-interactive policy** — **RESOLVED**
    - What we know: Wrapper gate is `yes`; upstream may still interactively ask.
-   - What's unclear: Whether plans should pipe answers for upstream backup.
-   - Recommendation: Keep interactive for first adoption; document expected `y`. Do not pass `--skip-backup`.
+   - **Resolution:** First adoption stays **fully interactive**. Operator types exact `yes` at the wrapper gate and prefers `y` at the upstream backup prompt to create `~/ii-original-dots-backup`. Do **not** pipe skip-backup answers; never pass `--skip-backup` / `--allow-skip-backup` (D-02).
+   - Implemented in: `07-02-PLAN.md` Task 2 (interactive gates + D-02 prohibitions).
 
 ## Environment Availability
 
