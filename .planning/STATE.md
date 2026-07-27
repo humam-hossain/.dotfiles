@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v0.2
 milestone_name: Adopt dots-hyprland
-current_phase: 7
-current_phase_name: Install, Session Hooks & Dual-Run Verify
+current_phase: 07
+current_phase_name: install-session-hooks-dual-run-verify
 status: executing
 stopped_at: Phase 7 planned — ready to execute (3 plans)
-last_updated: "2026-07-27T07:40:21.300Z"
-last_activity: 2026-07-26
-last_activity_desc: Phase 06 complete, transitioned to Phase 7
+last_updated: "2026-07-27T07:44:03.890Z"
+last_activity: 2026-07-27
+last_activity_desc: Phase 07 execution started
 progress:
   total_phases: 5
   completed_phases: 1
@@ -21,10 +21,10 @@ progress:
 
 ## Current Position
 
-Phase: 7 — Install, Session Hooks & Dual-Run Verify
-Plan: 07-01 (of 3) — not started
-Status: Ready to execute
-Last activity: 2026-07-27 — Phase 7 planned (3 plans, plan-checker PASS)
+Phase: 07 (install-session-hooks-dual-run-verify) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 07
+Last activity: 2026-07-27 — Phase 07 execution started
 
 ## Session
 
@@ -38,7 +38,8 @@ Last activity: 2026-07-27 — Phase 7 planned (3 plans, plan-checker PASS)
 See: .planning/PROJECT.md (updated 2026-07-25)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays (parity before cutover).  
-**Current focus:** v0.2 — Phase 7 ready to execute (install + session hooks + dual-run verify)
+**Current focus:** Phase 07 — install-session-hooks-dual-run-verify
+
 ## Deferred Items
 
 Items acknowledged and deferred at milestone close on 2026-07-25:

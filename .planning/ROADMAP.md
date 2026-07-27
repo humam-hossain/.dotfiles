@@ -104,12 +104,12 @@ Plans:
   3. Waybar (and existing notification/launcher session pieces as currently configured) still start — dual-run intact
   4. Operator observes the installed ii/Quickshell chrome running in the Hyprland session
 
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 07-01-PLAN.md — Pre-install: stop qs, unlink live QS symlink, leave path absent
+- [x] 07-01-PLAN.md — Pre-install: stop qs, unlink live QS symlink, leave path absent
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -167,7 +167,7 @@ Plans:
 | 4. IPC, Keybinds & Integration | v0.1 | 4/4 | Complete | 2026-07-25 |
 | 5. Fork & Submodule Pin | v0.2 | 3/3 | Complete    | 2026-07-25 |
 | 6. Thin Setup Wrapper & Safe Defaults | v0.2 | 3/3 | Complete | 2026-07-26 |
-| 7. Install, Session Hooks & Dual-Run Verify | v0.2 | 0/TBD | Not started | - |
+| 7. Install, Session Hooks & Dual-Run Verify | v0.2 | 1/3 | In Progress|  |
 | 8. Retire Local Quickshell Product | v0.2 | 0/TBD | Not started | - |
 | 9. Workflow Documentation & Update Contract | v0.2 | 0/TBD | Not started | - |
 
