@@ -1,18 +1,18 @@
 ---
 phase: 7
 slug: install-session-hooks-dual-run-verify
-# status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
-# audit-milestone §5.5 distinguishes NOT-VALIDATED (draft) from PARTIAL (validated + nyquist_compliant: false) (#2117)
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-07-26
+validated: 2026-07-27
 ---
 
 # Phase 7 — Validation Strategy
 
 > Per-phase validation contract for feedback sampling during execution.
 > Seeded from `07-RESEARCH.md` ## Validation Architecture.
+> Audited and closed by `/gsd:verify-work` → validate-phase post-hook (2026-07-27).
 
 ---
 
@@ -20,10 +20,10 @@ created: 2026-07-26
 
 | Property | Value |
 |----------|-------|
-| **Framework** | None — inline bash smoke asserts (Phase 5/6 style) |
+| **Framework** | None — bash smoke script (Phase 5/6 style + durable Wave 0 script) |
 | **Config file** | none |
-| **Quick run command** | `bash -n arch/dots-hyprland.sh && test ! -L "$HOME/.config/quickshell" 2>/dev/null; true` |
-| **Full suite command** | LIVE-01..04 assert block + conf greps (see Per-Task Verification Map) |
+| **Quick run command** | `./scripts/phase07-live-smoke.sh` |
+| **Full suite command** | `./scripts/phase07-live-smoke.sh` + LIVE-04 chrome (UAT Test 14) |
 | **Estimated runtime** | Automated portion ~5–15s; live install itself minutes–tens of minutes |
 
 ---
@@ -41,34 +41,37 @@ created: 2026-07-26
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------------|-----------------|-----------|-------------------|-------------|--------|
-| 07-01-* | 01 | 1 | LIVE-01 / D-01 | T-7-01 | Symlink unlinked; no rsync-through-symlink | smoke | `pgrep -x qs && exit 1 \|\| true; test ! -e "$HOME/.config/quickshell" \|\| test ! -L "$HOME/.config/quickshell"` | ❌ W0 | ⬜ pending |
-| 07-02-* | 02 | 2 | LIVE-01 / D-06 | T-7-02 | Dry-run safe defaults; real dir + ii tree | smoke | `printf 'yes\n' \| ./arch/dots-hyprland.sh install --dry-run \| tee /tmp/p7-dry.txt; grep -q -- '--core' /tmp/p7-dry.txt; grep -q -- '--skip-hyprland' /tmp/p7-dry.txt; grep -q -- '--skip-sysupdate' /tmp/p7-dry.txt` then post-install `test ! -L ~/.config/quickshell && test -f ~/.config/quickshell/ii/shell.qml` | ✅ wrapper / ❌ post | ⬜ pending |
-| 07-03-* | 03 | 3 | LIVE-02, LIVE-03, LIVE-04 | T-7-03 | Hooks committed; dual-run; env on qs | smoke + manual | conf greps + `cmp` + `pgrep waybar` + `pgrep qs` + `/proc/.../environ` + operator chrome | ❌ W0 | ⬜ pending |
+| 07-01-* | 01 | 1 | LIVE-01 / D-01 | T-7-01 | Symlink unlinked; no rsync-through-symlink | smoke | residual `! -L` + real tree (post-install); pre-install gate in SUMMARY | ✅ `scripts/phase07-live-smoke.sh` | ✅ green |
+| 07-02-* | 02 | 2 | LIVE-01 / D-06 | T-7-02 | Dry-run safe defaults; real dir + ii tree | smoke | `./scripts/phase07-live-smoke.sh` (D-06 dry-run + LIVE-01 block) | ✅ wrapper + smoke | ✅ green |
+| 07-03-* | 03 | 3 | LIVE-02, LIVE-03, LIVE-04 | T-7-01..06 | Hooks committed; dual-run; env on qs | smoke + manual | smoke LIVE-02..04 process/env; chrome via UAT | ✅ smoke + UAT | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
 ### Requirement → Test Map (from research)
 
-| Req ID | Behavior | Test Type | Automated Command |
-|--------|----------|-----------|-------------------|
-| LIVE-01 | Real dir not symlink; ii tree present | smoke | `test ! -L ~/.config/quickshell && test -d ~/.config/quickshell && test -f ~/.config/quickshell/ii/shell.qml` |
-| LIVE-01 | Not pointing at repo product | smoke | `case $(readlink -f ~/.config/quickshell) in */.dotfiles/.config/quickshell*) exit 1;; esac` |
-| LIVE-02 | Repo conf has env + exec-once | smoke | `grep -E 'env = ILLOGICAL_IMPULSE_VIRTUAL_ENV,' .config/hypr/hyprland.conf && grep -E 'exec-once = qs -c ii' .config/hypr/hyprland.conf` |
-| LIVE-02 | Live conf matches repo | smoke | `cmp -s .config/hypr/hyprland.conf ~/.config/hypr/hyprland.conf` |
-| LIVE-03 | waybar still running | smoke | `pgrep -x waybar` |
-| LIVE-03 | waybar exec-once not removed | smoke | `grep -E 'exec-once = waybar' .config/hypr/hyprland.conf` |
-| LIVE-04 | qs process with ii | smoke | `pgrep -a qs \| grep -E -- '-c ii\|\bii\b'` |
-| LIVE-04 | env on qs process | smoke | `tr '\0' '\n' < /proc/$(pgrep -n -x qs)/environ \| grep ILLOGICAL_IMPULSE_VIRTUAL_ENV` |
-| LIVE-04 | Visible ii chrome | manual | Operator confirms bar/shell chrome on screen |
+| Req ID | Behavior | Test Type | Automated Command | Status |
+|--------|----------|-----------|-------------------|--------|
+| LIVE-01 | Real dir not symlink; ii tree present | smoke | `test ! -L && -d && -f ii/shell.qml` via smoke script | ✅ green |
+| LIVE-01 | Not pointing at repo product | smoke | `readlink -f` not under `*/.dotfiles/.config/quickshell` | ✅ green |
+| LIVE-01 | ii Python venv | smoke | `test -d ~/.local/state/quickshell/.venv` | ✅ green |
+| LIVE-01 | Personal hypr conf not `.old` | smoke | conf present, no `.old` | ✅ green |
+| LIVE-01 / D-06 | Dry-run SAFE_DEFAULTS | smoke | `install --dry-run` shows `--core --skip-hyprland --skip-sysupdate` | ✅ green |
+| LIVE-02 | Repo conf has env + exec-once | smoke | greps on `.config/hypr/hyprland.conf` | ✅ green |
+| LIVE-02 | Live conf matches repo | smoke | `cmp -s` repo ↔ live | ✅ green |
+| LIVE-03 | waybar still running | smoke | `pgrep -x waybar` | ✅ green |
+| LIVE-03 | waybar exec-once not removed | smoke | `grep exec-once = waybar` | ✅ green |
+| LIVE-04 | qs process with ii | smoke | `pgrep -a qs` matches `-c ii` | ✅ green |
+| LIVE-04 | env on qs process | smoke | `/proc/$pid/environ` has `ILLOGICAL_IMPULSE_VIRTUAL_ENV` | ✅ green |
+| LIVE-04 | Visible ii chrome | manual | Operator confirms chrome (UAT Test 14: pass) | ✅ green (UAT) |
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] No dedicated `scripts/phase07-live-smoke.sh` — optional; plans embed asserts inline (preferred, Phase 6 style)
-- [ ] LIVE-* asserts only become meaningful **after** 07-01/07-02 mutate the machine — Wave 0 is “commands documented,” not pre-existing green CI
-- [ ] Framework install: none
-- [ ] Manual UAT checklist for LIVE-04 visual chrome (operator)
+- [x] Durable `scripts/phase07-live-smoke.sh` encodes LIVE automated asserts (re-runnable)
+- [x] LIVE-* asserts meaningful **after** 07-01/07-02 machine mutation — suite run green post-install
+- [x] Framework install: none (bash + pgrep + hypr paths sufficient)
+- [x] Manual UAT checklist for LIVE-04 visual chrome — closed in `07-UAT.md` Test 14
 
 *Existing infrastructure covers phase needs: bash, hyprctl, pgrep — sufficient. No pytest/jest.*
 
@@ -76,20 +79,43 @@ created: 2026-07-26
 
 ## Manual-Only Verifications
 
-| Behavior | Requirement | Why Manual | Test Instructions |
-|----------|-------------|------------|-------------------|
-| Visible ii shell chrome on screen | LIVE-04 | Compositor visual confirmation cannot be automated reliably | After hooks applied and qs restarted: operator confirms Material/ii bar or shell chrome is visible alongside Waybar |
-| Interactive backup gate answers | D-02 / LIVE-01 | Wrapper + upstream prompts require operator | Type `yes` at wrapper gate; prefer `y` at upstream backup prompt to `~/ii-original-dots-backup` |
+| Behavior | Requirement | Why Manual | Test Instructions | Result |
+|----------|-------------|------------|-------------------|--------|
+| Visible ii shell chrome on screen | LIVE-04 | Compositor visual confirmation cannot be automated reliably | After hooks applied and qs restarted: operator confirms Material/ii bar or shell chrome is visible alongside Waybar | **pass** — UAT Test 14: "in the workspace chrome logo is present" |
+| Interactive backup gate answers | D-02 / LIVE-01 | Wrapper + upstream prompts require operator | Type `yes` at wrapper gate; prefer `y` at upstream backup prompt to `~/ii-original-dots-backup` | **pass** — recorded in 07-02-SUMMARY; backup dir present |
+
+---
+
+## Validation Audit 2026-07-27
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 3 task rows pending + draft VALIDATION |
+| Automated asserts re-run | 15 PASS / 0 FAIL (`./scripts/phase07-live-smoke.sh`) |
+| Resolved (automated) | All LIVE-01..04 process/path asserts |
+| Resolved (manual via UAT) | LIVE-04 chrome + D-02 backup gate history |
+| Escalated | 0 |
+| Wave 0 script | `scripts/phase07-live-smoke.sh` created + green |
+
+**Gap classification (pre → post):**
+
+| Item | Pre | Post |
+|------|-----|------|
+| 07-01 smoke | MISSING (pending map) | COVERED |
+| 07-02 dry-run + LIVE-01 | PARTIAL (commands only) | COVERED |
+| 07-03 dual-run + env | MISSING (pending map) | COVERED |
+| LIVE-04 chrome | manual-only | COVERED via UAT pass |
 
 ---
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 15s (automated)
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references (`scripts/phase07-live-smoke.sh`)
+- [x] No watch-mode flags
+- [x] Feedback latency < 15s (automated)
+- [x] `nyquist_compliant: true` set in frontmatter
+- [x] `status: validated` set in frontmatter
 
-**Approval:** pending
+**Approval:** validated 2026-07-27 (verify-work post-hook; FAIL=0 smoke + UAT 14/14)
