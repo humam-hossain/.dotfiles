@@ -30,15 +30,15 @@ Last activity: 2026-07-27 — Phase 07 complete, transitioned to Phase 8
 
 **Last session:** 2026-07-27T09:38:35.170Z
 **Stopped at:** Phase 7 complete; ready for Phase 8
-**Resume file:** .planning/phases/07-install-session-hooks-dual-run-verify/07-01-PLAN.md
-**Next command:** `/gsd-execute-phase 7`
+**Resume file:** none (Phase 7 complete)
+**Next command:** `/gsd-plan-phase 8`
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-07-25)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays (parity before cutover).  
-**Current focus:** Phase 07 — install-session-hooks-dual-run-verify
+**Current focus:** Phase 08 — retire-local-quickshell-product
 
 ## Deferred Items
 
