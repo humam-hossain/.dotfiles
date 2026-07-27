@@ -104,13 +104,13 @@ Plans:
   3. Waybar (and existing notification/launcher session pieces as currently configured) still start — dual-run intact
   4. Operator observes the installed ii/Quickshell chrome running in the Hyprland session
 
-**Plans:** TBD
+**Plans:** 3 plans
 
 Plans:
 
-- [ ] 07-01: Pre-install backup + retarget/remove live QS symlink if present
-- [ ] 07-02: Run wrapper install (deps/setups/files) with safe defaults
-- [ ] 07-03: Add personal hypr env + `qs -c ii` exec-once; verify dual-run
+- [ ] 07-01-PLAN.md — Pre-install: stop qs, unlink live QS symlink, leave path absent
+- [ ] 07-02-PLAN.md — Dry-run then live one-shot wrapper install; LIVE-01 real tree
+- [ ] 07-03-PLAN.md — Personal hypr env + qs -c ii hooks; dual-run LIVE-02..04 verify
 
 ### Phase 8: Retire Local Quickshell Product
 
