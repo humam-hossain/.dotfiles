@@ -130,20 +130,20 @@ Plans:
   2. `arch/quickshell.sh` is gone or is only a deprecation stub pointing at the new wrapper (cannot install the old product path)
   3. Live session still runs ii from the installed `~/.config/quickshell` after retirement (no regression to symlink-at-repo)
 
-**Plans:** TBD
+**Plans:** 0/3 plans complete (planned)
 
 Plans:
 **Wave 1**
 
-- [ ] 08-01: Confirm LIVE-04 checklist green on machine
+- [ ] 08-01: Confirm live install health green (reinstall via wrapper if needed)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 08-02: Delete in-repo `.config/quickshell` product tree
+- [ ] 08-02: Delete in-repo `.config/quickshell` product tree (RET-01)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 08-03: Retire `arch/quickshell.sh`; grep for stale references
+- [ ] 08-03: Hard-delete `arch/quickshell.sh`; minimal stale refs (RET-02)
 
 ### Phase 9: Workflow Documentation & Update Contract
 
