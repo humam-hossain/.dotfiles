@@ -99,6 +99,8 @@ Full decision log: PROJECT.md Key Decisions table; Phase 7: `07-CONTEXT.md`.
 - RET-01: in-repo `.config/quickshell` removed (`fb91789`, 933 files)
 - RET-02: `arch/quickshell.sh` hard-deleted (`81ac1e0`); Pattern reword (`cb4f6a0`)
 - Live hold: `~/.config/quickshell/ii/shell.qml` real, not symlink; wrapper sole install entry
+- Nyquist: `08-VALIDATION.md` status validated, `nyquist_compliant: true` (full suite green; no phase08 smoke)
+- Security: `08-SECURITY.md` threats_open 0 (ASVS L1); T-8-01..05 + T-08-SC closed
 - Non-gate: phase07-live-smoke D-04 expected red after RET-01 — leave frozen
 
 ### Resolved blockers
