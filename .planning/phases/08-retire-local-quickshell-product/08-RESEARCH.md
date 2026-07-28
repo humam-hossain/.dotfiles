@@ -461,22 +461,25 @@ git commit -m "chore(08): remove in-repo v0.1 .config/quickshell product tree (R
 
 **If this table is empty:** N/A — small assumption set; none block planning if health gate is mandatory.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Is live qs currently running at execution time?**
    - What we know: Phase 7 left dual-run verified; research confirmed files on disk.
    - What's unclear: process table at the moment of Phase 8 execution (session may have restarted).
    - Recommendation: optional `pgrep` soft check during health gate; not a hard blocker if files + hooks are healthy (D-03 — no formal LIVE-04 re-ceremony).
+   - RESOLVED: soft optional `pgrep` during health (08-01 Task 1 step 6); not a hard gate if files + hooks are healthy.
 
 2. **Discretionary comment reword on `arch/dots-hyprland.sh` L5?**
    - What we know: only non-self code mention of `arch/quickshell.sh` in `arch/` + `scripts/` + `.config/`.
    - What's unclear: whether operator wants zero residual string vs harmless ancestry comment.
    - Recommendation: Prefer light reword in the same commit as script deletion or tiny follow-up commit (D-09 allows separate cleanup commit) — e.g. “Pattern: arch/*.sh REPO_ROOT + main dispatcher + [LABEL] echos.”
+   - RESOLVED: prefer light Pattern reword on `arch/dots-hyprland.sh` L5 as a separate D-09 cleanup commit (08-03 Task 2).
 
 3. **Reinstall needed or not?**
    - What we know: filesystem evidence shows healthy live tree + venv + hooks.
    - What's unclear: runtime chrome at execution moment.
    - Recommendation: Plans start with health gate; branch to reinstall tasks only on failure (do not force reinstall if green).
+   - RESOLVED: health gate first (08-01 Task 1); reinstall branch only on failure (08-01 Task 2).
 
 ## Environment Availability
 
