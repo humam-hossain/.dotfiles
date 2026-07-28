@@ -133,9 +133,16 @@ Plans:
 **Plans:** TBD
 
 Plans:
+**Wave 1**
 
 - [ ] 08-01: Confirm LIVE-04 checklist green on machine
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 08-02: Delete in-repo `.config/quickshell` product tree
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 08-03: Retire `arch/quickshell.sh`; grep for stale references
 
 ### Phase 9: Workflow Documentation & Update Contract

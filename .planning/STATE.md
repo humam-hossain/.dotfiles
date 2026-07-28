@@ -4,15 +4,15 @@ milestone: v0.2
 milestone_name: Adopt dots-hyprland
 current_phase: 8
 current_phase_name: Retire Local Quickshell Product
-status: planning
-stopped_at: Phase 8 context gathered
-last_updated: "2026-07-27T12:39:25.015Z"
+status: ready_to_execute
+stopped_at: Phase 8 planned (3 plans verified)
+last_updated: "2026-07-28T08:33:25.627Z"
 last_activity: 2026-07-27
-last_activity_desc: Phase 7 fully verified (UAT/security/Nyquist); ready for Phase 8
+last_activity_desc: Phase 8 planned — 3 plans verified, ready to execute
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 10
+  total_plans: 12
   completed_plans: 9
   percent: 40
 ---
@@ -22,16 +22,16 @@ progress:
 ## Current Position
 
 Phase: 8 — Retire Local Quickshell Product
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-07-27 — Phase 7 fully verified (UAT/security/Nyquist); ready for Phase 8
+Plan: 0/3 complete (ready to execute)
+Status: Ready to execute
+Last activity: 2026-07-28 — Phase 8 planned: 3 plans / 3 waves verified
 
 ## Session
 
 **Last session:** 2026-07-27T12:39:25.005Z
-**Stopped at:** Phase 8 context gathered
+**Stopped at:** Phase 8 planned (3 plans verified)
 **Resume file:** .planning/phases/08-retire-local-quickshell-product/08-CONTEXT.md
-**Next command:** `/gsd-plan-phase 8`
+**Next command:** `/gsd-execute-phase 8`
 
 ## Project Reference
 
