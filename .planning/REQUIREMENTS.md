@@ -30,8 +30,8 @@ Requirements for this milestone only. Each maps to roadmap phases (continuing af
 
 ### Product Retirement
 
-- [ ] **RET-01**: After LIVE-04 is satisfied, the in-repo v0.1 `.config/quickshell` product tree is removed from `.dotfiles` so it is no longer shipped
-- [ ] **RET-02**: `arch/quickshell.sh` is retired (removed or reduced to a deprecation stub that points at the new wrapper) so it is not a second installer
+- [x] **RET-01**: After LIVE-04 is satisfied, the in-repo v0.1 `.config/quickshell` product tree is removed from `.dotfiles` so it is no longer shipped
+- [x] **RET-02**: `arch/quickshell.sh` is retired (removed or reduced to a deprecation stub that points at the new wrapper) so it is not a second installer
 
 ### Documentation
 
@@ -91,8 +91,8 @@ Which phases cover which requirements. Updated with v0.2 roadmap.
 | LIVE-02 | Phase 7 | Complete |
 | LIVE-03 | Phase 7 | Complete |
 | LIVE-04 | Phase 7 | Complete |
-| RET-01 | Phase 8 | Pending |
-| RET-02 | Phase 8 | Pending |
+| RET-01 | Phase 8 | Complete |
+| RET-02 | Phase 8 | Complete |
 | DOC-01 | Phase 9 | Pending |
 | DOC-02 | Phase 9 | Pending |
 
