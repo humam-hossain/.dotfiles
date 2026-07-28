@@ -32,7 +32,7 @@ Phase artifacts: [milestones/v0.1-phases/](milestones/v0.1-phases/)
 - [x] **Phase 5: Fork & Submodule Pin** — Personal fork, remotes, `vendor/dots-hyprland` recursive pin
 - [x] **Phase 6: Thin Setup Wrapper & Safe Defaults** — `arch/dots-hyprland.sh` → `./setup` with non-destructive defaults
 - [x] **Phase 7: Install, Session Hooks & Dual-Run Verify** — Live ii shell + personal hypr hooks; Waybar preserved
-- [ ] **Phase 8: Retire Local Quickshell Product** — Delete in-repo QS tree; retire `arch/quickshell.sh`
+- [x] **Phase 8: Retire Local Quickshell Product** — Delete in-repo QS tree; retire `arch/quickshell.sh` (completed 2026-07-28)
 - [ ] **Phase 9: Workflow Documentation & Update Contract** — Clone/install/update/dual-run playbook
 
 ## Phase Details
@@ -130,20 +130,25 @@ Plans:
   2. `arch/quickshell.sh` is gone or is only a deprecation stub pointing at the new wrapper (cannot install the old product path)
   3. Live session still runs ii from the installed `~/.config/quickshell` after retirement (no regression to symlink-at-repo)
 
-**Plans:** 0/3 plans complete (planned)
+**Plans:** 3/3 plans complete
 
 Plans:
+
+- [x] 08-01-PLAN.md
+- [x] 08-02-PLAN.md
+- [x] 08-03-PLAN.md
+
 **Wave 1**
 
-- [ ] 08-01: Confirm live install health green (reinstall via wrapper if needed)
+- [x] 08-01: Confirm live install health green (reinstall via wrapper if needed)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 08-02: Delete in-repo `.config/quickshell` product tree (RET-01)
+- [x] 08-02: Delete in-repo `.config/quickshell` product tree (RET-01)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 08-03: Hard-delete `arch/quickshell.sh`; minimal stale refs (RET-02)
+- [x] 08-03: Hard-delete `arch/quickshell.sh`; minimal stale refs (RET-02)
 
 ### Phase 9: Workflow Documentation & Update Contract
 
@@ -175,7 +180,7 @@ Plans:
 | 5. Fork & Submodule Pin | v0.2 | 3/3 | Complete    | 2026-07-25 |
 | 6. Thin Setup Wrapper & Safe Defaults | v0.2 | 3/3 | Complete | 2026-07-26 |
 | 7. Install, Session Hooks & Dual-Run Verify | v0.2 | 3/3 | Complete    | 2026-07-27 |
-| 8. Retire Local Quickshell Product | v0.2 | 0/TBD | Not started | - |
+| 8. Retire Local Quickshell Product | v0.2 | 3/3 | Complete    | 2026-07-28 |
 | 9. Workflow Documentation & Update Contract | v0.2 | 0/TBD | Not started | - |
 
 **Coverage:** 15/15 v0.2 requirements mapped · LIVE-01..04 complete · RET/DOC remaining
