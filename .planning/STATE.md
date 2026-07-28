@@ -4,9 +4,9 @@ milestone: v0.2
 milestone_name: Adopt dots-hyprland
 current_phase: 9
 current_phase_name: Workflow Documentation & Update Contract
-status: completed
-stopped_at: Phase 8 planned (3 plans verified)
-last_updated: "2026-07-28T09:33:03.311Z"
+status: planning
+stopped_at: Phase 8 complete — ready to plan Phase 9
+last_updated: "2026-07-28T09:45:00.000Z"
 last_activity: 2026-07-28
 progress:
   total_phases: 5
@@ -23,22 +23,22 @@ last_activity_desc: Phase 08 complete, transitioned to Phase 9
 
 Phase: 9 — Workflow Documentation & Update Contract
 Plan: Not started
-Status: Phase 8 complete
+Status: Phase 8 complete — ready to plan Phase 9
 Last activity: 2026-07-28
 
 ## Session
 
-**Last session:** 2026-07-27T12:39:25.005Z
-**Stopped at:** Phase 8 planned (3 plans verified)
-**Resume file:** .planning/phases/08-retire-local-quickshell-product/08-CONTEXT.md
-**Next command:** `/gsd-execute-phase 8`
+**Last session:** 2026-07-28T09:45:00Z
+**Stopped at:** Phase 8 complete — ready to plan Phase 9
+**Resume file:** none (Phase 8 closed; Phase 9 not planned yet)
+**Next command:** `/gsd-plan-phase 9`
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-27)
+See: .planning/PROJECT.md (updated 2026-07-28)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays (parity before cutover).  
-**Current focus:** Phase 08 — retire-local-quickshell-product
+**Current focus:** Phase 09 — workflow-documentation-and-update-contract
 
 ## Deferred Items
 
@@ -93,15 +93,23 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 
 Full decision log: PROJECT.md Key Decisions table; Phase 7: `07-CONTEXT.md`.
 
+### Phase 8 complete (2026-07-28)
+
+- Execution: 08-01..03 SUMMARY complete; VERIFICATION passed; code-review CLEAN
+- RET-01: in-repo `.config/quickshell` removed (`fb91789`, 933 files)
+- RET-02: `arch/quickshell.sh` hard-deleted (`81ac1e0`); Pattern reword (`cb4f6a0`)
+- Live hold: `~/.config/quickshell/ii/shell.qml` real, not symlink; wrapper sole install entry
+- Non-gate: phase07-live-smoke D-04 expected red after RET-01 — leave frozen
+
 ### Resolved blockers
 
-None open for next-milestone planning.
+None open for Phase 9 planning.
 
 ## Operator Next Steps
 
-1. `/gsd-plan-phase 8` — Retire local Quickshell product (RET-01/RET-02)
-2. Keep Waybar dual-run until a later cutover milestone (Phase 7 preserves it)
-3. Re-run live smoke anytime: `./scripts/phase07-live-smoke.sh`
+1. `/gsd-plan-phase 9` — Workflow documentation & update contract (DOC-01/DOC-02)
+2. Keep Waybar dual-run until a later cutover milestone
+3. Do **not** “fix” phase07 D-04 for missing in-repo tree — expected red after retirement
 4. Optional: `/gsd-progress` for roadmap view
 
 ## Performance Metrics
@@ -112,9 +120,13 @@ None open for next-milestone planning.
 | Phase 06 P01 | 2min | 2 tasks | 1 files |
 | Phase 07 P02 | 45min | 3 tasks | - files |
 | Phase 07 P03 | 15min | 3 tasks | - files |
+| Phase 08 P01 | 8min | 3 tasks | 0 files (health gate) |
+| Phase 08 P02 | 5min | 3 tasks | 933 deleted |
+| Phase 08 P03 | 6min | 3 tasks | 2 (1 delete + 1 comment) |
 
 ## Decisions
 
 - [Phase 5]: Created public fork humam-hossain/dots-hyprland via gh repo fork end-4/dots-hyprland --clone=false (D-01); sibling left alone (D-02/D-14)
 - [Phase 6]: SAFE_DEFAULTS + backup gate on arch/dots-hyprland.sh; array-exec only
 - [Phase 7]: Wrapper one-shot live install; personal hypr env + qs -c ii hooks; dual-run waybar preserved; no arch/quickshell.sh re-symlink
+- [Phase 8]: RET-01 tree delete + RET-02 installer hard-delete; live home path protected; no stub; no phase08 smoke
