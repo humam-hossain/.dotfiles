@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # arch/dots-hyprland.sh — thin wrapper around vendor/dots-hyprland/./setup
-# Pattern: arch/quickshell.sh (REPO_ROOT, main dispatcher, [LABEL] echos).
+# Pattern: arch/waybar.sh / arch/*.sh (REPO_ROOT, main dispatcher, [LABEL] echos).
 # Divergence: no package arrays; delegates all install logic to upstream setup.
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
