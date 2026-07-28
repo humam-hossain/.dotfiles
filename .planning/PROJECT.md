@@ -22,6 +22,8 @@ Usable Quickshell top bar dual-running with Waybar (Material-themed ii shell). T
 
 **Stats at v0.1 ship:** 4 phases · 31 plans · 39 tasks · ~589 QML files · ~57k LOC under `.config/quickshell/`
 
+**Phase 8 complete (2026-07-28):** Retired in-repo v0.1 product — deleted `.config/quickshell` (933 files, RET-01) and hard-deleted `arch/quickshell.sh` (RET-02, no stub). Live `~/.config/quickshell` ii install intact; sole Arch install entry is `arch/dots-hyprland.sh`.
+
 **Phase 7 complete (2026-07-27):** Live wrapper install + personal hypr hooks; dual-run waybar + `qs -c ii`; LIVE-01..04 verified (UAT 14/14, security threats_open 0, Nyquist compliant).
 
 **Phase 6 complete (2026-07-26):** `arch/dots-hyprland.sh` thin wrapper with safe defaults + backup gate (WRAP-01..04).
@@ -49,7 +51,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ hyprlock screen lock — existing; intentionally kept (not replaced)
 - ✓ hyprpaper wallpaper daemon — existing
 - ✓ Catppuccin Mocha theme contract across Hyprland/swaync/rofi/cursors — existing (Material from ii may coexist or supersede later)
-- ✓ Quickshell + ddcutil/i2c provisioning (`arch/quickshell.sh`) — existing (v0.2 retires this install path)
+- ✓ Quickshell + ddcutil/i2c provisioning — existing path was `arch/quickshell.sh`; **retired in Phase 8** (RET-02 hard-delete; use `arch/dots-hyprland.sh`)
 - ✓ Hyprland session bootstrap (`hyprland-session.service` → `graphical-session.target`) — existing
 
 ### Validated — v0.1
@@ -82,9 +84,14 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Waybar dual-run preserved (session pieces policy) — LIVE-03
 - ✓ Operator-visible ii/Quickshell chrome with `qs -c ii` + venv env — LIVE-04
 
+### Validated — v0.2 (Phase 8)
+
+- ✓ In-repo v0.1 `.config/quickshell` product tree removed from `.dotfiles` (no longer shipped) — RET-01 / Validated in Phase 8
+- ✓ `arch/quickshell.sh` hard-deleted (no deprecation stub); sole install entry `arch/dots-hyprland.sh` — RET-02 / Validated in Phase 8
+- ✓ Live session still runs ii from installed `~/.config/quickshell` after retirement (not symlink-at-repo) — Phase 8 success criterion 3
+
 ### Active (v0.2)
 
-- [ ] Remove local `.config/quickshell` product tree and retire `arch/quickshell.sh`
 - [ ] Document `.dotfiles` workflow for fork/submodule/install/update
 
 ### Active (carry-forward / later milestones)
@@ -140,7 +147,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Submodule at `vendor/dots-hyprland` | Clear third-party boundary inside `.dotfiles` | — Pending v0.2 |
 | Thin wrapper around `./setup` | Keep end-4 installer as source of truth; match `arch/*.sh` style | ✓ Phase 6 |
 | Live install via wrapper only; personal hypr hooks (no full ii hypr tree) | D-05/D-09/D-10 — one-shot install + inline env/exec-once; dual-run OK | ✓ Phase 7 |
-| Delete local `.config/quickshell` product this milestone | Single live shell path; avoid dual product confusion | — Pending Phase 8 |
+| Delete local `.config/quickshell` product this milestone | Single live shell path; avoid dual product confusion | ✓ Phase 8 (RET-01/02) |
 | Personal fork + upstream remote | Own customizations; still pull end-4 updates | ✓ Phase 5 |
 | Defer Waybar custom ports | Install foundation first; customs need live shell | — Explicit |
 | Skip brightness/backlight (no ddcutil) | iGPU crash risk per `2026-07-16` post-mortem | ✓ Good |
@@ -166,4 +173,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-27 — Phase 7 Install, Session Hooks & Dual-Run Verify complete*
+*Last updated: 2026-07-28 — Phase 8 Retire Local Quickshell Product complete (RET-01/RET-02)*
