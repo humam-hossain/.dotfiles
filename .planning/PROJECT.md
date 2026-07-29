@@ -22,7 +22,7 @@ Usable Quickshell top bar dual-running with Waybar (Material-themed ii shell). T
 
 **Stats at v0.1 ship:** 4 phases · 31 plans · 39 tasks · ~589 QML files · ~57k LOC under `.config/quickshell/`
 
-**Phase 8 complete (2026-07-28):** Retired in-repo v0.1 product — deleted `.config/quickshell` (933 files, RET-01) and hard-deleted `arch/quickshell.sh` (RET-02, no stub). Live `~/.config/quickshell` ii install intact; sole Arch install entry is `arch/dots-hyprland.sh`.
+**Phase 8 complete (2026-07-28; UAT 2026-07-29):** Retired in-repo v0.1 product — deleted `.config/quickshell` (933 files, RET-01) and hard-deleted `arch/quickshell.sh` (RET-02, no stub). Live `~/.config/quickshell` ii install intact; sole Arch install entry is `arch/dots-hyprland.sh`. Human UAT **12/12 pass** (0 issues).
 
 **Phase 7 complete (2026-07-27):** Live wrapper install + personal hypr hooks; dual-run waybar + `qs -c ii`; LIVE-01..04 verified (UAT 14/14, security threats_open 0, Nyquist compliant).
 
@@ -143,8 +143,8 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Fresh build, not iterating on old Quickshell | Old attempt deleted; adopt dots-hyprland architecture cleanly | ✓ Good for v0.1 learning |
-| v0.2: Adopt real dots-hyprland (fork + submodule) instead of local rewrite | Upstream good enough; reduce maintenance; customize later | — Pending v0.2 |
-| Submodule at `vendor/dots-hyprland` | Clear third-party boundary inside `.dotfiles` | — Pending v0.2 |
+| v0.2: Adopt real dots-hyprland (fork + submodule) instead of local rewrite | Upstream good enough; reduce maintenance; customize later | ✓ Phases 5–8 product path; DOC Phase 9 |
+| Submodule at `vendor/dots-hyprland` | Clear third-party boundary inside `.dotfiles` | ✓ Phase 5 |
 | Thin wrapper around `./setup` | Keep end-4 installer as source of truth; match `arch/*.sh` style | ✓ Phase 6 |
 | Live install via wrapper only; personal hypr hooks (no full ii hypr tree) | D-05/D-09/D-10 — one-shot install + inline env/exec-once; dual-run OK | ✓ Phase 7 |
 | Delete local `.config/quickshell` product this milestone | Single live shell path; avoid dual product confusion | ✓ Phase 8 (RET-01/02) |
@@ -173,4 +173,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-28 — Phase 8 Retire Local Quickshell Product complete (RET-01/RET-02)*
+*Last updated: 2026-07-29 — Phase 8 complete + UAT 12/12 (RET-01/RET-02); ready for Phase 9 docs*
