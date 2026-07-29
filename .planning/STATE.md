@@ -5,16 +5,16 @@ milestone_name: Adopt dots-hyprland
 current_phase: 9
 current_phase_name: Workflow Documentation & Update Contract
 status: planning
-stopped_at: Phase 8 complete — ready to plan Phase 9
-last_updated: "2026-07-28T09:45:00.000Z"
-last_activity: 2026-07-28
+stopped_at: Phase 8 UAT complete — ready to plan Phase 9
+last_updated: "2026-07-29T04:40:21Z"
+last_activity: 2026-07-29
+last_activity_desc: Phase 08 UAT 12/12 pass; transitioned to Phase 9
 progress:
   total_phases: 5
-  completed_phases: 3
-  total_plans: 13
+  completed_phases: 4
+  total_plans: 12
   completed_plans: 12
-  percent: 60
-last_activity_desc: Phase 08 complete, transitioned to Phase 9
+  percent: 80
 ---
 
 # Project State
@@ -23,19 +23,19 @@ last_activity_desc: Phase 08 complete, transitioned to Phase 9
 
 Phase: 9 — Workflow Documentation & Update Contract
 Plan: Not started
-Status: Phase 8 complete — ready to plan Phase 9
-Last activity: 2026-07-28
+Status: Ready to plan
+Last activity: 2026-07-29 — Phase 08 UAT complete (12/12), transitioned to Phase 9
 
 ## Session
 
-**Last session:** 2026-07-28T09:45:00Z
-**Stopped at:** Phase 8 complete — ready to plan Phase 9
+**Last session:** 2026-07-29T04:40:21Z
+**Stopped at:** Phase 8 complete (UAT 12/12), ready to plan Phase 9
 **Resume file:** none (Phase 8 closed; Phase 9 not planned yet)
 **Next command:** `/gsd-plan-phase 9`
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-28)
+See: .planning/PROJECT.md (updated 2026-07-29)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays (parity before cutover).  
 **Current focus:** Phase 09 — workflow-documentation-and-update-contract
@@ -93,7 +93,7 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 
 Full decision log: PROJECT.md Key Decisions table; Phase 7: `07-CONTEXT.md`.
 
-### Phase 8 complete (2026-07-28)
+### Phase 8 complete (2026-07-28 / UAT 2026-07-29)
 
 - Execution: 08-01..03 SUMMARY complete; VERIFICATION passed; code-review CLEAN
 - RET-01: in-repo `.config/quickshell` removed (`fb91789`, 933 files)
@@ -101,6 +101,7 @@ Full decision log: PROJECT.md Key Decisions table; Phase 7: `07-CONTEXT.md`.
 - Live hold: `~/.config/quickshell/ii/shell.qml` real, not symlink; wrapper sole install entry
 - Nyquist: `08-VALIDATION.md` status validated, `nyquist_compliant: true` (full suite green; no phase08 smoke)
 - Security: `08-SECURITY.md` threats_open 0 (ASVS L1); T-8-01..05 + T-08-SC closed
+- UAT: `08-UAT.md` **12/12 pass** (11 automated coverage + 1 human confirmation; 0 issues) — commit `c62b487`
 - Non-gate: phase07-live-smoke D-04 expected red after RET-01 — leave frozen
 
 ### Resolved blockers

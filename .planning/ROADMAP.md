@@ -183,7 +183,7 @@ Plans:
 | 8. Retire Local Quickshell Product | v0.2 | 3/3 | Complete    | 2026-07-28 |
 | 9. Workflow Documentation & Update Contract | v0.2 | 0/TBD | Not started | - |
 
-**Coverage:** 15/15 v0.2 requirements mapped · LIVE-01..04 complete · RET/DOC remaining
+**Coverage:** 15/15 v0.2 requirements mapped · LIVE-01..04 complete · RET-01/02 complete · DOC-01/02 remaining (Phase 9)
 
 ---
-*Last updated: 2026-07-27 — Phase 7 Install, Session Hooks & Dual-Run Verify complete*
+*Last updated: 2026-07-29 — Phase 8 Retire Local Quickshell Product complete (UAT 12/12)*
