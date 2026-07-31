@@ -2,3 +2,5 @@
 .config/system_monitor/ping/.env
 .planning/tmp/
 .claude/
+.commandcode/
+__pycache__/
