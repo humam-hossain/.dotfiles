@@ -670,7 +670,7 @@ disable_hypr_ii_hooks() {
   fi
 
   if ((dry_run)); then
-    echo "[CONFIG] dry-run: would comment ii hooks in:"
+    echo "[CONFIG] dry-run: would delete ii hooks in:"
     printf '[CONFIG] dry-run:   %s\n' "${files[@]}"
     return 0
   fi
@@ -682,11 +682,9 @@ disable_hypr_ii_hooks() {
     # shellcheck disable=SC2016
     awk '
       /^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii([[:space:]]|$)/ {
-        print "# " $0 "  # disabled by arch/dots-hyprland.sh uninstall"
         next
       }
       /^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV/ {
-        print "# " $0 "  # disabled by arch/dots-hyprland.sh uninstall"
         next
       }
       { print }
@@ -695,14 +693,52 @@ disable_hypr_ii_hooks() {
       # Preserve mode
       cat "$tmp" >"$f"
       changed=1
-      echo "[UNINSTALL] Commented ii hooks in: $f"
+      echo "[UNINSTALL] Deleted ii hooks in: $f"
     fi
     rm -f -- "$tmp"
-    if ((changed == 1)); then
-      grep -n 'disabled by arch/dots-hyprland.sh uninstall' "$f" | head -5 \
-        | while IFS= read -r gl; do echo "[UNINSTALL]   $gl"; done
-    fi
   done
+}
+
+# Add ii hooks to live hyprland.conf
+enable_hypr_ii_hooks() {
+  local dry_run="${1:-0}"
+  local f="$HOME/.config/hypr/hyprland.conf"
+
+  [[ -f "$f" ]] || return 0
+
+  local has_exec=0 has_env=0
+  grep -Eq '^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii([[:space:]]|$)' "$f" && has_exec=1
+  grep -Eq '^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$f" && has_env=1
+
+  if ((has_exec)) && ((has_env)); then
+    return 0
+  fi
+
+  if ((dry_run)); then
+    echo "[CONFIG] dry-run: would enable ii hooks in: $f"
+    return 0
+  fi
+
+  local tmp
+  tmp="$(mktemp)"
+  # shellcheck disable=SC2016
+  awk -v has_exec="$has_exec" -v has_env="$has_env" '
+    /^### LOOK AND FEEL ###/ {
+      if (has_exec == 0) {
+        print "exec-once = qs -c ii"
+      }
+      if (has_env == 0) {
+        print "env = ILLOGICAL_IMPULSE_VIRTUAL_ENV,~/.local/state/quickshell/.venv"
+      }
+    }
+    { print }
+  ' "$f" >"$tmp"
+
+  if ! cmp -s "$f" "$tmp"; then
+    cat "$tmp" >"$f"
+    echo "[INSTALL] Enabled ii hooks in: $f"
+  fi
+  rm -f -- "$tmp"
 }
 
 uninstall_gate() {
@@ -1239,6 +1275,7 @@ run_install_family() {
       protect_explicit_packages 0 "PROTECT" || {
         echo "[PROTECT] WARNING: some packages could not be marked explicit; review above." >&2
       }
+      enable_hypr_ii_hooks 0
       ;;
   esac
 }
