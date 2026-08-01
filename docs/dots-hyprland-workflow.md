@@ -39,8 +39,8 @@ Do **not** treat a sibling clone (e.g. `~/github_repo/dots-hyprland`) as source 
 2. [Verify fork remotes & pin](#2-verify-fork-remotes--pin)
 3. [Install via thin wrapper (dry-run → live)](#3-install-via-thin-wrapper-dry-run--live)
 4. [Session hooks & dual-run expectations](#4-session-hooks--dual-run-expectations)
-5. [Update contract (pin-bump)](#5-update-contract-pin-bump) — *stub; filled in plan 09-02*
-6. [Non-goals / non-primary paths](#6-non-goals--non-primary-paths) — *stub; filled in plan 09-02*
+5. [Update contract (pin-bump)](#5-update-contract-pin-bump)
+6. [Non-goals / non-primary paths](#6-non-goals--non-primary-paths)
 7. [See also](#see-also)
 
 ---
