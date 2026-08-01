@@ -4,15 +4,15 @@ milestone: v0.2
 milestone_name: Adopt dots-hyprland
 current_phase: 9
 current_phase_name: Workflow Documentation & Update Contract
-status: planning
-stopped_at: Phase 8 UAT complete — ready to plan Phase 9
-last_updated: "2026-07-29T04:40:21Z"
-last_activity: 2026-07-29
-last_activity_desc: Phase 08 UAT 12/12 pass; transitioned to Phase 9
+status: ready_to_execute
+stopped_at: Phase 9 planned — ready to execute
+last_updated: "2026-08-01T14:30:00Z"
+last_activity: 2026-08-01
+last_activity_desc: Phase 9 plan-phase complete (3 plans, research+validation+patterns); ready to execute
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 12
+  total_plans: 15
   completed_plans: 12
   percent: 80
 ---
@@ -22,16 +22,16 @@ progress:
 ## Current Position
 
 Phase: 9 — Workflow Documentation & Update Contract
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-07-29 — Phase 08 UAT complete (12/12), transitioned to Phase 9
+Plan: 0/3 executed (09-01, 09-02, 09-03 planned)
+Status: Ready to execute
+Last activity: 2026-08-01 — Phase 9 planned (DOC-01/DOC-02); research, validation, patterns, 3 plans verified
 
 ## Session
 
-**Last session:** 2026-07-29T04:40:21Z
-**Stopped at:** Phase 8 complete (UAT 12/12), ready to plan Phase 9
-**Resume file:** none (Phase 8 closed; Phase 9 not planned yet)
-**Next command:** `/gsd-plan-phase 9`
+**Last session:** 2026-08-01
+**Stopped at:** Phase 9 planning complete — ready for execute-phase
+**Resume file:** none
+**Next command:** `/gsd-execute-phase 9`
 
 ## Project Reference
 
@@ -104,13 +104,22 @@ Full decision log: PROJECT.md Key Decisions table; Phase 7: `07-CONTEXT.md`.
 - UAT: `08-UAT.md` **12/12 pass** (11 automated coverage + 1 human confirmation; 0 issues) — commit `c62b487`
 - Non-gate: phase07-live-smoke D-04 expected red after RET-01 — leave frozen
 
+### Phase 9 planning (2026-08-01)
+
+- No CONTEXT.md (continue without discuss-phase); inherited locks from Phases 5–8 + REQUIREMENTS
+- Research + validation strategy + pattern map complete
+- 3 plans / 3 waves: 09-01 install/adopt (DOC-01), 09-02 pin-bump + non-goals (DOC-02), 09-03 cross-links
+- Plan check: VERIFICATION PASSED (orchestrator dimension checklist; subagent rate-limited — see 09-PLAN-CHECK.md)
+- Post-planning gap analysis: DOC-01/DOC-02 covered 2/2
+- Canonical playbook target: `docs/dots-hyprland-workflow.md` + README/PROJECT pointers
+
 ### Resolved blockers
 
-None open for Phase 9 planning.
+None open for Phase 9 execution.
 
 ## Operator Next Steps
 
-1. `/gsd-plan-phase 9` — Workflow documentation & update contract (DOC-01/DOC-02)
+1. `/gsd-execute-phase 9` — Write install/update playbook (DOC-01/DOC-02)
 2. Keep Waybar dual-run until a later cutover milestone
 3. Do **not** “fix” phase07 D-04 for missing in-repo tree — expected red after retirement
 4. Optional: `/gsd-progress` for roadmap view

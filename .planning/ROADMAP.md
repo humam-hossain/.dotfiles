@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v0.1 Core Framework & Basic Bar** — Phases 1–4 (shipped 2026-07-25)
-- 🚧 **v0.2 Adopt dots-hyprland** — Phases 5–9 (in planning)
+- 🚧 **v0.2 Adopt dots-hyprland** — Phases 5–9 (Phase 9 planned; ready to execute)
 
 ## Overview
 
@@ -161,13 +161,20 @@ Plans:
   2. Docs describe pin-bump update (fetch upstream on fork/submodule, bump parent SHA, re-run setup) and explicitly mark `exp-merge` / online cache install as non-primary
   3. A new machine (or clean read of docs) has enough information to reach a dual-run ii session without reading chat history
 
-**Plans:** TBD
+**Plans:** 0/3 plans executed (3 planned)
 
 Plans:
+**Wave 1**
 
-- [ ] 09-01: Write install/adopt section (aligned with `arch/*.sh` style)
-- [ ] 09-02: Write update/pin-bump + non-goals (exp-merge, cutover, customs)
-- [ ] 09-03: Cross-link PROJECT/REQUIREMENTS and retire any quickshell-only install docs
+- [ ] 09-01-PLAN.md — Write install/adopt section (aligned with `arch/*.sh` style) — DOC-01
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 09-02-PLAN.md — Write update/pin-bump + non-goals (exp-merge, cutover, customs) — DOC-02
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 09-03-PLAN.md — Cross-link PROJECT/REQUIREMENTS and retire any quickshell-only install docs — DOC-01, DOC-02
 
 ## Progress
 
@@ -181,7 +188,7 @@ Plans:
 | 6. Thin Setup Wrapper & Safe Defaults | v0.2 | 3/3 | Complete | 2026-07-26 |
 | 7. Install, Session Hooks & Dual-Run Verify | v0.2 | 3/3 | Complete    | 2026-07-27 |
 | 8. Retire Local Quickshell Product | v0.2 | 3/3 | Complete    | 2026-07-28 |
-| 9. Workflow Documentation & Update Contract | v0.2 | 0/TBD | Not started | - |
+| 9. Workflow Documentation & Update Contract | v0.2 | 0/3 | Planned | - |
 
 **Coverage:** 15/15 v0.2 requirements mapped · LIVE-01..04 complete · RET-01/02 complete · DOC-01/02 remaining (Phase 9)
 
