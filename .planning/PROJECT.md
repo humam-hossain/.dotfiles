@@ -92,7 +92,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 ### Active (v0.2)
 
-- [ ] Document `.dotfiles` workflow for fork/submodule/install/update
+- [x] Document `.dotfiles` workflow for fork/submodule/install/update — **done:** [docs/dots-hyprland-workflow.md](../docs/dots-hyprland-workflow.md) (Phase 9, DOC-01/DOC-02)
 
 ### Active (carry-forward / later milestones)
 
@@ -173,4 +173,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-07-29 — Phase 8 complete + UAT 12/12 (RET-01/RET-02); ready for Phase 9 docs*
+*Last updated: 2026-08-01 — Phase 9 docs: operator playbook `docs/dots-hyprland-workflow.md` (DOC-01/DOC-02)*
