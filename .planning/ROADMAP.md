@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v0.1 Core Framework & Basic Bar** — Phases 1–4 (shipped 2026-07-25)
-- 🚧 **v0.2 Adopt dots-hyprland** — Phases 5–9 (Phase 9 planned; ready to execute)
+- ✅ **v0.2 Adopt dots-hyprland** — Phases 5–9 (all complete 2026-08-01; milestone close pending)
 
 ## Overview
 
@@ -190,7 +190,7 @@ Plans:
 | 8. Retire Local Quickshell Product | v0.2 | 3/3 | Complete    | 2026-07-28 |
 | 9. Workflow Documentation & Update Contract | v0.2 | 3/3 | Complete    | 2026-08-01 |
 
-**Coverage:** 15/15 v0.2 requirements mapped · LIVE-01..04 complete · RET-01/02 complete · DOC-01/02 remaining (Phase 9)
+**Coverage:** 15/15 v0.2 requirements complete · LIVE-01..04 · RET-01/02 · DOC-01/02 (`docs/dots-hyprland-workflow.md`)
 
 ---
-*Last updated: 2026-07-29 — Phase 8 Retire Local Quickshell Product complete (UAT 12/12)*
+*Last updated: 2026-08-01 — Phase 9 Workflow Documentation & Update Contract complete*
