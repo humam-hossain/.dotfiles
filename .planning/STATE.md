@@ -2,29 +2,29 @@
 gsd_state_version: 1.0
 milestone: v0.2
 milestone_name: Adopt dots-hyprland
-current_phase: 9
-current_phase_name: Workflow Documentation & Update Contract
-status: ready_to_execute
+current_phase: 09
+current_phase_name: workflow-documentation-update-contract
+status: executing
 stopped_at: Phase 9 planned — ready to execute
-last_updated: "2026-08-01T14:30:00Z"
+last_updated: "2026-08-01T17:16:37.436Z"
 last_activity: 2026-08-01
-last_activity_desc: Phase 9 plan-phase complete (3 plans, research+validation+patterns); ready to execute
+last_activity_desc: Phase 09 execution started
 progress:
   total_phases: 5
-  completed_phases: 4
-  total_plans: 15
+  completed_phases: 3
+  total_plans: 17
   completed_plans: 12
-  percent: 80
+  percent: 60
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 9 — Workflow Documentation & Update Contract
-Plan: 0/3 executed (09-01, 09-02, 09-03 planned)
-Status: Ready to execute
-Last activity: 2026-08-01 — Phase 9 planned (DOC-01/DOC-02); research, validation, patterns, 3 plans verified
+Phase: 09 (workflow-documentation-update-contract) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 09
+Last activity: 2026-08-01 — Phase 09 execution started
 
 ## Session
 
@@ -38,7 +38,7 @@ Last activity: 2026-08-01 — Phase 9 planned (DOC-01/DOC-02); research, validat
 See: .planning/PROJECT.md (updated 2026-07-29)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays (parity before cutover).  
-**Current focus:** Phase 09 — workflow-documentation-and-update-contract
+**Current focus:** Phase 09 — workflow-documentation-update-contract
 
 ## Deferred Items
 
