@@ -4,16 +4,16 @@ milestone: v0.2
 milestone_name: Adopt dots-hyprland
 current_phase: 09
 status: completed
-stopped_at: Phase 9 planning complete — ready for execute-phase
-last_updated: "2026-08-01T17:57:57.145Z"
-last_activity: 2026-08-01
-last_activity_desc: Phase 09 complete
+stopped_at: Phase 9 complete — all v0.2 phases done; ready for milestone close
+last_updated: "2026-08-02T00:00:00Z"
+last_activity: 2026-08-02
+last_activity_desc: Phase 09 complete — DOC-01/DOC-02 playbook shipped
 progress:
   total_phases: 5
-  completed_phases: 3
-  total_plans: 17
+  completed_phases: 5
+  total_plans: 15
   completed_plans: 15
-  percent: 60
+  percent: 100
 current_phase_name: workflow-documentation-update-contract
 ---
 
@@ -21,24 +21,24 @@ current_phase_name: workflow-documentation-update-contract
 
 ## Current Position
 
-Phase: 09
-Plan: Not started
-Status: All phases complete
-Last activity: 2026-08-01 — Phase 09 complete
+Phase: 09 — Workflow Documentation & Update Contract (complete)
+Plan: 3/3 executed
+Status: All v0.2 phases complete
+Last activity: 2026-08-02 — Phase 09 verified and closed (DOC-01/DOC-02)
 
 ## Session
 
-**Last session:** 2026-08-01
-**Stopped at:** Phase 9 planning complete — ready for execute-phase
+**Last session:** 2026-08-02
+**Stopped at:** Phase 9 execution + verification complete
 **Resume file:** none
-**Next command:** `/gsd-execute-phase 9`
+**Next command:** `/gsd-complete-milestone` (or `/gsd-progress` to review)
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-29)
+See: .planning/PROJECT.md (updated 2026-08-01)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays (parity before cutover).  
-**Current focus:** Phase 09 — workflow-documentation-update-contract
+**Current focus:** v0.2 milestone close — all phases 5–9 complete
 
 ## Deferred Items
 
