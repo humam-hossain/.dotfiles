@@ -22,6 +22,8 @@ Usable Quickshell top bar dual-running with Waybar (Material-themed ii shell). T
 
 **Stats at v0.1 ship:** 4 phases · 31 plans · 39 tasks · ~589 QML files · ~57k LOC under `.config/quickshell/`
 
+**Phase 9 complete (2026-08-01; UAT 2026-08-02):** Operator playbook `docs/dots-hyprland-workflow.md` (DOC-01 install/adopt + DOC-02 pin-bump update/non-goals). README Desktop shell link + PROJECT/REQUIREMENTS closed. UAT **9/9 pass** (8 automated coverage + 1 human confirmation; 0 issues).
+
 **Phase 8 complete (2026-07-28; UAT 2026-07-29):** Retired in-repo v0.1 product — deleted `.config/quickshell` (933 files, RET-01) and hard-deleted `arch/quickshell.sh` (RET-02, no stub). Live `~/.config/quickshell` ii install intact; sole Arch install entry is `arch/dots-hyprland.sh`. Human UAT **12/12 pass** (0 issues).
 
 **Phase 7 complete (2026-07-27):** Live wrapper install + personal hypr hooks; dual-run waybar + `qs -c ii`; LIVE-01..04 verified (UAT 14/14, security threats_open 0, Nyquist compliant).
@@ -90,9 +92,15 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ `arch/quickshell.sh` hard-deleted (no deprecation stub); sole install entry `arch/dots-hyprland.sh` — RET-02 / Validated in Phase 8
 - ✓ Live session still runs ii from installed `~/.config/quickshell` after retirement (not symlink-at-repo) — Phase 8 success criterion 3
 
+### Validated — v0.2 (Phase 9)
+
+- ✓ Operator playbook documents clone → recursive submodule → wrapper install → hypr hooks → dual-run (DOC-01) — `docs/dots-hyprland-workflow.md`
+- ✓ Operator playbook documents pin-bump update; exp-merge / online cache non-primary (DOC-02) — same playbook §§5–6
+- ✓ Cold-clone discovery: README Desktop shell → playbook; PROJECT/REQUIREMENTS closed with path — Phase 9 / UAT 9/9
+
 ### Active (v0.2)
 
-- [x] Document `.dotfiles` workflow for fork/submodule/install/update — **done:** [docs/dots-hyprland-workflow.md](../docs/dots-hyprland-workflow.md) (Phase 9, DOC-01/DOC-02)
+*(none — all v0.2 target requirements validated through Phase 9)*
 
 ### Active (carry-forward / later milestones)
 
@@ -143,7 +151,9 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Fresh build, not iterating on old Quickshell | Old attempt deleted; adopt dots-hyprland architecture cleanly | ✓ Good for v0.1 learning |
-| v0.2: Adopt real dots-hyprland (fork + submodule) instead of local rewrite | Upstream good enough; reduce maintenance; customize later | ✓ Phases 5–8 product path; DOC Phase 9 |
+| v0.2: Adopt real dots-hyprland (fork + submodule) instead of local rewrite | Upstream good enough; reduce maintenance; customize later | ✓ Phases 5–9 complete (product + docs) |
+| Canonical playbook `docs/dots-hyprland-workflow.md` | Single SoT for install/update; wrapper help stays flag SoT | ✓ Phase 9 DOC-01/DOC-02 |
+| Pin-bump as sole primary update; exp-merge/online cache non-primary | Avoid tribal/experimental paths as default | ✓ Phase 9 DOC-02 |
 | Submodule at `vendor/dots-hyprland` | Clear third-party boundary inside `.dotfiles` | ✓ Phase 5 |
 | Thin wrapper around `./setup` | Keep end-4 installer as source of truth; match `arch/*.sh` style | ✓ Phase 6 |
 | Live install via wrapper only; personal hypr hooks (no full ii hypr tree) | D-05/D-09/D-10 — one-shot install + inline env/exec-once; dual-run OK | ✓ Phase 7 |
@@ -173,4 +183,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-01 — Phase 9 docs: operator playbook `docs/dots-hyprland-workflow.md` (DOC-01/DOC-02)*
+*Last updated: 2026-08-02 — Phase 9 UAT complete; DOC-01/DOC-02 validated; v0.2 ready for milestone close*
