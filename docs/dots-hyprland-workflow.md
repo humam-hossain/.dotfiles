@@ -216,13 +216,86 @@ hyprctl reload
 
 ## 5. Update contract (pin-bump)
 
-*Stub — pin-bump / re-run setup narrative lands in plan 09-02 (DOC-02).*
+**Primary update path** for end-4 changes: work in the fork submodule, push origin, bump the parent gitlink pin, re-run the wrapper. This is intentional reproducibility — **not** auto-bump on every parent pull.
+
+Do not develop against a sibling checkout as SoT; always use `vendor/dots-hyprland`.
+
+### 5.1 Fetch and merge upstream into the fork
+
+```bash
+cd vendor/dots-hyprland
+
+# ensure dual remotes (origin=fork, upstream=end-4)
+git remote -v
+git fetch upstream
+
+# merge or rebase desired upstream ref onto your fork branch; resolve conflicts
+# example (adjust branch/ref to match your pin workflow):
+#   git merge upstream/main
+#   # or: git rebase upstream/main
+
+git push origin HEAD
+cd ../..
+```
+
+### 5.2 Bump parent pin (gitlink)
+
+From **REPO_ROOT**:
+
+```bash
+git add vendor/dots-hyprland   # stage new submodule SHA (gitlink)
+git status                     # confirm only the pin change (unless you have other work)
+git commit -m "chore(vendor): bump dots-hyprland pin"
+```
+
+Parent records the pin as an explicit gitlink — clones get that SHA until you bump again.
+
+### 5.3 Apply on the machine (re-run setup)
+
+Same safe defaults and backup gate as first adoption. Prefer dry-run when unsure:
+
+```bash
+./arch/dots-hyprland.sh install-files --dry-run
+# or full pipeline if deps/setups changed:
+# ./arch/dots-hyprland.sh install --dry-run
+
+./arch/dots-hyprland.sh install-files
+# or: ./arch/dots-hyprland.sh install
+# or: ./arch/dots-hyprland.sh install-deps   # when only packages changed
+```
+
+- Type `yes` at the backup gate when prompted
+- Do **not** casually pass bare `--skip-backup`
+- Safe defaults (`--core --skip-hyprland --skip-sysupdate`) still apply on `install` / `install-files`
+
+### 5.4 Optional: protect after deps demotion
+
+ii install may demote shared packages to `--asdeps`. After deps-heavy updates:
+
+```bash
+./arch/dots-hyprland.sh protect
+# optional: ./arch/dots-hyprland.sh protect --install-missing
+```
+
+Details: `./arch/dots-hyprland.sh help`.
 
 ---
 
 ## 6. Non-goals / non-primary paths
 
-*Stub — exp-merge, online cache install, auto-bump, cutover, and related non-primary paths land in plan 09-02 (DOC-02).*
+These are **out of scope** or **non-primary** for the managed `.dotfiles` workflow (aligned with `.planning/REQUIREMENTS.md` Out of Scope). Do not treat them as the default update or adopt path.
+
+| Path / idea | Status | Why |
+|-------------|--------|-----|
+| **`exp-merge` / `exp-update`** | **Non-primary / experimental** | Not the update contract. Wrapper **refuses** them: `./arch/dots-hyprland.sh exp-merge` → non-allowlisted `[FAIL]`. If you truly need upstream experimental tools, run `vendor/dots-hyprland/./setup` **directly** and own the risk — still not documented default. |
+| **Online cache / curl install into `~/.cache/dots-hyprland`** | **Non-primary / not managed** | Bypasses parent submodule pin and fork ownership. Not the `.dotfiles` adoption path. |
+| **Auto-bump submodule on every parent pull** | Out of scope | Breaks pin reproducibility; parent gitlink bumps are explicit. |
+| **Full Waybar / rofi / swaync cutover** | Out of scope this milestone | Dual-run is intentional; custom ports deferred (CUST-*). |
+| **Full hyprland.lua / ii hypr tree takeover** | Out of scope this milestone | Personal hypr conf remains SoT via `--skip-hyprland`. |
+| **Reimplementing package lists in `arch/` without `./setup`** | Forbidden | Single product path is wrapper → vendor setup. |
+| **Wrapper `verify` subcommand** | Future (POLISH-01) | Not required for DOC-01/02; use manual dual-run checks in §4. |
+
+**Bottom line:** update with **§5 pin-bump**, not exp-merge or online cache install.
 
 ---
 
