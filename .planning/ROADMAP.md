@@ -33,7 +33,7 @@ Phase artifacts: [milestones/v0.1-phases/](milestones/v0.1-phases/)
 - [x] **Phase 6: Thin Setup Wrapper & Safe Defaults** — `arch/dots-hyprland.sh` → `./setup` with non-destructive defaults
 - [x] **Phase 7: Install, Session Hooks & Dual-Run Verify** — Live ii shell + personal hypr hooks; Waybar preserved
 - [x] **Phase 8: Retire Local Quickshell Product** — Delete in-repo QS tree; retire `arch/quickshell.sh` (completed 2026-07-28)
-- [ ] **Phase 9: Workflow Documentation & Update Contract** — Clone/install/update/dual-run playbook
+- [x] **Phase 9: Workflow Documentation & Update Contract** — Clone/install/update/dual-run playbook (completed 2026-08-01)
 
 ## Phase Details
 
@@ -161,7 +161,7 @@ Plans:
   2. Docs describe pin-bump update (fetch upstream on fork/submodule, bump parent SHA, re-run setup) and explicitly mark `exp-merge` / online cache install as non-primary
   3. A new machine (or clean read of docs) has enough information to reach a dual-run ii session without reading chat history
 
-**Plans:** 3/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 **Wave 1**
@@ -188,7 +188,7 @@ Plans:
 | 6. Thin Setup Wrapper & Safe Defaults | v0.2 | 3/3 | Complete | 2026-07-26 |
 | 7. Install, Session Hooks & Dual-Run Verify | v0.2 | 3/3 | Complete    | 2026-07-27 |
 | 8. Retire Local Quickshell Product | v0.2 | 3/3 | Complete    | 2026-07-28 |
-| 9. Workflow Documentation & Update Contract | v0.2 | 3/3 | In Progress|  |
+| 9. Workflow Documentation & Update Contract | v0.2 | 3/3 | Complete    | 2026-08-01 |
 
 **Coverage:** 15/15 v0.2 requirements mapped · LIVE-01..04 complete · RET-01/02 complete · DOC-01/02 remaining (Phase 9)
 
