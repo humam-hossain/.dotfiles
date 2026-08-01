@@ -35,10 +35,10 @@ Last activity: 2026-08-02 — Phase 9 UAT complete (9/9 pass)
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-08-01)
+See: .planning/PROJECT.md (updated 2026-08-02)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays (parity before cutover).  
-**Current focus:** v0.2 milestone close — all phases 5–9 complete
+**Current focus:** v0.2 milestone close — phases 5–9 complete; UAT/verification green
 
 ## Deferred Items
 
@@ -113,13 +113,22 @@ Full decision log: PROJECT.md Key Decisions table; Phase 7: `07-CONTEXT.md`.
 - Post-planning gap analysis: DOC-01/DOC-02 covered 2/2
 - Canonical playbook target: `docs/dots-hyprland-workflow.md` + README/PROJECT pointers
 
+### Phase 9 complete (2026-08-01 / UAT 2026-08-02)
+
+- Execution: 09-01..03 SUMMARY complete; VERIFICATION passed (20/20 must-haves)
+- Playbook: `docs/dots-hyprland-workflow.md` — install/adopt, pin-bump update, non-goals
+- Discovery: README Desktop shell link; PROJECT/REQUIREMENTS DOC-01/DOC-02 closed
+- Nyquist: `09-VALIDATION.md` present; Security: `09-SECURITY.md` threats_open 0 (ASVS L1)
+- UAT: `09-UAT.md` **9/9 pass** (8 automated coverage + 1 human confirmation; 0 issues) — commits `bd4f243`, transition docs after
+- Code review: `09-REVIEW.md` present
+
 ### Resolved blockers
 
-None open for Phase 9 execution.
+None open for Phase 9. All v0.2 phases 5–9 complete.
 
 ## Operator Next Steps
 
-1. `/gsd-execute-phase 9` — Write install/update playbook (DOC-01/DOC-02)
+1. `/gsd-complete-milestone` — archive v0.2 Adopt dots-hyprland and prepare next milestone
 2. Keep Waybar dual-run until a later cutover milestone
 3. Do **not** “fix” phase07 D-04 for missing in-repo tree — expected red after retirement
 4. Optional: `/gsd-progress` for roadmap view
@@ -135,6 +144,9 @@ None open for Phase 9 execution.
 | Phase 08 P01 | 8min | 3 tasks | 0 files (health gate) |
 | Phase 08 P02 | 5min | 3 tasks | 933 deleted |
 | Phase 08 P03 | 6min | 3 tasks | 2 (1 delete + 1 comment) |
+| Phase 09 P01 | 15min | 3 tasks | 1 created (playbook) |
+| Phase 09 P02 | 10min | 2 tasks | 1 modified (playbook) |
+| Phase 09 P03 | 10min | 3 tasks | README + PROJECT + REQUIREMENTS + playbook |
 
 ## Decisions
 
@@ -142,3 +154,4 @@ None open for Phase 9 execution.
 - [Phase 6]: SAFE_DEFAULTS + backup gate on arch/dots-hyprland.sh; array-exec only
 - [Phase 7]: Wrapper one-shot live install; personal hypr env + qs -c ii hooks; dual-run waybar preserved; no arch/quickshell.sh re-symlink
 - [Phase 8]: RET-01 tree delete + RET-02 installer hard-delete; live home path protected; no stub; no phase08 smoke
+- [Phase 9]: Canonical playbook `docs/dots-hyprland-workflow.md`; pin-bump primary update; exp-merge/online cache non-primary; thin README discovery link

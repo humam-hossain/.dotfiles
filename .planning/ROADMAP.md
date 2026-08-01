@@ -193,4 +193,4 @@ Plans:
 **Coverage:** 15/15 v0.2 requirements complete · LIVE-01..04 · RET-01/02 · DOC-01/02 (`docs/dots-hyprland-workflow.md`)
 
 ---
-*Last updated: 2026-08-01 — Phase 9 Workflow Documentation & Update Contract complete*
+*Last updated: 2026-08-02 — Phase 9 UAT complete (9/9); v0.2 all phases ready for milestone close*
