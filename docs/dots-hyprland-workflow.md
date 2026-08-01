@@ -303,5 +303,7 @@ These are **out of scope** or **non-primary** for the managed `.dotfiles` workfl
 
 - `./arch/dots-hyprland.sh help` — flag and subcommand source of truth
 - `vendor/dots-hyprland` — canonical pin path (submodule)
-- `.planning/REQUIREMENTS.md` — DOC-01 / DOC-02 and related contracts
-- Root `README.md` — discovery pointer (cross-link in plan 09-03)
+- [`.planning/PROJECT.md`](../.planning/PROJECT.md) — product goals, non-goals, milestone checklist
+- [`.planning/REQUIREMENTS.md`](../.planning/REQUIREMENTS.md) — DOC-01 / DOC-02 and Out of Scope
+- [`.planning/ROADMAP.md`](../.planning/ROADMAP.md) — Phase 9 success criteria
+- Root [`README.md`](../README.md) — cold-clone discovery pointer

@@ -35,8 +35,8 @@ Requirements for this milestone only. Each maps to roadmap phases (continuing af
 
 ### Documentation
 
-- [ ] **DOC-01**: Documentation describes clone → submodule init (recursive) → wrapper install → personal hypr hooks → dual-run expectations
-- [ ] **DOC-02**: Documentation describes the update contract: fetch/merge upstream in the fork/submodule, bump parent pin, re-run setup — and states that `exp-merge` / online cache install are non-primary
+- [x] **DOC-01**: Documentation describes clone → submodule init (recursive) → wrapper install → personal hypr hooks → dual-run expectations — playbook: `docs/dots-hyprland-workflow.md`
+- [x] **DOC-02**: Documentation describes the update contract: fetch/merge upstream in the fork/submodule, bump parent pin, re-run setup — and states that `exp-merge` / online cache install are non-primary — playbook: `docs/dots-hyprland-workflow.md`
 
 ## Future Requirements
 
@@ -93,8 +93,8 @@ Which phases cover which requirements. Updated with v0.2 roadmap.
 | LIVE-04 | Phase 7 | Complete |
 | RET-01 | Phase 8 | Complete |
 | RET-02 | Phase 8 | Complete |
-| DOC-01 | Phase 9 | Pending |
-| DOC-02 | Phase 9 | Pending |
+| DOC-01 | Phase 9 | Complete — `docs/dots-hyprland-workflow.md` |
+| DOC-02 | Phase 9 | Complete — `docs/dots-hyprland-workflow.md` |
 
 **Coverage:**
 
