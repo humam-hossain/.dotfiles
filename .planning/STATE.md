@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v0.2
 milestone_name: Adopt dots-hyprland
-current_phase: 09
+current_phase: 9
 status: completed
-stopped_at: Phase 9 complete — all v0.2 phases done; ready for milestone close
-last_updated: "2026-08-02T00:00:00Z"
+stopped_at: Phase 9 UAT complete — all v0.2 phases done; ready for milestone close
+last_updated: "2026-08-01T19:00:34Z"
 last_activity: 2026-08-02
-last_activity_desc: Phase 09 complete — DOC-01/DOC-02 playbook shipped
+last_activity_desc: Phase 9 UAT complete — 9/9 pass, DOC-01/DOC-02 confirmed
 progress:
   total_phases: 5
   completed_phases: 5
@@ -24,12 +24,12 @@ current_phase_name: workflow-documentation-update-contract
 Phase: 09 — Workflow Documentation & Update Contract (complete)
 Plan: 3/3 executed
 Status: All v0.2 phases complete
-Last activity: 2026-08-02 — Phase 09 verified and closed (DOC-01/DOC-02)
+Last activity: 2026-08-02 — Phase 9 UAT complete (9/9 pass)
 
 ## Session
 
 **Last session:** 2026-08-02
-**Stopped at:** Phase 9 execution + verification complete
+**Stopped at:** Phase 9 UAT complete, ready to close milestone v0.2
 **Resume file:** none
 **Next command:** `/gsd-complete-milestone` (or `/gsd-progress` to review)
 
