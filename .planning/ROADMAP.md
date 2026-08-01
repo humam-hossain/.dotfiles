@@ -161,7 +161,7 @@ Plans:
   2. Docs describe pin-bump update (fetch upstream on fork/submodule, bump parent SHA, re-run setup) and explicitly mark `exp-merge` / online cache install as non-primary
   3. A new machine (or clean read of docs) has enough information to reach a dual-run ii session without reading chat history
 
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 **Wave 1**
@@ -170,7 +170,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 09-02-PLAN.md — Write update/pin-bump + non-goals (exp-merge, cutover, customs) — DOC-02
+- [x] 09-02-PLAN.md — Write update/pin-bump + non-goals (exp-merge, cutover, customs) — DOC-02
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -188,7 +188,7 @@ Plans:
 | 6. Thin Setup Wrapper & Safe Defaults | v0.2 | 3/3 | Complete | 2026-07-26 |
 | 7. Install, Session Hooks & Dual-Run Verify | v0.2 | 3/3 | Complete    | 2026-07-27 |
 | 8. Retire Local Quickshell Product | v0.2 | 3/3 | Complete    | 2026-07-28 |
-| 9. Workflow Documentation & Update Contract | v0.2 | 1/3 | In Progress|  |
+| 9. Workflow Documentation & Update Contract | v0.2 | 2/3 | In Progress|  |
 
 **Coverage:** 15/15 v0.2 requirements mapped · LIVE-01..04 complete · RET-01/02 complete · DOC-01/02 remaining (Phase 9)
 
