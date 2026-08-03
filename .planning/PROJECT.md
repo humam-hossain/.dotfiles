@@ -16,18 +16,18 @@ Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery mo
 - Session: personal hypr hooks for `ILLOGICAL_IMPULSE_VIRTUAL_ENV` + `qs -c ii`; Waybar still dual-runs
 - Playbook: `docs/dots-hyprland-workflow.md`
 
-## Next Milestone Goals
+## Current Milestone: v0.3 Full ii install
 
-Not yet defined — start with `/gsd-new-milestone`. Candidate direction from deferred requirements:
+**Goal:** Identify everything a full dots-hyprland install (no `--skip-hyprland` / `--skip-sysupdate` / `--core` protection) would replace or change — especially personal `.config/hypr` and other colliding configs — then decide dispositions and only then perform the full install safely.
 
-- Port Waybar customs into ii (ping @ `127.0.0.1:8765`, weather, earthquake, machine overlays)
-- Cutover: remove Waybar/rofi/swaync from session once parity accepted
-- Optional polish: wrapper `verify`, FWK-02/IPC-02-style integration under upstream model
-- Re-evaluate open v0.1 debug polish only if still relevant on stock ii
+**Target features:**
+- Impact inventory: dry-run / diff map of full install vs personal configs (hypr entry, hyprland tree, hyprlock/idle, misc configs skipped by `--core`, package/sysupdate side effects, backup behavior)
+- Disposition decisions: per surface keep personal, migrate into `hypr/custom/`, accept upstream, merge, or defer
+- Safe full-install path: wrapper/playbook opt-in out of SAFE_DEFAULTS; backup gate preserved
+- Execute full adopt: apply agreed dispositions, run full install, verify session boots on ii hypr model without orphaning personal must-keeps
+- Document: playbook update for full vs dual-run/safe profiles
 
-## Current Milestone
-
-*(none — awaiting `/gsd-new-milestone`)*
+**Not this milestone:** Waybar custom module ports (CUST-01..04), Waybar/rofi/swaync dual-run removal as a pure bar cutover (may follow after full hypr adopt if still dual-running chrome)
 
 <details>
 <summary>Prior milestone: v0.2 Adopt dots-hyprland (shipped 2026-08-02)</summary>
@@ -42,7 +42,7 @@ Not yet defined — start with `/gsd-new-milestone`. Candidate direction from de
 - Removed v0.1 local product tree and `arch/quickshell.sh`
 - Documented clone/install/update dual-run workflow
 
-**Not that milestone:** Waybar custom module ports, full Waybar/rofi/swaync cutover, deep theming beyond install works and is managed.
+**Not that milestone:** Waybar custom module ports, full Waybar/rofi/swaync cutover, deep theming beyond install works and is managed. Full hypr install blocked by SAFE_DEFAULTS (`--core --skip-hyprland --skip-sysupdate`).
 
 </details>
 
@@ -98,16 +98,20 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 ### Active
 
-*(none — define next milestone requirements via `/gsd-new-milestone`)*
+- [ ] Full-install impact inventory (hypr + misc configs + packages/sysupdate) before any live full adopt
+- [ ] Per-surface disposition plan for personal configs that full install would replace
+- [ ] Safe opt-in full-install path (out of SAFE_DEFAULTS) with backup gate
+- [ ] Execute full ii install per dispositions; session boots on ii hypr model
+- [ ] Playbook: full vs safe/dual-run install profiles
 
 ### Carry-forward candidates (not yet committed requirements)
 
-- [ ] Port Waybar customs into ii: ping, weather (+ forecast), earthquake, etc.
-- [ ] Machine-specific overlays (monitors, Asia/Dhaka, paths) as documented fork layer
-- [ ] FWK-02 / IPC-02 style session integration as needed under upstream model
-- [ ] Cutover: remove Waybar/rofi/swaync from Hyprland `exec-once` once parity is verified
-- [ ] Wrapper `verify` subcommand (qs binary, config path, submodule SHA)
-- [ ] Open v0.1 debug polish items (only if still relevant after switch)
+- [ ] Port Waybar customs into ii: ping, weather (+ forecast), earthquake, etc. (CUST-01..03)
+- [ ] Machine-specific overlays as documented fork layer (CUST-04) — may overlap with hypr/custom migration this milestone
+- [ ] Cutover: remove Waybar/rofi/swaync from Hyprland `exec-once` once parity is verified (CUT-01)
+- [ ] Wrapper `verify` subcommand (qs binary, config path, submodule SHA) (POLISH-01)
+- [ ] FWK-02 / IPC-02 style session integration under upstream model (POLISH-02)
+- [ ] Open v0.1 debug polish items (only if still relevant after switch) (POLISH-03)
 
 ### Out of Scope
 
@@ -125,13 +129,18 @@ Existing infrastructure the shell builds on (not replaced by this project):
 **Post-v0.2 reality:**
 - Upstream [end-4/dots-hyprland](https://github.com/end-4/dots-hyprland) is the product vehicle; personal fork owns custom commits; parent pins SHA in `vendor/dots-hyprland`.
 - Install SoT remains vendored `./setup`; `.dotfiles` only wraps it (`arch/dots-hyprland.sh`).
-- Waybar still runs; customs (ping @ `127.0.0.1:8765`, weather, earthquake, music, memory) remain the long-term customization backlog.
+- Live session uses personal hypr + `qs -c ii` hooks; SAFE_DEFAULTS still inject `--core --skip-hyprland --skip-sysupdate`.
+- Waybar still dual-runs; customs remain a later backlog (CUST-*).
 - Operator path is documented in `docs/dots-hyprland-workflow.md` (README Desktop shell link).
+
+**v0.3 focus:**
+- Full install without skip flags will rename `hyprland.conf` → `.old`, sync ii `hypr/hyprland` Lua tree, install `hyprland.lua`, backup/replace hyprlock/hypridle, and (without `--core`) touch fish/kitty/starship/misc.
+- Discovery first: inventory impact, decide dispositions, then adopt — not a blind full install.
 
 **Why this project:**
 - Consolidate desktop shell tooling via a proven upstream, not a second maintenance surface.
 - Keep personal control (fork) and reproducibility (submodule pin) inside `.dotfiles`.
-- Customize later for machine-specific Waybar-era needs.
+- Move from protected dual-run adopt toward full ii session ownership when personal must-keeps are mapped.
 
 ## Constraints
 
@@ -157,9 +166,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Live install via wrapper only; personal hypr hooks (no full ii hypr tree) | One-shot install + inline env/exec-once; dual-run OK | ✓ Phase 7 |
 | Delete local `.config/quickshell` product this milestone | Single live shell path; avoid dual product confusion | ✓ Phase 8 (RET-01/02) |
 | Personal fork + upstream remote | Own customizations; still pull end-4 updates | ✓ Phase 5 |
-| Defer Waybar custom ports | Install foundation first; customs need live shell | — Explicit next |
+| Defer Waybar custom ports | Install foundation first; customs need live shell | — Deferred past full hypr adopt |
+| v0.3: Full install after impact inventory | Drop SAFE_DEFAULTS only with known dispositions for replaced configs | — Pending |
 | Skip brightness/backlight (no ddcutil) | iGPU crash risk per `2026-07-16` post-mortem | ✓ Good |
-| Keep hyprlock (no Quickshell lock screen) | hyprlock works; lock screen panel not wanted as replacement | ✓ Good |
+| Keep hyprlock (no Quickshell lock screen) | hyprlock works; lock screen panel not wanted as replacement | ✓ Good — re-check vs ii hyprlock on full install |
 | Primary target Arch only | debian/ubuntu parity is a separate concern | ✓ Good |
 | Replace waybar + rofi + swaync long-term | Consolidate tools; gain unified richer shell | ⚠️ Revisit — dual-run until later cutover |
 
@@ -181,4 +191,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-02 after v0.2 milestone*
+*Last updated: 2026-08-02 after starting v0.3 Full ii install*

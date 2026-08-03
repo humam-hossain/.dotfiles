@@ -1,30 +1,26 @@
 ---
 gsd_state_version: 1.0
-milestone: v0.2
-milestone_name: Adopt dots-hyprland
-status: Awaiting next milestone
-stopped_at: null
-last_updated: "2026-08-02T00:00:00Z"
-last_activity: 2026-08-02
-last_activity_desc: Milestone v0.2 completed and archived
+milestone: v0.3
+milestone_name: Full ii install
+status: planning
+last_updated: "2026-08-03T13:41:46.707Z"
+last_activity: 2026-08-03
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 15
-  completed_plans: 15
-  percent: 100
-current_phase: null
-current_phase_name: null
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: Milestone v0.2 complete — awaiting next milestone
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-08-02 — v0.2 Adopt dots-hyprland archived and closed
+Status: Defining requirements
+Last activity: 2026-08-03 — Milestone v0.3 started
 
 ## Session
 
