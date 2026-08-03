@@ -68,7 +68,28 @@ Phase artifacts: [milestones/v0.2-phases/](milestones/v0.2-phases/)
   3. Inventory lists non-hypr clash candidates if `--core` is dropped (fish, kitty, starship, fontconfig, other present misc targets)
   4. Inventory states that default wrapper install still uses SAFE_DEFAULTS and remains available after this milestone
 
-**Plans:** TBD
+**Plans:** 5 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 10-01-PLAN.md — Tracer: Wave 0 assert + inventory scaffold + SAFE_DEFAULTS residual (INV-04)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 10-02-PLAN.md — Axis A: drop `--skip-hyprland` hypr effects (INV-02)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 10-03-PLAN.md — Axis B: drop `--core` full misc catalog (INV-03)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 10-04-PLAN.md — Axis C: packages/sysupdate effects (INV-01)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 10-05-PLAN.md — Host snapshot, UNKNOWN notes, cross-check, full assert
 
 ### Phase 11: Disposition decisions
 

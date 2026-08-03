@@ -4,15 +4,15 @@ milestone: v0.3
 milestone_name: Full ii install
 current_phase: 10
 current_phase_name: Full-install impact inventory
-status: planning
-stopped_at: Phase 10 context gathered
-last_updated: "2026-08-03T18:19:36.112Z"
-last_activity: 2026-08-03
-last_activity_desc: v0.3 requirements + roadmap created
+status: ready_to_execute
+stopped_at: Phase 10 planning complete — 5 plans ready
+last_updated: "2026-08-03T20:04:22.792Z"
+last_activity: 2026-08-04
+last_activity_desc: Phase 10 planning complete — 5 plans ready
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 0
+  total_plans: 6
   completed_plans: 0
   percent: 0
 ---
@@ -21,17 +21,20 @@ progress:
 
 ## Current Position
 
-Phase: 10 (Full-install impact inventory) — not started  
-Plan: —  
-Status: Roadmap drafted — awaiting approval  
-Last activity: 2026-08-03 — v0.3 requirements + roadmap created
+Phase: 10 (Full-install impact inventory)  
+Plan: — of 5  
+Status: Ready to execute
+Total Plans in Phase: 5
+Last Activity: 2026-08-04 — Phase 10 planning complete
+Last Activity Description: Phase 10 planning complete — 5 plans ready
+Last activity: 2026-08-04 — Phase 10 planning complete
 
 ## Session
 
-**Last session:** 2026-08-03T18:19:36.104Z
-**Stopped at:** Phase 10 context gathered
-**Resume file:** .planning/phases/10-full-install-impact-inventory/10-CONTEXT.md
-**Next command:** `/gsd-discuss-phase 10` or `/gsd-plan-phase 10` (after roadmap approval)
+**Last session:** 2026-08-04  
+**Stopped at:** Phase 10 planning complete — 5 plans ready  
+**Resume file:** .planning/phases/10-full-install-impact-inventory/10-01-PLAN.md  
+**Next command:** `/gsd-execute-phase 10`
 
 ## Project Reference
 
@@ -80,10 +83,9 @@ None open.
 
 ## Operator Next Steps
 
-1. Approve v0.3 roadmap (phases 10–15)
-2. `/gsd-discuss-phase 10` — gather context for impact inventory
-3. Or `/gsd-plan-phase 10` — plan inventory phase directly
-4. Keep Waybar dual-run unless DISP-03 explicitly changes
+1. `/gsd-execute-phase 10` — produce `10-INVENTORY.md` (INV-01..04)
+2. Then `/gsd-discuss-phase 11` or `/gsd-plan-phase 11` for dispositions
+3. Keep Waybar dual-run unless DISP-03 explicitly changes
 
 ## Performance Metrics
 
