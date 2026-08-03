@@ -165,7 +165,7 @@ Experimental paths such as `exp-merge` / `exp-update` are **refused** by the wra
 
 ### Hooks after successful install
 
-A successful `install` (and related success paths) runs wrapper `enable_hypr_ii_hooks` so personal hypr gets the dual-run lines. `uninstall` comments those lines out; **re-install re-enables** them. Do not assume your current session already has hooks active after an uninstall.
+A successful `install` (and related success paths) runs wrapper `enable_hypr_ii_hooks` so personal hypr gets the dual-run lines in **both** `~/.config/hypr/hyprland.conf` and the repo `.config/hypr/hyprland.conf`. It uncomments leftover disabled lines and inserts any missing active hooks. `uninstall` **deletes** those lines; **re-install re-enables** them. Do not assume your current session already has hooks active after an uninstall.
 
 ---
 
@@ -178,7 +178,7 @@ env = ILLOGICAL_IMPULSE_VIRTUAL_ENV,~/.local/state/quickshell/.venv
 exec-once = qs -c ii
 ```
 
-These belong in personal `~/.config/hypr/hyprland.conf` (wrapper injects/enables on successful install; comments them on uninstall).
+These belong in personal `~/.config/hypr/hyprland.conf` (wrapper injects/enables on successful install in live + repo; deletes them on uninstall).
 
 ### Live product path
 
