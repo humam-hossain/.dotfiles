@@ -85,17 +85,36 @@ Deferred beyond v0.3.
 
 ## Traceability
 
-Populated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| *(pending roadmap)* | | |
+| INV-01 | Phase 10 | Pending |
+| INV-02 | Phase 10 | Pending |
+| INV-03 | Phase 10 | Pending |
+| INV-04 | Phase 10 | Pending |
+| DISP-01 | Phase 11 | Pending |
+| DISP-02 | Phase 11 | Pending |
+| DISP-03 | Phase 11 | Pending |
+| DISP-04 | Phase 11 | Pending |
+| FULL-01 | Phase 12 | Pending |
+| FULL-02 | Phase 12 | Pending |
+| FULL-03 | Phase 12 | Pending |
+| FULL-04 | Phase 12 | Pending |
+| FULL-05 | Phase 12 | Pending |
+| OVL-01 | Phase 13 | Pending |
+| OVL-02 | Phase 13 | Pending |
+| OVL-03 | Phase 13 | Pending |
+| ADOPT-01 | Phase 14 | Pending |
+| ADOPT-02 | Phase 14 | Pending |
+| ADOPT-03 | Phase 14 | Pending |
+| ADOPT-04 | Phase 14 | Pending |
+| DOC-03 | Phase 15 | Pending |
+| DOC-04 | Phase 15 | Pending |
 
 **Coverage:**
 - v0.3 requirements: 22 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 22
+- Mapped to phases: 22
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-08-03*  
-*Last updated: 2026-08-03 after v0.3 definition*
+*Last updated: 2026-08-03 after v0.3 roadmap mapping*
