@@ -60,7 +60,7 @@ Uninstall (SAFE — default; does NOT call upstream ./setup uninstall):
   hyprland, kitty, starship, bc, jq, cliphist, etc. that ii install demoted to --asdeps.
   Optionally removes ii-owned configs/state (quickshell ii tree, illogical-impulse conf, venv).
   Stops running qs/quickshell processes (otherwise the top bar stays up after files are gone).
-  Comments out personal hypr hooks (exec-once = qs -c ii and ILLOGICAL_IMPULSE_VIRTUAL_ENV)
+  Deletes personal hypr hooks (exec-once = qs -c ii and ILLOGICAL_IMPULSE_VIRTUAL_ENV)
   in ~/.config/hypr and REPO .config/hypr so login does not error after uninstall.
   NEVER deletes ~/.config/hypr trees, hyprland/hyprlock packages, fish/kitty/starship,
   group memberships, or /etc modules. NEVER runs yay -Rns or orphan auto-remove.
@@ -73,7 +73,7 @@ Uninstall (SAFE — default; does NOT call upstream ./setup uninstall):
     --packages-only   Meta packages only; leave configs/state
     --configs-only    Configs/state only; leave packages
     --keep-venv       Keep ~/.local/state/quickshell/.venv
-    --keep-hypr-hooks Leave qs -c ii / ILLOGICAL_IMPULSE env lines active (default: comment them)
+    --keep-hypr-hooks Leave qs -c ii / ILLOGICAL_IMPULSE env lines active (default: delete them)
     --skip-protect    Do NOT re-mark personal-stack packages as explicit (not recommended)
     --upstream-dangerous
                       Run vendor ./setup uninstall as-is (WILL cascade packages / groups).
@@ -616,23 +616,80 @@ stop_running_qs() {
   fi
 }
 
-# List conf files that still have *active* (uncommented) ii hooks.
+# Live + repo hyprland.conf targets (deduped by realpath). Enable/disable both so they stay in sync.
+list_hypr_ii_hook_target_files() {
+  local -a candidates=(
+    "${XDG_CONFIG_HOME}/hypr/hyprland.conf"
+    "${REPO_ROOT}/.config/hypr/hyprland.conf"
+  )
+  local f real
+  local -A seen=()
+  for f in "${candidates[@]}"; do
+    [[ -f "$f" ]] || continue
+    real="$(realpath "$f" 2>/dev/null || printf '%s' "$f")"
+    [[ -n "${seen[$real]:-}" ]] && continue
+    seen[$real]=1
+    printf '%s\n' "$f"
+  done
+}
+
+# Conf files under live/repo hypr trees with active ii hooks (any *.conf).
 list_active_hypr_ii_hook_files() {
   local -a dirs=(
     "${XDG_CONFIG_HOME}/hypr"
     "${REPO_ROOT}/.config/hypr"
   )
   local d f
+  local -A seen=()
+  local real
   for d in "${dirs[@]}"; do
     [[ -d "$d" ]] || continue
     while IFS= read -r f; do
       [[ -n "$f" ]] || continue
       if grep -Eq '^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii([[:space:]]|$)' "$f" \
         || grep -Eq '^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$f"; then
+        real="$(realpath "$f" 2>/dev/null || printf '%s' "$f")"
+        [[ -n "${seen[$real]:-}" ]] && continue
+        seen[$real]=1
         printf '%s\n' "$f"
       fi
     done < <(find "$d" -type f -name '*.conf' 2>/dev/null || true)
   done
+}
+
+# Conf files with active OR leftover commented ii hooks (old uninstall style).
+list_any_hypr_ii_hook_files() {
+  local -a dirs=(
+    "${XDG_CONFIG_HOME}/hypr"
+    "${REPO_ROOT}/.config/hypr"
+  )
+  local d f real
+  local -A seen=()
+  for d in "${dirs[@]}"; do
+    [[ -d "$d" ]] || continue
+    while IFS= read -r f; do
+      [[ -n "$f" ]] || continue
+      if grep -Eq '^[[:space:]]*(#[[:space:]]*)?exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii' "$f" \
+        || grep -Eq '^[[:space:]]*(#[[:space:]]*)?env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$f"; then
+        real="$(realpath "$f" 2>/dev/null || printf '%s' "$f")"
+        [[ -n "${seen[$real]:-}" ]] && continue
+        seen[$real]=1
+        printf '%s\n' "$f"
+      fi
+    done < <(find "$d" -type f -name '*.conf' 2>/dev/null || true)
+  done
+}
+
+file_has_active_ii_hooks() {
+  local f="$1"
+  grep -Eq '^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii([[:space:]]|$)' "$f" \
+    && grep -Eq '^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$f"
+}
+
+file_has_commented_ii_hooks() {
+  local f="$1"
+  grep -Eq '^[[:space:]]*#[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii' "$f" \
+    || grep -Eq '^[[:space:]]*#[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$f"
 }
 
 # Personal hypr still references ii — warn only (used with --keep-hypr-hooks).
@@ -647,25 +704,25 @@ warn_hypr_ii_hooks() {
     local h
     for h in "${hits[@]}"; do
       echo "[WARN]   $h" >&2
-      grep -En '^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii|[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$h" 2>/dev/null \
+      grep -En '^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii|^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$h" 2>/dev/null \
         | head -5 \
         | while IFS= read -r gl; do echo "[WARN]     $gl" >&2; done
     done
-    echo "[WARN] Re-run without --keep-hypr-hooks, or comment those lines, to avoid login errors." >&2
+    echo "[WARN] Re-run without --keep-hypr-hooks, or delete those lines, to avoid login errors." >&2
   fi
 }
 
-# Comment active ii hooks in live + repo hypr confs (does not delete hypr trees).
+# Delete active + leftover commented ii hooks in live + repo hypr confs (does not delete hypr trees).
 disable_hypr_ii_hooks() {
   local dry_run="${1:-0}"
   local -a files=()
   local f
   while IFS= read -r f; do
     [[ -n "$f" ]] && files+=("$f")
-  done < <(list_active_hypr_ii_hook_files)
+  done < <(list_any_hypr_ii_hook_files)
 
   if ((${#files[@]} == 0)); then
-    echo "[UNINSTALL] No active hypr ii hooks to disable."
+    echo "[UNINSTALL] No hypr ii hooks to disable."
     return 0
   fi
 
@@ -675,70 +732,174 @@ disable_hypr_ii_hooks() {
     return 0
   fi
 
-  local tmp changed
+  local tmp
   for f in "${files[@]}"; do
     tmp="$(mktemp)"
-    changed=0
+    # Drop active and commented ii hooks (old uninstall left "# … # disabled by …").
     # shellcheck disable=SC2016
     awk '
-      /^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii([[:space:]]|$)/ {
-        next
-      }
-      /^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV/ {
-        next
-      }
+      /^[[:space:]]*(#[[:space:]]*)?exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii/ { next }
+      /^[[:space:]]*(#[[:space:]]*)?env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV/ { next }
       { print }
     ' "$f" >"$tmp"
     if ! cmp -s "$f" "$tmp"; then
-      # Preserve mode
       cat "$tmp" >"$f"
-      changed=1
       echo "[UNINSTALL] Deleted ii hooks in: $f"
     fi
     rm -f -- "$tmp"
   done
 }
 
-# Add ii hooks to live hyprland.conf
+# Ensure active ii hooks in live + repo hyprland.conf.
+# - Uncomments leftover "# exec-once / # env" lines from older uninstall style
+# - Dedupes duplicates
+# - Inserts missing lines before ### LOOK AND FEEL ### (appends if marker absent)
+# - Verifies both hooks are active after write (never claims success on comments alone)
 enable_hypr_ii_hooks() {
   local dry_run="${1:-0}"
-  local f="$HOME/.config/hypr/hyprland.conf"
+  local -a files=()
+  local f
+  while IFS= read -r f; do
+    [[ -n "$f" ]] && files+=("$f")
+  done < <(list_hypr_ii_hook_target_files)
 
-  [[ -f "$f" ]] || return 0
+  if ((${#files[@]} == 0)); then
+    echo "[INSTALL] No hyprland.conf found to enable ii hooks."
+    return 0
+  fi
 
-  local has_exec=0 has_env=0
-  grep -Eq '^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii([[:space:]]|$)' "$f" && has_exec=1
-  grep -Eq '^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$f" && has_env=1
+  local needs_work=0
+  for f in "${files[@]}"; do
+    if ! file_has_active_ii_hooks "$f" || file_has_commented_ii_hooks "$f"; then
+      needs_work=1
+      break
+    fi
+  done
 
-  if ((has_exec)) && ((has_env)); then
+  if ((needs_work == 0)); then
+    if ((dry_run)); then
+      echo "[CONFIG] dry-run: ii hooks already active (no change):"
+      printf '[CONFIG] dry-run:   %s\n' "${files[@]}"
+    else
+      echo "[INSTALL] ii hooks already active:"
+      printf '[INSTALL]   %s\n' "${files[@]}"
+    fi
     return 0
   fi
 
   if ((dry_run)); then
-    echo "[CONFIG] dry-run: would enable ii hooks in: $f"
+    echo "[CONFIG] dry-run: would enable ii hooks (uncomment/insert) in:"
+    printf '[CONFIG] dry-run:   %s\n' "${files[@]}"
     return 0
   fi
 
-  local tmp
-  tmp="$(mktemp)"
-  # shellcheck disable=SC2016
-  awk -v has_exec="$has_exec" -v has_env="$has_env" '
-    /^### LOOK AND FEEL ###/ {
-      if (has_exec == 0) {
-        print "exec-once = qs -c ii"
-      }
-      if (has_env == 0) {
-        print "env = ILLOGICAL_IMPULSE_VIRTUAL_ENV,~/.local/state/quickshell/.venv"
-      }
-    }
-    { print }
-  ' "$f" >"$tmp"
+  local tmp exec_line env_line
+  exec_line='exec-once = qs -c ii'
+  env_line='env = ILLOGICAL_IMPULSE_VIRTUAL_ENV,~/.local/state/quickshell/.venv'
 
-  if ! cmp -s "$f" "$tmp"; then
-    cat "$tmp" >"$f"
-    echo "[INSTALL] Enabled ii hooks in: $f"
-  fi
-  rm -f -- "$tmp"
+  for f in "${files[@]}"; do
+    tmp="$(mktemp)"
+    # shellcheck disable=SC2016
+    awk -v exec_line="$exec_line" -v env_line="$env_line" '
+      function is_active_exec(line) {
+        return line ~ /^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii([[:space:]]|$)/
+      }
+      function is_active_env(line) {
+        return line ~ /^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV/
+      }
+      function is_commented_exec(line) {
+        return line ~ /^[[:space:]]*#[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii/
+      }
+      function is_commented_env(line) {
+        return line ~ /^[[:space:]]*#[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV/
+      }
+      function strip_hook_comment(line,    s) {
+        s = line
+        sub(/^[[:space:]]*#[[:space:]]*/, "", s)
+        sub(/[[:space:]]*#[[:space:]]*disabled by arch\/dots-hyprland\.sh uninstall[[:space:]]*$/, "", s)
+        return s
+      }
+      {
+        if (is_commented_exec($0)) {
+          if (!seen_exec) {
+            print strip_hook_comment($0)
+            seen_exec = 1
+          }
+          next
+        }
+        if (is_commented_env($0)) {
+          if (!seen_env) {
+            print strip_hook_comment($0)
+            seen_env = 1
+          }
+          next
+        }
+        if (is_active_exec($0)) {
+          if (!seen_exec) {
+            print
+            seen_exec = 1
+          }
+          next
+        }
+        if (is_active_env($0)) {
+          if (!seen_env) {
+            print
+            seen_env = 1
+          }
+          next
+        }
+        if ($0 ~ /^### LOOK AND FEEL ###/) {
+          if (!seen_exec) {
+            print exec_line
+            seen_exec = 1
+          }
+          if (!seen_env) {
+            print env_line
+            seen_env = 1
+          }
+          print
+          next
+        }
+        print
+      }
+      END {
+        if (!seen_exec) print exec_line
+        if (!seen_env) print env_line
+      }
+    ' "$f" >"$tmp"
+
+    if ! cmp -s "$f" "$tmp"; then
+      cat "$tmp" >"$f"
+    fi
+    rm -f -- "$tmp"
+
+    if file_has_active_ii_hooks "$f"; then
+      # Refuse success if any ii hook line is still commented.
+      if file_has_commented_ii_hooks "$f"; then
+        echo "[WARN] ii hooks partially enabled (commented leftovers remain) in: $f" >&2
+        grep -En '^[[:space:]]*#[[:space:]]*(exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii|env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV)' "$f" 2>/dev/null \
+          | head -5 \
+          | while IFS= read -r gl; do echo "[WARN]   $gl" >&2; done
+      else
+        echo "[INSTALL] Enabled ii hooks in: $f"
+      fi
+      grep -En '^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii|^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$f" 2>/dev/null \
+        | head -5 \
+        | while IFS= read -r gl; do echo "[INSTALL]   $gl"; done
+    else
+      echo "[WARN] Failed to enable active ii hooks in: $f" >&2
+      grep -Eq '^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii([[:space:]]|$)' "$f" \
+        || echo "[WARN]   missing: exec-once = qs -c ii" >&2
+      grep -Eq '^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$f" \
+        || echo "[WARN]   missing: env = ILLOGICAL_IMPULSE_VIRTUAL_ENV,~/.local/state/quickshell/.venv" >&2
+      if file_has_commented_ii_hooks "$f"; then
+        echo "[WARN]   commented ii hook lines still present (uncomment failed):" >&2
+        grep -En '^[[:space:]]*#[[:space:]]*(exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii|env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV)' "$f" 2>/dev/null \
+          | head -5 \
+          | while IFS= read -r gl; do echo "[WARN]     $gl" >&2; done
+      fi
+    fi
+  done
 }
 
 uninstall_gate() {
@@ -782,7 +943,7 @@ uninstall_gate() {
   echo "[UNINSTALL] WILL NOT touch:"
   echo "  - hyprland / hyprlock / hypridle packages (left installed; re-marked explicit)"
   echo "  - fish / kitty / starship / bc / jq / cliphist and other personal-stack deps"
-  echo "  - hypr config trees (no rm of ~/.config/hypr); only optional line comments"
+  echo "  - hypr config trees (no rm of ~/.config/hypr); only deletes qs -c ii / ILLOGICAL env lines"
   echo "  - group memberships (video/i2c/input)"
   echo "  - /etc/modules-load.d/i2c-dev.conf"
   echo "  - never runs yay -Rns or automatic orphan removal"
@@ -844,7 +1005,7 @@ uninstall_gate() {
     if ((${#hook_files[@]} == 0)); then
       echo "[UNINSTALL] Hypr ii hooks: none active"
     else
-      echo "[UNINSTALL] Hypr ii hooks to comment out (exec-once qs -c ii / ILLOGICAL_IMPULSE env):"
+      echo "[UNINSTALL] Hypr ii hooks to delete (exec-once qs -c ii / ILLOGICAL_IMPULSE env):"
       printf '  - %s\n' "${hook_files[@]}"
     fi
   fi
@@ -1083,7 +1244,7 @@ run_safe_uninstall() {
     if ((${#still[@]} > 0)); then
       echo "[WARN] Active ii hooks still present in: ${still[*]}" >&2
     else
-      echo "[DONE] Hypr ii hooks commented out (or were already inactive)."
+      echo "[DONE] Hypr ii hooks deleted (or were already inactive)."
     fi
   fi
 
@@ -1250,11 +1411,13 @@ run_install_family() {
   # --dry-run: print would-exec, exit 0 without calling setup (D-16)
   if ((dry_run)); then
     echo "[CONFIG] dry-run: would exec from $II_ROOT: ${cmd[*]}"
-    # Package-touching paths also re-mark personal stack after setup (anti-orphan).
+    # Mirror post-setup work from the real path below (protect + enable).
     case "$subcmd" in
-      install|install-deps)
+      install|install-deps|install-files)
         echo "[CONFIG] dry-run: after setup, would re-mark protect-list as explicit (ii demotes deps)"
         protect_explicit_packages 1 "PROTECT"
+        echo "[CONFIG] dry-run: after setup, would enable ii hooks in live + repo hyprland.conf"
+        enable_hypr_ii_hooks 1
         ;;
     esac
     exit 0

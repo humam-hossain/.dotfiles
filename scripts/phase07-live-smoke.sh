@@ -102,12 +102,18 @@ if printf 'yes\n' | ./arch/dots-hyprland.sh install --dry-run >"$DRY_OUT" 2>&1; 
     fail "D-06 install --dry-run missing post-install protect plan"
     sed -n '1,80p' "$DRY_OUT" || true
   fi
+  if grep -qiE 'enable ii hooks|ii hooks already active|would enable ii hooks' "$DRY_OUT"; then
+    pass "D-06 install --dry-run plans enable ii hooks"
+  else
+    fail "D-06 install --dry-run missing enable ii hooks plan"
+    sed -n '1,80p' "$DRY_OUT" || true
+  fi
 else
   fail "D-06 install --dry-run exited non-zero"
   sed -n '1,40p' "$DRY_OUT" || true
 fi
 
-# install-deps dry-run also plans protect (package-touching path)
+# install-deps dry-run also plans protect + enable (package-touching path)
 if ./arch/dots-hyprland.sh install-deps --dry-run >"$DRY_OUT" 2>&1; then
   if grep -qE 'pacman -D --asexplicit|would re-mark as explicit|re-mark protect-list as explicit' "$DRY_OUT"; then
     pass "install-deps --dry-run plans post-install protect asexplicit"
@@ -115,17 +121,30 @@ if ./arch/dots-hyprland.sh install-deps --dry-run >"$DRY_OUT" 2>&1; then
     fail "install-deps --dry-run missing post-install protect plan"
     sed -n '1,60p' "$DRY_OUT" || true
   fi
+  if grep -qiE 'enable ii hooks|ii hooks already active|would enable ii hooks' "$DRY_OUT"; then
+    pass "install-deps --dry-run plans enable ii hooks"
+  else
+    fail "install-deps --dry-run missing enable ii hooks plan"
+    sed -n '1,60p' "$DRY_OUT" || true
+  fi
 else
   fail "install-deps --dry-run exited non-zero"
 fi
 
-# install-files dry-run must NOT claim package protect (files-only path)
+# install-files dry-run mirrors real post-setup: protect re-mark + enable ii hooks
+# (real path runs both for install|install-deps|install-files).
 if printf 'yes\n' | ./arch/dots-hyprland.sh install-files --dry-run >"$DRY_OUT" 2>&1; then
   if grep -qE 're-mark protect-list as explicit|after setup, would re-mark' "$DRY_OUT"; then
-    fail "install-files --dry-run should not plan post-install protect"
-    sed -n '1,40p' "$DRY_OUT" || true
+    pass "install-files --dry-run plans post-install protect asexplicit"
   else
-    pass "install-files --dry-run skips post-install protect"
+    fail "install-files --dry-run missing post-install protect plan"
+    sed -n '1,40p' "$DRY_OUT" || true
+  fi
+  if grep -qiE 'enable ii hooks|ii hooks already active|would enable ii hooks' "$DRY_OUT"; then
+    pass "install-files --dry-run plans enable ii hooks"
+  else
+    fail "install-files --dry-run missing enable ii hooks plan"
+    sed -n '1,60p' "$DRY_OUT" || true
   fi
 else
   fail "install-files --dry-run exited non-zero"
@@ -175,7 +194,7 @@ if ./arch/dots-hyprland.sh uninstall --dry-run >"$UN_OUT" 2>&1; then
       soft "uninstall protect-list: $_prot not installed (skip membership assert)"
     fi
   done
-  if grep -qiE 'No running qs/quickshell|would stop qs|No active hypr ii hooks|would comment ii hooks|keep hypr ii hooks' "$UN_OUT"; then
+  if grep -qiE 'No running qs/quickshell|would stop qs|No hypr ii hooks|would delete ii hooks|keep hypr ii hooks' "$UN_OUT"; then
     pass "uninstall --dry-run surfaces qs stop and/or hypr-hook plan"
   else
     soft "uninstall --dry-run: no qs/hook plan lines (unexpected but non-fatal)"
@@ -186,7 +205,7 @@ if ./arch/dots-hyprland.sh uninstall --dry-run >"$UN_OUT" 2>&1; then
   else
     pass "uninstall --dry-run no false-positive shell kill"
   fi
-  # Help / usage documents process stop + hook comment + protect-list
+  # Help / usage documents process stop + hook delete + protect-list
   if ./arch/dots-hyprland.sh help 2>&1 | grep -q 'Stops running qs'; then
     pass "wrapper help documents qs process stop"
   else
@@ -317,7 +336,7 @@ else
   fi
 fi
 
-# --- LIVE-02 (hooks active when installed; commented when uninstalled) ---
+# --- LIVE-02 (hooks active when installed; deleted when uninstalled) ---
 if ((II_INSTALLED)); then
   if grep -E '^[[:space:]]*env = ILLOGICAL_IMPULSE_VIRTUAL_ENV,' .config/hypr/hyprland.conf >/dev/null; then
     pass "LIVE-02 repo env ILLOGICAL_IMPULSE_VIRTUAL_ENV active"
@@ -330,15 +349,21 @@ if ((II_INSTALLED)); then
   else
     fail "LIVE-02 repo exec-once qs -c ii active"
   fi
-else
-  # After safe uninstall, hooks should be commented (default) or still present with --keep-hypr-hooks
-  if grep -E '^[[:space:]]*#.*exec-once = qs -c ii' .config/hypr/hyprland.conf >/dev/null \
-    || grep -E '^[[:space:]]*#.*ILLOGICAL_IMPULSE_VIRTUAL_ENV' .config/hypr/hyprland.conf >/dev/null; then
-    pass "LIVE-02 repo ii hooks commented after uninstall"
-  elif grep -E '^[[:space:]]*exec-once = qs -c ii' .config/hypr/hyprland.conf >/dev/null; then
-    soft "LIVE-02 repo still has active qs -c ii (kept via --keep-hypr-hooks?)"
+  # Must not leave disabled leftovers after enable
+  if grep -E '^[[:space:]]*#.*exec-once = qs -c ii|^[[:space:]]*#.*ILLOGICAL_IMPULSE_VIRTUAL_ENV' .config/hypr/hyprland.conf >/dev/null; then
+    fail "LIVE-02 repo still has commented ii hooks after install/enable"
   else
-    soft "LIVE-02 repo has no ii hook lines at all"
+    pass "LIVE-02 repo has no commented ii hook leftovers"
+  fi
+else
+  # After safe uninstall, hooks should be deleted (default) or still present with --keep-hypr-hooks
+  if grep -E '^[[:space:]]*exec-once = qs -c ii' .config/hypr/hyprland.conf >/dev/null \
+    || grep -E '^[[:space:]]*env = ILLOGICAL_IMPULSE_VIRTUAL_ENV' .config/hypr/hyprland.conf >/dev/null; then
+    soft "LIVE-02 repo still has active ii hooks (kept via --keep-hypr-hooks?)"
+  elif grep -E '^[[:space:]]*#.*exec-once = qs -c ii|^[[:space:]]*#.*ILLOGICAL_IMPULSE_VIRTUAL_ENV' .config/hypr/hyprland.conf >/dev/null; then
+    soft "LIVE-02 repo has leftover commented ii hooks (pre-delete uninstall style)"
+  else
+    pass "LIVE-02 repo ii hooks deleted after uninstall"
   fi
 fi
 
