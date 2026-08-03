@@ -1,128 +1,135 @@
 # Project Research Summary
 
 **Project:** Quickshell Desktop Shell / `.dotfiles`  
-**Domain:** Adopt upstream desktop rice (end-4/dots-hyprland) as a managed dependency  
-**Researched:** 2026-07-25  
+**Domain:** Full dots-hyprland install (drop SAFE_DEFAULTS) with personal config inventory → disposition → adopt  
+**Researched:** 2026-08-03  
 **Confidence:** HIGH  
-**Milestone:** v0.2 Adopt dots-hyprland (foundation only)
+**Milestone:** v0.3 Full ii install
 
 ## Executive Summary
 
-v0.2 is **not** a widget/product-bar milestone. It is a **dependency + install + session-wiring** milestone: own end-4/dots-hyprland via a personal fork, pin it as `vendor/dots-hyprland`, drive upstream `./setup` through a thin `arch/` wrapper, get a live `qs -c ii` session while Waybar dual-runs, then delete the hand-rolled `.config/quickshell` product and retire `arch/quickshell.sh`.
+v0.3 is **not** a Waybar-customs or bar-cutover milestone. It is a **session-ownership** milestone: move from dual-run adopt (`--core --skip-hyprland --skip-sysupdate`) to a **full ii Hyprland install path**, but only after an explicit **impact inventory** and **per-surface dispositions**. The operator already stated the process: identify what full install would change (especially `.config/hypr` and other replaced configs), decide what to do, then install.
 
-Experts treat rice adoption as: **ownership remote → pin surface → upstream installer as SoT → host wrapper → runtime under XDG → overlays later**. Reimplementing install package lists or continuing a local QS rewrite creates a second maintenance surface—the failure mode v0.1 already demonstrated at ~57k LOC.
-
-The dominant risk is **destructive first install**: setup can rename `hyprland.conf` → `.old`, rsync-delete config trees, and leave a machine without personal session semantics. Mitigation is architectural: default `--core --skip-hyprland`, mandatory backup before files, retarget/remove the live QS symlink before install-files, verify live ii **before** deleting the repo tree, and never re-enable DDC/CI brightness polling.
+Experts treat rice full-cutover as: **diff personal vs upstream dots → migrate must-keeps into extension points (`hypr/custom/*.lua`) → explicit installer profile → backup → mutate live XDG → verify session**. The dominant risk is **compound failure**: dropping all three safe flags at once (hypr rewrite + misc conf sync + unattended `pacman -Syu`) while also removing dual-run chrome. Mitigation is architectural: inventory gate, staged flag profiles, pre-seed custom overlays, keep backup/protect policies, keep Waybar dual-run by default until a later milestone.
 
 ## Key Findings
 
 ### Recommended Stack
 
-Git submodule + personal fork remotes + upstream `./setup` + Arch/yay. Runtime: Quickshell from upstream meta packages, `ILLOGICAL_IMPULSE_VIRTUAL_ENV` at `~/.local/state/quickshell/.venv`, live tree at `~/.config/quickshell` (installed copy, not repo symlink). Host glue: new `arch/dots-hyprland.sh`; personal Hyprland entry keeps ownership and only adds env + `exec-once = qs -c ii`.
+Keep managed-dependency stack from v0.2. Extend **wrapper policy** for an explicit full profile; do not reimplement `./setup`. Use **diff/inventory artifacts**, **`hypr/custom` Lua overlays**, upstream **backup dir**, and existing **protect** hooks.
 
 **Core technologies:**
-- **dots-hyprland (submodule pin):** third-party SoT for shell + installer
-- **`./setup`:** deps/setups/files — do not reimplement
-- **Personal fork remotes:** origin/upstream for ownership and updates
-- **Thin arch wrapper:** matches existing `.dotfiles` style
-- **Personal hypr + Waybar:** session SoT and dual-run safety net
+- **dots-hyprland submodule + `./setup`:** SoT for full file/package install  
+- **`arch/dots-hyprland.sh`:** Safe default unchanged; full opt-in profile  
+- **`hyprland.lua` + `hypr/custom/*`:** Personal must-keeps after conf → `.old`  
+- **Impact/disposition docs:** Process SoT before mutation  
+- **protect / backup gate:** Non-negotiable on full path  
 
 ### Expected Features
 
 **Must have (table stakes):**
-- Personal fork + `origin`/`upstream` remotes
-- Submodule at `vendor/dots-hyprland` with SHA pin (+ recursive nested submodules)
-- Thin `arch/` wrapper → `./setup` (install / deps / setups / files + flag passthrough)
-- Successful install → live `~/.config/quickshell` from upstream
-- Session starts `qs -c ii` while Waybar still runs
-- Retire local QS product tree + `arch/quickshell.sh`
-- Workflow docs (clone, init, install, pin-bump update, dual-run, cleanup)
+- Impact inventory (hypr + misc + packages/sysupdate)  
+- Disposition plan per surface  
+- Full-install opt-in (safe remains default)  
+- Migrate personal must-keeps into `hypr/custom` (or accept loss deliberately)  
+- Backup gate + protect after deps  
+- Session boots on Lua entry; playbook full vs safe  
 
-**Should have (differentiators):**
-- Safe default flag profile (`--core --skip-hyprland`)
-- Backup gate / reminder before files step
-- Wrapper `verify` subcommand (binary, config path, submodule SHA)
+**Should have (competitive):**
+- Staged profiles (hypr-only vs drop `--core` vs allow Syu)  
+- Pre-seed custom before first full hypr files  
+- Explicit repo vs live hypr SoT policy  
+- hyprlock/hypridle disposition rows  
 
 **Defer (later milestones):**
-- Waybar custom ports (ping, weather, earthquake, …)
-- Full Waybar/rofi/swaync cutover
-- Full ii Hyprland Lua entry cutover
-- `exp-merge` / `exp-update` as primary update
-- Deep theming / machine overlays productization
+- Waybar customs ports (CUST-01..03)  
+- Remove Waybar/rofi/swaync (CUT-01) unless disposition forces  
+- Wrapper `verify` subcommand (POLISH-01) unless cheap add-on  
+- QS lock screen / ddcutil brightness  
 
 ### Architecture Approach
 
-```
-.dotfiles
-  arch/dots-hyprland.sh  →  vendor/dots-hyprland/./setup
-  .config/hypr (personal SoT)  →  ~/.config/hypr  (+ ii env & qs exec-once)
-  vendor pin  →  setup install-files  →  ~/.config/quickshell (live ii)
-  Waybar path unchanged (dual-run)
-```
+Policy wrapper selects safe vs full argv → upstream setup mutates live XDG → personal overlays live in `hypr/custom` required by `hyprland.lua`. Inventory and disposition are first-class artifacts, not chat residue. Build order: inventory → dispositions/overlays → wrapper full profile → live adopt → playbook.
 
 **Major components:**
-1. **Fork + submodule** — ownership and pin
-2. **Wrapper + setup** — provision runtime
-3. **Personal session hooks** — start ii without surrendering hypr ownership
-4. **Retirement** — delete local product after verify
-5. **Docs** — operator contract
-
-**Critical coexistence rule:** `--skip-hyprland-entry` is **not** enough to protect `hyprland.conf`. Use **`--skip-hyprland`**.
+1. Impact inventory artifact  
+2. Disposition matrix  
+3. Wrapper full profile  
+4. `hypr/custom` overlay set  
+5. Live full adopt + verify  
+6. Playbook  
 
 ### Critical Pitfalls
 
-1. **Blind `./setup install` on a customized host** — backup first; default skip-hyprland; never `--skip-backup` on first run
-2. **Delete repo `.config/quickshell` while `~/.config/quickshell` still symlinks to it** — retarget/install real tree first; then delete
-3. **Relying on `--skip-hyprland-entry` alone** — conf still renamed; use full `--skip-hyprland`
-4. **Nested submodule not initialized** — always `--recursive`; broken shapes/widgets otherwise
-5. **Re-enabling ddcutil DDC polling / brightness widgets** — known iGPU hang class; guard even if upstream pulls backlight packages
-6. **Delete-before-verify** — Waybar dual-run helps, but live ii path must be proven before product deletion
+1. **Blind full install** — gate adopt on inventory approval  
+2. **All flags at once** — stage hypr / core / sysupdate independently  
+3. **Late custom seed** — prepare overlays before destructive hypr files  
+4. **Repo vs live SoT confusion** — decide tracking policy  
+5. **Drop dual-run with hypr cutover** — default keep Waybar until later  
+6. **Skip backup / upstream uninstall / Syu mid-cutover / asdeps** — keep v0.2 safety machinery  
 
 ## Implications for Roadmap
 
-Continue phase numbering after v0.1 (phases 1–4 shipped). Suggested **Phases 5–9**:
+Phase numbering **continues at 10** (v0.2 ended at 9).
 
-### Phase 5: Fork & Submodule Pin
-**Rationale:** Ownership and pin before any install  
-**Delivers:** Personal fork, remotes, `vendor/dots-hyprland`, `.gitmodules`, recursive init documented/working  
-**Addresses:** Fork + submodule table stakes  
-**Avoids:** Floating cache clone; non-recursive submodule breakage  
+### Phase 10: Full-install impact inventory
+**Rationale:** User process starts with identify changes; blocks all mutation.  
+**Delivers:** Documented matrix of paths/flags/effects vs personal configs.  
+**Addresses:** Inventory table stakes; pitfalls 1, 9, 12.  
+**Avoids:** Blind install.
 
-### Phase 6: Thin Setup Wrapper & Safe Defaults
-**Rationale:** Install path must be host-native and non-destructive by default  
-**Delivers:** `arch/dots-hyprland.sh`, flag profile `--core --skip-hyprland`, backup guidance, staged subcommands  
-**Addresses:** Wrapper + safe install features  
-**Avoids:** Blind full rice overwrite; reimplemented package lists  
+### Phase 11: Disposition decisions & overlay design
+**Rationale:** “Then decide” before tooling or live install.  
+**Delivers:** Approved dispositions; draft `hypr/custom` mapping for must-keeps; staged flag profile choices.  
+**Addresses:** Disposition + migration design; pitfalls 2, 3, 4, 5.  
 
-### Phase 7: Install, Session Hooks & Dual-Run Verify
-**Rationale:** Live shell is the success signal before cleanup  
-**Delivers:** deps/setups/files run; `ILLOGICAL_IMPULSE_VIRTUAL_ENV` + `qs -c ii` in personal hypr; Waybar still up; verify checklist  
-**Addresses:** Live session + dual-run  
-**Avoids:** Symlink collisions; barless gap; hypr conf rename  
+### Phase 12: Wrapper full-profile & safe defaults preserved
+**Rationale:** Need a dry-runnable, documented opt-in before live adopt.  
+**Delivers:** Full profile flag/path on `arch/dots-hyprland.sh`; safe still default; backup/protect unchanged.  
+**Uses:** STACK wrapper extension.  
+**Avoids:** Accidental full install via muscle memory.
 
-### Phase 8: Retire Local Quickshell Product
-**Rationale:** Single product path only after verify  
-**Delivers:** Delete `.config/quickshell` tree from repo; retire `arch/quickshell.sh`; no second installer  
-**Addresses:** Product retirement  
-**Avoids:** Delete-while-symlink-live; zombie install script  
+### Phase 13: Prepare overlays & pre-full backup
+**Rationale:** Custom must exist with content before/at hypr files; backup recovery path confirmed.  
+**Delivers:** Live (and/or fork) custom lua; backup readiness checklist.  
+**Implements:** Architecture overlay component.
 
-### Phase 9: Workflow Documentation & Update Contract
-**Rationale:** Adoption fails without an operator playbook  
-**Delivers:** Docs for clone/init/install/update (pin bump)/dual-run/cleanup; optional verify notes  
-**Addresses:** Documentation table stakes  
-**Avoids:** Undocumented exp-merge as primary; auto-bump surprises  
+### Phase 14: Live full adopt & session verify
+**Rationale:** Only mutating cutover after 10–13.  
+**Delivers:** Full install per dispositions; Lua session boots; protect; UAT monitors/binds/qs/lock policy.  
+**Avoids:** Compound flag blast; early dual-run removal.
 
-**Hard sequencing:** backup → wrapper defaults → retarget symlink → install → verify ii → delete local tree → docs.
+### Phase 15: Playbook & residual policy
+**Rationale:** Encode full vs safe forever; rollback without upstream uninstall.  
+**Delivers:** Updated `docs/dots-hyprland-workflow.md`; SoT policy; non-goals restated.
+
+### Phase Ordering Rationale
+
+- Inventory → decide → tool → prepare → mutate → document matches user intent and research dependencies.  
+- Wrapper before live adopt enables dry-run proof.  
+- Overlays before/with adopt respects `ignore_existing` custom semantics.  
+- Playbook last (or parallel draft earlier, complete after real path exists) matches v0.2 DOC pattern.
+
+### Research Flags
+
+- **Phase 11:** Deep mapping of personal `hyprland.conf` → Lua custom APIs (hl.bind, execs, monitors) — needs discuss/plan research.  
+- **Phase 14:** Live UAT on real multi-monitor machine — human_verify heavy.  
+- **Phases 10, 12, 15:** Standard patterns; lighter research.
+
+Phases with standard patterns (skip heavy research-phase): 10 (analysis), 12 (wrapper flags), 15 (docs).
+
+## Watch Out For
+
+- Treating “full install” as a single boolean instead of three flag axes  
+- Porting CUST bar widgets mid-cutover  
+- Calling vendor setup outside wrapper without documenting equivalent full profile  
+- Assuming `hyprland.conf.old` remains a supported long-term config path  
 
 ## Sources
 
-- `.planning/research/STACK.md` (orchestrator completion post rate-limit)
-- `.planning/research/FEATURES.md` (gsd-project-researcher)
-- `.planning/research/ARCHITECTURE.md` (gsd-project-researcher)
-- `.planning/research/PITFALLS.md` (gsd-project-researcher; file landed before session rate-limit error)
-- Local `~/github_repo/dots-hyprland` setup + sdata
-- `.planning/PROJECT.md` v0.2 scope
+- `.planning/research/{STACK,FEATURES,ARCHITECTURE,PITFALLS}.md` (v0.3)  
+- `arch/dots-hyprland.sh`, vendored install scripts, personal hypr, playbook  
+- PROJECT.md v0.3 goals; v0.2 future CUT-02 context  
 
 ---
-*Research summary for: v0.2 Adopt dots-hyprland*
-*Researched: 2026-07-25*
+*Research summary for v0.3 — 2026-08-03 (inline after subagent rate-limit; content from repo SoT)*

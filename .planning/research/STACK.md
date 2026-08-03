@@ -1,9 +1,9 @@
 # Stack Research
 
-**Domain:** Personal Arch `.dotfiles` adopting end-4/dots-hyprland (illogical-impulse) as a managed dependency
-**Researched:** 2026-07-25
-**Confidence:** HIGH (local clone `~/github_repo/dots-hyprland`, `./setup` CLI, `sdata/dist-arch/*`, existing `arch/*.sh` patterns)
-**Note:** Stack researcher subagent hit rate limits; this file was completed by the orchestrator from the same primary sources FEATURES/ARCHITECTURE/PITFALLS used, plus live `./setup` inspection.
+**Domain:** Full dots-hyprland install / Hyprland Lua session cutover on existing dual-run `.dotfiles`  
+**Researched:** 2026-08-03  
+**Confidence:** HIGH  
+**Milestone:** v0.3 Full ii install
 
 ## Recommended Stack
 
@@ -11,139 +11,99 @@
 
 | Technology | Version / pin | Purpose | Why Recommended |
 |------------|---------------|---------|-----------------|
-| **end-4/dots-hyprland** (illogical-impulse) | Submodule SHA pin; track `main` via `upstream` | Upstream rice + Quickshell `ii` shell + installer | Product vehicle for v0.2; already validated as “good enough” vs hand-rolled tree |
-| **Git submodule** | Git 2.x recursive | Pin `vendor/dots-hyprland` inside `.dotfiles` | Reproducible install; nested `shapes` submodule requires `--recursive` |
-| **Personal GitHub fork** | `origin` = fork, `upstream` = `https://github.com/end-4/dots-hyprland.git` | Own custom commits; pull end-4 updates | Decided milestone model; enables later `exp-merge` if wanted |
-| **Upstream `./setup`** | As shipped in pin | install / install-deps / install-setups / install-files | Source of truth for deps + file sync — do **not** reimplement |
-| **Quickshell (`qs`)** | Via upstream `illogical-impulse-quickshell-git` (AUR meta) | Runtime for `qs -c ii` | ii shell requires it; let setup install the right package set |
-| **Hyprland** | Already on machine (0.56.x class) | Compositor / session | Keep personal `.config/hypr` as entry in v0.2; do not let setup rename conf |
-| **Arch + yay** | Existing `arch/aur.sh` pattern | AUR packages for ii meta PKGBUILDs | Upstream dist-arch assumes Arch/AUR; matches primary target |
+| end-4/dots-hyprland (personal fork) | submodule `vendor/dots-hyprland` @ current pin | Product + installer SoT | Already adopted in v0.2; full install uses same SoT without reimplementation |
+| Upstream `./setup` | vendored | deps / setups / files | Package lists and file install live here; wrapper must not reimplement |
+| `arch/dots-hyprland.sh` | repo-owned | Host entry + policy | Existing SAFE_DEFAULTS, backup gate, protect/uninstall; extend for full profile |
+| Hyprland + hyprland.lua | system + ii dots | Session entry after full install | Full install renames `hyprland.conf` → `.old` and loads Lua entry |
+| `~/.config/hypr/custom/*.lua` | ii overlay contract | Personal must-keeps after cutover | `install_dir__ignore_existing`; entry `hyprland.lua` requires custom modules if present |
+| Upstream backup dir | `~/ii-original-dots-backup` | Clash backup before files | `auto_backup_configs` in `3.files.sh`; keep gate, never bare `--skip-backup` |
+| pacman / yay | Arch | deps + optional `-Syu` | Full install without `--skip-sysupdate` runs `sudo pacman -Syu` |
 
-### Supporting Libraries / runtime paths
+### Supporting Libraries / Tools
 
-| Library / path | Purpose | When to Use |
-|----------------|---------|-------------|
-| `ILLOGICAL_IMPULSE_VIRTUAL_ENV` → `~/.local/state/quickshell/.venv` | Python venv for ii QS scripts (uv, py 3.12) | **Required** env in personal `hyprland.conf` after setups |
-| `~/.config/quickshell` | Live installed QS tree (rsync from `dots/.config/quickshell`) | Runtime config; **not** a symlink to `.dotfiles/.config/quickshell` after cutover |
-| `~/.local/state/quickshell` | Generated colors, user state, venv | Owned by runtime; do not vendor into git |
-| Nested submodule `dots/.../shapes` → `end-4/rounded-polygon-qmljs` | QML shapes widgets | `git submodule update --init --recursive` always |
-| `gh` CLI | Create fork, set remotes | Optional but preferred for fork bootstrap |
-| Existing Waybar stack | Dual-run safety net | Keep until later parity milestone |
+| Tool | Purpose | When to Use |
+|------|---------|-------------|
+| `diff` / `diff -ruN` / `git diff --no-index` | Inventory personal vs ii dots | Impact inventory phase before live full install |
+| Wrapper `--dry-run` | Print argv with/without SAFE_DEFAULTS | Prove full-profile flag wiring without mutating machine |
+| `arch/dots-hyprland.sh protect` | Re-mark PROTECT_EXPLICIT as `--asexplicit` | After every install/deps path (already post-hook); re-run if orphan cleanup risk |
+| `hyprctl` / session restart | Verify Lua session boots | Post-adopt UAT |
+| `qs -c ii` + `ILLOGICAL_IMPULSE_VIRTUAL_ENV` | Shell chrome | Already live; full hypr may also set env via ii `hyprland/env` + custom |
 
-### Development / host tools
+### Development / Operator Tools
 
 | Tool | Purpose | Notes |
 |------|---------|-------|
-| `git` + submodule | Pin, update, recursive init | Document `git clone --recurse-submodules` and repair commands |
-| `gh repo fork` | One-shot personal fork | Or GitHub UI; then add `upstream` |
-| Thin `arch/dots-hyprland.sh` | Host-style wrapper | REPO_ROOT, labeled `[INSTALL]`/`[CONFIG]` echos, flag passthrough |
-| `arch/hyprland.sh` / `arch/waybar.sh` | Personal session + dual-run | Run **before** or independently of ii; re-apply after any accidental hypr overwrite |
-| Manual backup dir `~/dots-pre-ii-backup-$stamp` | Pre-setup safety | Wrapper should encourage/require before files step |
-| Official docs [ii.clsty.link](https://ii.clsty.link) | Operator reference | Link from `.dotfiles` docs; do not fork the wiki |
+| Impact inventory doc/script | Map every path full install touches | Prefer repo-documented matrix over ad-hoc notes |
+| Disposition table | keep / migrate-to-custom / accept-upstream / defer | One row per clashing surface |
+| Playbook section | Full vs safe profiles | Extend `docs/dots-hyprland-workflow.md` |
 
-## Installation
-
-### What `./setup` owns (do not duplicate in arch/)
-
-Upstream stepwise install (idempotent):
-
-1. **install-deps** — Arch meta packages under `sdata/dist-arch/illogical-impulse-*` (basic, quickshell-git, fonts-themes, python, hyprland meta, backlight, audio, widgets, portal, toolkit, …)
-2. **install-setups** — permissions/services, venv under `~/.local/state/quickshell/.venv`
-3. **install-files** — sync configs; **critical** QS: `rsync -a --delete` → `~/.config/quickshell`; hypr path can rename `hyprland.conf` → `.old`
-
-**v0.2 default flag profile (from ARCHITECTURE/PITFALLS):**
+## Installation (conceptual)
 
 ```bash
-./setup install --core --skip-hyprland
-# optionally staged:
-./setup install-deps ...
-./setup install-setups ...
-./setup install-files --core --skip-hyprland
+# Safe (v0.2 default — keep available)
+./arch/dots-hyprland.sh install
+# → injects --core --skip-hyprland --skip-sysupdate
+
+# Full profile (v0.3 target — explicit opt-in; design TBD)
+# Must NOT silently drop SAFE_DEFAULTS without operator intent
+./arch/dots-hyprland.sh install --full   # or documented vendor path
+# → no --skip-hyprland; decide --core / --skip-sysupdate per disposition
+# → backup gate still required
+# → protect explicit packages after deps
 ```
 
-| Flag | v0.2 stance |
-|------|-------------|
-| `--core` | **Default on** — skip fish/fontconfig/misc/plasma integration noise |
-| `--skip-hyprland` | **Default on** — protect personal `hyprland.conf` / hyprlock |
-| `--skip-hyprland-entry` alone | **Insufficient** — conf rename still happens; do not rely on it |
-| `--skip-quickshell` | **Never** for foundation goal |
-| `--skip-backup` | **Never** on first adoption |
-| `--force` | Only for noninteractive CI-like reruns after backup proven |
-| `exp-update` / `exp-merge` | Document only; **not** primary update path |
+## Alternatives Considered
 
-### What `.dotfiles` arch wrapper owns
+| Recommended | Alternative | When to Use Alternative |
+|-------------|-------------|-------------------------|
+| Wrapper full-profile flag | Call `vendor/dots-hyprland/./setup` directly | Temporary only; playbook already warns this is the only path today — formalize in wrapper this milestone |
+| Migrate must-keeps into `hypr/custom/*.lua` | Keep personal `hyprland.conf` forever | Rejects milestone goal (full install without skip-hyprland) |
+| Staged flags (hypr first, then drop `--core`) | Big-bang full flags day one | Prefer if inventory shows high misc-config risk (fish/kitty/starship) |
+| Inventory as markdown + manual diff | Automated rsync dry-run only | Automation helps but dispositions need human judgment |
 
-```text
-arch/dots-hyprland.sh
-  → resolve REPO_ROOT
-  → require vendor/dots-hyprland/.git (submodule initialized)
-  → cd vendor/dots-hyprland
-  → ensure nested submodules recursive
-  → invoke ./setup <subcommand> with safe defaults + "$@" passthrough
-  → print dual-run / backup reminders
-```
+## What NOT to Use
 
-**Retire:** `arch/quickshell.sh` (symlink-to-repo model + ddcutil group setup as product path).
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| Reimplement package install in `arch/` | Bitrots vs upstream meta pkgs | `./setup` + thin wrapper |
+| Revive local `.config/quickshell` product | Retired v0.2 | Live installed ii tree |
+| Bare `--skip-backup` | Destroys recovery path | Backup gate + `~/ii-original-dots-backup` |
+| Upstream `./setup uninstall` | Cascades asdeps / can remove hyprland stack | Wrapper `uninstall` / `protect` |
+| DDC/CI / ddcutil brightness | iGPU hang post-mortem | Leave backlight disabled |
+| Auto-bump submodule on every pull | Breaks pin reproducibility | Explicit pin-bump |
+| Blind full install without inventory | Loses monitors, workspaces, binds, exec-once | Inventory → disposition → install |
 
-**Do not add:** second package list that reimplements `illogical-impulse-*` PKGBUILDs; Debian/Ubuntu path for v0.2.
+## Stack Patterns by Variant
 
-### Personal session hooks (stack, not upstream files)
+**If only hypr session cutover is required first:**
+- Drop `--skip-hyprland` (and optionally keep `--core` + `--skip-sysupdate`)
+- Because misc fish/kitty/starship collisions are separable from session ownership
 
-After install, personal Hyprland entry must include:
+**If true “full rice” install is required:**
+- Drop `--core` and `--skip-hyprland`; decide sysupdate deliberately
+- Because `--core` is what skips fish, fontconfig, misc conf, plasma integration
 
-```conf
-env = ILLOGICAL_IMPULSE_VIRTUAL_ENV,$HOME/.local/state/quickshell/.venv
-exec-once = qs -c ii
-```
+**If operator wants zero unattended `-Syu`:**
+- Keep `--skip-sysupdate` even on “full hypr” profile
+- Because sysupdate is orthogonal to config takeover
 
-Keep existing Waybar/swaync/hyprpaper/`hyprland-session.service` exec-once lines.
+## Version Compatibility
 
-## What NOT to add
-
-| Tempting addition | Why skip |
-|-------------------|----------|
-| Reimplemented pacman/yay package arrays for all ii deps | Diverges from upstream; bitrot on every end-4 bump |
-| Symlink `~/.config/quickshell` → `.dotfiles/.config/quickshell` | Conflicts with setup rsync; was v0.1 model being retired |
-| Vendoring full `~/.local/state/quickshell` | Machine-local state; not portable |
-| Making ddcutil/backlight a first-class enablement | Historical iGPU hang (`issues/2026-07-16_*`); upstream may pull backlight package — do not build brightness widgets / DDC polling |
-| Online curl-to-`~/.cache/dots-hyprland` as managed path | Bypasses submodule pin and `.dotfiles` ownership |
-| `exp-merge` as default update | Experimental; requires mature fork workflow |
-| Nix/`--via-nix` install path | WIP upstream; out of Arch-primary scope |
-| Extra QML frameworks beyond what setup installs | Customs are later milestones |
-
-## Integration with existing `.dotfiles` stack
-
-| Existing piece | Relationship to v0.2 stack |
-|----------------|----------------------------|
-| `arch/hyprland.sh` | Still installs hyprland/hyprpaper/hyprlock/swaync + copies personal conf; **session SoT** |
-| `arch/waybar.sh` | Dual-run safety; unchanged |
-| `arch/rofi.sh` / swaync configs | Unchanged; cutover later |
-| `arch/quickshell.sh` | **Retired** after live ii verified |
-| `arch/aur.sh` / yay | Prerequisite for setup deps |
-| `.config/hypr/*` in repo | Gains minimal ii env + `qs -c ii` lines |
-| `.config/quickshell/*` in repo | **Deleted** after verify (product retirement) |
-
-## Version / pin strategy
-
-1. **Submodule URL** points at personal fork once fork exists (or end-4 briefly during bootstrap, then retarget).
-2. **Parent commit** records exact SHA — “what’s installed” is auditable in `.dotfiles` history.
-3. **Update contract:**  
-   `cd vendor/dots-hyprland && git fetch upstream && git merge/rebase upstream/main && git push origin`  
-   → parent bumps submodule → `./setup install` (or `install-files`) on machines.
-4. **Do not** auto-bump on every `git pull` of parent without an explicit operator step.
+| Component | Compatible with | Notes |
+|-----------|-----------------|-------|
+| Wrapper SAFE_DEFAULTS | install + install-files only | install-deps / install-setups get no injection today |
+| `install_dir__ignore_existing` on `hypr/custom` | Pre-seeded custom tree | Existing custom is **not** overwritten — seed before full install |
+| `hyprland.conf` → `.old` | Presence of conf file | Live home path; repo `.config/hypr` may still need separate sync story |
+| PROTECT_EXPLICIT post-hook | After install/deps | Full install still demotes shared deps to asdeps |
 
 ## Sources
 
-| Source | Confidence |
-|--------|------------|
-| `~/github_repo/dots-hyprland/setup` + `install -h` | HIGH |
-| `sdata/dist-arch/illogical-impulse-*`, `package-installers.sh` (venv path) | HIGH |
-| `.gitmodules` nested shapes submodule | HIGH |
-| `arch/quickshell.sh`, `arch/waybar.sh`, `arch/hyprland.sh` | HIGH |
-| Sibling research FEATURES.md / ARCHITECTURE.md / PITFALLS.md | HIGH |
-| [ii.clsty.link](https://ii.clsty.link) setup docs | MEDIUM–HIGH |
+- `arch/dots-hyprland.sh` (SAFE_DEFAULTS, protect, backup policy)
+- `vendor/dots-hyprland/sdata/subcmd-install/{options,3.files,3.files-legacy}.sh`
+- `vendor/dots-hyprland/dots/.config/hypr/hyprland.lua` + `custom/`
+- `docs/dots-hyprland-workflow.md`
+- `.config/hypr/hyprland.conf` (personal surface)
+- `.planning/PROJECT.md` v0.3 goals
 
 ---
-*Stack research for: v0.2 Adopt dots-hyprland*
-*Researched: 2026-07-25*
-*Mode: ecosystem / adoption stack (orchestrator completion after researcher rate-limit)*
+*STACK research for v0.3 — 2026-08-03*
