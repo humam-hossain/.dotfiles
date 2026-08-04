@@ -2,8 +2,8 @@
 phase: 10
 slug: full-install-impact-inventory
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-08-04
 ---
 
@@ -39,8 +39,8 @@ created: 2026-08-04
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------------|-----------------|-----------|-------------------|-------------|--------|
-| 10-01-01 | 01 | 1 | Nyquist W0 | T-10-01 | Read-only assert only; no setup install | docs/structure | `test -x scripts/phase10-inventory-assert.sh && bash -n scripts/phase10-inventory-assert.sh` | ❌ W0 | ⬜ pending |
-| 10-01-02 | 01 | 1 | INV-04 | T-10-01 | No live mutation while writing residual | docs/structure | `./scripts/phase10-inventory-assert.sh` (INV-04 section gates) | ❌ W0 | ⬜ pending |
+| 10-01-01 | 01 | 1 | Nyquist W0 | T-10-01 | Read-only assert only; no setup install | docs/structure | `test -x scripts/phase10-inventory-assert.sh && bash -n scripts/phase10-inventory-assert.sh` | ✅ | ✅ green |
+| 10-01-02 | 01 | 1 | INV-04 | T-10-01 | No live mutation while writing residual | docs/structure | `./scripts/phase10-inventory-assert.sh` (INV-04 section gates) | ✅ | ✅ green |
 | 10-02-01 | 02 | 2 | INV-02 | T-10-01 | Cite static sources only for hypr effects | docs/structure | `./scripts/phase10-inventory-assert.sh` (hypr axis gates) | ❌ W0 | ⬜ pending |
 | 10-03-01 | 03 | 2 | INV-03 | T-10-01 | Full misc catalog; no chrome rows | docs/structure | `./scripts/phase10-inventory-assert.sh` (misc axis gates) | ❌ W0 | ⬜ pending |
 | 10-04-01 | 04 | 2 | INV-01 | T-10-01 | Package/sysupdate effects documented, not executed | docs/structure | `./scripts/phase10-inventory-assert.sh` (sysupdate axis gates) | ❌ W0 | ⬜ pending |
@@ -52,9 +52,9 @@ created: 2026-08-04
 
 ## Wave 0 Requirements
 
-- [ ] `scripts/phase10-inventory-assert.sh` — structural + lint gates for `10-INVENTORY.md` (INV-01..04, D-10 columns, D-12 dispositions, D-15 chrome ban)
-- [ ] Optional read-only host presence printer invoked by `--full` (PRESENT/ABSENT only; never writes under `~/.config`)
-- [ ] Framework install: none (bash + `rg`/`grep`/`test`)
+- [x] `scripts/phase10-inventory-assert.sh` — structural + lint gates for `10-INVENTORY.md` (INV-01..04, D-10 columns, D-12 dispositions, D-15 chrome ban)
+- [x] Optional read-only host presence printer invoked by `--full` (PRESENT/ABSENT only; never writes under `~/.config`)
+- [x] Framework install: none (bash + `rg`/`grep`/`test`)
 
 ---
 
@@ -86,11 +86,11 @@ created: 2026-08-04
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 5s
-- [ ] `nyquist_compliant: true` set in frontmatter after Wave 0 lands
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 5s
+- [x] `nyquist_compliant: true` set in frontmatter after Wave 0 lands
 
-**Approval:** pending
+**Approval:** Wave 0 harness + INV-04 residual green (10-01); axis expansion plans 10-02..05 still pending
