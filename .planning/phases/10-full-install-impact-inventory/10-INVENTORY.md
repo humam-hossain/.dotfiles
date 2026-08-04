@@ -2,7 +2,7 @@
 
 **Created:** 2026-08-04  
 **Host scan refreshed:** 2026-08-04 (read-only `test -e` under live `~/.config`)  
-**Status:** INV-04 residual complete; Axis A (hypr) complete (10-02); Axes B/C stubs pending 10-03/10-04; host finalize 10-05
+**Status:** INV-04 residual complete; Axis A complete (10-02); Axis B complete (10-03); Axis C stub pending 10-04; host finalize 10-05
 
 ## Scope
 
@@ -117,23 +117,63 @@ This host: marker present → branch 3 for hyprlock/hypridle.
 
 ## Axis: drop --core (misc / fish / fontconfig)
 
-**When:** Operator runs install/files **without** `--core` (re-enables plasmaintg, fish, miscconf, fontconfig).  
-**Stub note:** Minimum INV-03 keyword set + sample catalog; plan **10-03** fills full ii misc catalog.
+**When:** Operator runs install/files **without** `--core` (re-enables the four skips that `--core` sets).  
+**Independence (D-09):** This axis alone — does not imply dropping `--skip-hyprland` or allowing sysupdate.
+
+### What `--core` skips today (so dropping re-enables)
+
+From `options.sh:90`:
+
+```bash
+--core) SKIP_PLASMAINTG=true;SKIP_FISH=true;SKIP_FONTCONFIG=true;SKIP_MISCCONF=true;shift;;
+```
+
+| Flag / skip set by `--core` | What re-enables when dropped | Source |
+|-----------------------------|------------------------------|--------|
+| `SKIP_PLASMAINTG` | Optional `plasma-browser-integration` package path in deps | `options.sh:90`; `install-deps.sh:106-122` |
+| `SKIP_FISH` | `~/.config/fish/` sync exclude conf.d | `options.sh:90`; `3.files-legacy.sh:30-33` |
+| `SKIP_FONTCONFIG` | `~/.config/fontconfig/` dir sync (or fontset) | `options.sh:90`; `3.files-legacy.sh:37-42` |
+| `SKIP_MISCCONF` | Full misc find loop over `dots/.config/*` (excl. quickshell/fish/hypr/fontconfig) + konsole share | `options.sh:90`; `3.files-legacy.sh:7-18` |
+
+**Not controlled by `--core`:** quickshell (`SKIP_QUICKSHELL` independent — dual-run already installs it). Hypr is Axis A (`SKIP_HYPRLAND`). Do not invent dual-run chrome clash rows (D-15).
+
+### Fish + fontconfig + plasmaintg
 
 | Path | Effect | Risk | Source | Host present? |
 |------|--------|------|--------|---------------|
-| `~/.config/fish/` | `install_dir__sync_exclude` (sync+delete except `conf.d`) | HIGH | `3.files-legacy.sh:33` | yes |
-| `~/.config/kitty/` | dir `install_dir__sync` (`--delete`) | HIGH | misc find loop `3.files-legacy.sh:11-16` | yes |
-| `~/.config/starship.toml` | file `install_file` (cp -f) | HIGH | misc find loop | yes |
-| `~/.config/fontconfig/` | dir `install_dir__sync` (or fontset) | HIGH | `3.files-legacy.sh:41-42` | yes |
-| `~/.config/fuzzel/` | dir sync | MED (greenfield if absent) | misc find loop | ABSENT |
-| `~/.config/matugen/` | dir sync | MED | misc find loop | ABSENT |
-| `~/.config/wlogout/` | dir sync | MED | misc find loop | ABSENT |
-| `~/.config/mpv/` | dir sync | MED–HIGH | misc find loop | yes |
-| `~/.config/dolphinrc` | file install | MED | misc find loop | yes |
-| `~/.config/kdeglobals` | file install | MED | misc find loop | yes (research) |
+| `~/.config/fish/` | `install_dir__sync_exclude` — rsync sync with `--delete` **except** `conf.d` | HIGH | `3.files-legacy.sh:30-33`; `3.files.sh:161-171` | yes (PRESENT) |
+| `~/.config/fontconfig/` | `install_dir__sync` default fontset, or `dots-extra/fontsets/$FONTSET` if `--fontset` | HIGH | `3.files-legacy.sh:37-42` | yes (PRESENT) |
+| `plasma-browser-integration` (package) | Optional `pacman -S` when not skipped; ~600KiB alone, can pull ~600MiB KDE if absent | MED | `install-deps.sh:106-122` | package query N/A here; re-check 10-04/05 |
 
-*Full catalog (chrome-flags, foot, Kvantum, konsole share, …) deferred to plan 10-03.*
+### Full misc catalog (SKIP_MISCCONF off)
+
+Basenames from `find dots/.config -mindepth 1 -maxdepth 1` excluding `quickshell`, `fish`, `hypr`, `fontconfig` (pin scan 2026-08-04). Install mode from `3.files-legacy.sh:11-16`: **dirs** → `install_dir__sync` (`--delete`); **files** → `install_file` (cp -f). Plus konsole share at `3.files-legacy.sh:18`.
+
+| Path | Effect | Risk | Source | Host present? |
+|------|--------|------|--------|---------------|
+| `~/.config/chrome-flags.conf` | file `install_file` | LOW (greenfield) | misc loop `3.files-legacy.sh:11-16` | ABSENT |
+| `~/.config/code-flags.conf` | file `install_file` | LOW (greenfield) | same | ABSENT |
+| `~/.config/darklyrc` | file `install_file` | LOW (greenfield) | same | ABSENT |
+| `~/.config/dolphinrc` | file `install_file` | MED (personal PRESENT collision) | same | yes (PRESENT) |
+| `~/.config/foot/` | dir `install_dir__sync` `--delete` | MED (greenfield) | same | ABSENT |
+| `~/.config/fuzzel/` | dir sync `--delete` | MED (greenfield) | same | ABSENT |
+| `~/.config/kdeglobals` | file `install_file` | MED (personal PRESENT) | same | yes (PRESENT) |
+| `~/.config/kde-material-you-colors/` | dir sync `--delete` | MED (greenfield) | same | ABSENT |
+| `~/.config/kitty/` | dir sync `--delete` | HIGH (personal PRESENT) | same | yes (PRESENT) |
+| `~/.config/konsolerc` | file `install_file` | LOW (greenfield) | same | ABSENT |
+| `~/.config/Kvantum/` | dir sync `--delete` | MED (greenfield) | same | ABSENT |
+| `~/.config/matugen/` | dir sync `--delete` | MED (greenfield) | same | ABSENT |
+| `~/.config/mpv/` | dir sync `--delete` | MED–HIGH (personal PRESENT) | same | yes (PRESENT) |
+| `~/.config/starship.toml` | file `install_file` | HIGH (personal PRESENT) | same | yes (PRESENT) |
+| `~/.config/thorium-flags.conf` | file `install_file` | LOW (greenfield) | same | ABSENT |
+| `~/.config/wlogout/` | dir sync `--delete` | MED (greenfield) | same | ABSENT |
+| `~/.config/xdg-desktop-portal/` | dir sync `--delete` | MED (greenfield) | same | ABSENT |
+| `~/.config/zshrc.d/` | dir sync `--delete` | LOW (greenfield) | same | ABSENT |
+| `~/.local/share/konsole/` | `install_dir` (non-delete dir copy into share) | MED | `3.files-legacy.sh:18` | ABSENT |
+
+### Named INV-03 collision set (summary)
+
+Host PRESENT collisions if `--core` dropped: **fish, kitty, starship.toml, fontconfig, mpv, dolphinrc, kdeglobals**. Greenfield-only from named set: fuzzel, matugen, wlogout (ABSENT).
 
 ---
 
