@@ -2,7 +2,7 @@
 
 **Created:** 2026-08-04  
 **Host scan refreshed:** 2026-08-04 (read-only `test -e` under live `~/.config`)  
-**Status:** INV-04 residual complete; Axes A/B/C complete (10-02..04); host finalize pending 10-05
+**Status:** Final — INV-01..04 complete; host snapshot + Sources finalized 2026-08-04 (10-05)
 
 ## Scope
 
@@ -73,7 +73,7 @@ SAFE_DEFAULTS=(--core --skip-hyprland --skip-sysupdate)
 | `~/.config/hypr/hyprlock/` (dir) | **Not installed** by legacy — only `hyprlock.conf` is auto_backup'd; upstream conf may `source` dir helpers | MED (gap) | legacy hypr case has no dir install; RESEARCH Pitfall 4 | ABSENT |
 | `~/.config/illogical-impulse/installed_true` | FIRSTRUN_FILE marker controlling auto_backup branch | MED | `3.files.sh:201-209` firstrun detect; env FIRSTRUN_FILE | yes (not firstrun) |
 | Fedora polkit append (conditional) | May append polkit exec-once line into `hyprland/execs.conf` on Fedora | LOW | `3.files-legacy.sh:72` | N/A (host not Fedora path assumed) |
-| `~/.local/share/icons/illogical-impulse.svg` | `install_file` icon (runs outside SKIP_HYPRLAND case — always when files step reaches it) | LOW | `3.files-legacy.sh:79` | re-check in 10-05 |
+| `~/.local/share/icons/illogical-impulse.svg` | `install_file` icon (runs outside SKIP_HYPRLAND case — always when files step reaches it) | LOW | `3.files-legacy.sh:79` | yes (PRESENT) |
 
 ### Extra live hypr surfaces (not in legacy install list)
 
@@ -143,7 +143,7 @@ From `options.sh:90`:
 |------|--------|------|--------|---------------|
 | `~/.config/fish/` | `install_dir__sync_exclude` — rsync sync with `--delete` **except** `conf.d` | HIGH | `3.files-legacy.sh:30-33`; `3.files.sh:161-171` | yes (PRESENT) |
 | `~/.config/fontconfig/` | `install_dir__sync` default fontset, or `dots-extra/fontsets/$FONTSET` if `--fontset` | HIGH | `3.files-legacy.sh:37-42` | yes (PRESENT) |
-| `plasma-browser-integration` (package) | Optional `pacman -S` when not skipped; ~600KiB alone, can pull ~600MiB KDE if absent | MED | `install-deps.sh:106-122` | package query N/A here; re-check 10-04/05 |
+| `plasma-browser-integration` (package) | Optional `pacman -S` when not skipped; ~600KiB alone, can pull ~600MiB KDE if absent | MED | `install-deps.sh:106-122` | ABSENT (`pacman -Qq`) |
 
 ### Full misc catalog (SKIP_MISCCONF off)
 
@@ -236,28 +236,53 @@ Host already has dual-run metas installed (2026-08-04 `pacman -Qq` scan). Re-run
 
 ## Host snapshot (live ~/.config, 2026-08-04)
 
-Read-only presence check at inventory write time (`test -e` only; no mutation). Full re-scan and column refresh planned in **10-05**.
+**Scan method:** read-only `test -e` / `pacman -Qq` only — no rsync/cp/mv/rm, no setup install (D-03, D-05).  
+**Refreshed:** 2026-08-04 (finalize pass, plan 10-05). Repo dual-column not used (D-06).
 
-| Path under `~/.config` | Present? | Notes |
-|------------------------|----------|-------|
-| `hypr/hyprland.conf` | yes | 465 lines personal SoT |
-| `hypr/hyprland/` | yes | minimal |
-| `hypr/hyprland.lua` | no | would install on hypr axis |
-| `hypr/hyprlock.conf` | yes | auto_backup → `.new` if not firstrun |
+### Hypr + firstrun (Axis A)
+
+| Path | Present? | Notes |
+|------|----------|-------|
+| `hypr/hyprland.conf` | yes | 465 lines personal SoT; would → `.old` if hypr axis runs |
+| `hypr/hyprland/` | yes | minimal + `scripts/`; subject to rsync `--delete` |
+| `hypr/hyprland.lua` | no | would be created |
+| `hypr/hyprlock.conf` | yes | not firstrun → expect `.new` sidecar |
 | `hypr/hypridle.conf` | yes | same |
-| `hypr/hyprpaper.conf` | yes | not touched by legacy hypr |
+| `hypr/hyprpaper.conf` | yes | not touched by legacy hypr block |
 | `hypr/custom/` | no | would seed if hypr axis runs |
-| `hypr/hyprlock/` | no | legacy gap |
-| `illogical-impulse/installed_true` | yes | not firstrun |
-| `fish/` | yes | clash if `--core` dropped |
-| `kitty/` | yes | clash |
-| `starship.toml` | yes | clash |
-| `fontconfig/` | yes | clash |
-| `mpv/` | yes | clash |
-| `dolphinrc` | yes | clash |
-| `fuzzel/` | no | greenfield if core dropped |
-| `matugen/` | no | greenfield |
-| `wlogout/` | no | greenfield |
+| `hypr/hyprlock/` | no | legacy gap (conf may source dir) |
+| `hypr/hyprland.conf.bak` | yes | personal backup; not in install list |
+| `hypr/hyprland-gui.conf` | yes | personal; not in install list |
+| `illogical-impulse/installed_true` | yes | **not firstrun** |
+| `~/.local/share/icons/illogical-impulse.svg` | yes | always-on files step icon |
+
+### Misc / fish / fontconfig collisions (Axis B)
+
+| Path | Present? | Notes |
+|------|----------|-------|
+| `fish/` | yes | HIGH clash if `--core` dropped |
+| `fontconfig/` | yes | HIGH clash |
+| `kitty/` | yes | HIGH clash (dir sync `--delete`) |
+| `starship.toml` | yes | HIGH clash |
+| `mpv/` | yes | MED–HIGH clash |
+| `dolphinrc` | yes | MED clash |
+| `kdeglobals` | yes | MED clash |
+| `quickshell/` | yes | dual-run already; **not** controlled by `--core` |
+| `fuzzel/`, `matugen/`, `wlogout/`, `foot/`, `Kvantum/`, … | no | greenfield if misc enabled |
+| `chrome-flags.conf`, `code-flags.conf`, `darklyrc`, `konsolerc`, `thorium-flags.conf` | no | greenfield files |
+| `kde-material-you-colors/`, `xdg-desktop-portal/`, `zshrc.d/` | no | greenfield dirs |
+| `~/.local/share/konsole/` | no | greenfield share path |
+
+### Packages (Axis C) — read-only query
+
+| Item | Present? | Notes |
+|------|----------|-------|
+| `illogical-impulse-*` metas (audio…widgets, hyprland, microtex-git, quickshell-git, bibata) | yes | dual-run already installed |
+| `plasma-browser-integration` | no | ABSENT; optional if plasmaintg not skipped |
+
+### Optional setups note (LOW, non-blocking)
+
+`2.setups.sh` may run post-files session setups on full install; not expanded row-by-row here. Primary blast radius for Phase 10 is files + deps documented above. Source: `vendor/dots-hyprland/sdata/subcmd-install/2.setups.sh`.
 
 ---
 
@@ -265,24 +290,29 @@ Read-only presence check at inventory write time (`test -e` only; no mutation). 
 
 | Item | Status | Note | Source to recheck |
 |------|--------|------|-------------------|
-| `~/.config/hypr/hyprlock/` helpers/colors | UNKNOWN / gap | Upstream `hyprlock.conf` may `source` `hyprlock/colors.conf`, but legacy only auto_backups the `.conf` file — dir not installed | RESEARCH open Q1 / Pitfall 4; `3.files-legacy.sh` hypr case; upstream dots tree |
-| Exact `previous_dependencies.conf` asdeps name set on this host | UNKNOWN | Coarse row only; expand with live `pacman -Qe` cross-check in 10-04 | `install-deps.sh` + conf file |
-| `--exp-files` behavioral deltas | OUT OF DEFAULT SCOPE | Inventory assumes legacy; exp may sync whole `hypr/` differently | `3.files-exp.yaml` contrast only |
-| Plasma-browser-integration size/pull when core dropped | UNKNOWN | Optional pacman path if plasmaintg not skipped | `install-deps.sh:106-122` |
+| `~/.config/hypr/hyprlock/` helpers/colors | UNKNOWN / gap | Upstream `hyprlock.conf` may `source` `hyprlock/colors.conf`, but legacy only auto_backups the `.conf` file — dir **not** installed | RESEARCH Pitfall 4; `3.files-legacy.sh` hypr case; upstream `dots/.config/hypr` |
+| Exact host intersection of `previous_dependencies.conf` ∩ explicit pkgs | PARTIAL | Axis C documents mechanism + conf path; live per-name demotion set still machine-time dependent | `install-deps.sh:26-38`; `sdata/dist-arch/previous_dependencies.conf`; `pacman -Qeq` |
+| `--exp-files` behavioral deltas | OUT OF DEFAULT SCOPE | Inventory SoT is **legacy** (`3.files-legacy.sh`); exp may sync whole `hypr/` differently — note only, not primary structure | `3.files-exp.yaml` / exp path contrast |
+| `2.setups.sh` side-effect depth | LOW / optional | Setups may touch session services beyond files/deps; not blocking Phase 10 success criteria | `2.setups.sh` |
+| Plasma-browser-integration KDE pull size on bare systems | DOCUMENTED | Script warns ~600MiB if KDE absent; this host package ABSENT | `install-deps.sh:106-122` |
 
 ---
 
 ## Sources
 
-Primary evidence paths (re-openable for Phase 11):
+Primary evidence paths (re-openable for Phase 11 dispositions):
 
 | Source | Role |
 |--------|------|
-| `arch/dots-hyprland.sh` | SAFE_DEFAULTS definition, injection, backup gate, dry-run |
-| `vendor/dots-hyprland/sdata/subcmd-install/3.files-legacy.sh` | Legacy hypr + misc + fish/fontconfig path effects (default SoT) |
-| `vendor/dots-hyprland/sdata/subcmd-install/3.files.sh` | Helpers: rsync sync, auto_backup, ignore_existing |
-| `vendor/dots-hyprland/sdata/subcmd-install/options.sh` | Flag semantics (`--core`, `--skip-hyprland`, `--skip-sysupdate`) |
-| `vendor/dots-hyprland/sdata/dist-arch/install-deps.sh` | `pacman -Syu`, metas, asdeps, deprecated removals |
-| Live host `~/.config` | Host present? columns (read-only scan 2026-08-04) |
-| `.planning/phases/10-full-install-impact-inventory/10-RESEARCH.md` | Assembled research cites (seed; re-verify against setup) |
+| `arch/dots-hyprland.sh` | SAFE_DEFAULTS definition (`:12`), injection (`:127-131`, `:1399-1407`), backup gate, protect/asexplicit mitigation |
+| `vendor/dots-hyprland/sdata/subcmd-install/options.sh` | Flag semantics; `--core` expansion (`:90`); skip flags |
+| `vendor/dots-hyprland/sdata/subcmd-install/3.files-legacy.sh` | Default files SoT: misc loop, fish, fontconfig, hypr case |
+| `vendor/dots-hyprland/sdata/subcmd-install/3.files.sh` | Helpers: `rsync_dir__sync`, `install_file__auto_backup`, `install_dir__ignore_existing`, firstrun detect |
+| `vendor/dots-hyprland/sdata/dist-arch/install-deps.sh` | `pacman -Syu`, deprecated removals, asdeps implicitize, meta PKGBUILD loop, plasmaintg |
+| `vendor/dots-hyprland/sdata/dist-arch/previous_dependencies.conf` | asdeps name list input |
+| `vendor/dots-hyprland/sdata/subcmd-install/2.setups.sh` | Optional setups side effects (LOW note only) |
+| `vendor/dots-hyprland/dots/.config/` | Misc catalog basenames (find pin) |
+| Live host `~/.config` + `pacman -Qq` | Host present? columns — read-only scan **2026-08-04** |
+| `.planning/phases/10-full-install-impact-inventory/10-RESEARCH.md` | Research seed; re-verified against setup sources during plans |
 | `docs/dots-hyprland-workflow.md` | Secondary safe dual-run narrative only (not inventory SoT) |
+| `scripts/phase10-inventory-assert.sh` | Structural/lint gate for this artifact |
