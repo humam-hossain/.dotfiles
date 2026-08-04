@@ -2,7 +2,7 @@
 
 **Created:** 2026-08-04  
 **Host scan refreshed:** 2026-08-04 (read-only `test -e` under live `~/.config`)  
-**Status:** Tracer scaffold — INV-04 residual complete; axis rows are keyword-bearing stubs expanded in plans 10-02..05
+**Status:** INV-04 residual complete; Axis A (hypr) complete (10-02); Axes B/C stubs pending 10-03/10-04; host finalize 10-05
 
 ## Scope
 
@@ -55,22 +55,63 @@ SAFE_DEFAULTS=(--core --skip-hyprland --skip-sysupdate)
 
 ## Axis: drop --skip-hyprland (hypr files)
 
-**When:** Operator runs install/files **without** `--skip-hyprland` (legacy files path).  
-**Stub note:** Rows are accurate one-liners from RESEARCH Focus 2; plan **10-02** expands depth (category tags, extra live hypr files).
+**When:** Operator runs install/files **without** `--skip-hyprland` (legacy files path = `3.files-legacy.sh`).  
+**Independence (D-09):** This axis alone — does not imply dropping `--core` or allowing sysupdate.  
+**Host firstrun state:** `~/.config/illogical-impulse/installed_true` is **PRESENT** → not firstrun → `install_file__auto_backup` writes `*.new` sidecars (does not replace live conf).
+
+### INV-02 / D-14 effect table
 
 | Path | Effect | Risk | Source | Host present? |
 |------|--------|------|--------|---------------|
-| `~/.config/hypr/hyprland/` | `install_dir__sync` / rsync `--delete` from `dots/.config/hypr/hyprland` | HIGH | `3.files-legacy.sh:50`; `3.files.sh` rsync helper | yes (minimal tree) |
-| `~/.config/hypr/hyprland.conf` | `mv` → `hyprland.conf.old` (disable old config for lua entry) | HIGH | `3.files-legacy.sh:51-53` | yes (465 lines, personal SoT) |
-| `~/.config/hypr/hyprland.lua` | `install_file` (cp -f) unless `--skip-hyprland-entry` | HIGH | `3.files-legacy.sh:58-62` | ABSENT → would be created |
-| `~/.config/hypr/hyprlock.conf` | `install_file__auto_backup` — on this host not firstrun → expect `hyprlock.conf.new` sidecar | HIGH | `3.files-legacy.sh:55-57`; `3.files.sh:102-119` | yes |
-| `~/.config/hypr/hypridle.conf` | same `auto_backup` → expect `hypridle.conf.new` | MED–HIGH | `3.files-legacy.sh:64-69` | yes |
-| `~/.config/hypr/custom/` | `install_dir__ignore_existing`: seed if absent; **no-op if exists** | HIGH (overlay strategy) | `3.files-legacy.sh:75`; `3.files.sh:150-159` | ABSENT → would seed ii stubs |
-| `~/.config/hypr/hyprpaper.conf` | **Not touched** by legacy hypr block | MED (orphan / policy) | absence from `3.files-legacy.sh` hypr case | yes |
-| `~/.config/hypr/hyprlock/` (dir) | **Not installed** by legacy (only `.conf` file) | MED (gap) | upstream conf may source dir helpers; legacy has no dir install | ABSENT |
-| Firstrun marker `~/.config/illogical-impulse/installed_true` | Controls auto_backup branch (present → not firstrun → `.new` sidecars) | MED | `environment-variables.sh` FIRSTRUN_FILE; host scan | yes (not firstrun) |
+| `~/.config/hypr/hyprland/` | `install_dir__sync` → `rsync_dir__sync` with `--delete` from `dots/.config/hypr/hyprland` | HIGH | `3.files-legacy.sh:50`; `3.files.sh:130-137` (`install_dir__sync`), `67+` (`rsync_dir__sync`) | yes (minimal tree + scripts/) |
+| `~/.config/hypr/hyprland.conf` | If file exists: `mv` → `hyprland.conf.old` (disable personal conf so lua entry can load) | HIGH | `3.files-legacy.sh:51-53` | yes (465 lines, personal SoT) |
+| `~/.config/hypr/hyprland.lua` | `install_file` (cp -f) unless `--skip-hyprland-entry` / `SKIP_HYPRLAND_ENTRY` | HIGH | `3.files-legacy.sh:58-62` | ABSENT → would be created |
+| `~/.config/hypr/hyprlock.conf` | `install_file__auto_backup`: firstrun → replace with `.old` backup; **this host not firstrun** → write `hyprlock.conf.new` sidecar, live conf stays | HIGH (session lock) | `3.files-legacy.sh:55-57`; `3.files.sh:102-119` | yes |
+| `~/.config/hypr/hypridle.conf` | same `auto_backup` branches; this host → expect `hypridle.conf.new` | MED–HIGH | `3.files-legacy.sh:64-69` (via-nix branch vs dots); `3.files.sh:102-119` | yes |
+| `~/.config/hypr/custom/` | `install_dir__ignore_existing`: seed from `dots/.config/hypr/custom` **only if absent**; no-op if dir exists | HIGH (overlay strategy) | `3.files-legacy.sh:75`; `3.files.sh:150-159` | ABSENT → would seed ii stubs |
+| `~/.config/hypr/hyprpaper.conf` | **Not touched** by legacy hypr install list (no install_file/sync for hyprpaper) | MED (personal orphan / policy surface) | absence from `3.files-legacy.sh:47-76` hypr case | yes |
+| `~/.config/hypr/hyprlock/` (dir) | **Not installed** by legacy — only `hyprlock.conf` is auto_backup'd; upstream conf may `source` dir helpers | MED (gap) | legacy hypr case has no dir install; RESEARCH Pitfall 4 | ABSENT |
+| `~/.config/illogical-impulse/installed_true` | FIRSTRUN_FILE marker controlling auto_backup branch | MED | `3.files.sh:201-209` firstrun detect; env FIRSTRUN_FILE | yes (not firstrun) |
+| Fedora polkit append (conditional) | May append polkit exec-once line into `hyprland/execs.conf` on Fedora | LOW | `3.files-legacy.sh:72` | N/A (host not Fedora path assumed) |
+| `~/.local/share/icons/illogical-impulse.svg` | `install_file` icon (runs outside SKIP_HYPRLAND case — always when files step reaches it) | LOW | `3.files-legacy.sh:79` | re-check in 10-05 |
 
-**Personal hyprland.conf category tags (no decisions):** monitors, workspaces, binds, exec-once, env, rules — expand in 10-02/10-05.
+### Extra live hypr surfaces (not in legacy install list)
+
+Read-only `find` under `~/.config/hypr` (2026-08-04). Effect = not modified by legacy hypr block unless proven otherwise.
+
+| Path | Effect | Risk | Source | Host present? |
+|------|--------|------|--------|---------------|
+| `~/.config/hypr/hyprland.conf.bak` | Not in install list — personal backup file left alone | LOW | host observation; not referenced in legacy hypr case | yes |
+| `~/.config/hypr/hyprland-gui.conf` | Not in install list — personal/gui conf left alone | LOW | host observation | yes |
+| `~/.config/hypr/hyprland/scripts/` | Nested under `hyprland/` dir sync target — **would be subject to rsync --delete** if dir sync runs | HIGH (subset of hyprland/ row) | same as `hyprland/` sync | yes |
+
+### Personal `hyprland.conf` category annotations (D-13 — tags/counts only, no dispositions)
+
+Live file: 465 lines. Category hit counts from read-only line-prefix scan (not a full conf dump):
+
+| Category tag | Approx count | Notes |
+|--------------|--------------|-------|
+| monitors | 2 | `monitor` lines |
+| workspaces | 11 | `workspace` lines |
+| binds | 100 | `bind` lines |
+| exec-once | 12 | startup hooks |
+| env | 4 | environment |
+| windowrule / layerrule | 2 / 4 | rules |
+| animation | 17 | |
+| general / decoration / input / misc | 1 each | section openers |
+| source | 1 | include |
+
+These tags describe **what personal surface exists** before a conf→`.old` rename. No keep/migrate/accept language.
+
+### auto_backup branch detail (lock/idle)
+
+From `3.files.sh:102-119` `install_file__auto_backup`:
+
+1. Target missing → `cp_file` install fresh.
+2. Target exists + **firstrun** (`INSTALL_FIRSTRUN=true`) → `mv` target to `*.old`, then install.
+3. Target exists + **not firstrun** → `cp_file` source to `*.new` only; live target unchanged.
+
+This host: marker present → branch 3 for hyprlock/hypridle.
 
 ---
 
