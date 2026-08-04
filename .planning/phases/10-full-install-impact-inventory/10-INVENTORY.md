@@ -2,7 +2,7 @@
 
 **Created:** 2026-08-04  
 **Host scan refreshed:** 2026-08-04 (read-only `test -e` under live `~/.config`)  
-**Status:** INV-04 residual complete; Axis A complete (10-02); Axis B complete (10-03); Axis C stub pending 10-04; host finalize 10-05
+**Status:** INV-04 residual complete; Axes A/B/C complete (10-02..04); host finalize pending 10-05
 
 ## Scope
 
@@ -179,18 +179,58 @@ Host PRESENT collisions if `--core` dropped: **fish, kitty, starship.toml, fontc
 
 ## Axis: allow sysupdate / package effects
 
-**When:** Operator runs deps path **without** `--skip-sysupdate` (and related deps always-on behaviors).  
-**Stub note:** Coarse INV-01 rows; plan **10-04** expands meta list and asdeps name set.
+**When:** Operator runs the **deps** path (`install` / `install-deps`) with `SKIP_SYSUPDATE` unset, and related always-on deps behaviors.  
+**Independence (D-09):** This axis alone — does not require dropping `--core` or `--skip-hyprland`.  
+**SAFE_DEFAULTS interaction (inventory only):** default wrapper injects `--skip-sysupdate` on `install` / `install-files`; dropping it is a future full-profile concern (Phase 12) — this section maps the effect only.
+
+### Pipeline scope (files-only vs full install/deps)
 
 | Path | Effect | Risk | Source | Host present? |
 |------|--------|------|--------|---------------|
-| System packages via `pacman -Syu` | Full system upgrade when `SKIP_SYSUPDATE` unset | HIGH | `sdata/dist-arch/install-deps.sh:56-58` | N/A (system) |
-| `illogical-impulse-*` meta PKGBUILDs | Build/install via `makepkg` + `yay -S --asdeps` depends | MED | `install-deps.sh:74-103` | yes (dual-run metas already installed) |
-| Explicit packages demoted `--asdeps` | `yay -D --asdeps` for names in `previous_dependencies.conf` | HIGH for dual-run stack | `install-deps.sh:26-38, 69-70` | partial (names vary) |
-| Deprecated dependency removal | `pacman -Rdd` list of old/git metas | MED | `install-deps.sh:15-22, 52-53` | varies |
-| Residual: `--skip-sysupdate` still default | Under SAFE_DEFAULTS, Syu is skipped on wrapper `install` | LOW (protective) | `arch/dots-hyprland.sh:12` SAFE_DEFAULTS | N/A |
+| `install-files` alone | Runs files step only — **does not** run `pacman -Syu` or meta PKGBUILD loop | LOW (no Syu) | setup files path; deps script not sourced for files-only | N/A |
+| Full `install` / `install-deps` | Runs `install-deps.sh` first (deprecated removal → optional Syu → asdeps implicitize → meta build loop → optional plasmaintg) | HIGH overall | `sdata/dist-arch/install-deps.sh` whole script | N/A |
+| Wrapper default `./arch/dots-hyprland.sh install` | Injects `--skip-sysupdate` via SAFE_DEFAULTS → Syu skipped; other deps steps still run unless further skips | MED under residual | `arch/dots-hyprland.sh:12`, `127-131`, `1399-1407` | N/A (wrapper) |
 
-**Note:** `install-files` alone does not run Syu; full `install` pipeline runs deps first. Files axes and deps/sysupdate axis are independent (D-09).
+### Sysupdate + always-on deps side effects
+
+| Path | Effect | Risk | Source | Host present? |
+|------|--------|------|--------|---------------|
+| `sudo pacman -Syu` | Full system upgrade when `SKIP_SYSUPDATE` is **unset** | HIGH | `install-deps.sh:56-58` (`case $SKIP_SYSUPDATE`) | N/A (system-wide) |
+| `remove_deprecated_dependencies` | `pacman --noconfirm -Rdd` on deprecated list (old metas, `*-git` hypr stack, matugen-bin, …) — **always** on deps path | MED | `install-deps.sh:15-22`, called `:52-53` | varies per name |
+| `implicitize_old_dependencies` | For each name in `previous_dependencies.conf` that is still explicit: `yay -D --asdeps` — demotes dual-run stack packages | HIGH for dual-run | `install-deps.sh:26-38`, called `:69-70` | partial (names in conf ∩ explicit pkgs) |
+| `yay` bootstrap | If `yay` missing: clone/build `yay-bin` via makepkg | MED | `install-deps.sh:5-13`, `:63-67` | yes (yay typically present) |
+
+### Coarse `illogical-impulse-*` meta PKGBUILD set
+
+From `install-deps.sh:93-103` loop: `install-local-pkgbuild` → `yay -S --asdeps` on PKGBUILD depends, then `makepkg -Afsi`.
+
+| Meta package (coarse) | Effect | Risk | Source | Host present? (`pacman -Qq`) |
+|----------------------|--------|------|--------|------------------------------|
+| `illogical-impulse-audio` | build/install meta + asdeps depends | MED | `install-deps.sh:93` | installed |
+| `illogical-impulse-backlight` | same | MED | same | installed |
+| `illogical-impulse-basic` | same | MED | same | installed |
+| `illogical-impulse-fonts-themes` | same | MED | same | installed |
+| `illogical-impulse-kde` | same | MED | same | installed |
+| `illogical-impulse-portal` | same | MED | same | installed |
+| `illogical-impulse-python` | same | MED | same | installed |
+| `illogical-impulse-screencapture` | same | MED | same | installed |
+| `illogical-impulse-toolkit` | same | MED | same | installed |
+| `illogical-impulse-widgets` | same | MED | same | installed |
+| `illogical-impulse-hyprland` | same | MED–HIGH | `install-deps.sh:94` | installed |
+| `illogical-impulse-microtex-git` | same | MED | `install-deps.sh:95` | installed (+ debug pkg present) |
+| `illogical-impulse-quickshell-git` | same | MED | `install-deps.sh:96` | installed |
+| `illogical-impulse-bibata-modern-classic-bin` | same | LOW–MED | `install-deps.sh:97` | installed |
+
+Host already has dual-run metas installed (2026-08-04 `pacman -Qq` scan). Re-running deps still upgrades/rebuilds with `--needed` flags and still runs Syu/asdeps/deprecated steps as above.
+
+### Optional plasmaintg + wrapper protect mitigation
+
+| Path | Effect | Risk | Source | Host present? |
+|------|--------|------|--------|---------------|
+| `plasma-browser-integration` | Optional `pacman -S` when `SKIP_PLASMAINTG` unset; ~600KiB alone / ~600MiB KDE pull warning | MED | `install-deps.sh:106-122` | ABSENT (`pacman -Qq`) |
+| Wrapper `protect` post-path | After install/install-deps succeed, re-marks `PROTECT_EXPLICIT` packages as `pacman -D --asexplicit` — mitigates asdeps demotion for personal dual-run stack | LOW (mitigation) | `arch/dots-hyprland.sh` protect subcommand / post-install re-mark notes (~46-60, ~192+) | N/A (wrapper behavior) |
+
+**Deprecated removal name classes (for operator awareness, not a full expand):** `illogical-impulse-{microtex,pymyc-aur,oneui4-icons-git}`, `hyprland-qtutils`, many `*-git` hyprland stack packages, `matugen-bin` (`install-deps.sh:18-21`).
 
 ---
 
