@@ -209,9 +209,9 @@ else
 fi
 
 # --- D-15 chrome ban (waybar|rofi|swaync) ---
-if grep -niE 'waybar|rofi|swaync' "$INVENTORY" >/dev/null; then
+if grep -niE '\bwaybar\b|\brofi\b|\bswaync\b' "$INVENTORY" >/dev/null; then
   fail "D-15 dual-run chrome (waybar|rofi|swaync) must be omitted"
-  grep -niE 'waybar|rofi|swaync' "$INVENTORY" || true
+  grep -niE '\bwaybar\b|\brofi\b|\bswaync\b' "$INVENTORY" || true
 else
   pass "D-15 no waybar/rofi/swaync"
 fi
