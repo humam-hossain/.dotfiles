@@ -12,7 +12,7 @@ last_activity_desc: Phase 10 planning complete — 5 plans ready
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 6
+  total_plans: 5
   completed_plans: 0
   percent: 0
 ---
