@@ -1,7 +1,7 @@
 ---
 phase: 10
 slug: full-install-impact-inventory
-status: draft
+status: complete
 nyquist_compliant: true
 wave_0_complete: true
 created: 2026-08-04
@@ -41,10 +41,10 @@ created: 2026-08-04
 |---------|------|------|-------------|-----------------|-----------------|-----------|-------------------|-------------|--------|
 | 10-01-01 | 01 | 1 | Nyquist W0 | T-10-01 | Read-only assert only; no setup install | docs/structure | `test -x scripts/phase10-inventory-assert.sh && bash -n scripts/phase10-inventory-assert.sh` | ✅ | ✅ green |
 | 10-01-02 | 01 | 1 | INV-04 | T-10-01 | No live mutation while writing residual | docs/structure | `./scripts/phase10-inventory-assert.sh` (INV-04 section gates) | ✅ | ✅ green |
-| 10-02-01 | 02 | 2 | INV-02 | T-10-01 | Cite static sources only for hypr effects | docs/structure | `./scripts/phase10-inventory-assert.sh` (hypr axis gates) | ❌ W0 | ⬜ pending |
-| 10-03-01 | 03 | 2 | INV-03 | T-10-01 | Full misc catalog; no chrome rows | docs/structure | `./scripts/phase10-inventory-assert.sh` (misc axis gates) | ❌ W0 | ⬜ pending |
-| 10-04-01 | 04 | 2 | INV-01 | T-10-01 | Package/sysupdate effects documented, not executed | docs/structure | `./scripts/phase10-inventory-assert.sh` (sysupdate axis gates) | ❌ W0 | ⬜ pending |
-| 10-05-01 | 05 | 3 | D-03/D-07/D-12/D-15 | T-10-01/T-10-02 | Host scan read-only; no dispositions | docs/lint | `./scripts/phase10-inventory-assert.sh --full` | ❌ W0 | ⬜ pending |
+| 10-02-01 | 02 | 2 | INV-02 | T-10-01 | Cite static sources only for hypr effects | docs/structure | `./scripts/phase10-inventory-assert.sh` (hypr axis gates) | ✅ | ✅ green |
+| 10-03-01 | 03 | 2 | INV-03 | T-10-01 | Full misc catalog; no chrome rows | docs/structure | `./scripts/phase10-inventory-assert.sh` (misc axis gates) | ✅ | ✅ green |
+| 10-04-01 | 04 | 2 | INV-01 | T-10-01 | Package/sysupdate effects documented, not executed | docs/structure | `./scripts/phase10-inventory-assert.sh` (sysupdate axis gates) | ✅ | ✅ green |
+| 10-05-01 | 05 | 3 | D-03/D-07/D-12/D-15 | T-10-01/T-10-02 | Host scan read-only; no dispositions | docs/lint | `./scripts/phase10-inventory-assert.sh --full` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -93,4 +93,4 @@ created: 2026-08-04
 - [x] Feedback latency < 5s
 - [x] `nyquist_compliant: true` set in frontmatter after Wave 0 lands
 
-**Approval:** Wave 0 harness + INV-04 residual green (10-01); axis expansion plans 10-02..05 still pending
+**Approval:** Phase 10 complete — assert `--full` green; INV-01..04 inventory finalized 2026-08-04
