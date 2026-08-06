@@ -10,10 +10,10 @@ Requirements for this milestone only. Phase numbering continues after v0.2 (last
 
 ### Impact inventory
 
-- [ ] **INV-01**: Operator has a written impact inventory listing every filesystem path and package/sysupdate effect of a full dots-hyprland install **without** `--skip-hyprland`, and separately noting effects of dropping `--core` and `--skip-sysupdate`
-- [ ] **INV-02**: Inventory compares personal `.config/hypr` (at least `hyprland.conf`, hyprlock, hypridle, hyprpaper, any `hypr/hyprland` content) against upstream `dots/.config/hypr` install behavior (conf → `.old`, hyprland dir sync, hyprland.lua entry, lock/idle auto_backup, custom ignore_existing)
-- [ ] **INV-03**: Inventory lists non-hypr personal configs that clash if `--core` is dropped (at least fish, kitty, starship, fontconfig, and other `dots/.config` misc targets present on this machine)
-- [ ] **INV-04**: Inventory records current SAFE_DEFAULTS behavior and that safe dual-run install remains available after this milestone
+- [x] **INV-01**: Operator has a written impact inventory listing every filesystem path and package/sysupdate effect of a full dots-hyprland install **without** `--skip-hyprland`, and separately noting effects of dropping `--core` and `--skip-sysupdate`
+- [x] **INV-02**: Inventory compares personal `.config/hypr` (at least `hyprland.conf`, hyprlock, hypridle, hyprpaper, any `hypr/hyprland` content) against upstream `dots/.config/hypr` install behavior (conf → `.old`, hyprland dir sync, hyprland.lua entry, lock/idle auto_backup, custom ignore_existing)
+- [x] **INV-03**: Inventory lists non-hypr personal configs that clash if `--core` is dropped (at least fish, kitty, starship, fontconfig, and other `dots/.config` misc targets present on this machine)
+- [x] **INV-04**: Inventory records current SAFE_DEFAULTS behavior and that safe dual-run install remains available after this milestone
 
 ### Disposition decisions
 
@@ -87,10 +87,10 @@ Deferred beyond v0.3.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INV-01 | Phase 10 | Pending |
-| INV-02 | Phase 10 | Pending |
-| INV-03 | Phase 10 | Pending |
-| INV-04 | Phase 10 | Pending |
+| INV-01 | Phase 10 | Complete |
+| INV-02 | Phase 10 | Complete |
+| INV-03 | Phase 10 | Complete |
+| INV-04 | Phase 10 | Complete |
 | DISP-01 | Phase 11 | Pending |
 | DISP-02 | Phase 11 | Pending |
 | DISP-03 | Phase 11 | Pending |
@@ -111,6 +111,7 @@ Deferred beyond v0.3.
 | DOC-04 | Phase 15 | Pending |
 
 **Coverage:**
+
 - v0.3 requirements: 22 total
 - Mapped to phases: 22
 - Unmapped: 0 ✓

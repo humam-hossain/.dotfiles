@@ -2,9 +2,12 @@
 
 ## Current State
 
-**Shipped:** v0.2 Adopt dots-hyprland (2026-08-02)
+**Shipped:** v0.2 Adopt dots-hyprland (2026-08-02)  
+**In progress:** v0.3 Full ii install — Phase 10 complete (2026-08-06); next is Phase 11 dispositions
 
 Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell dual-running with Waybar, operator playbook for install and pin-bump updates.
+
+**Phase 10 delivered:** Neutral full-install impact inventory (`10-INVENTORY.md`) covering SAFE_DEFAULTS residual, drop-`--skip-hyprland` hypr effects, drop-`--core` misc collisions, and package/sysupdate blast radius — with Wave 0 assert harness. No live full install; SAFE_DEFAULTS still default.
 
 **Stats at v0.2 ship:** 5 phases · 15 plans · ~38 tasks · 106 commits since v0.1 · 1025 files changed (+17.6k / −78k, mostly retired local QS tree)
 
@@ -15,6 +18,7 @@ Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery mo
 - Live path: real `~/.config/quickshell` (not symlink into git)
 - Session: personal hypr hooks for `ILLOGICAL_IMPULSE_VIRTUAL_ENV` + `qs -c ii`; Waybar still dual-runs
 - Playbook: `docs/dots-hyprland-workflow.md`
+- Inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`
 
 ## Current Milestone: v0.3 Full ii install
 
@@ -96,9 +100,15 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Operator playbook: clone → recursive submodule → wrapper install → hypr hooks → dual-run — Phase 9 / DOC-01
 - ✓ Operator playbook: pin-bump update; exp-merge / online cache non-primary — Phase 9 / DOC-02
 
+### Validated — v0.3 (in progress)
+
+- ✓ Full-install impact inventory: filesystem + package/sysupdate effects without `--skip-hyprland`, and separately for dropping `--core` / `--skip-sysupdate` — Phase 10 / INV-01
+- ✓ Personal hypr vs upstream install behavior (conf→`.old`, hyprland sync, lua, lock/idle auto_backup, custom ignore_existing) — Phase 10 / INV-02
+- ✓ Non-hypr clash candidates if `--core` dropped (fish, kitty, starship, fontconfig, other present misc) — Phase 10 / INV-03
+- ✓ SAFE_DEFAULTS residual documented; safe dual-run install remains default after Phase 10 — Phase 10 / INV-04
+
 ### Active
 
-- [ ] Full-install impact inventory (hypr + misc configs + packages/sysupdate) before any live full adopt
 - [ ] Per-surface disposition plan for personal configs that full install would replace
 - [ ] Safe opt-in full-install path (out of SAFE_DEFAULTS) with backup gate
 - [ ] Execute full ii install per dispositions; session boots on ii hypr model
@@ -167,7 +177,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Delete local `.config/quickshell` product this milestone | Single live shell path; avoid dual product confusion | ✓ Phase 8 (RET-01/02) |
 | Personal fork + upstream remote | Own customizations; still pull end-4 updates | ✓ Phase 5 |
 | Defer Waybar custom ports | Install foundation first; customs need live shell | — Deferred past full hypr adopt |
-| v0.3: Full install after impact inventory | Drop SAFE_DEFAULTS only with known dispositions for replaced configs | — Pending |
+| v0.3: Full install after impact inventory | Drop SAFE_DEFAULTS only with known dispositions for replaced configs | ◆ Phase 10 inventory done; dispositions Phase 11 |
 | Skip brightness/backlight (no ddcutil) | iGPU crash risk per `2026-07-16` post-mortem | ✓ Good |
 | Keep hyprlock (no Quickshell lock screen) | hyprlock works; lock screen panel not wanted as replacement | ✓ Good — re-check vs ii hyprlock on full install |
 | Primary target Arch only | debian/ubuntu parity is a separate concern | ✓ Good |
@@ -191,4 +201,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-02 after starting v0.3 Full ii install*
+*Last updated: 2026-08-06 after Phase 10 full-install impact inventory complete*
