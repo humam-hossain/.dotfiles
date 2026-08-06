@@ -182,4 +182,4 @@ Plans:
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 22/22 requirements mapped · 0 unmapped
 
 ---
-*Last updated: 2026-08-03 — v0.3 roadmap created*
+*Last updated: 2026-08-06 — Phase 10 complete (inventory + verification + security)*
