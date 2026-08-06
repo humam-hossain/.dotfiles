@@ -2,46 +2,44 @@
 gsd_state_version: 1.0
 milestone: v0.3
 milestone_name: Full ii install
-current_phase: 10
-current_phase_name: full-install-impact-inventory
-status: verifying
-stopped_at: Phase 10 planning complete — 5 plans ready
-last_updated: "2026-08-04T14:28:43.852Z"
-last_activity: 2026-08-04
-last_activity_desc: Phase 10 execution started
+current_phase: 11
+current_phase_name: Disposition decisions
+status: planning
+stopped_at: Phase 10 complete — verified, secured, ready for Phase 11 discuss
+last_updated: "2026-08-06T08:50:00.000Z"
+last_activity: 2026-08-06
+last_activity_desc: Phase 10 complete — verification, security, tracking committed; next Phase 11
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 6
+  completed_phases: 1
+  total_plans: 5
   completed_plans: 5
-  percent: 0
+  percent: 17
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 10 (full-install-impact-inventory) — EXECUTING
-Plan: 5 of 5
-Status: Phase complete — ready for verification
-Total Plans in Phase: 5
-Last activity: 2026-08-04 — Phase 10 execution resumed (wave continue)
-Last Activity Description: Phase 10 execution started
-Last activity: 2026-08-04 — Phase 10 planning complete
+Phase: 11 — Disposition decisions  
+Plan: Not started  
+Status: Ready to discuss / plan  
+Total Plans in Phase: TBD (not planned yet)  
+Last activity: 2026-08-06 — Phase 10 fully closed (execute + verify + secure + tracking)
 
 ## Session
 
-**Last session:** 2026-08-04  
-**Stopped at:** Phase 10 planning complete — 5 plans ready  
-**Resume file:** .planning/phases/10-full-install-impact-inventory/10-01-PLAN.md  
-**Next command:** `/gsd-execute-phase 10`
+**Last session:** 2026-08-06  
+**Stopped at:** Phase 10 complete — all post-gates closed  
+**Resume file:** none (Phase 11 not created yet)  
+**Next command:** `/gsd-discuss-phase 11`
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-08-03)
+See: .planning/PROJECT.md (updated 2026-08-06)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions.  
-**Current focus:** Phase 10 — full-install-impact-inventory
+**Current focus:** Phase 11 — Disposition decisions
 
 ## Deferred Items
 
@@ -73,6 +71,7 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Canonical playbook: `docs/dots-hyprland-workflow.md`
 - v0.1 local product retired (RET-01/02); do not revive `arch/quickshell.sh`
 - v0.3: full install only after impact inventory + dispositions (not blind drop of SAFE_DEFAULTS)
+- Phase 10 inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md` (neutral; no dispositions)
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.
@@ -83,9 +82,10 @@ None open.
 
 ## Operator Next Steps
 
-1. `/gsd-execute-phase 10` — produce `10-INVENTORY.md` (INV-01..04)
-2. Then `/gsd-discuss-phase 11` or `/gsd-plan-phase 11` for dispositions
+1. `/gsd-discuss-phase 11` — dispositions for inventory rows (DISP-01..04) ← recommended
+2. Or `/gsd-plan-phase 11` if context is already clear
 3. Keep Waybar dual-run unless DISP-03 explicitly changes
+4. Do not drop SAFE_DEFAULTS until Phase 12+ after dispositions
 
 ## Performance Metrics
 
@@ -101,6 +101,7 @@ None open.
 | Phase 09 P01 | 15min | 3 tasks | 1 created (playbook) |
 | Phase 09 P02 | 10min | 2 tasks | 1 modified (playbook) |
 | Phase 09 P03 | 10min | 3 tasks | README + PROJECT + REQUIREMENTS + playbook |
+| Phase 10 P01–05 | multi-session | 6 tasks | inventory + assert harness |
 
 ## Decisions
 
@@ -111,3 +112,4 @@ None open.
 - [Phase 9]: Canonical playbook; pin-bump primary update; exp-merge/online cache non-primary
 - [v0.2 close]: override_closeout — no formal milestone audit; 4 v0.1 debug sessions re-acknowledged (local product retired)
 - [v0.3 start]: Full ii install = inventory → disposition → full profile → overlays → adopt → playbook; phases 10–15
+- [Phase 10]: Neutral 10-INVENTORY.md + phase10-inventory-assert.sh; INV-01..04 verified; SAFE_DEFAULTS residual intact
