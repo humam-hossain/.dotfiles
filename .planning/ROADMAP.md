@@ -47,7 +47,7 @@ Phase artifacts: [milestones/v0.2-phases/](milestones/v0.2-phases/)
 
 ### v0.3 Full ii install
 
-- [x] **Phase 10: Full-install impact inventory** — Map every path/flag effect of full install vs personal configs (completed 2026-08-06)
+- [x] **Phase 10: Full-install impact inventory** — Map every path/flag effect of full install vs personal configs (completed 2026-08-07)
 - [ ] **Phase 11: Disposition decisions** — Per-surface keep/migrate/accept/defer + staged flag choices
 - [ ] **Phase 12: Wrapper full-profile** — Explicit opt-in full path; SAFE_DEFAULTS remain default
 - [ ] **Phase 13: Personal hypr/custom overlays** — Migrate must-keeps; SoT policy; before live full hypr files
@@ -172,7 +172,7 @@ Plans:
 | 7. Install, Session Hooks & Dual-Run Verify | v0.2 | 3/3 | Complete | 2026-07-27 |
 | 8. Retire Local Quickshell Product | v0.2 | 3/3 | Complete | 2026-07-28 |
 | 9. Workflow Documentation & Update Contract | v0.2 | 3/3 | Complete | 2026-08-01 |
-| 10. Full-install impact inventory | v0.3 | 5/5 | Complete    | 2026-08-06 |
+| 10. Full-install impact inventory | v0.3 | 5/5 | Complete    | 2026-08-07 |
 | 11. Disposition decisions | v0.3 | 0/0 | Not started | — |
 | 12. Wrapper full-profile | v0.3 | 0/0 | Not started | — |
 | 13. Personal hypr/custom overlays | v0.3 | 0/0 | Not started | — |
@@ -182,4 +182,4 @@ Plans:
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 22/22 requirements mapped · 0 unmapped
 
 ---
-*Last updated: 2026-08-06 — Phase 10 complete (inventory + verification + security)*
+*Last updated: 2026-08-07 — Phase 10 complete (inventory + verification + security + UAT 7/7)*
