@@ -3,7 +3,7 @@
 ## Current State
 
 **Shipped:** v0.2 Adopt dots-hyprland (2026-08-02)  
-**In progress:** v0.3 Full ii install — Phase 10 complete (2026-08-06); next is Phase 11 dispositions
+**In progress:** v0.3 Full ii install — Phase 10 complete (UAT 2026-08-07); next is Phase 11 dispositions
 
 Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell dual-running with Waybar, operator playbook for install and pin-bump updates.
 
@@ -177,7 +177,13 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Delete local `.config/quickshell` product this milestone | Single live shell path; avoid dual product confusion | ✓ Phase 8 (RET-01/02) |
 | Personal fork + upstream remote | Own customizations; still pull end-4 updates | ✓ Phase 5 |
 | Defer Waybar custom ports | Install foundation first; customs need live shell | — Deferred past full hypr adopt |
-| v0.3: Full install after impact inventory | Drop SAFE_DEFAULTS only with known dispositions for replaced configs | ◆ Phase 10 inventory done; dispositions Phase 11 |
+| v0.3: Full install after impact inventory | Drop SAFE_DEFAULTS only with known dispositions for replaced configs | ✓ Phase 10 inventory + UAT done; dispositions Phase 11 |
+| Phase 10: Single multi-section `10-INVENTORY.md` SoT | One inventory file for residual + axes A/B/C + host snapshot | ✓ INV-01..04 |
+| Phase 10: Neutral effects only (no dispositions) | Phase 11 owns keep/migrate/accept/defer | ✓ D-12 lint + assert |
+| Phase 10: Assert harness with word-boundary D-15 lint | Avoid false positives (`profile` ⊃ `rofi`) | ✓ `phase10-inventory-assert.sh` |
+| Phase 10: Full misc catalog from pin `find`, not named-four-only | Complete `--core` clash map | ✓ INV-03 |
+| Phase 10: Coarse illogical-impulse metas from install-deps (no full depends expand) | Enough for blast radius without live Syu | ✓ INV-01 |
+| Phase 10: hyprlock/ dir gap retained UNKNOWN | Honest residual for Phase 11 | ✓ D-04 |
 | Skip brightness/backlight (no ddcutil) | iGPU crash risk per `2026-07-16` post-mortem | ✓ Good |
 | Keep hyprlock (no Quickshell lock screen) | hyprlock works; lock screen panel not wanted as replacement | ✓ Good — re-check vs ii hyprlock on full install |
 | Primary target Arch only | debian/ubuntu parity is a separate concern | ✓ Good |
@@ -201,4 +207,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-06 after Phase 10 full-install impact inventory complete*
+*Last updated: 2026-08-07 after Phase 10 UAT complete (7/7 pass) — transition to Phase 11*
