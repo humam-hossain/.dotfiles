@@ -314,3 +314,5 @@ arch/dots-hyprland.sh             ──► residual flag claims (read-only)
 **Files scanned:** ~8 primary (inventory, phase10 assert, phase10 PATTERNS, wrapper SAFE_DEFAULTS sites, validation, context, research)  
 **Pattern extraction date:** 2026-08-08  
 **Prior pattern map:** `10-PATTERNS.md` (assert → phase07; inventory → docs workflow; effect sources read-only)
+
+## PATTERN MAPPING COMPLETE
