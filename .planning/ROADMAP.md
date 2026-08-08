@@ -103,7 +103,22 @@ Plans:
   3. Dual-run chrome (Waybar/rofi/swaync) disposition is **keep** unless explicitly accepted otherwise
   4. hyprlock/hypridle disposition is recorded consistent with keeping hyprlock (no QS lock investment)
 
-**Plans:** TBD
+**Plans:** 0/4 plans complete
+
+Plans:
+
+**Wave 1**
+
+- [ ] 11-01-PLAN.md — Tracer: Wave 0 assert + dispositions scaffold + pre-flight + flag profile (DISP-02)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 11-02-PLAN.md — Axis A hypr HIGH dispositions (DISP-01)
+- [ ] 11-03-PLAN.md — Axis B misc + Axis C packages (DISP-01)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 11-04-PLAN.md — Chrome accept-remove (DISP-03) + lock/idle (DISP-04) + HIGH cross-check
 
 ### Phase 12: Wrapper full-profile
 

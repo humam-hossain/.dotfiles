@@ -4,17 +4,17 @@ milestone: v0.3
 milestone_name: Full ii install
 current_phase: 11
 current_phase_name: Disposition decisions
-status: planning
-stopped_at: Phase 11 context gathered
-last_updated: "2026-08-08T18:45:49.475Z"
-last_activity: 2026-08-07
-last_activity_desc: Phase 10 UAT complete (7/7), transitioned to Phase 11
+status: ready_to_execute
+stopped_at: Phase 11 planned — 4 plans verified
+last_updated: "2026-08-09T00:00:00.000Z"
+last_activity: 2026-08-09
+last_activity_desc: Phase 11 planned (4 plans, verification passed)
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 11
+  completed_phases: 1
+  total_plans: 9
   completed_plans: 5
-  percent: 0
+  percent: 56
 ---
 
 # Project State
@@ -23,18 +23,18 @@ progress:
 
 Phase: 11 — Disposition decisions  
 Plan: Not started  
-Status: Ready to discuss / plan  
+Status: Ready to execute  
 Total Plans in Phase: 4
-Last activity: 2026-08-07 — Phase 10 UAT complete (7/7), transitioned to Phase 11
+Last activity: 2026-08-09 — Phase 11 planned (4 plans, verification passed)
 
-Progress: `[██░░░░░░░░░░░░░░░░░░] 1/6 phases · 5/5 plans in completed phases`
+Progress: `[███░░░░░░░░░░░░░░░░░] 1/6 phases complete · Phase 11 0/4 plans executed`
 
 ## Session
 
-**Last session:** 2026-08-08T15:55:24.384Z
-**Stopped at:** Phase 11 context gathered
-**Resume file:** .planning/phases/11-disposition-decisions/11-CONTEXT.md
-**Next command:** `/gsd-discuss-phase 11`
+**Last session:** 2026-08-09
+**Stopped at:** Phase 11 planned — ready to execute
+**Resume file:** .planning/phases/11-disposition-decisions/11-01-PLAN.md
+**Next command:** `/gsd-execute-phase 11`
 
 ## Project Reference
 
@@ -86,10 +86,10 @@ None open.
 
 ## Operator Next Steps
 
-1. `/gsd-discuss-phase 11` — dispositions for inventory rows (DISP-01..04) ← recommended
-2. Or `/gsd-plan-phase 11` if context is already clear
-3. Keep Waybar dual-run unless DISP-03 explicitly changes
-4. Do not drop SAFE_DEFAULTS until Phase 12+ after dispositions
+1. `/gsd-execute-phase 11` — write `11-DISPOSITIONS.md` per plans 11-01..04 ← recommended
+2. Do not run live full install or edit wrapper SAFE_DEFAULTS this phase (D-10)
+3. Chrome accept-remove is locked (D-11); configs stay archived in repo (D-12)
+4. After Phase 11: Phase 12 wrapper full-profile (FULL-*)
 
 ## Performance Metrics
 
