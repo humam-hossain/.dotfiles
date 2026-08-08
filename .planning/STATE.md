@@ -6,7 +6,7 @@ current_phase: 11
 current_phase_name: Disposition decisions
 status: planning
 stopped_at: Phase 11 context gathered
-last_updated: "2026-08-07T15:53:02.300Z"
+last_updated: "2026-08-08T15:55:24.394Z"
 last_activity: 2026-08-07
 last_activity_desc: Phase 10 UAT complete (7/7), transitioned to Phase 11
 progress:
@@ -31,9 +31,9 @@ Progress: `[██░░░░░░░░░░░░░░░░░░] 1/6 ph
 
 ## Session
 
-**Last session:** 2026-08-07T15:53:02.290Z
+**Last session:** 2026-08-08T15:55:24.384Z
 **Stopped at:** Phase 11 context gathered
-**Resume file:** /home/pera/github_repo/.dotfiles/.planning/phases/11-disposition-decisions/11-CONTEXT.md
+**Resume file:** .planning/phases/11-disposition-decisions/11-CONTEXT.md
 **Next command:** `/gsd-discuss-phase 11`
 
 ## Project Reference
