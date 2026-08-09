@@ -243,16 +243,19 @@ for p in kitty fontconfig asdeps illogical-impulse hyprlock; do
 done
 
 # --- Self-policy: script body must not mutate XDG ---
-# (documentation gate — this script never does; refuse if someone adds rsync to $HOME)
-if grep -nE 'rsync.*(HOME|XDG_CONFIG|\$HOME/\$|\~\/\.config)' "$0" >/dev/null 2>&1; then
-  # Allow only comments mentioning the ban
-  if grep -nE '^[^#]*rsync.*(HOME|XDG_CONFIG|\$HOME)' "$0" >/dev/null 2>&1; then
-    fail "assert script must not invoke rsync against HOME/XDG"
-  else
-    pass "assert script has no live rsync to HOME/XDG"
-  fi
+# Fail only on real rsync *invocations* (command at line start after optional indent).
+# Do not match comments or grep pattern strings that document the ban.
+if grep -nE '^[[:space:]]*rsync[[:space:]]' "$0" >/dev/null 2>&1; then
+  fail "assert script must not invoke rsync (found executable rsync line)"
+  grep -nE '^[[:space:]]*rsync[[:space:]]' "$0" || true
 else
-  pass "assert script has no live rsync to HOME/XDG"
+  pass "assert script has no live rsync invocation"
+fi
+# Also ban cp/mv/rm targeting HOME config in executable lines (not comments)
+if grep -nE '^[[:space:]]*(cp|mv|rm)[[:space:]].*(HOME|XDG_CONFIG|~\/\.config)' "$0" >/dev/null 2>&1; then
+  fail "assert script must not cp/mv/rm against HOME/XDG"
+else
+  pass "assert script has no live cp/mv/rm against HOME/XDG"
 fi
 
 # --- --full: read-only host checklist ---
