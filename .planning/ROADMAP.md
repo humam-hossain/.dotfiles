@@ -103,7 +103,7 @@ Plans:
   3. Dual-run chrome (Waybar/rofi/swaync) disposition is **keep** unless explicitly accepted otherwise
   4. hyprlock/hypridle disposition is recorded consistent with keeping hyprlock (no QS lock investment)
 
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans executed
 
 Plans:
 
@@ -118,7 +118,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 11-04-PLAN.md — Chrome accept-remove (DISP-03) + lock/idle (DISP-04) + HIGH cross-check
+- [x] 11-04-PLAN.md — Chrome accept-remove (DISP-03) + lock/idle (DISP-04) + HIGH cross-check
 
 ### Phase 12: Wrapper full-profile
 
@@ -188,7 +188,7 @@ Plans:
 | 8. Retire Local Quickshell Product | v0.2 | 3/3 | Complete | 2026-07-28 |
 | 9. Workflow Documentation & Update Contract | v0.2 | 3/3 | Complete | 2026-08-01 |
 | 10. Full-install impact inventory | v0.3 | 5/5 | Complete    | 2026-08-07 |
-| 11. Disposition decisions | v0.3 | 3/4 | In Progress|  |
+| 11. Disposition decisions | v0.3 | 4/4 | In Progress|  |
 | 12. Wrapper full-profile | v0.3 | 0/0 | Not started | — |
 | 13. Personal hypr/custom overlays | v0.3 | 0/0 | Not started | — |
 | 14. Live full adopt & verify | v0.3 | 0/0 | Not started | — |
