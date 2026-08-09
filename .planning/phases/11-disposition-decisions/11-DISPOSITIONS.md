@@ -1,6 +1,6 @@
 # Phase 11 — Disposition decisions
 
-**Status:** In progress (11-01 tracer scaffold)  
+**Status:** In progress (11-02 Axis A complete; 11-03/11-04 pending)  
 **Artifact SoT:** this file under `.planning/phases/11-disposition-decisions/` (D-01)  
 **Consumes path SoT:** `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md` (D-04)
 
@@ -96,18 +96,44 @@ Axes stay **independent for documentation** (Phase 10 D-09). First full-adopt pr
 
 ---
 
-## 3. Axis A — hypr HIGH + must-keeps (DISP-01) — sample rows (expand in 11-02)
+## 3. Axis A — hypr HIGH + must-keeps (DISP-01)
 
-> **11-01 tracer:** sample rows prove D-03 columns end-to-end. Remaining Axis A HIGH paths completed in plan **11-02**.
+**Complete** for all non-chrome hypr HIGH (+ MED–HIGH decision) inventory paths under drop-`--skip-hyprland` / full-profile. Lock residual narrative depth also in §7 (11-04); rows here seed DISP-01 coverage.
+
+### Session / install targets (D-15..D-20)
 
 | Path | Inventory risk | Disposition | Rationale | Flag stage | Inventory source |
 |------|----------------|-------------|-----------|------------|------------------|
 | `~/.config/hypr/hyprland.conf` (primary session entry) | HIGH | accept-upstream | Full adopt `mv` conf → `.old` so lua/hyprland tree becomes session entry (D-15). **Not** keep-personal as primary entry. | full-profile / drop-skip-hyprland | 10-INVENTORY.md Axis A `hyprland.conf` row |
-| `hyprland.conf` must-keeps (monitors \| workspaces \| env incl. cursor / `ILLOGICAL_IMPULSE_VIRTUAL_ENV`) | HIGH (subset) | migrate-to-hypr-custom | **Only** monitors (DP-1 / HDMI-A-2), workspaces layout pins, env machine paths (D-16). Phase 13 minimal `hypr/custom` overlays — no autostart/binds/chrome. | full-profile / drop-skip-hyprland | 10-INVENTORY.md Axis A `hyprland.conf` + conf categories |
-| `~/.config/hypr/hyprland/` | HIGH | accept-upstream | `rsync --delete` from dots hyprland tree (D-18). Pre-flight captures personal scripts. | full-profile / drop-skip-hyprland | 10-INVENTORY.md Axis A `hyprland/` row |
-| `~/.config/hypr/hyprland.lua` | HIGH | accept-upstream | Install entry required for dots-hyprland session (D-19). Sample for keyword coverage; full table in 11-02. | full-profile / drop-skip-hyprland | 10-INVENTORY.md Axis A `hyprland.lua` row |
+| `hyprland.conf` must-keeps — **monitors** (DP-1 / HDMI-A-2) | HIGH (subset) | migrate-to-hypr-custom | D-16 only: dual-monitor setup → Phase 13 minimal `hypr/custom` overlay. Cite conf monitors ~29–30. | full-profile / drop-skip-hyprland | 10-INVENTORY.md Axis A `hyprland.conf` + conf categories |
+| `hyprland.conf` must-keeps — **workspaces** layout pins | HIGH (subset) | migrate-to-hypr-custom | D-16 only: workspace layout pins → Phase 13 overlay. Cite conf ~76–87. | full-profile / drop-skip-hyprland | 10-INVENTORY.md Axis A `hyprland.conf` + conf categories |
+| `hyprland.conf` must-keeps — **env** (cursor + `ILLOGICAL_IMPULSE_VIRTUAL_ENV`) | HIGH (subset) | migrate-to-hypr-custom | D-16 only: machine env paths including cursor theme/size and `ILLOGICAL_IMPULSE_VIRTUAL_ENV` → Phase 13 overlay. Cite conf ~106–111. | full-profile / drop-skip-hyprland | 10-INVENTORY.md Axis A `hyprland.conf` + conf categories |
+| `~/.config/hypr/hyprland/` | HIGH | accept-upstream | `rsync --delete` from dots hyprland tree (D-18). Pre-flight captures personal content before sync. | full-profile / drop-skip-hyprland | 10-INVENTORY.md Axis A `hyprland/` row |
+| `~/.config/hypr/hyprland/scripts/` | HIGH (subset of hyprland/) | accept-upstream | Covered by `hyprland/` dir sync `--delete` (D-18); personal scripts captured via §1 pre-flight repo archive before adopt. Explicit path for DISP-01 `rg -F`. | full-profile / drop-skip-hyprland | 10-INVENTORY.md Axis A `hyprland/scripts/` + parent `hyprland/` row |
+| `~/.config/hypr/hyprland.lua` | HIGH | accept-upstream | Install entry required for dots-hyprland session (D-19). | full-profile / drop-skip-hyprland | 10-INVENTORY.md Axis A `hyprland.lua` row |
+| `~/.config/hypr/custom/` | HIGH (overlay strategy) | accept-upstream | Allow ii `ignore_existing` seed on first install if ABSENT; then Phase 13 populates **only** D-16 must-keeps — no extra custom fluff (D-20). **No overlay files written this phase.** | full-profile / drop-skip-hyprland | 10-INVENTORY.md Axis A `custom/` row |
 
-*Remaining Axis A (custom/, scripts/, hyprlock.conf, hypridle, hyprpaper, D-17 drop categories): plan 11-02.*
+### D-17 drop — not migrate-to-hypr-custom
+
+Category dispositions from personal `hyprland.conf` (inventory surface = hyprland.conf row). These are **accept-upstream / drop** — not must-migrate:
+
+| Path / category | Inventory risk | Disposition | Rationale | Flag stage | Inventory source |
+|-----------------|----------------|-------------|-----------|------------|------------------|
+| Autostart apps (Chrome, kitty+tmux, btop special, vesktop/discord, …) | n/a (conf category) | accept-upstream | Drop personal exec-once apps; rely on upstream session model (D-17). Not migrate-to-hypr-custom. | full-profile / drop-skip-hyprland | hyprland.conf categories under 10-INVENTORY.md Axis A |
+| Personal tool binds (define.sh, hyprshot, cliphist-rofi, special workspace binds, …) | n/a (conf category) | accept-upstream | Drop personal binds; not D-16 (D-17). | full-profile / drop-skip-hyprland | hyprland.conf categories under 10-INVENTORY.md Axis A |
+| Chrome-related exec-once (waybar / swaync / rofi launchers) | n/a (conf category) | accept-upstream | Drop with chrome accept-remove (D-11/D-14/D-17); see §6. Not carried into must-keep overlays. | full-profile / drop-skip-hyprland | hyprland.conf + emerged chrome §6 |
+
+### Lock / idle / paper seeds (D-24 / D-21) — authoritative narrative in §7
+
+| Path | Inventory risk | Disposition | Rationale | Flag stage | Inventory source |
+|------|----------------|-------------|-----------|------------|------------------|
+| `~/.config/hypr/hyprlock.conf` | HIGH (session lock) | keep-personal | Operator no-touch / no boot-risk lock changes (D-24). Host not-firstrun → install writes `*.new` sidecars only; do not promote `.new`. Product remains hyprlock mechanism; no Quickshell lock investment (D-23). | full-profile / drop-skip-hyprland (effect axis; live conf untouched) | 10-INVENTORY.md Axis A `hyprlock.conf` row |
+| `~/.config/hypr/hypridle.conf` | MED–HIGH | keep-personal | Same no-touch policy (D-24). | full-profile / drop-skip-hyprland | 10-INVENTORY.md Axis A `hypridle.conf` row |
+| `~/.config/hypr/hyprpaper.conf` | MED | accept-upstream | No investment / personal orphan policy (D-21); not a must-migrate. | full-profile / drop-skip-hyprland | 10-INVENTORY.md Axis A `hyprpaper.conf` row |
+
+**migrate-to-hypr-custom discipline:** only monitors / workspaces / env rows above. Lock, paper, autostart, binds, chrome → never migrate-to-hypr-custom.
+
+*Cross-ref:* §7 deepens lock residual + DISP-04 product wording (11-04). `hyprlock/` dir UNKNOWN → §8 defer (D-26). `.bak` / `hyprland-gui.conf` → §8 (D-22).
 
 ---
 
