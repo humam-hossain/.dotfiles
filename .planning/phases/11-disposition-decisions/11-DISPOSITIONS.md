@@ -1,6 +1,6 @@
 # Phase 11 — Disposition decisions
 
-**Status:** In progress (11-02 Axis A + 11-03 Axis B/C complete; 11-04 chrome/lock pending)  
+**Status:** Complete (11-01..11-04 — committed gate for Phases 12–14)  
 **Artifact SoT:** this file under `.planning/phases/11-disposition-decisions/` (D-01)  
 **Consumes path SoT:** `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md` (D-04)
 
@@ -192,41 +192,76 @@ Chrome waybar/rofi/swaync are **not** Axis B inventory rows — see §6 (emerged
 
 ---
 
-## 6. Dual-run chrome (DISP-03) — stub (complete in 11-04)
+## 6. Dual-run chrome (DISP-03)
 
-**Emerged surface:** Waybar / rofi / swaync were **omitted** from `10-INVENTORY.md` by Phase 10 D-15. Dispositioned here by operator decision (D-11), not invented install-effect rows.
+**Emerged surface:** Waybar / rofi / swaync were **omitted** from `10-INVENTORY.md` by Phase 10 D-15 (inventory chrome ban). They are dispositioned here by **operator decision**, not as invented install-effect rows from the files installer.
 
-**Explicit override (seed for assert):** This **explicitly accepts otherwise** versus DISP-03 / ROADMAP default-keep — disposition intent = **accept-remove** on full adopt (D-11). Full chrome section polish = **11-04**. Configs **archive in repo** (D-12); do not delete `.config/{waybar,rofi,swaync}` from repo.
+**Explicit override (D-11):** This section **explicitly accepts otherwise** versus DISP-03 / REQUIREMENTS / ROADMAP success-criterion **default-keep**. On full adopt, dual-run chrome disposition = **accept-remove** (stop launching; do not migrate into must-keeps).
+
+**Archive policy (D-12):** `.config/{waybar,rofi,swaync}` **remain in repo as archive** (pre-flight captures live). Success for Phases 11–14 does **not** delete these trees from the repo.
+
+**Timing (D-14):** Chrome stops in the **same adopt window** as full files install (conf→`.old` / lua entry lands). Personal waybar/rofi/swaync `exec-once` lines are **not** carried into D-16 must-keep overlays.
+
+**Binds (D-13):** After removal, rely on **dots-hyprland defaults** for launcher/notification behavior — no must-remap bind list required in this dispositions artifact.
 
 | Path / surface | Inventory risk | Disposition | Rationale | Flag stage | Inventory source |
 |----------------|----------------|-------------|-----------|------------|------------------|
-| waybar session chrome (stub) | n/a (emerged) | accept-upstream | accept-remove dual-run chrome (D-11); stop exec-once; archive-in-repo (D-12) | full-profile | emerged: Phase 10 D-15; conf exec-once |
-| rofi launcher chrome (stub) | n/a (emerged) | accept-upstream | accept-remove (D-11); archive-in-repo (D-12) | full-profile | emerged: Phase 10 D-15 |
-| swaync notifications (stub) | n/a (emerged) | accept-upstream | accept-remove (D-11); archive-in-repo (D-12) | full-profile | emerged: Phase 10 D-15 |
+| waybar session chrome | n/a (emerged) | accept-upstream | **accept-remove** dual-run bar (D-11); stop `exec-once` (~conf:64); archive-in-repo (D-12); same adopt window (D-14) | full-profile | emerged: Phase 10 D-15; conf exec-once; INTEGRATIONS dual-run narrative |
+| rofi launcher chrome | n/a (emerged) | accept-upstream | **accept-remove** (D-11); personal binds (cliphist-rofi etc.) dropped per D-17; archive-in-repo (D-12); rely on upstream defaults (D-13) | full-profile | emerged: Phase 10 D-15; conf binds |
+| swaync notifications | n/a (emerged) | accept-upstream | **accept-remove** (D-11); stop notification chrome exec-once; archive-in-repo (D-12); same adopt window (D-14) | full-profile | emerged: Phase 10 D-15; conf exec-once |
 
-Enum cell = `accept-upstream` only; **accept-remove** lives in rationale (no sixth enum token).
-
----
-
-## 7. Lock / idle / paper residual (DISP-04) — stub (complete in 11-04)
-
-Product seed (D-23): lock mechanism remains **hyprlock** if anything locks; **no Quickshell lock** investment.
-
-| Path | Inventory risk | Disposition | Rationale | Flag stage | Inventory source |
-|------|----------------|-------------|-----------|------------|------------------|
-| `~/.config/hypr/hyprlock.conf` (stub) | HIGH | keep-personal | No-touch / no boot-risk lock changes (D-24). Expand narrative in 11-04. | full-profile / n/a | 10-INVENTORY.md Axis A hyprlock.conf |
-| `~/.config/hypr/hypridle.conf` (stub) | MED–HIGH | keep-personal | No-touch (D-24). Expand in 11-04. | full-profile / n/a | 10-INVENTORY.md Axis A hypridle.conf |
-| `~/.config/hypr/hyprpaper.conf` (stub) | MED | accept-upstream | No investment (D-21). | full-profile / n/a | 10-INVENTORY.md hyprpaper.conf |
+**Enum discipline:** Disposition cell = `accept-upstream` only. **accept-remove** is rationale/prose language — **no sixth enum token**.
 
 ---
 
-## 8. UNKNOWN / extra surfaces — stub (complete in 11-04)
+## 7. Lock / idle / paper residual (DISP-04)
+
+**Product (D-23):** If anything locks the session, the mechanism remains **hyprlock**. **No Quickshell lock** screen investment (no QS lock product work).
+
+**Authoritative lock rows** (align with §3 seeds — same dispositions, deeper residual policy here):
 
 | Path | Inventory risk | Disposition | Rationale | Flag stage | Inventory source |
 |------|----------------|-------------|-----------|------------|------------------|
-| `~/.config/hypr/hyprlock/` dir (stub) | UNKNOWN / gap | defer | Dir not installed by legacy; defer under no-touch lock (D-26). Expand 11-04. | n/a | 10-INVENTORY.md UNKNOWN / research notes |
-| `~/.config/hypr/hyprland.conf.bak` (optional seed) | LOW | keep-personal | Personal backup left alone (D-22). | n/a | 10-INVENTORY.md extra surfaces |
-| `~/.config/hypr/hyprland-gui.conf` (optional seed) | LOW | defer | Personal/gui conf not in install list (D-22). | n/a | 10-INVENTORY.md extra surfaces |
+| `~/.config/hypr/hyprlock.conf` | HIGH (session lock) | keep-personal | **No-touch** / no boot-risk lock changes (D-24). Host not-firstrun → auto_backup writes `hyprlock.conf.new` sidecars only; **do not promote `.new`** to live; do not force firstrun replace. | full-profile / n/a (live conf untouched) | 10-INVENTORY.md Axis A hyprlock.conf |
+| `~/.config/hypr/hypridle.conf` | MED–HIGH | keep-personal | **No-touch** idle policy (D-24); same not-firstrun `*.new` behavior. | full-profile / n/a | 10-INVENTORY.md Axis A hypridle.conf |
+| `hyprlock.conf.new` / `hypridle.conf.new` (lock/idle `*.new` sidecars) | MED (sidecar) | defer | Sidecars from auto_backup on non-firstrun hosts — **defer** handling; do not promote to live (D-25). | n/a | 10-INVENTORY.md not-firstrun auto_backup note |
+| `~/.config/hypr/hyprpaper.conf` | MED | accept-upstream | No investment / personal orphan (D-21); final row consistent with §3 seed. | full-profile / n/a | 10-INVENTORY.md Axis A hyprpaper.conf |
+
+Cross-ref §3: lock/idle/paper seeds for DISP-01 HIGH checklist; §7 is DISP-04 residual narrative authority.
+
+---
+
+## 8. UNKNOWN / extra surfaces
+
+| Path | Inventory risk | Disposition | Rationale | Flag stage | Inventory source |
+|------|----------------|-------------|-----------|------------|------------------|
+| `~/.config/hypr/hyprlock/` dir | UNKNOWN / gap | defer | Upstream conf may `source` dir helpers; legacy install only auto_backups `hyprlock.conf` — dir **not** installed. **Defer** under no-touch lock policy (D-26); not a Phase 11–14 blocker. | n/a | 10-INVENTORY.md UNKNOWN / research notes |
+| `~/.config/hypr/hyprland.conf.bak` | LOW | keep-personal | Personal backup file; not in install list (D-22). | n/a | 10-INVENTORY.md extra surfaces |
+| `~/.config/hypr/hyprland-gui.conf` | LOW | defer | Personal/gui conf; not in install list (D-22). | n/a | 10-INVENTORY.md extra surfaces |
+| PARTIAL `previous_dependencies.conf` ∩ explicit pkgs | PARTIAL | accept-upstream | Accept asdeps residual under D-29; machine-time name set — **no per-name invent**. | full-profile / allow-sysupdate | 10-INVENTORY.md UNKNOWN PARTIAL asdeps note |
+| `--exp-files` experimental path | n/a | defer | Out of default legacy files SoT scope for this disposition set; inventory documents legacy as default. | n/a | 10-INVENTORY.md / RESEARCH scope notes |
+
+### HIGH-path cross-check (DISP-01 final — 13 unique HIGH effect paths)
+
+Every path below **must** appear in this file with a disposition enum (verified at 11-04 close):
+
+| # | Path / effect | Axis | Present in dispositions? |
+|---|----------------|------|--------------------------|
+| 1 | `hyprland/` dir | A | yes — §3 |
+| 2 | `hyprland.conf` | A | yes — §3 |
+| 3 | `hyprland.lua` | A | yes — §3 |
+| 4 | `hyprlock.conf` | A | yes — §3/§7 |
+| 5 | `custom/` | A | yes — §3 |
+| 6 | `hyprland/scripts` | A | yes — §3 |
+| 7 | `fish/` | B | yes — §4 |
+| 8 | `fontconfig/` | B | yes — §4 |
+| 9 | `kitty/` | B | yes — §4 |
+| 10 | `starship.toml` | B | yes — §4 |
+| 11 | Full install/install-deps pipeline | C | yes — §5 |
+| 12 | `pacman -Syu` | C | yes — §5 |
+| 13 | `implicitize` / asdeps | C | yes — §5 |
+
+MED–HIGH decision rows also present: hypridle.conf, mpv, illogical-impulse-hyprland / illogical-impulse metas.
 
 ---
 
