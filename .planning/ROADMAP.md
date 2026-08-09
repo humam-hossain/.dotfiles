@@ -103,13 +103,13 @@ Plans:
   3. Dual-run chrome (Waybar/rofi/swaync) disposition is **keep** unless explicitly accepted otherwise
   4. hyprlock/hypridle disposition is recorded consistent with keeping hyprlock (no QS lock investment)
 
-**Plans:** 0/4 plans complete
+**Plans:** 1/4 plans executed
 
 Plans:
 
 **Wave 1**
 
-- [ ] 11-01-PLAN.md — Tracer: Wave 0 assert + dispositions scaffold + pre-flight + flag profile (DISP-02)
+- [x] 11-01-PLAN.md — Tracer: Wave 0 assert + dispositions scaffold + pre-flight + flag profile (DISP-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -188,7 +188,7 @@ Plans:
 | 8. Retire Local Quickshell Product | v0.2 | 3/3 | Complete | 2026-07-28 |
 | 9. Workflow Documentation & Update Contract | v0.2 | 3/3 | Complete | 2026-08-01 |
 | 10. Full-install impact inventory | v0.3 | 5/5 | Complete    | 2026-08-07 |
-| 11. Disposition decisions | v0.3 | 0/0 | Not started | — |
+| 11. Disposition decisions | v0.3 | 1/4 | In Progress|  |
 | 12. Wrapper full-profile | v0.3 | 0/0 | Not started | — |
 | 13. Personal hypr/custom overlays | v0.3 | 0/0 | Not started | — |
 | 14. Live full adopt & verify | v0.3 | 0/0 | Not started | — |
