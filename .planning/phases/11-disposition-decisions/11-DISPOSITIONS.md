@@ -1,6 +1,6 @@
 # Phase 11 — Disposition decisions
 
-**Status:** In progress (11-02 Axis A complete; 11-03/11-04 pending)  
+**Status:** In progress (11-02 Axis A + 11-03 Axis B/C complete; 11-04 chrome/lock pending)  
 **Artifact SoT:** this file under `.planning/phases/11-disposition-decisions/` (D-01)  
 **Consumes path SoT:** `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md` (D-04)
 
@@ -137,32 +137,58 @@ Category dispositions from personal `hyprland.conf` (inventory surface = hyprlan
 
 ---
 
-## 4. Axis B — misc under drop `--core` (expand in 11-03)
+## 4. Axis B — misc under drop `--core` (DISP-01)
 
-Stub for section gates and progressive keywords. Full HIGH rows (fish, fontconfig, kitty, starship.toml) + PRESENT MED + greenfield blurb land in **11-03**.
+**Complete** for HIGH misc PRESENT paths + notable MED PRESENT collisions under first full-adopt (drop `--core`). Enum only five tokens — **no** `migrate-to-hypr-custom` for misc.
+
+**D-28 policy (required):** After full adopt, live misc surfaces are **dots-hyprland-managed**. Personal copies remain in **repo only as archive** after §1 pre-flight. **No post-install reapply** of personal fish/kitty/starship (or other misc) over live.
+
+### HIGH PRESENT collisions
 
 | Path | Inventory risk | Disposition | Rationale | Flag stage | Inventory source |
 |------|----------------|-------------|-----------|------------|------------------|
-| `~/.config/fish/` (stub) | HIGH | accept-upstream | FUTURE full row in 11-03: live accept under drop-`--core`; repo archive via pre-flight (D-27/D-28). | full-profile / drop-core | 10-INVENTORY.md Axis B fish row |
-| `~/.config/kitty/` (stub) | HIGH | accept-upstream | FUTURE 11-03. | full-profile / drop-core | 10-INVENTORY.md Axis B kitty row |
-| `~/.config/starship.toml` (stub) | HIGH | accept-upstream | FUTURE 11-03. | full-profile / drop-core | 10-INVENTORY.md Axis B starship.toml row |
+| `~/.config/fish/` | HIGH | accept-upstream | Live rsync sync exclude `conf.d` under drop-`--core` (D-27). Personal fish → repo archive via pre-flight; **no post-install reapply** (D-28). | full-profile / drop-core | 10-INVENTORY.md Axis B fish row |
+| `~/.config/fontconfig/` | HIGH | accept-upstream | Live accept-upstream under drop-`--core`; personal fontconfig archived in repo (D-27/D-28). | full-profile / drop-core | 10-INVENTORY.md Axis B fontconfig row |
+| `~/.config/kitty/` | HIGH | accept-upstream | Dir sync `--delete` on live; personal kitty → **repo only as archive**; no post-install reapply (D-28). | full-profile / drop-core | 10-INVENTORY.md Axis B kitty row |
+| `~/.config/starship.toml` | HIGH | accept-upstream | `install_file` on live; personal starship → repo archive only (D-28). | full-profile / drop-core | 10-INVENTORY.md Axis B starship.toml row |
 
-Policy seed (D-28): after full adopt, live misc is dots-hyprland-managed; personal copies remain **repo only as archive**; **no post-install reapply** of personal fish/kitty/starship over live.
+### Notable MED / MED–HIGH PRESENT collisions
+
+| Path | Inventory risk | Disposition | Rationale | Flag stage | Inventory source |
+|------|----------------|-------------|-----------|------------|------------------|
+| `~/.config/mpv/` | MED–HIGH | accept-upstream | Live accept under drop-`--core`; pre-flight archive for live-only drift (D-27/D-28). | full-profile / drop-core | 10-INVENTORY.md Axis B mpv row |
+| `~/.config/dolphinrc` | MED | accept-upstream | Live accept + pre-flight archive (D-28). | full-profile / drop-core | 10-INVENTORY.md Axis B dolphinrc row |
+| `~/.config/kdeglobals` | MED | accept-upstream | Live accept + pre-flight archive (D-28). | full-profile / drop-core | 10-INVENTORY.md Axis B kdeglobals row |
+
+### Greenfield ABSENT misc catalog (LOW–MED) — blurb
+
+All remaining inventory misc greenfield basenames from `10-INVENTORY.md` Axis B full misc catalog (dirs/files under `dots/.config` excl. quickshell/fish/hypr/fontconfig, plus konsole share) that are **ABSENT** on host → live **`accept-upstream`** under drop-`--core` (D-27). Named set includes (inventory-only; not invented): chrome-flags.conf, code-flags.conf, darklyrc, foot, fuzzel, kde-material-you-colors, konsolerc, Kvantum, matugen, thorium-flags.conf, wlogout, xdg-desktop-portal, zshrc.d, and `~/.local/share/konsole/`. Cite: **10-INVENTORY.md** Axis drop `--core` misc catalog table. Do not invent basenames absent from that catalog.
+
+Chrome waybar/rofi/swaync are **not** Axis B inventory rows — see §6 (emerged surface).
 
 ---
 
-## 5. Axis C — packages / sysupdate (expand in 11-03)
+## 5. Axis C — packages / sysupdate (DISP-01)
 
-Stub keywords for progressive assert: `pacman -Syu`, `illogical-impulse`, asdeps / full install-deps pipeline.
+**Complete** for package/sysupdate HIGH paths under first full-adopt (allow sysupdate / drop `--skip-sysupdate`). Default residual install **still** injects `--skip-sysupdate` (§2 / D-10) — full path is opt-in.
+
+### HIGH package effects
 
 | Path | Inventory risk | Disposition | Rationale | Flag stage | Inventory source |
 |------|----------------|-------------|-----------|------------|------------------|
-| Full `install` / `install-deps` pipeline (stub) | HIGH | accept-upstream | FUTURE 11-03: accept full deps under first full-adopt (D-29). | full-profile / allow-sysupdate | 10-INVENTORY.md Axis C pipeline row |
-| `sudo pacman -Syu` (stub) | HIGH | accept-upstream | FUTURE 11-03: allow when skip-sysupdate dropped (D-05/D-29). | full-profile / allow-sysupdate | 10-INVENTORY.md Axis C Syu row |
-| `implicitize_old_dependencies` / asdeps (stub) | HIGH | accept-upstream | FUTURE 11-03: accept residual; wrapper protect re-mark remains (D-29). | full-profile / allow-sysupdate | 10-INVENTORY.md Axis C asdeps row |
-| `illogical-impulse-*` metas (stub) | MED–HIGH | accept-upstream | FUTURE 11-03: remain managed; no uninstall campaign (D-31). | full-profile | 10-INVENTORY.md meta table |
+| Full `install` / `install-deps` pipeline | HIGH overall | accept-upstream | Accept full deps path under first full-adopt profile (D-29): deprecated removals, optional Syu, asdeps implicitize, meta PKGBUILD loop. Document risk; backup gate still required at install. | full-profile / allow-sysupdate | 10-INVENTORY.md Axis C pipeline row |
+| `sudo pacman -Syu` | HIGH | accept-upstream | Allow system-wide upgrade when `--skip-sysupdate` dropped (D-05/D-29). Rationale: full greenfield parity; operator accepts upgrade blast radius. | full-profile / allow-sysupdate | 10-INVENTORY.md Axis C Syu row |
+| `implicitize_old_dependencies` / asdeps demotion | HIGH for dual-run | accept-upstream | Accept asdeps residual under full deps (D-29). Wrapper **PROTECT_EXPLICIT** / protect re-mark **remains as implemented** — **do not invent new protect package lists**. PARTIAL host intersection of `previous_dependencies.conf` ∩ explicit pkgs is machine-time; no per-name invent. | full-profile / allow-sysupdate | 10-INVENTORY.md Axis C asdeps / implicitize row |
+| `remove_deprecated_dependencies` | MED (always-on deps) | accept-upstream | Accept under full deps path; brief risk of removing deprecated dual-run names (inventory cite). | full-profile / allow-sysupdate | 10-INVENTORY.md Axis C deprecated-removal row |
 
-Default residual install **still** injects `--skip-sysupdate` (§2 / D-10).
+### MED–HIGH / policy rows
+
+| Path | Inventory risk | Disposition | Rationale | Flag stage | Inventory source |
+|------|----------------|-------------|-----------|------------|------------------|
+| `illogical-impulse-hyprland` meta (+ coarse `illogical-impulse-*` set) | MED–HIGH | accept-upstream | Remain managed under dual-run already-installed metas; **no uninstall campaign** (D-31). Coarse set per inventory meta table. | full-profile | 10-INVENTORY.md meta table / illogical-impulse-hyprland |
+| `plasma-browser-integration` / optional plasmaintg | MED | accept-upstream | Accept if setup wants it, including possible KDE pull footprint (D-30). | full-profile / allow-sysupdate | 10-INVENTORY.md plasmaintg / plasma-browser-integration row |
+
+**Prose:** Full-profile package path accepts Syu + asdeps residual + metas. Default residual install still injects `--skip-sysupdate` (point at §2 / D-10 — wrapper not edited).
 
 ---
 
