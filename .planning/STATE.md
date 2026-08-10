@@ -3,16 +3,16 @@ gsd_state_version: 1.0
 milestone: v0.3
 milestone_name: Full ii install
 current_phase: 12
-current_phase_name: Wrapper full-profile
-status: planning
+current_phase_name: wrapper-full-profile
+status: executing
 stopped_at: Phase 12 context gathered
-last_updated: "2026-08-10T17:10:11.086Z"
-last_activity: 2026-08-10
-last_activity_desc: Phase 11 complete, transitioned to Phase 12
+last_updated: "2026-08-10T20:13:35.118Z"
+last_activity: 2026-08-11
+last_activity_desc: Phase 12 execution started
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 11
+  total_plans: 16
   completed_plans: 9
   percent: 0
 ---
@@ -21,11 +21,11 @@ progress:
 
 ## Current Position
 
-Phase: 12 — Wrapper full-profile  
-Plan: Not started  
-Status: Ready to plan  
-Total Plans in Phase: TBD (plan-phase)  
-Last activity: 2026-08-10 — Phase 11 complete, transitioned to Phase 12
+Phase: 12 (wrapper-full-profile) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase 12
+Total Plans in Phase: 4
+Last activity: 2026-08-11 — Phase 12 execution started
 
 Progress: `[███████░░░░░░░░░░░░░] 2/6 v0.3 phases complete (10–11) · Phase 12 not planned`
 
@@ -41,7 +41,7 @@ Progress: `[███████░░░░░░░░░░░░░] 2/6 v0
 See: .planning/PROJECT.md (updated 2026-08-07)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions.  
-**Current focus:** Phase 12 — Wrapper full-profile
+**Current focus:** Phase 12 — wrapper-full-profile
 
 ## Deferred Items
 
