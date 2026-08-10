@@ -5,16 +5,16 @@ milestone_name: Full ii install
 current_phase: 12
 current_phase_name: Wrapper full-profile
 status: planning
-stopped_at: Phase 11 complete — ready to plan Phase 12
-last_updated: "2026-08-10T15:37:52.632Z"
+stopped_at: Phase 12 context gathered
+last_updated: "2026-08-10T17:10:11.086Z"
 last_activity: 2026-08-10
 last_activity_desc: Phase 11 complete, transitioned to Phase 12
 progress:
   total_phases: 6
-  completed_phases: 2
-  total_plans: 15
+  completed_phases: 0
+  total_plans: 11
   completed_plans: 9
-  percent: 33
+  percent: 0
 ---
 
 # Project State
@@ -31,9 +31,9 @@ Progress: `[███████░░░░░░░░░░░░░] 2/6 v0
 
 ## Session
 
-**Last session:** 2026-08-10  
-**Stopped at:** Phase 11 sealed (VERIFICATION passed; DISP-01..04 complete)  
-**Resume file:** none for Phase 11 — next is Phase 12 plan  
+**Last session:** 2026-08-10T17:10:11.076Z
+**Stopped at:** Phase 12 context gathered
+**Resume file:** .planning/phases/12-wrapper-full-profile/12-CONTEXT.md
 **Next command:** `/gsd-plan-phase 12`
 
 ## Project Reference
