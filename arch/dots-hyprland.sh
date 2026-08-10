@@ -146,10 +146,19 @@ preflight() {
 }
 
 # D-11 / D-13: hard interactive gate for install / install-files.
+# Optional arg: full=0|1 (Phase 12). Safe-path residual note only when full==0 so
+# full dry-run output does not claim skip-hyprland protection (Pitfall 5 / FULL-01 greps).
+# Full-specific D-07 blast-radius messaging is expanded in plan 12-02.
 backup_gate() {
+  local full="${1:-0}"
   echo "[CONFIG] Upstream may backup clashing paths to: ~/ii-original-dots-backup"
   echo "[CONFIG] install-files will overwrite ~/.config/quickshell (Quickshell tree / rsync --delete)."
-  echo "[CONFIG] Defaults include --skip-hyprland so personal hyprland.conf is not renamed."
+  if ((full == 0)); then
+    echo "[CONFIG] Defaults include --skip-hyprland so personal hyprland.conf is not renamed."
+  else
+    # Avoid residual flag tokens here — full path injects none (D-03); 12-02 expands themes.
+    echo "[CONFIG] Full profile path: no residual safe defaults on this path."
+  fi
   echo "[CONFIG] Do NOT pass --skip-backup on first adoption."
   local ans
   read -r -p "Type 'yes' to continue: " ans
@@ -1365,6 +1374,7 @@ run_install_family() {
   # Scan remaining args: strip wrapper-owned meta flags; preserve order (WRAP-04)
   local dry_run=0
   local allow_skip_backup=0
+  local full=0
   local -a user_flags=()
   local arg
   for arg in "$@"; do
@@ -1375,11 +1385,22 @@ run_install_family() {
       --allow-skip-backup)
         allow_skip_backup=1
         ;;
+      --full)
+        # D-01: wrapper-owned meta; never forward to ./setup
+        full=1
+        ;;
       *)
         user_flags+=("$arg")
         ;;
     esac
   done
+
+  # D-02: --full only valid on install / install-files (same scope as SAFE_DEFAULTS)
+  if ((full == 1)) && ! needs_safe_defaults "$subcmd"; then
+    echo "[FAIL] --full is only valid with install or install-files." >&2
+    echo "[FAIL] Refusing --full on subcommand: $subcmd" >&2
+    exit 1
+  fi
 
   # Preflight before any path that invokes setup (D-14)
   preflight
@@ -1392,15 +1413,20 @@ run_install_family() {
   fi
 
   # Hard backup gate for install / install-files (skip pure -h/--help passthrough)
+  # D-08: still runs on --full --dry-run; pass full so messaging does not claim residual protection
   if needs_safe_defaults "$subcmd" && ! is_help_only_user_flags user_flags; then
-    backup_gate
+    backup_gate "$full"
   fi
 
   # Build argv: ./setup <sub> [SAFE_DEFAULTS…] [user flags…] (D-09)
+  # D-03 / FULL-01: when --full, inject nothing from SAFE_DEFAULTS
+  # D-05 / FULL-02: when full==0, still inject the triple residual
   local -a cmd=(./setup "$subcmd")
-  if needs_safe_defaults "$subcmd"; then
+  if needs_safe_defaults "$subcmd" && ((full == 0)); then
     echo "[CONFIG] safe defaults: ${SAFE_DEFAULTS[*]}"
     cmd+=("${SAFE_DEFAULTS[@]}")
+  elif needs_safe_defaults "$subcmd" && ((full == 1)); then
+    echo "[CONFIG] full profile: no SAFE_DEFAULTS injection (DISP-02 drop-all-three)"
   fi
   if ((${#user_flags[@]} > 0)); then
     cmd+=("${user_flags[@]}")
