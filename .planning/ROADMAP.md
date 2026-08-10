@@ -48,7 +48,7 @@ Phase artifacts: [milestones/v0.2-phases/](milestones/v0.2-phases/)
 ### v0.3 Full ii install
 
 - [x] **Phase 10: Full-install impact inventory** — Map every path/flag effect of full install vs personal configs (completed 2026-08-07)
-- [ ] **Phase 11: Disposition decisions** — Per-surface keep/migrate/accept/defer + staged flag choices
+- [x] **Phase 11: Disposition decisions** — Per-surface keep/migrate/accept/defer + staged flag choices (completed 2026-08-10)
 - [ ] **Phase 12: Wrapper full-profile** — Explicit opt-in full path; SAFE_DEFAULTS remain default
 - [ ] **Phase 13: Personal hypr/custom overlays** — Migrate must-keeps; SoT policy; before live full hypr files
 - [ ] **Phase 14: Live full adopt & verify** — Gated full install; Lua session; UAT; safe rollback guidance
@@ -103,7 +103,7 @@ Plans:
   3. Dual-run chrome (Waybar/rofi/swaync) disposition is **keep** unless explicitly accepted otherwise
   4. hyprlock/hypridle disposition is recorded consistent with keeping hyprlock (no QS lock investment)
 
-**Plans:** 4/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
 
@@ -188,7 +188,7 @@ Plans:
 | 8. Retire Local Quickshell Product | v0.2 | 3/3 | Complete | 2026-07-28 |
 | 9. Workflow Documentation & Update Contract | v0.2 | 3/3 | Complete | 2026-08-01 |
 | 10. Full-install impact inventory | v0.3 | 5/5 | Complete    | 2026-08-07 |
-| 11. Disposition decisions | v0.3 | 4/4 | In Progress|  |
+| 11. Disposition decisions | v0.3 | 4/4 | Complete    | 2026-08-10 |
 | 12. Wrapper full-profile | v0.3 | 0/0 | Not started | — |
 | 13. Personal hypr/custom overlays | v0.3 | 0/0 | Not started | — |
 | 14. Live full adopt & verify | v0.3 | 0/0 | Not started | — |

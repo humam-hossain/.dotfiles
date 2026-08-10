@@ -17,10 +17,10 @@ Requirements for this milestone only. Phase numbering continues after v0.2 (last
 
 ### Disposition decisions
 
-- [ ] **DISP-01**: Every high-risk inventory row has an explicit disposition: keep-personal / migrate-to-hypr-custom / accept-upstream / merge / defer — with short rationale
-- [ ] **DISP-02**: Disposition set includes staged flag choices: whether full adopt drops `--skip-hyprland` only, also drops `--core`, and/or allows sysupdate (not assumed all three)
-- [ ] **DISP-03**: Disposition for dual-run chrome (Waybar/rofi/swaync exec-once) defaults to **keep** unless explicitly accepted otherwise
-- [ ] **DISP-04**: Disposition covers hyprlock/hypridle vs product choice to keep hyprlock (no QS lock screen investment)
+- [x] **DISP-01**: Every high-risk inventory row has an explicit disposition: keep-personal / migrate-to-hypr-custom / accept-upstream / merge / defer — with short rationale
+- [x] **DISP-02**: Disposition set includes staged flag choices: whether full adopt drops `--skip-hyprland` only, also drops `--core`, and/or allows sysupdate (not assumed all three)
+- [x] **DISP-03**: Disposition for dual-run chrome (Waybar/rofi/swaync exec-once) defaults to **keep** unless explicitly accepted otherwise
+- [x] **DISP-04**: Disposition covers hyprlock/hypridle vs product choice to keep hyprlock (no QS lock screen investment)
 
 ### Personal overlay migration
 
@@ -91,10 +91,10 @@ Deferred beyond v0.3.
 | INV-02 | Phase 10 | Complete |
 | INV-03 | Phase 10 | Complete |
 | INV-04 | Phase 10 | Complete |
-| DISP-01 | Phase 11 | Pending |
-| DISP-02 | Phase 11 | Pending |
-| DISP-03 | Phase 11 | Pending |
-| DISP-04 | Phase 11 | Pending |
+| DISP-01 | Phase 11 | Complete |
+| DISP-02 | Phase 11 | Complete |
+| DISP-03 | Phase 11 | Complete |
+| DISP-04 | Phase 11 | Complete |
 | FULL-01 | Phase 12 | Pending |
 | FULL-02 | Phase 12 | Pending |
 | FULL-03 | Phase 12 | Pending |
