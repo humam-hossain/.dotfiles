@@ -5,43 +5,43 @@ milestone_name: Full ii install
 current_phase: 12
 current_phase_name: Wrapper full-profile
 status: planning
-stopped_at: Phase 11 planned — ready to execute
+stopped_at: Phase 11 complete — ready to plan Phase 12
 last_updated: "2026-08-10T15:37:52.632Z"
 last_activity: 2026-08-10
 last_activity_desc: Phase 11 complete, transitioned to Phase 12
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 11
+  completed_phases: 2
+  total_plans: 15
   completed_plans: 9
-  percent: 0
+  percent: 33
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 12 — Wrapper full-profile
-Plan: Not started
-Status: Ready to plan
-Total Plans in Phase: 4
+Phase: 12 — Wrapper full-profile  
+Plan: Not started  
+Status: Ready to plan  
+Total Plans in Phase: TBD (plan-phase)  
 Last activity: 2026-08-10 — Phase 11 complete, transitioned to Phase 12
 
-Progress: `[███░░░░░░░░░░░░░░░░░] 1/6 phases complete · Phase 11 0/4 plans executed`
+Progress: `[███████░░░░░░░░░░░░░] 2/6 v0.3 phases complete (10–11) · Phase 12 not planned`
 
 ## Session
 
-**Last session:** 2026-08-09
-**Stopped at:** Phase 11 planned — ready to execute
-**Resume file:** .planning/phases/11-disposition-decisions/11-01-PLAN.md
-**Next command:** `/gsd-execute-phase 11`
+**Last session:** 2026-08-10  
+**Stopped at:** Phase 11 sealed (VERIFICATION passed; DISP-01..04 complete)  
+**Resume file:** none for Phase 11 — next is Phase 12 plan  
+**Next command:** `/gsd-plan-phase 12`
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-08-07)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions.  
-**Current focus:** Phase 11 — disposition-decisions
+**Current focus:** Phase 12 — Wrapper full-profile
 
 ## Deferred Items
 
@@ -69,13 +69,14 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Submodule path fixed at `vendor/dots-hyprland`; pin-bump is primary update
 - Thin `arch/dots-hyprland.sh` only; SAFE_DEFAULTS + backup gate; array-exec `./setup`
 - Live install at `~/.config/quickshell` (real tree); personal hypr hooks for env + `qs -c ii`
-- Dual-run Waybar until explicit cutover milestone (v0.3 default keep via DISP-03)
+- Dual-run chrome: **accept-remove on full adopt** (D-11 override of DISP-03 default-keep); configs **archive in repo** (D-12)
 - Canonical playbook: `docs/dots-hyprland-workflow.md`
 - v0.1 local product retired (RET-01/02); do not revive `arch/quickshell.sh`
 - v0.3: full install only after impact inventory + dispositions (not blind drop of SAFE_DEFAULTS)
 - Phase 10 inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md` (neutral; no dispositions)
 - Phase 10 UAT: 7/7 pass (6 automated coverage + 1 human confirm) — 2026-08-07
-- Phase 10 residual for Phase 11: hyprlock/ dir gap (UNKNOWN), asdeps intersection partial, host PRESENT misc collisions
+- Phase 11 disposition SoT: `.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md` (committed gate for 12–14)
+- Phase 11: first full-adopt drops all three SAFE_DEFAULTS residuals (D-05); residual still default (D-10); must-migrate only monitors/workspaces/env (D-16)
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.
@@ -86,10 +87,10 @@ None open.
 
 ## Operator Next Steps
 
-1. `/gsd-execute-phase 11` — write `11-DISPOSITIONS.md` per plans 11-01..04 ← recommended
-2. Do not run live full install or edit wrapper SAFE_DEFAULTS this phase (D-10)
-3. Chrome accept-remove is locked (D-11); configs stay archived in repo (D-12)
-4. After Phase 11: Phase 12 wrapper full-profile (FULL-*)
+1. `/gsd-plan-phase 12` — wrapper full-profile (FULL-*) from §2 flag profile ← recommended  
+2. Do **not** change default SAFE_DEFAULTS until FULL-* opt-in path exists (D-10 / FULL-02)  
+3. Do **not** run live full install until Phase 14 gates  
+4. Optional: `/gsd-verify-work 11` for human D-04 inventory-cite spot-checks
 
 ## Performance Metrics
 
@@ -107,6 +108,8 @@ None open.
 | Phase 09 P03 | 10min | 3 tasks | README + PROJECT + REQUIREMENTS + playbook |
 | Phase 10 P01–05 | multi-session | 6 tasks | inventory + assert harness |
 | Phase 10 UAT | short | 7 tests | 10-UAT.md (7 pass, 0 issues) |
+| Phase 11 P01–04 | multi-session | 9 tasks | dispositions + assert + VERIFICATION |
+| Phase 11 verify | short | 14/14 | 11-VERIFICATION.md status: passed |
 
 ## Decisions
 
@@ -118,3 +121,4 @@ None open.
 - [v0.2 close]: override_closeout — no formal milestone audit; 4 v0.1 debug sessions re-acknowledged (local product retired)
 - [v0.3 start]: Full ii install = inventory → disposition → full profile → overlays → adopt → playbook; phases 10–15
 - [Phase 10]: Neutral 10-INVENTORY.md + phase10-inventory-assert.sh; INV-01..04 verified + UAT; SAFE_DEFAULTS residual intact
+- [Phase 11]: 11-DISPOSITIONS.md eight sections; DISP-01..04 complete; full-adopt drops triple residual (D-05); chrome accept-remove (D-11); lock keep-personal (D-24); assert green; VERIFICATION passed 2026-08-10
