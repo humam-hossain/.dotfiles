@@ -146,20 +146,30 @@ preflight() {
 }
 
 # D-11 / D-13: hard interactive gate for install / install-files.
-# Optional arg: full=0|1 (Phase 12). Safe-path residual note only when full==0 so
-# full dry-run output does not claim skip-hyprland protection (Pitfall 5 / FULL-01 greps).
-# Full-specific D-07 blast-radius messaging is expanded in plan 12-02.
+# Optional arg: full=0|1 (Phase 12). Same type-yes token (D-06); messaging branches (D-07).
+# Safe path keeps residual-protection note; full path must not claim skip-hyprland safety (Pitfall 5).
+# Echo prompt on stdout before read: read -p writes to /dev/tty and is invisible to dry-run capture greps.
 backup_gate() {
   local full="${1:-0}"
-  echo "[CONFIG] Upstream may backup clashing paths to: ~/ii-original-dots-backup"
-  echo "[CONFIG] install-files will overwrite ~/.config/quickshell (Quickshell tree / rsync --delete)."
   if ((full == 0)); then
+    echo "[CONFIG] Upstream may backup clashing paths to: ~/ii-original-dots-backup"
+    echo "[CONFIG] install-files will overwrite ~/.config/quickshell (Quickshell tree / rsync --delete)."
     echo "[CONFIG] Defaults include --skip-hyprland so personal hyprland.conf is not renamed."
+    echo "[CONFIG] Do NOT pass --skip-backup on first adoption."
   else
-    # Avoid residual flag tokens here — full path injects none (D-03); 12-02 expands themes.
-    echo "[CONFIG] Full profile path: no residual safe defaults on this path."
+    # D-07 full-path blast-radius themes.
+    # Avoid residual safe-flag tokens (--core/--skip-hyprland/--skip-sysupdate) for FULL-01 greps.
+    # Avoid meta tokens (--full / --allow-skip-backup) so dual-key strip greps stay clean (FULL-03b).
+    echo "[CONFIG] FULL PROFILE: no SAFE_DEFAULTS residual injection on this path."
+    echo "[CONFIG] FULL PROFILE: personal hyprland.conf may be renamed to .old by upstream install."
+    echo "[CONFIG] FULL PROFILE: misc overlay may overwrite when core residual is absent."
+    echo "[CONFIG] FULL PROFILE: sysupdate / pacman -Syu may run on the deps portion of install."
+    echo "[CONFIG] FULL PROFILE: upstream may backup clashing paths to: ~/ii-original-dots-backup"
+    echo "[CONFIG] FULL PROFILE: bare skip-backup is still refused without dual-key allow override."
+    echo "[CONFIG] Do NOT pass bare skip-backup on first adoption."
   fi
-  echo "[CONFIG] Do NOT pass --skip-backup on first adoption."
+  # Capturable gate evidence for automated dry-run greps (D-06 / D-08)
+  echo "[CONFIG] Type 'yes' to continue (exact token required)."
   local ans
   read -r -p "Type 'yes' to continue: " ans
   if [[ "$ans" != "yes" ]]; then
