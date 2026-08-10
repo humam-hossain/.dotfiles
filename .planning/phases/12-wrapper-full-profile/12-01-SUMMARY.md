@@ -120,17 +120,15 @@ status: complete
 
 ## Self-Check: PASSED
 
-Re-ran after production commit `b694052`:
+Re-ran after production commit `b694052` (do not assume):
 
-| Check | Result |
-|-------|--------|
-| `bash -n arch/dots-hyprland.sh` | PASS |
-| `install --full --dry-run` exit 0 + `would exec` | PASS |
-| full output omits `--skip-hyprland`, `--skip-sysupdate`, standalone `--core`, `--full` | PASS |
-| `install-deps --full --dry-run` non-zero + `[FAIL]` | PASS |
-| bare `install --dry-run` has all three residuals | PASS |
-| bare `install-files --dry-run` has `--skip-hyprland` | PASS |
-| `install-files --full --dry-run` omits all three residuals | PASS |
-| `SAFE_DEFAULTS=(--core --skip-hyprland --skip-sysupdate)` literal | PASS |
-| `git log --grep=feat(12-01)` includes `b694052` | PASS |
-| key-file `arch/dots-hyprland.sh` exists | PASS |
+- [x] syntax check on arch/dots-hyprland.sh exits 0
+- [x] install --full --dry-run exits 0 and prints would-exec
+- [x] full dry-run output omits residual flags skip-hyprland, skip-sysupdate, standalone core, and meta full
+- [x] install-deps --full --dry-run exits non-zero with wrapper refuse message
+- [x] bare install --dry-run still shows all three SAFE_DEFAULTS residuals
+- [x] bare install-files --dry-run still shows skip-hyprland residual
+- [x] install-files --full --dry-run omits all three residuals
+- [x] SAFE_DEFAULTS array literal still lists core, skip-hyprland, skip-sysupdate
+- [x] git history contains feat(12-01) commit b694052
+- [x] key-file arch/dots-hyprland.sh exists on disk
