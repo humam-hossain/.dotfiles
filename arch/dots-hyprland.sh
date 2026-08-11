@@ -38,18 +38,20 @@ Allowlisted subcommands:
   uninstall        Safe dual-run uninstall (wrapper-owned; see below)
   protect          Re-mark personal-stack pkgs explicit; optional reinstall missing
 
-Safe defaults (injected for install and install-files only):
+Safe defaults (injected for install and install-files only — unless --full):
   --core --skip-hyprland --skip-sysupdate
   Protects personal hyprland.conf (full --skip-hyprland, not entry-only).
   Skips unattended full system package upgrade. install-deps / install-setups get no injection.
   Never auto-injects --force or --skip-allgreeting.
   After install / install-deps succeed, re-marks PROTECT_EXPLICIT packages as --asexplicit
   (ii install demotes shared deps via --asdeps / implicitize_old_dependencies).
+  For the opt-in full profile (no residual injection), use --full on install / install-files.
 
 Backup gate (install and install-files only):
   Interactive confirmation required before files-touching paths (type yes).
   Upstream backup dir: ~/ii-original-dots-backup
-  Quickshell config will be overwritten; hyprland.conf kept via --skip-hyprland.
+  Default path: Quickshell config will be overwritten; hyprland.conf kept via --skip-hyprland.
+  Full path (--full): no residual safe flags; hypr conf may become .old; see gate messaging.
   Do NOT pass --skip-backup on first adoption.
   Bare --skip-backup is refused unless also passing --allow-skip-backup.
 
@@ -92,6 +94,10 @@ Protect (SAFE — heal asdeps / restore cascade damage; no ii uninstall):
 Wrapper-owned meta flags (stripped; never forwarded to ./setup):
   --dry-run              Print would-exec argv and exit 0
   --allow-skip-backup    Explicit override for --skip-backup policy
+  --full                 Opt-in full profile on install / install-files only.
+                         Does NOT inject SAFE_DEFAULTS (--core --skip-hyprland --skip-sysupdate).
+                         Default install / install-files without --full still inject the triple.
+                         Primary full path for this wrapper (meta-flag only; no new allowlist subcommand).
 
 Examples:
   ./arch/dots-hyprland.sh install
@@ -99,6 +105,8 @@ Examples:
   ./arch/dots-hyprland.sh install-files --exp-files
   ./arch/dots-hyprland.sh install-deps --dry-run
   printf 'yes\n' | ./arch/dots-hyprland.sh install --dry-run
+  printf 'yes\n' | ./arch/dots-hyprland.sh install --full --dry-run
+  printf 'yes\n' | ./arch/dots-hyprland.sh install-files --full --dry-run
   ./arch/dots-hyprland.sh uninstall --dry-run
   ./arch/dots-hyprland.sh uninstall
   ./arch/dots-hyprland.sh uninstall --packages-only
@@ -110,8 +118,14 @@ Examples:
 Other setup subcommands (exp-update, exp-merge, virtmon, …):
   Use vendor/dots-hyprland/./setup directly.
 
+Operator workflow pointers (discoverability only — not enforced by this wrapper):
+  Playbook: docs/dots-hyprland-workflow.md
+  Inventory: .planning/phases/10-full-install-impact-inventory/10-INVENTORY.md
+  Dispositions: .planning/phases/11-disposition-decisions/11-DISPOSITIONS.md
+  Live full adopt process gate is Phase 14 operator discipline (ADOPT-01), not a runtime check here.
+
 Note: once defaults inject --skip-hyprland there is no upstream undo flag.
-Full hypr install requires calling vendor/dots-hyprland/./setup outside this wrapper.
+  Use --full on install / install-files for the primary full profile path in this wrapper.
 EOF
 }
 
