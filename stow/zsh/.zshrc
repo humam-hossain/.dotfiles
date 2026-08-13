@@ -86,3 +86,34 @@ alias baseconda="source $HOME/miniconda3/bin/activate"
 
 # other aliases
 alias define="bash $HOME/define.sh"
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/home/pera/.lmstudio/bin"
+# End of LM Studio CLI section
+
+export PATH="$HOME/.local/bin:$PATH"
+
+# opencode
+export PATH=/home/pera/.opencode/bin:$PATH
+
+# nvim 
+export PATH="$HOME/.local/share/nvim/mason/bin:$PATH"
+
+
+# Added by Antigravity CLI installer
+export PATH="/home/pera/.local/bin:$PATH"
+
+
+# INFO: agentrouter
+# export ANTHROPIC_BASE_URL=https://agentrouter.org/
+# export ANTHROPIC_AUTH_TOKEN=REDACTED
+# export ANTHROPIC_API_KEY=REDACTED
+
+# kimi-code
+export PATH="/home/pera/.kimi-code/bin:$PATH"
+
+# >>> grok installer >>>
+export PATH="$HOME/.grok/bin:$PATH"
+fpath=(~/.grok/completions/zsh $fpath)
+autoload -Uz compinit && compinit -C
+# <<< grok installer <<<

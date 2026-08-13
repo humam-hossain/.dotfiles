@@ -4,4 +4,4 @@ set -x
 
 
 echo "[COPY] define.sh"
-cp .config/define.sh ~
+cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow -v=5 -t ~ define

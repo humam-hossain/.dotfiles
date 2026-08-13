@@ -7,5 +7,4 @@ echo "[INSTALL] yazi"
 sudo pacman -Sy --noconfirm --needed yazi
 
 echo "[CONFIG] copying yazi config"
-mkdir -p ~/.config/yazi
-cp -rf .config/yazi/* ~/.config/yazi/
+cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow -v=5 -t ~ yazi

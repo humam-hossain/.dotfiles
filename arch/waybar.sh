@@ -3,7 +3,7 @@ set -euo pipefail
 set -x
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-WAYBAR_SRC="$REPO_ROOT/.config/waybar"
+WAYBAR_SRC="$REPO_ROOT/stow/waybar/.config/waybar"
 WAYBAR_DST="$HOME/.config/waybar"
 
 PACKAGES=(

@@ -6,10 +6,10 @@ INFLUXDB_DIR=/opt/scrutiny/influxdb
 WRAPPER=/usr/local/bin/smartctl-wrapper
 
 # --- Copy configs ---
-sudo cp .config/smartmontools/smartctl-wrapper.sh "$WRAPPER"
+sudo cp stow/smartmontools/.config/smartmontools/smartctl-wrapper.sh "$WRAPPER"
 sudo chmod +x "$WRAPPER"
 sudo mkdir -p "$CONFIG_DIR" "$INFLUXDB_DIR"
-sudo cp .config/smartmontools/collector.yml "$CONFIG_DIR/"
+sudo cp stow/smartmontools/.config/smartmontools/collector.yml "$CONFIG_DIR/"
 
 # --- Recreate container if needed ---
 if docker inspect scrutiny &>/dev/null; then

@@ -58,11 +58,4 @@ fi
 
 echo "[DONE] all Oh My Zsh plugins/themes are present."
 
-echo "[CONFIG] copying .zshrc"
-cp -f .config/.zshrc ~/.zshrc
-
-echo "[CONFIG] copying .zprofile"
-cp -f .config/.zprofile ~/.zprofile
-
-echo "[CONFIG] copying .p10k.zsh"
-cp -f .config/.p10k.zsh ~/.p10k.zsh
+cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow -v=5 -t ~ zsh

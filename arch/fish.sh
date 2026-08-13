@@ -23,6 +23,5 @@ end
 EOF
 
 echo "[CONFIG] copying config"
-mkdir -p ~/.config/fish/
-cp -rf .config/fish/* ~/.config/fish/
-cp .config/starship.toml ~/.config/
+cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow -v=5 -t ~ fish
+

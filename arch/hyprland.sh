@@ -21,13 +21,11 @@ mkdir -p ~/.config/hypr
 cp -rf .config/hypr/* ~/.config/hypr/
 
 echo "[CONFIG] graphical-session.target bootstrap (xdg-desktop-portal / screen-share fix)"
-mkdir -p ~/.config/systemd/user
-cp -f .config/systemd/user/hyprland-session.service ~/.config/systemd/user/
+cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow -v=5 -t ~ systemd
 systemctl --user daemon-reload || true
 
 echo "[CONFIG] Swaync config"
-mkdir -p ~/.config/swaync
-cp -rf .config/swaync/* ~/.config/swaync/
+cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow -v=5 -t ~ swaync
 
 echo "[INSTALL] Swaync Config Dependencies"
 sudo pacman -Sy --noconfirm --needed blueman xdg-desktop-portal-hyprland xdg-desktop-portal-gtk dnsmasq
