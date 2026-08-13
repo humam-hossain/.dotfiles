@@ -33,14 +33,46 @@ function M.open(target)
 	end
 end
 
+local function get_snacks_picker_path()
+	local ft = vim.bo.filetype
+	if ft ~= "snacks_picker_list" and ft ~= "snacks_picker_input" then
+		return nil
+	end
+
+	local snacks = package.loaded["snacks"]
+	if not snacks then
+		return nil
+	end
+
+	local pickers = snacks.picker.get()
+	if not pickers or #pickers == 0 then
+		return nil
+	end
+
+	local picker = pickers[#pickers]
+	local item = picker:current()
+	if not item then
+		return nil
+	end
+
+	return item.file or item.dir or (snacks.picker.util and snacks.picker.util.path(item))
+end
+
 function M.open_current_buffer()
-	local buf_name = vim.api.nvim_buf_get_name(0)
-	if not buf_name or buf_name == "" then
+	local target = get_snacks_picker_path()
+
+	if not target then
+		local buf_name = vim.api.nvim_buf_get_name(0)
+		if buf_name and buf_name ~= "" then
+			target = vim.fn.fnamemodify(buf_name, ":p")
+		end
+	end
+
+	if not target then
 		notify_error("No file in current buffer to open")
 		return
 	end
 
-	local target = vim.fn.fnamemodify(buf_name, ":p")
 	M.open(target)
 end
 

@@ -41,6 +41,13 @@ return {
 			enabled = true,
 			replace_netrw = true,
 			trash = true,
+			win = {
+				list = {
+					keys = {
+						-- No need to override <leader>o here, core.open handles it gracefully
+					},
+				},
+			},
 		},
 		quickfile = {
 			enabled = true, -- fast file render before full lazy load (UX-02)
