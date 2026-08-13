@@ -1,76 +1,22 @@
-# CONCERNS
+# Codebase Concerns & Technical Debt
 
-> Risks, technical debt, and items needing attention in the `.dotfiles` repository.
+This document outlines the current technical debt, architectural flaws, known issues, and areas for improvement within the `.dotfiles` project.
 
-## 🔴 Critical — Uncommitted Quickshell Deletion
+## 1. Architectural Complexity & Fragility
+- **Wrapper around Upstream Installer**: The project shifted from a hand-rolled `Quickshell` product to wrapping the upstream `end-4/dots-hyprland` repository via a git submodule (`vendor/dots-hyprland`). The `.dotfiles` repo relies on a thin, yet fragile wrapper (`arch/dots-hyprland.sh`) to invoke upstream's `./setup` script. Maintaining injection flags like `SAFE_DEFAULTS=(--core --skip-hyprland --skip-sysupdate)` to protect personal files and limit blast radius adds significant cognitive overhead.
+- **Dual-run UI Stopgap**: The desktop shell is currently running in a "dual-run" mode, retaining the legacy Waybar, rofi, and swaync stack alongside the newly introduced `illogical-impulse` (`ii`) shell. The final cutover (CUT-01) has been deferred, leaving multiple overlapping UI components active in the `exec-once` path.
+- **Configuration Sidecars**: Because the environment is not a "firstrun" machine, the upstream setup script handles conflicts by generating `*.new` sidecar files (e.g., `hyprlock.conf.new`, `hypridle.conf.new`) instead of safely migrating or merging state. These require manual operator disposition, causing the project state to accumulate `UNKNOWN` or deferred migration gaps.
+- **Dependency Management Risk**: The `implicitize_old_dependencies` (asdeps) demotion behavior in the upstream installer leaves machine-time residuals (`previous_dependencies.conf`). This makes the package state non-deterministic and difficult to track purely through git history.
 
-**39 files** under `.config/quickshell/` (37 QML + 2 `qmldir`) are **deleted in the working tree but still tracked in git HEAD** (unstaged deletions; `git status` shows ` D` for each). The `.config/quickshell/` directory currently appears empty on disk.
+## 2. Neovim Configuration Skeleton
+- **Incomplete Implementation**: The Neovim configuration inside `stow/nvim/.config/nvim/lua/` is completely hollow. Every file (e.g., `plugins/lsp.lua`, `plugins/snacks.lua`, `core/keymaps.lua`) is a skeleton containing only `--- TODO: ... ---` markers. The editor lacks an actual LSP client, UI enhancements, syntax parsing, and keymap registry.
+- **Premature Auditing**: Despite the Neovim setup being merely a stub, there are already enforcement scripts (`scripts/nvim-audit-failures.sh`) policing these `TODO` markers, adding unnecessary CI/audit friction for work that hasn't started yet.
 
-- This is **in-progress, uncommitted work** — intent is ambiguous (removal? replacement? work-in-progress?).
-- `arch/quickshell.sh` still references the config and would symlink a now-empty directory.
-- Hyprland `hyprland.conf` does not currently `exec-once` quickshell (per quickshell.sh note: "Hyprland exec-once is intentionally not modified"), so the session is not broken by the deletion.
-- **Action**: confirm with the user whether this deletion should be committed, reverted, or left as-is before any commit of the codebase map touches the working tree. Do **not** stage or revert these deletions without explicit confirmation.
+## 3. Capability Regressions (Waybar Parity)
+- Transitioning fully to the `ii` shell means losing custom Waybar modules (e.g., self-hosted ping monitor, weather, earthquake data - CUST-01..03). The ports of these features to the new shell have been explicitly deferred past the v0.3 milestone, meaning the final cutover will suffer a temporary capability regression.
 
-## 🟠 High — ddcutil Re-introduction Risk
+## 4. Hardware Constraints & Known Bugs
+- **iGPU DDC/CI Crash**: As documented in `issues/2026-07-16_igpu-flickering-hang-no-display.md`, aggressive `ddcutil` polling over the DDC/CI bus causes the Intel UHD 770 iGPU to suffer engine resets, resulting in a progressive system freeze and black screen. This hardware quirk completely blocks the implementation of native brightness/backlight controls in the desktop shell.
 
-The incident post-mortem (`issues/2026-07-16_igpu-flickering-hang-no-display.md`) documents a system crash caused partly by **ddcutil DDC/CI bus hammering** (~10,764 failed calls in 3 hours, saturating the DP I2C bus and interfering with GPU link management). The resolution disabled the ddcutil Waybar module.
-
-However, `arch/quickshell.sh` **re-installs `ddcutil` + `i2c-tools`**, loads `i2c-dev`, and adds the user to the `i2c` group — re-introducing the exact dependency that caused the crash. The Quickshell `BacklightService` would presumably use it for monitor brightness control.
-- **Risk**: reviving ddcutil polling (especially an aggressive polling widget) could re-trigger display instability on the same hardware.
-- **Mitigation already in place**: the post-mortem exists; the Waybar backlight module was disabled. But there is no guard preventing a Quickshell backlight widget from polling ddcutil at a harmful rate.
-- **Action**: if Quickshell is restored, ensure any backlight widget uses a sane polling interval and failure backoff; reference the post-mortem.
-
-## 🟠 High — No CI / No Automated Validation Gate
-
-There is no continuous integration. All validation (`scripts/nvim-validate.sh`, provisioning `verify()` steps) is manual. Regressions in nvim config, install scripts, or QML can land without any automated check.
-- The nvim harness is thorough but must be run by hand (or by an agent).
-- Shell scripts are not shellchecked in any automated way.
-- **Action**: consider a pre-commit hook or a lightweight GitHub Actions workflow running `shellcheck` on `*.sh` and `scripts/nvim-validate.sh startup` on nvim changes.
-
-## 🟡 Medium — Personal / Non-Portable Configuration
-
-The repo is a **personal** environment with machine-specific values that reduce portability:
-- `arch/README.md` contains a hardcoded root **UUID** (`3778e853-...` and `e8a2b95d-...`) in bootloader examples.
-- `hyprland.conf` hardcodes monitor names (`DP-1`, `HDMI-A-2`) and a transform/rotation for a specific dual-monitor setup.
-- Kernel cmdline referenced `i915.force_probe=!4680 xe.force_probe=4680` (now removed) — iGPU-specific.
-- `.zshrc` conda aliases assume `~/miniconda3` with a `darkconda` env.
-- Repo path assumed `~/github_repo/.dotfiles`.
-- `google-chrome-stable --profile-directory='Default'` autostart is profile-specific.
-- **Action**: acceptable for a personal dotfiles repo, but document machine-specific knobs in one place if multi-machine use grows.
-
-## 🟡 Medium — Provisioning Script Drift Between Generations
-
-Two script generations coexist (legacy linear vs. structured with `verify()`), and three distro trees (arch/debian/ubuntu) are maintained in parallel by hand. This invites drift:
-- debian/ubuntu scripts are subsets with **no `verify()` step** and no parity test against arch.
-- `ubuntu/monitor_system.sh` vs `debian/system_monitor.sh` naming inconsistency for the same ping monitor.
-- Some Arch-only features (AUR, quickshell, bluetooth, wifi, audio, google_chrome, vscode) have no debian/ubuntu equivalent — users on those distros get a reduced environment with no warning.
-- **Action**: consider a shared library (`scripts/lib/`) for common functions (REPO_ROOT resolution, verify helpers, labeled echos) to reduce duplication.
-
-## 🟡 Medium — Secrets / Env Handling
-
-- `.config/system_monitor/ping/.env` is correctly **gitignored**, and `.env.example` is committed — good practice.
-- `data/` (SQLite history) is gitignored — good.
-- However, `BIND_HOST=0.0.0.0` is the **default for debian/ubuntu** (LAN-exposed ping server on port 8765) with no auth. On a trusted home LAN this is fine, but it is an unauthenticated HTTP endpoint exposing network latency data.
-- **Action**: document the LAN-exposure default explicitly; consider loopback default with opt-in LAN.
-
-## 🟡 Medium — Missing Tooling Validation for Non-nvim Subsystems
-
-Only Neovim has a real validation harness. Hyprland, Waybar, swaync, rofi, quickshell, tmux, and shell configs have no automated validation. Misconfigurations surface only at session start or runtime.
-- **Action**: at minimum, a `hyprctl --batch` config parse check and `waybar -c config.jsonc -s style.css --validate` (if supported) would catch syntax errors early.
-
-## 🟢 Low — Documentation Cadence
-
-- nvim README is excellent and comprehensive (511 lines, phase history, rollback).
-- waybar and system_monitor have README + PRD.
-- Top-level `README.md` is sparse (just resource links) and does not explain the overall repo layout, the three-distro script model, or how to bootstrap a fresh machine end-to-end.
-- **Action**: expand top-level README with a "fresh install" quickstart pointing to `arch/README.md` + the provisioning order in INTEGRATIONS.md.
-
-## 🟢 Low — Stale / Mixed Tooling References
-
-- `starship.toml` exists but starship is **disabled** in `.zshrc` (Powerlevel10k is used instead). Two prompt configs maintained for one used.
-- nvim README "Tooling and Ecosystem Modernization" section still mentions fzf-lua and neo-tree in places while the phase summary says they were replaced by snacks.nvim — minor doc drift.
-- **Action**: prune the unused starship config or re-enable it intentionally; reconcile nvim README's tooling section with the snacks.nvim migration.
-
-## 🟢 Low — `set -x` in Production Scripts
-
-Legacy scripts use `set -x` which dumps every command to stderr. Useful for debugging an install, but noisy and can leak environment values (e.g., during `.env` sourcing in `system_monitor.sh`, though that script is structured and avoids `set -x`). Acceptable for personal provisioning scripts.
+## 5. Process & Workflow Friction
+- **Strict Debt Markers**: The custom verification harness (`.claude/gsd-core/workflows/verify-phase.md`) strictly enforces that any `TBD`, `FIXME`, or `XXX` marker must be accompanied by a formal issue reference (e.g., `issue #123`). This prohibits lightweight developer notes and forces immediate formalization of all debt, which can slow down rapid prototyping or exploration phases.
