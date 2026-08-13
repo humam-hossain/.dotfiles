@@ -128,7 +128,7 @@ get_temp_display() {
     temp_display+="${temp_2m}°C"
 
     # Feels Like
-    formatted_diff=$(printf "%.1f" "$diff_temp")
+    formatted_diff=$(printf "%+.1f" "$diff_temp")
     temp_display+="[${formatted_diff}]"
 
     # Color Logic
