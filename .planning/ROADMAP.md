@@ -133,11 +133,11 @@ Plans:
   4. `--dry-run` on full path shows argv without unwanted SAFE_DEFAULTS injection
   5. After full install/deps path, PROTECT_EXPLICIT re-mark (or protect) still runs
 
-**Plans:** 2/4 plans executed
+**Plans:** 3/4 plans executed
 
 - [x] 12-01-PLAN.md
 - [x] 12-02-PLAN.md
-- [ ] 12-03-PLAN.md
+- [x] 12-03-PLAN.md
 - [ ] 12-04-PLAN.md
 
 ### Phase 13: Personal hypr/custom overlays
@@ -194,7 +194,7 @@ Plans:
 | 9. Workflow Documentation & Update Contract | v0.2 | 3/3 | Complete | 2026-08-01 |
 | 10. Full-install impact inventory | v0.3 | 5/5 | Complete    | 2026-08-07 |
 | 11. Disposition decisions | v0.3 | 4/4 | Complete    | 2026-08-10 |
-| 12. Wrapper full-profile | v0.3 | 2/4 | In Progress|  |
+| 12. Wrapper full-profile | v0.3 | 3/4 | In Progress|  |
 | 13. Personal hypr/custom overlays | v0.3 | 0/0 | Not started | — |
 | 14. Live full adopt & verify | v0.3 | 0/0 | Not started | — |
 | 15. Playbook safe vs full | v0.3 | 0/0 | Not started | — |
