@@ -36,6 +36,10 @@ MANAGED_FILES=(
 install_packages() {
   echo "[INSTALL] ping-viz runtime dependencies"
   sudo pacman -Sy --noconfirm --needed "${PACKAGES[@]}"
+
+  echo "[INSTALL] Additional System Monitoring Tools"
+  sudo pacman -Sy --noconfirm --needed glances gsmartcontrol inxi s-tui
+  yay -Sy --noconfirm --needed coolercontrol smem
 }
 
 ensure_dirs() {

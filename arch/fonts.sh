@@ -2,27 +2,18 @@
 set -euo pipefail
 set -x
 
+# NOTE: noto-fonts, ttf-jetbrains-mono-nerd, noto-fonts-emoji, ttf-font-awesome,
+# woff2-font-awesome, and ttf-material-symbols-variable are handled by dots-hyprland
 
-echo "[INSTALL] font awesome"
-sudo pacman -Sy --noconfirm --needed ttf-font-awesome
+echo "[INSTALL] Additional Text & Language Fonts"
+sudo pacman -Sy --noconfirm --needed noto-fonts-cjk
+yay -Sy --noconfirm --needed ttf-ms-fonts
 
-echo "[INSTALL] jetbrains mono nerd font"
-sudo pacman -Sy --noconfirm --needed ttf-jetbrains-mono-nerd
+echo "[INSTALL] Additional Icon & Symbol Fonts"
+yay -Sy --noconfirm --needed ttf-material-symbols-variable-git
 
-echo "[INSTALL] noto fonts"
-sudo pacman -Sy --noconfirm --needed noto-fonts
-
-echo "[INSTALL] papirus-icon-theme"
+echo "[INSTALL] Icon Themes"
 sudo pacman -Sy --noconfirm --needed papirus-icon-theme
 
-echo "[INSTALL] noto-fonts-emoji"
-sudo pacman -Sy --noconfirm --needed noto-fonts-emoji
-
-# ii / Quickshell chrome icons are Material Symbols font glyphs (MaterialSymbol.qml),
-# not PNG assets — without this package bar icons render as missing/empty boxes.
-echo "[INSTALL] material symbols (Quickshell ii icon font)"
-sudo pacman -Sy --noconfirm --needed ttf-material-symbols-variable
-
-echo "[SYNC] rebuild font cache"
+echo "[SYNC] Rebuild font cache"
 fc-cache -fv
-
