@@ -4,3 +4,10 @@
 .claude/
 .commandcode/
 __pycache__/
+
+# qBittorrent state and lock files
+stow/qbittorrent/.config/qBittorrent/lockfile
+stow/qbittorrent/.config/qBittorrent/ipc-socket
+stow/qbittorrent/.config/qBittorrent/qBittorrent-data.conf
+stow/qbittorrent/.config/qBittorrent/rss/storage.lock
+stow/qbittorrent/.config/qBittorrent/rss/articles/
