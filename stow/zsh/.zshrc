@@ -80,9 +80,6 @@ source $ZSH/oh-my-zsh.sh
 
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# DARKBOT Conda Aliases
-alias darkconda="source $HOME/miniconda3/bin/activate; conda activate darkconda"
-alias baseconda="source $HOME/miniconda3/bin/activate"
 
 # other aliases
 alias define="bash $HOME/define.sh"
