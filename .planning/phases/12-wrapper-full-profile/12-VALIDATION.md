@@ -24,7 +24,7 @@ created: 2026-08-11
 | **Framework** | Inline bash smoke asserts (Phase 6/07 pattern) — no bats/pytest suite in repo |
 | **Config file** | none — plan-task `<verify><automated>` commands |
 | **Quick run command** | `bash -n arch/dots-hyprland.sh && ./arch/dots-hyprland.sh help >/dev/null` |
-| **Full suite command** | Quick run + FULL-01..05 dry-run/refuse matrix below (all non-mutating) |
+| **Full suite command** | `./scripts/phase12-full-smoke.sh` (FULL-01..05 help / dry-run / refuse; all non-mutating) |
 | **Estimated runtime** | ~5–15 seconds |
 
 ---
@@ -60,10 +60,10 @@ created: 2026-08-11
 
 ## Wave 0 Requirements
 
-- [ ] Implement `--full` strip + conditional SAFE_DEFAULTS injection + full gate messaging + usage rewrite in `arch/dots-hyprland.sh`
-- [ ] Plan-task automated verify commands for FULL-01..05 matrix (inline; no dedicated test framework required)
-- [ ] Optional: `scripts/phase12-full-smoke.sh` if planner prefers one harness — **not required** if plan verifies inline
-- [ ] **Do not** add live full install / session mutation checks this phase
+- [x] Implement `--full` strip + conditional SAFE_DEFAULTS injection + full gate messaging + usage rewrite in `arch/dots-hyprland.sh`
+- [x] Plan-task automated verify commands for FULL-01..05 matrix (inline; no dedicated test framework required)
+- [x] `scripts/phase12-full-smoke.sh` — one-command FULL-01..05 harness (`./scripts/phase12-full-smoke.sh`)
+- [x] **Do not** add live full install / session mutation checks this phase
 
 *Existing Phase 6 dry-run patterns remain the template; there is no checked-in bats/pytest suite under `tests/`.*
 
