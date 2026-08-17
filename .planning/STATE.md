@@ -5,8 +5,8 @@ milestone_name: Full ii install
 current_phase: 12
 current_phase_name: wrapper-full-profile
 status: executing
-stopped_at: Completed 12-04-PLAN.md
-last_updated: "2026-08-16T16:59:20.080Z"
+stopped_at: Phase 13 context gathered
+last_updated: "2026-08-17T10:34:30.941Z"
 last_activity: 2026-08-16
 last_activity_desc: Phase 12 execution resumed (wave continue)
 progress:
@@ -22,7 +22,7 @@ progress:
 ## Current Position
 
 Phase: 12 (wrapper-full-profile) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 Status: Ready to execute
 Total Plans in Phase: 4
 Last activity: 2026-08-16 — Phase 12 execution resumed (wave continue)
@@ -31,9 +31,9 @@ Progress: [█████████░] 87%
 
 ## Session
 
-**Last session:** 2026-08-16T16:59:20.068Z
-**Stopped at:** Completed 12-04-PLAN.md
-**Resume file:** None
+**Last session:** 2026-08-17T10:34:30.921Z
+**Stopped at:** Phase 13 context gathered
+**Resume file:** .planning/phases/13-personal-hypr-custom-overlays/13-CONTEXT.md
 **Next command:** `/gsd-plan-phase 12`
 
 ## Project Reference
@@ -123,3 +123,5 @@ None open.
 - [v0.3 start]: Full ii install = inventory → disposition → full profile → overlays → adopt → playbook; phases 10–15
 - [Phase 10]: Neutral 10-INVENTORY.md + phase10-inventory-assert.sh; INV-01..04 verified + UAT; SAFE_DEFAULTS residual intact
 - [Phase 11]: 11-DISPOSITIONS.md eight sections; DISP-01..04 complete; full-adopt drops triple residual (D-05); chrome accept-remove (D-11); lock keep-personal (D-24); assert green; VERIFICATION passed 2026-08-10
+- [Phase 12]: D-14/D-15/D-16: existing post-setup arms already run when full==1; no wrapper edit — Task 1 official verify passed; no full==0 skip around protect/hooks
+- [Phase 12]: Nyquist one-command suite is ./scripts/phase12-full-smoke.sh; nyquist_compliant left false — validate-phase owns nyquist_compliant; execute only lands the harness
