@@ -2,46 +2,46 @@
 gsd_state_version: 1.0
 milestone: v0.3
 milestone_name: Full ii install
-current_phase: 12
-current_phase_name: wrapper-full-profile
-status: executing
-stopped_at: Phase 13 context gathered
-last_updated: "2026-08-17T10:34:30.941Z"
-last_activity: 2026-08-16
-last_activity_desc: Phase 12 execution resumed (wave continue)
+current_phase: 13
+current_phase_name: Personal hypr/custom overlays
+status: planning
+stopped_at: Phase 12 complete, Phase 13 CONTEXT exists
+last_updated: "2026-08-18T04:41:16.320Z"
+last_activity: 2026-08-18
+last_activity_desc: Phase 12 complete, transitioned to Phase 13
 progress:
   total_phases: 6
-  completed_phases: 1
-  total_plans: 15
+  completed_phases: 3
+  total_plans: 16
   completed_plans: 13
-  percent: 17
+  percent: 50
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 12 (wrapper-full-profile) — EXECUTING
-Plan: 3 of 4
-Status: Ready to execute
-Total Plans in Phase: 4
-Last activity: 2026-08-16 — Phase 12 execution resumed (wave continue)
+Phase: 13 — Personal hypr/custom overlays
+Plan: 3 PLAN.md on disk, 0 SUMMARY.md — not executed
+Status: Ready to plan (CONTEXT.md exists; plans untracked, unverified this session)
+Total Plans in Phase: 3
+Last activity: 2026-08-18 — Phase 12 complete (UAT 10/10, smoke FAIL=0), transitioned to Phase 13
 
-Progress: [█████████░] 87%
+Progress: [████████████████░░░░] 13/16 plans (81%)
 
 ## Session
 
-**Last session:** 2026-08-17T10:34:30.921Z
-**Stopped at:** Phase 13 context gathered
-**Resume file:** .planning/phases/13-personal-hypr-custom-overlays/13-CONTEXT.md
-**Next command:** `/gsd-plan-phase 12`
+**Last session:** 2026-08-18T04:41:16.320Z
+**Stopped at:** Phase 12 complete, ready to plan Phase 13
+**Resume file:** None
+**Next command:** `/gsd-plan-phase 13`
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-08-07)
+See: .planning/PROJECT.md (updated 2026-08-18)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions.  
-**Current focus:** Phase 12 — wrapper-full-profile
+**Current focus:** Phase 13 — personal hypr/custom overlays
 
 ## Deferred Items
 
@@ -77,6 +77,8 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 10 UAT: 7/7 pass (6 automated coverage + 1 human confirm) — 2026-08-07
 - Phase 11 disposition SoT: `.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md` (committed gate for 12–14)
 - Phase 11: first full-adopt drops all three SAFE_DEFAULTS residuals (D-05); residual still default (D-10); must-migrate only monitors/workspaces/env (D-16)
+- Phase 12: `--full` meta on install/install-files; default still injects triple residual; smoke `./scripts/phase12-full-smoke.sh` FAIL=0 on 2026-08-18
+- Phase 12 UAT: 10/10 pass (1 human coverage confirm + 9 automated); 12-VERIFICATION.md status passed; 12-VALIDATION.md nyquist_compliant true
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.
@@ -87,10 +89,10 @@ None open.
 
 ## Operator Next Steps
 
-1. `/gsd-plan-phase 12` — wrapper full-profile (FULL-*) from §2 flag profile ← recommended  
-2. Do **not** change default SAFE_DEFAULTS until FULL-* opt-in path exists (D-10 / FULL-02)  
+1. `/gsd-plan-phase 13` — personal hypr/custom overlays (OVL-*) ← recommended (CONTEXT.md exists)  
+2. Disk only: 3 untracked `13-0{1,2,3}-PLAN.md`, **0 SUMMARY.md** — do not treat Phase 13 as executed  
 3. Do **not** run live full install until Phase 14 gates  
-4. Optional: `/gsd-verify-work 11` for human D-04 inventory-cite spot-checks
+4. Default `install` without `--full` still injects SAFE_DEFAULTS (FULL-02; smoke 2026-08-18)
 
 ## Performance Metrics
 
@@ -111,6 +113,7 @@ None open.
 | Phase 11 P01–04 | multi-session | 9 tasks | dispositions + assert + VERIFICATION |
 | Phase 11 verify | short | 14/14 | 11-VERIFICATION.md status: passed |
 | Phase 12 P04 | 85 min | 2 tasks | 2 files |
+| Phase 12 UAT | 2026-08-18 re-verify | 10 tests | 12-UAT.md (10 pass, 0 issues); smoke FAIL=0 |
 
 ## Decisions
 
@@ -124,4 +127,5 @@ None open.
 - [Phase 10]: Neutral 10-INVENTORY.md + phase10-inventory-assert.sh; INV-01..04 verified + UAT; SAFE_DEFAULTS residual intact
 - [Phase 11]: 11-DISPOSITIONS.md eight sections; DISP-01..04 complete; full-adopt drops triple residual (D-05); chrome accept-remove (D-11); lock keep-personal (D-24); assert green; VERIFICATION passed 2026-08-10
 - [Phase 12]: D-14/D-15/D-16: existing post-setup arms already run when full==1; no wrapper edit — Task 1 official verify passed; no full==0 skip around protect/hooks
-- [Phase 12]: Nyquist one-command suite is ./scripts/phase12-full-smoke.sh; nyquist_compliant left false — validate-phase owns nyquist_compliant; execute only lands the harness
+- [Phase 12]: Nyquist one-command suite is ./scripts/phase12-full-smoke.sh; execute left nyquist_compliant false; 12-VALIDATION.md now `nyquist_compliant: true` (validated 2026-08-18)
+- [Phase 12]: UAT 10/10 + live smoke FAIL=0 on 2026-08-18; ROADMAP `[x]` completed 2026-08-18; FULL-01..05 marked Complete in REQUIREMENTS.md

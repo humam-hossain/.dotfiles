@@ -30,11 +30,11 @@ Requirements for this milestone only. Phase numbering continues after v0.2 (last
 
 ### Full-install path (wrapper)
 
-- [ ] **FULL-01**: Operator can invoke a **documented explicit opt-in** full-install path (wrapper flag/profile or equivalent) that does not inject `--skip-hyprland` (and applies other flag drops only per DISP-02)
-- [ ] **FULL-02**: Default `./arch/dots-hyprland.sh install` / `install-files` **still** injects SAFE_DEFAULTS (`--core --skip-hyprland --skip-sysupdate`) — full is never accidental
-- [ ] **FULL-03**: Full path retains backup gate behavior and continues to refuse bare `--skip-backup` without explicit allow override
-- [ ] **FULL-04**: Full path supports `--dry-run` showing argv **without** unwanted SAFE_DEFAULTS injection so operator can verify before mutation
-- [ ] **FULL-05**: After full install/deps, PROTECT_EXPLICIT re-mark (or equivalent protect) still runs so personal stack packages are not left only asdeps
+- [x] **FULL-01**: Operator can invoke a **documented explicit opt-in** full-install path (wrapper flag/profile or equivalent) that does not inject `--skip-hyprland` (and applies other flag drops only per DISP-02)
+- [x] **FULL-02**: Default `./arch/dots-hyprland.sh install` / `install-files` **still** injects SAFE_DEFAULTS (`--core --skip-hyprland --skip-sysupdate`) — full is never accidental
+- [x] **FULL-03**: Full path retains backup gate behavior and continues to refuse bare `--skip-backup` without explicit allow override
+- [x] **FULL-04**: Full path supports `--dry-run` showing argv **without** unwanted SAFE_DEFAULTS injection so operator can verify before mutation
+- [x] **FULL-05**: After full install/deps, PROTECT_EXPLICIT re-mark (or equivalent protect) still runs so personal stack packages are not left only asdeps
 
 ### Live adopt & verify
 
@@ -95,11 +95,11 @@ Deferred beyond v0.3.
 | DISP-02 | Phase 11 | Complete |
 | DISP-03 | Phase 11 | Complete |
 | DISP-04 | Phase 11 | Complete |
-| FULL-01 | Phase 12 | Pending |
-| FULL-02 | Phase 12 | Pending |
-| FULL-03 | Phase 12 | Pending |
-| FULL-04 | Phase 12 | Pending |
-| FULL-05 | Phase 12 | Pending |
+| FULL-01 | Phase 12 | Complete |
+| FULL-02 | Phase 12 | Complete |
+| FULL-03 | Phase 12 | Complete |
+| FULL-04 | Phase 12 | Complete |
+| FULL-05 | Phase 12 | Complete |
 | OVL-01 | Phase 13 | Pending |
 | OVL-02 | Phase 13 | Pending |
 | OVL-03 | Phase 13 | Pending |

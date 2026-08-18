@@ -3,11 +3,15 @@
 ## Current State
 
 **Shipped:** v0.2 Adopt dots-hyprland (2026-08-02)  
-**In progress:** v0.3 Full ii install — Phase 10 complete (UAT 2026-08-07); next is Phase 11 dispositions
+**In progress:** v0.3 Full ii install — Phases 10–12 complete; next is Phase 13 personal hypr/custom overlays
 
 Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell dual-running with Waybar, operator playbook for install and pin-bump updates.
 
 **Phase 10 delivered:** Neutral full-install impact inventory (`10-INVENTORY.md`) covering SAFE_DEFAULTS residual, drop-`--skip-hyprland` hypr effects, drop-`--core` misc collisions, and package/sysupdate blast radius — with Wave 0 assert harness. No live full install; SAFE_DEFAULTS still default.
+
+**Phase 11 delivered:** Per-surface dispositions (`11-DISPOSITIONS.md`) — first full-adopt drops all three SAFE_DEFAULTS residuals; default install still injects them.
+
+**Phase 12 delivered:** Wrapper-owned `--full` on `install` / `install-files` only. Full dry-run omits the triple residual and still hits the backup gate; default install still injects SAFE_DEFAULTS. Evidence: `./scripts/phase12-full-smoke.sh` exit 0 on 2026-08-18 (FAIL=0). No live full install this phase.
 
 **Stats at v0.2 ship:** 5 phases · 15 plans · ~38 tasks · 106 commits since v0.1 · 1025 files changed (+17.6k / −78k, mostly retired local QS tree)
 
@@ -106,11 +110,16 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Personal hypr vs upstream install behavior (conf→`.old`, hyprland sync, lua, lock/idle auto_backup, custom ignore_existing) — Phase 10 / INV-02
 - ✓ Non-hypr clash candidates if `--core` dropped (fish, kitty, starship, fontconfig, other present misc) — Phase 10 / INV-03
 - ✓ SAFE_DEFAULTS residual documented; safe dual-run install remains default after Phase 10 — Phase 10 / INV-04
+- ✓ Per-surface dispositions for high-risk inventory rows + staged flag profile (drop all three residuals on first full-adopt; default still injects) — Phase 11 / DISP-01..04
+- ✓ Wrapper `--full` opt-in on install/install-files; meta stripped; no SAFE_DEFAULTS injection on full — Phase 12 / FULL-01
+- ✓ Default `install` / `install-files` still inject `--core --skip-hyprland --skip-sysupdate` — Phase 12 / FULL-02
+- ✓ Full path keeps type-yes backup gate; bare `--skip-backup` refused without `--allow-skip-backup` — Phase 12 / FULL-03
+- ✓ `--full --dry-run` shows would-exec without residual injection — Phase 12 / FULL-04
+- ✓ Full dry-run still plans PROTECT_EXPLICIT re-mark and ii hooks — Phase 12 / FULL-05
 
 ### Active
 
-- [ ] Per-surface disposition plan for personal configs that full install would replace
-- [ ] Safe opt-in full-install path (out of SAFE_DEFAULTS) with backup gate
+- [ ] Personal must-keeps as `hypr/custom` Lua overlays before live full hypr files
 - [ ] Execute full ii install per dispositions; session boots on ii hypr model
 - [ ] Playbook: full vs safe/dual-run install profiles
 
@@ -139,7 +148,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 **Post-v0.2 reality:**
 - Upstream [end-4/dots-hyprland](https://github.com/end-4/dots-hyprland) is the product vehicle; personal fork owns custom commits; parent pins SHA in `vendor/dots-hyprland`.
 - Install SoT remains vendored `./setup`; `.dotfiles` only wraps it (`arch/dots-hyprland.sh`).
-- Live session uses personal hypr + `qs -c ii` hooks; SAFE_DEFAULTS still inject `--core --skip-hyprland --skip-sysupdate`.
+- Live session uses personal hypr + `qs -c ii` hooks; default wrapper install still injects SAFE_DEFAULTS (`--core --skip-hyprland --skip-sysupdate`). Opt-in `--full` on `install` / `install-files` skips that injection (Phase 12; smoke 2026-08-18).
 - Waybar still dual-runs; customs remain a later backlog (CUST-*).
 - Operator path is documented in `docs/dots-hyprland-workflow.md` (README Desktop shell link).
 
@@ -177,7 +186,11 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Delete local `.config/quickshell` product this milestone | Single live shell path; avoid dual product confusion | ✓ Phase 8 (RET-01/02) |
 | Personal fork + upstream remote | Own customizations; still pull end-4 updates | ✓ Phase 5 |
 | Defer Waybar custom ports | Install foundation first; customs need live shell | — Deferred past full hypr adopt |
-| v0.3: Full install after impact inventory | Drop SAFE_DEFAULTS only with known dispositions for replaced configs | ✓ Phase 10 inventory + UAT done; dispositions Phase 11 |
+| v0.3: Full install after impact inventory | Drop SAFE_DEFAULTS only with known dispositions for replaced configs | ✓ Phase 10 inventory + UAT; Phase 11 dispositions; Phase 12 `--full` path |
+| Phase 12: `--full` is wrapper meta, never forwarded | Same strip pattern as `--dry-run` / `--allow-skip-backup` | ✓ smoke FULL-01 would-exec has no `--full` |
+| Phase 12: default path still injects triple residual | Full must not become accidental (FULL-02 / D-10) | ✓ smoke FULL-02 / FULL-02b |
+| Phase 12: full gate + dual-key skip-backup | Same type-yes token; refuse bare `--skip-backup` | ✓ smoke FULL-03 / FULL-03b; `printf no` exit 1 |
+| Phase 12: protect + ii hooks unbranched on `full==1` | FULL-05; no `full==0` skip around post-setup arms | ✓ smoke FULL-05; live greps 2026-08-18 |
 | Phase 10: Single multi-section `10-INVENTORY.md` SoT | One inventory file for residual + axes A/B/C + host snapshot | ✓ INV-01..04 |
 | Phase 10: Neutral effects only (no dispositions) | Phase 11 owns keep/migrate/accept/defer | ✓ D-12 lint + assert |
 | Phase 10: Assert harness with word-boundary D-15 lint | Avoid false positives (`profile` ⊃ `rofi`) | ✓ `phase10-inventory-assert.sh` |
@@ -207,4 +220,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-07 after Phase 10 UAT complete (7/7 pass) — transition to Phase 11*
+*Last updated: 2026-08-18 after Phase 12 UAT 10/10 + smoke FAIL=0 — transition to Phase 13*
