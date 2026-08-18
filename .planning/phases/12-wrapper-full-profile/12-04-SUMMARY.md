@@ -129,7 +129,7 @@ Re-ran after production commit `e39d987` (do not assume):
 - [x] `PROTECT_EXPLICIT` unchanged vs pre-task snapshot
 - [x] `test -x scripts/phase12-full-smoke.sh`
 - [x] `bash -n scripts/phase12-full-smoke.sh` exits 0
-- [x] `./scripts/phase12-full-smoke.sh` exits 0 (FAIL=0, all FULL-01..05 + D-02/D-04/D-13)
+- [x] `./scripts/phase12-full-smoke.sh` exits 0 (all FULL-01..05 + D-02/D-04/D-13 asserts green)
 - [x] Harness source has `--dry-run` on every `install --full` invocation
 - [x] `12-VALIDATION.md` references `./scripts/phase12-full-smoke.sh`
 - [x] `git log --oneline --grep=12-04` returns `e39d987`
