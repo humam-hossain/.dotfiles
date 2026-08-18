@@ -3,10 +3,11 @@ phase: 12
 slug: wrapper-full-profile
 # status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
 # audit-milestone §5.5 distinguishes NOT-VALIDATED (draft) from PARTIAL (validated + nyquist_compliant: false) (#2117)
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-08-11
+updated: 2026-08-18
 ---
 
 # Phase 12 — Validation Strategy
@@ -42,17 +43,17 @@ created: 2026-08-11
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------------|-----------------|-----------|-------------------|-------------|--------|
-| 12-SYN | * | * | syntax | T-12-01 | Script parses; no eval injection | unit | `bash -n arch/dots-hyprland.sh` | ✅ | ⬜ pending |
-| 12-FULL-01 | * | * | FULL-01 | T-12-02 | Help documents `--full`; full dry-run argv has no SAFE_DEFAULTS residuals | smoke | help grep `--full`; `printf 'yes\n' \| install --full --dry-run` + residual absence greps | ❌ W0 | ⬜ pending |
-| 12-FULL-02 | * | * | FULL-02 | T-12-02 | Default install still injects triple residual | smoke (neg) | `printf 'yes\n' \| install --dry-run` greps `--core` + `--skip-hyprland` + `--skip-sysupdate` | ✅ path | ⬜ pending |
-| 12-FULL-02b | * | * | FULL-02 | T-12-02 | Default install-files still injects | smoke | same with `install-files` | ✅ path | ⬜ pending |
-| 12-FULL-03 | * | * | FULL-03 | T-12-03 | Bare `--skip-backup` refused on full without allow | smoke | `install --full --skip-backup --dry-run`; expect non-zero | ❌ W0 | ⬜ pending |
-| 12-FULL-03b | * | * | FULL-03 | T-12-03 | Dual-key allow; meta stripped (`--full`, `--allow-skip-backup` not forwarded) | smoke | allow + dry-run greps | ❌ W0 | ⬜ pending |
-| 12-FULL-04 | * | * | FULL-04 | T-12-02 | Full dry-run shows would-exec without SAFE_DEFAULTS; gate still hit | smoke | gate + would-exec + residual absence | ❌ W0 | ⬜ pending |
-| 12-FULL-05 | * | * | FULL-05 | T-12-04 | Full dry-run still plans protect re-mark (+ ii hooks) | smoke | protect-list + ii hooks greps on full dry-run output | ❌ W0 | ⬜ pending |
-| 12-D02 | * | * | D-02 | T-12-02 | `--full` refused on install-deps alone | smoke | `install-deps --full --dry-run`; expect non-zero | ❌ W0 | ⬜ pending |
-| 12-D04 | * | * | D-04 | — | usage no longer says full requires vendor outside wrapper | grep | `! help \| grep -qi 'Full hypr install requires calling vendor'` | ❌ W0 | ⬜ pending |
-| 12-D13 | * | * | D-13 | — | Help points at playbook | grep | `help \| grep -q 'dots-hyprland-workflow'` | ❌ W0 | ⬜ pending |
+| 12-SYN | * | * | syntax | T-12-01 | Script parses; no eval injection | unit | `bash -n arch/dots-hyprland.sh` | ✅ | ✅ green |
+| 12-FULL-01 | * | * | FULL-01 | T-12-02 | Help documents `--full`; full dry-run argv has no SAFE_DEFAULTS residuals | smoke | help grep `--full`; `printf 'yes\n' \| install --full --dry-run` + residual absence greps | ✅ | ✅ green |
+| 12-FULL-02 | * | * | FULL-02 | T-12-02 | Default install still injects triple residual | smoke (neg) | `printf 'yes\n' \| install --dry-run` greps `--core` + `--skip-hyprland` + `--skip-sysupdate` | ✅ | ✅ green |
+| 12-FULL-02b | * | * | FULL-02 | T-12-02 | Default install-files still injects | smoke | same with `install-files` | ✅ | ✅ green |
+| 12-FULL-03 | * | * | FULL-03 | T-12-03 | Bare `--skip-backup` refused on full without allow | smoke | `install --full --skip-backup --dry-run`; expect non-zero | ✅ | ✅ green |
+| 12-FULL-03b | * | * | FULL-03 | T-12-03 | Dual-key allow; meta stripped (`--full`, `--allow-skip-backup` not forwarded) | smoke | allow + dry-run greps | ✅ | ✅ green |
+| 12-FULL-04 | * | * | FULL-04 | T-12-02 | Full dry-run shows would-exec without SAFE_DEFAULTS; gate still hit | smoke | gate + would-exec + residual absence | ✅ | ✅ green |
+| 12-FULL-05 | * | * | FULL-05 | T-12-04 | Full dry-run still plans protect re-mark (+ ii hooks) | smoke | protect-list + ii hooks greps on full dry-run output | ✅ | ✅ green |
+| 12-D02 | * | * | D-02 | T-12-02 | `--full` refused on install-deps alone | smoke | `install-deps --full --dry-run`; expect non-zero | ✅ | ✅ green |
+| 12-D04 | * | * | D-04 | — | usage no longer says full requires vendor outside wrapper | grep | `! help \| grep -qi 'Full hypr install requires calling vendor'` | ✅ | ✅ green |
+| 12-D13 | * | * | D-13 | — | Help points at playbook | grep | `help \| grep -q 'dots-hyprland-workflow'` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky/partial*
 
@@ -73,17 +74,17 @@ created: 2026-08-11
 
 | Req ID | Behavior | Automated check | Status |
 |--------|----------|-----------------|--------|
-| FULL-01 | Help documents `--full`; full dry-run argv has no `--skip-hyprland` (and no other SAFE_DEFAULTS residuals per DISP-02) | `./arch/dots-hyprland.sh help \| grep -q -- '--full'`; `printf 'yes\n' \| ./arch/dots-hyprland.sh install --full --dry-run \| tee /tmp/p12-full.txt`; `! grep -q -- '--skip-hyprland' /tmp/p12-full.txt`; `! grep -q -- '--skip-sysupdate' /tmp/p12-full.txt`; `! grep -E -- '(^|[[:space:]])--core([[:space:]]|$)' /tmp/p12-full.txt` | ⬜ |
-| FULL-02 | Default install still injects triple residual | `printf 'yes\n' \| ./arch/dots-hyprland.sh install --dry-run \| tee /tmp/p12-safe.txt`; greps for all three residuals | ⬜ |
-| FULL-02b | Default install-files still injects | same with `install-files` | ⬜ |
-| FULL-03 | Bare `--skip-backup` refused on full without allow | `./arch/dots-hyprland.sh install --full --skip-backup --dry-run; test $? -ne 0` | ⬜ |
-| FULL-03b | Dual-key allow still works; meta stripped | dry-run greps: `--skip-backup` present; `--allow-skip-backup` and `--full` absent | ⬜ |
-| FULL-04 | Full dry-run shows would-exec without SAFE_DEFAULTS; gate still hit | gate/type-yes evidence + `would exec` + residual absence | ⬜ |
-| FULL-05 | Full dry-run still plans protect re-mark (+ ii hooks per D-16) | `grep -q 'protect-list'` + ii hooks on full dry-run output | ⬜ |
-| D-02 | `--full` refused on install-deps | non-zero exit | ⬜ |
-| D-04 | Help no longer points full path outside wrapper | negative grep on vendor-outside note | ⬜ |
-| D-13 | Help points at playbook | `dots-hyprland-workflow` in help | ⬜ |
-| syntax | Script parses | `bash -n arch/dots-hyprland.sh` | ⬜ |
+| FULL-01 | Help documents `--full`; full dry-run argv has no `--skip-hyprland` (and no other SAFE_DEFAULTS residuals per DISP-02) | `./arch/dots-hyprland.sh help \| grep -q -- '--full'`; `printf 'yes\n' \| ./arch/dots-hyprland.sh install --full --dry-run \| tee /tmp/p12-full.txt`; `! grep -q -- '--skip-hyprland' /tmp/p12-full.txt`; `! grep -q -- '--skip-sysupdate' /tmp/p12-full.txt`; `! grep -E -- '(^|[[:space:]])--core([[:space:]]|$)' /tmp/p12-full.txt` | ✅ |
+| FULL-02 | Default install still injects triple residual | `printf 'yes\n' \| ./arch/dots-hyprland.sh install --dry-run \| tee /tmp/p12-safe.txt`; greps for all three residuals | ✅ |
+| FULL-02b | Default install-files still injects | same with `install-files` | ✅ |
+| FULL-03 | Bare `--skip-backup` refused on full without allow | `./arch/dots-hyprland.sh install --full --skip-backup --dry-run; test $? -ne 0` | ✅ |
+| FULL-03b | Dual-key allow still works; meta stripped | dry-run greps: `--skip-backup` present; `--allow-skip-backup` and `--full` absent | ✅ |
+| FULL-04 | Full dry-run shows would-exec without SAFE_DEFAULTS; gate still hit | gate/type-yes evidence + `would exec` + residual absence | ✅ |
+| FULL-05 | Full dry-run still plans protect re-mark (+ ii hooks per D-16) | `grep -q 'protect-list'` + ii hooks on full dry-run output | ✅ |
+| D-02 | `--full` refused on install-deps | non-zero exit | ✅ |
+| D-04 | Help no longer points full path outside wrapper | negative grep on vendor-outside note | ✅ |
+| D-13 | Help points at playbook | `dots-hyprland-workflow` in help | ✅ |
+| syntax | Script parses | `bash -n arch/dots-hyprland.sh` | ✅ |
 
 ---
 
@@ -141,11 +142,22 @@ printf 'no\n' | ./arch/dots-hyprland.sh install --full --dry-run # expect non-ze
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 15s
-- [ ] `nyquist_compliant: true` set in frontmatter (after validate-phase)
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 15s
+- [x] `nyquist_compliant: true` set in frontmatter (after validate-phase)
 
-**Approval:** pending
+**Approval:** approved 2026-08-18
+
+## Validation Audit 2026-08-18
+
+| Metric | Count |
+|--------|-------|
+| Gaps found | 0 automated (FULL-01..05 + D-02/D-04/D-13 + syntax COVERED by `./scripts/phase12-full-smoke.sh`) |
+| Resolved | 11/11 per-task map rows green |
+| Escalated | 0 |
+| Manual-only remaining | D-07 wording judgment (observed in this run); live full install deferred to Phase 14 |
+
+Evidence this run: `./scripts/phase12-full-smoke.sh` exit 0; `printf no` full dry-run exit 1; `install-files --full --dry-run` would-exec without residuals + protect-list.
