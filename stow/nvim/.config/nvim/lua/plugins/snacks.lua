@@ -52,6 +52,9 @@ return {
 		quickfile = {
 			enabled = true, -- fast file render before full lazy load (UX-02)
 		},
+		input = {
+			enabled = false, -- Fix: disables snacks input to prevent being stuck in insert mode after renaming
+		},
 		image = {
 			enabled = false, -- D-11: not needed
 		},

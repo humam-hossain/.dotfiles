@@ -172,27 +172,7 @@ M.global = {
     opts = { noremap = true, silent = true },
   },
 
-  -- Buffer navigation (preserved direct keys)
-  {
-    id = "buffer.next",
-    lhs = "<Tab>",
-    mode = "n",
-    desc = "Next buffer",
-    domain = "b",
-    scope = "global",
-    action = ":bnext<CR>",
-    opts = { noremap = true, silent = true },
-  },
-  {
-    id = "buffer.prev",
-    lhs = "<S-Tab>",
-    mode = "n",
-    desc = "Previous buffer",
-    domain = "b",
-    scope = "global",
-    action = ":bprevious<CR>",
-    opts = { noremap = true, silent = true },
-  },
+  -- Buffer navigation mappings removed to allow <C-i> to work properly for jump forward.
 
   -- Diagnostics
   {
@@ -684,7 +664,16 @@ M.buffer = {
     domain = "c",
     scope = "buffer",
     attach = "LspAttach",
-    action = vim.lsp.buf.rename,
+    action = function()
+      local curr_name = vim.fn.expand("<cword>")
+      vim.ui.input({ prompt = "New Name: ", default = curr_name }, function(new_name)
+        if not new_name or new_name == "" or new_name == curr_name then return end
+        vim.lsp.buf.rename(new_name)
+        vim.schedule(function()
+          vim.cmd("stopinsert")
+        end)
+      end)
+    end,
   },
   {
     id = "lsp.code_action",
