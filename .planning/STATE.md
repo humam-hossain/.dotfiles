@@ -6,9 +6,9 @@ current_phase: 13
 current_phase_name: Personal hypr/custom overlays
 status: planning
 stopped_at: Phase 13 context gathered
-last_updated: "2026-08-19T14:39:05.983Z"
-last_activity: 2026-08-18
-last_activity_desc: Phase 12 complete (UAT 10/10, smoke FAIL=0), transitioned to Phase 13
+last_updated: "2026-08-19T17:30:32.636Z"
+last_activity: 2026-08-19
+last_activity_desc: Phase 13 CONTEXT gathered; overlays not written; OVL-01/02/03 Pending; 3 PLAN.md on disk are stale vs 2026-08-19 CONTEXT and have 0 SUMMARY.md
 progress:
   total_phases: 6
   completed_phases: 1
@@ -23,15 +23,15 @@ progress:
 
 Phase: 13 — Personal hypr/custom overlays
 Plan: 3 PLAN.md on disk, 0 SUMMARY.md — not executed
-Status: Ready to plan (CONTEXT.md exists; plans untracked, unverified this session)
+Status: Ready to plan — CONTEXT 2026-08-19; 13-01..03 PLAN.md unexecuted; 0 SUMMARY.md; OVL Pending
 Total Plans in Phase: 3
-Last activity: 2026-08-18 — Phase 12 complete (UAT 10/10, smoke FAIL=0), transitioned to Phase 13
+Last activity: 2026-08-19 — Phase 13 CONTEXT gathered; overlays not written; OVL-01/02/03 Pending; 3 PLAN.md on disk are stale vs 2026-08-19 CONTEXT and have 0 SUMMARY.md
 
-Progress: [████████████████░░░░] 13/16 plans (81%)
+Progress: [███████░░░] 13/18 plans (72%) — Phase 13 has 3 PLAN.md and 0 SUMMARY.md
 
 ## Session
 
-**Last session:** 2026-08-19T14:39:05.960Z
+**Last session:** 2026-08-19T14:48:12.448Z
 **Stopped at:** Phase 13 context gathered
 **Resume file:** .planning/phases/13-personal-hypr-custom-overlays/13-CONTEXT.md
 **Next command:** `/gsd-plan-phase 13`
@@ -129,3 +129,4 @@ None open.
 - [Phase 12]: D-14/D-15/D-16: existing post-setup arms already run when full==1; no wrapper edit — Task 1 official verify passed; no full==0 skip around protect/hooks
 - [Phase 12]: Nyquist one-command suite is ./scripts/phase12-full-smoke.sh; execute left nyquist_compliant false; 12-VALIDATION.md now `nyquist_compliant: true` (validated 2026-08-18)
 - [Phase 12]: UAT 10/10 + live smoke FAIL=0 on 2026-08-18; ROADMAP `[x]` completed 2026-08-18; FULL-01..05 marked Complete in REQUIREMENTS.md
+- [Phase 13]: CONTEXT updated 2026-08-19: overlay content is monitors + workspace pins only; empty env.lua/execs.lua slots; apply fails if general.lua missing. Cursor and VIRTUAL_ENV overlays dropped. OVL-* still Pending until files exist and D-19 verify passes. Do not execute pre-existing 13-0{1,2,3}-PLAN.md (written against 2026-08-17 CONTEXT).
