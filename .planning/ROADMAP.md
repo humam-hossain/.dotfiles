@@ -151,7 +151,16 @@ Plans:
   2. Overlay prep is done or checklist-gated **before** first live full hypr files install that needs those must-keeps
   3. Repo vs live vs fork SoT policy for hypr/custom is written and used for any committed overlays
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 13-01-PLAN.md — Tracer: repo custom/general.lua dual-head + pins, empty env.lua slot, SoT fence
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 13-02-PLAN.md — Empty execs.lua slot, D-18 apply command, full D-19 verify
 
 ### Phase 14: Live full adopt & verify
 
