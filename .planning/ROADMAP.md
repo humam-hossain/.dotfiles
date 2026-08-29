@@ -151,7 +151,7 @@ Plans:
   2. Overlay prep is done or checklist-gated **before** first live full hypr files install that needs those must-keeps
   3. Repo vs live vs fork SoT policy for hypr/custom is written and used for any committed overlays
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans executed
 
 Plans:
 **Wave 1**
@@ -160,7 +160,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 13-02-PLAN.md — Empty execs.lua slot, D-18 apply command, full D-19 verify
+- [x] 13-02-PLAN.md — Empty execs.lua slot, D-18 apply command, full D-19 verify
 
 ### Phase 14: Live full adopt & verify
 
@@ -204,7 +204,7 @@ Plans:
 | 10. Full-install impact inventory | v0.3 | 5/5 | Complete    | 2026-08-07 |
 | 11. Disposition decisions | v0.3 | 4/4 | Complete    | 2026-08-10 |
 | 12. Wrapper full-profile | v0.3 | 4/4 | Complete    | 2026-08-18 |
-| 13. Personal hypr/custom overlays | v0.3 | 1/2 | In Progress|  |
+| 13. Personal hypr/custom overlays | v0.3 | 2/2 | In Progress|  |
 | 14. Live full adopt & verify | v0.3 | 0/0 | Not started | — |
 | 15. Playbook safe vs full | v0.3 | 0/0 | Not started | — |
 

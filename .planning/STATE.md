@@ -4,17 +4,17 @@ milestone: v0.3
 milestone_name: Full ii install
 current_phase: 13
 current_phase_name: Personal hypr/custom overlays
-status: executing
-stopped_at: Completed 13-01-PLAN.md; wave 1 merged; ready for 13-02
-last_updated: "2026-08-29T06:53:18.803Z"
+status: verifying
+stopped_at: Completed 13-02-PLAN.md; wave 2 merged; D-19 passed on main
+last_updated: "2026-08-29T07:07:01.139Z"
 last_activity: 2026-08-29
-last_activity_desc: Wave 1 merged (13-01 SUMMARY on disk); ready for 13-02
-state_head: 6a7b6cb2eb80597865ed6330a78bda280671a475
+last_activity_desc: Wave 2 merged (13-02 SUMMARY on disk); D-19 passed on main; ready for verification
+state_head: b4f8f07c0b28383391a01cc9a1b59d1d773cf533
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 17
-  completed_plans: 14
+  completed_plans: 15
   percent: 50
 ---
 
@@ -22,20 +22,20 @@ progress:
 
 ## Current Position
 
-Phase: 13 (Personal hypr/custom overlays) — EXECUTING
+Phase: 13 (Personal hypr/custom overlays) — VERIFYING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Total Plans in Phase: 2
-Last activity: 2026-08-29 — Wave 1 merged (13-01 SUMMARY on disk); ready for 13-02
+Last activity: 2026-08-29 — Wave 2 merged (13-02 SUMMARY on disk); D-19 passed on main
 
-Progress: [█████░░░░░] 50% — Phase 13 has 2 PLAN.md and 1 SUMMARY.md (13-02 not executed)
+Progress: [█████░░░░░] 50% — Phase 13 has 2 PLAN.md and 2 SUMMARY.md (ready for verification)
 
 ## Session
 
-**Last session:** 2026-08-29T06:53:18.605Z
-**Stopped at:** Completed 13-01-PLAN.md; wave 1 merged; ready for 13-02
+**Last session:** 2026-08-29T07:07:00.877Z
+**Stopped at:** Completed 13-02-PLAN.md; wave 2 merged; D-19 passed on main
 **Resume file:** None
-**Next command:** `/gsd-plan-phase 13`
+**Next command:** `/gsd-execute-phase 13` (verification remaining; no VERIFICATION.md yet)
 
 ## Project Reference
 
@@ -116,6 +116,7 @@ None open.
 | Phase 12 P04 | 85 min | 2 tasks | 2 files |
 | Phase 12 UAT | 2026-08-18 re-verify | 10 tests | 12-UAT.md (10 pass, 0 issues); smoke FAIL=0 |
 | Phase 13 P01 | inline | 3 tasks | 3 files |
+| Phase 13 P02 | inline | 3 tasks | 2 files |
 
 ## Decisions
 
