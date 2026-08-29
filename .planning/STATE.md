@@ -4,36 +4,37 @@ milestone: v0.3
 milestone_name: Full ii install
 current_phase: 13
 current_phase_name: Personal hypr/custom overlays
-status: planning
-stopped_at: Phase 13 context gathered
-last_updated: "2026-08-19T17:30:32.636Z"
-last_activity: 2026-08-19
-last_activity_desc: Phase 13 CONTEXT gathered; overlays not written; OVL-01/02/03 Pending; 3 PLAN.md on disk are stale vs 2026-08-19 CONTEXT and have 0 SUMMARY.md
+status: executing
+stopped_at: Completed 13-01-PLAN.md; wave 1 merged; ready for 13-02
+last_updated: "2026-08-29T06:53:18.803Z"
+last_activity: 2026-08-29
+last_activity_desc: Wave 1 merged (13-01 SUMMARY on disk); ready for 13-02
+state_head: 6a7b6cb2eb80597865ed6330a78bda280671a475
 progress:
   total_phases: 6
-  completed_phases: 1
-  total_plans: 18
-  completed_plans: 13
-  percent: 17
+  completed_phases: 3
+  total_plans: 17
+  completed_plans: 14
+  percent: 50
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 13 — Personal hypr/custom overlays
-Plan: 3 PLAN.md on disk, 0 SUMMARY.md — not executed
-Status: Ready to plan — CONTEXT 2026-08-19; 13-01..03 PLAN.md unexecuted; 0 SUMMARY.md; OVL Pending
-Total Plans in Phase: 3
-Last activity: 2026-08-19 — Phase 13 CONTEXT gathered; overlays not written; OVL-01/02/03 Pending; 3 PLAN.md on disk are stale vs 2026-08-19 CONTEXT and have 0 SUMMARY.md
+Phase: 13 (Personal hypr/custom overlays) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
+Total Plans in Phase: 2
+Last activity: 2026-08-29 — Wave 1 merged (13-01 SUMMARY on disk); ready for 13-02
 
-Progress: [███████░░░] 13/18 plans (72%) — Phase 13 has 3 PLAN.md and 0 SUMMARY.md
+Progress: [█████░░░░░] 50% — Phase 13 has 2 PLAN.md and 1 SUMMARY.md (13-02 not executed)
 
 ## Session
 
-**Last session:** 2026-08-19T14:48:12.448Z
-**Stopped at:** Phase 13 context gathered
-**Resume file:** .planning/phases/13-personal-hypr-custom-overlays/13-CONTEXT.md
+**Last session:** 2026-08-29T06:53:18.605Z
+**Stopped at:** Completed 13-01-PLAN.md; wave 1 merged; ready for 13-02
+**Resume file:** None
 **Next command:** `/gsd-plan-phase 13`
 
 ## Project Reference
@@ -41,7 +42,7 @@ Progress: [███████░░░] 13/18 plans (72%) — Phase 13 has 3 
 See: .planning/PROJECT.md (updated 2026-08-18)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions.  
-**Current focus:** Phase 13 — personal hypr/custom overlays
+**Current focus:** Phase 13 — Personal hypr/custom overlays
 
 ## Deferred Items
 
@@ -114,6 +115,7 @@ None open.
 | Phase 11 verify | short | 14/14 | 11-VERIFICATION.md status: passed |
 | Phase 12 P04 | 85 min | 2 tasks | 2 files |
 | Phase 12 UAT | 2026-08-18 re-verify | 10 tests | 12-UAT.md (10 pass, 0 issues); smoke FAIL=0 |
+| Phase 13 P01 | inline | 3 tasks | 3 files |
 
 ## Decisions
 
