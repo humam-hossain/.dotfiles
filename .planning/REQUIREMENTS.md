@@ -24,9 +24,9 @@ Requirements for this milestone only. Phase numbering continues after v0.2 (last
 
 ### Personal overlay migration
 
-- [ ] **OVL-01**: Personal must-keeps selected for migrate (monitors, workspaces, env, exec-once, keybinds, rules as applicable) are expressed as `hypr/custom` Lua overlays compatible with ii `hyprland.lua` require contract
-- [ ] **OVL-02**: Overlay preparation is completed (or explicitly checklist-gated) **before** the first live full hypr files install that would rely on those must-keeps
-- [ ] **OVL-03**: Repo vs live vs fork SoT policy for hypr/custom after cutover is written and followed for any committed overlays
+- [x] **OVL-01**: Personal must-keeps selected for migrate (monitors, workspaces, env, exec-once, keybinds, rules as applicable) are expressed as `hypr/custom` Lua overlays compatible with ii `hyprland.lua` require contract
+- [x] **OVL-02**: Overlay preparation is completed (or explicitly checklist-gated) **before** the first live full hypr files install that would rely on those must-keeps
+- [x] **OVL-03**: Repo vs live vs fork SoT policy for hypr/custom after cutover is written and followed for any committed overlays
 
 ### Full-install path (wrapper)
 
@@ -100,9 +100,9 @@ Deferred beyond v0.3.
 | FULL-03 | Phase 12 | Complete |
 | FULL-04 | Phase 12 | Complete |
 | FULL-05 | Phase 12 | Complete |
-| OVL-01 | Phase 13 | Pending |
-| OVL-02 | Phase 13 | Pending |
-| OVL-03 | Phase 13 | Pending |
+| OVL-01 | Phase 13 | Complete |
+| OVL-02 | Phase 13 | Complete |
+| OVL-03 | Phase 13 | Complete |
 | ADOPT-01 | Phase 14 | Pending |
 | ADOPT-02 | Phase 14 | Pending |
 | ADOPT-03 | Phase 14 | Pending |
