@@ -3,7 +3,7 @@
 ## Current State
 
 **Shipped:** v0.2 Adopt dots-hyprland (2026-08-02)  
-**In progress:** v0.3 Full ii install — Phases 10–12 complete; next is Phase 13 personal hypr/custom overlays
+**In progress:** v0.3 Full ii install — Phases 10–13 complete; next is Phase 14 live full adopt & verify
 
 Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell dual-running with Waybar, operator playbook for install and pin-bump updates.
 
@@ -12,6 +12,8 @@ Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery mo
 **Phase 11 delivered:** Per-surface dispositions (`11-DISPOSITIONS.md`) — first full-adopt drops all three SAFE_DEFAULTS residuals; default install still injects them.
 
 **Phase 12 delivered:** Wrapper-owned `--full` on `install` / `install-files` only. Full dry-run omits the triple residual and still hits the backup gate; default install still injects SAFE_DEFAULTS. Evidence: `./scripts/phase12-full-smoke.sh` exit 0 on 2026-08-18 (FAIL=0). No live full install this phase.
+
+**Phase 13 delivered:** Parent-repo `.config/hypr/custom/` overlays — `general.lua` dual-head + eleven workspace pins, empty `env.lua`/`execs.lua` require slots, `13-SOT-APPLY.md` authoring SoT + D-18 `cp -a` (documented, not run) + D-19 fence (exit 0). Live `$HOME/.config/hypr/custom/` still absent. Apply is Phase 14.
 
 **Stats at v0.2 ship:** 5 phases · 15 plans · ~38 tasks · 106 commits since v0.1 · 1025 files changed (+17.6k / −78k, mostly retired local QS tree)
 
@@ -116,10 +118,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Full path keeps type-yes backup gate; bare `--skip-backup` refused without `--allow-skip-backup` — Phase 12 / FULL-03
 - ✓ `--full --dry-run` shows would-exec without residual injection — Phase 12 / FULL-04
 - ✓ Full dry-run still plans PROTECT_EXPLICIT re-mark and ii hooks — Phase 12 / FULL-05
+- ✓ Personal must-keeps as `hypr/custom` Lua overlays (monitors + workspace pins; empty env/execs slots) before live full hypr files — Phase 13 / OVL-01..03
 
 ### Active
 
-- [ ] Personal must-keeps as `hypr/custom` Lua overlays before live full hypr files
 - [ ] Execute full ii install per dispositions; session boots on ii hypr model
 - [ ] Playbook: full vs safe/dual-run install profiles
 
@@ -191,6 +193,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 12: default path still injects triple residual | Full must not become accidental (FULL-02 / D-10) | ✓ smoke FULL-02 / FULL-02b |
 | Phase 12: full gate + dual-key skip-backup | Same type-yes token; refuse bare `--skip-backup` | ✓ smoke FULL-03 / FULL-03b; `printf no` exit 1 |
 | Phase 12: protect + ii hooks unbranched on `full==1` | FULL-05; no `full==0` skip around post-setup arms | ✓ smoke FULL-05; live greps 2026-08-18 |
+| Phase 13: authoring SoT is parent-repo `.config/hypr/custom/` | Vendor/fork stay product-only; live is applied copy | ✓ overlays committed only under parent custom/ |
+| Phase 13: apply documented, not run (D-02/D-17) | Live full hypr files are Phase 14; no `$HOME/.config` mutation | ✓ live custom absent; D-18 is `cp -a` of three named files |
+| Phase 13: empty `env.lua`/`execs.lua` are 1-byte require slots | `hyprland.lua` gates on `is_file_exists`; `test -f` only, never `test -s` | ✓ D-19 fence exit 0; `luac -p` on general.lua |
+| Phase 13: D-19 in-repo fence is the OVL completion gate | CONTEXT/PLAN prose is not evidence (D-20) | ✓ OVL-01..03 Complete after D-19; 13-VERIFICATION.md status passed |
 | Phase 10: Single multi-section `10-INVENTORY.md` SoT | One inventory file for residual + axes A/B/C + host snapshot | ✓ INV-01..04 |
 | Phase 10: Neutral effects only (no dispositions) | Phase 11 owns keep/migrate/accept/defer | ✓ D-12 lint + assert |
 | Phase 10: Assert harness with word-boundary D-15 lint | Avoid false positives (`profile` ⊃ `rofi`) | ✓ `phase10-inventory-assert.sh` |
@@ -220,4 +226,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-18 after Phase 12 UAT 10/10 + smoke FAIL=0 — transition to Phase 13*
+*Last updated: 2026-08-31 after Phase 13 verification passed + phase.complete — transition to Phase 14*

@@ -2,47 +2,47 @@
 gsd_state_version: 1.0
 milestone: v0.3
 milestone_name: Full ii install
-current_phase: 13
-current_phase_name: Personal hypr/custom overlays
-status: verifying
-stopped_at: Completed 13-02-PLAN.md; wave 2 merged; D-19 passed on main
-last_updated: "2026-08-29T07:07:01.139Z"
-last_activity: 2026-08-29
-last_activity_desc: Wave 2 merged (13-02 SUMMARY on disk); D-19 passed on main; ready for verification
-state_head: b4f8f07c0b28383391a01cc9a1b59d1d773cf533
+current_phase: 14
+current_phase_name: Live full adopt & verify
+status: planning
+stopped_at: Phase 13 complete, ready to plan Phase 14
+last_updated: "2026-08-31T04:28:02.990Z"
+last_activity: 2026-08-31
+last_activity_desc: Phase 13 complete, transitioned to Phase 14
+state_head: d921a8ef215661c5694fbb72c8b2945cf6819a4a
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 17
   completed_plans: 15
-  percent: 50
+  percent: 67
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 13 (Personal hypr/custom overlays) — VERIFYING
-Plan: 2 of 2
-Status: Phase complete — ready for verification
-Total Plans in Phase: 2
-Last activity: 2026-08-29 — Wave 2 merged (13-02 SUMMARY on disk); D-19 passed on main
+Phase: 14 — Live full adopt & verify
+Plan: Not started
+Status: Ready to plan
+Total Plans in Phase: 0
+Last activity: 2026-08-31 — Phase 13 complete, transitioned to Phase 14
 
-Progress: [█████░░░░░] 50% — Phase 13 has 2 PLAN.md and 2 SUMMARY.md (ready for verification)
+Progress: [██████████████████░░] 15/17 plans (88%)
 
 ## Session
 
-**Last session:** 2026-08-29T07:07:00.877Z
-**Stopped at:** Completed 13-02-PLAN.md; wave 2 merged; D-19 passed on main
+**Last session:** 2026-08-31T04:28:02.990Z
+**Stopped at:** Phase 13 complete, ready to plan Phase 14
 **Resume file:** None
-**Next command:** `/gsd-execute-phase 13` (verification remaining; no VERIFICATION.md yet)
+**Next command:** `/gsd-discuss-phase 14` (no Phase 14 CONTEXT.md)
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-08-18)
+See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions.  
-**Current focus:** Phase 13 — Personal hypr/custom overlays
+**Current focus:** Phase 14 — Live full adopt & verify
 
 ## Deferred Items
 
@@ -80,6 +80,9 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 11: first full-adopt drops all three SAFE_DEFAULTS residuals (D-05); residual still default (D-10); must-migrate only monitors/workspaces/env (D-16)
 - Phase 12: `--full` meta on install/install-files; default still injects triple residual; smoke `./scripts/phase12-full-smoke.sh` FAIL=0 on 2026-08-18
 - Phase 12 UAT: 10/10 pass (1 human coverage confirm + 9 automated); 12-VERIFICATION.md status passed; 12-VALIDATION.md nyquist_compliant true
+- Phase 13: authoring SoT = parent-repo `.config/hypr/custom/`; live is applied copy; vendor/fork product-only
+- Phase 13: overlays are `general.lua` (hl.monitor + hl.workspace_rule) plus empty env.lua/execs.lua slots; apply documented not run (D-02/D-17)
+- Phase 13: D-19 fence exit 0; 13-VERIFICATION.md status passed; OVL-01..03 Complete; live custom still absent
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.
@@ -90,10 +93,11 @@ None open.
 
 ## Operator Next Steps
 
-1. `/gsd-plan-phase 13` — personal hypr/custom overlays (OVL-*) ← recommended (CONTEXT.md exists)  
-2. Disk only: 3 untracked `13-0{1,2,3}-PLAN.md`, **0 SUMMARY.md** — do not treat Phase 13 as executed  
-3. Do **not** run live full install until Phase 14 gates  
-4. Default `install` without `--full` still injects SAFE_DEFAULTS (FULL-02; smoke 2026-08-18)
+1. `/gsd-discuss-phase 14` — live full adopt & verify (no CONTEXT.md) ← recommended  
+2. `/gsd-secure-phase 13` — security enforcement enabled; no `13-SECURITY.md` yet  
+3. `/gsd-validate-phase 13` — `13-VALIDATION.md` still `status: draft` / `nyquist_compliant: false`  
+4. Do **not** run live full install until Phase 14 gates  
+5. Default `install` without `--full` still injects SAFE_DEFAULTS (FULL-02; smoke 2026-08-18)
 
 ## Performance Metrics
 
@@ -132,4 +136,5 @@ None open.
 - [Phase 12]: D-14/D-15/D-16: existing post-setup arms already run when full==1; no wrapper edit — Task 1 official verify passed; no full==0 skip around protect/hooks
 - [Phase 12]: Nyquist one-command suite is ./scripts/phase12-full-smoke.sh; execute left nyquist_compliant false; 12-VALIDATION.md now `nyquist_compliant: true` (validated 2026-08-18)
 - [Phase 12]: UAT 10/10 + live smoke FAIL=0 on 2026-08-18; ROADMAP `[x]` completed 2026-08-18; FULL-01..05 marked Complete in REQUIREMENTS.md
-- [Phase 13]: CONTEXT updated 2026-08-19: overlay content is monitors + workspace pins only; empty env.lua/execs.lua slots; apply fails if general.lua missing. Cursor and VIRTUAL_ENV overlays dropped. OVL-* still Pending until files exist and D-19 verify passes. Do not execute pre-existing 13-0{1,2,3}-PLAN.md (written against 2026-08-17 CONTEXT).
+- [Phase 13]: CONTEXT updated 2026-08-19: overlay content is monitors + workspace pins only; empty env.lua/execs.lua slots; apply fails if general.lua missing. Cursor and VIRTUAL_ENV overlays dropped.
+- [Phase 13]: 13-01/13-02 executed; D-19 fence exit 0; 13-VERIFICATION.md status passed; ROADMAP `[x]` via `phase.complete` 2026-08-31; OVL-01..03 Complete; live apply deferred to Phase 14

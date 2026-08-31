@@ -50,7 +50,7 @@ Phase artifacts: [milestones/v0.2-phases/](milestones/v0.2-phases/)
 - [x] **Phase 10: Full-install impact inventory** — Map every path/flag effect of full install vs personal configs (completed 2026-08-07)
 - [x] **Phase 11: Disposition decisions** — Per-surface keep/migrate/accept/defer + staged flag choices (completed 2026-08-10)
 - [x] **Phase 12: Wrapper full-profile** — Explicit opt-in full path; SAFE_DEFAULTS remain default (completed 2026-08-18)
-- [ ] **Phase 13: Personal hypr/custom overlays** — Migrate must-keeps; SoT policy; before live full hypr files
+- [x] **Phase 13: Personal hypr/custom overlays** — Migrate must-keeps; SoT policy; before live full hypr files (completed 2026-08-31)
 - [ ] **Phase 14: Live full adopt & verify** — Gated full install; Lua session; UAT; safe rollback guidance
 - [ ] **Phase 15: Playbook safe vs full** — Document profiles, sequence, overlay SoT, non-goals
 
@@ -151,7 +151,7 @@ Plans:
   2. Overlay prep is done or checklist-gated **before** first live full hypr files install that needs those must-keeps
   3. Repo vs live vs fork SoT policy for hypr/custom is written and used for any committed overlays
 
-**Plans:** 2/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 **Wave 1**
@@ -204,7 +204,7 @@ Plans:
 | 10. Full-install impact inventory | v0.3 | 5/5 | Complete    | 2026-08-07 |
 | 11. Disposition decisions | v0.3 | 4/4 | Complete    | 2026-08-10 |
 | 12. Wrapper full-profile | v0.3 | 4/4 | Complete    | 2026-08-18 |
-| 13. Personal hypr/custom overlays | v0.3 | 2/2 | In Progress|  |
+| 13. Personal hypr/custom overlays | v0.3 | 2/2 | Complete    | 2026-08-31 |
 | 14. Live full adopt & verify | v0.3 | 0/0 | Not started | — |
 | 15. Playbook safe vs full | v0.3 | 0/0 | Not started | — |
 
