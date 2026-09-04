@@ -123,6 +123,323 @@ else
   pass "ADOPT-02 hyprctl eval accepted, returned: ${EVAL_OUT//$'\n'/ }"
 fi
 
+# =============================================================================
+# ADOPT-03 — the Phase 13 overlay LOADED, not merely got copied
+#
+# Overlay-declared values below are cited from .config/hypr/custom/general.lua
+# (the authoring source of truth, see 13-SOT-APPLY.md). The guard immediately
+# after re-reads that file so a drifted overlay is caught rather than silently
+# compared against a stale constant.
+# =============================================================================
+
+OVERLAY_GENERAL=".config/hypr/custom/general.lua"
+HDMI_A2_SCALE_DECLARED="1.5"
+HDMI_A2_TRANSFORM_DECLARED="1"
+
+if [[ -f "$OVERLAY_GENERAL" ]] \
+  && grep -q "scale = ${HDMI_A2_SCALE_DECLARED}" "$OVERLAY_GENERAL" \
+  && grep -q "transform = ${HDMI_A2_TRANSFORM_DECLARED}" "$OVERLAY_GENERAL"; then
+  pass "ADOPT-03 overlay source declares HDMI-A-2 scale=${HDMI_A2_SCALE_DECLARED} transform=${HDMI_A2_TRANSFORM_DECLARED}: $OVERLAY_GENERAL"
+else
+  finding "ADOPT-03 overlay source $OVERLAY_GENERAL no longer declares HDMI-A-2 scale=${HDMI_A2_SCALE_DECLARED} transform=${HDMI_A2_TRANSFORM_DECLARED} — the constants below may be stale"
+fi
+
+MONITORS_JSON="$(hyprctl -j monitors all 2>/dev/null || true)"
+if [[ -z "$MONITORS_JSON" ]]; then
+  fail "ADOPT-03 hyprctl -j monitors all returned nothing — no live session to verify against"
+  MONITORS_JSON='[]'
+fi
+
+# DP-1 presence is unconditional and enforced.
+if jq -e '.[] | select(.name=="DP-1")' >/dev/null 2>&1 <<<"$MONITORS_JSON"; then
+  pass "ADOPT-03 DP-1 present in hyprctl -j monitors all"
+else
+  fail "ADOPT-03 DP-1 missing from hyprctl -j monitors all"
+fi
+
+# DP-1 scale is RECORDED, never enforced (D-14): a wrong scale is a Phase 15 item.
+DP1_SCALE_PRE="$(baseline_value dp1_scale_pre)" || exit 1
+DP1_SCALE_LIVE="$(jq -r '.[] | select(.name=="DP-1") | .scale' <<<"$MONITORS_JSON" 2>/dev/null || true)"
+if [[ -z "$DP1_SCALE_LIVE" ]]; then
+  finding "ADOPT-03 DP-1 scale unreadable — recorded pre-adopt value was $DP1_SCALE_PRE (D-14, record and defer)"
+elif [[ "$DP1_SCALE_LIVE" == "$DP1_SCALE_PRE" || "$DP1_SCALE_LIVE" == "${DP1_SCALE_PRE}.0" ]]; then
+  pass "ADOPT-03 DP-1 scale unchanged at $DP1_SCALE_LIVE (pre-adopt $DP1_SCALE_PRE)"
+else
+  finding "ADOPT-03 DP-1 scale is $DP1_SCALE_LIVE, pre-adopt was $DP1_SCALE_PRE — recorded, not a blocker (D-14). Phase 15 item."
+fi
+
+# HDMI-A-2 is conditional: absent is an observability gap, named rather than skipped.
+if jq -e '.[] | select(.name=="HDMI-A-2")' >/dev/null 2>&1 <<<"$MONITORS_JSON"; then
+  HDMI_SCALE_LIVE="$(jq -r '.[] | select(.name=="HDMI-A-2") | .scale' <<<"$MONITORS_JSON")"
+  HDMI_TRANSFORM_LIVE="$(jq -r '.[] | select(.name=="HDMI-A-2") | .transform' <<<"$MONITORS_JSON")"
+  info "ADOPT-03 verification ran in DUAL-HEAD mode — HDMI-A-2 is attached"
+  if [[ "$HDMI_SCALE_LIVE" == "$HDMI_A2_SCALE_DECLARED" \
+     && "$HDMI_TRANSFORM_LIVE" == "$HDMI_A2_TRANSFORM_DECLARED" ]]; then
+    pass "ADOPT-03 HDMI-A-2 scale $HDMI_SCALE_LIVE transform $HDMI_TRANSFORM_LIVE match the overlay"
+  else
+    finding "ADOPT-03 HDMI-A-2 is scale $HDMI_SCALE_LIVE transform $HDMI_TRANSFORM_LIVE, overlay declares scale $HDMI_A2_SCALE_DECLARED transform $HDMI_A2_TRANSFORM_DECLARED — recorded, not a blocker"
+  fi
+else
+  info "ADOPT-03 verification ran in SINGLE-HEAD mode — HDMI-A-2 absent from hyprctl -j monitors all, so its scale/transform assertion could not be observed and was NOT counted as a pass"
+fi
+
+# Workspace rules are enforced unconditionally: hyprctl reports rules for monitors
+# that are not attached, so all eleven are checkable single-headed. Their presence
+# in the RUNNING compositor is what proves the overlay loaded rather than merely
+# having been copied (D-33 reasoning applied to ADOPT-03).
+WSRULES_JSON="$(hyprctl -j workspacerules 2>/dev/null || true)"
+[[ -z "$WSRULES_JSON" ]] && WSRULES_JSON='[]'
+# workspace -> monitor, verbatim from .config/hypr/custom/general.lua:17-27
+WS_EXPECT=(
+  "1=DP-1" "2=DP-1" "3=DP-1" "4=DP-1" "5=DP-1" "special:social=DP-1"
+  "6=HDMI-A-2" "7=HDMI-A-2" "8=HDMI-A-2" "9=HDMI-A-2" "10=HDMI-A-2"
+)
+for entry in "${WS_EXPECT[@]}"; do
+  ws="${entry%%=*}"
+  want_mon="${entry#*=}"
+  got_mon="$(jq -r --arg ws "$ws" '.[] | select(.workspaceString==$ws) | .monitor // "<unset>"' <<<"$WSRULES_JSON" 2>/dev/null || true)"
+  if [[ -z "$got_mon" ]]; then
+    fail "ADOPT-03 Workspace rule $ws missing from the running compositor — overlay did not load"
+  elif [[ "$got_mon" == "$want_mon" ]]; then
+    pass "ADOPT-03 Workspace rule $ws live on $got_mon"
+  else
+    finding "ADOPT-03 Workspace rule $ws is live but resolves to '$got_mon', overlay declares '$want_mon'"
+  fi
+done
+
+# Shell chrome. Dual-run policy is accept-remove (Phase 11 D-11 overrides DISP-03):
+# the ii shell runs and the Waybar/rofi/swaync stack does not.
+if pgrep -f 'qs -c ii' >/dev/null 2>&1; then
+  pass "ADOPT-03 ii shell running: qs -c ii"
+else
+  fail "ADOPT-03 ii shell not running: qs -c ii"
+fi
+if pgrep -x waybar >/dev/null 2>&1; then
+  fail "ADOPT-03 waybar still running — Waybar/rofi/swaync dual-run policy is accept-remove"
+else
+  pass "ADOPT-03 waybar not running (Waybar/rofi/swaync accept-remove)"
+fi
+if pgrep -x swaync >/dev/null 2>&1; then
+  fail "ADOPT-03 swaync still running — Waybar/rofi/swaync dual-run policy is accept-remove"
+else
+  pass "ADOPT-03 swaync not running (Waybar/rofi/swaync accept-remove)"
+fi
+# rofi never had an exec-once (RESEARCH Pitfall 6), so its absence is vacuous and
+# its presence would be the surprise. Recorded, never enforced.
+if pgrep -x rofi >/dev/null 2>&1; then
+  finding "ADOPT-03 a rofi process is running — unexpected, it never had an autostart in the archived conf"
+else
+  info "ADOPT-03 rofi not running — vacuous, it never had an autostart; the real check is the launcher keybind (human)"
+fi
+
+# =============================================================================
+# ADOPT-04 — prove the rollback INPUTS exist; never rehearse the restore (D-26)
+# =============================================================================
+
+UNINST_OUT="$(mktemp /tmp/p14-verify-uninst-XXXXXX)"
+PROTECT_OUT="$(mktemp /tmp/p14-verify-protect-XXXXXX)"
+# shellcheck disable=SC2064
+trap 'rm -f "$UNINST_OUT" "$PROTECT_OUT"' EXIT
+
+REPO_HYPRCONF=".config/hypr/hyprland.conf"
+
+if [[ -s "$XDG/hypr/hyprland.conf.old" ]]; then
+  pass "ADOPT-04 tier-1 source 1 present and non-empty: $XDG/hypr/hyprland.conf.old"
+else
+  fail "ADOPT-04 tier-1 source 1 missing or empty: $XDG/hypr/hyprland.conf.old"
+fi
+if [[ -s "$REPO_HYPRCONF" ]]; then
+  pass "ADOPT-04 tier-1 source 2 present and non-empty: repo $REPO_HYPRCONF"
+else
+  fail "ADOPT-04 tier-1 source 2 missing or empty: repo $REPO_HYPRCONF"
+fi
+if [[ -d "$BACKUP_DIR" ]] && [[ -n "$(ls -A "$BACKUP_DIR" 2>/dev/null || true)" ]]; then
+  pass "ADOPT-04 tier-1 source 3 present and non-empty: $BACKUP_DIR"
+else
+  fail "ADOPT-04 tier-1 source 3 missing or empty: $BACKUP_DIR"
+fi
+
+if printf '' | "$WRAP" uninstall --dry-run >"$UNINST_OUT" 2>&1; then
+  pass "ADOPT-04 tier 2 reachable: uninstall --dry-run exits 0"
+else
+  fail "ADOPT-04 tier 2 unreachable: uninstall --dry-run exited non-zero"
+  sed -n '1,40p' "$UNINST_OUT" || true
+fi
+if printf '' | "$WRAP" protect --dry-run >"$PROTECT_OUT" 2>&1; then
+  pass "ADOPT-04 tier 3 reachable: protect --dry-run exits 0"
+else
+  fail "ADOPT-04 tier 3 unreachable: protect --dry-run exited non-zero"
+  sed -n '1,40p' "$PROTECT_OUT" || true
+fi
+
+# =============================================================================
+# D-36 — the upstream backup actually ran, and holds the real pre-adopt conf
+#
+# This is the check that turns rollback tier 1 from assumed-good into
+# checked-good. Upstream skips auto_backup_configs entirely when the directory
+# already exists and the `ask` branch answers no, so "the directory is there"
+# proves nothing on its own. All three conditions are hard failures.
+# =============================================================================
+
+BK_CONF="$BACKUP_DIR/.config/hypr/hyprland.conf"
+HYPRLAND_CONF_SHA_PRE="$(baseline_value hyprland_conf_sha256)" || exit 1
+BK_MTIME_PRE="$(baseline_value backup_dir_hyprland_conf_mtime)" || exit 1
+
+if [[ -f "$BK_CONF" ]]; then
+  pass "D-36 backup copy present: $BK_CONF"
+  BK_SHA="$(sha256sum "$BK_CONF" | cut -d' ' -f1)"
+  if [[ "$BK_SHA" == "$HYPRLAND_CONF_SHA_PRE" ]]; then
+    pass "D-36 backup copy sha256 matches the pre-adopt fixture ($BK_SHA)"
+  else
+    fail "D-36 backup copy sha256 is $BK_SHA, fixture recorded $HYPRLAND_CONF_SHA_PRE (captured $BASELINE_CAPTURED) — the backup is not the pre-adopt conf"
+  fi
+  BK_MTIME="$(stat -c '%Y' "$BK_CONF")"
+  if [[ "$BK_MTIME" -gt "$BK_MTIME_PRE" ]]; then
+    pass "D-36 backup copy mtime $BK_MTIME is newer than the recorded pre-install $BK_MTIME_PRE — the backup ran"
+  else
+    fail "D-36 backup copy mtime $BK_MTIME is not newer than the recorded pre-install $BK_MTIME_PRE — upstream skipped the backup"
+  fi
+else
+  fail "D-36 backup copy missing: $BK_CONF — rollback tier 1 lost its third source"
+fi
+
+# =============================================================================
+# D-37 — Phase 11 D-24 held: hyprlock/hypridle untouched, sidecars unpromoted
+#
+# A byte or hash mismatch means upstream took the INSTALL_FIRSTRUN branch and
+# replaced the live files instead of writing .new sidecars. Hard failure.
+# =============================================================================
+
+HYPRLOCK_SHA_PRE="$(baseline_value hyprlock_conf_sha256)" || exit 1
+HYPRLOCK_BYTES_PRE="$(baseline_value hyprlock_conf_bytes)" || exit 1
+HYPRIDLE_SHA_PRE="$(baseline_value hypridle_conf_sha256)" || exit 1
+HYPRIDLE_BYTES_PRE="$(baseline_value hypridle_conf_bytes)" || exit 1
+
+check_untouched() {
+  local label="$1" path="$2" want_bytes="$3" want_sha="$4" got_bytes got_sha
+  if [[ ! -f "$path" ]]; then
+    fail "D-37 $label missing: $path"
+    return 0
+  fi
+  got_bytes="$(stat -c '%s' "$path")"
+  got_sha="$(sha256sum "$path" | cut -d' ' -f1)"
+  if [[ "$got_bytes" == "$want_bytes" && "$got_sha" == "$want_sha" ]]; then
+    pass "D-37 $label byte-identical to the pre-adopt fixture ($got_bytes bytes, $got_sha)"
+  else
+    fail "D-37 $label changed: $got_bytes bytes / $got_sha, fixture recorded $want_bytes bytes / $want_sha — the firstrun path fired and Phase 11 D-24 did not hold"
+  fi
+}
+check_untouched "hyprlock.conf" "$XDG/hypr/hyprlock.conf" "$HYPRLOCK_BYTES_PRE" "$HYPRLOCK_SHA_PRE"
+check_untouched "hypridle.conf" "$XDG/hypr/hypridle.conf" "$HYPRIDLE_BYTES_PRE" "$HYPRIDLE_SHA_PRE"
+
+check_sidecar() {
+  local label="$1" live="$2" sidecar="$3"
+  if [[ ! -f "$sidecar" ]]; then
+    fail "D-37 $label sidecar missing: $sidecar — the not-firstrun branch did not run"
+    return 0
+  fi
+  pass "D-37 $label sidecar present and unmerged: $sidecar"
+  if [[ "$(sha256sum "$sidecar" | cut -d' ' -f1)" == "$(sha256sum "$live" | cut -d' ' -f1)" ]]; then
+    fail "D-37 $label sidecar has been promoted over its live counterpart: $sidecar == $live"
+  else
+    pass "D-37 $label sidecar not promoted — live copy still differs from it"
+  fi
+}
+check_sidecar "hyprlock.conf" "$XDG/hypr/hyprlock.conf" "$XDG/hypr/hyprlock.conf.new"
+check_sidecar "hypridle.conf" "$XDG/hypr/hypridle.conf" "$XDG/hypr/hypridle.conf.new"
+
+# =============================================================================
+# D-38 — named known losses and the screen-share probe
+#
+# Every check in this block routes to finding() or info() and NEVER to fail().
+# A broken screen share is a recorded Phase 15 item, the same treatment the
+# DP-1 scale gets under D-14.
+# =============================================================================
+
+if systemctl --user is-active graphical-session.target >/dev/null 2>&1; then
+  info "D-38 graphical-session.target is active"
+else
+  finding "D-38 graphical-session.target is inactive — hyprland-session.service lost its autostart with the renamed conf (expected). This is why screen share may be broken. Phase 15 item."
+fi
+
+SCREENCAST_PRE="$(baseline_value screencast_source_types_pre)" || exit 1
+SCREENCAST_LIVE="$(busctl --user get-property org.freedesktop.portal.Desktop \
+  /org/freedesktop/portal/desktop org.freedesktop.portal.ScreenCast \
+  AvailableSourceTypes 2>/dev/null || true)"
+if [[ -z "$SCREENCAST_LIVE" ]]; then
+  finding "D-38 ScreenCast portal did not answer AvailableSourceTypes — screen share broken. Recorded, deferred to Phase 15."
+elif [[ "$SCREENCAST_LIVE" == "$SCREENCAST_PRE" ]]; then
+  info "D-38 ScreenCast portal answers AvailableSourceTypes = '$SCREENCAST_LIVE', unchanged from pre-adopt"
+else
+  finding "D-38 ScreenCast portal answers AvailableSourceTypes = '$SCREENCAST_LIVE', pre-adopt was '$SCREENCAST_PRE' — recorded, deferred to Phase 15."
+fi
+
+SESSION_UNIT="stow/systemd/.config/systemd/user/hyprland-session.service"
+if [[ -f "$SESSION_UNIT" ]]; then
+  info "D-38 the personal session unit file SURVIVES in the repo at $SESSION_UNIT — only its autostart line is gone, this is not a deletion"
+else
+  finding "D-38 personal session unit file absent from the repo: $SESSION_UNIT"
+fi
+
+# Named known losses. Each is probed and reported as observed — never asserted
+# from the runbook's expectation alone.
+if pgrep -x wl-clip-persist >/dev/null 2>&1; then
+  info "D-38 known loss 'wl-clip-persist': process is running despite its exec-once being gone"
+else
+  info "D-38 known loss 'wl-clip-persist' CONFIRMED not running — its exec-once went with the renamed conf (expected)"
+fi
+for known in btop vesktop discord; do
+  if pgrep -x "$known" >/dev/null 2>&1; then
+    info "D-38 known loss (workspace-pinned autostart) '$known': running"
+  else
+    info "D-38 known loss (workspace-pinned autostart) '$known' CONFIRMED not running (expected)"
+  fi
+done
+info "D-38 known loss (workspace-pinned autostart) 'google-chrome-stable on workspace 1' — the archived conf's four pinned autostarts all went with the rename (expected)"
+if pgrep -x hyprpaper >/dev/null 2>&1; then
+  info "D-38 known loss 'hyprpaper': running"
+elif command -v hyprpaper >/dev/null 2>&1; then
+  info "D-38 known loss 'hyprpaper' CONFIRMED stopped-but-INSTALLED — the binary is on PATH and hyprpaper.conf survives; nothing starts it. Wallpaper is Quickshell's job now, not breakage."
+else
+  finding "D-38 hyprpaper is neither running nor on PATH — it was expected to remain installed via PROTECT_EXPLICIT"
+fi
+
+LIVE_LAUNCHER="$XDG/hypr/hyprland/scripts/launch_first_available.sh"
+REPO_LAUNCHER=".config/hypr/hyprland/scripts/launch_first_available.sh"
+if [[ ! -f "$LIVE_LAUNCHER" ]]; then
+  info "D-38 known loss 'hyprland/scripts/launch_first_available.sh' CONFIRMED deleted from live; the personal copy is tracked at repo $REPO_LAUNCHER"
+elif cmp -s "$LIVE_LAUNCHER" "$REPO_LAUNCHER"; then
+  info "D-38 'hyprland/scripts/launch_first_available.sh' survived live and is byte-identical to repo $REPO_LAUNCHER — no loss"
+else
+  info "D-38 known loss 'hyprland/scripts/launch_first_available.sh' CONFIRMED overwritten by upstream's copy ($(stat -c '%s' "$LIVE_LAUNCHER") bytes live vs $(stat -c '%s' "$REPO_LAUNCHER") bytes in the repo); the personal version is tracked at repo $REPO_LAUNCHER"
+fi
+
+# =============================================================================
+# D-35 — the working tree is clean apart from this phase's own artifacts
+# =============================================================================
+
+PHASE14_PREFIX=".planning/phases/14-live-full-adopt-verify/"
+PORCELAIN_ALL="$(git status --porcelain || true)"
+DIRTY_OUTSIDE=""
+while IFS= read -r porcelain_line; do
+  [[ -z "$porcelain_line" ]] && continue
+  entry_path="${porcelain_line:3}"
+  entry_path="${entry_path##* -> }"
+  entry_path="${entry_path%\"}"
+  entry_path="${entry_path#\"}"
+  case "$entry_path" in
+    "$PHASE14_PREFIX"*) continue ;;
+  esac
+  DIRTY_OUTSIDE+="$porcelain_line"$'\n'
+done <<<"$PORCELAIN_ALL"
+
+if [[ -z "${DIRTY_OUTSIDE//[[:space:]]/}" ]]; then
+  pass "D-35 git status --porcelain is clean apart from paths under $PHASE14_PREFIX"
+else
+  fail "D-35 working tree is dirty outside $PHASE14_PREFIX — review the diff, commit it, and record the fact as a finding in 14-LIVE-VERIFY.md"
+  printf '%s' "$DIRTY_OUTSIDE" | sed '/^$/d; s/^/       /'
+fi
+
 echo "=== done: FAIL=${FAIL} FINDINGS=${FINDINGS} ==="
 if [[ "$FAIL" -gt 0 ]]; then
   exit 1
