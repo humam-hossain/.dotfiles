@@ -186,9 +186,32 @@ else
 fi
 
 # --- D-15/D-35: the runbook the operator reads at a TTY must be the version on GitHub ---
-PORCELAIN="$(git status --porcelain)"
+# D-35 is "clean apart from this phase's own transcript and verify artifacts". The
+# runbook orders section 2 (script(1) starts the transcript) before section 3 (this
+# check), so the transcript is guaranteed to be present and untracked by the time the
+# gate runs. Excusing exactly these three paths is what makes the gate reachable at
+# all; anything else dirty is still a hard FAIL.
+PHASE14_ARTIFACTS=(
+  ".planning/phases/14-live-full-adopt-verify/14-ADOPT-TRANSCRIPT.txt"
+  ".planning/phases/14-live-full-adopt-verify/14-LIVE-VERIFY.md"
+  "scripts/phase14-verify.sh"
+)
+PORCELAIN_ALL="$(git status --porcelain)"
+PORCELAIN="$PORCELAIN_ALL"
+EXCUSED=""
+for artifact in "${PHASE14_ARTIFACTS[@]}"; do
+  hit="$(printf '%s\n' "$PORCELAIN" | grep -F -- " $artifact" || true)"
+  if [[ -n "$hit" ]]; then
+    EXCUSED+="$hit"$'\n'
+    PORCELAIN="$(printf '%s\n' "$PORCELAIN" | grep -F -v -- " $artifact" || true)"
+  fi
+done
+if [[ -n "$EXCUSED" ]]; then
+  echo "[REPORT] D-35 excused this phase's own artifacts from the clean-tree gate:"
+  printf '%s' "$EXCUSED" | sed '/^$/d; s/^/           /'
+fi
 if [[ -z "$PORCELAIN" ]]; then
-  pass "D-15/D-35 git status --porcelain is empty (clean tree)"
+  pass "D-15/D-35 git status --porcelain is clean apart from this phase's own artifacts"
 else
   fail "D-15/D-35 git status --porcelain is non-empty (dirty tree)"
   printf '%s\n' "$PORCELAIN" | sed -n '1,20p'
