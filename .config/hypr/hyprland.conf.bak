@@ -52,19 +52,12 @@ $menu = rofi -show drun
 # exec-once = nm-applet &
 # exec-once = waybar & hyprpaper & firefox
 
-# INFO: SCREEN-SHARE FIX
-# Bootstrap graphical-session.target so xdg-desktop-portal (ScreenCast) can start
-exec-once = systemctl --user start hyprland-session.service
-
 # INFO: KEYRING SETUP
 # Authentication Agent (Crucial for GUI apps that need sudo/root)
 exec-once = /usr/lib/polkit-kde-authentication-agent-1 
 
 # INFO: CORE UTILS
 exec-once = waybar & swaync & hyprpaper &
-
-# INFO: ii shell (dual-run with waybar; managed by arch/dots-hyprland.sh)
-exec-once = qs -c ii
 
 # INFO: CLIPBOARD MANAGER
 exec-once = wl-clip-persist --clipboard both
@@ -93,10 +86,10 @@ workspace = 10,monitor:HDMI-A-2
 # windowrulev2 = workspace special:btop silent, match:class btop
 # windowrulev2 = workspace special:social silent, class:^(discord)$
 
-exec-once = [workspace 1] google-chrome-stable --profile-directory='Default' --ozone-platform-hint=auto
+exec-once = [workspace 1] google-chrome-stable --profile-directory='Default'
 exec-once = [workspace 1] kitty -e tmux
 exec-once = [workspace special:btop silent] kitty --class btop -e btop
-exec-once = [workspace special:social silent] sh -c 'command -v vesktop >/dev/null 2>&1 && exec vesktop || exec discord'
+exec-once = [workspace special:social silent] discord
 
 #############################
 ### ENVIRONMENT VARIABLES ###
@@ -106,10 +99,6 @@ exec-once = [workspace special:social silent] sh -c 'command -v vesktop >/dev/nu
 exec-once = hyprctl setcursor catppuccin-mocha-dark-cursors 30
 env = XCURSOR_THEME,Catppuccin-Mocha-Dark-Cursors
 env = XCURSOR_SIZE,30
-
-# illogical-impulse — required when skip-hyprland skips ii env.lua (managed by arch/dots-hyprland.sh)
-env = ILLOGICAL_IMPULSE_VIRTUAL_ENV,~/.local/state/quickshell/.venv
-env = QT_QPA_PLATFORMTHEME,qt6ct
 
 #####################
 ### LOOK AND FEEL ###
@@ -231,7 +220,6 @@ input {
     kb_model =
     kb_options =
     kb_rules =
-    numlock_by_default = true
 
     follow_mouse = 1
 
@@ -284,14 +272,11 @@ bind = $mainMod, j, movefocus, d
 bind = $mainMod, d, exec, ~/define.sh
 
 # hyprshot keymaps
-bind = , PRINT, exec, hyprshot -m window -f "Pictures/Screenshots/$(date +'%Y-%m-%d_%H-%M-%S').jpg"
-bind = shift, PRINT, exec, hyprshot -m region -f "Pictures/Screenshots/$(date +'%Y-%m-%d_%H-%M-%S').jpg"
+bind = , PAUSE, exec, hyprshot -m window -f "Pictures/Screenshots/$(date +'%Y-%m-%d_%H-%M-%S').jpg"
+bind = shift, PAUSE, exec, hyprshot -m region -f "Pictures/Screenshots/$(date +'%Y-%m-%d_%H-%M-%S').jpg"
 
-# special workspaces
 bind = $mainMod, grave, togglespecialworkspace, social 
 bind = $mainMod, MINUS, togglespecialworkspace, btop
-bind = $mainMod SHIFT, grave, movetoworkspace, special:social
-bind = $mainMod SHIFT, MINUS, movetoworkspace, special:btop
 
 # Switch workspaces with mainMod + [0-9]
 ### Switch to workspace ###
@@ -422,8 +407,7 @@ bindm = $mainMod, mouse:272, movewindow
 bindm = $mainMod, mouse:273, resizewindow
 
 # Laptop multimedia keys for volume and LCD brightness
-# -l 1.x caps volume at 1.x*100% (over-amplification). Without it, wpctl defaults to 100%.
-bindel = ,XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+
+bindel = ,XF86AudioRaiseVolume, exec, wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+
 bindel = ,XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
 bindel = ,XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
 bindel = ,XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
