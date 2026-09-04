@@ -247,8 +247,7 @@ PROTECT_EXPLICIT=(
   brightnessctl
   blueman
   dnsmasq
-  # Bar dual-run (arch/waybar.sh) — bc/jq used by waybar scripts
-  waybar
+  # Shared CLI / session tools — curl jq bc python iputils playerctl pavucontrol networkmanager btop nautilus kitty are used well outside the bar stack
   curl
   jq
   bc
@@ -260,7 +259,6 @@ PROTECT_EXPLICIT=(
   btop
   nautilus
   kitty
-  swaync
   # Shells / prompt (arch/fish.sh, arch/zsh.sh)
   fish
   starship
