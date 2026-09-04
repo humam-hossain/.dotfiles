@@ -174,7 +174,11 @@ Plans:
   3. Operator verifies monitors/layout per disposition, `qs -c ii` runs, dual-run policy matches DISP-03
   4. Rollback guidance exists that does **not** use upstream `./setup uninstall`
 
-**Plans:** TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 14-01-PLAN.md — Prep: adopt runbook, non-mutating preflight script, pre-adopt baseline fixture, D-07 live-to-repo `.config` archive, `PROTECT_EXPLICIT` edit, clean tree pushed (wave 1)
+- [ ] 14-02-PLAN.md — Operator adopt window, then post-adopt verify script, `14-LIVE-VERIFY.md` record and committed transcript (wave 2, gated on the window)
 
 ### Phase 15: Playbook safe vs full
 
