@@ -174,12 +174,12 @@ Plans:
   3. Operator verifies monitors/layout per disposition, `qs -c ii` runs, dual-run policy matches DISP-03
   4. Rollback guidance exists that does **not** use upstream `./setup uninstall`
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 14-01-PLAN.md — Prep: adopt runbook, non-mutating preflight script, pre-adopt baseline fixture, D-07 live-to-repo `.config` archive, `PROTECT_EXPLICIT` edit, clean tree pushed (wave 1)
+- [x] 14-01-PLAN.md — Prep: adopt runbook, non-mutating preflight script, pre-adopt baseline fixture, D-07 live-to-repo `.config` archive, `PROTECT_EXPLICIT` edit, clean tree pushed (wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -214,7 +214,7 @@ Plans:
 | 11. Disposition decisions | v0.3 | 4/4 | Complete    | 2026-08-10 |
 | 12. Wrapper full-profile | v0.3 | 4/4 | Complete    | 2026-08-18 |
 | 13. Personal hypr/custom overlays | v0.3 | 2/2 | Complete    | 2026-08-31 |
-| 14. Live full adopt & verify | v0.3 | 0/0 | Not started | — |
+| 14. Live full adopt & verify | v0.3 | 1/2 | In Progress|  |
 | 15. Playbook safe vs full | v0.3 | 0/0 | Not started | — |
 
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 22/22 requirements mapped · 0 unmapped
