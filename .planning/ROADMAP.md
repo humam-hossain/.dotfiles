@@ -177,7 +177,12 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 14-01-PLAN.md — Prep: adopt runbook, non-mutating preflight script, pre-adopt baseline fixture, D-07 live-to-repo `.config` archive, `PROTECT_EXPLICIT` edit, clean tree pushed (wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 14-02-PLAN.md — Operator adopt window, then post-adopt verify script, `14-LIVE-VERIFY.md` record and committed transcript (wave 2, gated on the window)
 
 ### Phase 15: Playbook safe vs full
