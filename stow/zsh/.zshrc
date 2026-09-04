@@ -114,3 +114,6 @@ export PATH="$HOME/.grok/bin:$PATH"
 fpath=(~/.grok/completions/zsh $fpath)
 autoload -Uz compinit && compinit -C
 # <<< grok installer <<<
+
+# claude
+alias claude="TMPDIR=$HOME/.cache/claude-tmp claude --dangerously-skip-permissions"

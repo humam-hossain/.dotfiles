@@ -197,6 +197,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 13: apply documented, not run (D-02/D-17) | Live full hypr files are Phase 14; no `$HOME/.config` mutation | ✓ live custom absent; D-18 is `cp -a` of three named files |
 | Phase 13: empty `env.lua`/`execs.lua` are 1-byte require slots | `hyprland.lua` gates on `is_file_exists`; `test -f` only, never `test -s` | ✓ D-19 fence exit 0; `luac -p` on general.lua |
 | Phase 13: D-19 in-repo fence is the OVL completion gate | CONTEXT/PLAN prose is not evidence (D-20) | ✓ OVL-01..03 Complete after D-19; 13-VERIFICATION.md status passed |
+| Phase 13: UAT + security + Nyquist after disk re-run | Do not treat STATE complete as UAT; re-run D-19; empty slots are `test -f` only | ✓ 13-UAT.md 7/7; 13-SECURITY.md threats_open 0; 13-VALIDATION.md validated; `./scripts/phase13-d19-assert.sh` FAIL=0 |
 | Phase 10: Single multi-section `10-INVENTORY.md` SoT | One inventory file for residual + axes A/B/C + host snapshot | ✓ INV-01..04 |
 | Phase 10: Neutral effects only (no dispositions) | Phase 11 owns keep/migrate/accept/defer | ✓ D-12 lint + assert |
 | Phase 10: Assert harness with word-boundary D-15 lint | Avoid false positives (`profile` ⊃ `rofi`) | ✓ `phase10-inventory-assert.sh` |
@@ -226,4 +227,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-31 after Phase 13 verification passed + phase.complete — transition to Phase 14*
+*Last updated: 2026-08-31 after Phase 13 UAT 7/7, SECURITY verified, VALIDATION nyquist_compliant, phase.complete — ready to plan Phase 14*
