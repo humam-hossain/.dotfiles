@@ -1,0 +1,37 @@
+# Phase 14 pre-adopt baseline fixture (14-01 Task 2).
+# Recorded BEFORE any Phase 14 mutation. After the operator's install the live
+# pre-adopt hyprland.conf no longer exists, so D-36 and D-37 are only provable
+# against this file (RESEARCH Pattern 3). Plain key=value lines, no quoting.
+# backup_dir_hyprland_conf_mtime is epoch seconds (stat -c %Y).
+baseline_captured=2026-09-04T13:42:30Z
+hyprland_conf_sha256=3d17932a6d2dd1b61ccc509402a70c224409bb5c24c4ed70a3c55d4f4bcd89b5
+hyprland_conf_bytes=15301
+hyprlock_conf_sha256=c3ecd68d0359213b4029d1ffffc35c80a5dfc307b6766580251a5f44844ecd75
+hyprlock_conf_bytes=554
+hypridle_conf_sha256=6e72018489ea9fd47a5c87bd496840d23de2b48d8442620487edb2404fdc3823
+hypridle_conf_bytes=359
+hyprpaper_conf_sha256=b4c162758757422d14f142a8b6102dec03aff81a867ffb993fc091fc377b4cd8
+submodule_pin=1a9ffb78f0c272a45f82342587dc3bec72762233
+configProvider_pre=hyprlang
+hyprland_version=0.56.2
+dp1_scale_pre=1
+dp1_mode_pre=3440x1440@59.97300
+dp1_transform_pre=0
+hdmi_a2_present_pre=true
+# NOTE: DRIFT from the 2026-09-04 planning observation. 14-01-PLAN.md and
+# 14-RESEARCH.md Pitfall 3 both recorded hdmi_a2_present_pre=false (HDMI-A-2 absent
+# from hyprctl -j monitors all). At capture time HDMI-A-2 IS attached and active:
+# 1920x1080@60.00000 scale=1.5 transform=1. The observed value true is written above.
+# Consequence for plan 14-02: the dual-head half of ADOPT-03 is checkable as recorded
+# here, and the single-head degrade path is not exercised unless the operator
+# disconnects HDMI-A-2 before the verify run.
+# HDMI-A-2 geometry recorded because the drift above made it observable; these are
+# the pre-adopt counterparts of the dp1_* keys and are ADOPT-03 dual-head inputs.
+hdmi_a2_mode_pre=1920x1080@60.00000
+hdmi_a2_scale_pre=1.5
+hdmi_a2_transform_pre=1
+backup_dir_present_pre=true
+backup_dir_hyprland_conf_sha256=c5c65023dcdb0a202c6e73e32320daf8e6343b00a394fc3bfcf8d5be39867bfe
+backup_dir_hyprland_conf_mtime=1784818728
+graphical_session_target_pre=active
+screencast_source_types_pre=u 7

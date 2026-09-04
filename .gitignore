@@ -11,3 +11,9 @@ stow/qbittorrent/.config/qBittorrent/ipc-socket
 stow/qbittorrent/.config/qBittorrent/qBittorrent-data.conf
 stow/qbittorrent/.config/qBittorrent/rss/storage.lock
 stow/qbittorrent/.config/qBittorrent/rss/articles/
+
+# GSD agent scratch + derived runtime state (Phase 14 D-15/D-35 clean-tree condition)
+.gsd/
+.planning/milestone.lock
+.planning/state.json
+.planning/research/.cache/
