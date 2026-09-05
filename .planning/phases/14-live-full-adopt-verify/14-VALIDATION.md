@@ -48,7 +48,7 @@ Task IDs are seeded from the requirement-to-test map in `14-RESEARCH.md` §Valid
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
 | 14-01-05 | 01 | 1 | ADOPT-01 | T-14-preflight-rotation | Backup rotation is opt-in, never an implicit side effect of a check run; the stale-backup condition is reported at the `[FINDING]` tier, not encoded as an exit code an agent could only clear by mutating `$HOME` | smoke | `bash -n scripts/phase14-preflight.sh && ./scripts/phase14-preflight.sh --help 2>&1 \| grep -q -- '--rotate-backup' && M0=$(stat -c %Y "$HOME/ii-original-dots-backup") && { ./scripts/phase14-preflight.sh >/tmp/p14-pre.txt 2>&1 \|\| true; } && test "$(stat -c %Y "$HOME/ii-original-dots-backup")" = "$M0" && grep -qE '^\[FINDING\].*ii-original-dots-backup' /tmp/p14-pre.txt && ! grep -qE '^\[FAIL\].*ii-original-dots-backup' /tmp/p14-pre.txt` | ✅ | ✅ COVERED |
-| 14-01-06 | 01 | 1 | ADOPT-01 | T-14-preflight-green | Once the tree is clean and pushed, the preflight's default path exits 0 with zero `[FAIL]` lines while still surfacing the backup finding — the exit code is input 1 to the human gate (D-18) | smoke | `./scripts/phase14-preflight.sh >/tmp/p14-post.txt 2>&1 && test "$(grep -c '^\[FAIL\]' /tmp/p14-post.txt)" -eq 0 && grep -qE '^\[FINDING\].*ii-original-dots-backup' /tmp/p14-post.txt` | ✅ | ⚠ COVERED (red: unpushed commit) |
+| 14-01-06 | 01 | 1 | ADOPT-01 | T-14-preflight-green | Once the tree is clean and pushed, the preflight's default path exits 0 with zero `[FAIL]` lines while still surfacing the backup finding — the exit code is input 1 to the human gate (D-18) | smoke | `./scripts/phase14-preflight.sh >/tmp/p14-post.txt 2>&1 && test "$(grep -c '^\[FAIL\]' /tmp/p14-post.txt)" -eq 0 && grep -qE '^\[FINDING\].*ii-original-dots-backup' /tmp/p14-post.txt` | ✅ | ✅ COVERED |
 | 14-01-06 | 01 | 1 | ADOPT-01 | T-14-banned-flags | Runbook names all four banned flags, carries one unambiguous go/no-go sequence, and lists the unrotated stale backup as a hard no-go the exit code does not enforce | smoke | `grep -c . docs/phase14-adopt-runbook.md && grep -q -- '--force' docs/phase14-adopt-runbook.md && grep -q -- '--skip-backup' docs/phase14-adopt-runbook.md && grep -q -- '--firstrun' docs/phase14-adopt-runbook.md && grep -q -- '--skip-hyprland-entry' docs/phase14-adopt-runbook.md && grep -q -- '--rotate-backup' docs/phase14-adopt-runbook.md && grep -q 'FINDING' docs/phase14-adopt-runbook.md` | ✅ | ✅ COVERED |
 | 14-01-06 | 01 | 1 | ADOPT-04 | T-14-setup-uninstall-drift | Rollback text names all three wrapper-owned tiers and never reaches for upstream `./setup uninstall` | smoke | `grep -q 'uninstall --configs-only' docs/phase14-adopt-runbook.md && ! grep -qE '(\./)?setup uninstall' docs/phase14-adopt-runbook.md` | ✅ | ✅ COVERED |
 | 14-01-04 | 01 | 1 | ADOPT-01 | T-14-protect-list-edit | `waybar` and `swaync` leave `PROTECT_EXPLICIT`; `hyprpaper` stays; cascade protection still behaves | smoke | `! grep -qE '^  (waybar\|swaync)$' arch/dots-hyprland.sh && grep -qE '^  hyprpaper$' arch/dots-hyprland.sh && ./scripts/phase12-full-smoke.sh` | ✅ | ✅ COVERED |
@@ -110,7 +110,7 @@ reads at a TTY.
 - [x] Feedback latency < 10s
 - [ ] `nyquist_compliant: true` set in frontmatter — **not set**: 5 behaviors are documented manual-only (operator judgement, rendered layout, keybind, `$HOME` mutation, bare-TTY install). None is an automatable gap.
 
-**Approval:** validated 2026-09-05 — PARTIAL (14 automated COVERED, 1 automated COVERED-but-red on an unpushed commit, 5 manual-only)
+**Approval:** validated 2026-09-05 — PARTIAL (15 automated COVERED green, 5 manual-only)
 
 ---
 
@@ -122,8 +122,8 @@ Per-Task Verification Map was executed against the live post-adopt tree.
 | Metric | Count |
 |--------|-------|
 | Map rows audited | 15 |
-| COVERED (green) | 14 |
-| COVERED (red, environmental) | 1 |
+| COVERED (green) | 15 |
+| COVERED (red, environmental) | 0 |
 | MISSING | 0 |
 | Gaps found | 0 |
 | Resolved | 0 |
@@ -137,11 +137,13 @@ exit 0. `./scripts/phase14-verify.sh` → exit 0, 38 `[PASS]`, `FAIL=0 FINDINGS=
 left `~/ii-original-dots-backup` mtime unchanged at `1788543226`, reported the backup condition at
 `[FINDING]` and never at `[FAIL]`.
 
-**The one red row.** `T-14-preflight-green` requires zero `[FAIL]` lines from the default preflight
-path. The current run emits exactly one: `[FAIL] D-15/D-35 1 commit(s) not on origin/main`. That
-commit is `c48a5af`, the UAT record this very session wrote. The assertion is doing its job — it is
-a clean-and-pushed gate, and the tree is momentarily one commit ahead. It is not a coverage gap and
-needs no new test; it clears on `git push`.
+**The one initially-red row, now green.** `T-14-preflight-green` requires zero `[FAIL]` lines from
+the default preflight path. The first run of this audit emitted exactly one:
+`[FAIL] D-15/D-35 1 commit(s) not on origin/main` — the UAT record this session had just written.
+The assertion was doing its job: it is a clean-and-pushed gate and the tree was momentarily ahead.
+The operator approved the push (`c91ce23..b8b362c`), and the re-run returns exit 0,
+`FAIL=0 FINDINGS=1`, with the `ii-original-dots-backup` `[FINDING]` still present as the row
+requires. No coverage gap ever existed and no new test was needed.
 
 **No auditor spawn.** `gsd-nyquist-auditor` was not dispatched: gap analysis found zero MISSING
 requirements, so there was nothing for it to fill.
