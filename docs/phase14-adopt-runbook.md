@@ -231,9 +231,12 @@ luac -p ~/.config/hypr/custom/*.lua
 ## 9. Re-stow kitty (D-17)
 
 ```bash
-stow -R kitty
-# run from the repo root
+# run from the repo root; matches arch/kitty.sh:10
+cd stow && stow -R -v=5 -t ~ kitty
 ```
+
+Packages live under `stow/`, and the target must be `-t ~`. A bare `stow -R kitty`
+from the repo root finds no package and would target the repo's parent directory.
 
 This is the one named exception to Phase 11 D-28's accept-upstream default. Upstream's kitty sync replaces the stow symlink with its own real file and adds two kitten scripts. Your repo file is never touched, so a re-stow restores the personal config and the upstream kitten scripts sit inert alongside it.
 
