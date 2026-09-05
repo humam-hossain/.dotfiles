@@ -3,9 +3,9 @@
 ## Current State
 
 **Shipped:** v0.2 Adopt dots-hyprland (2026-08-02)  
-**In progress:** v0.3 Full ii install — Phases 10–13 complete; next is Phase 14 live full adopt & verify
+**In progress:** v0.3 Full ii install — Phases 10–14 complete; next is Phase 15 playbook safe vs full
 
-Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell dual-running with Waybar, operator playbook for install and pin-bump updates.
+Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, operator playbook for install and pin-bump updates. As of Phase 14 the session runs the full ii model — the Lua entry is authoritative and Waybar/rofi/swaync no longer dual-run.
 
 **Phase 10 delivered:** Neutral full-install impact inventory (`10-INVENTORY.md`) covering SAFE_DEFAULTS residual, drop-`--skip-hyprland` hypr effects, drop-`--core` misc collisions, and package/sysupdate blast radius — with Wave 0 assert harness. No live full install; SAFE_DEFAULTS still default.
 
@@ -15,6 +15,8 @@ Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery mo
 
 **Phase 13 delivered:** Parent-repo `.config/hypr/custom/` overlays — `general.lua` dual-head + eleven workspace pins, empty `env.lua`/`execs.lua` require slots, `13-SOT-APPLY.md` authoring SoT + D-18 `cp -a` (documented, not run) + D-19 fence (exit 0). Live `$HOME/.config/hypr/custom/` still absent. Apply is Phase 14.
 
+**Phase 14 delivered:** The live full adopt. `install --full` ran on 2026-09-04 behind the preflight gate; upstream renamed `hyprland.conf` to `.old` and the session now loads through `hyprland.lua` (`hyprctl getoption configProvider` → `lua`), surviving a re-login. The Phase 13 overlay is applied — `general.lua`/`env.lua`/`execs.lua` byte-identical to the repo SoT, dual-head DP-1 + HDMI-A-2 and eleven workspace rules live, `qs -c ii` running. Waybar/rofi/swaync are stopped per D-11 accept-remove with their trees still archived under `stow/` per D-12. Rollback is `docs/phase14-adopt-runbook.md` §14 (three tiers, never upstream `./setup uninstall`). Evidence: `14-LIVE-VERIFY.md`, the committed `script(1)` transcript, and `14-VERIFICATION.md` (passed 4/4).
+
 **Stats at v0.2 ship:** 5 phases · 15 plans · ~38 tasks · 106 commits since v0.1 · 1025 files changed (+17.6k / −78k, mostly retired local QS tree)
 
 **Product surface:**
@@ -22,7 +24,8 @@ Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery mo
 - Submodule: `vendor/dots-hyprland` @ `1a9ffb78`
 - Install entry: `arch/dots-hyprland.sh` → vendored `./setup`
 - Live path: real `~/.config/quickshell` (not symlink into git)
-- Session: personal hypr hooks for `ILLOGICAL_IMPULSE_VIRTUAL_ENV` + `qs -c ii`; Waybar still dual-runs
+- Session: ii Lua entry `~/.config/hypr/hyprland.lua` is authoritative (Phase 14); personal must-keeps ride in `~/.config/hypr/custom/`; Waybar/rofi/swaync retired from the session
+- Rollback: `~/ii-original-dots-backup.20260904T171128Z` (tier 1) + `hyprland.conf.old`; runbook `docs/phase14-adopt-runbook.md` §14
 - Playbook: `docs/dots-hyprland-workflow.md`
 - Inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`
 
@@ -119,11 +122,15 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ `--full --dry-run` shows would-exec without residual injection — Phase 12 / FULL-04
 - ✓ Full dry-run still plans PROTECT_EXPLICIT re-mark and ii hooks — Phase 12 / FULL-05
 - ✓ Personal must-keeps as `hypr/custom` Lua overlays (monitors + workspace pins; empty env/execs slots) before live full hypr files — Phase 13 / OVL-01..03
+- ✓ Live full install ran only after the INV-* / DISP-* artifacts were satisfied, enforced by `scripts/phase14-preflight.sh` — Phase 14 / ADOPT-01
+- ✓ Hyprland session loads via the ii Lua entry, not the pre-adopt personal conf — Phase 14 / ADOPT-02
+- ✓ Monitors, workspace pins and `qs -c ii` verified live; dual-run chrome accept-removed per DISP-03's explicit-acceptance clause — Phase 14 / ADOPT-03
+- ✓ Three-tier rollback guidance that never uses upstream `./setup uninstall` — Phase 14 / ADOPT-04
 
 ### Active
 
-- [ ] Execute full ii install per dispositions; session boots on ii hypr model
 - [ ] Playbook: full vs safe/dual-run install profiles
+- [ ] Re-establish the `graphical-session.target` autostart lost with the renamed conf (D-38) — no owning phase yet; Phase 15's criteria are documentation-only
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -151,7 +158,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - Upstream [end-4/dots-hyprland](https://github.com/end-4/dots-hyprland) is the product vehicle; personal fork owns custom commits; parent pins SHA in `vendor/dots-hyprland`.
 - Install SoT remains vendored `./setup`; `.dotfiles` only wraps it (`arch/dots-hyprland.sh`).
 - Live session uses personal hypr + `qs -c ii` hooks; default wrapper install still injects SAFE_DEFAULTS (`--core --skip-hyprland --skip-sysupdate`). Opt-in `--full` on `install` / `install-files` skips that injection (Phase 12; smoke 2026-08-18).
-- Waybar still dual-runs; customs remain a later backlog (CUST-*).
+- Waybar/rofi/swaync no longer dual-run — accept-removed at the Phase 14 full adopt (D-11); their configs stay archived under `stow/` (D-12). Customs remain a later backlog (CUST-*).
 - Operator path is documented in `docs/dots-hyprland-workflow.md` (README Desktop shell link).
 
 **v0.3 focus:**
@@ -207,7 +214,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Skip brightness/backlight (no ddcutil) | iGPU crash risk per `2026-07-16` post-mortem | ✓ Good |
 | Keep hyprlock (no Quickshell lock screen) | hyprlock works; lock screen panel not wanted as replacement | ✓ Good — re-check vs ii hyprlock on full install |
 | Primary target Arch only | debian/ubuntu parity is a separate concern | ✓ Good |
-| Replace waybar + rofi + swaync long-term | Consolidate tools; gain unified richer shell | ⚠️ Revisit — dual-run until later cutover |
+| Phase 14: adopt behind a non-mutating preflight gate, human pulls the trigger | An agent must never run the irreversible install; the gate proves INV/DISP satisfied first | ✓ backup rotated 17:11:28Z, install gate answered 17:13:41Z — 2m13s apart |
+| Phase 14: rollback is a repo runbook, never upstream `./setup uninstall` | ADOPT-04; the upstream subcommand is a Phase 12 escape hatch behind a token gate, referenced by no Phase 14 guidance | ✓ `14-VERIFICATION.md` ADOPT-04; `grep -niE 'setup uninstall'` on the runbook → no matches |
+| Phase 14: Hyprland conf-vs-Lua precedence left unresolved, and rollback written to be correct either way | The wiki and D-09 disagree on 0.56.2; the forward adopt is safe under both readings, the reverse is not | ✓ runbook tier 1 opens by moving `hyprland.lua` aside (CR-01) |
+| Replace waybar + rofi + swaync long-term | Consolidate tools; gain unified richer shell | ✓ Phase 14 — accept-removed from the session (D-11); configs archived in repo (D-12) |
 
 ## Evolution
 
@@ -227,4 +237,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-08-31 after Phase 13 UAT 7/7, SECURITY verified, VALIDATION nyquist_compliant, phase.complete — ready to plan Phase 14*
+*Last updated: 2026-09-05 after Phase 14 live full adopt — VERIFICATION passed 4/4, REVIEW pass after remediation, phase.complete — ready to plan Phase 15*

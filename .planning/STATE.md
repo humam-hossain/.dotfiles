@@ -28,7 +28,7 @@ Status: Ready to plan
 Total Plans in Phase: 0 (Phase 15 not yet planned)
 Last activity: 2026-09-05 — Phase 14 complete, transitioned to Phase 15
 
-Progress: [████████████████████] 17/17 plans ([████████░░] 83% of phases — 5/6)
+Progress: [████████████████████] 17/17 plans (100%)
 
 ## Session
 
@@ -39,9 +39,9 @@ Progress: [████████████████████] 17/17 p
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-08-31)
+See: .planning/PROJECT.md (updated 2026-09-05)
 
-**Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions.  
+**Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); remaining work is documentation.  
 **Current focus:** Phase 15 — Playbook safe vs full
 
 ## Deferred Items
@@ -94,7 +94,14 @@ Phase archives: `milestones/v0.2-phases/`.
 
 ### Resolved blockers
 
-None open.
+- [Phase 13] Live apply of the hypr/custom overlay was deferred with no owner — resolved in Phase 14; the three files are live and byte-identical to the repo SoT.
+- [Phase 14] Two Critical code-review findings (rollback tier 1 a probable no-op under the wiki reading; tier-1 sources asserted non-empty but never hashed) — both closed in 15b0c31.
+
+### Concerns carried forward
+
+- ⚠️ [Phase 14] `graphical-session.target` autostart died with the renamed conf (D-38). Screen share may stop working. Open, **no owning phase** — Phase 15's criteria are documentation-only. Fix is one `systemctl --user start` or one line in `custom/execs.lua`.
+- ⚠️ [Phase 14] Review WR-02 left open: the repo's `.config/hypr/hyprland.conf` is simultaneously a rollback source, frozen D-36 evidence, and a live hook-injection target. Exposure is bounded (content is in git history), but the three roles should be split.
+- ⚠️ [Phase 14] Review IN-11 left open: post-adopt, `scripts/phase14-preflight.sh` still prints `--rotate-backup` as "mandatory before go". Running it now would rename away ADOPT-04 rollback source 3. Bounded — it is a rename, and sources 1–2 are unaffected.
 
 ## Operator Next Steps
 
