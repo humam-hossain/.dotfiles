@@ -38,10 +38,10 @@ Requirements for this milestone only. Phase numbering continues after v0.2 (last
 
 ### Live adopt & verify
 
-- [ ] **ADOPT-01**: Live full install is executed only after INV-* and DISP-* are satisfied (process gate)
-- [ ] **ADOPT-02**: After full hypr adopt, Hyprland session loads via ii Lua entry (`hyprland.lua` / hyprland tree) rather than the pre-adopt personal `hyprland.conf` as primary
-- [ ] **ADOPT-03**: After adopt, operator-verified: monitors/layout per disposition, shell chrome (`qs -c ii`) runs, and dual-run policy matches DISP-03
-- [ ] **ADOPT-04**: Rollback guidance exists that does **not** use upstream `./setup uninstall` (backup restore and/or wrapper safe uninstall/protect only)
+- [x] **ADOPT-01**: Live full install is executed only after INV-* and DISP-* are satisfied (process gate)
+- [x] **ADOPT-02**: After full hypr adopt, Hyprland session loads via ii Lua entry (`hyprland.lua` / hyprland tree) rather than the pre-adopt personal `hyprland.conf` as primary
+- [x] **ADOPT-03**: After adopt, operator-verified: monitors/layout per disposition, shell chrome (`qs -c ii`) runs, and dual-run policy matches DISP-03
+- [x] **ADOPT-04**: Rollback guidance exists that does **not** use upstream `./setup uninstall` (backup restore and/or wrapper safe uninstall/protect only)
 
 ### Documentation
 
@@ -103,10 +103,10 @@ Deferred beyond v0.3.
 | OVL-01 | Phase 13 | Complete |
 | OVL-02 | Phase 13 | Complete |
 | OVL-03 | Phase 13 | Complete |
-| ADOPT-01 | Phase 14 | Pending |
-| ADOPT-02 | Phase 14 | Pending |
-| ADOPT-03 | Phase 14 | Pending |
-| ADOPT-04 | Phase 14 | Pending |
+| ADOPT-01 | Phase 14 | Complete |
+| ADOPT-02 | Phase 14 | Complete |
+| ADOPT-03 | Phase 14 | Complete |
+| ADOPT-04 | Phase 14 | Complete |
 | DOC-03 | Phase 15 | Pending |
 | DOC-04 | Phase 15 | Pending |
 
