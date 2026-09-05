@@ -1,6 +1,8 @@
 ---
 phase: 14-live-full-adopt-verify
 verified: 2026-09-05T04:20:00Z
+remediated: 2026-09-05T05:05:00Z
+remediated_in: 859e434
 status: passed
 score: 4/4 must-haves verified
 behavior_unverified: 0
@@ -16,6 +18,8 @@ evidence_basis: >-
   output is quoted here.
 findings:
   warnings: 3
+  warnings_remediated: 2   # W1 retracted, W2 fixed in 859e434
+  warnings_open: 1         # W3 — D-38 has no owning phase; operator decision
   info: 3
   blockers: 0
 ---
@@ -534,3 +538,34 @@ and 3 want an owner before Phase 15 closes.
 
 _Verified: 2026-09-05_
 _Verifier: Claude (gsd-verifier), adversarial stance — goal-backward_
+
+---
+
+## Remediation of the recorded warnings (859e434)
+
+Two of the three warnings were closed after this report was written. The verdict
+is unchanged — all three were record- and doc-level, none touched the four
+requirement verdicts.
+
+**Warning 1 — closed by retraction.** Confirmed independently before acting:
+`grep -cE "<<-?'?SH'?"` returns 0 against all three committed revisions of
+`docs/phase14-adopt-runbook.md`, and section 8 delegates by reference to
+`13-SOT-APPLY.md` § "Apply command (D-18)", which contains no heredoc either.
+The described defect exists in no artifact. `14-LIVE-VERIFY.md` § Findings 4 and
+`14-02-SUMMARY.md` now carry explicit retractions in place of the claim. The
+paste failure itself was real; its true cause was never captured, and the
+records now say that rather than naming a plausible but false one.
+
+**Warning 2 — fixed.** `docs/phase14-adopt-runbook.md:233-236` printed
+`stow -R kitty` to be run from the repo root. Packages live under `stow/`, so
+that resolves no package, and without `-t ~` stow targets the repo's parent
+directory. Replaced with `cd stow && stow -R -v=5 -t ~ kitty`, matching
+`arch/kitty.sh:10`, plus a note stating both constraints so a future re-adopt
+does not repeat the failure.
+
+**Warning 3 — open, deliberately.** The D-38 `graphical-session.target` item is
+recorded as deferred to Phase 15, but Phase 15's two success criteria in
+`ROADMAP.md:195-196` are documentation-only and do not scope re-establishing the
+session-unit autostart. The item therefore has no owning phase. Choosing an
+owner is a roadmap scope decision and is left to the operator; it is recorded
+here as open rather than silently rescoped or quietly dropped.
