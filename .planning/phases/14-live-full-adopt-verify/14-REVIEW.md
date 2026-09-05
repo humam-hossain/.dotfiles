@@ -22,7 +22,11 @@ findings:
   warning: 13
   info: 12
   total: 27
-status: fail
+status: pass
+status_history:
+  - fail   # as reviewed; CR-01 and CR-02 open
+  - pass   # after 15b0c31 closed both Criticals
+remediated_in: 15b0c31
 ---
 
 # Phase 14: Code Review Report
@@ -598,3 +602,35 @@ Recorded so these are not re-litigated. Each was confirmed by reading control fl
 _Reviewed: 2026-09-05_
 _Reviewer: Claude (gsd-code-reviewer), adversarial stance_
 _Depth: standard_
+
+
+---
+
+## Remediation (orchestrator, commit `15b0c31`)
+
+The findings below were closed after the review was written. The review text
+above is preserved as reviewed — it is the record of what was found, not of what
+is currently true.
+
+| Finding | Disposition |
+|---|---|
+| CR-01 rollback tier 1 leaves `hyprland.lua` in place | **Fixed.** Tier 1 now moves `~/.config/hypr/hyprland.lua` aside as step 0, with the precedence ambiguity and the forward-only scope of RESEARCH's conclusion stated inline. |
+| CR-02 sha match claimed for two sources never hashed | **Fixed.** `check_tier1_source` hashes sources 1 and 2 against the pre-adopt fixture. `HYPRLAND_CONF_SHA_PRE` hoisted to line 82 so it is defined before first use. Verified: all three sources hash `3d17932a…89b5`. |
+| WR-01 tier 1 step 1 used `mv`, consuming source 1 | **Fixed.** `cp -a`. |
+| WR-03 unanchored `grep -F` excusal | **Fixed.** Exact porcelain path match; `.orig` and `.bak` look-alikes no longer excused. |
+| WR-06 `pgrep` collapsed exits 2/3/127 into PASS | **Fixed.** Only exit 1 means "checked, absent"; other exits record a finding. |
+| WR-08 unconditional PASS on the D-18 fence check | **Fixed.** Asserts the observable property — the repo never grew a copy to widen the fence with. |
+| WR-09 bare `git diff` blind to committed drift | **Fixed.** Baseline pinned per phase (`e7e4e9f` before phase 14, `14c6828` after, since D-28 deliberately moved the known-good state). |
+
+The fix for WR-09 immediately surfaced the drift it was blind to (`14c6828`,
+the deliberate D-28 change), confirming the check now works.
+
+**Not actioned.** WR-02, WR-04, WR-05, WR-07, WR-10 through WR-13 and the 12
+Info findings are recorded and left open. WR-02 in particular is a genuine
+design tension — the repo's `.config/hypr/hyprland.conf` serves as rollback
+source, frozen D-36 evidence, and live hook-injection target simultaneously —
+but its content is in git history, so the exposure is bounded.
+
+Post-remediation state, all re-run: `phase14-verify.sh` `FAIL=0 FINDINGS=1`;
+`phase14-preflight.sh` `FAIL=0 FINDINGS=1`; regression suite (phases 10–13)
+four of four green.
