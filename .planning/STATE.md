@@ -2,47 +2,47 @@
 gsd_state_version: 1.0
 milestone: v0.3
 milestone_name: Full ii install
-current_phase: 14
-current_phase_name: Live full adopt & verify
-status: executing
-stopped_at: Completed 14-01-PLAN.md
-last_updated: "2026-09-04T13:52:57.836Z"
-last_activity: 2026-09-04
-last_activity_desc: Phase 14 execution started
-state_head: 8d77a24aaba9b23c19f7c1e89be0eae38f92ecc2
+current_phase: 15
+current_phase_name: Playbook safe vs full
+status: planning
+stopped_at: Phase 14 complete, ready to plan Phase 15
+last_updated: "2026-09-05T04:33:38.541Z"
+last_activity: 2026-09-05
+last_activity_desc: Phase 14 complete, transitioned to Phase 15
+state_head: d636a8330494568cb4ec1ffe8368add3daee1c6c
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 17
-  completed_plans: 16
-  percent: 67
+  completed_plans: 17
+  percent: 83
 ---
 
 # Project State
 
 ## Current Position
 
-Phase: 14 (Live full adopt & verify) — EXECUTING
-Plan: 2 of 2
-Status: Ready to execute
-Total Plans in Phase: 2
-Last activity: 2026-09-04 — Phase 14 execution started
+Phase: 15 — Playbook safe vs full
+Plan: Not started
+Status: Ready to plan
+Total Plans in Phase: 0 (Phase 15 not yet planned)
+Last activity: 2026-09-05 — Phase 14 complete, transitioned to Phase 15
 
-Progress: [██████████████████░░] 15/17 plans ([███████░░░] 67%)
+Progress: [████████████████████] 17/17 plans ([████████░░] 83% of phases — 5/6)
 
 ## Session
 
-**Last session:** 2026-09-04T13:52:57.765Z
-**Stopped at:** Completed 14-01-PLAN.md
+**Last session:** 2026-09-05T04:33:38.541Z
+**Stopped at:** Phase 14 complete, ready to plan Phase 15
 **Resume file:** None
-**Next command:** `/gsd-discuss-phase 14` (no Phase 14 CONTEXT.md)
+**Next command:** `/gsd-discuss-phase 15` (no Phase 15 CONTEXT.md)
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-08-31)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions.  
-**Current focus:** Phase 14 — Live full adopt & verify
+**Current focus:** Phase 15 — Playbook safe vs full
 
 ## Deferred Items
 
@@ -59,6 +59,7 @@ Items acknowledged and deferred at milestone close on 2026-07-25 (v0.1) and re-a
 | backlog | Waybar cutover (CUT-01) | deferred until parity accepted; DISP-03 defaults keep dual-run |
 | backlog | Waybar customs (CUST-01..04) | deferred past v0.3 full hypr adopt |
 | process | v0.2 formal milestone audit | skipped at close; per-phase verification passed |
+| requirement | D-38 `graphical-session.target` autostart (post-adopt) | **open, no owning phase** — Phase 15's criteria are documentation-only; needs an owner (14-VERIFICATION.md warning 3) |
 
 See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 
@@ -83,6 +84,10 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 13: authoring SoT = parent-repo `.config/hypr/custom/`; live is applied copy; vendor/fork product-only
 - Phase 13: overlays are `general.lua` (hl.monitor + hl.workspace_rule) plus empty env.lua/execs.lua slots; apply documented not run (D-02/D-17)
 - Phase 13: D-19 fence exit 0; 13-VERIFICATION.md status passed; OVL-01..03 Complete; live custom still absent
+- Phase 14: live `install --full` run 2026-09-04 23:13:41–23:35:01; session now loads via `hyprland.lua` (`configProvider: lua`), `hyprland.conf` renamed to `.old`
+- Phase 14: overlay applied live — `general.lua`/`env.lua`/`execs.lua` byte-identical to repo SoT; 11 workspace rules live; `qs -c ii` running; waybar/rofi/swaync stopped per D-11 accept-remove, trees still archived under `stow/` per D-12
+- Phase 14: rollback is `docs/phase14-adopt-runbook.md` §14 — three tiers, tier 1 `~/ii-original-dots-backup.20260904T171128Z`; never upstream `./setup uninstall`
+- Phase 14: 14-VERIFICATION.md status passed 4/4; 3 warnings raised, 2 closed in 859e434, D-38 left open
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.
@@ -93,10 +98,10 @@ None open.
 
 ## Operator Next Steps
 
-1. `/gsd-discuss-phase 14` — live full adopt & verify (no CONTEXT.md) ← recommended  
-2. `/gsd-secure-phase 13` — security enforcement enabled; no `13-SECURITY.md` yet  
-3. `/gsd-validate-phase 13` — `13-VALIDATION.md` still `status: draft` / `nyquist_compliant: false`  
-4. Do **not** run live full install until Phase 14 gates  
+1. `/gsd-discuss-phase 15` — playbook safe vs full (no CONTEXT.md) ← recommended  
+2. Decide an owner for the open D-38 `graphical-session.target` item — Phase 15 scope, or its own phase  
+3. `/gsd-secure-phase 13` — security enforcement enabled; no `13-SECURITY.md` yet  
+4. `/gsd-validate-phase 13` — `13-VALIDATION.md` still `status: draft` / `nyquist_compliant: false`  
 5. Default `install` without `--full` still injects SAFE_DEFAULTS (FULL-02; smoke 2026-08-18)
 
 ## Performance Metrics
@@ -122,6 +127,7 @@ None open.
 | Phase 13 P01 | inline | 3 tasks | 3 files |
 | Phase 13 P02 | inline | 3 tasks | 2 files |
 | Phase 14 P01 | 11 min | 6 tasks | 17 files |
+| Phase 14 P02 | operator window + verify | 5 tasks | verify script + 14-LIVE-VERIFY.md + transcript |
 
 ## Decisions
 
@@ -139,3 +145,6 @@ None open.
 - [Phase 12]: UAT 10/10 + live smoke FAIL=0 on 2026-08-18; ROADMAP `[x]` completed 2026-08-18; FULL-01..05 marked Complete in REQUIREMENTS.md
 - [Phase 13]: CONTEXT updated 2026-08-19: overlay content is monitors + workspace pins only; empty env.lua/execs.lua slots; apply fails if general.lua missing. Cursor and VIRTUAL_ENV overlays dropped.
 - [Phase 13]: 13-01/13-02 executed; D-19 fence exit 0; 13-VERIFICATION.md status passed; ROADMAP `[x]` via `phase.complete` 2026-08-31; OVL-01..03 Complete; live apply deferred to Phase 14
+- [Phase 14]: live full adopt executed behind the preflight gate (backup rotated 17:11:28Z, install gate answered 17:13:41Z); ADOPT-01..04 verified 4/4; ROADMAP `[x]` via `phase.complete` 2026-09-05
+- [Phase 14]: code review returned 2 Critical + 13 Warning at 8b0ae39; both Criticals and 4 Warnings closed in 15b0c31, `14-REVIEW.md` flipped to pass; 9 Warnings + 12 Info dispositioned open (WR-02 is the one worth revisiting)
+- [Phase 14]: a recorded correction naming a runbook heredoc defect was retracted — no revision of the runbook contains a heredoc; the paste failure was real, its cause was never captured

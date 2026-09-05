@@ -51,7 +51,7 @@ Phase artifacts: [milestones/v0.2-phases/](milestones/v0.2-phases/)
 - [x] **Phase 11: Disposition decisions** — Per-surface keep/migrate/accept/defer + staged flag choices (completed 2026-08-10)
 - [x] **Phase 12: Wrapper full-profile** — Explicit opt-in full path; SAFE_DEFAULTS remain default (completed 2026-08-18)
 - [x] **Phase 13: Personal hypr/custom overlays** — Migrate must-keeps; SoT policy; before live full hypr files (completed 2026-08-31)
-- [ ] **Phase 14: Live full adopt & verify** — Gated full install; Lua session; UAT; safe rollback guidance
+- [x] **Phase 14: Live full adopt & verify** — Gated full install; Lua session; UAT; safe rollback guidance (completed 2026-09-05)
 - [ ] **Phase 15: Playbook safe vs full** — Document profiles, sequence, overlay SoT, non-goals
 
 ## Phase Details
@@ -174,7 +174,7 @@ Plans:
   3. Operator verifies monitors/layout per disposition, `qs -c ii` runs, dual-run policy matches DISP-03
   4. Rollback guidance exists that does **not** use upstream `./setup uninstall`
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 **Wave 1**
@@ -183,7 +183,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 14-02-PLAN.md — Operator adopt window, then post-adopt verify script, `14-LIVE-VERIFY.md` record and committed transcript (wave 2, gated on the window)
+- [x] 14-02-PLAN.md — Operator adopt window, then post-adopt verify script, `14-LIVE-VERIFY.md` record and committed transcript (wave 2, gated on the window)
 
 ### Phase 15: Playbook safe vs full
 
@@ -214,7 +214,7 @@ Plans:
 | 11. Disposition decisions | v0.3 | 4/4 | Complete    | 2026-08-10 |
 | 12. Wrapper full-profile | v0.3 | 4/4 | Complete    | 2026-08-18 |
 | 13. Personal hypr/custom overlays | v0.3 | 2/2 | Complete    | 2026-08-31 |
-| 14. Live full adopt & verify | v0.3 | 1/2 | In Progress|  |
+| 14. Live full adopt & verify | v0.3 | 2/2 | Complete    | 2026-09-05 |
 | 15. Playbook safe vs full | v0.3 | 0/0 | Not started | — |
 
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 22/22 requirements mapped · 0 unmapped
