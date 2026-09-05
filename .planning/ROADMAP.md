@@ -196,12 +196,25 @@ Plans:
   2. Playbook documents hypr/custom overlay expectations and repo/live/fork SoT policy (OVL-03)
 
 **Plans:** 6 plans in 5 waves
+**Wave 1**
 
 - [ ] 15-01-PLAN.md — ground-truth deviation gate + tracer: one corrected fact through README, playbook, PROJECT.md, sweep record
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 15-02-PLAN.md — playbook Purpose/Prerequisites, Profiles safe vs full + flag-axis table, the pre-install gate
 - [ ] 15-03-PLAN.md — runbook corrections: rollback tier-1 source 3, rotate-backup caveat, two pre-adopt-tense claims
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 15-04-PLAN.md — playbook install walkthrough, session model, overlay policy (DOC-04), verification section
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 15-05-PLAN.md — playbook known losses, three roles of the repo hyprland.conf, non-goals, final Outline + See also
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 15-06-PLAN.md — doc sweep record completion, deferred fixes with owners, phase gate transcript
 
 ## Progress
