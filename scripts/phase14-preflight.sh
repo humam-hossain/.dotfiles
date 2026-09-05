@@ -199,11 +199,25 @@ PHASE14_ARTIFACTS=(
 PORCELAIN_ALL="$(git status --porcelain)"
 PORCELAIN="$PORCELAIN_ALL"
 EXCUSED=""
+# Match the porcelain path exactly. An unanchored substring match also excuses
+# 14-LIVE-VERIFY.md.orig, phase14-verify.sh.bak and any other look-alike, which
+# would let real uncommitted work slip past the D-15/D-35 gate. phase14-verify.sh
+# implements this same gate with a prefix match; the two must not disagree.
 for artifact in "${PHASE14_ARTIFACTS[@]}"; do
-  hit="$(printf '%s\n' "$PORCELAIN" | grep -F -- " $artifact" || true)"
+  hit=""
+  REMAINING=""
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    # porcelain is "XY <path>"; strip the 2-char status field and its separator
+    if [[ "${line:3}" == "$artifact" ]]; then
+      hit+="$line"$'\n'
+    else
+      REMAINING+="$line"$'\n'
+    fi
+  done <<< "$PORCELAIN"
   if [[ -n "$hit" ]]; then
-    EXCUSED+="$hit"$'\n'
-    PORCELAIN="$(printf '%s\n' "$PORCELAIN" | grep -F -v -- " $artifact" || true)"
+    EXCUSED+="$hit"
+    PORCELAIN="$REMAINING"
   fi
 done
 if [[ -n "$EXCUSED" ]]; then

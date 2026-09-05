@@ -79,6 +79,7 @@ echo "[CONFIG] xdg=$XDG"
 echo "[CONFIG] baseline=$BASELINE"
 echo "[CONFIG] backup_dir=$BACKUP_DIR"
 BASELINE_CAPTURED="$(baseline_value baseline_captured)" || exit 1
+HYPRLAND_CONF_SHA_PRE="$(baseline_value hyprland_conf_sha256)" || exit 1
 echo "[CONFIG] baseline_captured=$BASELINE_CAPTURED"
 
 # --- live compositor resolution ----------------------------------------------
@@ -316,16 +317,21 @@ if pgrep -f 'qs -c ii' >/dev/null 2>&1; then
 else
   fail "ADOPT-03 ii shell not running: qs -c ii"
 fi
-if pgrep -x waybar >/dev/null 2>&1; then
-  fail "ADOPT-03 waybar still running — Waybar/rofi/swaync dual-run policy is accept-remove"
-else
-  pass "ADOPT-03 waybar not running (Waybar/rofi/swaync accept-remove)"
-fi
-if pgrep -x swaync >/dev/null 2>&1; then
-  fail "ADOPT-03 swaync still running — Waybar/rofi/swaync dual-run policy is accept-remove"
-else
-  pass "ADOPT-03 swaync not running (Waybar/rofi/swaync accept-remove)"
-fi
+# pgrep exits 1 for "no match" but 2, 3 and 127 for usage errors and a missing
+# binary. Collapsing all of them into the else branch reports a PASS for a
+# condition nobody observed. Only exit 1 means "checked, absent".
+check_not_running() {
+  # $1 = process name
+  local rc
+  pgrep -x "$1" >/dev/null 2>&1 && rc=0 || rc=$?
+  case "$rc" in
+    0) fail "ADOPT-03 $1 still running — Waybar/rofi/swaync dual-run policy is accept-remove" ;;
+    1) pass "ADOPT-03 $1 not running (Waybar/rofi/swaync accept-remove)" ;;
+    *) finding "ADOPT-03 pgrep -x $1 exited $rc — neither running nor absent was observed" ;;
+  esac
+}
+check_not_running waybar
+check_not_running swaync
 # rofi never had an exec-once (RESEARCH Pitfall 6), so its absence is vacuous and
 # its presence would be the surprise. Recorded, never enforced.
 if pgrep -x rofi >/dev/null 2>&1; then
@@ -345,16 +351,26 @@ trap 'rm -f "$UNINST_OUT" "$PROTECT_OUT"' EXIT
 
 REPO_HYPRCONF=".config/hypr/hyprland.conf"
 
-if [[ -s "$XDG/hypr/hyprland.conf.old" ]]; then
-  pass "ADOPT-04 tier-1 source 1 present and non-empty: $XDG/hypr/hyprland.conf.old"
-else
-  fail "ADOPT-04 tier-1 source 1 missing or empty: $XDG/hypr/hyprland.conf.old"
-fi
-if [[ -s "$REPO_HYPRCONF" ]]; then
-  pass "ADOPT-04 tier-1 source 2 present and non-empty: repo $REPO_HYPRCONF"
-else
-  fail "ADOPT-04 tier-1 source 2 missing or empty: repo $REPO_HYPRCONF"
-fi
+# Presence is not identity. The record claims all three tier-1 sources carry the
+# pre-adopt sha256, so the instrument must hash them -- a `-s` test would keep
+# printing PASS after either source drifted, and source 2 is a live hook-injection
+# target, so drift there has a real mechanism.
+check_tier1_source() {
+  # $1 = source label, $2 = path
+  if [[ ! -s "$2" ]]; then
+    fail "ADOPT-04 tier-1 source $1 missing or empty: $2"
+    return
+  fi
+  local sha
+  sha="$(sha256sum "$2" | cut -d' ' -f1)"
+  if [[ "$sha" == "$HYPRLAND_CONF_SHA_PRE" ]]; then
+    pass "ADOPT-04 tier-1 source $1 present and sha256 matches the pre-adopt fixture: $2"
+  else
+    fail "ADOPT-04 tier-1 source $1 is $sha, fixture recorded $HYPRLAND_CONF_SHA_PRE (captured $BASELINE_CAPTURED) -- $2 is not the pre-adopt conf"
+  fi
+}
+check_tier1_source 1 "$XDG/hypr/hyprland.conf.old"
+check_tier1_source 2 "$REPO_HYPRCONF"
 if [[ -d "$BACKUP_DIR" ]] && [[ -n "$(ls -A "$BACKUP_DIR" 2>/dev/null || true)" ]]; then
   pass "ADOPT-04 tier-1 source 3 present and non-empty: $BACKUP_DIR"
 else
@@ -384,7 +400,6 @@ fi
 # =============================================================================
 
 BK_CONF="$BACKUP_DIR/.config/hypr/hyprland.conf"
-HYPRLAND_CONF_SHA_PRE="$(baseline_value hyprland_conf_sha256)" || exit 1
 BK_MTIME_PRE="$(baseline_value backup_dir_hyprland_conf_mtime)" || exit 1
 
 if [[ -f "$BK_CONF" ]]; then

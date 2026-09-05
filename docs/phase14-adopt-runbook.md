@@ -310,8 +310,20 @@ Three escalating tiers. Work them in order and stop as soon as you have a usable
 Three independent sources, ordered cheapest and most certain first:
 
 ```bash
+# 0. FIRST, always. Move the Lua entry aside before restoring anything.
+#    The wiki says a present hyprland.lua is loaded INSTEAD of hyprland.conf;
+#    D-09 and upstream's own rename comment say the opposite. 14-RESEARCH.md
+#    leaves the direction unresolved on 0.56.2 and concludes it "does not
+#    matter operationally" -- but that reasoning is scoped to the FORWARD
+#    adopt, where upstream renames the conf either way. It does not transfer
+#    to the reverse. Skip this step and, under the wiki reading, every restore
+#    below is a silent no-op: you get the identical ii session back and
+#    escalate to tiers 2 and 3, neither of which touches config precedence.
+mv ~/.config/hypr/hyprland.lua ~/.config/hypr/hyprland.lua.ii-disabled
+
 # 1. The rename upstream made in section 7. Almost always enough.
-mv ~/.config/hypr/hyprland.conf.old ~/.config/hypr/hyprland.conf
+#    cp, not mv: mv would consume source 1 and leave you two sources, not three.
+cp -a ~/.config/hypr/hyprland.conf.old ~/.config/hypr/hyprland.conf
 
 # 2. This repo's pre-adopt archive, committed before anything mutated.
 cp -a .config/hypr/hyprland.conf ~/.config/hypr/hyprland.conf

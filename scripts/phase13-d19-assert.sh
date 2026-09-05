@@ -114,13 +114,17 @@ else
       fail "live custom/$f matches repo source"
     fi
   done
-  # D-18 leaves these three to upstream. A repo copy landing on them means the
-  # fence was widened past the named files.
+  # D-18 leaves these three to upstream. The repo carries no copy of them at all,
+  # so "the repo copy did not land" is unobservable here -- asserting it would
+  # print PASS for a condition never checked. What IS observable, and is the real
+  # D-18 property, is that the repo never grew a copy to widen the fence with.
   for f in keybinds.lua rules.lua variables.lua; do
-    if [ ! -f ".config/hypr/custom/$f" ] || ! cmp -s ".config/hypr/custom/$f" "$LIVE_CUSTOM/$f"; then
-      pass "live custom/$f left to upstream (not overwritten from repo)"
+    if [ ! -e ".config/hypr/custom/$f" ]; then
+      pass "repo has no custom/$f — D-18 fence cannot widen to it"
+    elif ! cmp -s ".config/hypr/custom/$f" "$LIVE_CUSTOM/$f"; then
+      pass "repo custom/$f exists but live copy differs (not applied)"
     else
-      fail "live custom/$f left to upstream (not overwritten from repo)"
+      fail "live custom/$f is byte-identical to a repo copy — D-18 fence widened past its named files"
     fi
   done
 fi
@@ -131,10 +135,25 @@ else
   fail "worktree custom/ realpath != live custom"
 fi
 
-if [ -z "$(git diff --name-only -- arch/dots-hyprland.sh)" ]; then
-  pass "arch/dots-hyprland.sh unmodified"
+# Bare `git diff` compares worktree against index only, so a committed change is
+# invisible to it -- arch/dots-hyprland.sh was modified during phase 14 and still
+# passed this check. Compare against a pinned known-good commit instead.
+#
+# Which commit is the baseline is phase-dependent. Phase 13 wanted the wrapper
+# untouched since phase 12. Phase 14 then changed it deliberately under D-28, so
+# after that phase the known-good state is 14c6828, not e7e4e9f. Pinning both
+# keeps drift detection live without asserting a premise the project has moved past.
+if [ -f "$LIVE_VERIFY" ]; then
+  WRAPPER_BASE="14c6828"   # refactor(14-01): drop waybar and swaync from PROTECT_EXPLICIT (D-28)
 else
-  fail "arch/dots-hyprland.sh unmodified"
+  WRAPPER_BASE="e7e4e9f"   # feat(12-03): last phase-12 state of the wrapper
+fi
+if ! git cat-file -e "${WRAPPER_BASE}^{commit}" 2>/dev/null; then
+  printf '[INFO] %s\n' "arch/dots-hyprland.sh: baseline $WRAPPER_BASE not in this repo; drift not checked"
+elif [ -z "$(git diff --name-only "$WRAPPER_BASE" -- arch/dots-hyprland.sh)" ]; then
+  pass "arch/dots-hyprland.sh unmodified since $WRAPPER_BASE"
+else
+  fail "arch/dots-hyprland.sh changed since $WRAPPER_BASE"
 fi
 
 if [ "$FAIL" -eq 0 ]; then
