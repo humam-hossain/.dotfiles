@@ -5,10 +5,10 @@ milestone_name: Full ii install
 current_phase: 15
 current_phase_name: Playbook safe vs full
 status: planning
-stopped_at: Phase 14 complete, ready to plan Phase 15
-last_updated: "2026-09-05T04:33:38.541Z"
+stopped_at: Phase 14 verified (UAT 15/15, validated, threat-secure), ready to plan Phase 15
+last_updated: "2026-09-05T11:30:00Z"
 last_activity: 2026-09-05
-last_activity_desc: Phase 14 complete, transitioned to Phase 15
+last_activity_desc: Phase 14 UAT 15/15 passed; validation audited and security verified
 state_head: d636a8330494568cb4ec1ffe8368add3daee1c6c
 progress:
   total_phases: 6
@@ -26,14 +26,14 @@ Phase: 15 — Playbook safe vs full
 Plan: Not started
 Status: Ready to plan
 Total Plans in Phase: 0 (Phase 15 not yet planned)
-Last activity: 2026-09-05 — Phase 14 complete, transitioned to Phase 15
+Last activity: 2026-09-05 — Phase 14 UAT 15/15 passed; validation audited and security verified
 
 Progress: [████████████████████] 17/17 plans (100%)
 
 ## Session
 
-**Last session:** 2026-09-05T04:33:38.541Z
-**Stopped at:** Phase 14 complete, ready to plan Phase 15
+**Last session:** 2026-09-05T11:30:00Z
+**Stopped at:** Phase 14 verified — UAT 15/15, validation audited, security verified; ready to plan Phase 15
 **Resume file:** None
 **Next command:** `/gsd-discuss-phase 15` (no Phase 15 CONTEXT.md)
 
@@ -88,6 +88,8 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 14: overlay applied live — `general.lua`/`env.lua`/`execs.lua` byte-identical to repo SoT; 11 workspace rules live; `qs -c ii` running; waybar/rofi/swaync stopped per D-11 accept-remove, trees still archived under `stow/` per D-12
 - Phase 14: rollback is `docs/phase14-adopt-runbook.md` §14 — three tiers, tier 1 `~/ii-original-dots-backup.20260904T171128Z`; never upstream `./setup uninstall`
 - Phase 14: 14-VERIFICATION.md status passed 4/4; 3 warnings raised, 2 closed in 859e434, D-38 left open
+- Phase 14 UAT: 15/15 pass (11 automated coverage + 4 human checkpoints) on 2026-09-05; zero gaps, zero deferred follow-ups
+- Phase 14: 14-VALIDATION.md status validated — 15 map rows, 0 MISSING, 5 manual-only, so `nyquist_compliant` stays false by design; 14-SECURITY.md status verified — 16 threats, `threats_open: 0` at ASVS L1
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.
