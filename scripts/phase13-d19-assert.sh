@@ -89,10 +89,40 @@ else
   fail "13-SOT-APPLY.md names cp -a / fail / warn / rsync --delete"
 fi
 
-if [ ! -e "$LIVE_CUSTOM" ]; then
-  pass "live $LIVE_CUSTOM absent (apply not run)"
+# Phase 13 never applied the overlay itself; Phase 14 did, under the D-18 fence.
+# Before that apply the live tree must be absent. After it, the three named files
+# must match the repo source byte for byte, and the files the fence deliberately
+# leaves to upstream must not have been copied over.
+LIVE_VERIFY=".planning/phases/14-live-full-adopt-verify/14-LIVE-VERIFY.md"
+if [ ! -f "$LIVE_VERIFY" ]; then
+  if [ ! -e "$LIVE_CUSTOM" ]; then
+    pass "live $LIVE_CUSTOM absent (apply not run)"
+  else
+    fail "live $LIVE_CUSTOM absent (apply not run)"
+  fi
 else
-  fail "live $LIVE_CUSTOM absent (apply not run)"
+  if [ -d "$LIVE_CUSTOM" ]; then
+    pass "live $LIVE_CUSTOM present (phase 14 apply recorded)"
+  else
+    fail "live $LIVE_CUSTOM present (phase 14 apply recorded)"
+  fi
+  for f in general.lua env.lua execs.lua; do
+    if [ -f ".config/hypr/custom/$f" ] && [ -f "$LIVE_CUSTOM/$f" ] \
+      && cmp -s ".config/hypr/custom/$f" "$LIVE_CUSTOM/$f"; then
+      pass "live custom/$f matches repo source"
+    else
+      fail "live custom/$f matches repo source"
+    fi
+  done
+  # D-18 leaves these three to upstream. A repo copy landing on them means the
+  # fence was widened past the named files.
+  for f in keybinds.lua rules.lua variables.lua; do
+    if [ ! -f ".config/hypr/custom/$f" ] || ! cmp -s ".config/hypr/custom/$f" "$LIVE_CUSTOM/$f"; then
+      pass "live custom/$f left to upstream (not overwritten from repo)"
+    else
+      fail "live custom/$f left to upstream (not overwritten from repo)"
+    fi
+  done
 fi
 
 if [ "$(realpath -m .config/hypr/custom)" != "$(realpath -m "$LIVE_CUSTOM")" ]; then
