@@ -73,6 +73,15 @@ Task IDs were assigned by the planner on 2026-09-05 and reference `{plan} T{n}` 
 pre-rewrite tree during planning, so each is known to run; the assertions are stated in the direction that
 will hold *after* the rewrite. Status flips are set by `/gsd-validate-phase`.
 
+**Commit-range anchor.** The guard rows below resolve `$B` at run time as
+`git log -1 --format=%H -- .planning/phases/15-playbook-safe-vs-full/15-01-PLAN.md` — the phase's planning
+commit (`f54714b` as of 2026-09-05) — which is the same anchor every plan uses. It is deliberately **not**
+`origin/main...HEAD`: `origin/main` predates `15-CONTEXT.md`, `15-RESEARCH.md` and all six plans, so that
+range reports those artifacts as changed by this phase and makes the `15-06 T2` frozen-artifact guard
+unsatisfiable by construction — a correctly executed phase would report red. Verified 2026-09-05:
+`git diff --name-only origin/main...HEAD` lists `15-CONTEXT.md`; the `"$B"..HEAD` form lists nothing for
+every guarded path.
+
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
 | 15-01 T2 | 15-01 | 1 | DOC-03 (D-15) | T-15-01 | doc names the probe that exists | agreement | `grep -q -- '-j status' docs/dots-hyprland-workflow.md && test -z "$(grep -l 'getoption configProvider' docs/dots-hyprland-workflow.md docs/phase14-adopt-runbook.md README.md .planning/PROJECT.md 2>/dev/null)"` | ✅ | ⬜ pending |
@@ -82,7 +91,7 @@ will hold *after* the rewrite. Status flips are set by `/gsd-validate-phase`.
 | 15-02 T2 | 15-02 | 2 | DOC-03 (D-07) | T-15-06 | safe is still the default | unit | `grep -qiE 'default.*(safe\|SAFE_DEFAULTS)' docs/dots-hyprland-workflow.md` | ✅ | ⬜ pending |
 | 15-02 T3 | 15-02 | 2 | DOC-03 (D-13) | T-15-08 | gate precedes first install command | ordering | line number of first `10-INVENTORY.md` < line number of first `./arch/dots-hyprland.sh install` | ✅ | ⬜ pending |
 | 15-01 T2 · 15-02 T1 | 15-01, 15-02 | 1-2 | D-10 | — | three stale claims absent | forbidden-string | `! grep -qF 'reach dual-run' && ! grep -qF 'wrapper defaults **do not** replace' && ! grep -qF 'No Waybar cutover'` | ✅ | ⬜ pending |
-| 15-03 T1 | 15-03 | 2 | D-19 | T-15-15 | preflight script untouched | guard | `test -z "$(git diff --name-only origin/main...HEAD -- scripts/phase14-preflight.sh)"` | ✅ | ⬜ pending |
+| 15-03 T1 | 15-03 | 2 | D-19 | T-15-15 | preflight script untouched | guard | `B="$(git log -1 --format=%H -- .planning/phases/15-playbook-safe-vs-full/15-01-PLAN.md)" && test -z "$(git diff --name-only "$B"..HEAD -- scripts/phase14-preflight.sh)"` | ✅ | ⬜ pending |
 | 15-03 T1 | 15-03 | 2 | DOC-03 (D-21) | T-15-11 | rollback tier-1 source 3 names the recoverable backup | agreement | `grep -q '3d17932a' docs/phase14-adopt-runbook.md && ! grep -qF 'the timestamped directory section 5 created' docs/phase14-adopt-runbook.md` | ✅ | ⬜ pending |
 | 15-03 T2 | 15-03 | 2 | D-02 | T-15-14 | runbook structure preserved | unit | `test "$(grep -c '^## ' docs/phase14-adopt-runbook.md)" -eq 17` | ✅ | ⬜ pending |
 | 15-04 T1 | 15-04 | 3 | DOC-03 (D-14) | T-15-16, T-15-17 | backup dir matches `II_BACKUP_DIR`; rotated form absent | agreement | `grep -q 'ii-original-dots-backup' … && ! grep -qE 'ii-original-dots-backup\.[0-9]{8}T' … && grep -q -- '--allow-skip-backup' …` | ✅ | ⬜ pending |
@@ -92,8 +101,8 @@ will hold *after* the rewrite. Status flips are set by `/gsd-validate-phase`.
 | 15-05 T1 | 15-05 | 4 | D-09 / D-39 | T-15-24 | trio named literally; no collective noun | forbidden-string | `test "$(grep -oE '[A-Za-z0-9_-]*[Cc]hrome[A-Za-z0-9_-]*' <file> \| grep -vx 'google-chrome-stable' \| wc -l)" -eq 0` and `grep -cE '\brofi\b' … -ge 2` | ✅ | ⬜ pending |
 | 15-05 T1 | 15-05 | 4 | D-17 | T-15-24 | D-38 loss stated as a possibility, not a certainty | forbidden-string | hedged `screen share … may` present; `screen share is broken` count 0 | ✅ | ⬜ pending |
 | 15-05 T3 | 15-05 | 4 | D-23 | T-15-26 | every relative link and in-page anchor resolves | link check | link-resolution loop over the three prose docs + Outline-anchor slug loop over the playbook | ✅ | ⬜ pending |
-| 15-06 T2 | 15-06 | 5 | D-22 | T-15-28, T-15-29 | frozen artifacts flagged, never edited; STATE/ROADMAP not directly edited | guard | `test -z "$(git diff --name-only origin/main...HEAD -- <4 frozen artifacts>)"` + `git diff --quiet HEAD -- .planning/STATE.md .planning/ROADMAP.md` | ✅ | ⬜ pending |
-| 15-06 T3 | 15-06 | 5 | scope fence | T-15-30 | no code, script, config, stow or vendor change in the phase's commit range | guard | `test -z "$(git diff --name-only origin/main...HEAD -- arch/ scripts/ .config/ stow/ vendor/)"` | ✅ | ⬜ pending |
+| 15-06 T2 | 15-06 | 5 | D-22 | T-15-28, T-15-29 | frozen artifacts flagged, never edited; STATE/ROADMAP not directly edited | guard | `B="$(git log -1 --format=%H -- .planning/phases/15-playbook-safe-vs-full/15-01-PLAN.md)" && test -z "$(git diff --name-only "$B"..HEAD -- <4 frozen artifacts>)"` + `git diff --quiet HEAD -- .planning/STATE.md .planning/ROADMAP.md` | ✅ | ⬜ pending |
+| 15-06 T3 | 15-06 | 5 | scope fence | T-15-30 | no code, script, config, stow or vendor change in the phase's commit range | guard | `B="$(git log -1 --format=%H -- .planning/phases/15-playbook-safe-vs-full/15-01-PLAN.md)" && test -z "$(git diff --name-only "$B"..HEAD -- arch/ scripts/ .config/ stow/ vendor/)"` | ✅ | ⬜ pending |
 | 15-06 T3 | 15-06 | 5 | DOC-03, DOC-04 | T-15-33 | phase gate: both suites at baseline | suite | `phase13-d19-assert.sh` 15 PASS / 0 FAIL; `phase14-verify.sh` 1 FINDING and no FAIL besides the D-35 dirty-tree line | ✅ | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*

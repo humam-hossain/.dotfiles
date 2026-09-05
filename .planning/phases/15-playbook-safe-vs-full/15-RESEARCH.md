@@ -1024,27 +1024,35 @@ The threats here are **operator-safety**, not attacker-driven. The realistic har
 | A5 | The `STATE.md` D-38 ownership answer (D-17 closes it in favour of "documented here, fix unowned") is applied via `gsd-tools.cjs`, not by editing the file. | Doc Sweep | Violating D-22's hard guard if done wrong. |
 | A6 | "Screen share **may** be affected" is the accurate D-17 wording, since the portal's `AvailableSourceTypes` is unchanged and only the session-bootstrap target is inactive. | Known losses | Overstating it as "screen share is broken" would misrepresent a documented FINDING. |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> **All four resolved at planning time, 2026-09-05.** Each carries an inline `**RESOLVED:**` line naming
+> the decision taken and the artifact it landed in. Nothing here is outstanding; the section is kept as the
+> record of how each was decided.
 
 1. **Does the scope fence permit `scripts/phase15-docs-assert.sh`?**
    - What we know: `nyquist_validation: true` requires a Validation Architecture; CONVENTIONS.md names the `phaseNN-*-assert.sh` pattern; the repo has two working precedents.
    - What's unclear: CONTEXT.md's fence reads "No code, wrapper, script, or session behaviour changes in this phase" `[VERIFIED: 15-CONTEXT.md:11]`. A *new verification* script is not a *behaviour* change, but it is a script.
    - Recommendation: ask at planning time. Default to inline `<automated>` blocks in the plan if unresolved — the command shapes above work either way.
+   - **RESOLVED: no new script.** The fence is read strictly — `scripts/phase15-docs-assert.sh` is not created and every assertion lives inline in a task `<verify><automated>` block. Landed in `15-VALIDATION.md` § Test Infrastructure (the **Scope note**, which cites this question and research assumption A4) and in the `<verify>` blocks of all six plans. The `arch/`, `scripts/`, `.config/`, `stow/`, `vendor/` fence is itself asserted per task by `git diff --quiet HEAD` and across the whole range at the `15-06` phase gate.
 
 2. **Should Correction 3 (runbook rollback) be fixed in this phase or raised as a deferred item?**
    - What we know: D-21 explicitly authorises correcting false post-adopt lines in the runbook.
    - What's unclear: it is the highest-severity finding and touches a recovery procedure, which some would want reviewed separately.
    - Recommendation: fix it here — it is a one-line correction, D-21 covers it, and leaving a wrong rollback source documented is worse than the change.
+   - **RESOLVED: fixed in this phase, behind a blocking human gate.** Correction 3 is written by `15-03` Task 1, and the D-21-vs-D-02 boundary call is put to the developer first by the `checkpoint:decision` in `15-01` (`15-01-PLAN.md`, the `Write Corrections 1 and 2 here, defer Correction 3` option). Landed as assumption A2 in `15-01-PLAN.md` and `15-03-PLAN.md` Flagged Assumptions, and as the `15-03 T1` rollback row in `15-VALIDATION.md`. The runbook's structure is protected mechanically by the 17-section heading-count assertion, so the correction cannot silently become a rewrite.
 
 3. **Does the D-06 safe-profile paragraph need the dual-run *restore* path?**
    - What we know: CONTEXT.md defers "Dual-run restore path" explicitly, noting nothing has verified it since the adopt.
    - What's unclear: a reader on a cold machine choosing safe never needs restore; a reader on *this* machine might ask.
    - Recommendation: honour the deferral. One sentence saying the archived trees are under `stow/` and the restore path is unverified is enough.
+   - **RESOLVED: deferral honoured.** The playbook says the trees are archived under `stow/` and stops there; no restore procedure is written. Landed as the `Open-3` row in `15-05-PLAN.md` Flagged Assumptions (section 8 wording) and as the `Dual-run restore path` row, owner `unowned`, in the `## Deferred fixes` table `15-06` Task 2 writes into `15-DOC-SWEEP.md`.
 
 4. **How much of `.planning` prose beyond `PROJECT.md` warrants review?**
    - What we know: D-22 scopes it to read-only review + report, with `PROJECT.md` the only editable exception. I reviewed `PROJECT.md`, `REQUIREMENTS.md`, `STATE.md`, `ROADMAP.md`, `CONVENTIONS.md` and the cited phase artifacts.
    - What's unclear: whether every `1X-*.md` under `.planning/phases/` needs a line-by-line read for the report, or a targeted grep for the known-stale patterns suffices.
    - Recommendation: targeted grep for the four known patterns (`getoption configProvider`, timestamped backup dir, `dual-run` as destination, "no owning phase" for D-38). Exhaustive reading of ~15 frozen artifacts is high cost for a report that changes nothing.
+   - **RESOLVED: targeted grep, and the method is disclosed in the report.** `15-06` Task 2 runs the four-pattern grep over `.planning/` and is required to state in `15-DOC-SWEEP.md` which files were reviewed that way rather than read in full, and why — so a later reader knows the review's depth instead of assuming completeness. Landed as assumption `A-06-1` in `15-06-PLAN.md` and as an acceptance criterion on that task.
 
 ## Sources
 
