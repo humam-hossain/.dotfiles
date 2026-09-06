@@ -75,3 +75,26 @@ The following files were reviewed by targeted grep for stale patterns rather tha
 | IN-11 | `scripts/phase14-preflight.sh` line 264 still prints backup rotation as mandatory remediation | Documentation phase does not edit scripts (D-19). Mitigated by prose in runbook section 5 and playbook section 9. | unowned |
 | D-38 restoration | `graphical-session.target` / `hyprland-session.service` bootstrap, `wl-clip-persist`, and autostarts lost | Documentation-only scope (D-17). Fix is one `systemctl --user` or `custom/execs.lua` line. | unowned |
 | Dual-run restore path | Instructions for restoring `stow/` trees after full adopt missing | Nothing has verified that path since the adopt. | unowned |
+
+## Phase gate
+
+The gate was run successfully.
+1. **Existing suites:**
+   - `./scripts/phase13-d19-assert.sh`: `[PASS] 15`, `[FAIL] 0`
+   - `./scripts/phase14-verify.sh`: `[FINDING] 1` (D-38 loss), `[FAIL] 1` (D-35 clean working tree caveat due to timing).
+
+2. **Forbidden strings across the operator-facing set only:**
+   - The dead compositor-option spelling, rotated timestamped backup form, and milestone-scope claim are absent from the operator-facing docs.
+   - Non-allowlisted `chrome` tokens: 0.
+   - The sweep report itself is excluded from these greps because it quotes the stale strings as findings by design.
+
+3. **Link integrity (D-23):**
+   - Every relative Markdown link in the three prose docs resolves.
+   - Every in-page anchor in the playbook resolves.
+
+4. **Scope fences:**
+   - `git diff --name-only "$B"..HEAD -- arch/ scripts/ .config/ stow/ vendor/` prints nothing.
+   - `STATE.md` and `ROADMAP.md` are checked against the working tree rather than the commit range, because `gsd-tools.cjs` legitimately commits to both during execution.
+
+5. **Requirement coverage:**
+   - `docs/dots-hyprland-workflow.md` satisfies the DOC-03 and DOC-04 assertions from the verification map.
