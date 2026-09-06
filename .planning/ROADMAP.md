@@ -195,15 +195,15 @@ Plans:
   1. Playbook documents safe vs full profiles, inventory→disposition→adopt sequence, and flag axes
   2. Playbook documents hypr/custom overlay expectations and repo/live/fork SoT policy (OVL-03)
 
-**Plans:** 1/6 plans executed in 5 waves
+**Plans:** 3/6 plans executed in 5 waves
 **Wave 1**
 
 - [x] 15-01-PLAN.md — ground-truth deviation gate + tracer: one corrected fact through README, playbook, PROJECT.md, sweep record
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 15-02-PLAN.md — playbook Purpose/Prerequisites, Profiles safe vs full + flag-axis table, the pre-install gate
-- [ ] 15-03-PLAN.md — runbook corrections: rollback tier-1 source 3, rotate-backup caveat, two pre-adopt-tense claims
+- [x] 15-02-PLAN.md — playbook Purpose/Prerequisites, Profiles safe vs full + flag-axis table, the pre-install gate
+- [x] 15-03-PLAN.md — runbook corrections: rollback tier-1 source 3, rotate-backup caveat, two pre-adopt-tense claims
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -235,7 +235,7 @@ Plans:
 | 12. Wrapper full-profile | v0.3 | 4/4 | Complete    | 2026-08-18 |
 | 13. Personal hypr/custom overlays | v0.3 | 2/2 | Complete    | 2026-08-31 |
 | 14. Live full adopt & verify | v0.3 | 2/2 | Complete    | 2026-09-05 |
-| 15. Playbook safe vs full | v0.3 | 1/6 | In Progress|  |
+| 15. Playbook safe vs full | v0.3 | 3/6 | In Progress|  |
 
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 22/22 requirements mapped · 0 unmapped
 
