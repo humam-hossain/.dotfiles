@@ -45,8 +45,8 @@ Requirements for this milestone only. Phase numbering continues after v0.2 (last
 
 ### Documentation
 
-- [ ] **DOC-03**: Playbook documents **safe vs full** install profiles, inventory→disposition→adopt sequence, and flag axes (`skip-hyprland` / `core` / `sysupdate`)
-- [ ] **DOC-04**: Playbook documents hypr/custom overlay expectations and repo/live/fork SoT policy from OVL-03
+- [x] **DOC-03**: Playbook documents **safe vs full** install profiles, inventory→disposition→adopt sequence, and flag axes (`skip-hyprland` / `core` / `sysupdate`)
+- [x] **DOC-04**: Playbook documents hypr/custom overlay expectations and repo/live/fork SoT policy from OVL-03
 
 ## Future Requirements
 
@@ -107,8 +107,8 @@ Deferred beyond v0.3.
 | ADOPT-02 | Phase 14 | Complete |
 | ADOPT-03 | Phase 14 | Complete |
 | ADOPT-04 | Phase 14 | Complete |
-| DOC-03 | Phase 15 | Pending |
-| DOC-04 | Phase 15 | Pending |
+| DOC-03 | Phase 15 | Complete |
+| DOC-04 | Phase 15 | Complete |
 
 **Coverage:**
 

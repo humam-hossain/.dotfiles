@@ -52,7 +52,7 @@ Phase artifacts: [milestones/v0.2-phases/](milestones/v0.2-phases/)
 - [x] **Phase 12: Wrapper full-profile** — Explicit opt-in full path; SAFE_DEFAULTS remain default (completed 2026-08-18)
 - [x] **Phase 13: Personal hypr/custom overlays** — Migrate must-keeps; SoT policy; before live full hypr files (completed 2026-08-31)
 - [x] **Phase 14: Live full adopt & verify** — Gated full install; Lua session; UAT; safe rollback guidance (completed 2026-09-05)
-- [ ] **Phase 15: Playbook safe vs full** — Document profiles, sequence, overlay SoT, non-goals
+- [x] **Phase 15: Playbook safe vs full** — Document profiles, sequence, overlay SoT, non-goals (completed 2026-09-06)
 
 ## Phase Details
 
@@ -195,7 +195,7 @@ Plans:
   1. Playbook documents safe vs full profiles, inventory→disposition→adopt sequence, and flag axes
   2. Playbook documents hypr/custom overlay expectations and repo/live/fork SoT policy (OVL-03)
 
-**Plans:** 6/6 plans executed in 5 waves
+**Plans:** 6/6 plans complete
 **Wave 1**
 
 - [x] 15-01-PLAN.md — ground-truth deviation gate + tracer: one corrected fact through README, playbook, PROJECT.md, sweep record
@@ -235,7 +235,7 @@ Plans:
 | 12. Wrapper full-profile | v0.3 | 4/4 | Complete    | 2026-08-18 |
 | 13. Personal hypr/custom overlays | v0.3 | 2/2 | Complete    | 2026-08-31 |
 | 14. Live full adopt & verify | v0.3 | 2/2 | Complete    | 2026-09-05 |
-| 15. Playbook safe vs full | v0.3 | 6/6 | In Progress|  |
+| 15. Playbook safe vs full | v0.3 | 6/6 | Complete    | 2026-09-06 |
 
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 22/22 requirements mapped · 0 unmapped
 
