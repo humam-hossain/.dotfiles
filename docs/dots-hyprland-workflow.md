@@ -76,11 +76,11 @@ Do **not** treat a sibling clone (e.g. `~/github_repo/dots-hyprland`) as source 
 
 1. [Clone & recursive submodule init](#1-clone--recursive-submodule-init)
 2. [Verify fork remotes & pin](#2-verify-fork-remotes--pin)
-3. [Install via thin wrapper (dry-run → live)](#3-install-via-thin-wrapper-dry-run--live)
-4. [Session model & verification](#4-session-model--verification)
-5. [Update contract (pin-bump)](#5-update-contract-pin-bump)
-6. [Non-goals / non-primary paths](#6-non-goals--non-primary-paths)
-7. [See also](#see-also)
+3. [Required gate before any full install](#3-required-gate-before-any-full-install)
+4. [Install via the thin wrapper](#4-install-via-the-thin-wrapper)
+5. [Session model after a full install](#5-session-model-after-a-full-install)
+10. [Update contract (pin-bump)](#10-update-contract-pin-bump)
+11. [Non-goals / non-primary paths](#11-non-goals--non-primary-paths)
 
 ---
 
@@ -149,7 +149,21 @@ git -C vendor/dots-hyprland remote add upstream https://github.com/end-4/dots-hy
 
 ---
 
-## 3. Install via thin wrapper (dry-run → live)
+## 3. Required gate before any full install
+
+This is a gate, not advice: a cold machine must not reach `--full` from this document without passing it first. ADOPT-01 is a **process** gate — the wrapper does not enforce it at runtime and will not stop you.
+
+1. **Inventory.** Enumerate what a full install would touch on *this* machine — the hypr files that dropping `--skip-hyprland` renames or replaces, the misc surfaces that dropping `--core` may overwrite, and the package and sysupdate effects that dropping `--skip-sysupdate` allows. `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md` is the source of truth for what a full install touches.
+2. **Disposition.** Decide, per surface the inventory named, whether you accept upstream's version, keep yours, or migrate yours into a personal overlay. `.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md` is the source of truth for the per-surface decisions.
+3. **Adopt.** Only with both in hand, run the full install in §4 — backup gate answered, not skipped.
+
+Those two files are **this machine's worked instance** of the gate: it was run here, against this host's `~/.config`, in Phases 10 and 11. On any other machine they are an example of the artifact you have to produce, not a substitute for producing it — a different host has different collisions and therefore different dispositions.
+
+The safe profile does not require this gate. It injects the residual triple precisely so the install cannot reach the surfaces the inventory exists to enumerate, which is what makes the gate specifically a **full**-profile precondition.
+
+---
+
+## 4. Install via the thin wrapper
 
 **Only install entry:** `./arch/dots-hyprland.sh` (thin wrapper around vendor `./setup`). Full flag/subcommand details: `./arch/dots-hyprland.sh help`.
 
@@ -200,15 +214,15 @@ At the **backup gate**, type `yes` (interactive confirmation). Upstream backup d
 | `uninstall` | Safe dual-run uninstall (wrapper-owned; not upstream cascade) |
 | `protect` | Re-mark personal dual-run packages explicit; optional reinstall missing |
 
-Experimental paths such as `exp-merge` / `exp-update` are **refused** by the wrapper. See [§6 Non-goals](#6-non-goals--non-primary-paths) (plan 09-02).
+Experimental paths such as `exp-merge` / `exp-update` are **refused** by the wrapper. See [§11 Non-goals](#11-non-goals--non-primary-paths) (plan 09-02).
 
 ### Hooks after successful install
 
-A successful `install` (and related success paths) runs wrapper `enable_hypr_ii_hooks` so personal hypr gets the dual-run lines in **both** `~/.config/hypr/hyprland.conf` and the repo `.config/hypr/hyprland.conf`. It uncomments leftover disabled lines and inserts any missing active hooks. `uninstall` **deletes** those lines; **re-install re-enables** them. Do not assume your current session already has hooks active after an uninstall.
+A successful `install` (and related success paths) runs wrapper `enable_hypr_ii_hooks`, which enables the two ii hook lines in whichever of its two target files exist — the live `~/.config/hypr/hyprland.conf` and the repo `.config/hypr/hyprland.conf`. After a full adopt only the repo copy remains a target, because upstream renamed the live `hyprland.conf` to `.old`; §9 covers what that repo copy is for. It uncomments leftover disabled lines and inserts any missing active hooks. `uninstall` **deletes** those lines; **re-install re-enables** them. Do not assume your current session already has hooks active after an uninstall.
 
 ---
 
-## 4. Session model & verification
+## 5. Session model after a full install
 
 ### Personal hypr hooks (two lines)
 
@@ -275,13 +289,13 @@ hyprctl reload
 
 ---
 
-## 5. Update contract (pin-bump)
+## 10. Update contract (pin-bump)
 
 **Primary update path** for end-4 changes: work in the fork submodule, push origin, bump the parent gitlink pin, re-run the wrapper. This is intentional reproducibility — **not** auto-bump on every parent pull.
 
 Do not develop against a sibling checkout as SoT; always use `vendor/dots-hyprland`.
 
-### 5.1 Fetch and merge upstream into the fork
+### 10.1 Fetch and merge upstream into the fork
 
 ```bash
 cd vendor/dots-hyprland
@@ -299,7 +313,7 @@ git push origin HEAD
 cd ../..
 ```
 
-### 5.2 Bump parent pin (gitlink)
+### 10.2 Bump parent pin (gitlink)
 
 From **REPO_ROOT**:
 
@@ -311,7 +325,7 @@ git commit -m "chore(vendor): bump dots-hyprland pin"
 
 Parent records the pin as an explicit gitlink — clones get that SHA until you bump again.
 
-### 5.3 Apply on the machine (re-run setup)
+### 10.3 Apply on the machine (re-run setup)
 
 Same safe defaults and backup gate as first adoption. Prefer dry-run when unsure:
 
@@ -329,7 +343,7 @@ Same safe defaults and backup gate as first adoption. Prefer dry-run when unsure
 - Do **not** casually pass bare `--skip-backup`
 - Safe defaults (`--core --skip-hyprland --skip-sysupdate`) still apply on `install` / `install-files`
 
-### 5.4 Optional: protect after deps demotion
+### 10.4 Optional: protect after deps demotion
 
 ii install may demote shared packages to `--asdeps`. After deps-heavy updates:
 
@@ -342,7 +356,7 @@ Details: `./arch/dots-hyprland.sh help`.
 
 ---
 
-## 6. Non-goals / non-primary paths
+## 11. Non-goals / non-primary paths
 
 These are **out of scope** or **non-primary** for the managed `.dotfiles` workflow (aligned with `.planning/REQUIREMENTS.md` Out of Scope). Do not treat them as the default update or adopt path.
 
@@ -351,12 +365,12 @@ These are **out of scope** or **non-primary** for the managed `.dotfiles` workfl
 | **`exp-merge` / `exp-update`** | **Non-primary / experimental** | Not the update contract. Wrapper **refuses** them: `./arch/dots-hyprland.sh exp-merge` → non-allowlisted `[FAIL]`. If you truly need upstream experimental tools, run `vendor/dots-hyprland/./setup` **directly** and own the risk — still not documented default. |
 | **Online cache / curl install into `~/.cache/dots-hyprland`** | **Non-primary / not managed** | Bypasses parent submodule pin and fork ownership. Not the `.dotfiles` adoption path. |
 | **Auto-bump submodule on every parent pull** | Out of scope | Breaks pin reproducibility; parent gitlink bumps are explicit. |
-| **Full Waybar / rofi / swaync cutover** | Out of scope this milestone | Dual-run is intentional; custom ports deferred (CUST-*). |
+| **Waybar / rofi / swaync custom module ports** | Deferred (CUST-01..03) | Not out of scope, and not the same thing as the cutover: the removal of `Waybar`, `rofi` and `swaync` under the full profile was explicitly accepted by Phase 11 D-11 (`.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md` section 6). Only the module *ports* remain deferred. |
 | **Full hyprland.lua / ii hypr tree takeover** | Out of scope this milestone | Personal hypr conf remains SoT via `--skip-hyprland`. |
 | **Reimplementing package lists in `arch/` without `./setup`** | Forbidden | Single product path is wrapper → vendor setup. |
-| **Wrapper `verify` subcommand** | Future (POLISH-01) | Not required for DOC-01/02; use manual dual-run checks in §4. |
+| **Wrapper `verify` subcommand** | Future (POLISH-01) | Not required for DOC-01/02; use the session checks in §5. |
 
-**Bottom line:** update with **§5 pin-bump**, not exp-merge or online cache install.
+**Bottom line:** update with **§10 pin-bump**, not exp-merge or online cache install.
 
 ---
 
