@@ -253,14 +253,20 @@ A successful `install` (and related success paths) runs wrapper `enable_hypr_ii_
 
 ## 5. Session model after a full install
 
-### Personal hypr hooks (two lines)
+After a full install the session is entered through Lua, not through a conf. `~/.config/hypr/hyprland.lua` is the entry upstream installs, and `configProvider` reports `lua` — where the value recorded on this machine before the adopt was `hyprlang`, kept as `configProvider_pre=hyprlang` in `.planning/phases/14-live-full-adopt-verify/14-PRE-ADOPT-BASELINE.txt`. Your previous `~/.config/hypr/hyprland.conf` is not deleted: upstream renames it to `hyprland.conf.old`, and §9 covers the roles the repo copy of that file still plays beyond archival. Personal overlays keep living under `~/.config/hypr/custom/`; §6 is the policy for what belongs there and which direction it flows.
+
+The paths that make up the full session model:
 
 ```text
-env = ILLOGICAL_IMPULSE_VIRTUAL_ENV,~/.local/state/quickshell/.venv
-exec-once = qs -c ii
+~/.config/hypr/hyprland.lua        session entry installed by upstream
+~/.config/hypr/hyprland.conf.old   your pre-adopt conf, renamed rather than deleted
+~/.config/hypr/custom/             personal overlays (policy in §6)
+~/.config/quickshell/ii/           the live ii product tree
 ```
 
-These belong in personal `~/.config/hypr/hyprland.conf` (wrapper injects/enables on successful install in live + repo; deletes them on uninstall).
+Under the safe profile there is no Lua entry and no rename: the wrapper instead injects two hook lines into your own `hyprland.conf` — an `env` line setting `ILLOGICAL_IMPULSE_VIRTUAL_ENV` and an `exec-once` line starting `qs -c ii` — enabling them on a successful install and deleting them on `uninstall`.
+
+Under the full profile `Waybar`, `rofi` and `swaync` are not part of the session at all; `qs -c ii` replaces them, which is the accepted Phase 11 D-11 outcome rather than an oversight, and §8 lists what that costs.
 
 ### Live product path
 
@@ -272,7 +278,18 @@ test -f ~/.config/quickshell/ii/shell.qml
 test -d ~/.local/state/quickshell/.venv
 ```
 
-### Verify the session after login
+### Mid-session reload
+
+After install or hook changes:
+
+```bash
+hyprctl reload
+# restart qs if needed, or full re-login
+```
+
+---
+
+## 7. Verify after login
 
 Run these **after login**, not before: the first three need an active Hyprland session, which is why the runbook orders its verify section after its log-in section.
 
@@ -306,15 +323,6 @@ ls ~/.config/hypr/custom/{general,env,execs}.lua
 ```
 
 `scripts/phase14-verify.sh` is the executable source of truth for every check in the block above; the individual commands are the hand version of what it asserts. If any of them fails, go to `docs/phase14-adopt-runbook.md` §14.
-
-### Mid-session reload
-
-After install or hook changes:
-
-```bash
-hyprctl reload
-# restart qs if needed, or full re-login
-```
 
 ---
 
