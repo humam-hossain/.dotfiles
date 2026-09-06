@@ -402,6 +402,37 @@ This phase documents these losses and owns no fix — restoring the session boot
 
 ---
 
+## 9. Three roles of the repo hyprland.conf
+
+The repo's `.config/hypr/hyprland.conf` is not merely an archived copy. It carries three separate roles at once, and one real ordering hazard falls out of the fact that the full profile collapsed the recovery role and the write role onto the same bytes.
+
+**Role 1 — rollback source.** It is tier-1 source 2 of `docs/phase14-adopt-runbook.md` §14: this repo's pre-adopt archive, committed before anything mutated, whose sha256 matches the fixture recorded in `.planning/phases/14-live-full-adopt-verify/14-PRE-ADOPT-BASELINE.txt`. The role exists under both profiles, but it is only ever exercised after a full adopt has gone wrong.
+
+**Role 2 — frozen evidence.** It is the D-36 record of what this machine's hypr config was before the adopt. That is why it is committed rather than regenerated: a regenerated file would prove nothing about the pre-adopt state. Profile-independent.
+
+**Role 3 — hook-injection target.** The wrapper enables the two ii hook lines in whichever of its two candidate files exist — the live `~/.config/hypr/hyprland.conf` and this repo copy. Under the **safe** profile both exist and both get the hooks. Under the **full** profile upstream renamed the live file to `.old`, so this repo copy is the wrapper's **only** remaining target. The full path never loads it as a live config; it only writes to it.
+
+### Copy this file aside before escalating a rollback to tier 2
+
+**Never run `./arch/dots-hyprland.sh uninstall` while you still need tier-1 source 2 — copy the file out first.** Because role 3 is now the only remaining target, `uninstall` deletes the two ii hook lines from this repo copy. Deleting them changes the file's sha256, so the tier-1 source 2 check in `scripts/phase14-verify.sh` flips to a failure: escalating a rollback from tier 1 to tier 2 destroys one of tier 1's own sources while you are still recovering. One command, run from **REPO_ROOT**, buys back the ordering:
+
+```bash
+cp -a .config/hypr/hyprland.conf ~/hyprland.conf.tier1-source2
+# then, and only then, escalate to tier 2
+```
+
+The tiers themselves live in `docs/phase14-adopt-runbook.md` §14 and are deliberately not repeated here; that document stays the single source of truth for rollback.
+
+Two bounding facts, so you do not over-react to this: the file's content is recoverable from this repo's git history, and only `uninstall` triggers the hazard — a forward `install` reports the hooks as already active and changes nothing.
+
+### Never rotate the backup after a full adopt
+
+**Do not run `./scripts/phase14-preflight.sh --rotate-backup` post-adopt.** After the full adopt `~/ii-original-dots-backup` **is** rollback tier-1 source 3; rotation renames it away, so running it now costs you a recovery source at exactly the moment you are most likely to want one. It is a rename rather than a delete, and tier-1 sources 1 and 2 are unaffected — but the source is gone from where the rollback looks for it.
+
+`scripts/phase14-preflight.sh` still prints that rotation as mandatory remediation. The message was correct before the adopt and is stale after it. It is tracked as **IN-11**, and its fix is deferred to a phase that owns the script: a documentation phase does not edit the executable it documents (D-19), so the prohibition lives in prose here and in `docs/phase14-adopt-runbook.md` §5, at the step that performs the rotation.
+
+---
+
 ## 10. Update contract (pin-bump)
 
 **Primary update path** for end-4 changes: work in the fork submodule, push origin, bump the parent gitlink pin, re-run the wrapper. This is intentional reproducibility — **not** auto-bump on every parent pull.
