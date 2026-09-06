@@ -389,6 +389,19 @@ ls ~/.config/hypr/custom/{general,env,execs}.lua
 
 ---
 
+## 8. Known losses after the full adopt
+
+These are the surfaces the full adopt actually cost this machine. They are an accepted cost under Phase 11 D-11, not a goal of the milestone and not a defect. Read the whole list before filing anything as a bug: each item leads with what **survives**, so the damage is neither over- nor under-estimated. None of it applies to the safe profile — with the residual triple injected, nothing below is renamed or stopped.
+
+- **The personal `hyprland-session.service` autostart.** The unit file itself **survives** — it lives under `stow/systemd/` and the symlink in `~/.config/systemd/user/` is untouched. What died with the renamed conf is the `exec-once` line that started it, so `graphical-session.target` is now inactive. Consequence: the xdg-desktop-portal ScreenCast path depends on that target, so screen share **may** stop working. The portal still answers with an unchanged `AvailableSourceTypes`, so what was lost is the session bootstrap, not the portal itself. This is not a deletion.
+- **`wl-clip-persist`.** Not running; same cause — its `exec-once` line went with the renamed conf. The binary is still installed.
+- **The four workspace-pinned autostarts.** `google-chrome-stable` on workspace 1, `kitty -e tmux` on workspace 1, `btop` on its special workspace, and `discord` on `special:social`. All four applications are still installed; only the pinned launch-at-login behaviour is gone.
+- **`hyprpaper`.** Stopped but installed — the binary is on PATH and `~/.config/hypr/hyprpaper.conf` survives untouched; nothing starts it. Wallpaper is Quickshell's job under the ii shell, so this is a changed owner rather than breakage.
+
+This phase documents these losses and owns no fix — restoring the session bootstrap, `wl-clip-persist` and the four autostarts is unowned work, and the sweep record at `.planning/phases/15-playbook-safe-vs-full/15-DOC-SWEEP.md` carries it as a deferred item. `scripts/phase14-verify.sh` reports the session-target loss as a `[FINDING]` rather than a failure, which is why the expected output in §7 is one finding rather than zero.
+
+---
+
 ## 10. Update contract (pin-bump)
 
 **Primary update path** for end-4 changes: work in the fork submodule, push origin, bump the parent gitlink pin, re-run the wrapper. This is intentional reproducibility — **not** auto-bump on every parent pull.
