@@ -15,7 +15,7 @@ Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery mo
 
 **Phase 13 delivered:** Parent-repo `.config/hypr/custom/` overlays — `general.lua` dual-head + eleven workspace pins, empty `env.lua`/`execs.lua` require slots, `13-SOT-APPLY.md` authoring SoT + D-18 `cp -a` (documented, not run) + D-19 fence (exit 0). Live `$HOME/.config/hypr/custom/` still absent. Apply is Phase 14.
 
-**Phase 14 delivered:** The live full adopt. `install --full` ran on 2026-09-04 behind the preflight gate; upstream renamed `hyprland.conf` to `.old` and the session now loads through `hyprland.lua` (`hyprctl getoption configProvider` → `lua`), surviving a re-login. The Phase 13 overlay is applied — `general.lua`/`env.lua`/`execs.lua` byte-identical to the repo SoT, dual-head DP-1 + HDMI-A-2 and eleven workspace rules live, `qs -c ii` running. Waybar/rofi/swaync are stopped per D-11 accept-remove with their trees still archived under `stow/` per D-12. Rollback is `docs/phase14-adopt-runbook.md` §14 (three tiers, never upstream `./setup uninstall`). Evidence: `14-LIVE-VERIFY.md`, the committed `script(1)` transcript, and `14-VERIFICATION.md` (passed 4/4).
+**Phase 14 delivered:** The live full adopt. `install --full` ran on 2026-09-04 behind the preflight gate; upstream renamed `hyprland.conf` to `.old` and the session now loads through `hyprland.lua` (`hyprctl -j status` reports `configProvider: lua`, where the pre-adopt baseline recorded `hyprlang`), surviving a re-login. The Phase 13 overlay is applied — `general.lua`/`env.lua`/`execs.lua` byte-identical to the repo SoT, dual-head DP-1 + HDMI-A-2 and eleven workspace rules live, `qs -c ii` running. Waybar/rofi/swaync are stopped per D-11 accept-remove with their trees still archived under `stow/` per D-12. Rollback is `docs/phase14-adopt-runbook.md` §14 (three tiers, never upstream `./setup uninstall`). Evidence: `14-LIVE-VERIFY.md`, the committed `script(1)` transcript, and `14-VERIFICATION.md` (passed 4/4).
 
 **Stats at v0.2 ship:** 5 phases · 15 plans · ~38 tasks · 106 commits since v0.1 · 1025 files changed (+17.6k / −78k, mostly retired local QS tree)
 
@@ -25,7 +25,7 @@ Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery mo
 - Install entry: `arch/dots-hyprland.sh` → vendored `./setup`
 - Live path: real `~/.config/quickshell` (not symlink into git)
 - Session: ii Lua entry `~/.config/hypr/hyprland.lua` is authoritative (Phase 14); personal must-keeps ride in `~/.config/hypr/custom/`; Waybar/rofi/swaync retired from the session
-- Rollback: `~/ii-original-dots-backup.20260904T171128Z` (tier 1) + `hyprland.conf.old`; runbook `docs/phase14-adopt-runbook.md` §14
+- Rollback: `~/ii-original-dots-backup` (tier 1) + `hyprland.conf.old`; runbook `docs/phase14-adopt-runbook.md` §14
 - Playbook: `docs/dots-hyprland-workflow.md`
 - Inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`
 

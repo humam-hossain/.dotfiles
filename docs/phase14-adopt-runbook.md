@@ -331,9 +331,13 @@ cp -a ~/.config/hypr/hyprland.conf.old ~/.config/hypr/hyprland.conf
 # 2. This repo's pre-adopt archive, committed before anything mutated.
 cp -a .config/hypr/hyprland.conf ~/.config/hypr/hyprland.conf
 
-# 3. The rotated backup directory, last because it is the source D-36 exists to distrust.
-#    Use the timestamped directory section 5 created, or ~/ii-original-dots-backup/
-#    if section 5 did not run.
+# 3. The upstream backup directory, last because it is the source D-36 exists to
+#    distrust. Use ~/ii-original-dots-backup/ -- the --full install wrote the
+#    genuine pre-adopt configs there, and the hyprland.conf inside it matches the
+#    recorded fixture hyprland_conf_sha256=3d17932a... in 14-PRE-ADOPT-BASELINE.txt.
+#    Do NOT restore from the timestamped directory section 5 rotated aside: that
+#    one holds an older config, not the pre-adopt one.
+cp -a ~/ii-original-dots-backup/.config/hypr/hyprland.conf ~/.config/hypr/hyprland.conf
 ```
 
 Then log in again with `start-hyprland`.

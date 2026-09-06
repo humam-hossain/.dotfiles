@@ -4,7 +4,7 @@
 
 The Hyprland desktop shell is managed via a personal fork of [end-4/dots-hyprland](https://github.com/end-4/dots-hyprland) (illogical-impulse), pinned as a git submodule at `vendor/dots-hyprland`, and installed with the thin wrapper `arch/dots-hyprland.sh`.
 
-**Operator playbook** (clone → recursive submodule → install → dual-run → pin-bump update):
+**Operator playbook** (clone → recursive submodule → gate → install → session → verify → pin-bump update):
 
 → [docs/dots-hyprland-workflow.md](docs/dots-hyprland-workflow.md)
 
