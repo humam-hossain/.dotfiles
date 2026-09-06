@@ -289,6 +289,69 @@ hyprctl reload
 
 ---
 
+## 6. Personal overlays: repo, live, fork
+
+Personal machine layout — monitors, workspace pins, and whatever else stock ii cannot know about your hardware — lives in `hypr/custom` overlays. Three locations are involved and they hold three different roles. `.planning/phases/13-personal-hypr-custom-overlays/13-SOT-APPLY.md` is the source of truth for the full policy; this section is the operator's summary of it.
+
+**Repo `.config/hypr/custom/` is the authoring source of truth.** It is the place you edit, and the version that survives a reinstall and reproduces on the next machine.
+
+**Live `~/.config/hypr/custom/` is an applied copy, not an editing surface.** A tweak made there is real for this session and gone at the next apply. Persist it by copying it back into the repo.
+
+**`vendor/dots-hyprland` and the personal fork are product source of truth only.** Machine overlays are never committed into either — mixing the two would couple pin-bumps to this host's layout.
+
+### Direction
+
+Apply is **one-way, repo to live**, run after the full files install. There is no sync daemon and no reverse sync; copy-back into the repo is a manual step you take deliberately.
+
+### Named files only
+
+The apply copies `general.lua`, `env.lua` and `execs.lua` by name with `cp -a`, overwriting the ii seeds of those names where present. It never uses a mirroring delete, and it never touches `keybinds.lua`, `rules.lua` or `variables.lua`. Run from **REPO_ROOT** after the files install:
+
+```bash
+set -euo pipefail
+REPO_CUSTOM=".config/hypr/custom"
+LIVE_CUSTOM="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/custom"
+
+mkdir -p "$LIVE_CUSTOM"
+
+# Fail if repo general.lua is missing (layout required).
+if [ ! -f "$REPO_CUSTOM/general.lua" ]; then
+  echo "FAIL: repo $REPO_CUSTOM/general.lua is missing; abort apply" >&2
+  exit 1
+fi
+cp -a "$REPO_CUSTOM/general.lua" "$LIVE_CUSTOM/"
+
+for slot in env.lua execs.lua; do
+  if [ -f "$REPO_CUSTOM/$slot" ]; then
+    cp -a "$REPO_CUSTOM/$slot" "$LIVE_CUSTOM/"
+  else
+    echo "WARN: repo $REPO_CUSTOM/$slot missing; continuing without it" >&2
+  fi
+done
+```
+
+That is the operator copy of the authoritative apply recorded in `.planning/phases/13-personal-hypr-custom-overlays/13-SOT-APPLY.md`; if the two ever disagree, the source of truth wins.
+
+The named-files rule is why live `custom/` legitimately holds **more** files than the repo does. Upstream seeds `keybinds.lua`, `rules.lua`, `variables.lua` and a `scripts/` directory there, and the apply deliberately leaves every one of them alone. A live directory with extra files in it is the expected state, not drift.
+
+### Failure modes
+
+The apply **aborts** when repo `general.lua` is missing: the layout it carries is required, and continuing without it would hand you a session with the wrong monitor setup and no error. `env.lua` and `execs.lua` are optional slots — if either is absent the apply warns and continues.
+
+After apply, reload Hyprland or log back in before expecting the overlay to take effect.
+
+### Verifying the fence
+
+`scripts/phase13-d19-assert.sh` is the executable that runs the in-repo verify for this policy: repo layout, the seeds the apply must never have copied, and the fork boundary that keeps machine overlays out of `vendor/dots-hyprland`. Its checks are extracted from `.planning/phases/13-personal-hypr-custom-overlays/13-SOT-APPLY.md` rather than restated there, so prose and check cannot drift. Run it from **REPO_ROOT**:
+
+```bash
+./scripts/phase13-d19-assert.sh
+# expect: exit 0, and no [FAIL] lines
+```
+
+---
+
+
 ## 7. Verify after login
 
 Run these **after login**, not before: the first three need an active Hyprland session, which is why the runbook orders its verify section after its log-in section.
