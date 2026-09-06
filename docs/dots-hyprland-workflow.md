@@ -11,16 +11,19 @@ After Phases 5–8 there is a **single product path**:
 - **Live product:** real directory tree under `~/.config/quickshell` (not a symlink into the repo)
 - **Retired:** in-repo `.config/quickshell` product tree and `arch/quickshell.sh` (hard-deleted in Phase 8)
 
-This playbook is the Install/Adopt source of truth so a cold machine can reach dual-run (`waybar` + `qs -c ii`) without tribal knowledge.
+This playbook is the Install/Adopt source of truth so a cold machine can reach a working session without tribal knowledge. It covers two install profiles — the wrapper's **safe** default and the opt-in **full** profile — defined side by side in `Profiles: safe vs full` below.
+
+**Note — state of this machine:** the machine this repo was written on already took the full adopt on 2026-09-04, so its live session is the full-profile one. `docs/phase14-adopt-runbook.md` is the record of that adopt window and is not a prerequisite for reading the rest of this document.
 
 > **Flag / subcommand details:** keep DRY — run `./arch/dots-hyprland.sh help` for the full allowlist, safe defaults, backup gate, uninstall, and protect behavior. This doc does not re-copy the entire help text.
+> It names only the flags whose consequences you must weigh when choosing a profile — the three safe-default axes, `--full`, and the backup pair; `./arch/dots-hyprland.sh help` remains the syntax source of truth.
 
 ## Prerequisites
 
 - **Arch Linux** primary target (Debian/Ubuntu parity is out of scope)
 - `git` with **SSH access to GitHub** (clone origin + submodule fork URL)
 - **AUR helper** as required by upstream setup (typically `yay`)
-- **Hyprland** session already running; you own personal `~/.config/hypr` (wrapper defaults **do not** replace `hyprland.conf`)
+- **Hyprland** session — required to run the post-install checks in this document; whether your personal `hyprland.conf` survives the install depends on which profile you run (stated per axis in `Profiles: safe vs full`)
 - Working directory awareness: commands below assume **REPO_ROOT** of this `.dotfiles` clone unless noted
 
 ## Canonical path
