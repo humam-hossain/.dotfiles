@@ -141,7 +141,9 @@ Do not pass any of these to the install. Each one silently removes a protection 
 
 ## 5. Rotate the stale backup (D-27)
 
-**Mandatory whenever the preflight's `ii-original-dots-backup` line came back as a `[FINDING]`** — which is whenever the directory exists, as it does today. Skip this section only if the preflight already reported the directory absent.
+**Mandatory whenever the preflight's `ii-original-dots-backup` line came back as a `[FINDING]`** — which is whenever the directory exists, as it did at the time this window was prepared. Skip this section only if the preflight already reported the directory absent.
+
+**(Post-adopt caveat — read this before you run anything below.)** This section applies **before** a full adopt only. After the adopt of 2026-09-04, `~/ii-original-dots-backup` exists again, but it now holds the *pre-adopt* configs the `--full` install wrote there, which makes it rollback tier-1 source 3 of [section 14](#14-rollback-adopt-04-d-23-d-24). Rotating it now would rename a recovery source away, so **`./scripts/phase14-preflight.sh --rotate-backup` must not be run now.** `scripts/phase14-preflight.sh` itself still prints that rotation as mandatory remediation — that message is stale post-adopt, it is tracked as **IN-11**, and it is deliberately left unedited here because a documentation phase does not edit the script it documents (D-19).
 
 ```bash
 ./scripts/phase14-preflight.sh --rotate-backup
@@ -335,8 +337,20 @@ cp -a .config/hypr/hyprland.conf ~/.config/hypr/hyprland.conf
 #    distrust. Use ~/ii-original-dots-backup/ -- the --full install wrote the
 #    genuine pre-adopt configs there, and the hyprland.conf inside it matches the
 #    recorded fixture hyprland_conf_sha256=3d17932a... in 14-PRE-ADOPT-BASELINE.txt.
-#    Do NOT restore from the timestamped directory section 5 rotated aside: that
-#    one holds an older config, not the pre-adopt one.
+#    Do NOT restore from ~/ii-original-dots-backup.<UTC timestamp>/ -- that is the
+#    rotated STALE backup section 5 moved aside. It carries an older config from an
+#    earlier install (3d17932a... is NOT what it holds) and it is not a rollback
+#    source, however recent its name looks.
+#    Do not tell the two apart by name, by mtime or by memory of which ran when.
+#    Hash the candidate and compare it against the recorded fixture. One command,
+#    run from the repo root, prints MATCH for the pre-adopt backup and STALE for
+#    anything else; point it at whichever ~/ii-original-dots-backup* directory you
+#    are about to restore from, and only a MATCH earns the cp below:
+#      grep -qxF "hyprland_conf_sha256=$(sha256sum ~/ii-original-dots-backup/.config/hypr/hyprland.conf | cut -d' ' -f1)" .planning/phases/14-live-full-adopt-verify/14-PRE-ADOPT-BASELINE.txt && echo MATCH || echo STALE
+#    Keep the -x and the hyprland_conf_sha256= prefix. That same fixture ALSO
+#    records the stale directory's digest, on its own line, as
+#    backup_dir_hyprland_conf_sha256=c5c65023... -- so a loose substring grep for
+#    the bare hash reports MATCH for both directories and tells you nothing.
 cp -a ~/ii-original-dots-backup/.config/hypr/hyprland.conf ~/.config/hypr/hyprland.conf
 ```
 
