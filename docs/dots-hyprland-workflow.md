@@ -26,6 +26,42 @@ This playbook is the Install/Adopt source of truth so a cold machine can reach a
 - **Hyprland** session — required to run the post-install checks in this document; whether your personal `hyprland.conf` survives the install depends on which profile you run (stated per axis in `Profiles: safe vs full`)
 - Working directory awareness: commands below assume **REPO_ROOT** of this `.dotfiles` clone unless noted
 
+## Profiles: safe vs full
+
+The wrapper ships two install profiles on one spine. Which one you run decides what the install is allowed to do to the `~/.config` you already have, so choose here before you reach the install step.
+
+### Safe — the wrapper default
+
+On `install` and `install-files` the wrapper injects a residual flag triple for you, defined at `arch/dots-hyprland.sh:12` and quoted here byte-for-byte:
+
+```text
+--core --skip-hyprland --skip-sysupdate
+```
+
+That injection applies to `install` and `install-files` only. In the wrapper's own words: "Safe defaults (injected for install and install-files only — unless `--full`) … `install-deps` / `install-setups` get no injection."
+
+What safe does **not** touch: your personal `hyprland.conf` is neither renamed nor replaced, the misc overlay is not applied, and no unattended full system upgrade runs.
+
+Under safe, `Waybar`, `rofi` and `swaync` keep running alongside `qs -c ii`. That dual-run is a property of this profile and of no other — it is not a milestone goal. The two conf-hook lines the safe profile relies on to start `qs -c ii` are documented in the session model section.
+
+### Full — opt-in, `--full`
+
+`--full` is wrapper-owned meta and is valid only on `install` and `install-files`; the wrapper refuses it on any other subcommand and exits non-zero (`arch/dots-hyprland.sh:1420-1424`). On the paths where it is valid it drops all three residuals at once — nothing from the triple is injected.
+
+**The wrapper default is still safe, and `--full` is opt-in.** The wrapper's help says it plainly: "Default install / install-files without `--full` still inject the triple." The walkthrough later in this document walks the full profile end to end because that is the path this machine took and the one that needs a written record — that is a documentation choice, not a change of default.
+
+Under full, `Waybar`, `rofi` and `swaync` are replaced by `qs -c ii`. That removal was explicitly accepted by Phase 11 D-11 in `.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md` section 6 — an accepted disposition, not an out-of-scope item — and the prior trees stay archived in the repo under `stow/` per its D-12 archive policy.
+
+### Flag axes
+
+| Axis | Injected (safe default) | Dropped (`--full`) |
+|------|-------------------------|--------------------|
+| `--skip-hyprland` | Personal `hyprland.conf` is neither renamed nor replaced; the skip is **full**, not entry-only | Upstream renames `hyprland.conf` to `.old`, syncs the ii `hypr/hyprland` Lua tree, installs `hyprland.lua`, and writes `.new` sidecars for hyprlock and hypridle |
+| `--core` | Core install path only; the misc overlay is not applied | The misc overlay may overwrite, and the install also reaches fish, kitty, starship and misc |
+| `--skip-sysupdate` | No unattended full system upgrade | `pacman -Syu` may run on the deps portion of `install` |
+
+`./arch/dots-hyprland.sh help` is the syntax source of truth; the table above is narrative about consequences, not a flag reference.
+
 ## Canonical path
 
 All dots-hyprland work after pin lives at:
