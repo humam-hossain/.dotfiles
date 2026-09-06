@@ -114,7 +114,7 @@ Any single one means **stop**. Do not start the install.
 - There is no second device able to reach GitHub.
 - **The preflight printed a `[FINDING]` naming `ii-original-dots-backup` and you have not run section 5 yet.**
 
-  Write this one out rather than take it by reference, because it is the one no-go the exit code will not enforce. `~/ii-original-dots-backup` exists on this machine today and the `hyprland.conf` inside it is older than the live one. Upstream's `auto_backup_configs` skips the backup **entirely** when that directory is already present and `ask` has been flipped false — so the run you are about to make would take no fresh backup at all, and the only "backup" you would be left with is a stale copy from an earlier install. Clearing that is a `$HOME` mutation, and a `$HOME` mutation belongs inside this window and nowhere else. That is precisely why the script *reports* the condition instead of failing on it: a preflight that failed here would be unconditionally red during prep and would push whoever ran it into rotating the backup days early.
+  Write this one out rather than take it by reference, because it is the one no-go the exit code will not enforce. At the time this window was prepared, `~/ii-original-dots-backup` existed on this machine and the `hyprland.conf` inside it was older than the live one. Upstream's `auto_backup_configs` skips the backup **entirely** when that directory is already present and `ask` has been flipped false — so the run you are about to make would take no fresh backup at all, and the only "backup" you would be left with is a stale copy from an earlier install. Clearing that is a `$HOME` mutation, and a `$HOME` mutation belongs inside this window and nowhere else. That is precisely why the script *reports* the condition instead of failing on it: a preflight that failed here would be unconditionally red during prep and would push whoever ran it into rotating the backup days early. [Post-adopt: `~/ii-original-dots-backup` was recreated by the `--full` install and now holds the *pre-adopt* configs, which makes it rollback tier-1 source 3 of [section 14](#14-rollback-adopt-04-d-23-d-24) rather than a stale directory to clear — read the post-adopt caveat in [section 5](#5-rotate-the-stale-backup-d-27) before acting on this no-go.]
 
   Going without rotating costs rollback tier 1 its third source (section 14). Run section 5 first, then re-run the preflight, then come back to this list.
 
@@ -198,7 +198,7 @@ That is the whole invocation: the wrapper, its `install` subcommand, the `--full
    - `~/.config/hypr/hyprland.conf` is **renamed** to `hyprland.conf.old` — it is not deleted, and section 14 tier 1 restores from it;
    - `hyprlock.conf` and `hypridle.conf` get `.new` sidecars written alongside them rather than being replaced (this is what `installed_true` buys you);
    - `hyprland.lua` is installed — this is ADOPT-02;
-   - `custom/` is seeded, and only because live currently has none. Section 8 then overwrites the three files you own.
+   - `custom/` is seeded, and only because live had no `custom/` at the time of this window. Section 8 then overwrites the three files you own.
 6. **Wrapper post-install:** the protect-list re-mark and the ii hook enable.
 
 ### If it dies partway
