@@ -38,7 +38,7 @@ Do **not** treat a sibling clone (e.g. `~/github_repo/dots-hyprland`) as source 
 1. [Clone & recursive submodule init](#1-clone--recursive-submodule-init)
 2. [Verify fork remotes & pin](#2-verify-fork-remotes--pin)
 3. [Install via thin wrapper (dry-run → live)](#3-install-via-thin-wrapper-dry-run--live)
-4. [Session hooks & dual-run expectations](#4-session-hooks--dual-run-expectations)
+4. [Session model & verification](#4-session-model--verification)
 5. [Update contract (pin-bump)](#5-update-contract-pin-bump)
 6. [Non-goals / non-primary paths](#6-non-goals--non-primary-paths)
 7. [See also](#see-also)
@@ -169,7 +169,7 @@ A successful `install` (and related success paths) runs wrapper `enable_hypr_ii_
 
 ---
 
-## 4. Session hooks & dual-run expectations
+## 4. Session model & verification
 
 ### Personal hypr hooks (two lines)
 
@@ -190,18 +190,40 @@ test -f ~/.config/quickshell/ii/shell.qml
 test -d ~/.local/state/quickshell/.venv
 ```
 
-### Dual-run (intentional this milestone)
+### Verify the session after login
 
-- Keep **waybar** (and existing swaync/rofi as you already configure them)
-- `qs -c ii` runs alongside — **both bars OK** even if they overlap
-- **No Waybar cutover** required for this milestone
-
-Optional soft process checks:
+Run these **after login**, not before: the first three need an active Hyprland session, which is why the runbook orders its verify section after its log-in section.
 
 ```bash
-pgrep -x waybar || true
-pgrep -a qs || true
+# 1. The compositor is on the Lua entry
+hyprctl -j status | jq -r .configProvider
+# expect: lua
+# note: 14-PRE-ADOPT-BASELINE.txt recorded configProvider_pre=hyprlang before the adopt
+
+# 2. Token-independent confirmation the Lua config manager is live
+hyprctl eval 'return 1+1'
+# expect: ok
+
+# 3. The ii shell is running
+pgrep -f 'qs -c ii' >/dev/null && echo "qs -c ii running"
+# expect: qs -c ii running
+
+# 4. Upstream renamed the previous conf; no .conf can win over the Lua entry
+test -f ~/.config/hypr/hyprland.lua      && echo "lua entry present"
+test -f ~/.config/hypr/hyprland.conf.old && echo "pre-adopt conf archived"
+test ! -f ~/.config/hypr/hyprland.conf   && echo "no competing hyprland.conf"
+# expect: all three echo lines
+
+# 5. Personal overlays applied
+ls ~/.config/hypr/custom/{general,env,execs}.lua
+# expect: general.lua, env.lua, execs.lua all listed
+
+# 6. Full check — the executable source of truth for everything above
+./scripts/phase14-verify.sh
+# expect: === done: FAIL=0 FINDINGS=1 ===   (the 1 finding is the D-38 known loss)
 ```
+
+`scripts/phase14-verify.sh` is the executable source of truth for every check in the block above; the individual commands are the hand version of what it asserts. If any of them fails, go to `docs/phase14-adopt-runbook.md` §14.
 
 ### Mid-session reload
 
