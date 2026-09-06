@@ -167,6 +167,8 @@ The safe profile does not require this gate. It injects the residual triple prec
 
 **Only install entry:** `./arch/dots-hyprland.sh` (thin wrapper around vendor `./setup`). Full flag/subcommand details: `./arch/dots-hyprland.sh help`.
 
+This walkthrough runs the **full** profile end to end, because that is the path this machine took and the one that needs a written record. That is a documentation choice: the wrapper default is still safe, and `--full` is opt-in. Where the two profiles diverge it is said in place rather than forked into a second track.
+
 ### Preflight
 
 Missing or incomplete submodule → wrapper prints the recursive init fix and exits. It does **not** auto-init.
@@ -174,34 +176,61 @@ Missing or incomplete submodule → wrapper prints the recursive init fix and ex
 ### Dry-run first
 
 ```bash
-./arch/dots-hyprland.sh install --dry-run
+./arch/dots-hyprland.sh install --full --dry-run
+# expect: the FULL PROFILE gate block below, then - after you type yes -
+#   [CONFIG] full profile: no SAFE_DEFAULTS injection (DISP-02 drop-all-three)
+#   [INSTALL] ./setup install  (cwd=REPO_ROOT/vendor/dots-hyprland)
+#   [CONFIG] dry-run: would exec from REPO_ROOT/vendor/dots-hyprland: ./setup install
 ```
 
-Dry-run argv for `install` / `install-files` must show safe defaults:
+Two things a full dry-run shows that a default one does not. The would-exec argv is bare — it carries no `--core`, no `--skip-hyprland` and no `--skip-sysupdate`, where a default run's argv ends in all three. And the wrapper prints its full-profile blast-radius block in place of its safe-defaults line.
 
-```text
---core --skip-hyprland --skip-sysupdate
-```
+Dropping `--full` gives the safe profile instead: the wrapper injects the residual triple on `install` and `install-files`, and what that changes about the machine is stated per axis in `Profiles: safe vs full` above, which is where to choose between them.
 
-- `--core` — core install path (not full experimental surface)
-- `--skip-hyprland` — **full** skip so personal `hyprland.conf` is not renamed/replaced
-- `--skip-sysupdate` — no unattended full system upgrade
+`--force` is **never** auto-injected, on either profile.
 
-`--force` is **never** auto-injected.
+### The backup gate
 
-### Live install (first adoption)
+`install` and `install-files` stop at an interactive gate before anything files-touching runs, which is where the operator actually meets it — including on `--dry-run`.
 
-```bash
-./arch/dots-hyprland.sh install
-```
+**The token is exact.** The wrapper reads one line from stdin and continues only if the answer is exactly `yes`. Anything else aborts with `[FAIL] Aborted (backup gate). No ./setup invoked.` — upstream `./setup` is never invoked.
 
-At the **backup gate**, type `yes` (interactive confirmation). Upstream backup directory:
+**Where the backup lands.** Upstream may back clashing paths up to the wrapper's `II_BACKUP_DIR` default (`arch/dots-hyprland.sh:21`):
 
 ```text
 ~/ii-original-dots-backup
 ```
 
-**Do not** pass bare `--skip-backup` on first adoption. Bare `--skip-backup` is refused unless you also pass `--allow-skip-backup` (intentional override only).
+A directory of that name being present proves nothing on its own: if one already exists from an earlier install, upstream may skip taking a fresh backup entirely. Confirm the backup **by content, not by name** — `sha256sum` the conf inside it and compare against the digest you recorded before the run. Against this machine's recorded pre-adopt fixture, from **REPO_ROOT**:
+
+```bash
+grep -qxF "hyprland_conf_sha256=$(sha256sum ~/ii-original-dots-backup/.config/hypr/hyprland.conf | cut -d' ' -f1)" .planning/phases/14-live-full-adopt-verify/14-PRE-ADOPT-BASELINE.txt && echo MATCH || echo STALE
+# expect: MATCH
+```
+
+Keep the `-x` and the `hyprland_conf_sha256=` prefix. The same fixture records another directory's digest on its own line under a different key, so a loose substring grep for the bare hash reports a match for both and tells you nothing.
+
+**Bare `--skip-backup` is refused.** The wrapper exits *before* the gate unless `--allow-skip-backup` is passed alongside it, and says why: "First adoption must not skip backup." Both keys are required. This document shows no example that skips the backup, on purpose.
+
+**Where the backup gets used from.** Recovery is not written here. `docs/phase14-adopt-runbook.md` §14 holds the three-tier rollback and is the only place those tiers are written down; none of them is reproduced in this file.
+
+### Live install (full profile)
+
+```bash
+./arch/dots-hyprland.sh install --full
+# expect: the FULL PROFILE gate block, then yes, then the real upstream install
+```
+
+What a full run is allowed to do to the machine, in the wrapper's own terms (`arch/dots-hyprland.sh:177-183`):
+
+- No safe-defaults residual is injected on this path.
+- Personal `hyprland.conf` may be renamed to `.old` by the upstream install.
+- The misc overlay may overwrite, because the core residual is absent.
+- `pacman -Syu` may run on the deps portion of `install`.
+- Upstream may back clashing paths up to `~/ii-original-dots-backup`.
+- Bare skip-backup is still refused without the dual-key allow override.
+
+If you have not worked §3's inventory → disposition gate against *this* host's `~/.config`, stop and do that first — ADOPT-01 is process discipline and the wrapper will not stop you. When the install finishes, reboot or log back in, then run §7.
 
 ### Allowlisted subcommands (summary)
 
