@@ -79,6 +79,10 @@ Do **not** treat a sibling clone (e.g. `~/github_repo/dots-hyprland`) as source 
 3. [Required gate before any full install](#3-required-gate-before-any-full-install)
 4. [Install via the thin wrapper](#4-install-via-the-thin-wrapper)
 5. [Session model after a full install](#5-session-model-after-a-full-install)
+6. [Personal overlays: repo, live, fork](#6-personal-overlays-repo-live-fork)
+7. [Verify after login](#7-verify-after-login)
+8. [Known losses after the full adopt](#8-known-losses-after-the-full-adopt)
+9. [Three roles of the repo hyprland.conf](#9-three-roles-of-the-repo-hyprlandconf)
 10. [Update contract (pin-bump)](#10-update-contract-pin-bump)
 11. [Non-goals / non-primary paths](#11-non-goals--non-primary-paths)
 
@@ -509,10 +513,10 @@ These are **out of scope** or **non-primary** for the managed `.dotfiles` workfl
 | **`exp-merge` / `exp-update`** | **Non-primary / experimental** | Not the update contract. Wrapper **refuses** them: `./arch/dots-hyprland.sh exp-merge` → non-allowlisted `[FAIL]`. If you truly need upstream experimental tools, run `vendor/dots-hyprland/./setup` **directly** and own the risk — still not documented default. |
 | **Online cache / curl install into `~/.cache/dots-hyprland`** | **Non-primary / not managed** | Bypasses parent submodule pin and fork ownership. Not the `.dotfiles` adoption path. |
 | **Auto-bump submodule on every parent pull** | Out of scope | Breaks pin reproducibility; parent gitlink bumps are explicit. |
-| **Waybar / rofi / swaync custom module ports** | Deferred (CUST-01..03) | Not out of scope, and not the same thing as the cutover: the removal of `Waybar`, `rofi` and `swaync` under the full profile was explicitly accepted by Phase 11 D-11 (`.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md` section 6). Only the module *ports* remain deferred. |
-| **Full hyprland.lua / ii hypr tree takeover** | Out of scope this milestone | Personal hypr conf remains SoT via `--skip-hyprland`. |
+| **Waybar / rofi / swaync custom module ports** | Cutover **done** under the full profile (Phase 11 D-11); only the ports are deferred (CUST-01..03) | Not out of scope, and not the same thing as the cutover: the removal of `Waybar`, `rofi` and `swaync` under the full profile was explicitly accepted by Phase 11 D-11 (`.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md` section 6). Only the module *ports* remain deferred. |
+| **Full hyprland.lua / ii hypr tree takeover** | **Adopted** — this is the full profile's session model | Not a non-goal any more: the Phase 14 adopt did exactly this, and §5 documents the session model it produced. Under the safe profile personal hypr conf remains SoT via `--skip-hyprland`. |
 | **Reimplementing package lists in `arch/` without `./setup`** | Forbidden | Single product path is wrapper → vendor setup. |
-| **Wrapper `verify` subcommand** | Future (POLISH-01) | Not required for DOC-01/02; use the session checks in §5. |
+| **Wrapper `verify` subcommand** | Future (POLISH-01) | Not required for DOC-01..DOC-04; use the post-login checks in §7 and `scripts/phase14-verify.sh`, which is the executable verifier this milestone actually shipped. |
 
 **Bottom line:** update with **§10 pin-bump**, not exp-merge or online cache install.
 
@@ -522,7 +526,11 @@ These are **out of scope** or **non-primary** for the managed `.dotfiles` workfl
 
 - `./arch/dots-hyprland.sh help` — flag and subcommand source of truth
 - `vendor/dots-hyprland` — canonical pin path (submodule)
+- [`docs/phase14-adopt-runbook.md`](./phase14-adopt-runbook.md) — the adopt-window record and the three-tier rollback
+- [`.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`](../.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md) — what a full install touches
+- [`.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md`](../.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md) — per-item adopt dispositions
+- [`.planning/phases/13-personal-hypr-custom-overlays/13-SOT-APPLY.md`](../.planning/phases/13-personal-hypr-custom-overlays/13-SOT-APPLY.md) — overlay source of truth and the authoritative apply command
 - [`.planning/PROJECT.md`](../.planning/PROJECT.md) — product goals, non-goals, milestone checklist
-- [`.planning/REQUIREMENTS.md`](../.planning/REQUIREMENTS.md) — DOC-01 / DOC-02 and Out of Scope
-- [`.planning/ROADMAP.md`](../.planning/ROADMAP.md) — Phase 9 success criteria
+- [`.planning/REQUIREMENTS.md`](../.planning/REQUIREMENTS.md) — DOC-03 / DOC-04 and Out of Scope
+- [`.planning/ROADMAP.md`](../.planning/ROADMAP.md) — Phase 15 success criteria
 - Root [`README.md`](../README.md) — cold-clone discovery pointer
