@@ -4,7 +4,7 @@
 
 - ✅ **v0.1 Core Framework & Basic Bar** — Phases 1–4 (shipped 2026-07-25)
 - ✅ **v0.2 Adopt dots-hyprland** — Phases 5–9 (shipped 2026-08-02)
-- 🚧 **v0.3 Full ii install** — Phases 10–15 (in progress)
+- 🚧 **v0.3 Full ii install** — Phases 10–16 (in progress)
 
 ## Overview
 
@@ -217,6 +217,17 @@ Plans:
 
 - [x] 15-06-PLAN.md — doc sweep record completion, deferred fixes with owners, phase gate transcript
 
+### Phase 16: Retire the safe profile: full-only wrapper and playbook
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 15
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 16 to break down)
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -236,8 +247,9 @@ Plans:
 | 13. Personal hypr/custom overlays | v0.3 | 2/2 | Complete    | 2026-08-31 |
 | 14. Live full adopt & verify | v0.3 | 2/2 | Complete    | 2026-09-05 |
 | 15. Playbook safe vs full | v0.3 | 6/6 | Complete    | 2026-09-06 |
+| 16. Retire the safe profile | v0.3 | 0/0 | Not planned | — |
 
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 22/22 requirements mapped · 0 unmapped
 
 ---
-*Last updated: 2026-08-07 — Phase 10 complete (inventory + verification + security + UAT 7/7)*
+*Last updated: 2026-09-07 — Phase 16 retitled: retire the safe profile (wrapper + playbook), superseding the DOC-03/dual-run-restore framing*
