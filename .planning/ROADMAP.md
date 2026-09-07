@@ -219,14 +219,23 @@ Plans:
 
 ### Phase 16: Retire the safe profile: full-only wrapper and playbook
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Retire the safe profile from the project entirely, in one merged phase. `arch/dots-hyprland.sh` stops injecting `SAFE_DEFAULTS`, so a bare `install` / `install-files` runs the full behavior; the backup gate, the protect machinery and the ii-hook injection machinery go with it, `uninstall` survives stripped, and `--full` stays as an accepted no-op alias. `docs/dots-hyprland-workflow.md` is rewritten full-only end to end with bare commands and `docs/phase14-adopt-runbook.md` is swept to match, both landing after the wrapper so no quoted output goes stale. `.planning/REQUIREMENTS.md`, `ROADMAP.md`, `PROJECT.md`, `STATE.md`, `v0.3-MILESTONE-AUDIT.md` and the Phase 11 disposition record are amended for the same falsehoods, dropping v0.3 coverage from 22 to 19. Closes v0.3 audit leftovers IN-11, W-1, W-2 and W-3.
+**Requirements**: FULL-01, FULL-02, FULL-04, ADOPT-02, ADOPT-03, DOC-03, INV-04, IN-11, W-1, W-2, W-3
 **Depends on:** Phase 15
-**Plans:** 0 plans
+**Plans:** 10 plans
 
 Plans:
 
-- [ ] TBD (run /gsd-plan-phase 16 to break down)
+- [ ] 16-01-PLAN.md — wrapper surgery: full-only install path, machinery deletion, new phase16 retirement assert
+- [ ] 16-02-PLAN.md — usage heredoc rewritten to the surviving surface; phase12 smoke inverted to the new contract
+- [ ] 16-03-PLAN.md — phase14-verify deleted probes; phase07-live-smoke and phase14-preflight removed (closes IN-11)
+- [ ] 16-04-PLAN.md — playbook rewritten full-only end to end; ban-only doc gate added to the phase16 assert
+- [ ] 16-05-PLAN.md — adopt runbook swept: preflight section becomes narrative, rollback tiers replaced
+- [ ] 16-06-PLAN.md — 16-DOC-SWEEP.md written; phase13-d19 re-pinned with a third tier plus the W-3 fence-drift assert
+- [ ] 16-07-PLAN.md — REQUIREMENTS.md amended to 19/19; v0.3-MILESTONE-AUDIT.md blockers dispositioned
+- [ ] 16-08-PLAN.md — PROJECT.md swept; 11-DISPOSITIONS.md W-1 and W-2 corrected in place
+- [ ] 16-09-PLAN.md — ROADMAP.md milestone prose and coverage line; STATE.md swept
+- [ ] 16-10-PLAN.md — sweep record completed; D-40 phase gate on a clean tree plus the post-change login re-verify
 
 ## Progress
 
@@ -247,7 +256,7 @@ Plans:
 | 13. Personal hypr/custom overlays | v0.3 | 2/2 | Complete    | 2026-08-31 |
 | 14. Live full adopt & verify | v0.3 | 2/2 | Complete    | 2026-09-05 |
 | 15. Playbook safe vs full | v0.3 | 6/6 | Complete    | 2026-09-06 |
-| 16. Retire the safe profile | v0.3 | 0/0 | Not planned | — |
+| 16. Retire the safe profile | v0.3 | 0/10 | Planned | — |
 
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 22/22 requirements mapped · 0 unmapped
 
