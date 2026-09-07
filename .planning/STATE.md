@@ -5,17 +5,17 @@ milestone_name: Full ii install
 current_phase: 16
 current_phase_name: "Retire the safe profile: full-only wrapper and playbook"
 status: executing
-stopped_at: Completed 16-02-PLAN.md
-last_updated: "2026-09-07T13:13:04.098Z"
+stopped_at: Completed 16-03-PLAN.md
+last_updated: "2026-09-07T13:22:22.218Z"
 last_activity: 2026-09-07
 last_activity_desc: Phase 16 execution started
-state_head: 3ba563e89e34d155a7805640ca8071f888b87217
+state_head: 769bf9edd7f32058434b5390d3cc5e04ceebe13a
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 33
-  completed_plans: 25
-  percent: 76
+  completed_plans: 26
+  percent: 79
 ---
 
 Total Phases: 6
@@ -25,17 +25,17 @@ Total Phases: 6
 ## Current Position
 
 Phase: 16 (Retire the safe profile: full-only wrapper and playbook) — EXECUTING
-Plan: 3 of 10
+Plan: 4 of 10
 Status: Ready to execute
 Total Plans in Phase: 10
 Last activity: 2026-09-07 — Phase 16 execution started
 
-Progress: [████████████████████] 17/17 plans ([████████░░] 76%)
+Progress: [████████████████████] 17/17 plans ([████████░░] 79%)
 
 ## Session
 
-**Last session:** 2026-09-07T13:11:01.442Z
-**Stopped at:** Completed 16-02-PLAN.md
+**Last session:** 2026-09-07T13:22:00.601Z
+**Stopped at:** Completed 16-03-PLAN.md
 **Resume file:** None
 **Next command:** `/gsd-plan-phase 16`
 
@@ -145,6 +145,7 @@ Phase archives: `milestones/v0.2-phases/`.
 | Phase 14 P02 | operator window + verify | 5 tasks | verify script + 14-LIVE-VERIFY.md + transcript |
 | Phase 16 P01 | 38 min | 3 tasks | 2 files |
 | Phase 16 P02 | 10 min | 2 tasks | 2 files |
+| Phase 16 P03 | 10 min | 2 tasks | 3 files |
 
 ## Decisions
 
@@ -168,3 +169,6 @@ Phase archives: `milestones/v0.2-phases/`.
 - [Phase 16]: 16-01: one-way removals confirmed by the operator (proceed) — the wrapper-owned install backup and the install confirmation prompt are both gone (D-06, D-09) — Reversibility gate satisfied at the Task 1 blocking-human checkpoint; existing on-disk snapshots left untouched, upstream greeting and pause still apply
 - [Phase 16]: 16-01: upstream --skip-backup is scoped to install / install-files by a new touches_files predicate, not appended unconditionally — Upstream reads SKIP_BACKUP only in 3.files.sh, sourced for those two subcommands; scoping keeps the dry-run preview truthful and gives the assert a crisp negative on install-setups (A1)
 - [Phase 16]: 16-01: --full is accepted on all four install-family subcommands as an announced no-op; install-deps --full flips from exit 1 to exit 0 — The scope check used the predicate D-04 deletes; a no-op alias with a scope restriction is self-contradictory (A2)
+- [Phase 16]: 16-03: ADOPT-04 was retired from every message in scripts/phase14-verify.sh, not just from the surviving removal probe — D-26 deletes the ADOPT-04 row from REQUIREMENTS.md this phase, so a live [PASS] line citing it would name a requirement with no definition anywhere in the repo. The two surviving pre-adopt conf probes now cite D-20 and the removal probe cites D-10; assertions, hashing and pass/fail structure are unchanged (message-only).
+- [Phase 16]: 16-03: the sha256sum file-wide absence criterion was satisfied in scope, not literally — Three of its four call sites are inside assertions D-37 explicitly keeps (check_tier1_source, check_untouched, check_sidecar). Deletion of the backup-integrity block is proven instead by the absence of backup_dir_hyprland_conf_mtime, 'D-36 backup' and BK_CONF. Recorded as WINDOWS.md id 4.
+- [Phase 16]: 16-03: IN-11 closed by deletion of scripts/phase14-preflight.sh, not by fixing its --rotate-backup message — D-33 supersedes the earlier fix-the-message plan. The script gated an adopt that ran on 2026-09-04 and nothing re-runs it; running it today would rename away a rollback source. Post-deletion sweep outside .git/, .planning/ and docs/ returned RUNNERS:none. Two artifacts still record IN-11 as open until wave 5: v0.3-MILESTONE-AUDIT.md (plan 16-07) and STATE.md (plan 16-09).
