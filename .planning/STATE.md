@@ -1,47 +1,49 @@
 ---
-gsd_state_version: "1.0"
+gsd_state_version: 1.0
 milestone: v0.3
 milestone_name: Full ii install
-current_phase: 15
-status: completed
-stopped_at: Phase 15 complete — all phases complete
-last_updated: "2026-09-06T09:15:22.071Z"
+current_phase: 16
+status: Not planned
+stopped_at: Phase 16 context gathered
+last_updated: "2026-09-07T04:04:03.685Z"
 last_activity: 2026-09-06
 last_activity_desc: Phase 15 complete
-state_head: 6a5e82bdd2260b280d82a4614c92d4bbda00e8a4
+state_head: 6892aadd5e55b57ab7c80180f3883752dab0fb3b
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 6
   total_plans: 23
   completed_plans: 23
-  percent: 100
+  percent: 86
 ---
+
+Total Phases: 6
 
 # Project State
 
 ## Current Position
 
-Phase: 15
+Phase: 16
 Plan: Not started
-Status: All phases complete
-Total Plans in Phase: 6
+Status: Not planned
+Total Plans in Phase: 0
 Last activity: 2026-09-06 — Phase 15 complete
 
 Progress: [████████████████████] 17/17 plans ([██████████] 100%)
 
 ## Session
 
-**Last session:** 2026-09-05T13:01:22.289Z
-**Stopped at:** Phase 15 complete — all phases complete
-**Resume file:** .planning/phases/15-playbook-safe-vs-full/15-CONTEXT.md
-**Next command:** `/gsd-discuss-phase 15` (no Phase 15 CONTEXT.md)
+**Last session:** 2026-09-07T04:04:03.544Z
+**Stopped at:** Phase 16 context gathered
+**Resume file:** .planning/phases/16-retire-the-safe-profile-full-only-wrapper-and-playbook/16-CONTEXT.md
+**Next command:** `/gsd-plan-phase 16`
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-05)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); remaining work is documentation.  
-**Current focus:** Phase 15 — Playbook safe vs full
+**Current focus:** Phase 16 — close v0.3 audit gap DOC-03 (B-1 full-profile pin-bump path, B-2 dual-run restore route)
 
 ## Deferred Items
 
@@ -104,9 +106,13 @@ Phase archives: `milestones/v0.2-phases/`.
 - ⚠️ [Phase 14] Review WR-02 left open: the repo's `.config/hypr/hyprland.conf` is simultaneously a rollback source, frozen D-36 evidence, and a live hook-injection target. Exposure is bounded (content is in git history), but the three roles should be split.
 - ⚠️ [Phase 14] Review IN-11 left open: post-adopt, `scripts/phase14-preflight.sh` still prints `--rotate-backup` as "mandatory before go". Running it now would rename away ADOPT-04 rollback source 3. Bounded — it is a rename, and sources 1–2 are unaffected.
 
+### Roadmap Evolution
+
+- Phase 16 added: Close gap: DOC-03 — full-profile update path and dual-run restore
+
 ## Operator Next Steps
 
-1. `/gsd-discuss-phase 15` — playbook safe vs full (no CONTEXT.md) ← recommended  
+1. `/gsd-plan-phase 16` — close v0.3 audit gap DOC-03: B-1 playbook full-profile pin-bump path, B-2 documented route back to the safe dual-run profile ← recommended  
 2. Decide an owner for the open D-38 `graphical-session.target` item — Phase 15 scope, or its own phase  
 3. `/gsd-secure-phase 13` — security enforcement enabled; no `13-SECURITY.md` yet  
 4. `/gsd-validate-phase 13` — `13-VALIDATION.md` still `status: draft` / `nyquist_compliant: false`  
