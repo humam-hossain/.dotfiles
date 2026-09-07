@@ -9,7 +9,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 II_ROOT="$REPO_ROOT/vendor/dots-hyprland"
 SETUP="$II_ROOT/setup"
-SAFE_DEFAULTS=(--core --skip-hyprland --skip-sysupdate)
+# D-04: full is the only install behavior; no residual flag injection.
 # install* → upstream ./setup; uninstall/protect → wrapper-owned safe path
 ALLOWLIST=(install install-deps install-setups install-files uninstall protect)
 
@@ -18,7 +18,6 @@ XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 II_CONFDIR="${XDG_CONFIG_HOME}/illogical-impulse"
-II_BACKUP_DIR="${BACKUP_DIR:-$HOME/ii-original-dots-backup}"
 
 usage() {
   cat <<'EOF'
@@ -38,22 +37,12 @@ Allowlisted subcommands:
   uninstall        Safe dual-run uninstall (wrapper-owned; see below)
   protect          Re-mark personal-stack pkgs explicit; optional reinstall missing
 
-Safe defaults (injected for install and install-files only — unless --full):
-  --core --skip-hyprland --skip-sysupdate
-  Protects personal hyprland.conf (full --skip-hyprland, not entry-only).
-  Skips unattended full system package upgrade. install-deps / install-setups get no injection.
+Install behavior (D-04, D-06, D-09):
+  install and install-files run the full upstream pipeline with no injected residual flags.
+  Both pass the upstream skip-backup flag: nothing is snapshotted before files are replaced.
+  install-deps / install-setups do not — upstream reads that flag on the files step only.
+  This wrapper asks nothing before an install; upstream still greets and pauses on its own.
   Never auto-injects --force or --skip-allgreeting.
-  After install / install-deps succeed, re-marks PROTECT_EXPLICIT packages as --asexplicit
-  (ii install demotes shared deps via --asdeps / implicitize_old_dependencies).
-  For the opt-in full profile (no residual injection), use --full on install / install-files.
-
-Backup gate (install and install-files only):
-  Interactive confirmation required before files-touching paths (type yes).
-  Upstream backup dir: ~/ii-original-dots-backup
-  Default path: Quickshell config will be overwritten; hyprland.conf kept via --skip-hyprland.
-  Full path (--full): no residual safe flags; hypr conf may become .old; see gate messaging.
-  Do NOT pass --skip-backup on first adoption.
-  Bare --skip-backup is refused unless also passing --allow-skip-backup.
 
 Uninstall (SAFE — default; does NOT call upstream ./setup uninstall):
   Removes only illogical-impulse-* meta packages with pacman -R (no -s cascade).
@@ -93,20 +82,17 @@ Protect (SAFE — heal asdeps / restore cascade damage; no ii uninstall):
 
 Wrapper-owned meta flags (stripped; never forwarded to ./setup):
   --dry-run              Print would-exec argv and exit 0
-  --allow-skip-backup    Explicit override for --skip-backup policy
-  --full                 Opt-in full profile on install / install-files only.
-                         Does NOT inject SAFE_DEFAULTS (--core --skip-hyprland --skip-sysupdate).
-                         Default install / install-files without --full still inject the triple.
-                         Primary full path for this wrapper (meta-flag only; no new allowlist subcommand).
+  --full                 Accepted but ignored (D-05); kept so scripts that pass it
+                         still work. Full is the only install behavior now.
 
 Examples:
   ./arch/dots-hyprland.sh install
   ./arch/dots-hyprland.sh install-deps
   ./arch/dots-hyprland.sh install-files --exp-files
   ./arch/dots-hyprland.sh install-deps --dry-run
-  printf 'yes\n' | ./arch/dots-hyprland.sh install --dry-run
-  printf 'yes\n' | ./arch/dots-hyprland.sh install --full --dry-run
-  printf 'yes\n' | ./arch/dots-hyprland.sh install-files --full --dry-run
+  ./arch/dots-hyprland.sh install --dry-run
+  ./arch/dots-hyprland.sh install --full --dry-run
+  ./arch/dots-hyprland.sh install-files --dry-run
   ./arch/dots-hyprland.sh uninstall --dry-run
   ./arch/dots-hyprland.sh uninstall
   ./arch/dots-hyprland.sh uninstall --packages-only
@@ -124,8 +110,8 @@ Operator workflow pointers (discoverability only — not enforced by this wrappe
   Dispositions: .planning/phases/11-disposition-decisions/11-DISPOSITIONS.md
   Live full adopt process gate is Phase 14 operator discipline (ADOPT-01), not a runtime check here.
 
-Note: once defaults inject --skip-hyprland there is no upstream undo flag.
-  Use --full on install / install-files for the primary full profile path in this wrapper.
+Note: install and install-files replace configuration with no snapshot and no undo (D-06).
+  Upstream's own greeting and pause still apply unless you pass its --force / --skip-allgreeting.
 EOF
 }
 
@@ -135,14 +121,6 @@ is_allowlisted() {
     [[ "$s" == "$a" ]] && return 0
   done
   return 1
-}
-
-# D-05: defaults only for files-touching install paths.
-needs_safe_defaults() {
-  case "$1" in
-    install|install-files) return 0 ;;
-    *) return 1 ;;
-  esac
 }
 
 # D-14 / D-15: require initialized submodule + executable setup; never auto-fix.
@@ -157,65 +135,6 @@ preflight() {
     echo "[FAIL] Fix: git submodule update --init --recursive && chmod +x vendor/dots-hyprland/setup" >&2
     exit 1
   fi
-}
-
-# D-11 / D-13: hard interactive gate for install / install-files.
-# Optional arg: full=0|1 (Phase 12). Same type-yes token (D-06); messaging branches (D-07).
-# Safe path keeps residual-protection note; full path must not claim skip-hyprland safety (Pitfall 5).
-# Echo prompt on stdout before read: read -p writes to /dev/tty and is invisible to dry-run capture greps.
-backup_gate() {
-  local full="${1:-0}"
-  if ((full == 0)); then
-    echo "[CONFIG] Upstream may backup clashing paths to: ~/ii-original-dots-backup"
-    echo "[CONFIG] install-files will overwrite ~/.config/quickshell (Quickshell tree / rsync --delete)."
-    echo "[CONFIG] Defaults include --skip-hyprland so personal hyprland.conf is not renamed."
-    echo "[CONFIG] Do NOT pass --skip-backup on first adoption."
-  else
-    # D-07 full-path blast-radius themes.
-    # Avoid residual safe-flag tokens (--core/--skip-hyprland/--skip-sysupdate) for FULL-01 greps.
-    # Avoid meta tokens (--full / --allow-skip-backup) so dual-key strip greps stay clean (FULL-03b).
-    echo "[CONFIG] FULL PROFILE: no SAFE_DEFAULTS residual injection on this path."
-    echo "[CONFIG] FULL PROFILE: personal hyprland.conf may be renamed to .old by upstream install."
-    echo "[CONFIG] FULL PROFILE: misc overlay may overwrite when core residual is absent."
-    echo "[CONFIG] FULL PROFILE: sysupdate / pacman -Syu may run on the deps portion of install."
-    echo "[CONFIG] FULL PROFILE: upstream may backup clashing paths to: ~/ii-original-dots-backup"
-    echo "[CONFIG] FULL PROFILE: bare skip-backup is still refused without dual-key allow override."
-    echo "[CONFIG] Do NOT pass bare skip-backup on first adoption."
-  fi
-  # Capturable gate evidence for automated dry-run greps (D-06 / D-08)
-  echo "[CONFIG] Type 'yes' to continue (exact token required)."
-  local ans
-  read -r -p "Type 'yes' to continue: " ans
-  if [[ "$ans" != "yes" ]]; then
-    echo "[FAIL] Aborted (backup gate). No ./setup invoked." >&2
-    exit 1
-  fi
-}
-
-# True when user args are solely subcommand help (-h / --help) — skip gate (D-11).
-is_help_only_user_flags() {
-  local -n _flags=$1
-  local f
-  if ((${#_flags[@]} == 0)); then
-    return 1
-  fi
-  for f in "${_flags[@]}"; do
-    case "$f" in
-      -h|--help) ;;
-      *) return 1 ;;
-    esac
-  done
-  return 0
-}
-
-user_flags_contain() {
-  local needle="$1"
-  local -n _flags=$2
-  local f
-  for f in "${_flags[@]}"; do
-    [[ "$f" == "$needle" ]] && return 0
-  done
-  return 1
 }
 
 # ---------------------------------------------------------------------------
@@ -1041,9 +960,6 @@ uninstall_gate() {
     fi
   fi
   echo
-  if [[ -d "$II_BACKUP_DIR" ]]; then
-    echo "[UNINSTALL] Install-time backup (if any) still at: $II_BACKUP_DIR"
-  fi
   echo "[UNINSTALL] Afterward, optional orphan review (do NOT auto-remove): pacman -Qtdq"
   echo "[UNINSTALL] Do NOT run: yay -Yc   or   pacman -Rns \$(pacman -Qtdq)"
   echo "[UNINSTALL] Those commands cascade-delete asdeps left by ii (bc/jq/hyprland/…)."
@@ -1245,9 +1161,6 @@ run_safe_uninstall() {
   if ((skip_protect == 0)); then
     echo "[DONE] Personal-stack packages re-marked explicit (bc/jq/hyprland/kitty/… safe from orphan cleanup)."
   fi
-  if [[ -d "$II_BACKUP_DIR" ]]; then
-    echo "[DONE] Backup (if created at install): $II_BACKUP_DIR"
-  fi
   echo "[DONE] Review orphans carefully (do not blind-remove): pacman -Qtdq"
   echo "[DONE] Do NOT auto-clean orphans: avoid  yay -Yc  and  pacman -Rns \$(pacman -Qtdq)"
   if pacman -Qq hyprland &>/dev/null; then
@@ -1351,9 +1264,6 @@ run_uninstall() {
       --upstream-dangerous)
         upstream_dangerous=1
         ;;
-      --allow-skip-backup)
-        # harmless if mixed; ignore
-        ;;
       *)
         unknown+=("$arg")
         ;;
@@ -1389,14 +1299,22 @@ run_uninstall() {
   run_safe_uninstall "$dry_run" "$packages_only" "$configs_only" "$keep_venv" "$keep_hypr_hooks" "$skip_protect"
 }
 
+# D-06: the files-touching install paths are the only ones where upstream reads
+# the skip-backup flag (vendor/dots-hyprland/sdata/subcmd-install/3.files.sh:219),
+# so it is appended there and nowhere else.
+touches_files() {
+  case "$1" in
+    install|install-files) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 run_install_family() {
   local subcmd="$1"
   shift
 
   # Scan remaining args: strip wrapper-owned meta flags; preserve order (WRAP-04)
   local dry_run=0
-  local allow_skip_backup=0
-  local full=0
   local -a user_flags=()
   local arg
   for arg in "$@"; do
@@ -1404,12 +1322,10 @@ run_install_family() {
       --dry-run)
         dry_run=1
         ;;
-      --allow-skip-backup)
-        allow_skip_backup=1
-        ;;
       --full)
-        # D-01: wrapper-owned meta; never forward to ./setup
-        full=1
+        # D-05: accepted no-op alias, kept deliberately. The catch-all below would
+        # forward it to upstream, whose getopt has no such long option and exits 1.
+        echo "[CONFIG] --full is accepted but ignored: full is now the only install behavior."
         ;;
       *)
         user_flags+=("$arg")
@@ -1417,38 +1333,14 @@ run_install_family() {
     esac
   done
 
-  # D-02: --full only valid on install / install-files (same scope as SAFE_DEFAULTS)
-  if ((full == 1)) && ! needs_safe_defaults "$subcmd"; then
-    echo "[FAIL] --full is only valid with install or install-files." >&2
-    echo "[FAIL] Refusing --full on subcommand: $subcmd" >&2
-    exit 1
-  fi
-
-  # Preflight before any path that invokes setup (D-14)
+  # Preflight before any path that invokes setup (D-11 / D-14)
   preflight
 
-  # D-12: refuse bare --skip-backup unless --allow-skip-backup (before gate)
-  if user_flags_contain "--skip-backup" user_flags && ((allow_skip_backup == 0)); then
-    echo "[FAIL] --skip-backup refused without --allow-skip-backup." >&2
-    echo "[FAIL] First adoption must not skip backup. Re-run with --allow-skip-backup only if you intentionally override." >&2
-    exit 1
-  fi
-
-  # Hard backup gate for install / install-files (skip pure -h/--help passthrough)
-  # D-08: still runs on --full --dry-run; pass full so messaging does not claim residual protection
-  if needs_safe_defaults "$subcmd" && ! is_help_only_user_flags user_flags; then
-    backup_gate "$full"
-  fi
-
-  # Build argv: ./setup <sub> [SAFE_DEFAULTS…] [user flags…] (D-09)
-  # D-03 / FULL-01: when --full, inject nothing from SAFE_DEFAULTS
-  # D-05 / FULL-02: when full==0, still inject the triple residual
+  # D-04: no residual injection — a bare invocation is the full behavior.
+  # D-06: skip the upstream backup, scoped to the paths where it is read.
   local -a cmd=(./setup "$subcmd")
-  if needs_safe_defaults "$subcmd" && ((full == 0)); then
-    echo "[CONFIG] safe defaults: ${SAFE_DEFAULTS[*]}"
-    cmd+=("${SAFE_DEFAULTS[@]}")
-  elif needs_safe_defaults "$subcmd" && ((full == 1)); then
-    echo "[CONFIG] full profile: no SAFE_DEFAULTS injection (DISP-02 drop-all-three)"
+  if touches_files "$subcmd"; then
+    cmd+=(--skip-backup)
   fi
   if ((${#user_flags[@]} > 0)); then
     cmd+=("${user_flags[@]}")
@@ -1459,36 +1351,14 @@ run_install_family() {
   # --dry-run: print would-exec, exit 0 without calling setup (D-16)
   if ((dry_run)); then
     echo "[CONFIG] dry-run: would exec from $II_ROOT: ${cmd[*]}"
-    # Mirror post-setup work from the real path below (protect + enable).
-    case "$subcmd" in
-      install|install-deps|install-files)
-        echo "[CONFIG] dry-run: after setup, would re-mark protect-list as explicit (ii demotes deps)"
-        protect_explicit_packages 1 "PROTECT"
-        echo "[CONFIG] dry-run: after setup, would enable ii hooks in live + repo hyprland.conf"
-        enable_hypr_ii_hooks 1
-        ;;
-    esac
     exit 0
   fi
 
-  # Array exec only — never eval a concatenated command string (T-06-04)
+  # Array exec only — never eval a concatenated command string (D-11 / T-06-04)
   (
     cd "$II_ROOT"
     "${cmd[@]}"
   )
-
-  # ii install-deps marks meta depends with --asdeps and may demote previously
-  # explicit personal packages (bc/jq/hyprland/kitty/…) via implicitize_old_dependencies.
-  # Re-mark dual-run stack explicit so a later meta -R + yay -Yc cannot wipe them.
-  case "$subcmd" in
-    install|install-deps|install-files)
-      echo "[PROTECT] Post-install: re-marking personal dual-run stack as explicit…"
-      protect_explicit_packages 0 "PROTECT" || {
-        echo "[PROTECT] WARNING: some packages could not be marked explicit; review above." >&2
-      }
-      enable_hypr_ii_hooks 0
-      ;;
-  esac
 }
 
 main() {
