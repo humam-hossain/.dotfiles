@@ -312,77 +312,13 @@ The bar stack on this machine is `Waybar/rofi/swaync`. Its autostart line goes a
 
 ## 14. Rollback (ADOPT-04, D-23, D-24)
 
-**Trigger:** no usable desktop after **one honest attempt** at section 11. Not any single failed verification criterion — a finding in section 12 is a finding, not a rollback trigger.
+Recovery from a bad install is a clean reinstall from the pinned submodule at `vendor/dots-hyprland`. The pin is fixed in the parent repository, so a reinstall is reproducible rather than a fetch of whatever upstream looks like today. Fix whatever was wrong — the pin, an overlay, a disposition you would decide differently — and re-run the install command from [§4 of the playbook](./dots-hyprland-workflow.md).
 
-Three escalating tiers. Work them in order and stop as soon as you have a usable desktop.
+The wrapper never calls upstream's own removal subcommand. A bad install is never "undone" by handing the vendor tree a cascade it will take too far. The wrapper's own removal path exists: it gates with its own exact-token confirmation, removes the `illogical-impulse-*` packages without a cascading dependency sweep, and removes ii-owned configs and state. If a recovery instruction you find anywhere tells you to invoke removal through the vendor tree directly, it is wrong for this repo.
 
-### Tier 1 — restore the config
+Nothing is preserved on install. The wrapper takes no snapshot on the way in, so there is no saved copy of the state you are replacing and no undo. A pre-adopt snapshot from 2026-09-04 does still sit on disk at `~/ii-original-dots-backup` and `~/ii-original-dots-backup.20260904T171128Z`. Both are left exactly where they are, untouched, and are no longer presented as a documented recovery route — nothing produces one on a fresh install, and nothing verifies that these are still intact.
 
-Three independent sources, ordered cheapest and most certain first:
-
-```bash
-# 0. FIRST, always. Move the Lua entry aside before restoring anything.
-#    The wiki says a present hyprland.lua is loaded INSTEAD of hyprland.conf;
-#    D-09 and upstream's own rename comment say the opposite. 14-RESEARCH.md
-#    leaves the direction unresolved on 0.56.2 and concludes it "does not
-#    matter operationally" -- but that reasoning is scoped to the FORWARD
-#    adopt, where upstream renames the conf either way. It does not transfer
-#    to the reverse. Skip this step and, under the wiki reading, every restore
-#    below is a silent no-op: you get the identical ii session back and
-#    escalate to tiers 2 and 3, neither of which touches config precedence.
-mv ~/.config/hypr/hyprland.lua ~/.config/hypr/hyprland.lua.ii-disabled
-
-# 1. The rename upstream made in section 7. Almost always enough.
-#    cp, not mv: mv would consume source 1 and leave you two sources, not three.
-cp -a ~/.config/hypr/hyprland.conf.old ~/.config/hypr/hyprland.conf
-
-# 2. This repo's pre-adopt archive, committed before anything mutated.
-cp -a .config/hypr/hyprland.conf ~/.config/hypr/hyprland.conf
-
-# 3. The upstream backup directory, last because it is the source D-36 exists to
-#    distrust. Use ~/ii-original-dots-backup/ -- the --full install wrote the
-#    genuine pre-adopt configs there, and the hyprland.conf inside it matches the
-#    recorded fixture hyprland_conf_sha256=3d17932a... in 14-PRE-ADOPT-BASELINE.txt.
-#    Do NOT restore from ~/ii-original-dots-backup.<UTC timestamp>/ -- that is the
-#    rotated STALE backup section 5 moved aside. It carries an older config from an
-#    earlier install (3d17932a... is NOT what it holds) and it is not a rollback
-#    source, however recent its name looks.
-#    Do not tell the two apart by name, by mtime or by memory of which ran when.
-#    Hash the candidate and compare it against the recorded fixture. One command,
-#    run from the repo root, prints MATCH for the pre-adopt backup and STALE for
-#    anything else; point it at whichever ~/ii-original-dots-backup* directory you
-#    are about to restore from, and only a MATCH earns the cp below:
-#      grep -qxF "hyprland_conf_sha256=$(sha256sum ~/ii-original-dots-backup/.config/hypr/hyprland.conf | cut -d' ' -f1)" .planning/phases/14-live-full-adopt-verify/14-PRE-ADOPT-BASELINE.txt && echo MATCH || echo STALE
-#    Keep the -x and the hyprland_conf_sha256= prefix. That same fixture ALSO
-#    records the stale directory's digest, on its own line, as
-#    backup_dir_hyprland_conf_sha256=c5c65023... -- so a loose substring grep for
-#    the bare hash reports MATCH for both directories and tells you nothing.
-cp -a ~/ii-original-dots-backup/.config/hypr/hyprland.conf ~/.config/hypr/hyprland.conf
-```
-
-Then log in again with `start-hyprland`.
-
-### Tier 2 — the wrapper's own safe removal
-
-```bash
-./arch/dots-hyprland.sh uninstall --configs-only
-# or
-./arch/dots-hyprland.sh uninstall --packages-only
-```
-
-Both remove only `illogical-impulse-*` meta packages with `pacman -R`. Neither runs an AUR-helper recursive removal, and neither sweeps orphans. Add `--dry-run` first if you want to see the plan.
-
-### Tier 3 — heal the package list
-
-```bash
-./arch/dots-hyprland.sh protect --install-missing
-```
-
-Reinstalls any protect-list package that has gone missing, then re-marks the list explicit so a later orphan cleanup cannot take your compositor with it.
-
-### Prohibition
-
-**The upstream vendor tree ships its own removal subcommand. Never use it.** It removes the meta packages recursively via the AUR helper, which cascades into everything those metas depend on — including the compositor package itself. The three tiers above are the only supported removal paths, and they exist precisely because the upstream one is unsafe here. If a recovery instruction you find anywhere tells you to invoke removal through the vendor tree directly, it is wrong for this repo.
+For the canonical operator document covering install, update and recovery, see [`docs/dots-hyprland-workflow.md`](./dots-hyprland-workflow.md).
 
 ---
 
