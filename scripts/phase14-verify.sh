@@ -341,13 +341,18 @@ else
 fi
 
 # =============================================================================
-# ADOPT-04 — prove the rollback INPUTS exist; never rehearse the restore (D-26)
+# Pre-adopt conf evidence, and the surviving removal path
+#
+# The two pre-adopt conf copies are still hashed against the recorded fixture.
+# The wrapper's own removal path is still probed dry-run only — this suite
+# never rehearses a restore. Phase 16 retired the tiered-rollback promise these
+# probes used to be labelled under; the probes themselves are unchanged, only
+# their framing (D-20, D-10).
 # =============================================================================
 
 UNINST_OUT="$(mktemp /tmp/p14-verify-uninst-XXXXXX)"
-PROTECT_OUT="$(mktemp /tmp/p14-verify-protect-XXXXXX)"
 # shellcheck disable=SC2064
-trap 'rm -f "$UNINST_OUT" "$PROTECT_OUT"' EXIT
+trap 'rm -f "$UNINST_OUT"' EXIT
 
 REPO_HYPRCONF=".config/hypr/hyprland.conf"
 
@@ -358,66 +363,25 @@ REPO_HYPRCONF=".config/hypr/hyprland.conf"
 check_tier1_source() {
   # $1 = source label, $2 = path
   if [[ ! -s "$2" ]]; then
-    fail "ADOPT-04 tier-1 source $1 missing or empty: $2"
+    fail "D-20 pre-adopt conf source $1 missing or empty: $2"
     return
   fi
   local sha
   sha="$(sha256sum "$2" | cut -d' ' -f1)"
   if [[ "$sha" == "$HYPRLAND_CONF_SHA_PRE" ]]; then
-    pass "ADOPT-04 tier-1 source $1 present and sha256 matches the pre-adopt fixture: $2"
+    pass "D-20 pre-adopt conf source $1 present and sha256 matches the pre-adopt fixture: $2"
   else
-    fail "ADOPT-04 tier-1 source $1 is $sha, fixture recorded $HYPRLAND_CONF_SHA_PRE (captured $BASELINE_CAPTURED) -- $2 is not the pre-adopt conf"
+    fail "D-20 pre-adopt conf source $1 is $sha, fixture recorded $HYPRLAND_CONF_SHA_PRE (captured $BASELINE_CAPTURED) -- $2 is not the pre-adopt conf"
   fi
 }
 check_tier1_source 1 "$XDG/hypr/hyprland.conf.old"
 check_tier1_source 2 "$REPO_HYPRCONF"
-if [[ -d "$BACKUP_DIR" ]] && [[ -n "$(ls -A "$BACKUP_DIR" 2>/dev/null || true)" ]]; then
-  pass "ADOPT-04 tier-1 source 3 present and non-empty: $BACKUP_DIR"
-else
-  fail "ADOPT-04 tier-1 source 3 missing or empty: $BACKUP_DIR"
-fi
 
 if printf '' | "$WRAP" uninstall --dry-run >"$UNINST_OUT" 2>&1; then
-  pass "ADOPT-04 tier 2 reachable: uninstall --dry-run exits 0"
+  pass "D-10 wrapper removal path still reachable: uninstall --dry-run exits 0"
 else
-  fail "ADOPT-04 tier 2 unreachable: uninstall --dry-run exited non-zero"
+  fail "D-10 wrapper removal path unreachable: uninstall --dry-run exited non-zero"
   sed -n '1,40p' "$UNINST_OUT" || true
-fi
-if printf '' | "$WRAP" protect --dry-run >"$PROTECT_OUT" 2>&1; then
-  pass "ADOPT-04 tier 3 reachable: protect --dry-run exits 0"
-else
-  fail "ADOPT-04 tier 3 unreachable: protect --dry-run exited non-zero"
-  sed -n '1,40p' "$PROTECT_OUT" || true
-fi
-
-# =============================================================================
-# D-36 — the upstream backup actually ran, and holds the real pre-adopt conf
-#
-# This is the check that turns rollback tier 1 from assumed-good into
-# checked-good. Upstream skips auto_backup_configs entirely when the directory
-# already exists and the `ask` branch answers no, so "the directory is there"
-# proves nothing on its own. All three conditions are hard failures.
-# =============================================================================
-
-BK_CONF="$BACKUP_DIR/.config/hypr/hyprland.conf"
-BK_MTIME_PRE="$(baseline_value backup_dir_hyprland_conf_mtime)" || exit 1
-
-if [[ -f "$BK_CONF" ]]; then
-  pass "D-36 backup copy present: $BK_CONF"
-  BK_SHA="$(sha256sum "$BK_CONF" | cut -d' ' -f1)"
-  if [[ "$BK_SHA" == "$HYPRLAND_CONF_SHA_PRE" ]]; then
-    pass "D-36 backup copy sha256 matches the pre-adopt fixture ($BK_SHA)"
-  else
-    fail "D-36 backup copy sha256 is $BK_SHA, fixture recorded $HYPRLAND_CONF_SHA_PRE (captured $BASELINE_CAPTURED) — the backup is not the pre-adopt conf"
-  fi
-  BK_MTIME="$(stat -c '%Y' "$BK_CONF")"
-  if [[ "$BK_MTIME" -gt "$BK_MTIME_PRE" ]]; then
-    pass "D-36 backup copy mtime $BK_MTIME is newer than the recorded pre-install $BK_MTIME_PRE — the backup ran"
-  else
-    fail "D-36 backup copy mtime $BK_MTIME is not newer than the recorded pre-install $BK_MTIME_PRE — upstream skipped the backup"
-  fi
-else
-  fail "D-36 backup copy missing: $BK_CONF — rollback tier 1 lost its third source"
 fi
 
 # =============================================================================
@@ -518,7 +482,7 @@ if pgrep -x hyprpaper >/dev/null 2>&1; then
 elif command -v hyprpaper >/dev/null 2>&1; then
   info "D-38 known loss 'hyprpaper' CONFIRMED stopped-but-INSTALLED — the binary is on PATH and hyprpaper.conf survives; nothing starts it. Wallpaper is Quickshell's job now, not breakage."
 else
-  finding "D-38 hyprpaper is neither running nor on PATH — it was expected to remain installed via PROTECT_EXPLICIT"
+  finding "D-38 hyprpaper is neither running nor on PATH — it was expected to remain installed because it was installed as part of the personal stack; the wrapper capability that used to protect that stack from an orphan sweep was retired in Phase 16"
 fi
 
 LIVE_LAUNCHER="$XDG/hypr/hyprland/scripts/launch_first_available.sh"
