@@ -28,21 +28,44 @@ Usage:
   arch/dots-hyprland.sh uninstall [flags…]
   arch/dots-hyprland.sh help|-h|--help
 
+What this wrapper does:
+  Validates the subcommand against a fixed allowlist and refuses anything else.
+  Preflights the vendored submodule and the upstream executable; never auto-fixes them.
+  Builds the upstream argv as an array and execs it after changing into the vendored
+  tree — never eval, never a concatenated command string.
+  Forwards the upstream backup-suppression flag on the two file-touching install
+  subcommands only, because upstream reads it on the files step and nowhere else.
+  Owns the removal path outright instead of delegating it to upstream.
+
 Allowlisted subcommands:
   install          Full upstream pipeline (deps + setups + files)
   install-deps     Dependencies only
   install-setups   Setup steps only
   install-files    File install only
-  uninstall        Safe dual-run uninstall (wrapper-owned; see below)
+  uninstall        Wrapper-owned removal: gates on its own exact-token confirmation,
+                   drops the illogical-impulse-* meta packages with no dependency
+                   cascade, and removes ii-owned configs and state (see below)
+  help|-h|--help   This text
 
 Install behavior (D-04, D-06, D-09):
-  install and install-files run the full upstream pipeline with no injected residual flags.
-  Both pass the upstream skip-backup flag: nothing is snapshotted before files are replaced.
+  A bare invocation is the full install; no profile flags are injected.
+  install and install-files also pass the upstream backup-suppression flag:
+  nothing is snapshotted before files are replaced, and there is no undo.
   install-deps / install-setups do not — upstream reads that flag on the files step only.
-  This wrapper asks nothing before an install; upstream still greets and pauses on its own.
-  Never auto-injects --force or --skip-allgreeting.
 
-Uninstall (SAFE — default; does NOT call upstream ./setup uninstall):
+Interactivity:
+  This wrapper asks nothing before an install; that is true of the wrapper alone.
+  Upstream still runs its own greeting and at least one 'Enter to proceed' pause,
+  unless it is force-run by flags passed straight to vendor/dots-hyprland/./setup.
+  This wrapper never auto-injects --force or --skip-allgreeting.
+
+Wrapper-owned meta flags (stripped; never forwarded to ./setup):
+  --dry-run   Print the argv this wrapper would exec, then exit 0 without calling upstream
+  --full      Accepted but ignored (D-05). Full is the only install behavior now, so the
+              flag is an announced no-op kept so old transcripts and scripts still work.
+              It is never forwarded to ./setup.
+
+Uninstall (wrapper-owned; does NOT call upstream ./setup uninstall):
   Removes only illogical-impulse-* meta packages with pacman -R (no -s cascade).
   Optionally removes ii-owned configs/state (quickshell ii tree, illogical-impulse conf, venv).
   Stops running qs/quickshell processes (otherwise the top bar stays up after files are gone).
@@ -60,34 +83,19 @@ Uninstall (SAFE — default; does NOT call upstream ./setup uninstall):
                       Run vendor ./setup uninstall as-is (WILL cascade packages / groups).
                       Requires typing: UPSTREAM-UNINSTALL
 
-Wrapper-owned meta flags (stripped; never forwarded to ./setup):
-  --dry-run              Print would-exec argv and exit 0
-  --full                 Accepted but ignored (D-05); kept so scripts that pass it
-                         still work. Full is the only install behavior now.
-
 Examples:
-  ./arch/dots-hyprland.sh install
-  ./arch/dots-hyprland.sh install-deps
-  ./arch/dots-hyprland.sh install-files --exp-files
-  ./arch/dots-hyprland.sh install-deps --dry-run
-  ./arch/dots-hyprland.sh install --dry-run
-  ./arch/dots-hyprland.sh install --full --dry-run
-  ./arch/dots-hyprland.sh install-files --dry-run
-  ./arch/dots-hyprland.sh uninstall --dry-run
-  ./arch/dots-hyprland.sh uninstall
-  ./arch/dots-hyprland.sh uninstall --packages-only
+  ./arch/dots-hyprland.sh install --dry-run          # preview the argv; changes nothing
+  ./arch/dots-hyprland.sh install                    # the real full install
+  ./arch/dots-hyprland.sh install-files --dry-run    # preview a pin-bump re-apply
+  ./arch/dots-hyprland.sh install-files              # re-apply files after a submodule pin bump
+  ./arch/dots-hyprland.sh install-deps               # only the package set changed
+  ./arch/dots-hyprland.sh uninstall --dry-run        # print the removal plan only
+  ./arch/dots-hyprland.sh uninstall --packages-only  # meta packages only; keep configs/state
 
 Other setup subcommands (exp-update, exp-merge, virtmon, …):
   Use vendor/dots-hyprland/./setup directly.
 
-Operator workflow pointers (discoverability only — not enforced by this wrapper):
-  Playbook: docs/dots-hyprland-workflow.md
-  Inventory: .planning/phases/10-full-install-impact-inventory/10-INVENTORY.md
-  Dispositions: .planning/phases/11-disposition-decisions/11-DISPOSITIONS.md
-  Live full adopt process gate is Phase 14 operator discipline (ADOPT-01), not a runtime check here.
-
-Note: install and install-files replace configuration with no snapshot and no undo (D-06).
-  Upstream's own greeting and pause still apply unless you pass its --force / --skip-allgreeting.
+Playbook: docs/dots-hyprland-workflow.md
 EOF
 }
 
@@ -127,7 +135,7 @@ print_lines() {
 }
 
 # Collect installed illogical-impulse-* meta packages (and optional plasma-browser-integration
-# only if it is present — install with --core skips it, but older runs may have it).
+# only if it is present — earlier profile-limited runs skipped it, later ones may not (D-04).
 collect_ii_meta_packages() {
   local -a pkgs=()
   local p
@@ -146,7 +154,7 @@ collect_ii_meta_packages() {
 }
 
 # Paths safe to remove when they look like ii-owned installs.
-# Never includes ~/.config/hypr (personal; install used --skip-hyprland).
+# Never includes ~/.config/hypr (personal; hypr trees are never a removal target, D-07).
 collect_ii_config_targets() {
   local -a targets=()
   local qs="${XDG_CONFIG_HOME}/quickshell"
