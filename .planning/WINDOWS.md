@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 3
+open_count: 2
 waived_count: 0
-fixed_count: 0
+fixed_count: 1
 total_count: 3
-last_updated: 2026-09-07T12:59:13.113Z
+last_updated: 2026-09-07T13:10:51.053Z
 ---
 
 # Broken Windows Ledger
@@ -16,7 +16,7 @@ last_updated: 2026-09-07T12:59:13.113Z
 | id | phase | kind | file | line | description | status | reason | recorded_at | resolved_at |
 |----|-------|------|------|------|-------------|--------|--------|-------------|-------------|
 | 1 | 15 | deviation | docs/dots-hyprland-workflow.md | 401 | Playbook section 8 cites 15-DOC-SWEEP.md as carrying the D-38 restoration work as a deferred item; that section of the sweep record is still a 15-06 placeholder | open |  | 2026-09-06T06:28:36.362Z |  |
-| 2 | 16 | deviation | scripts/phase12-full-smoke.sh |  | Expected-red from 16-01: asserts the retired safe-profile behavior; rewritten in plan 16-02 (D-34) | open |  | 2026-09-07T12:59:12.993Z |  |
+| 2 | 16 | deviation | scripts/phase12-full-smoke.sh |  | Expected-red from 16-01: asserts the retired safe-profile behavior; rewritten in plan 16-02 (D-34) | fixed |  | 2026-09-07T12:59:12.993Z | 2026-09-07T13:10:51.053Z |
 | 3 | 16 | deviation | scripts/phase13-d19-assert.sh |  | Expected-red from 16-01: hard-fails on any arch/dots-hyprland.sh diff from its pinned base; re-pinned in plan 16-06 (D-38) | open |  | 2026-09-07T12:59:13.113Z |  |
 
 ````json
@@ -40,10 +40,10 @@ last_updated: 2026-09-07T12:59:13.113Z
     "file": "scripts/phase12-full-smoke.sh",
     "line": null,
     "description": "Expected-red from 16-01: asserts the retired safe-profile behavior; rewritten in plan 16-02 (D-34)",
-    "status": "open",
+    "status": "fixed",
     "reason": "",
     "recorded_at": "2026-09-07T12:59:12.993Z",
-    "resolved_at": null
+    "resolved_at": "2026-09-07T13:10:51.053Z"
   },
   {
     "id": 3,

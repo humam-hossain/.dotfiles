@@ -222,7 +222,7 @@ Plans:
 **Goal:** Retire the safe profile from the project entirely, in one merged phase. `arch/dots-hyprland.sh` stops injecting `SAFE_DEFAULTS`, so a bare `install` / `install-files` runs the full behavior; the backup gate, the protect machinery and the ii-hook injection machinery go with it, `uninstall` survives stripped, and `--full` stays as an accepted no-op alias. `docs/dots-hyprland-workflow.md` is rewritten full-only end to end with bare commands and `docs/phase14-adopt-runbook.md` is swept to match, both landing after the wrapper so no quoted output goes stale. `.planning/REQUIREMENTS.md`, `ROADMAP.md`, `PROJECT.md`, `STATE.md`, `v0.3-MILESTONE-AUDIT.md` and the Phase 11 disposition record are amended for the same falsehoods, dropping v0.3 coverage from 22 to 19. Closes v0.3 audit leftovers IN-11, W-1, W-2 and W-3.
 **Requirements**: FULL-01, FULL-02, FULL-04, ADOPT-02, ADOPT-03, DOC-03, INV-04, IN-11, W-1, W-2, W-3
 **Depends on:** Phase 15
-**Plans:** 1/10 plans executed
+**Plans:** 2/10 plans executed
 
 Plans:
 **Wave 1**
@@ -231,7 +231,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 16-02-PLAN.md — usage heredoc rewritten to the surviving surface; phase12 smoke inverted to the new contract
+- [x] 16-02-PLAN.md — usage heredoc rewritten to the surviving surface; phase12 smoke inverted to the new contract
 - [ ] 16-03-PLAN.md — phase14-verify deleted probes; phase07-live-smoke and phase14-preflight removed (closes IN-11)
 
 **Wave 3** *(blocked on Wave 2 completion)*
@@ -275,7 +275,7 @@ Plans:
 | 13. Personal hypr/custom overlays | v0.3 | 2/2 | Complete    | 2026-08-31 |
 | 14. Live full adopt & verify | v0.3 | 2/2 | Complete    | 2026-09-05 |
 | 15. Playbook safe vs full | v0.3 | 6/6 | Complete    | 2026-09-06 |
-| 16. Retire the safe profile | v0.3 | 1/10 | In Progress|  |
+| 16. Retire the safe profile | v0.3 | 2/10 | In Progress|  |
 
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 22/22 requirements mapped · 0 unmapped
 
