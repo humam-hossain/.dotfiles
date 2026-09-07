@@ -293,7 +293,6 @@ After apply, reload Hyprland or log back in before expecting the overlay to take
 
 ---
 
-
 ## 7. Verify after login
 
 Run these **after login**, not before: the first three need an active Hyprland session, which is why the runbook orders its verify section after its log-in section.
@@ -327,51 +326,40 @@ ls ~/.config/hypr/custom/{general,env,execs}.lua
 # expect: === done: FAIL=0 FINDINGS=1 ===   (the 1 finding is the D-38 known loss)
 ```
 
-`scripts/phase14-verify.sh` is the executable source of truth for every check in the block above; the individual commands are the hand version of what it asserts. If any of them fails, go to `docs/phase14-adopt-runbook.md` §14.
+`scripts/phase14-verify.sh` is the executable source of truth for every check in the block above; the individual commands are the hand version of what it asserts. Observed on a committed tree after the Phase 16 script edits: **33 `[PASS]`, 0 `[FAIL]`, one `[FINDING]`** — the known loss in §8. Two caveats on running it: it asserts a clean working tree, so commit first; and it is the *whole* check, not a rollback trigger. If something is wrong, §9 has the recovery story.
 
 ---
 
 ## 8. Known losses after the full adopt
 
-These are the surfaces the full adopt actually cost this machine. They are an accepted cost under Phase 11 D-11, not a goal of the milestone and not a defect. Read the whole list before filing anything as a bug: each item leads with what **survives**, so the damage is neither over- nor under-estimated. None of it applies to the safe profile — with the residual triple injected, nothing below is renamed or stopped.
+These are the surfaces the adopt actually cost this machine. They are an accepted cost under Phase 11 D-11, not a goal of the milestone and not a defect. Read the whole list before filing anything as a bug: each item leads with what **survives**, so the damage is neither over- nor under-estimated.
 
 - **The personal `hyprland-session.service` autostart.** The unit file itself **survives** — it lives under `stow/systemd/` and the symlink in `~/.config/systemd/user/` is untouched. What died with the renamed conf is the `exec-once` line that started it, so `graphical-session.target` is now inactive. Consequence: the xdg-desktop-portal ScreenCast path depends on that target, so screen share **may** stop working. The portal still answers with an unchanged `AvailableSourceTypes`, so what was lost is the session bootstrap, not the portal itself. This is not a deletion.
 - **`wl-clip-persist`.** Not running; same cause — its `exec-once` line went with the renamed conf. The binary is still installed.
 - **The four workspace-pinned autostarts.** `google-chrome-stable` on workspace 1, `kitty -e tmux` on workspace 1, `btop` on its special workspace, and `discord` on `special:social`. All four applications are still installed; only the pinned launch-at-login behaviour is gone.
 - **`hyprpaper`.** Stopped but installed — the binary is on PATH and `~/.config/hypr/hyprpaper.conf` survives untouched; nothing starts it. Wallpaper is Quickshell's job under the ii shell, so this is a changed owner rather than breakage.
 
-This phase documents these losses and owns no fix — restoring the session bootstrap, `wl-clip-persist` and the four autostarts is unowned work, and the sweep record at `.planning/phases/15-playbook-safe-vs-full/15-DOC-SWEEP.md` carries it as a deferred item. `scripts/phase14-verify.sh` reports the session-target loss as a `[FINDING]` rather than a failure, which is why the expected output in §7 is one finding rather than zero.
+This document records these losses and owns no fix — restoring the session bootstrap, `wl-clip-persist` and the four autostarts is **unowned work with no owning phase**, and the sweep record at `.planning/phases/15-playbook-safe-vs-full/15-DOC-SWEEP.md` carries it as a deferred item. `scripts/phase14-verify.sh` reports the session-target loss as a `[FINDING]` rather than a failure, which is why the expected output in §7 is one finding rather than zero.
 
 ---
 
 ## 9. Three roles of the repo hyprland.conf
 
-The repo's `.config/hypr/hyprland.conf` is not merely an archived copy. It carries three separate roles at once, and one real ordering hazard falls out of the fact that the full profile collapsed the recovery role and the write role onto the same bytes.
+The repo's `.config/hypr/hyprland.conf` is not merely an archived copy. It was carrying three separate roles at once. One of them died with the wrapper machinery retired in Phase 16, and the other two are unchanged.
 
-**Role 1 — rollback source.** It is tier-1 source 2 of `docs/phase14-adopt-runbook.md` §14: this repo's pre-adopt archive, committed before anything mutated, whose sha256 matches the fixture recorded in `.planning/phases/14-live-full-adopt-verify/14-PRE-ADOPT-BASELINE.txt`. The role exists under both profiles, but it is only ever exercised after a full adopt has gone wrong.
+**Role 1 — pre-adopt archive.** This repo's copy of the compositor config as it stood before the adopt, committed before anything mutated, whose sha256 matches the fixture recorded in `.planning/phases/14-live-full-adopt-verify/14-PRE-ADOPT-BASELINE.txt`. `scripts/phase14-verify.sh` still hashes it against that fixture on every run.
 
-**Role 2 — frozen evidence.** It is the D-36 record of what this machine's hypr config was before the adopt. That is why it is committed rather than regenerated: a regenerated file would prove nothing about the pre-adopt state. Profile-independent.
+**Role 2 — frozen evidence.** It is the record of what this machine's hypr config was before the adopt. That is why it is committed rather than regenerated: a regenerated file would prove nothing about the pre-adopt state.
 
-**Role 3 — hook-injection target.** The wrapper enables the two ii hook lines in whichever of its two candidate files exist — the live `~/.config/hypr/hyprland.conf` and this repo copy. Under the **safe** profile both exist and both get the hooks. Under the **full** profile upstream renamed the live file to `.old`, so this repo copy is the wrapper's **only** remaining target. The full path never loads it as a live config; it only writes to it.
+**Role 3 — retired.** This file used to be the wrapper's hook-injection target: the wrapper enabled the two ii hook lines in whichever of its candidate files existed, and after the adopt this repo copy was the only one left. Phase 16 deleted that machinery outright. The wrapper now writes nothing here, and `uninstall` no longer strips the two lines from it. They remain in the file as dead archive, and nothing loads the file — the live hooks are ii's own, in `hyprland/env.lua` and `hyprland/execs.lua` (§4).
 
-### Copy this file aside before escalating a rollback to tier 2
+### Recovery after a bad install
 
-**Never run `./arch/dots-hyprland.sh uninstall` while you still need tier-1 source 2 — copy the file out first.** Because role 3 is now the only remaining target, `uninstall` deletes the two ii hook lines from this repo copy. Deleting them changes the file's sha256, so the tier-1 source 2 check in `scripts/phase14-verify.sh` flips to a failure: escalating a rollback from tier 1 to tier 2 destroys one of tier 1's own sources while you are still recovering. One command, run from **REPO_ROOT**, buys back the ordering:
+Recovery is a clean reinstall from the pinned submodule: fix whatever was wrong — the pin, the overlay, a disposition you would decide differently — and re-run §4's install. That is the whole route, and it is deliberately the only one.
 
-```bash
-cp -a .config/hypr/hyprland.conf ~/hyprland.conf.tier1-source2
-# then, and only then, escalate to tier 2
-```
+Two things follow from it. The wrapper never calls upstream's own removal subcommand, so a bad install is never "undone" by handing the vendor tree a cascade it will take too far; `uninstall` here is the wrapper's own narrow removal, described in §4. And nothing is preserved on install — no snapshot is taken on the way in, so there is no saved copy of the state you are replacing.
 
-The tiers themselves live in `docs/phase14-adopt-runbook.md` §14 and are deliberately not repeated here; that document stays the single source of truth for rollback.
-
-Two bounding facts, so you do not over-react to this: the file's content is recoverable from this repo's git history, and only `uninstall` triggers the hazard — a forward `install` reports the hooks as already active and changes nothing.
-
-### Never rotate the backup after a full adopt
-
-**Do not run `./scripts/phase14-preflight.sh --rotate-backup` post-adopt.** After the full adopt `~/ii-original-dots-backup` **is** rollback tier-1 source 3; rotation renames it away, so running it now costs you a recovery source at exactly the moment you are most likely to want one. It is a rename rather than a delete, and tier-1 sources 1 and 2 are unaffected — but the source is gone from where the rollback looks for it.
-
-`scripts/phase14-preflight.sh` still prints that rotation as mandatory remediation. The message was correct before the adopt and is stale after it. It is tracked as **IN-11**, and its fix is deferred to a phase that owns the script: a documentation phase does not edit the executable it documents (D-19), so the prohibition lives in prose here and in `docs/phase14-adopt-runbook.md` §5, at the step that performs the rotation.
+A pre-adopt snapshot from the 2026-09-04 adopt does still sit on disk at `~/ii-original-dots-backup.20260904T171128Z`. It is left exactly where it is, and it is **no longer presented as a documented recovery route**: nothing produces one on a fresh install, and nothing verifies that this one is still intact. Treat it as a historical artifact of that one adopt window, not as a route back.
 
 ---
 
@@ -413,7 +401,7 @@ Parent records the pin as an explicit gitlink — clones get that SHA until you 
 
 ### 10.3 Apply on the machine (re-run setup)
 
-Same safe defaults and backup gate as first adoption. Prefer dry-run when unsure:
+One command applies a bumped pin. Preview it first if you are unsure what changed:
 
 ```bash
 ./arch/dots-hyprland.sh install-files --dry-run
@@ -425,20 +413,7 @@ Same safe defaults and backup gate as first adoption. Prefer dry-run when unsure
 # or: ./arch/dots-hyprland.sh install-deps   # when only packages changed
 ```
 
-- Type `yes` at the backup gate when prompted
-- Do **not** casually pass bare `--skip-backup`
-- Safe defaults (`--core --skip-hyprland --skip-sysupdate`) still apply on `install` / `install-files`
-
-### 10.4 Optional: protect after deps demotion
-
-ii install may demote shared packages to `--asdeps`. After deps-heavy updates:
-
-```bash
-./arch/dots-hyprland.sh protect
-# optional: ./arch/dots-hyprland.sh protect --install-missing
-```
-
-Details: `./arch/dots-hyprland.sh help`.
+A re-apply is the same install as the first one — same behavior, same absence of an undo (§4). Upstream still greets and pauses, so run it somewhere you can answer it.
 
 ---
 
@@ -451,8 +426,7 @@ These are **out of scope** or **non-primary** for the managed `.dotfiles` workfl
 | **`exp-merge` / `exp-update`** | **Non-primary / experimental** | Not the update contract. Wrapper **refuses** them: `./arch/dots-hyprland.sh exp-merge` → non-allowlisted `[FAIL]`. If you truly need upstream experimental tools, run `vendor/dots-hyprland/./setup` **directly** and own the risk — still not documented default. |
 | **Online cache / curl install into `~/.cache/dots-hyprland`** | **Non-primary / not managed** | Bypasses parent submodule pin and fork ownership. Not the `.dotfiles` adoption path. |
 | **Auto-bump submodule on every parent pull** | Out of scope | Breaks pin reproducibility; parent gitlink bumps are explicit. |
-| **Waybar / rofi / swaync custom module ports** | Cutover **done** under the full profile (Phase 11 D-11); only the ports are deferred (CUST-01..03) | Not out of scope, and not the same thing as the cutover: the removal of `Waybar`, `rofi` and `swaync` under the full profile was explicitly accepted by Phase 11 D-11 (`.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md` section 6). Only the module *ports* remain deferred. |
-| **Full hyprland.lua / ii hypr tree takeover** | **Adopted** — this is the full profile's session model | Not a non-goal any more: the Phase 14 adopt did exactly this, and §5 documents the session model it produced. Under the safe profile personal hypr conf remains SoT via `--skip-hyprland`. |
+| **Waybar / rofi / swaync custom module ports** | Cutover **done** (Phase 11 D-11); only the ports are deferred (CUST-01..03) | Not out of scope, and not the same thing as the cutover: the removal of `Waybar`, `rofi` and `swaync` was explicitly accepted by Phase 11 D-11 (`.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md` section 6). Only the module *ports* remain deferred. |
 | **Reimplementing package lists in `arch/` without `./setup`** | Forbidden | Single product path is wrapper → vendor setup. |
 | **Wrapper `verify` subcommand** | Future (POLISH-01) | Not required for DOC-01..DOC-04; use the post-login checks in §7 and `scripts/phase14-verify.sh`, which is the executable verifier this milestone actually shipped. |
 
@@ -464,11 +438,11 @@ These are **out of scope** or **non-primary** for the managed `.dotfiles` workfl
 
 - `./arch/dots-hyprland.sh help` — flag and subcommand source of truth
 - `vendor/dots-hyprland` — canonical pin path (submodule)
-- [`docs/phase14-adopt-runbook.md`](./phase14-adopt-runbook.md) — the adopt-window record and the three-tier rollback
-- [`.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`](../.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md) — what a full install touches
+- [`docs/phase14-adopt-runbook.md`](./phase14-adopt-runbook.md) — the narrative record of the 2026-09-04 adopt window
+- [`.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`](../.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md) — what the install touches
 - [`.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md`](../.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md) — per-item adopt dispositions
 - [`.planning/phases/13-personal-hypr-custom-overlays/13-SOT-APPLY.md`](../.planning/phases/13-personal-hypr-custom-overlays/13-SOT-APPLY.md) — overlay source of truth and the authoritative apply command
 - [`.planning/PROJECT.md`](../.planning/PROJECT.md) — product goals, non-goals, milestone checklist
 - [`.planning/REQUIREMENTS.md`](../.planning/REQUIREMENTS.md) — DOC-03 / DOC-04 and Out of Scope
-- [`.planning/ROADMAP.md`](../.planning/ROADMAP.md) — Phase 15 success criteria
+- [`.planning/ROADMAP.md`](../.planning/ROADMAP.md) — Phase 16 success criteria
 - Root [`README.md`](../README.md) — cold-clone discovery pointer
