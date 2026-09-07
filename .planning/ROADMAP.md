@@ -225,16 +225,35 @@ Plans:
 **Plans:** 10 plans
 
 Plans:
+**Wave 1**
 
 - [ ] 16-01-PLAN.md — wrapper surgery: full-only install path, machinery deletion, new phase16 retirement assert
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 16-02-PLAN.md — usage heredoc rewritten to the surviving surface; phase12 smoke inverted to the new contract
 - [ ] 16-03-PLAN.md — phase14-verify deleted probes; phase07-live-smoke and phase14-preflight removed (closes IN-11)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 16-04-PLAN.md — playbook rewritten full-only end to end; ban-only doc gate added to the phase16 assert
 - [ ] 16-05-PLAN.md — adopt runbook swept: preflight section becomes narrative, rollback tiers replaced
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 16-06-PLAN.md — 16-DOC-SWEEP.md written; phase13-d19 re-pinned with a third tier plus the W-3 fence-drift assert
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 16-07-PLAN.md — REQUIREMENTS.md amended to 19/19; v0.3-MILESTONE-AUDIT.md blockers dispositioned
 - [ ] 16-08-PLAN.md — PROJECT.md swept; 11-DISPOSITIONS.md W-1 and W-2 corrected in place
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 16-09-PLAN.md — ROADMAP.md milestone prose and coverage line; STATE.md swept
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 16-10-PLAN.md — sweep record completed; D-40 phase gate on a clean tree plus the post-change login re-verify
 
 ## Progress

@@ -3,18 +3,19 @@ gsd_state_version: 1.0
 milestone: v0.3
 milestone_name: Full ii install
 current_phase: 16
+current_phase_name: "Retire the safe profile: full-only wrapper and playbook"
 status: Not planned
 stopped_at: Phase 16 context gathered
-last_updated: "2026-09-07T04:04:03.685Z"
+last_updated: "2026-09-07T08:33:25.861Z"
 last_activity: 2026-09-06
 last_activity_desc: Phase 15 complete
-state_head: 6892aadd5e55b57ab7c80180f3883752dab0fb3b
+state_head: 4a02d6b77b30ba770c3851f408ebbfac7d16771f
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 23
+  total_plans: 33
   completed_plans: 23
-  percent: 86
+  percent: 70
 ---
 
 Total Phases: 6
@@ -23,10 +24,10 @@ Total Phases: 6
 
 ## Current Position
 
-Phase: 16
+Phase: 16 (Retire the safe profile: full-only wrapper and playbook) — READY TO EXECUTE
 Plan: Not started
 Status: Not planned
-Total Plans in Phase: 0
+Total Plans in Phase: 10
 Last activity: 2026-09-06 — Phase 15 complete
 
 Progress: [████████████████████] 17/17 plans ([██████████] 100%)
