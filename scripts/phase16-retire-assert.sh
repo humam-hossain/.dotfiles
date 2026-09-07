@@ -12,8 +12,11 @@
 # Constraints (Phase 16):
 #   - Non-mutating: syntax checks and --dry-run argv captures only.
 #   - Never runs a live install, a live uninstall, or any package operation.
-#   - The documentation ban-grep half (D-36) is scoped to
-#     docs/dots-hyprland-workflow.md only and is added by plan 16-04.
+#   - The documentation ban-grep (D-36) applies to the playbook
+#     docs/dots-hyprland-workflow.md and to no other file. It is ban-only: it
+#     forbids retired vocabulary and never requires a token to be present, so
+#     it can never contradict the frozen-record asserts that DO require those
+#     same tokens.
 
 set -euo pipefail
 
@@ -25,6 +28,7 @@ pass() { printf '[PASS] %s\n' "$1"; }
 fail() { printf '[FAIL] %s\n' "$1"; FAIL=$((FAIL + 1)); }
 
 WRAP="./arch/dots-hyprland.sh"
+PLAYBOOK="docs/dots-hyprland-workflow.md"
 INSTALL_OUT="$(mktemp /tmp/p16-retire-install-XXXXXX)"
 FILES_OUT="$(mktemp /tmp/p16-retire-files-XXXXXX)"
 SETUPS_OUT="$(mktemp /tmp/p16-retire-setups-XXXXXX)"
@@ -163,6 +167,71 @@ if printf '' | "$WRAP" install-deps --full --dry-run >"$DEPS_OUT" 2>&1; then
 else
   fail "A2 install-deps --full --dry-run exited non-zero"
   sed -n '1,40p' "$DEPS_OUT" || true
+fi
+
+# =============================================================================
+# Documentation half (D-36) — ban-only, scoped to the playbook.
+#
+# Every assert below FORBIDS a string. None of them requires one. That is not a
+# stylistic choice: frozen Phase 10 and Phase 11 records legitimately carry this
+# vocabulary as history, and two sibling assert scripts actively require it to
+# be present in them. A ban widened past the playbook would put this script in
+# direct contradiction with those two. The adopt-window runbook is excluded for
+# the same reason — it is a true account of what the adopt ran.
+# =============================================================================
+
+echo "=== Phase 16 documentation contract (ban-only, playbook-scoped) ==="
+
+# --- input guard: a ban-grep over a missing file passes vacuously ---
+if [[ -s "$PLAYBOOK" ]]; then
+  pass "D-36 playbook $PLAYBOOK exists and is non-empty"
+else
+  fail "D-36 playbook $PLAYBOOK is missing or empty (a ban-grep over it would pass vacuously)"
+fi
+
+# --- D-36 file-wide ban: the retired session-model term ---
+if grep -niE 'dual-run' "$PLAYBOOK" >/dev/null; then
+  fail "D-36 playbook still names the retired session model (dual-run)"
+  grep -niE 'dual-run' "$PLAYBOOK" || true
+else
+  pass "D-36 playbook is free of the retired session-model term"
+fi
+
+# --- D-36 file-wide ban: the retired profile term ---
+if grep -niE 'safe profile|safe defaults' "$PLAYBOOK" >/dev/null; then
+  fail "D-36 playbook still names the retired install profile"
+  grep -niE 'safe profile|safe defaults' "$PLAYBOOK" || true
+else
+  pass "D-36 playbook is free of the retired profile term"
+fi
+
+# --- Ban: the retired residual-array identifier (case-sensitive).
+# A deliberate extension of D-36's list, added in the same ban-only shape.
+# D-36 names two vocabulary terms and one section-scoped flag; the array
+# identifier is banned on the same rule because D-16 deletes the only bullet
+# that mentioned it, so any surviving occurrence is stale by construction.
+if grep -n 'SAFE_DEFAULTS' "$PLAYBOOK" >/dev/null; then
+  fail "D-36/A11 playbook still names the retired residual array identifier"
+  grep -n 'SAFE_DEFAULTS' "$PLAYBOOK" || true
+else
+  pass "D-36/A11 playbook is free of the retired residual array identifier"
+fi
+
+# --- D-36 section-scoped ban: one residual flag, in the update contract only.
+# The scope is the decision's, not an approximation of it: the flag is banned
+# in the update-contract section and nowhere else, because the argv the wrapper
+# actually builds is quoted verbatim in the install section and must stay there.
+UPDATE_SECTION="$(awk '/^## [0-9]+\. .*[Uu]pdate contract/,/^## [0-9]+\. [^U]/' "$PLAYBOOK")"
+if [[ -n "$UPDATE_SECTION" ]]; then
+  pass "D-36 update-contract section extracted from the playbook (non-empty)"
+  if printf '%s\n' "$UPDATE_SECTION" | grep -n -- '--skip-hyprland' >/dev/null; then
+    fail "D-36 update-contract section still carries the residual flag"
+    printf '%s\n' "$UPDATE_SECTION" | grep -n -- '--skip-hyprland' || true
+  else
+    pass "D-36 update-contract section omits the residual flag"
+  fi
+else
+  fail "D-36 update-contract section extraction is empty (the ban would pass vacuously)"
 fi
 
 echo "=== done: FAIL=${FAIL} ==="
