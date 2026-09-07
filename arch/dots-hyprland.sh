@@ -4,14 +4,14 @@ set -euo pipefail
 # arch/dots-hyprland.sh — thin wrapper around vendor/dots-hyprland/./setup
 # Pattern: arch/waybar.sh / arch/*.sh (REPO_ROOT, main dispatcher, [LABEL] echos).
 # Divergence: no package arrays; delegates install logic to upstream setup.
-# Uninstall/protect are wrapper-owned (safe) — do NOT call upstream ./setup uninstall.
+# Uninstall is the one wrapper-owned path (D-07 / D-10) — do NOT call upstream ./setup uninstall.
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 II_ROOT="$REPO_ROOT/vendor/dots-hyprland"
 SETUP="$II_ROOT/setup"
 # D-04: full is the only install behavior; no residual flag injection.
-# install* → upstream ./setup; uninstall/protect → wrapper-owned safe path
-ALLOWLIST=(install install-deps install-setups install-files uninstall protect)
+# install* → upstream ./setup; uninstall → the one wrapper-owned path (D-07)
+ALLOWLIST=(install install-deps install-setups install-files uninstall)
 
 # XDG defaults (match upstream environment-variables.sh)
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -26,7 +26,6 @@ arch/dots-hyprland.sh — thin wrapper for vendor/dots-hyprland/./setup
 Usage:
   arch/dots-hyprland.sh <install|install-deps|install-setups|install-files> [flags…]
   arch/dots-hyprland.sh uninstall [flags…]
-  arch/dots-hyprland.sh protect [flags…]
   arch/dots-hyprland.sh help|-h|--help
 
 Allowlisted subcommands:
@@ -35,7 +34,6 @@ Allowlisted subcommands:
   install-setups   Setup steps only
   install-files    File install only
   uninstall        Safe dual-run uninstall (wrapper-owned; see below)
-  protect          Re-mark personal-stack pkgs explicit; optional reinstall missing
 
 Install behavior (D-04, D-06, D-09):
   install and install-files run the full upstream pipeline with no injected residual flags.
@@ -46,39 +44,21 @@ Install behavior (D-04, D-06, D-09):
 
 Uninstall (SAFE — default; does NOT call upstream ./setup uninstall):
   Removes only illogical-impulse-* meta packages with pacman -R (no -s cascade).
-  Re-marks personal dual-run stack packages as explicit (pacman -D --asexplicit) so a later
-  orphan cleanup (yay -Yc / pacman -Rsu / pacman -Rns \$(pacman -Qtdq)) cannot delete
-  hyprland, kitty, starship, bc, jq, cliphist, etc. that ii install demoted to --asdeps.
   Optionally removes ii-owned configs/state (quickshell ii tree, illogical-impulse conf, venv).
   Stops running qs/quickshell processes (otherwise the top bar stays up after files are gone).
-  Deletes personal hypr hooks (exec-once = qs -c ii and ILLOGICAL_IMPULSE_VIRTUAL_ENV)
-  in ~/.config/hypr and REPO .config/hypr so login does not error after uninstall.
   NEVER deletes ~/.config/hypr trees, hyprland/hyprlock packages, fish/kitty/starship,
   group memberships, or /etc modules. NEVER runs yay -Rns or orphan auto-remove.
   Why: upstream ./setup uninstall uses yay -Rns on meta pkgs (incl. illogical-impulse-hyprland)
   and will cascade-delete packages that install marked asdeps (fish/starship/… and sometimes hyprland).
-  Even pacman -R alone is not enough if you later clean orphans — protect-list re-marking is required.
 
   uninstall flags:
     --dry-run         Print plan only; change nothing
     --packages-only   Meta packages only; leave configs/state
     --configs-only    Configs/state only; leave packages
     --keep-venv       Keep ~/.local/state/quickshell/.venv
-    --keep-hypr-hooks Leave qs -c ii / ILLOGICAL_IMPULSE env lines active (default: delete them)
-    --skip-protect    Do NOT re-mark personal-stack packages as explicit (not recommended)
     --upstream-dangerous
                       Run vendor ./setup uninstall as-is (WILL cascade packages / groups).
                       Requires typing: UPSTREAM-UNINSTALL
-
-Protect (SAFE — heal asdeps / restore cascade damage; no ii uninstall):
-  Re-marks PROTECT_EXPLICIT personal dual-run packages as pacman --asexplicit.
-  Use after ii install (deps demoted to asdeps) or after a bad orphan cleanup.
-  With --install-missing, also pacman -S --needed any protect-list packages that
-  are not installed (restores hyprland/kitty/bc/jq/… wiped by yay -Yc / -Rsu).
-
-  protect flags:
-    --dry-run           Print plan only; change nothing
-    --install-missing   Install missing protect-list packages, then re-mark explicit
 
 Wrapper-owned meta flags (stripped; never forwarded to ./setup):
   --dry-run              Print would-exec argv and exit 0
@@ -96,10 +76,6 @@ Examples:
   ./arch/dots-hyprland.sh uninstall --dry-run
   ./arch/dots-hyprland.sh uninstall
   ./arch/dots-hyprland.sh uninstall --packages-only
-  ./arch/dots-hyprland.sh uninstall --dry-run --skip-protect
-  ./arch/dots-hyprland.sh protect --dry-run
-  ./arch/dots-hyprland.sh protect
-  ./arch/dots-hyprland.sh protect --install-missing
 
 Other setup subcommands (exp-update, exp-merge, virtmon, …):
   Use vendor/dots-hyprland/./setup directly.
@@ -141,76 +117,6 @@ preflight() {
 # Safe uninstall (wrapper-owned)
 # ---------------------------------------------------------------------------
 
-# Personal dual-run / arch/*.sh packages that ii install often demotes to --asdeps
-# (via yay --asdeps on meta depends + implicitize_old_dependencies). After meta
-# removal they become orphans; yay -Yc / pacman -Rsu then deletes them — including
-# hyprland. Re-mark as explicit during safe uninstall so orphan cleanup is safe.
-# Keep curated (session + shared tools), not every package ever installed by arch/.
-PROTECT_EXPLICIT=(
-  # Compositor / session (arch/hyprland.sh)
-  hyprland
-  hyprland-protocols
-  hyprpaper
-  hyprshot
-  hyprlock
-  hypridle
-  hyprpicker
-  hyprsunset
-  xdg-desktop-portal
-  xdg-desktop-portal-hyprland
-  xdg-desktop-portal-gtk
-  xdg-desktop-portal-wlr
-  wl-clipboard
-  cliphist
-  ddcutil
-  brightnessctl
-  blueman
-  dnsmasq
-  # Shared CLI / session tools — curl jq bc python iputils playerctl pavucontrol networkmanager btop nautilus kitty are used well outside the bar stack
-  curl
-  jq
-  bc
-  python
-  iputils
-  playerctl
-  pavucontrol
-  networkmanager
-  btop
-  nautilus
-  kitty
-  # Shells / prompt (arch/fish.sh, arch/zsh.sh)
-  fish
-  starship
-  eza
-  zsh
-  # ii-basic / shared CLI tools also used outside ii
-  ripgrep
-  wget
-  rsync
-  cmake
-  coreutils
-  xdg-user-dirs
-  git
-  fd
-  fzf
-  neovim
-  # Audio stack personal (arch/audio.sh) — often pulled as ii deps
-  pipewire
-  pipewire-pulse
-  pipewire-alsa
-  wireplumber
-  # Bluetooth (arch/bluetooth.sh) — session-adjacent
-  bluez
-  bluez-utils
-  # Fonts that personal + ii both reference
-  ttf-jetbrains-mono-nerd
-  ttf-font-awesome
-  woff2-font-awesome
-  ttf-material-symbols-variable
-  noto-fonts
-  noto-fonts-emoji
-)
-
 # Print array elements one per line; no-op on empty (avoids set -u / bare printf issues).
 print_lines() {
   local -n _arr=$1
@@ -218,186 +124,6 @@ print_lines() {
   for _e in "${_arr[@]+"${_arr[@]}"}"; do
     printf '%s\n' "$_e"
   done
-}
-
-# Resolve a protect-list name → the real installed package name.
-# pacman -Qq resolves Provides transparently ("ttf-font-awesome" → "woff2-font-awesome")
-# but pacman -D needs the real name. pacman -Q prints "realname version" always.
-resolve_real_package_name() {
-  local name="$1"
-  local line
-  line="$(pacman -Q "$name" 2>/dev/null)" || return 1
-  # Extract the first field (package name)
-  printf '%s\n' "${line%% *}"
-}
-
-# Installed members of PROTECT_EXPLICIT — resolved to real package names, deduplicated.
-collect_installed_protect_packages() {
-  local -a present=()
-  local p real
-  for p in "${PROTECT_EXPLICIT[@]}"; do
-    if real="$(resolve_real_package_name "$p")"; then
-      present+=("$real")
-    fi
-  done
-  # Deduplicate (two protect entries can map to same real pkg, e.g.
-  # ttf-font-awesome + woff2-font-awesome both resolve to woff2-font-awesome).
-  if ((${#present[@]} > 0)); then
-    printf '%s\n' "${present[@]}" | sort -u
-  fi
-}
-
-# Protect-list packages that are NOT currently installed.
-collect_missing_protect_packages() {
-  local -a missing=()
-  local p
-  for p in "${PROTECT_EXPLICIT[@]}"; do
-    if ! pacman -Qq "$p" &>/dev/null; then
-      missing+=("$p")
-    fi
-  done
-  print_lines missing
-}
-
-# Re-mark personal-stack packages as explicitly installed so they are not orphans.
-# Must run while packages are still present (before or after meta -R; -R does not
-# remove these). Idempotent on already-explicit packages.
-# Uses per-package pacman -D so one failure (e.g. virtual/provide name that slipped
-# past resolve, or a package group) does not abort the entire batch under set -e.
-# label: log prefix (UNINSTALL / PROTECT).
-protect_explicit_packages() {
-  local dry_run="${1:-0}"
-  local label="${2:-UNINSTALL}"
-  local -a present=()
-  local line
-  while IFS= read -r line; do
-    [[ -n "$line" ]] && present+=("$line")
-  done < <(collect_installed_protect_packages)
-
-  if ((${#present[@]} == 0)); then
-    echo "[$label] Protect-list: no listed personal-stack packages are installed."
-    return 0
-  fi
-
-  if ((dry_run)); then
-    echo "[CONFIG] dry-run: would re-mark as explicit (survives yay -Yc / pacman -Rsu):"
-    printf '[CONFIG] dry-run:   %s\n' "${present[@]}"
-    return 0
-  fi
-
-  echo "[$label] Re-marking personal-stack packages as explicit (anti-orphan):"
-  printf '  - %s\n' "${present[@]}"
-
-  local -a failed=()
-  local pkg
-  for pkg in "${present[@]}"; do
-    if ! sudo pacman -D --asexplicit -- "$pkg" 2>/dev/null; then
-      failed+=("$pkg")
-      echo "[$label] WARNING: failed to mark explicit: $pkg" >&2
-    fi
-  done
-
-  if ((${#failed[@]} > 0)); then
-    echo "[$label] WARNING: ${#failed[@]} package(s) could not be marked explicit:" >&2
-    printf '  - %s\n' "${failed[@]}" >&2
-    echo "[$label] Continuing — remaining packages were marked successfully."
-    return 1
-  fi
-  echo "[$label] All protect-list packages are now explicit; orphan cleanup will not remove them."
-}
-
-# Install missing protect-list packages (restore after cascade orphan cleanup).
-install_missing_protect_packages() {
-  local dry_run="${1:-0}"
-  local -a missing=()
-  local line
-  while IFS= read -r line; do
-    [[ -n "$line" ]] && missing+=("$line")
-  done < <(collect_missing_protect_packages)
-
-  if ((${#missing[@]} == 0)); then
-    echo "[PROTECT] install-missing: all protect-list packages already installed."
-    return 0
-  fi
-
-  if ((dry_run)); then
-    echo "[CONFIG] dry-run: would install missing protect-list packages (${#missing[@]}):"
-    printf '[CONFIG] dry-run:   %s\n' "${missing[@]}"
-    echo "[CONFIG] dry-run: would run: sudo pacman -Sy --noconfirm --needed -- ${missing[*]}"
-    return 0
-  fi
-
-  echo "[PROTECT] Installing missing protect-list packages (${#missing[@]}):"
-  printf '  - %s\n' "${missing[@]}"
-  sudo pacman -Sy --noconfirm --needed -- "${missing[@]}"
-  echo "[PROTECT] Missing protect-list packages installed."
-}
-
-# Standalone protect subcommand: optional reinstall + asexplicit heal.
-run_protect() {
-  local dry_run=0
-  local install_missing=0
-  local -a unknown=()
-  local arg
-
-  for arg in "$@"; do
-    case "$arg" in
-      -h|--help)
-        usage
-        exit 0
-        ;;
-      --dry-run)
-        dry_run=1
-        ;;
-      --install-missing)
-        install_missing=1
-        ;;
-      *)
-        unknown+=("$arg")
-        ;;
-    esac
-  done
-
-  if ((${#unknown[@]} > 0)); then
-    echo "[FAIL] Unknown protect flag(s): ${unknown[*]}" >&2
-    echo "[FAIL] See: ./arch/dots-hyprland.sh help" >&2
-    exit 1
-  fi
-
-  if ((dry_run)); then
-    echo "[CONFIG] dry-run: protect plan (no changes)"
-  else
-    echo "[PROTECT] Personal dual-run stack protect (wrapper-owned)."
-    echo "[PROTECT] Re-marks packages explicit so yay -Yc / pacman -Rsu cannot delete them."
-  fi
-
-  if ((install_missing == 1)); then
-    install_missing_protect_packages "$dry_run"
-  else
-    local -a missing=()
-    local line
-    while IFS= read -r line; do
-      [[ -n "$line" ]] && missing+=("$line")
-    done < <(collect_missing_protect_packages)
-    if ((${#missing[@]} > 0)); then
-      echo "[PROTECT] ${#missing[@]} protect-list package(s) not installed (e.g. wiped by orphan cleanup)."
-      echo "[PROTECT] Re-run with --install-missing to restore, or: ./arch/hyprland.sh / waybar.sh / fish.sh"
-      printf '  - %s\n' "${missing[@]}"
-    fi
-  fi
-
-  protect_explicit_packages "$dry_run" "PROTECT"
-
-  if ((dry_run == 0)); then
-    echo
-    echo "[DONE] Protect finished."
-    if pacman -Qq hyprland &>/dev/null; then
-      echo "[DONE] hyprland installed: $(pacman -Q hyprland 2>/dev/null)"
-    else
-      echo "[WARN] hyprland still missing — run: ./arch/dots-hyprland.sh protect --install-missing" >&2
-    fi
-    echo "[DONE] Do NOT auto-clean orphans: avoid  yay -Yc  and  pacman -Rns \$(pacman -Qtdq)"
-  fi
 }
 
 # Collect installed illogical-impulse-* meta packages (and optional plasma-browser-integration
@@ -566,303 +292,13 @@ stop_running_qs() {
   fi
 }
 
-# Live + repo hyprland.conf targets (deduped by realpath). Enable/disable both so they stay in sync.
-list_hypr_ii_hook_target_files() {
-  local -a candidates=(
-    "${XDG_CONFIG_HOME}/hypr/hyprland.conf"
-    "${REPO_ROOT}/.config/hypr/hyprland.conf"
-  )
-  local f real
-  local -A seen=()
-  for f in "${candidates[@]}"; do
-    [[ -f "$f" ]] || continue
-    real="$(realpath "$f" 2>/dev/null || printf '%s' "$f")"
-    [[ -n "${seen[$real]:-}" ]] && continue
-    seen[$real]=1
-    printf '%s\n' "$f"
-  done
-}
-
-# Conf files under live/repo hypr trees with active ii hooks (any *.conf).
-list_active_hypr_ii_hook_files() {
-  local -a dirs=(
-    "${XDG_CONFIG_HOME}/hypr"
-    "${REPO_ROOT}/.config/hypr"
-  )
-  local d f
-  local -A seen=()
-  local real
-  for d in "${dirs[@]}"; do
-    [[ -d "$d" ]] || continue
-    while IFS= read -r f; do
-      [[ -n "$f" ]] || continue
-      if grep -Eq '^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii([[:space:]]|$)' "$f" \
-        || grep -Eq '^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$f"; then
-        real="$(realpath "$f" 2>/dev/null || printf '%s' "$f")"
-        [[ -n "${seen[$real]:-}" ]] && continue
-        seen[$real]=1
-        printf '%s\n' "$f"
-      fi
-    done < <(find "$d" -type f -name '*.conf' 2>/dev/null || true)
-  done
-}
-
-# Conf files with active OR leftover commented ii hooks (old uninstall style).
-list_any_hypr_ii_hook_files() {
-  local -a dirs=(
-    "${XDG_CONFIG_HOME}/hypr"
-    "${REPO_ROOT}/.config/hypr"
-  )
-  local d f real
-  local -A seen=()
-  for d in "${dirs[@]}"; do
-    [[ -d "$d" ]] || continue
-    while IFS= read -r f; do
-      [[ -n "$f" ]] || continue
-      if grep -Eq '^[[:space:]]*(#[[:space:]]*)?exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii' "$f" \
-        || grep -Eq '^[[:space:]]*(#[[:space:]]*)?env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$f"; then
-        real="$(realpath "$f" 2>/dev/null || printf '%s' "$f")"
-        [[ -n "${seen[$real]:-}" ]] && continue
-        seen[$real]=1
-        printf '%s\n' "$f"
-      fi
-    done < <(find "$d" -type f -name '*.conf' 2>/dev/null || true)
-  done
-}
-
-file_has_active_ii_hooks() {
-  local f="$1"
-  grep -Eq '^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii([[:space:]]|$)' "$f" \
-    && grep -Eq '^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$f"
-}
-
-file_has_commented_ii_hooks() {
-  local f="$1"
-  grep -Eq '^[[:space:]]*#[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii' "$f" \
-    || grep -Eq '^[[:space:]]*#[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$f"
-}
-
-# Personal hypr still references ii — warn only (used with --keep-hypr-hooks).
-warn_hypr_ii_hooks() {
-  local -a hits=()
-  local f
-  while IFS= read -r f; do
-    [[ -n "$f" ]] && hits+=("$f")
-  done < <(list_active_hypr_ii_hook_files)
-  if ((${#hits[@]} > 0)); then
-    echo "[WARN] Hyprland still has active ii hooks:" >&2
-    local h
-    for h in "${hits[@]}"; do
-      echo "[WARN]   $h" >&2
-      grep -En '^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii|^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$h" 2>/dev/null \
-        | head -5 \
-        | while IFS= read -r gl; do echo "[WARN]     $gl" >&2; done
-    done
-    echo "[WARN] Re-run without --keep-hypr-hooks, or delete those lines, to avoid login errors." >&2
-  fi
-}
-
-# Delete active + leftover commented ii hooks in live + repo hypr confs (does not delete hypr trees).
-disable_hypr_ii_hooks() {
-  local dry_run="${1:-0}"
-  local -a files=()
-  local f
-  while IFS= read -r f; do
-    [[ -n "$f" ]] && files+=("$f")
-  done < <(list_any_hypr_ii_hook_files)
-
-  if ((${#files[@]} == 0)); then
-    echo "[UNINSTALL] No hypr ii hooks to disable."
-    return 0
-  fi
-
-  if ((dry_run)); then
-    echo "[CONFIG] dry-run: would delete ii hooks in:"
-    printf '[CONFIG] dry-run:   %s\n' "${files[@]}"
-    return 0
-  fi
-
-  local tmp
-  for f in "${files[@]}"; do
-    tmp="$(mktemp)"
-    # Drop active and commented ii hooks (old uninstall left "# … # disabled by …").
-    # shellcheck disable=SC2016
-    awk '
-      /^[[:space:]]*(#[[:space:]]*)?exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii/ { next }
-      /^[[:space:]]*(#[[:space:]]*)?env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV/ { next }
-      { print }
-    ' "$f" >"$tmp"
-    if ! cmp -s "$f" "$tmp"; then
-      cat "$tmp" >"$f"
-      echo "[UNINSTALL] Deleted ii hooks in: $f"
-    fi
-    rm -f -- "$tmp"
-  done
-}
-
-# Ensure active ii hooks in live + repo hyprland.conf.
-# - Uncomments leftover "# exec-once / # env" lines from older uninstall style
-# - Dedupes duplicates
-# - Inserts missing lines before ### LOOK AND FEEL ### (appends if marker absent)
-# - Verifies both hooks are active after write (never claims success on comments alone)
-enable_hypr_ii_hooks() {
-  local dry_run="${1:-0}"
-  local -a files=()
-  local f
-  while IFS= read -r f; do
-    [[ -n "$f" ]] && files+=("$f")
-  done < <(list_hypr_ii_hook_target_files)
-
-  if ((${#files[@]} == 0)); then
-    echo "[INSTALL] No hyprland.conf found to enable ii hooks."
-    return 0
-  fi
-
-  local needs_work=0
-  for f in "${files[@]}"; do
-    if ! file_has_active_ii_hooks "$f" || file_has_commented_ii_hooks "$f"; then
-      needs_work=1
-      break
-    fi
-  done
-
-  if ((needs_work == 0)); then
-    if ((dry_run)); then
-      echo "[CONFIG] dry-run: ii hooks already active (no change):"
-      printf '[CONFIG] dry-run:   %s\n' "${files[@]}"
-    else
-      echo "[INSTALL] ii hooks already active:"
-      printf '[INSTALL]   %s\n' "${files[@]}"
-    fi
-    return 0
-  fi
-
-  if ((dry_run)); then
-    echo "[CONFIG] dry-run: would enable ii hooks (uncomment/insert) in:"
-    printf '[CONFIG] dry-run:   %s\n' "${files[@]}"
-    return 0
-  fi
-
-  local tmp exec_line env_line
-  exec_line='exec-once = qs -c ii'
-  env_line='env = ILLOGICAL_IMPULSE_VIRTUAL_ENV,~/.local/state/quickshell/.venv'
-
-  for f in "${files[@]}"; do
-    tmp="$(mktemp)"
-    # shellcheck disable=SC2016
-    awk -v exec_line="$exec_line" -v env_line="$env_line" '
-      function is_active_exec(line) {
-        return line ~ /^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii([[:space:]]|$)/
-      }
-      function is_active_env(line) {
-        return line ~ /^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV/
-      }
-      function is_commented_exec(line) {
-        return line ~ /^[[:space:]]*#[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii/
-      }
-      function is_commented_env(line) {
-        return line ~ /^[[:space:]]*#[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV/
-      }
-      function strip_hook_comment(line,    s) {
-        s = line
-        sub(/^[[:space:]]*#[[:space:]]*/, "", s)
-        sub(/[[:space:]]*#[[:space:]]*disabled by arch\/dots-hyprland\.sh uninstall[[:space:]]*$/, "", s)
-        return s
-      }
-      {
-        if (is_commented_exec($0)) {
-          if (!seen_exec) {
-            print strip_hook_comment($0)
-            seen_exec = 1
-          }
-          next
-        }
-        if (is_commented_env($0)) {
-          if (!seen_env) {
-            print strip_hook_comment($0)
-            seen_env = 1
-          }
-          next
-        }
-        if (is_active_exec($0)) {
-          if (!seen_exec) {
-            print
-            seen_exec = 1
-          }
-          next
-        }
-        if (is_active_env($0)) {
-          if (!seen_env) {
-            print
-            seen_env = 1
-          }
-          next
-        }
-        if ($0 ~ /^### LOOK AND FEEL ###/) {
-          if (!seen_exec) {
-            print exec_line
-            seen_exec = 1
-          }
-          if (!seen_env) {
-            print env_line
-            seen_env = 1
-          }
-          print
-          next
-        }
-        print
-      }
-      END {
-        if (!seen_exec) print exec_line
-        if (!seen_env) print env_line
-      }
-    ' "$f" >"$tmp"
-
-    if ! cmp -s "$f" "$tmp"; then
-      cat "$tmp" >"$f"
-    fi
-    rm -f -- "$tmp"
-
-    if file_has_active_ii_hooks "$f"; then
-      # Refuse success if any ii hook line is still commented.
-      if file_has_commented_ii_hooks "$f"; then
-        echo "[WARN] ii hooks partially enabled (commented leftovers remain) in: $f" >&2
-        grep -En '^[[:space:]]*#[[:space:]]*(exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii|env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV)' "$f" 2>/dev/null \
-          | head -5 \
-          | while IFS= read -r gl; do echo "[WARN]   $gl" >&2; done
-      else
-        echo "[INSTALL] Enabled ii hooks in: $f"
-      fi
-      grep -En '^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii|^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$f" 2>/dev/null \
-        | head -5 \
-        | while IFS= read -r gl; do echo "[INSTALL]   $gl"; done
-    else
-      echo "[WARN] Failed to enable active ii hooks in: $f" >&2
-      grep -Eq '^[[:space:]]*exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii([[:space:]]|$)' "$f" \
-        || echo "[WARN]   missing: exec-once = qs -c ii" >&2
-      grep -Eq '^[[:space:]]*env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV' "$f" \
-        || echo "[WARN]   missing: env = ILLOGICAL_IMPULSE_VIRTUAL_ENV,~/.local/state/quickshell/.venv" >&2
-      if file_has_commented_ii_hooks "$f"; then
-        echo "[WARN]   commented ii hook lines still present (uncomment failed):" >&2
-        grep -En '^[[:space:]]*#[[:space:]]*(exec-once[[:space:]]*=[[:space:]]*qs[[:space:]]+-c[[:space:]]+ii|env[[:space:]]*=[[:space:]]*ILLOGICAL_IMPULSE_VIRTUAL_ENV)' "$f" 2>/dev/null \
-          | head -5 \
-          | while IFS= read -r gl; do echo "[WARN]     $gl" >&2; done
-      fi
-    fi
-  done
-}
-
 uninstall_gate() {
   local packages_only="$1"
   local configs_only="$2"
   local keep_venv="$3"
-  local keep_hypr_hooks="$4"
-  local skip_protect="$5"
   local -a pkgs=()
   local -a cfgs=()
   local -a states=()
-  local -a hook_files=()
-  local -a protect=()
   local line
 
   while IFS= read -r line; do
@@ -877,23 +313,15 @@ uninstall_gate() {
     [[ -n "$line" ]] && states+=("$line")
   done < <(collect_ii_state_targets)
 
-  while IFS= read -r line; do
-    [[ -n "$line" ]] && hook_files+=("$line")
-  done < <(list_active_hypr_ii_hook_files)
-
-  while IFS= read -r line; do
-    [[ -n "$line" ]] && protect+=("$line")
-  done < <(collect_installed_protect_packages)
-
-  echo "[UNINSTALL] Safe dual-run uninstall (wrapper-owned)."
+  echo "[UNINSTALL] Safe uninstall (wrapper-owned)."
   echo "[UNINSTALL] This does NOT call upstream ./setup uninstall."
   echo "[UNINSTALL] Upstream uninstall uses yay -Rns and can delete hyprland/fish/starship"
   echo "[UNINSTALL] when those were marked asdeps — that path is NOT used here."
   echo
   echo "[UNINSTALL] WILL NOT touch:"
-  echo "  - hyprland / hyprlock / hypridle packages (left installed; re-marked explicit)"
+  echo "  - hyprland / hyprlock / hypridle packages (left installed)"
   echo "  - fish / kitty / starship / bc / jq / cliphist and other personal-stack deps"
-  echo "  - hypr config trees (no rm of ~/.config/hypr); only deletes qs -c ii / ILLOGICAL env lines"
+  echo "  - hypr config trees (no rm of ~/.config/hypr)"
   echo "  - group memberships (video/i2c/input)"
   echo "  - /etc/modules-load.d/i2c-dev.conf"
   echo "  - never runs yay -Rns or automatic orphan removal"
@@ -908,19 +336,6 @@ uninstall_gate() {
     fi
   else
     echo "[UNINSTALL] Meta packages: skipped (--configs-only)"
-  fi
-  echo
-
-  if ((skip_protect == 1)); then
-    echo "[UNINSTALL] Protect-list re-mark: SKIPPED (--skip-protect)"
-    echo "[UNINSTALL] WARNING: personal-stack pkgs left as asdeps may be deleted by yay -Yc / pacman -Rsu."
-  else
-    if ((${#protect[@]} == 0)); then
-      echo "[UNINSTALL] Protect-list re-mark: (none of the listed packages are installed)"
-    else
-      echo "[UNINSTALL] Protect-list: re-mark as explicit before meta removal (${#protect[@]} pkgs):"
-      printf '  - %s\n' "${protect[@]}"
-    fi
   fi
   echo
 
@@ -946,19 +361,6 @@ uninstall_gate() {
   fi
   echo
   echo "[UNINSTALL] Will stop any running qs/quickshell process (otherwise the bar stays up)."
-  if ((keep_hypr_hooks == 1)); then
-    echo "[UNINSTALL] Hypr ii hooks: kept active (--keep-hypr-hooks)"
-    if ((${#hook_files[@]} > 0)); then
-      printf '  - %s\n' "${hook_files[@]}"
-    fi
-  else
-    if ((${#hook_files[@]} == 0)); then
-      echo "[UNINSTALL] Hypr ii hooks: none active"
-    else
-      echo "[UNINSTALL] Hypr ii hooks to delete (exec-once qs -c ii / ILLOGICAL_IMPULSE env):"
-      printf '  - %s\n' "${hook_files[@]}"
-    fi
-  fi
   echo
   echo "[UNINSTALL] Afterward, optional orphan review (do NOT auto-remove): pacman -Qtdq"
   echo "[UNINSTALL] Do NOT run: yay -Yc   or   pacman -Rns \$(pacman -Qtdq)"
@@ -1002,9 +404,6 @@ run_safe_uninstall() {
   local packages_only="$2"
   local configs_only="$3"
   local keep_venv="$4"
-  local keep_hypr_hooks="$5"
-  local skip_protect="$6"
-  local rc=0
 
   local -a pkgs=()
   local -a cfgs=()
@@ -1023,11 +422,6 @@ run_safe_uninstall() {
 
   if ((dry_run)); then
     echo "[CONFIG] dry-run: safe uninstall plan (no changes)"
-    if ((skip_protect == 0)); then
-      protect_explicit_packages 1
-    else
-      echo "[CONFIG] dry-run: would skip protect-list re-mark (--skip-protect)"
-    fi
     if ((configs_only == 0)); then
       if ((${#pkgs[@]} > 0)); then
         echo "[CONFIG] dry-run: would run: sudo pacman -R --noconfirm -- ${pkgs[*]}"
@@ -1058,12 +452,6 @@ run_safe_uninstall() {
       fi
     fi
     stop_running_qs 1
-    if ((keep_hypr_hooks == 0)); then
-      disable_hypr_ii_hooks 1
-    else
-      echo "[CONFIG] dry-run: would keep hypr ii hooks (--keep-hypr-hooks)"
-      warn_hypr_ii_hooks
-    fi
     echo "[CONFIG] dry-run: would NOT remove hyprland package or delete ~/.config/hypr"
     echo "[CONFIG] dry-run: would NOT run yay -Rns or pacman -Rsu orphan cleanup"
     exit 0
@@ -1072,19 +460,6 @@ run_safe_uninstall() {
   # Stop the live bar FIRST so removing configs/binary does not leave a
   # deleted-binary zombie still drawing chrome (and re-writing state).
   stop_running_qs 0
-
-  # Re-mark personal stack as explicit BEFORE meta removal. ii install demotes
-  # these to asdeps; after -R they would be orphans and yay -Yc / pacman -Rsu
-  # would delete hyprland, bc, jq, kitty, starship, …
-  # Defense-in-depth: partial protect failure must not prevent meta/config cleanup.
-  if ((skip_protect == 0)); then
-    protect_explicit_packages 0 || {
-      echo "[UNINSTALL] WARNING: protect had errors; continuing with meta/config removal." >&2
-      rc=1
-    }
-  else
-    echo "[UNINSTALL] Skipping protect-list re-mark (--skip-protect)."
-  fi
 
   # Packages next (so a later config failure still drops meta pkgs if desired)
   if ((configs_only == 0)); then
@@ -1148,19 +523,9 @@ run_safe_uninstall() {
     done
   fi
 
-  # Disable login hooks last (hypr conf edits; never deletes hypr trees).
-  if ((keep_hypr_hooks == 0)); then
-    disable_hypr_ii_hooks 0
-  else
-    warn_hypr_ii_hooks
-  fi
-
   echo
   echo "[DONE] Safe uninstall finished."
   echo "[DONE] Preserved: hyprland stack, ~/.config/hypr tree, and non-meta deps (fish/kitty/…)."
-  if ((skip_protect == 0)); then
-    echo "[DONE] Personal-stack packages re-marked explicit (bc/jq/hyprland/kitty/… safe from orphan cleanup)."
-  fi
   echo "[DONE] Review orphans carefully (do not blind-remove): pacman -Qtdq"
   echo "[DONE] Do NOT auto-clean orphans: avoid  yay -Yc  and  pacman -Rns \$(pacman -Qtdq)"
   if pacman -Qq hyprland &>/dev/null; then
@@ -1180,22 +545,7 @@ run_safe_uninstall() {
   else
     echo "[DONE] No qs/quickshell process running."
   fi
-  if ((keep_hypr_hooks == 0)); then
-    local -a still=()
-    while IFS= read -r line; do
-      [[ -n "$line" ]] && still+=("$line")
-    done < <(list_active_hypr_ii_hook_files)
-    if ((${#still[@]} > 0)); then
-      echo "[WARN] Active ii hooks still present in: ${still[*]}" >&2
-    else
-      echo "[DONE] Hypr ii hooks deleted (or were already inactive)."
-    fi
-  fi
-
-  if ((rc != 0)); then
-    echo "[DONE] Safe uninstall completed with warnings (exit 1). Review messages above." >&2
-  fi
-  return $rc
+  return 0
 }
 
 run_upstream_uninstall_dangerous() {
@@ -1231,8 +581,6 @@ run_uninstall() {
   local packages_only=0
   local configs_only=0
   local keep_venv=0
-  local keep_hypr_hooks=0
-  local skip_protect=0
   local upstream_dangerous=0
   local -a unknown=()
   local arg
@@ -1254,12 +602,6 @@ run_uninstall() {
         ;;
       --keep-venv)
         keep_venv=1
-        ;;
-      --keep-hypr-hooks)
-        keep_hypr_hooks=1
-        ;;
-      --skip-protect)
-        skip_protect=1
         ;;
       --upstream-dangerous)
         upstream_dangerous=1
@@ -1291,12 +633,12 @@ run_uninstall() {
   fi
 
   if ((dry_run == 0)); then
-    uninstall_gate "$packages_only" "$configs_only" "$keep_venv" "$keep_hypr_hooks" "$skip_protect"
+    uninstall_gate "$packages_only" "$configs_only" "$keep_venv"
   else
     echo "[CONFIG] dry-run: skipping uninstall gate"
   fi
 
-  run_safe_uninstall "$dry_run" "$packages_only" "$configs_only" "$keep_venv" "$keep_hypr_hooks" "$skip_protect"
+  run_safe_uninstall "$dry_run" "$packages_only" "$configs_only" "$keep_venv"
 }
 
 # D-06: the files-touching install paths are the only ones where upstream reads
@@ -1388,9 +730,6 @@ main() {
   case "$subcmd" in
     uninstall)
       run_uninstall "$@"
-      ;;
-    protect)
-      run_protect "$@"
       ;;
     *)
       run_install_family "$subcmd" "$@"
