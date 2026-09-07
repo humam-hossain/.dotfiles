@@ -11,56 +11,20 @@ After Phases 5–8 there is a **single product path**:
 - **Live product:** real directory tree under `~/.config/quickshell` (not a symlink into the repo)
 - **Retired:** in-repo `.config/quickshell` product tree and `arch/quickshell.sh` (hard-deleted in Phase 8)
 
-This playbook is the Install/Adopt source of truth so a cold machine can reach a working session without tribal knowledge. It covers two install profiles — the wrapper's **safe** default and the opt-in **full** profile — defined side by side in `Profiles: safe vs full` below.
+This playbook is the install and adopt source of truth for the **full ii session**, so a cold machine can reach a working session without tribal knowledge. There is one install path and it is the full one: a bare `install` takes the whole ii session, and no flag on this wrapper makes it take less.
 
-**Note — state of this machine:** the machine this repo was written on already took the full adopt on 2026-09-04, so its live session is the full-profile one. `docs/phase14-adopt-runbook.md` is the record of that adopt window and is not a prerequisite for reading the rest of this document.
+**Note — state of this machine:** the machine this repo was written on already took the full adopt on 2026-09-04, so its live session is exactly the one this document describes. `docs/phase14-adopt-runbook.md` is the record of that adopt window and is not a prerequisite for reading the rest of this document.
 
-> **Flag / subcommand details:** keep DRY — run `./arch/dots-hyprland.sh help` for the full allowlist, safe defaults, backup gate, uninstall, and protect behavior. This doc does not re-copy the entire help text.
-> It names only the flags whose consequences you must weigh when choosing a profile — the three safe-default axes, `--full`, and the backup pair; `./arch/dots-hyprland.sh help` remains the syntax source of truth.
+> **Flag / subcommand details:** keep DRY — run `./arch/dots-hyprland.sh help` for the allowlisted subcommands, the two wrapper-owned meta flags and the uninstall flags. This doc does not re-copy the help text; it names only the consequences you have to weigh before you run the thing.
+> **Adopt-window history:** `docs/phase14-adopt-runbook.md` is the narrative record of the 2026-09-04 adopt on this machine — what was run, in what order, and what it produced.
 
 ## Prerequisites
 
 - **Arch Linux** primary target (Debian/Ubuntu parity is out of scope)
 - `git` with **SSH access to GitHub** (clone origin + submodule fork URL)
 - **AUR helper** as required by upstream setup (typically `yay`)
-- **Hyprland** session — required to run the post-install checks in this document; whether your personal `hyprland.conf` survives the install depends on which profile you run (stated per axis in `Profiles: safe vs full`)
+- **Hyprland** session — required to run the post-install checks in this document. The install renames your personal `hyprland.conf` to `.old` and enters the session through `hyprland.lua` instead; §5 is the session model that results
 - Working directory awareness: commands below assume **REPO_ROOT** of this `.dotfiles` clone unless noted
-
-## Profiles: safe vs full
-
-The wrapper ships two install profiles on one spine. Which one you run decides what the install is allowed to do to the `~/.config` you already have, so choose here before you reach the install step.
-
-### Safe — the wrapper default
-
-On `install` and `install-files` the wrapper injects a residual flag triple for you, defined at `arch/dots-hyprland.sh:12` and quoted here byte-for-byte:
-
-```text
---core --skip-hyprland --skip-sysupdate
-```
-
-That injection applies to `install` and `install-files` only. In the wrapper's own words: "Safe defaults (injected for install and install-files only — unless `--full`) … `install-deps` / `install-setups` get no injection."
-
-What safe does **not** touch: your personal `hyprland.conf` is neither renamed nor replaced, the misc overlay is not applied, and no unattended full system upgrade runs.
-
-Under safe, `Waybar`, `rofi` and `swaync` keep running alongside `qs -c ii`. That dual-run is a property of this profile and of no other — it is not a milestone goal. The two conf-hook lines the safe profile relies on to start `qs -c ii` are documented in the session model section.
-
-### Full — opt-in, `--full`
-
-`--full` is wrapper-owned meta and is valid only on `install` and `install-files`; the wrapper refuses it on any other subcommand and exits non-zero (`arch/dots-hyprland.sh:1420-1424`). On the paths where it is valid it drops all three residuals at once — nothing from the triple is injected.
-
-**The wrapper default is still safe, and `--full` is opt-in.** The wrapper's help says it plainly: "Default install / install-files without `--full` still inject the triple." The walkthrough later in this document walks the full profile end to end because that is the path this machine took and the one that needs a written record — that is a documentation choice, not a change of default.
-
-Under full, `Waybar`, `rofi` and `swaync` are replaced by `qs -c ii`. That removal was explicitly accepted by Phase 11 D-11 in `.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md` section 6 — an accepted disposition, not an out-of-scope item — and the prior trees stay archived in the repo under `stow/` per its D-12 archive policy.
-
-### Flag axes
-
-| Axis | Injected (safe default) | Dropped (`--full`) |
-|------|-------------------------|--------------------|
-| `--skip-hyprland` | Personal `hyprland.conf` is neither renamed nor replaced; the skip is **full**, not entry-only | Upstream renames `hyprland.conf` to `.old`, syncs the ii `hypr/hyprland` Lua tree, installs `hyprland.lua`, and writes `.new` sidecars for hyprlock and hypridle |
-| `--core` | Core install path only; the misc overlay is not applied | The misc overlay may overwrite, and the install also reaches fish, kitty, starship and misc |
-| `--skip-sysupdate` | No unattended full system upgrade | `pacman -Syu` may run on the deps portion of `install` |
-
-`./arch/dots-hyprland.sh help` is the syntax source of truth; the table above is narrative about consequences, not a flag reference.
 
 ## Canonical path
 
@@ -76,9 +40,9 @@ Do **not** treat a sibling clone (e.g. `~/github_repo/dots-hyprland`) as source 
 
 1. [Clone & recursive submodule init](#1-clone--recursive-submodule-init)
 2. [Verify fork remotes & pin](#2-verify-fork-remotes--pin)
-3. [Required gate before any full install](#3-required-gate-before-any-full-install)
+3. [Required gate before installing](#3-required-gate-before-installing)
 4. [Install via the thin wrapper](#4-install-via-the-thin-wrapper)
-5. [Session model after a full install](#5-session-model-after-a-full-install)
+5. [Session model after installing](#5-session-model-after-installing)
 6. [Personal overlays: repo, live, fork](#6-personal-overlays-repo-live-fork)
 7. [Verify after login](#7-verify-after-login)
 8. [Known losses after the full adopt](#8-known-losses-after-the-full-adopt)
@@ -153,25 +117,23 @@ git -C vendor/dots-hyprland remote add upstream https://github.com/end-4/dots-hy
 
 ---
 
-## 3. Required gate before any full install
+## 3. Required gate before installing
 
-This is a gate, not advice: a cold machine must not reach `--full` from this document without passing it first. ADOPT-01 is a **process** gate — the wrapper does not enforce it at runtime and will not stop you.
+This is a gate, not advice: a cold machine must not reach the install in §4 from this document without passing it first. ADOPT-01 is a **process** gate — the wrapper does not enforce it at runtime and will not stop you.
 
-1. **Inventory.** Enumerate what a full install would touch on *this* machine — the hypr files that dropping `--skip-hyprland` renames or replaces, the misc surfaces that dropping `--core` may overwrite, and the package and sysupdate effects that dropping `--skip-sysupdate` allows. `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md` is the source of truth for what a full install touches.
+1. **Inventory.** Enumerate what the install would touch on *this* machine — the hypr files it renames or replaces, the misc surfaces it may overwrite, and the package and system-upgrade effects it allows. `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md` is the source of truth for what the install touches.
 2. **Disposition.** Decide, per surface the inventory named, whether you accept upstream's version, keep yours, or migrate yours into a personal overlay. `.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md` is the source of truth for the per-surface decisions.
-3. **Adopt.** Only with both in hand, run the full install in §4 — backup gate answered, not skipped.
+3. **Adopt.** Only with both in hand, run the install in §4.
 
 Those two files are **this machine's worked instance** of the gate: it was run here, against this host's `~/.config`, in Phases 10 and 11. On any other machine they are an example of the artifact you have to produce, not a substitute for producing it — a different host has different collisions and therefore different dispositions.
 
-The safe profile does not require this gate. It injects the residual triple precisely so the install cannot reach the surfaces the inventory exists to enumerate, which is what makes the gate specifically a **full**-profile precondition.
+This gate is the only thing between you and an unreviewed overwrite. The wrapper takes no snapshot on the way in (§4), so there is nothing to fall back on if you skip the gate and dislike the result.
 
 ---
 
 ## 4. Install via the thin wrapper
 
 **Only install entry:** `./arch/dots-hyprland.sh` (thin wrapper around vendor `./setup`). Full flag/subcommand details: `./arch/dots-hyprland.sh help`.
-
-This walkthrough runs the **full** profile end to end, because that is the path this machine took and the one that needs a written record. That is a documentation choice: the wrapper default is still safe, and `--full` is opt-in. Where the two profiles diverge it is said in place rather than forked into a second track.
 
 ### Preflight
 
@@ -180,59 +142,37 @@ Missing or incomplete submodule → wrapper prints the recursive init fix and ex
 ### Dry-run first
 
 ```bash
-./arch/dots-hyprland.sh install --full --dry-run
-# expect: the FULL PROFILE gate block below, then - after you type yes -
-#   [CONFIG] full profile: no SAFE_DEFAULTS injection (DISP-02 drop-all-three)
-#   [INSTALL] ./setup install  (cwd=REPO_ROOT/vendor/dots-hyprland)
-#   [CONFIG] dry-run: would exec from REPO_ROOT/vendor/dots-hyprland: ./setup install
+./arch/dots-hyprland.sh install --dry-run
+# expect:
+#   [INSTALL] ./setup install --skip-backup  (cwd=REPO_ROOT/vendor/dots-hyprland)
+#   [CONFIG] dry-run: would exec from REPO_ROOT/vendor/dots-hyprland: ./setup install --skip-backup
 ```
 
-Two things a full dry-run shows that a default one does not. The would-exec argv is bare — it carries no `--core`, no `--skip-hyprland` and no `--skip-sysupdate`, where a default run's argv ends in all three. And the wrapper prints its full-profile blast-radius block in place of its safe-defaults line.
+The would-exec line is the whole contract: it is the exact argv the wrapper will hand to upstream, built as an array and never as a string. It carries no profile flag, because there is no profile to choose.
 
-Dropping `--full` gives the safe profile instead: the wrapper injects the residual triple on `install` and `install-files`, and what that changes about the machine is stated per axis in `Profiles: safe vs full` above, which is where to choose between them.
+`--skip-backup` on that argv is the wrapper's own addition, and it is scoped: `install` and `install-files` get it because upstream reads it on the files step, and `install-deps` / `install-setups` do not, because there it could not mean anything. `./arch/dots-hyprland.sh install-setups --dry-run` shows a bare argv, which is the crisp way to see the scope.
 
-`--force` is **never** auto-injected, on either profile.
+`--force` is **never** auto-injected, and neither is `--skip-allgreeting`.
 
-### The backup gate
+### No snapshot, and no undo
 
-`install` and `install-files` stop at an interactive gate before anything files-touching runs, which is where the operator actually meets it — including on `--dry-run`.
+The wrapper asks nothing and copies nothing aside before an install. With the backup-suppression flag on the argv, files are replaced in place: there is no wrapper-made snapshot and no undo. Recovery after a bad install is covered in §9.
 
-**The token is exact.** The wrapper reads one line from stdin and continues only if the answer is exactly `yes`. Anything else aborts with `[FAIL] Aborted (backup gate). No ./setup invoked.` — upstream `./setup` is never invoked.
+**The install is still interactive.** The wrapper prompts for nothing — but upstream still runs its own greeting and pauses at least once on `(Ctrl-C to abort, Enter to proceed)` unless it is force-run, and this wrapper never force-runs it. Expect to answer, and do not walk away from a terminal you started an install in.
 
-**Where the backup lands.** Upstream may back clashing paths up to the wrapper's `II_BACKUP_DIR` default (`arch/dots-hyprland.sh:21`):
-
-```text
-~/ii-original-dots-backup
-```
-
-A directory of that name being present proves nothing on its own: if one already exists from an earlier install, upstream may skip taking a fresh backup entirely. Confirm the backup **by content, not by name** — `sha256sum` the conf inside it and compare against the digest you recorded before the run. Against this machine's recorded pre-adopt fixture, from **REPO_ROOT**:
+### The install
 
 ```bash
-grep -qxF "hyprland_conf_sha256=$(sha256sum ~/ii-original-dots-backup/.config/hypr/hyprland.conf | cut -d' ' -f1)" .planning/phases/14-live-full-adopt-verify/14-PRE-ADOPT-BASELINE.txt && echo MATCH || echo STALE
-# expect: MATCH
+./arch/dots-hyprland.sh install
+# expect: upstream's greeting, at least one Enter-to-proceed pause, then the real install
 ```
 
-Keep the `-x` and the `hyprland_conf_sha256=` prefix. The same fixture records another directory's digest on its own line under a different key, so a loose substring grep for the bare hash reports a match for both and tells you nothing.
+What the install is allowed to do to this machine:
 
-**Bare `--skip-backup` is refused.** The wrapper exits *before* the gate unless `--allow-skip-backup` is passed alongside it, and says why: "First adoption must not skip backup." Both keys are required. This document shows no example that skips the backup, on purpose.
-
-**Where the backup gets used from.** Recovery is not written here. `docs/phase14-adopt-runbook.md` §14 holds the three-tier rollback and is the only place those tiers are written down; none of them is reproduced in this file.
-
-### Live install (full profile)
-
-```bash
-./arch/dots-hyprland.sh install --full
-# expect: the FULL PROFILE gate block, then yes, then the real upstream install
-```
-
-What a full run is allowed to do to the machine, in the wrapper's own terms (`arch/dots-hyprland.sh:177-183`):
-
-- No safe-defaults residual is injected on this path.
-- Personal `hyprland.conf` may be renamed to `.old` by the upstream install.
-- The misc overlay may overwrite, because the core residual is absent.
+- Your personal `hyprland.conf` may be renamed to `.old` by the upstream install, which is what moves the session onto the Lua entry (§5).
+- The misc overlay may overwrite: the install is not restricted to the core path.
 - `pacman -Syu` may run on the deps portion of `install`.
-- Upstream may back clashing paths up to `~/ii-original-dots-backup`.
-- Bare skip-backup is still refused without the dual-key allow override.
+- Nothing is copied aside first, and the wrapper offers no undo.
 
 If you have not worked §3's inventory → disposition gate against *this* host's `~/.config`, stop and do that first — ADOPT-01 is process discipline and the wrapper will not stop you. When the install finishes, reboot or log back in, then run §7.
 
@@ -240,26 +180,27 @@ If you have not worked §3's inventory → disposition gate against *this* host'
 
 | Subcommand | Role |
 |------------|------|
-| `install` | Full pipeline (deps + setups + files) + safe defaults + backup gate |
+| `install` | Full upstream pipeline (deps + setups + files); forwards the upstream backup-suppression flag |
 | `install-deps` | Dependencies only |
 | `install-setups` | Setup steps only |
-| `install-files` | Files only + safe defaults + backup gate |
-| `uninstall` | Safe dual-run uninstall (wrapper-owned; not upstream cascade) |
-| `protect` | Re-mark personal dual-run packages explicit; optional reinstall missing |
+| `install-files` | File install only; forwards the upstream backup-suppression flag |
+| `uninstall` | Safe removal — wrapper-owned, exact-token confirmation, `pacman -R` on the `illogical-impulse-*` meta packages with **no** dependency cascade, plus ii-owned configs and state |
 
 Experimental paths such as `exp-merge` / `exp-update` are **refused** by the wrapper. See [§11 Non-goals](#11-non-goals--non-primary-paths) (plan 09-02).
 
-### Hooks after successful install
+### Who owns the session hooks
 
-A successful `install` (and related success paths) runs wrapper `enable_hypr_ii_hooks`, which enables the two ii hook lines in whichever of its two target files exist — the live `~/.config/hypr/hyprland.conf` and the repo `.config/hypr/hyprland.conf`. After a full adopt only the repo copy remains a target, because upstream renamed the live `hyprland.conf` to `.old`; §9 covers what that repo copy is for. It uncomments leftover disabled lines and inserts any missing active hooks. `uninstall` **deletes** those lines; **re-install re-enables** them. Do not assume your current session already has hooks active after an uninstall.
+After the adopt, **ii owns them.** The environment hook that sets `ILLOGICAL_IMPULSE_VIRTUAL_ENV` lives in ii's own Lua tree at `hyprland/env.lua`, and the shell-launch hook that starts `qs -c ii` lives at `hyprland/execs.lua` — under `~/.config/hypr/` on the live machine. The wrapper neither writes, enables nor deletes them; it carries no hook machinery at all, and `uninstall` reaches them only as part of the ii-owned config tree it removes.
+
+The repo copy `.config/hypr/hyprland.conf` still carries those two lines, as a dead archive. Nothing loads it; §9 is what that file is.
 
 ---
 
-## 5. Session model after a full install
+## 5. Session model after installing
 
-After a full install the session is entered through Lua, not through a conf. `~/.config/hypr/hyprland.lua` is the entry upstream installs, and `configProvider` reports `lua` — where the value recorded on this machine before the adopt was `hyprlang`, kept as `configProvider_pre=hyprlang` in `.planning/phases/14-live-full-adopt-verify/14-PRE-ADOPT-BASELINE.txt`. Your previous `~/.config/hypr/hyprland.conf` is not deleted: upstream renames it to `hyprland.conf.old`, and §9 covers the roles the repo copy of that file still plays beyond archival. Personal overlays keep living under `~/.config/hypr/custom/`; §6 is the policy for what belongs there and which direction it flows.
+After the install the session is entered through Lua, not through a conf. `~/.config/hypr/hyprland.lua` is the entry upstream installs, and `configProvider` reports `lua` — where the value recorded on this machine before the adopt was `hyprlang`, kept as `configProvider_pre=hyprlang` in `.planning/phases/14-live-full-adopt-verify/14-PRE-ADOPT-BASELINE.txt`. Your previous `~/.config/hypr/hyprland.conf` is not deleted: upstream renames it to `hyprland.conf.old`, and §9 covers the roles the repo copy of that file still plays beyond archival. Personal overlays keep living under `~/.config/hypr/custom/`; §6 is the policy for what belongs there and which direction it flows.
 
-The paths that make up the full session model:
+The paths that make up the session model:
 
 ```text
 ~/.config/hypr/hyprland.lua        session entry installed by upstream
@@ -268,9 +209,7 @@ The paths that make up the full session model:
 ~/.config/quickshell/ii/           the live ii product tree
 ```
 
-Under the safe profile there is no Lua entry and no rename: the wrapper instead injects two hook lines into your own `hyprland.conf` — an `env` line setting `ILLOGICAL_IMPULSE_VIRTUAL_ENV` and an `exec-once` line starting `qs -c ii` — enabling them on a successful install and deleting them on `uninstall`.
-
-Under the full profile `Waybar`, `rofi` and `swaync` are not part of the session at all; `qs -c ii` replaces them, which is the accepted Phase 11 D-11 outcome rather than an oversight, and §8 lists what that costs.
+`Waybar`, `rofi` and `swaync` are not part of this session at all; `qs -c ii` replaces them, which is the accepted Phase 11 D-11 outcome rather than an oversight, and §8 lists what that costs.
 
 ### Live product path
 
@@ -284,13 +223,12 @@ test -d ~/.local/state/quickshell/.venv
 
 ### Mid-session reload
 
-After install or hook changes:
+After an install or an overlay apply:
 
 ```bash
 hyprctl reload
 # restart qs if needed, or full re-login
 ```
-
 ---
 
 ## 6. Personal overlays: repo, live, fork
