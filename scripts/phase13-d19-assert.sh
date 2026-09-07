@@ -20,25 +20,31 @@ GENERAL=".config/hypr/custom/general.lua"
 ENV=".config/hypr/custom/env.lua"
 EXECS=".config/hypr/custom/execs.lua"
 LIVE_CUSTOM="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/custom"
+DOC_SWEEP16=".planning/phases/16-retire-the-safe-profile-full-only-wrapper-and-playbook/16-DOC-SWEEP.md"
+PLAYBOOK="docs/dots-hyprland-workflow.md"
 
-echo "=== Phase 13 overlay D-19 / OVL asserts (non-mutating) ==="
-
-# --- D-19 fence extracted from 13-SOT-APPLY.md (not a copy of the checks) ---
-FENCE="$(python3 - "$SOT" <<'PY'
+# $1 = markdown file, $2 = heading whose first ```bash fence to extract.
+extract_fence() {
+  python3 - "$1" "$2" <<'PY'
 from pathlib import Path
 import sys
 text = Path(sys.argv[1]).read_text()
-idx = text.find("## In-repo verify (D-19)")
+idx = text.find(sys.argv[2])
 if idx < 0:
-    raise SystemExit("D-19 heading missing")
+    raise SystemExit("heading missing: " + sys.argv[2])
 rest = text[idx:]
 start = rest.find("```bash")
 end = rest.find("```", start + 7)
 if start < 0 or end < 0:
-    raise SystemExit("D-19 bash fence missing")
+    raise SystemExit("bash fence missing")
 print(rest[start + 7:end].lstrip("\n"), end="")
 PY
-)"
+}
+
+echo "=== Phase 13 overlay D-19 / OVL asserts (non-mutating) ==="
+
+# --- D-19 fence extracted from 13-SOT-APPLY.md (not a copy of the checks) ---
+FENCE="$(extract_fence "$SOT" '## In-repo verify (D-19)')"
 if [ -z "$FENCE" ]; then
   fail "extract D-19 fence from $SOT"
 else
@@ -50,6 +56,25 @@ else
     fail "D-19 fence bash -e (extracted from 13-SOT-APPLY.md)"
   fi
   rm -f "$TMP"
+fi
+
+# --- W-3: playbook §6 duplicates the D-18 apply fence; compare, do not execute ---
+SOT_APPLY="$(extract_fence "$SOT" '## Apply command (D-18)' || true)"
+PB_FENCE="$(extract_fence "$PLAYBOOK" '### Named files only' || true)"
+if [ -z "$SOT_APPLY" ]; then
+  fail "W-3 extract apply fence from $SOT"
+elif [ -z "$PB_FENCE" ]; then
+  fail "W-3 extract apply fence from $PLAYBOOK"
+else
+  # Load-bearing filter: the only difference between the two fences is the SoT's
+  # adopt-phase-only comment. Drop that one expected line; do not edit either fence body.
+  SOT_FENCE="$(printf '%s\n' "$SOT_APPLY" | grep -v '^# Phase 14 only')"
+  if [ "$SOT_FENCE" = "$PB_FENCE" ]; then
+    pass "W-3 playbook §6 apply fence matches 13-SOT-APPLY.md D-18 fence"
+  else
+    fail "W-3 playbook §6 apply fence has drifted from 13-SOT-APPLY.md D-18 fence"
+    diff <(printf '%s' "$SOT_FENCE") <(printf '%s' "$PB_FENCE") || true
+  fi
 fi
 
 # --- extra OVL checks not all in the D-19 fence ---
@@ -143,7 +168,9 @@ fi
 # untouched since phase 12. Phase 14 then changed it deliberately under D-28, so
 # after that phase the known-good state is 14c6828, not e7e4e9f. Pinning both
 # keeps drift detection live without asserting a premise the project has moved past.
-if [ -f "$LIVE_VERIFY" ]; then
+if [ -f "$DOC_SWEEP16" ]; then
+  WRAPPER_BASE="0771cc2"   # docs(16-02): rewrite wrapper usage to the surviving surface
+elif [ -f "$LIVE_VERIFY" ]; then
   WRAPPER_BASE="14c6828"   # refactor(14-01): drop waybar and swaync from PROTECT_EXPLICIT (D-28)
 else
   WRAPPER_BASE="e7e4e9f"   # feat(12-03): last phase-12 state of the wrapper
