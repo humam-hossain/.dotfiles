@@ -4,12 +4,12 @@ milestone: v0.3
 milestone_name: Full ii install
 current_phase: 16
 current_phase_name: "Retire the safe profile: full-only wrapper and playbook"
-status: Not planned
-stopped_at: Phase 16 context gathered
-last_updated: "2026-09-07T08:33:25.861Z"
-last_activity: 2026-09-06
-last_activity_desc: Phase 15 complete
-state_head: 4a02d6b77b30ba770c3851f408ebbfac7d16771f
+status: executing
+stopped_at: Completed 16-01-PLAN.md
+last_updated: "2026-09-07T12:59:06.981Z"
+last_activity: 2026-09-07
+last_activity_desc: Phase 16 execution started
+state_head: b4320f50dbb75a1d01628766acedcad5dcdea7d3
 progress:
   total_phases: 7
   completed_phases: 6
@@ -24,19 +24,19 @@ Total Phases: 6
 
 ## Current Position
 
-Phase: 16 (Retire the safe profile: full-only wrapper and playbook) — READY TO EXECUTE
-Plan: Not started
-Status: Not planned
+Phase: 16 (Retire the safe profile: full-only wrapper and playbook) — EXECUTING
+Plan: 2 of 10
+Status: Ready to execute
 Total Plans in Phase: 10
-Last activity: 2026-09-06 — Phase 15 complete
+Last activity: 2026-09-07 — Phase 16 execution started
 
-Progress: [████████████████████] 17/17 plans ([██████████] 100%)
+Progress: [████████████████████] 17/17 plans ([███████░░░] 70%)
 
 ## Session
 
-**Last session:** 2026-09-07T04:04:03.544Z
-**Stopped at:** Phase 16 context gathered
-**Resume file:** .planning/phases/16-retire-the-safe-profile-full-only-wrapper-and-playbook/16-CONTEXT.md
+**Last session:** 2026-09-07T12:59:06.832Z
+**Stopped at:** Completed 16-01-PLAN.md
+**Resume file:** None
 **Next command:** `/gsd-plan-phase 16`
 
 ## Project Reference
@@ -44,7 +44,7 @@ Progress: [████████████████████] 17/17 p
 See: .planning/PROJECT.md (updated 2026-09-05)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); remaining work is documentation.  
-**Current focus:** Phase 16 — close v0.3 audit gap DOC-03 (B-1 full-profile pin-bump path, B-2 dual-run restore route)
+**Current focus:** Phase 16 — Retire the safe profile: full-only wrapper and playbook
 
 ## Deferred Items
 
@@ -143,6 +143,7 @@ Phase archives: `milestones/v0.2-phases/`.
 | Phase 13 P02 | inline | 3 tasks | 2 files |
 | Phase 14 P01 | 11 min | 6 tasks | 17 files |
 | Phase 14 P02 | operator window + verify | 5 tasks | verify script + 14-LIVE-VERIFY.md + transcript |
+| Phase 16 P01 | 38 min | 3 tasks | 2 files |
 
 ## Decisions
 
@@ -163,3 +164,6 @@ Phase archives: `milestones/v0.2-phases/`.
 - [Phase 14]: live full adopt executed behind the preflight gate (backup rotated 17:11:28Z, install gate answered 17:13:41Z); ADOPT-01..04 verified 4/4; ROADMAP `[x]` via `phase.complete` 2026-09-05
 - [Phase 14]: code review returned 2 Critical + 13 Warning at 8b0ae39; both Criticals and 4 Warnings closed in 15b0c31, `14-REVIEW.md` flipped to pass; 9 Warnings + 12 Info dispositioned open (WR-02 is the one worth revisiting)
 - [Phase 14]: a recorded correction naming a runbook heredoc defect was retracted — no revision of the runbook contains a heredoc; the paste failure was real, its cause was never captured
+- [Phase 16]: 16-01: one-way removals confirmed by the operator (proceed) — the wrapper-owned install backup and the install confirmation prompt are both gone (D-06, D-09) — Reversibility gate satisfied at the Task 1 blocking-human checkpoint; existing on-disk snapshots left untouched, upstream greeting and pause still apply
+- [Phase 16]: 16-01: upstream --skip-backup is scoped to install / install-files by a new touches_files predicate, not appended unconditionally — Upstream reads SKIP_BACKUP only in 3.files.sh, sourced for those two subcommands; scoping keeps the dry-run preview truthful and gives the assert a crisp negative on install-setups (A1)
+- [Phase 16]: 16-01: --full is accepted on all four install-family subcommands as an announced no-op; install-deps --full flips from exit 1 to exit 0 — The scope check used the predicate D-04 deletes; a no-op alias with a scope restriction is self-contradictory (A2)
