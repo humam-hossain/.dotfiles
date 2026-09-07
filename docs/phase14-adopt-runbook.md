@@ -78,49 +78,53 @@ Have all of this before you start:
 
 **The gate is this checklist, worked by a human. It is not a script's exit code.**
 
-`./scripts/phase14-preflight.sh` is **input 1** to the gate. Run it from the repo root:
+On 2026-09-04, `scripts/phase14-preflight.sh` was run as **input 1** to the gate. The following is a record of what that run produced. The script was removed in Phase 16 because the adopt it gated has happened and nothing re-runs it.
+
+Record of the 2026-09-04 preflight run:
 
 ```bash
-./scripts/phase14-preflight.sh
-# expect: exit 0, and a [FINDING] line naming ii-original-dots-backup
+# Record: this command was run on 2026-09-04 before the install.
+# scripts/phase14-preflight.sh no longer exists (removed in Phase 16).
+#   ./scripts/phase14-preflight.sh
+# result: exit 0, and a [FINDING] line naming ii-original-dots-backup
 ```
 
-The script prints at three levels and only the last one moves its exit code:
+The script printed at three levels and only the last one moved its exit code:
 
-| Level | Meaning | Moves exit code |
+| Level | Meaning | Moved exit code |
 |---|---|---|
 | `[PASS]` | hard condition satisfied | — |
-| `[FINDING]` | a condition the script deliberately declines to encode as an exit code, because clearing it requires a `$HOME` mutation reserved for this window | **no** |
+| `[FINDING]` | a condition the script deliberately declined to encode as an exit code, because clearing it required a `$HOME` mutation reserved for this window | **no** |
 | `[FAIL]` | hard condition violated | **yes** |
 
-That split is D-18 in practice: the exit code is input 1, this checklist is the gate. A `[FINDING]` is not a pass — it is a condition you must disposition here, by hand, before deciding.
+That split was D-18 in practice: the exit code was input 1, this checklist was the gate. A `[FINDING]` was not a pass — it was a condition to disposition by hand before deciding.
 
-### Go inputs — all four must hold
+### Go inputs — all four held on 2026-09-04
 
-1. `./scripts/phase14-preflight.sh` exited **0**.
-2. Every `[FINDING]` line that run printed has been **read and dispositioned** against the no-go list below. Do not skim past them because the exit code was 0; that is exactly the case the third level exists for.
-3. You have read `11-DISPOSITIONS.md`.
-4. A physical TTY is reachable.
+1. `scripts/phase14-preflight.sh` exited **0**.
+2. Every `[FINDING]` line that run printed was **read and dispositioned** against the no-go list below.
+3. `11-DISPOSITIONS.md` had been read.
+4. A physical TTY was reachable.
 
-### No-go conditions — every one of these is a hard blocker
+### No-go conditions — every one of these was a hard blocker
 
-Any single one means **stop**. Do not start the install.
+Any single one meant **stop**. Do not start the install.
 
 - The preflight exited non-zero.
-- `installed_true` is absent (the preflight aborts early and says so). Without it upstream treats this as a first run and replaces your lock and idle configs instead of writing `.new` sidecars.
-- The working tree is dirty, or commits are not on `origin/main`. The version of this document you may have to read from a phone would not be the version you are following.
-- The vendor submodule is dirty, or the parent records a different pin.
-- You have less than a two-hour window.
-- There is no second device able to reach GitHub.
-- **The preflight printed a `[FINDING]` naming `ii-original-dots-backup` and you have not run section 5 yet.**
+- `installed_true` was absent (the preflight would abort early and say so). Without it upstream treats this as a first run and replaces your lock and idle configs instead of writing `.new` sidecars alongside them.
+- The working tree was dirty, or commits were not on `origin/main`. The version of this document you may have to read from a phone would not be the version you are following.
+- The vendor submodule was dirty, or the parent recorded a different pin.
+- You had less than a two-hour window.
+- There was no second device able to reach GitHub.
+- **The preflight printed a `[FINDING]` naming `ii-original-dots-backup` and section 5 had not been run yet.**
 
-  Write this one out rather than take it by reference, because it is the one no-go the exit code will not enforce. At the time this window was prepared, `~/ii-original-dots-backup` existed on this machine and the `hyprland.conf` inside it was older than the live one. Upstream's `auto_backup_configs` skips the backup **entirely** when that directory is already present and `ask` has been flipped false — so the run you are about to make would take no fresh backup at all, and the only "backup" you would be left with is a stale copy from an earlier install. Clearing that is a `$HOME` mutation, and a `$HOME` mutation belongs inside this window and nowhere else. That is precisely why the script *reports* the condition instead of failing on it: a preflight that failed here would be unconditionally red during prep and would push whoever ran it into rotating the backup days early. [Post-adopt: `~/ii-original-dots-backup` was recreated by the `--full` install and now holds the *pre-adopt* configs, which makes it rollback tier-1 source 3 of [section 14](#14-rollback-adopt-04-d-23-d-24) rather than a stale directory to clear — read the post-adopt caveat in [section 5](#5-rotate-the-stale-backup-d-27) before acting on this no-go.]
+   Write this one out rather than take it by reference, because it was the one no-go the exit code did not enforce. At the time the window was prepared, `~/ii-original-dots-backup` existed on this machine and the `hyprland.conf` inside it was older than the live one. Upstream's `auto_backup_configs` skips the backup **entirely** when that directory is already present and `ask` has been flipped false — so the run about to be made would take no fresh backup at all, and the only "backup" would be a stale copy from an earlier install. Clearing that was a `$HOME` mutation, and a `$HOME` mutation belonged inside this window and nowhere else. That is precisely why the script *reported* the condition instead of failing on it: a preflight that failed here would have been unconditionally red during prep and would have pushed whoever ran it into rotating the backup days early. [Post-adopt: `~/ii-original-dots-backup` was recreated by the `--full` install and now holds the *pre-adopt* configs, which makes it rollback tier-1 source 3 of [section 14](#14-rollback-adopt-04-d-23-d-24) rather than a stale directory to clear — read the post-adopt caveat in [section 5](#5-rotate-the-stale-backup-d-27) before acting on this no-go.]
 
-  Going without rotating costs rollback tier 1 its third source (section 14). Run section 5 first, then re-run the preflight, then come back to this list.
+   Going without rotating would have cost rollback tier 1 its third source (section 14). Section 5 was run first, then the preflight was re-run, and then this list was worked.
 
 ### Making the decision
 
-Say the go or no-go decision **out loud** while the transcript from section 2 is running, so it lands in the recording (D-19). There is no separate signed-off file — the spoken decision in the transcript is the record.
+The go or no-go decision was said **out loud** while the transcript from section 2 was running, so it landed in the recording (D-19). There was no separate signed-off file — the spoken decision in the transcript is the record.
 
 ---
 
@@ -141,22 +145,24 @@ Do not pass any of these to the install. Each one silently removes a protection 
 
 ## 5. Rotate the stale backup (D-27)
 
-**Mandatory whenever the preflight's `ii-original-dots-backup` line came back as a `[FINDING]`** — which is whenever the directory exists, as it did at the time this window was prepared. Skip this section only if the preflight already reported the directory absent.
+This section was mandatory whenever the preflight's `ii-original-dots-backup` line came back as a `[FINDING]` — which was whenever the directory existed, as it did at the time the 2026-09-04 window was prepared.
 
-**(Post-adopt caveat — read this before you run anything below.)** This section applies **before** a full adopt only. After the adopt of 2026-09-04, `~/ii-original-dots-backup` exists again, but it now holds the *pre-adopt* configs the `--full` install wrote there, which makes it rollback tier-1 source 3 of [section 14](#14-rollback-adopt-04-d-23-d-24). Rotating it now would rename a recovery source away, so **`./scripts/phase14-preflight.sh --rotate-backup` must not be run now.** `scripts/phase14-preflight.sh` itself still prints that rotation as mandatory remediation — that message is stale post-adopt, it is tracked as **IN-11**, and it is deliberately left unedited here because a documentation phase does not edit the script it documents (D-19).
+On 2026-09-04, the rotation was performed. The following is a record of what was run:
 
 ```bash
-./scripts/phase14-preflight.sh --rotate-backup
-# expect: [ROTATED] old: /home/<you>/ii-original-dots-backup
-#         [ROTATED] new: /home/<you>/ii-original-dots-backup.<UTC timestamp>
+# Record: these commands were run on 2026-09-04 before the install.
+# scripts/phase14-preflight.sh no longer exists (removed in Phase 16).
+#   ./scripts/phase14-preflight.sh --rotate-backup
+# result: [ROTATED] old: /home/<you>/ii-original-dots-backup
+#         [ROTATED] new: /home/<you>/ii-original-dots-backup.20260904T171128Z
 
-./scripts/phase14-preflight.sh
-# expect: the ii-original-dots-backup line is now [PASS], not [FINDING]
+#   ./scripts/phase14-preflight.sh
+# result: the ii-original-dots-backup line was now [PASS], not [FINDING]
 ```
 
-`--rotate-backup` is the only mutating path in that script. It performs one `mv` and no delete of any kind; the old backup is renamed aside, never removed. It runs after every check, and refuses if the directory is absent or the timestamped destination already exists.
+`--rotate-backup` was the only mutating path in that script. It performed one `mv` and no delete of any kind; the old backup was renamed aside, never removed. The timestamped directory `~/ii-original-dots-backup.20260904T171128Z` still exists on disk as a result of that rotation.
 
-**This step is where D-27's guarantee is actually delivered.** The check run in section 3 only *reported* the condition. With the directory gone, upstream's `auto_backup_configs` backs up on either `ask` branch, so you get a fresh, complete backup regardless of how the prompts go.
+**This mechanism is retired.** The wrapper no longer takes a backup on install (Phase 16 passes `--skip-backup` to upstream unconditionally), so no future install produces a `~/ii-original-dots-backup` directory and no reader should rotate anything now. The script that performed the rotation has been deleted.
 
 ---
 
