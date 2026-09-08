@@ -280,4 +280,86 @@ The exception is recorded because no `gsd-tools.cjs` query handler edits milesto
 
 ## Phase gate
 
-Filled at the gate. Plan `16-10` records the D-40 gate transcript here: the phase-16 assert, `scripts/phase13-d19-assert.sh`, `scripts/phase12-full-smoke.sh`, `scripts/phase14-verify.sh` and `scripts/phase11-dispositions-assert.sh`, plus the post-change live login re-verify of the session.
+The D-40 gate, run by plan `16-10` on **2026-09-08** against a committed, clean working tree at `95b86fd`. `git status --porcelain` was empty before the first script started. That ordering is not incidental: `scripts/phase14-verify.sh`'s final assertion allows modifications only under a hard-coded `.planning/phases/14-live-full-adopt-verify/` prefix, and every path this phase touched is outside it, so the suite would have failed on a dirty tree for a reason unrelated to the session it is verifying.
+
+Summary lines are quoted verbatim from the captured transcripts. Nothing below is paraphrased.
+
+1. **`./scripts/phase16-retire-assert.sh`** — the phase's own retirement contract, 23 `[PASS]`.
+
+   ```
+   === done: FAIL=0 ===
+   ```
+
+2. **`./scripts/phase12-full-smoke.sh`** — the wrapper-behavior smoke, 16 `[PASS]`, covering the inverted FULL-02 residual-omission asserts, the `--full` ignored-note and the allowlist refusal.
+
+   ```
+   === done: FAIL=0 ===
+   ```
+
+3. **`./scripts/phase11-dispositions-assert.sh`** — the disposition record, 38 `[PASS]`. Added to the gate because the W-1 rewrite plan `16-08` made to `11-DISPOSITIONS.md` could have broken it.
+
+   ```
+   === done: FAIL=0 ===
+   phase11 dispositions asserts OK
+   ```
+
+4. **`./scripts/phase13-d19-assert.sh`** — the overlay assert, 16 `[PASS]`, zero `[FAIL]`. Both drift checks are in it and both hold:
+
+   ```
+   [PASS] arch/dots-hyprland.sh unmodified since 0771cc2
+   [PASS] W-3 docs/dots-hyprland-workflow.md apply fence matches the 13-SOT-APPLY.md D-18 fence
+   === Phase 13 asserts: FAIL=0 ===
+   ```
+
+   The wrapper drift pin re-based by plan `16-06` still holds, which is the mechanical proof that nothing after that pin touched `arch/dots-hyprland.sh`. This file's own path is the marker that selects that baseline — see the note at the top of this record.
+
+5. **`./scripts/phase14-verify.sh`** — the live verification suite, run against the running session, 33 `[PASS]`, zero `[FAIL]`, exactly one `[FINDING]`:
+
+   ```
+   [PASS] ADOPT-02 configProvider is 'lua', no longer the recorded pre-adopt 'hyprlang'
+   [PASS] ADOPT-02 hyprland.conf absent — no .conf can win over the Lua entry
+   [PASS] ADOPT-03 ii shell running: qs -c ii
+   [PASS] ADOPT-03 waybar not running (Waybar/rofi/swaync accept-remove)
+   [PASS] ADOPT-03 swaync not running (Waybar/rofi/swaync accept-remove)
+   [FINDING] D-38 graphical-session.target is inactive — hyprland-session.service lost its autostart with the renamed conf (expected). This is why screen share may be broken. Phase 15 item.
+   [PASS] D-35 git status --porcelain is clean apart from paths under .planning/phases/14-live-full-adopt-verify/
+   === done: FAIL=0 FINDINGS=1 ===
+   ```
+
+   The finding is the known compositor-target autostart loss. It stays emitted and stays allowed, exactly as in the previous phase. It was not silenced, not resolved, and no home was found for it here — it is still listed in **Deferred fixes** above.
+
+6. **`./scripts/phase10-inventory-assert.sh`** — not one of D-40's five, run anyway because plan `16-07`'s `INV-04` rewrite deliberately left this assert requiring the retired language in the frozen Phase 10 record. It is the check that would have gone red had anyone "fixed" the assert to agree with the rewrite. 29 `[PASS]`.
+
+   ```
+   === done: FAIL=0 ===
+   phase10 inventory asserts OK
+   ```
+
+**Playbook cross-check.** `docs/dots-hyprland-workflow.md:326` quotes the live suite's summary line as its post-login expectation:
+
+```
+# expect: === done: FAIL=0 FINDINGS=1 ===   (the 1 finding is the D-38 known loss)
+```
+
+The line observed above is `=== done: FAIL=0 FINDINGS=1 ===`, byte-identical to the quoted expectation. **No mismatch, no finding, no follow-up owed.** The playbook was not edited during the gate, which would have dirtied the tree the gate had just certified.
+
+**Human step — re-login: OUTSTANDING, not performed.**
+
+The automated half of the session verification did run after this phase's changes rather than before them: item 5 above executed against the live compositor at `95b86fd` and confirms the session still loads through the ii Lua entry, that no `hyprland.conf` can win over it, that `qs -c ii` is running, and that Waybar and swaync are still stopped per the D-11 accept-remove. That is the strongest statement the automated suites can make.
+
+It is not the same statement as a fresh login. Everything this phase changed lives in the git worktree, and nothing here ran an install, an uninstall or any package operation — but the phase did remove two safety mechanisms from the install path and delete the machinery that used to inject session hooks, and the only honest confirmation that a *new* session is unaffected is to end this one and start another. The executing agent cannot log the operator out, so this step is recorded as outstanding rather than claimed.
+
+**What the operator still owes this gate.** Log out of the current Hyprland session completely, or reboot, then log back in and confirm:
+
+- (a) the desktop comes up and the ii shell is running — the bar, the launcher and the notification surface all appear;
+- (b) `hyprctl -j status | jq -r .configProvider` prints `lua`;
+- (c) `./scripts/phase14-verify.sh` prints `=== done: FAIL=0 FINDINGS=1 ===`;
+- (d) nothing that worked before the phase has stopped working, beyond the compositor-target autostart loss already recorded above as a known, unowned loss.
+
+Record the date and the observed result below this paragraph when it is done. If (d) surfaces something new, record it as a finding and name the plan that owns the file rather than fixing it here — a fix at the gate re-dirties the tree the gate certified and invalidates the run that found the defect.
+
+| Step | Date | Result |
+|------|------|--------|
+| Re-login re-verify (D-40 human step) | — | **outstanding** — awaiting the operator |
+
+**Gate result.** All five D-40 scripts plus the Phase 10 assert are green on a committed, clean tree, with the one known finding still emitted and still allowed. No defect was found, so nothing was handed to a follow-up. The one step this record cannot close by itself is the re-login above.
