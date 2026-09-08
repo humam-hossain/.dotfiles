@@ -34,8 +34,11 @@ FILES_OUT="$(mktemp /tmp/p16-retire-files-XXXXXX)"
 SETUPS_OUT="$(mktemp /tmp/p16-retire-setups-XXXXXX)"
 FULL_OUT="$(mktemp /tmp/p16-retire-full-XXXXXX)"
 DEPS_OUT="$(mktemp /tmp/p16-retire-deps-XXXXXX)"
+KEEPBAK_OUT="$(mktemp /tmp/p16-retire-keepbak-XXXXXX)"
+UNINST_PKG_OUT="$(mktemp /tmp/p16-retire-uninst-pkg-XXXXXX)"
+UNINST_VENV_OUT="$(mktemp /tmp/p16-retire-uninst-venv-XXXXXX)"
 # shellcheck disable=SC2064
-trap 'rm -f "$INSTALL_OUT" "$FILES_OUT" "$SETUPS_OUT" "$FULL_OUT" "$DEPS_OUT"' EXIT
+trap 'rm -f "$INSTALL_OUT" "$FILES_OUT" "$SETUPS_OUT" "$FULL_OUT" "$DEPS_OUT" "$KEEPBAK_OUT" "$UNINST_PKG_OUT" "$UNINST_VENV_OUT"' EXIT
 
 echo "=== Phase 16 retirement contract (non-mutating) ==="
 
@@ -179,6 +182,69 @@ fi
 # direct contradiction with those two. The adopt-window runbook is excluded for
 # the same reason — it is a true account of what the adopt ran.
 # =============================================================================
+
+# --- H-01: --keep-backup is the opt-out for the D-06 injection ---
+# The D-06 asserts above pin the default (skip-backup forwarded). This pins the
+# escape hatch, without which the suppression is unconditional and an operator
+# has no way to keep upstream's only snapshot. Both directions are asserted so a
+# future edit cannot silently drop either the default or the opt-out.
+if printf '' | "$WRAP" install --keep-backup --dry-run >"$KEEPBAK_OUT" 2>&1; then
+  if grep 'would exec' "$KEEPBAK_OUT" | grep -q -- '--skip-backup'; then
+    fail "H-01 install --keep-backup still forwards the upstream skip-backup flag"
+    sed -n '1,40p' "$KEEPBAK_OUT" || true
+  else
+    pass "H-01 install --keep-backup omits the upstream skip-backup flag"
+  fi
+  if grep -q -- '--keep-backup' <(grep 'would exec' "$KEEPBAK_OUT"); then
+    fail "H-01 --keep-backup leaked to upstream instead of being stripped"
+    sed -n '1,40p' "$KEEPBAK_OUT" || true
+  else
+    pass "H-01 --keep-backup is wrapper-owned and never forwarded"
+  fi
+else
+  fail "H-01 install --keep-backup --dry-run exited non-zero"
+  sed -n '1,40p' "$KEEPBAK_OUT" || true
+fi
+
+# --- C-01: the uninstall flag contract is visible in the dry-run plan ---
+# The state re-clean used to run outside every flag guard, so --keep-venv and
+# --packages-only were silently overruled and --dry-run never showed it. These
+# assert the preview reports the plan that will actually run.
+if printf '' | "$WRAP" uninstall --dry-run --packages-only >"$UNINST_PKG_OUT" 2>&1; then
+  # Vacuity guard: the re-clean is only planned when a live qs process was found.
+  # With none running these two asserts would pass without observing anything.
+  if grep -q 'would stop qs/quickshell PIDs' "$UNINST_PKG_OUT"; then
+    RECLEAN_OBSERVABLE=1
+  else
+    RECLEAN_OBSERVABLE=0
+    printf '[NOTE] C-01 re-clean asserts are inconclusive: no live qs/quickshell process, so no re-clean is planned either way. Re-run with the bar up to exercise them.\n'
+  fi
+  if ((RECLEAN_OBSERVABLE == 1)) && grep -qi 're-clean' "$UNINST_PKG_OUT"; then
+    fail "C-01 uninstall --packages-only plans a state re-clean it must not do"
+    sed -n '1,60p' "$UNINST_PKG_OUT" || true
+  else
+    if ((RECLEAN_OBSERVABLE == 1)); then
+      pass "C-01 uninstall --packages-only plans no state re-clean"
+    fi
+  fi
+else
+  fail "C-01 uninstall --dry-run --packages-only exited non-zero"
+  sed -n '1,60p' "$UNINST_PKG_OUT" || true
+fi
+
+if printf '' | "$WRAP" uninstall --dry-run --keep-venv >"$UNINST_VENV_OUT" 2>&1; then
+  if ((RECLEAN_OBSERVABLE == 1)) && grep -i 're-clean' "$UNINST_VENV_OUT" | grep -q '/\.venv$'; then
+    fail "C-01 uninstall --keep-venv plans to re-clean the venv it promised to keep"
+    sed -n '1,60p' "$UNINST_VENV_OUT" || true
+  else
+    if ((RECLEAN_OBSERVABLE == 1)); then
+      pass "C-01 uninstall --keep-venv never plans to re-clean .venv"
+    fi
+  fi
+else
+  fail "C-01 uninstall --dry-run --keep-venv exited non-zero"
+  sed -n '1,60p' "$UNINST_VENV_OUT" || true
+fi
 
 echo "=== Phase 16 documentation contract (ban-only, playbook-scoped) ==="
 

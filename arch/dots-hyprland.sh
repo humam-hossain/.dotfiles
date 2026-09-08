@@ -49,8 +49,9 @@ Allowlisted subcommands:
 
 Install behavior (D-04, D-06, D-09):
   A bare invocation is the full install; no profile flags are injected.
-  install and install-files also pass the upstream backup-suppression flag:
+  install and install-files also pass the upstream backup-suppression flag by default:
   nothing is snapshotted before files are replaced, and there is no undo.
+  Pass --keep-backup to leave upstream's snapshot enabled for a run.
   install-deps / install-setups do not — upstream reads that flag on the files step only.
 
 Interactivity:
@@ -64,6 +65,9 @@ Wrapper-owned meta flags (stripped; never forwarded to ./setup):
   --full      Accepted but ignored (D-05). Full is the only install behavior now, so the
               flag is an announced no-op kept so old transcripts and scripts still work.
               It is never forwarded to ./setup.
+  --keep-backup
+              Do not suppress upstream's auto_backup_configs for this run. Only meaningful
+              on install / install-files, the two subcommands that reach the files step.
 
 Uninstall (wrapper-owned; does NOT call upstream ./setup uninstall):
   Removes only illogical-impulse-* meta packages with pacman -R (no -s cascade).
@@ -238,11 +242,50 @@ collect_qs_pids() {
   done
 }
 
+# Re-clean the quickshell state dir a live process may have recreated between the
+# removal loop and the kill. Scoped by the same flags the caller was given, so it
+# cannot overrule --packages-only or --keep-venv (which it silently did before), and
+# routed through safe_rm_path so it inherits the $HOME / hypr refusals every other
+# removal in this file already has.
+reclean_qs_state() {
+  local dry_run="${1:-0}"
+  local packages_only="${2:-0}"
+  local keep_venv="${3:-0}"
+  local st="${XDG_STATE_HOME}/quickshell"
+
+  ((packages_only == 0)) || return 0
+  [[ -d "$st" ]] || return 0
+
+  local child
+  if ((keep_venv == 1)); then
+    shopt -s nullglob dotglob
+    for child in "$st"/*; do
+      [[ "$(basename "$child")" == ".venv" ]] && continue
+      if ((dry_run)); then
+        echo "[CONFIG] dry-run: would re-clean recreated state: $child"
+      else
+        echo "[UNINSTALL] Re-cleaning state recreated by live process: $child"
+        safe_rm_path "$child"
+      fi
+    done
+    shopt -u nullglob dotglob
+  else
+    if ((dry_run)); then
+      echo "[CONFIG] dry-run: would re-clean recreated state: $st"
+    else
+      echo "[UNINSTALL] Re-cleaning state recreated by live process: $st"
+      safe_rm_path "$st"
+    fi
+  fi
+}
+
 # Stop live qs/quickshell processes so the bar does not keep running after files/pkgs go away.
 # Uninstall removes the binary from disk, but an already-started process stays resident
 # (Linux shows exe as "/usr/bin/quickshell (deleted)") until killed.
 stop_running_qs() {
   local dry_run="${1:-0}"
+  local packages_only="${2:-0}"
+  local keep_venv="${3:-0}"
   local -a uniq=()
   local -A seen=()
   local pid cmd
@@ -265,6 +308,7 @@ stop_running_qs() {
       cmd="$(tr '\0' ' ' <"/proc/$pid/cmdline" 2>/dev/null || echo '?')"
       echo "[CONFIG] dry-run:   pid=$pid cmd=$cmd"
     done
+    reclean_qs_state 1 "$packages_only" "$keep_venv"
     return 0
   fi
 
@@ -293,11 +337,9 @@ stop_running_qs() {
       kill -9 "$pid" 2>/dev/null || true
     fi
   done
-  # State dir may be recreated by the process between rm and kill; clean again.
-  if [[ -d "${XDG_STATE_HOME}/quickshell" ]]; then
-    echo "[UNINSTALL] Re-cleaning state recreated by live process: ${XDG_STATE_HOME}/quickshell"
-    rm -rf -- "${XDG_STATE_HOME}/quickshell"
-  fi
+  # State dir may be recreated by the process between rm and kill; clean again,
+  # but only within the scope the caller's flags allow.
+  reclean_qs_state 0 "$packages_only" "$keep_venv"
 }
 
 uninstall_gate() {
@@ -459,7 +501,7 @@ run_safe_uninstall() {
         done
       fi
     fi
-    stop_running_qs 1
+    stop_running_qs 1 "$packages_only" "$keep_venv"
     echo "[CONFIG] dry-run: would NOT remove hyprland package or delete ~/.config/hypr"
     echo "[CONFIG] dry-run: would NOT run yay -Rns or pacman -Rsu orphan cleanup"
     exit 0
@@ -467,7 +509,7 @@ run_safe_uninstall() {
 
   # Stop the live bar FIRST so removing configs/binary does not leave a
   # deleted-binary zombie still drawing chrome (and re-writing state).
-  stop_running_qs 0
+  stop_running_qs 0 "$packages_only" "$keep_venv"
 
   # Packages next (so a later config failure still drops meta pkgs if desired)
   if ((configs_only == 0)); then
@@ -513,7 +555,7 @@ run_safe_uninstall() {
 
   # Final sweep: kill any straggler, then re-remove configs/state the process may
   # have recreated while it was still alive (seen: config.json + states.json).
-  stop_running_qs 0
+  stop_running_qs 0 "$packages_only" "$keep_venv"
   if ((packages_only == 0)); then
     local -a again=()
     local line t
@@ -665,12 +707,20 @@ run_install_family() {
 
   # Scan remaining args: strip wrapper-owned meta flags; preserve order (WRAP-04)
   local dry_run=0
+  local keep_backup=0
   local -a user_flags=()
   local arg
   for arg in "$@"; do
     case "$arg" in
       --dry-run)
         dry_run=1
+        ;;
+      --keep-backup)
+        # Escape hatch for the D-06 injection below. Upstream's getopt has no
+        # counter-flag to --skip-backup, so without this the suppression is
+        # unconditional and an operator has no way to keep the one snapshot
+        # upstream would otherwise take.
+        keep_backup=1
         ;;
       --full)
         # D-05: accepted no-op alias, kept deliberately. The catch-all below would
@@ -689,8 +739,15 @@ run_install_family() {
   # D-04: no residual injection — a bare invocation is the full behavior.
   # D-06: skip the upstream backup, scoped to the paths where it is read.
   local -a cmd=(./setup "$subcmd")
-  if touches_files "$subcmd"; then
+  if touches_files "$subcmd" && ((keep_backup == 0)); then
     cmd+=(--skip-backup)
+  fi
+  if ((keep_backup == 1)); then
+    if touches_files "$subcmd"; then
+      echo "[CONFIG] --keep-backup: leaving upstream's auto_backup_configs enabled for this run."
+    else
+      echo "[CONFIG] --keep-backup has no effect on $subcmd: upstream reads the backup flag on the files step only."
+    fi
   fi
   if ((${#user_flags[@]} > 0)); then
     cmd+=("${user_flags[@]}")

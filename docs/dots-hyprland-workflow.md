@@ -158,6 +158,8 @@ The would-exec line is the whole contract: it is the exact argv the wrapper will
 
 The wrapper asks nothing and copies nothing aside before an install. With the backup-suppression flag on the argv, files are replaced in place: there is no wrapper-made snapshot and no undo. Recovery after a bad install is covered in §9.
 
+That is the default, not a law. `--keep-backup` is a wrapper-owned meta flag: it is stripped from the argv like `--dry-run` and `--full`, and its only effect is that the wrapper does *not* add `--skip-backup`, so upstream's own `auto_backup_configs` runs for that invocation. `./arch/dots-hyprland.sh install --keep-backup --dry-run` shows the argv without the flag. It is meaningful on `install` and `install-files` only; on the other two the wrapper says so and carries on.
+
 **The install is still interactive.** The wrapper prompts for nothing — but upstream still runs its own greeting and pauses at least once on `(Ctrl-C to abort, Enter to proceed)` unless it is force-run, and this wrapper never force-runs it. Expect to answer, and do not walk away from a terminal you started an install in.
 
 ### The install

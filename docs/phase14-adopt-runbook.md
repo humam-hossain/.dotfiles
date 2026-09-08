@@ -8,7 +8,9 @@ Phase 14 is the first phase that mutates the live machine, and **the operator ru
 
 One window covers all of it: install → overlay apply → reboot → first login → verify. There is no second gate part-way through (D-21).
 
-> **Flag / subcommand details:** keep DRY — run `./arch/dots-hyprland.sh help` for the full allowlist, safe defaults, backup gate, uninstall, and protect behavior. This document does not re-copy the help text. It names only the flags that are *forbidden* (section 4) and the ones the window actually uses.
+> **Flag / subcommand details:** keep DRY — run `./arch/dots-hyprland.sh help` for the allowlisted subcommands, the wrapper-owned meta flags, and the uninstall flags. This document does not re-copy the help text. It names only the flags that were *forbidden* during the window (section 4) and the ones the window actually used.
+
+> **This is a record, not a procedure.** It describes the 2026-09-04 adopt window as it was run. Phase 16 later retired the safe profile, the wrapper's backup gate, the `protect` subcommand and the ii-hook injection, so several steps below no longer occur on a present-day install. Each such step is marked where it appears. For what to run today, use [`docs/dots-hyprland-workflow.md`](./dots-hyprland-workflow.md).
 
 > **Read this from GitHub or from your local copy, not from a browser you no longer have.** Section 2 stages a plain-text copy outside the config tree so section 14 is reachable from a bare TTY (D-25).
 
@@ -118,9 +120,9 @@ Any single one meant **stop**. Do not start the install.
 - There was no second device able to reach GitHub.
 - **The preflight printed a `[FINDING]` naming `ii-original-dots-backup` and section 5 had not been run yet.**
 
-   Write this one out rather than take it by reference, because it was the one no-go the exit code did not enforce. At the time the window was prepared, `~/ii-original-dots-backup` existed on this machine and the `hyprland.conf` inside it was older than the live one. Upstream's `auto_backup_configs` skips the backup **entirely** when that directory is already present and `ask` has been flipped false — so the run about to be made would take no fresh backup at all, and the only "backup" would be a stale copy from an earlier install. Clearing that was a `$HOME` mutation, and a `$HOME` mutation belonged inside this window and nowhere else. That is precisely why the script *reported* the condition instead of failing on it: a preflight that failed here would have been unconditionally red during prep and would have pushed whoever ran it into rotating the backup days early. [Post-adopt: `~/ii-original-dots-backup` was recreated by the `--full` install and now holds the *pre-adopt* configs, which makes it rollback tier-1 source 3 of [section 14](#14-rollback-adopt-04-d-23-d-24) rather than a stale directory to clear — read the post-adopt caveat in [section 5](#5-rotate-the-stale-backup-d-27) before acting on this no-go.]
+   Write this one out rather than take it by reference, because it was the one no-go the exit code did not enforce. At the time the window was prepared, `~/ii-original-dots-backup` existed on this machine and the `hyprland.conf` inside it was older than the live one. Upstream's `auto_backup_configs` skips the backup **entirely** when that directory is already present and `ask` has been flipped false — so the run about to be made would take no fresh backup at all, and the only "backup" would be a stale copy from an earlier install. Clearing that was a `$HOME` mutation, and a `$HOME` mutation belonged inside this window and nowhere else. That is precisely why the script *reported* the condition instead of failing on it: a preflight that failed here would have been unconditionally red during prep and would have pushed whoever ran it into rotating the backup days early. [Post-adopt: `~/ii-original-dots-backup` was recreated by the `--full` install and now holds the *pre-adopt* configs, which at the time made it a rollback source rather than a stale directory to clear. Phase 16 withdrew the tiered rollback entirely — [section 14](#14-rollback-adopt-04-d-23-d-24) now documents clean reinstall as the only route, and that directory is left on disk without being presented as a recovery path — read the post-adopt caveat in [section 5](#5-rotate-the-stale-backup-d-27) before acting on this no-go.]
 
-   Going without rotating would have cost rollback tier 1 its third source (section 14). Section 5 was run first, then the preflight was re-run, and then this list was worked.
+   Going without rotating would have cost the rollback tier that existed at the time its third source. (Phase 16 withdrew the tiers; section 14 now documents clean reinstall as the only route.) Section 5 was run first, then the preflight was re-run, and then this list was worked.
 
 ### Making the decision
 
@@ -135,7 +137,7 @@ Do not pass any of these to the install. Each one silently removes a protection 
 | Never pass | What it breaks |
 |---|---|
 | `-f` / `--force` | Sets `ask` false. With `ask` false and the backup directory present, `auto_backup_configs` takes **no backup at all**. |
-| `--skip-backup` | Refused bare by the wrapper by design. If you find yourself reaching for the override that unblocks it, stop and re-read section 3. |
+| `--skip-backup` | At the time of this window the wrapper refused it bare. **Phase 16 inverted that:** the wrapper now passes `--skip-backup` to upstream on every `install` / `install-files` (see section 5), so it is no longer an operator flag to avoid — it is the wrapper's own injection. Pass `--keep-backup` to leave upstream's snapshot enabled for a run. |
 | `-F` / `--firstrun` | Makes upstream treat this as a first install, so it **replaces** live `hyprlock.conf` and `hypridle.conf` instead of writing `.new` sidecars alongside them. That breaks D-24's lock/idle no-touch guarantee. |
 | `--skip-hyprland-entry` | Skips installing `hyprland.lua`. The install appears to succeed and ADOPT-02 is silently defeated — the session never becomes Lua-configured. |
 
@@ -191,21 +193,23 @@ This is the real mutating run and it is **yours to type**. No agent runs it.
 
 That is the whole invocation: the wrapper, its `install` subcommand, the `--full` meta flag, and nothing else. No extra flags — see section 4.
 
-### What you will see, in upstream's own order
+### What was seen during the window, in upstream's own order
 
-1. **Wrapper preflight and backup gate.** The gate asks for confirmation before anything touches files. Type `yes`.
+**Record of the 2026-09-04 run.** Steps 1 and 6, and the backup sub-step of step 5, no longer occur: Phase 16 removed the wrapper's backup gate, its protect-list re-mark and its ii-hook enable, and the wrapper now passes `--skip-backup` so upstream's `auto_backup_configs` is suppressed by default. On a present-day install, upstream's greeting is the first and only pause — nothing prompts before files are touched unless you pass `--keep-backup`.
+
+1. **Wrapper preflight and backup gate.** The gate asked for confirmation before anything touched files; the answer was `yes`. *(Retired in Phase 16 — no wrapper-owned prompt stands in front of an install today.)*
 2. **Greeting.** Answer `y`. Not `n`, not `yesforall` (section 4).
 3. **Dependencies.** A `pacman -Syu` runs here and may pull a new kernel. Let it finish.
 4. **Setups.** Upstream's per-component setup steps.
-5. **Files stage,** in this order: backup → misc → quickshell → fish → fontconfig → **hypr**.
+5. **Files stage,** in this order: backup → misc → quickshell → fish → fontconfig → **hypr**. *(The backup sub-step is skipped today unless `--keep-backup` is passed.)*
 
    Inside the hypr block, specifically:
    - the `~/.config/hypr/hyprland/` tree is replaced wholesale;
-   - `~/.config/hypr/hyprland.conf` is **renamed** to `hyprland.conf.old` — it is not deleted, and section 14 tier 1 restores from it;
+   - `~/.config/hypr/hyprland.conf` is **renamed** to `hyprland.conf.old` — it is not deleted, and the rollback tier documented at the time restored from it (the tiers were withdrawn in Phase 16);
    - `hyprlock.conf` and `hypridle.conf` get `.new` sidecars written alongside them rather than being replaced (this is what `installed_true` buys you);
    - `hyprland.lua` is installed — this is ADOPT-02;
    - `custom/` is seeded, and only because live had no `custom/` at the time of this window. Section 8 then overwrites the three files you own.
-6. **Wrapper post-install:** the protect-list re-mark and the ii hook enable.
+6. **Wrapper post-install:** the protect-list re-mark and the ii hook enable. *(Both removed in Phase 16 — nothing runs after the upstream exec today.)*
 
 ### If it dies partway
 
