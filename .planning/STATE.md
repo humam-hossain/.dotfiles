@@ -27,14 +27,14 @@ Phase: 16
 Plan: Not started
 Status: All phases complete
 Total Plans in Phase: 10
-Last activity: 2026-09-08 — Phase 16 complete
+Last activity: 2026-09-08 — Phase 16 verified (UAT, validation, security, review fixes)
 
 Progress: [████████████████████] 33/33 plans (100%)
 
 ## Session
 
 **Last session:** 2026-09-08
-**Stopped at:** Phase 16 complete — all v0.3 milestone phases finished
+**Stopped at:** Phase 16 verified — UAT 81/81, validation nyquist-compliant, security threats_open: 0
 **Resume file:** None
 **Next command:** `/gsd-complete-milestone v0.3`
 
@@ -71,6 +71,8 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Delivery = upstream dots-hyprland + personal fork/submodule/wrapper (not local QS rewrite)
 - Submodule path fixed at `vendor/dots-hyprland`; pin-bump is primary update
 - Thin `arch/dots-hyprland.sh` only; array-exec `./setup` — that is all that survives: one full-only install path, no residual-flag injection, no backup gate, no package re-marking (Phase 16)
+- `--keep-backup` is the one opt-out on the full-only install path: the wrapper injects `--skip-backup` by default, and this meta flag omits it for a run so upstream's `auto_backup_configs` still fires (Phase 16 review H-01)
+- The uninstall state re-clean is flag-scoped and routed through `safe_rm_path`; `--keep-venv` and `--packages-only` are honoured and `--dry-run` shows the real plan (Phase 16 review C-01)
 - Live install at `~/.config/quickshell` (real tree); ii owns the session hooks in its own Lua tree — `hyprland/env.lua` supplies the venv env and `hyprland/execs.lua` starts `qs -c ii`
 - Dual-run chrome: **accept-remove on full adopt** (D-11 override of DISP-03 default-keep); configs **archive in repo** (D-12)
 - Canonical playbook: `docs/dots-hyprland-workflow.md`
