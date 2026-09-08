@@ -50,13 +50,13 @@ Scope of this sweep (D-41): `arch/dots-hyprland.sh`, `scripts/phase12-full-smoke
 
 | Line | Stale text | Correction | Severity |
 |------|-----------|------------|----------|
-| whole file | `D-06 install --dry-run SAFE_DEFAULTS` residual-argv assert, the `protect asexplicit` and `enable ii hooks` post-install plan asserts, the `--skip-protect` omission assert, the six-assert `protect` block, and the LIVE-03 dual-run `Waybar` / `swaync` asserts | Deleted with `git rm`, 451 lines; every target was removed by 16-01 or accept-removed at the Phase 14 adopt. The surviving coverage lives in `scripts/phase12-full-smoke.sh`, `scripts/phase16-retire-assert.sh` and `scripts/phase14-verify.sh` (Plan 16-03, D-33) | HIGH |
+| whole file | `D-06 install --dry-run SAFE_DEFAULTS` residual-argv assert, the `protect asexplicit` and `enable ii hooks` post-install plan asserts, the `--skip-protect` omission assert, the six-assert `protect` block, and the LIVE-03 dual-run `Waybar` / `swaync` asserts | Deleted with `git rm`, 456 lines; every target was removed by 16-01 or accept-removed at the Phase 14 adopt. The surviving coverage lives in `scripts/phase12-full-smoke.sh`, `scripts/phase16-retire-assert.sh` and `scripts/phase14-verify.sh` (Plan 16-03, D-33) | HIGH |
 
 ### `scripts/phase14-preflight.sh`
 
 | Line | Stale text | Correction | Severity |
 |------|-----------|------------|----------|
-| whole file | `[ROTATED] old: /home/<you>/ii-original-dots-backup` and the mandatory-remediation rotation message (IN-11) | Deleted with `git rm`, 327 lines. This closes audit leftover IN-11 by deleting the script that carried the stale message rather than editing it. The adopt it gated ran on 2026-09-04 and nothing re-runs it. A runner sweep returned nothing outside `.git/`, `.planning/` and `docs/` (Plan 16-03, D-33) | HIGH |
+| whole file | `[ROTATED] old: /home/<you>/ii-original-dots-backup` and the mandatory-remediation rotation message (IN-11) | Deleted with `git rm`, 322 lines. This closes audit leftover IN-11 by deleting the script that carried the stale message rather than editing it. The adopt it gated ran on 2026-09-04 and nothing re-runs it. A runner sweep returned nothing outside `.git/`, `.planning/` and `docs/` (Plan 16-03, D-33) | HIGH |
 
 ### `docs/dots-hyprland-workflow.md`
 

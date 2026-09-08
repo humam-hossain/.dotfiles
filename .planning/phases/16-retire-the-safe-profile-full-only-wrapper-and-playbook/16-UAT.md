@@ -3,7 +3,7 @@ status: complete
 phase: 16-retire-the-safe-profile-full-only-wrapper-and-playbook
 source: 16-01-SUMMARY.md, 16-02-SUMMARY.md, 16-03-SUMMARY.md, 16-04-SUMMARY.md, 16-05-SUMMARY.md, 16-06-SUMMARY.md, 16-07-SUMMARY.md, 16-08-SUMMARY.md, 16-09-SUMMARY.md, 16-10-SUMMARY.md
 started: 2026-09-08T14:32:07Z
-updated: 2026-09-08T15:10:00Z
+updated: 2026-09-08T15:25:00Z
 ---
 
 ## Current Test
@@ -36,10 +36,9 @@ rationale: Absence-greps prove the retired tokens are gone; they cannot prove th
 
 ### 4. Sweep record tables match what 16-01 through 16-05 shipped
 expected: The sweep record's per-file correction tables faithfully consolidate what plans 16-01..16-05 actually did, rather than what they were planned to do
-result: issue
+result: pass
 source: automated
-reported: "Sweep record states phase07-live-smoke.sh deleted at 451 lines and phase14-preflight.sh at 327; commit 769bf9e deleted 456 and 322 respectively. Numbers transposed. Origin is 16-03-SUMMARY.md:172-173."
-severity: minor
+note: "Line-count discrepancy found and corrected in the same session: 456 and 322 now match commit 769bf9e. Gap G-16-4 resolved."
 coverage_id: 16-06/D8
 rationale: Fidelity of a prose record to five prior plans is a reading judgment, not a machine-checkable property. The stale strings were re-extracted from `git diff 7334498..HEAD` rather than transcribed from the plans, and the corrections cite the plan that made each one, but only a human comparing the record against the diffs can confirm nothing material was omitted or misattributed.
 
@@ -512,8 +511,8 @@ coverage_id: 16-10/D9
 ## Summary
 
 total: 81
-passed: 80
-issues: 1
+passed: 81
+issues: 0
 pending: 0
 skipped: 0
 blocked: 0
@@ -522,7 +521,9 @@ blocked: 0
 
 - gap_id: G-16-4
   truth: "The sweep record's per-file correction tables faithfully consolidate what plans 16-01..16-05 actually did"
-  status: failed
+  status: resolved
+  resolved_by: "in-session correction (16-DOC-SWEEP.md, 16-03-SUMMARY.md)"
+  resolved_at: 2026-09-08
   reason: "Automated check: 16-DOC-SWEEP.md records phase07-live-smoke.sh deleted at 451 lines and phase14-preflight.sh at 327 lines; commit 769bf9e deleted 456 and 322 respectively. The two numbers are transposed. Origin is 16-03-SUMMARY.md:172-173, which the record consolidated instead of re-reading the diff."
   severity: minor
   test: 4
