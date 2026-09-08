@@ -5,16 +5,16 @@ milestone_name: Full ii install
 current_phase: 16
 current_phase_name: "Retire the safe profile: full-only wrapper and playbook"
 status: executing
-stopped_at: Completed 16-07-PLAN.md
-last_updated: "2026-09-08T05:21:11.174Z"
+stopped_at: Completed 16-08-PLAN.md
+last_updated: "2026-09-08T07:33:22.581Z"
 last_activity: 2026-09-08
 last_activity_desc: Phase 16 execution resumed (wave continue)
-state_head: 993be6d9402ce3b2827220552d0e4004399e8e31
+state_head: 74be123fe1ae1832d6b7ce7121a6343a6be1f17a
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 33
-  completed_plans: 29
+  completed_plans: 31
   percent: 86
 ---
 
@@ -25,7 +25,7 @@ Total Phases: 6
 ## Current Position
 
 Phase: 16 (Retire the safe profile: full-only wrapper and playbook) — EXECUTING
-Plan: 8 of 10
+Plan: 9 of 10
 Status: Ready to execute
 Total Plans in Phase: 10
 Last activity: 2026-09-08 — Phase 16 execution resumed (wave continue)
@@ -34,8 +34,8 @@ Progress: [████████████████████] 17/17 p
 
 ## Session
 
-**Last session:** 2026-09-08T05:20:10.651Z
-**Stopped at:** Completed 16-07-PLAN.md
+**Last session:** 2026-09-08T07:33:22.471Z
+**Stopped at:** Completed 16-08-PLAN.md
 **Resume file:** None
 **Next command:** `/gsd-execute-phase 16`
 
@@ -148,6 +148,7 @@ Phase archives: `milestones/v0.2-phases/`.
 | Phase 16 P03 | 10 min | 2 tasks | 3 files |
 | Phase 16 P06 | 25 min | 2 tasks | 2 files |
 | Phase 16 P07 | 15 min | 2 tasks | 2 files |
+| Phase 16 P08 | 11 min | 2 tasks | 2 files |
 
 ## Decisions
 
