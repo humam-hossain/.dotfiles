@@ -43,7 +43,7 @@ Progress: [████████████████████] 17/17 p
 
 See: .planning/PROJECT.md (updated 2026-09-05)
 
-**Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); remaining work is documentation.  
+**Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
 **Current focus:** Phase 16 — Retire the safe profile: full-only wrapper and playbook
 
 ## Deferred Items
@@ -58,7 +58,7 @@ Items acknowledged and deferred at milestone close on 2026-07-25 (v0.1) and re-a
 | debug | ram-label-spacing | unknown (re-acknowledged v0.2; local bar retired) |
 | requirement | FWK-02 (exec-once auto-start) | deferred finishing touch — revisit under upstream model |
 | requirement | IPC-02 (bar toggle keybind) | deferred finishing touch — revisit under upstream model |
-| backlog | Waybar cutover (CUT-01) | deferred until parity accepted; DISP-03 defaults keep dual-run |
+| backlog | Waybar cutover (CUT-01) | deferred until parity accepted; DISP-03 defaults keep dual-run **[superseded by Phase 16]** — the dual-run session ended at the Phase 14 adopt. |
 | backlog | Waybar customs (CUST-01..04) | deferred past v0.3 full hypr adopt |
 | process | v0.2 formal milestone audit | skipped at close; per-phase verification passed |
 | requirement | D-38 `graphical-session.target` autostart (post-adopt) | **open, no owning phase** — Phase 15's criteria are documentation-only; needs an owner (14-VERIFICATION.md warning 3) |
@@ -71,53 +71,54 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 
 - Delivery = upstream dots-hyprland + personal fork/submodule/wrapper (not local QS rewrite)
 - Submodule path fixed at `vendor/dots-hyprland`; pin-bump is primary update
-- Thin `arch/dots-hyprland.sh` only; SAFE_DEFAULTS + backup gate; array-exec `./setup`
-- Live install at `~/.config/quickshell` (real tree); personal hypr hooks for env + `qs -c ii`
+- Thin `arch/dots-hyprland.sh` only; array-exec `./setup` — that is all that survives: one full-only install path, no residual-flag injection, no backup gate, no package re-marking (Phase 16)
+- Live install at `~/.config/quickshell` (real tree); ii owns the session hooks in its own Lua tree — `hyprland/env.lua` supplies the venv env and `hyprland/execs.lua` starts `qs -c ii`
 - Dual-run chrome: **accept-remove on full adopt** (D-11 override of DISP-03 default-keep); configs **archive in repo** (D-12)
 - Canonical playbook: `docs/dots-hyprland-workflow.md`
 - v0.1 local product retired (RET-01/02); do not revive `arch/quickshell.sh`
-- v0.3: full install only after impact inventory + dispositions (not blind drop of SAFE_DEFAULTS)
+- v0.3: full install only after impact inventory + dispositions (not blind drop of SAFE_DEFAULTS) **[superseded by Phase 16]** — the safe profile and its machinery were retired.
 - Phase 10 inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md` (neutral; no dispositions)
 - Phase 10 UAT: 7/7 pass (6 automated coverage + 1 human confirm) — 2026-08-07
 - Phase 11 disposition SoT: `.planning/phases/11-disposition-decisions/11-DISPOSITIONS.md` (committed gate for 12–14)
-- Phase 11: first full-adopt drops all three SAFE_DEFAULTS residuals (D-05); residual still default (D-10); must-migrate only monitors/workspaces/env (D-16)
-- Phase 12: `--full` meta on install/install-files; default still injects triple residual; smoke `./scripts/phase12-full-smoke.sh` FAIL=0 on 2026-08-18
+- Phase 11: first full-adopt drops all three SAFE_DEFAULTS residuals (D-05); residual still default (D-10); must-migrate only monitors/workspaces/env (D-16) **[superseded by Phase 16]** — the safe profile and its machinery were retired.
+- Phase 12: `--full` meta on install/install-files; default still injects triple residual; smoke `./scripts/phase12-full-smoke.sh` FAIL=0 on 2026-08-18 **[superseded by Phase 16]** — the safe profile and its machinery were retired.
 - Phase 12 UAT: 10/10 pass (1 human coverage confirm + 9 automated); 12-VERIFICATION.md status passed; 12-VALIDATION.md nyquist_compliant true
 - Phase 13: authoring SoT = parent-repo `.config/hypr/custom/`; live is applied copy; vendor/fork product-only
 - Phase 13: overlays are `general.lua` (hl.monitor + hl.workspace_rule) plus empty env.lua/execs.lua slots; apply documented not run (D-02/D-17)
 - Phase 13: D-19 fence exit 0; 13-VERIFICATION.md status passed; OVL-01..03 Complete; live custom still absent
 - Phase 14: live `install --full` run 2026-09-04 23:13:41–23:35:01; session now loads via `hyprland.lua` (`configProvider: lua`), `hyprland.conf` renamed to `.old`
 - Phase 14: overlay applied live — `general.lua`/`env.lua`/`execs.lua` byte-identical to repo SoT; 11 workspace rules live; `qs -c ii` running; waybar/rofi/swaync stopped per D-11 accept-remove, trees still archived under `stow/` per D-12
-- Phase 14: rollback is `docs/phase14-adopt-runbook.md` §14 — three tiers, tier 1 `~/ii-original-dots-backup.20260904T171128Z`; never upstream `./setup uninstall`
+- Phase 14: rollback is `docs/phase14-adopt-runbook.md` §14 — three tiers, tier 1 `~/ii-original-dots-backup.20260904T171128Z`; never upstream `./setup uninstall` **[superseded by Phase 16]** — the safe profile and its machinery were retired.
 - Phase 14: 14-VERIFICATION.md status passed 4/4; 3 warnings raised, 2 closed in 859e434, D-38 left open
 - Phase 14 UAT: 15/15 pass (11 automated coverage + 4 human checkpoints) on 2026-09-05; zero gaps, zero deferred follow-ups
 - Phase 14: 14-VALIDATION.md status validated — 15 map rows, 0 MISSING, 5 manual-only, so `nyquist_compliant` stays false by design; 14-SECURITY.md status verified — 16 threats, `threats_open: 0` at ASVS L1
 
 Full decision log: PROJECT.md Key Decisions table.  
-Phase archives: `milestones/v0.2-phases/`.
+Phase archives: `milestones/v0.2-phases/`.  
+Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wrapper-and-playbook/16-DOC-SWEEP.md` — what the safe-profile retirement changed, file by file, and what it deliberately left as history. Read it instead of re-deriving the change set from the plan bodies.
 
 ### Resolved blockers
 
 - [Phase 13] Live apply of the hypr/custom overlay was deferred with no owner — resolved in Phase 14; the three files are live and byte-identical to the repo SoT.
 - [Phase 14] Two Critical code-review findings (rollback tier 1 a probable no-op under the wiki reading; tier-1 sources asserted non-empty but never hashed) — both closed in 15b0c31.
+- [Phase 14] Review IN-11 closed by deletion in plan `16-03`, which removed `scripts/phase14-preflight.sh` — the script that printed `--rotate-backup` as mandatory before go. The adopt it gated ran on 2026-09-04 and nothing re-runs it (D-33); the same closure is recorded in `.planning/v0.3-MILESTONE-AUDIT.md` by plan `16-07`.
 
 ### Concerns carried forward
 
 - ⚠️ [Phase 14] `graphical-session.target` autostart died with the renamed conf (D-38). Screen share may stop working. Open, **no owning phase** — Phase 15's criteria are documentation-only. Fix is one `systemctl --user start` or one line in `custom/execs.lua`.
 - ⚠️ [Phase 14] Review WR-02 left open: the repo's `.config/hypr/hyprland.conf` is simultaneously a rollback source, frozen D-36 evidence, and a live hook-injection target. Exposure is bounded (content is in git history), but the three roles should be split.
-- ⚠️ [Phase 14] Review IN-11 left open: post-adopt, `scripts/phase14-preflight.sh` still prints `--rotate-backup` as "mandatory before go". Running it now would rename away ADOPT-04 rollback source 3. Bounded — it is a rename, and sources 1–2 are unaffected.
 
 ### Roadmap Evolution
 
-- Phase 16 added: Close gap: DOC-03 — full-profile update path and dual-run restore
+- Phase 16 added as a DOC-03 gap closure, then retitled on 2026-09-07 and widened to the safe-profile retirement — full-only wrapper, full-only playbook, and the planning artifacts swept to match. Its original B-1 update-path / B-2 restore-path scope was replaced before execution began; both closed by retiring the destination rather than documenting a route to it.
 
 ## Operator Next Steps
 
-1. `/gsd-plan-phase 16` — close v0.3 audit gap DOC-03: B-1 playbook full-profile pin-bump path, B-2 documented route back to the safe dual-run profile ← recommended  
-2. Decide an owner for the open D-38 `graphical-session.target` item — Phase 15 scope, or its own phase  
+1. `/gsd-execute-phase 16` — one plan left: `16-10` completes the sweep record's planning-artifact and phase-gate sections, then runs the D-40 gate on a clean tree plus the post-change login re-verify ← recommended  
+2. Find a home for the open D-38 `graphical-session.target` autostart bootstrap — its own phase, or the next milestone; it stays open and unowned until then  
 3. `/gsd-secure-phase 13` — security enforcement enabled; no `13-SECURITY.md` yet  
 4. `/gsd-validate-phase 13` — `13-VALIDATION.md` still `status: draft` / `nyquist_compliant: false`  
-5. Default `install` without `--full` still injects SAFE_DEFAULTS (FULL-02; smoke 2026-08-18)
+5. `/gsd-map-codebase` re-run after Phase 16 closes — the six `.planning/codebase/` snapshots are all stamped 2026-08-21 and describe the retired wrapper
 
 ## Performance Metrics
 
@@ -153,13 +154,13 @@ Phase archives: `milestones/v0.2-phases/`.
 ## Decisions
 
 - [Phase 5]: Created public fork humam-hossain/dots-hyprland via gh repo fork end-4/dots-hyprland --clone=false (D-01); sibling left alone (D-02/D-14)
-- [Phase 6]: SAFE_DEFAULTS + backup gate on arch/dots-hyprland.sh; array-exec only
+- [Phase 6]: SAFE_DEFAULTS injection and the backup gate on arch/dots-hyprland.sh; array-exec only **[superseded by Phase 16]** — the safe profile and its machinery were retired.
 - [Phase 7]: Wrapper one-shot live install; personal hypr hooks; dual-run waybar preserved
 - [Phase 8]: RET-01 tree delete + RET-02 installer hard-delete; live home path protected
 - [Phase 9]: Canonical playbook; pin-bump primary update; exp-merge/online cache non-primary
 - [v0.2 close]: override_closeout — no formal milestone audit; 4 v0.1 debug sessions re-acknowledged (local product retired)
 - [v0.3 start]: Full ii install = inventory → disposition → full profile → overlays → adopt → playbook; phases 10–15
-- [Phase 10]: Neutral 10-INVENTORY.md + phase10-inventory-assert.sh; INV-01..04 verified + UAT; SAFE_DEFAULTS residual intact
+- [Phase 10]: Neutral 10-INVENTORY.md + phase10-inventory-assert.sh; INV-01..04 verified + UAT; SAFE_DEFAULTS residual intact **[superseded by Phase 16]** — the safe profile and its machinery were retired.
 - [Phase 11]: 11-DISPOSITIONS.md eight sections; DISP-01..04 complete; full-adopt drops triple residual (D-05); chrome accept-remove (D-11); lock keep-personal (D-24); assert green; VERIFICATION passed 2026-08-10
 - [Phase 12]: D-14/D-15/D-16: existing post-setup arms already run when full==1; no wrapper edit — Task 1 official verify passed; no full==0 skip around protect/hooks
 - [Phase 12]: Nyquist one-command suite is ./scripts/phase12-full-smoke.sh; execute left nyquist_compliant false; 12-VALIDATION.md now `nyquist_compliant: true` (validated 2026-08-18)
@@ -178,7 +179,7 @@ Phase archives: `milestones/v0.2-phases/`.
 - [Phase 16]: Wrapper drift baseline re-pinned to 0771cc2, resolved at execution time — git log -1 on arch/dots-hyprland.sh plus an empty-diff confirmation is self-correcting; a SHA copied from a planning document would be wrong because the wrapper was split across plans 16-01 and 16-02
 - [Phase 16]: 16-DOC-SWEEP.md is a load-bearing marker, not only a record — scripts/phase13-d19-assert.sh selects its wrapper drift baseline by testing for the file's presence, so moving or renaming it silently reverts the comparison to the Phase 14 pin
 - [Phase 16]: 16-07: INV-04 keeps its Phase 10 traceability mapping although its text was rewritten — D-26 says it stays at Phase 10; D-27 says rewritten rows map to Phase 16. The two conflict for exactly this one ID. The specific rule governs, and it is what keeps the row consistent with D-39, which deliberately leaves scripts/phase10-inventory-assert.sh requiring the retired language in the frozen Phase 10 record.
-- [Phase 16]: 16-07: the phase superseded-annotation form is a bold bracketed suffix, **[superseded by Phase 16]**, followed by a short clause naming what delivered it — CONTEXT.md left the wording to the executor as long as one form is used across REQUIREMENTS.md, PROJECT.md and STATE.md. First applied to CUT-01 in REQUIREMENTS.md; plans 16-08 and 16-09 reuse it verbatim.
+- [Phase 16]: 16-07: the phase supersession-annotation form is a bold bracketed suffix followed by a short clause naming what delivered or retired the claim, as in **[superseded by Phase 16]** — the safe profile and its machinery were retired. CONTEXT.md left the wording to the executor as long as one form is used across REQUIREMENTS.md, PROJECT.md and STATE.md. First applied to CUT-01 in REQUIREMENTS.md; plans 16-08 and 16-09 reuse it verbatim, in the two clause variants 16-08 fixed.
 - [Phase 16]: 16-07: the three retired requirement IDs are not named anywhere in REQUIREMENTS.md, not even in the coverage note explaining the 22-to-19 drop — The plan's own orphan check bans FULL-03, FULL-05 and ADOPT-04 file-wide, so a coverage note naming them reads as an orphan. The note describes what each row promised instead, and points at 16-DOC-SWEEP.md for the identifiers.
 - [Phase 16]: 16-07: the milestone audit's status: gaps_found and its scores block are left as the 2026-09-06 measurement; findings are dispositioned in place with added disposition and resolution keys — Rewriting the scores would make the audit assert numbers it never measured. A dispositioned metadata block plus a disposition_note records the later state without restructuring the audit or erasing its findings (A21).
 - [Phase 16]: 16-07: Flow A was retired out of the end-to-end completion count rather than left counted as broken; Flow C moved to complete, and both section headings state the audit-time and post-disposition counts — A22 required restating a flow honestly rather than silently upgrading it. Flow A's destination no longer exists, so broken would misdescribe it; Flow C's apply hop is now one flat install-files, which is what closed B-1.
