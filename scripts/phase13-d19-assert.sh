@@ -2,6 +2,12 @@
 # Phase 13 OVL-01..03 in-repo asserts (Nyquist validation).
 # Non-mutating only. Never copies onto live ~/.config/hypr/custom (D-02, D-17).
 #
+# Also carries two checks that are not Phase 13's own subject matter but belong
+# here because this is the script that already reads the D-18/D-19 fences:
+#   - the arch/dots-hyprland.sh drift baseline, tiered on phase marker files;
+#   - the W-3 apply-fence drift check between docs/dots-hyprland-workflow.md
+#     and the 13-SOT-APPLY.md source of truth (Phase 16 D-38).
+#
 # Usage (from REPO_ROOT):
 #   ./scripts/phase13-d19-assert.sh
 # Exit 0 if all hard asserts pass; non-zero if any hard FAIL.
@@ -16,6 +22,8 @@ pass() { printf '[PASS] %s\n' "$1"; }
 fail() { printf '[FAIL] %s\n' "$1"; FAIL=$((FAIL + 1)); }
 
 SOT=".planning/phases/13-personal-hypr-custom-overlays/13-SOT-APPLY.md"
+PLAYBOOK="docs/dots-hyprland-workflow.md"
+DOC_SWEEP_16=".planning/phases/16-retire-the-safe-profile-full-only-wrapper-and-playbook/16-DOC-SWEEP.md"
 GENERAL=".config/hypr/custom/general.lua"
 ENV=".config/hypr/custom/env.lua"
 EXECS=".config/hypr/custom/execs.lua"
@@ -23,22 +31,30 @@ LIVE_CUSTOM="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/custom"
 
 echo "=== Phase 13 overlay D-19 / OVL asserts (non-mutating) ==="
 
-# --- D-19 fence extracted from 13-SOT-APPLY.md (not a copy of the checks) ---
-FENCE="$(python3 - "$SOT" <<'PY'
+# --- Markdown fence extractor, parameterised over (file, heading) ---
+# One extractor, three call sites: the D-19 fence that is executed below, and
+# the two apply fences the W-3 drift check compares. A second extraction idiom
+# (awk/sed) is deliberately NOT added -- two extractors for one job drift apart,
+# and a hand-transcribed fence in this script would drift from both.
+extract_fence() {
+  python3 - "$1" "$2" <<'PY'
 from pathlib import Path
 import sys
 text = Path(sys.argv[1]).read_text()
-idx = text.find("## In-repo verify (D-19)")
+idx = text.find(sys.argv[2])
 if idx < 0:
-    raise SystemExit("D-19 heading missing")
+    raise SystemExit(f"heading missing: {sys.argv[2]}")
 rest = text[idx:]
 start = rest.find("```bash")
 end = rest.find("```", start + 7)
 if start < 0 or end < 0:
-    raise SystemExit("D-19 bash fence missing")
+    raise SystemExit("bash fence missing")
 print(rest[start + 7:end].lstrip("\n"), end="")
 PY
-)"
+}
+
+# --- D-19 fence extracted from 13-SOT-APPLY.md (not a copy of the checks) ---
+FENCE="$(extract_fence "$SOT" '## In-repo verify (D-19)')"
 if [ -z "$FENCE" ]; then
   fail "extract D-19 fence from $SOT"
 else
@@ -50,6 +66,33 @@ else
     fail "D-19 fence bash -e (extracted from 13-SOT-APPLY.md)"
   fi
   rm -f "$TMP"
+fi
+
+# --- W-3: the playbook duplicates the D-18 apply fence; nothing checked the copy ---
+# docs/dots-hyprland-workflow.md carries an operator-runnable copy of the
+# 13-SOT-APPLY.md D-18 apply fence. The copy is COMPARED here, never executed:
+# the fence touches a live configuration tree, and running both copies would
+# double the side effects of one procedure. The SoT copy above is the only one
+# this script executes.
+# The SoT copy carries one line the playbook copy does not -- a comment
+# restricting the fence to the adopt phase. That is the only difference between
+# the two fences. Neither fence body is edited to make this comparison pass;
+# instead the one differing line is filtered out here, in the open, because
+# without the filter the check fails against two fences that already agree.
+SOT_APPLY_FENCE="$(extract_fence "$SOT" '## Apply command (D-18)' \
+  | grep -v '^# Phase 14 only')"   # <- load-bearing filter, explained just above
+PB_APPLY_FENCE="$(extract_fence "$PLAYBOOK" '### Named files only')"
+
+if [ -z "$SOT_APPLY_FENCE" ]; then
+  fail "W-3 extract D-18 apply fence from $SOT (empty)"
+elif [ -z "$PB_APPLY_FENCE" ]; then
+  fail "W-3 extract apply fence from $PLAYBOOK (empty)"
+elif [ "$SOT_APPLY_FENCE" = "$PB_APPLY_FENCE" ]; then
+  pass "W-3 $PLAYBOOK apply fence matches the 13-SOT-APPLY.md D-18 fence"
+else
+  fail "W-3 $PLAYBOOK apply fence has drifted from the 13-SOT-APPLY.md D-18 fence"
+  # diff exits non-zero on difference; this script runs under set -e.
+  diff <(printf '%s' "$SOT_APPLY_FENCE") <(printf '%s' "$PB_APPLY_FENCE") || true
 fi
 
 # --- extra OVL checks not all in the D-19 fence ---
@@ -141,9 +184,21 @@ fi
 #
 # Which commit is the baseline is phase-dependent. Phase 13 wanted the wrapper
 # untouched since phase 12. Phase 14 then changed it deliberately under D-28, so
-# after that phase the known-good state is 14c6828, not e7e4e9f. Pinning both
-# keeps drift detection live without asserting a premise the project has moved past.
-if [ -f "$LIVE_VERIFY" ]; then
+# after that phase the known-good state is 14c6828, not e7e4e9f. Phase 16 then
+# rewrote the wrapper full-only, so after that phase it is 0771cc2. Pinning all
+# three keeps drift detection live without asserting a premise the project has
+# moved past.
+#
+# ORDERING IS LOAD-BEARING: the newest marker must be tested FIRST. 14-LIVE-VERIFY.md
+# still exists on disk, so a branch placed after its test would never fire.
+#
+# git diff <BASE> -- <path> compares BASE against the WORKING TREE, not HEAD. So
+# each pin names a commit whose blob is byte-identical to the working tree at the
+# time it was written, and no later plan may touch arch/dots-hyprland.sh without
+# re-pinning here.
+if [ -f "$DOC_SWEEP_16" ]; then
+  WRAPPER_BASE="0771cc2"   # docs(16-02): rewrite wrapper usage to the surviving surface
+elif [ -f "$LIVE_VERIFY" ]; then
   WRAPPER_BASE="14c6828"   # refactor(14-01): drop waybar and swaync from PROTECT_EXPLICIT (D-28)
 else
   WRAPPER_BASE="e7e4e9f"   # feat(12-03): last phase-12 state of the wrapper
