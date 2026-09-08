@@ -8,9 +8,9 @@
 
 ## Overview
 
-v0.3 moves from dual-run adopt (SAFE_DEFAULTS: `--core --skip-hyprland --skip-sysupdate`) to a **full dots-hyprland install path** — but only after **impact inventory** and **per-surface dispositions**. Personal must-keeps migrate into `hypr/custom` Lua overlays; wrapper gains an explicit full profile while safe defaults remain the default; live adopt is gated; playbook documents safe vs full.
+v0.3 moves from dual-run adopt (SAFE_DEFAULTS: `--core --skip-hyprland --skip-sysupdate`) to a **full dots-hyprland install path** — but only after **impact inventory** and **per-surface dispositions**. Personal must-keeps migrate into `hypr/custom` Lua overlays; the wrapper's only install path is the full one and the residual defaults are retired; live adopt is gated; the playbook documents that single install path.
 
-**Not this milestone:** Waybar custom ports (CUST-*), default removal of Waybar/rofi/swaync (CUT-01), blind full install.
+**Not this milestone:** Waybar custom ports (CUST-*), blind full install.
 
 **Phase numbering:** Continues after v0.2 (last phase **9**). v0.3 starts at **Phase 10**.
 
@@ -66,7 +66,7 @@ Phase artifacts: [milestones/v0.2-phases/](milestones/v0.2-phases/)
   1. A committed inventory artifact lists filesystem + package/sysupdate effects for install **without** `--skip-hyprland`, and separately for dropping `--core` and `--skip-sysupdate`
   2. Inventory includes personal hypr surfaces vs upstream hypr install behavior (conf → `.old`, hyprland sync, lua entry, lock/idle backup, custom ignore_existing)
   3. Inventory lists non-hypr clash candidates if `--core` is dropped (fish, kitty, starship, fontconfig, other present misc targets)
-  4. Inventory states that default wrapper install still uses SAFE_DEFAULTS and remains available after this milestone
+  4. Inventory records the SAFE_DEFAULTS install behavior as Phase 10 found it — a frozen record of what that phase captured, not a claim about what the wrapper does now (Phase 16 retired the profile; the Phase 10 record stands)
 
 **Plans:** 5/5 plans complete
 
@@ -192,7 +192,7 @@ Plans:
 **Requirements:** DOC-03, DOC-04  
 **Success Criteria** (what must be TRUE):
 
-  1. Playbook documents safe vs full profiles, inventory→disposition→adopt sequence, and flag axes
+  1. Playbook documents both install profiles as they stood at Phase 15, inventory→disposition→adopt sequence, and flag axes **[superseded by Phase 16]** — the safe profile and its machinery were retired.
   2. Playbook documents hypr/custom overlay expectations and repo/live/fork SoT policy (OVL-03)
 
 **Plans:** 6/6 plans complete
@@ -277,7 +277,7 @@ Plans:
 | 15. Playbook safe vs full | v0.3 | 6/6 | Complete    | 2026-09-06 |
 | 16. Retire the safe profile | v0.3 | 8/10 | In Progress|  |
 
-**Coverage:** v0.1 shipped · v0.2 shipped · v0.3 22/22 requirements mapped · 0 unmapped
+**Coverage:** v0.1 shipped · v0.2 shipped · v0.3 19/19 requirements mapped · 0 unmapped
 
 ---
-*Last updated: 2026-09-07 — Phase 16 retitled: retire the safe profile (wrapper + playbook), superseding the DOC-03/dual-run-restore framing*
+*Last updated: 2026-09-08 — Phase 16 plan 16-09: milestone prose, Phase 10 criterion 4 and the coverage line amended to the retirement that shipped (D-27, D-28)*
