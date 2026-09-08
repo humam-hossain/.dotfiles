@@ -3,7 +3,7 @@
 ## Current State
 
 **Shipped:** v0.2 Adopt dots-hyprland (2026-08-02)  
-**In progress:** v0.3 Full ii install — Phases 10–15 complete; Phase 16 (retire the safe profile: full-only wrapper and playbook) is executing
+**In progress:** v0.3 Full ii install — Phases 10–16 complete (all milestone phases finished)
 
 Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, operator playbook for install and pin-bump updates. As of Phase 14 the session runs the full ii model — the Lua entry is authoritative and Waybar/rofi/swaync no longer dual-run.
 
@@ -16,6 +16,8 @@ Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery mo
 **Phase 13 delivered:** Parent-repo `.config/hypr/custom/` overlays — `general.lua` dual-head + eleven workspace pins, empty `env.lua`/`execs.lua` require slots, `13-SOT-APPLY.md` authoring SoT + D-18 `cp -a` (documented, not run) + D-19 fence (exit 0). Live `$HOME/.config/hypr/custom/` still absent. Apply is Phase 14.
 
 **Phase 14 delivered:** The live full adopt. `install --full` ran on 2026-09-04 behind the preflight gate; upstream renamed `hyprland.conf` to `.old` and the session now loads through `hyprland.lua` (`hyprctl -j status` reports `configProvider: lua`, where the pre-adopt baseline recorded `hyprlang`), surviving a re-login. The Phase 13 overlay is applied — `general.lua`/`env.lua`/`execs.lua` byte-identical to the repo SoT, dual-head DP-1 + HDMI-A-2 and eleven workspace rules live, `qs -c ii` running. Waybar/rofi/swaync are stopped per D-11 accept-remove with their trees still archived under `stow/` per D-12. Rollback is `docs/phase14-adopt-runbook.md` §14 (three tiers, never upstream `./setup uninstall`). Evidence: `14-LIVE-VERIFY.md`, the committed `script(1)` transcript, and `14-VERIFICATION.md` (passed 4/4). **[superseded by Phase 16]** — the safe profile and its machinery were retired.
+
+**Phase 16 delivered:** Retired the safe profile entirely. `arch/dots-hyprland.sh` no longer injects `SAFE_DEFAULTS` — bare `install`/`install-files` runs the full behavior with no profile to choose. `--full` survives as an announced no-op alias. Backup gate, protect machinery, ii-hook conditional injection, and `SAFE_DEFAULTS` array all removed. `uninstall` survives stripped. `docs/dots-hyprland-workflow.md` rewritten full-only end-to-end with bare commands; `docs/phase14-adopt-runbook.md` swept to match. Planning artifacts amended for the same falsehoods. v0.3 coverage dropped from 22 to 19. Closes v0.3 audit leftovers IN-11, W-1, W-2, W-3. Evidence: `scripts/phase16-retire-assert.sh` FAIL=0; all prior-phase assert suites green; `16-VERIFICATION.md` (passed 13/13).
 
 **Stats at v0.2 ship:** 5 phases · 15 plans · ~38 tasks · 106 commits since v0.1 · 1025 files changed (+17.6k / −78k, mostly retired local QS tree)
 
@@ -127,9 +129,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Monitors, workspace pins and `qs -c ii` verified live; dual-run chrome accept-removed per DISP-03's explicit-acceptance clause — Phase 14 / ADOPT-03 **[superseded by Phase 16]** — the dual-run session ended at the Phase 14 adopt.
 - ✓ Rollback guidance in three tiers that never uses upstream `./setup uninstall` — Phase 14 / ADOPT-04 **[superseded by Phase 16]** — the safe profile and its machinery were retired.
 
+- ✓ Playbook: single full-only install path with no profile to choose — DOC-03 / DOC-04 (Phase 15 authored it; Phase 16 made it full-only)
+
 ### Active
 
-- [x] Playbook: single full-only install path with no profile to choose — DOC-03 / DOC-04 (Phase 15 authored it; Phase 16 made it full-only)
 - [ ] Re-establish the `graphical-session.target` autostart lost with the renamed conf (D-38) — no owning phase yet; Phase 15's criteria are documentation-only
 
 ### Carry-forward candidates (not yet committed requirements)
@@ -218,6 +221,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 14: rollback is a repo runbook, never upstream `./setup uninstall` | ADOPT-04; the upstream subcommand is a Phase 12 escape hatch behind a token gate, referenced by no Phase 14 guidance | ✓ `14-VERIFICATION.md` ADOPT-04; `grep -niE 'setup uninstall'` on the runbook → no matches |
 | Phase 14: Hyprland conf-vs-Lua precedence left unresolved, and rollback written to be correct either way | The wiki and D-09 disagree on 0.56.2; the forward adopt is safe under both readings, the reverse is not | ✓ the runbook's first rollback step opened by moving `hyprland.lua` aside (CR-01) **[superseded by Phase 16]** — the safe profile and its machinery were retired. |
 | Replace waybar + rofi + swaync long-term | Consolidate tools; gain unified richer shell | ✓ Phase 14 — accept-removed from the session (D-11); configs archived in repo (D-12) |
+| Phase 16: Retire safe profile entirely — one install path, no profile choice | Full adopt is reality since Phase 14; safe machinery is dead code that blocks the playbook from describing bare commands | ✓ `SAFE_DEFAULTS` removed, `--full` is no-op alias, playbook full-only, all assertion suites green |
 
 ## Evolution
 
@@ -237,4 +241,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-08 during Phase 16 plan 08 — current-state claims rewritten to the full-only wrapper and the ii-owned session; per-phase delivered lines annotated, not rewritten*
+*Last updated: 2026-09-08 after Phase 16 — safe profile retired; milestone v0.3 complete*

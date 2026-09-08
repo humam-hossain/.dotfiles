@@ -29,21 +29,21 @@ Status: All phases complete
 Total Plans in Phase: 10
 Last activity: 2026-09-08 — Phase 16 complete
 
-Progress: [████████████████████] 17/17 plans ([██████████] 100%)
+Progress: [████████████████████] 33/33 plans (100%)
 
 ## Session
 
-**Last session:** 2026-09-08T10:13:02.098Z
-**Stopped at:** Phase 16 complete — all phases complete
+**Last session:** 2026-09-08
+**Stopped at:** Phase 16 complete — all v0.3 milestone phases finished
 **Resume file:** None
-**Next command:** `/gsd-execute-phase 16`
+**Next command:** `/gsd-complete-milestone v0.3`
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-05)
+See: .planning/PROJECT.md (updated 2026-09-08)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 16 — Retire the safe profile: full-only wrapper and playbook
+**Current focus:** v0.3 milestone complete — all 7 phases finished
 
 ## Deferred Items
 
@@ -113,11 +113,9 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 
 ## Operator Next Steps
 
-1. `/gsd-execute-phase 16` — one plan left: `16-10` completes the sweep record's planning-artifact and phase-gate sections, then runs the D-40 gate on a clean tree plus the post-change login re-verify ← recommended  
+1. `/gsd-complete-milestone v0.3` — archive milestone and prepare for next ← recommended  
 2. Find a home for the open D-38 `graphical-session.target` autostart bootstrap — its own phase, or the next milestone; it stays open and unowned until then  
-3. `/gsd-secure-phase 13` — security enforcement enabled; no `13-SECURITY.md` yet  
-4. `/gsd-validate-phase 13` — `13-VALIDATION.md` still `status: draft` / `nyquist_compliant: false`  
-5. `/gsd-map-codebase` re-run after Phase 16 closes — the six `.planning/codebase/` snapshots are all stamped 2026-08-21 and describe the retired wrapper
+3. `/gsd-map-codebase` re-run after milestone close — the six `.planning/codebase/` snapshots are all stamped 2026-08-21 and describe the retired wrapper
 
 ## Performance Metrics
 
