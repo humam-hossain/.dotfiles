@@ -185,8 +185,9 @@ fi
 # Which commit is the baseline is phase-dependent. Phase 13 wanted the wrapper
 # untouched since phase 12. Phase 14 then changed it deliberately under D-28, so
 # after that phase the known-good state is 14c6828, not e7e4e9f. Phase 16 then
-# rewrote the wrapper full-only, so after that phase it is 0771cc2. Pinning all
-# three keeps drift detection live without asserting a premise the project has
+# rewrote the wrapper full-only, so after that phase it was 0771cc2 — and then the
+# phase 16 review's C-01/H-01 fixes changed it again, so it is now cfa63ad. Pinning
+# all three keeps drift detection live without asserting a premise the project has
 # moved past.
 #
 # ORDERING IS LOAD-BEARING: the newest marker must be tested FIRST. 14-LIVE-VERIFY.md
@@ -197,7 +198,7 @@ fi
 # time it was written, and no later plan may touch arch/dots-hyprland.sh without
 # re-pinning here.
 if [ -f "$DOC_SWEEP_16" ]; then
-  WRAPPER_BASE="0771cc2"   # docs(16-02): rewrite wrapper usage to the surviving surface
+  WRAPPER_BASE="cfa63ad"   # fix(16): close C-01/H-01 from the phase 16 review
 elif [ -f "$LIVE_VERIFY" ]; then
   WRAPPER_BASE="14c6828"   # refactor(14-01): drop waybar and swaync from PROTECT_EXPLICIT (D-28)
 else
