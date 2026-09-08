@@ -5,17 +5,17 @@ milestone_name: Full ii install
 current_phase: 16
 current_phase_name: "Retire the safe profile: full-only wrapper and playbook"
 status: executing
-stopped_at: Completed 16-03-PLAN.md
-last_updated: "2026-09-07T13:22:22.218Z"
-last_activity: 2026-09-07
-last_activity_desc: Phase 16 execution started
-state_head: 769bf9edd7f32058434b5390d3cc5e04ceebe13a
+stopped_at: Completed 16-06-PLAN.md
+last_updated: "2026-09-08T05:06:45.088Z"
+last_activity: 2026-09-08
+last_activity_desc: Phase 16 execution resumed (wave continue)
+state_head: 3b0b6f5da82e87a7c4493ade7b53531390aeb5fb
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 33
-  completed_plans: 26
-  percent: 79
+  completed_plans: 29
+  percent: 86
 ---
 
 Total Phases: 6
@@ -25,19 +25,19 @@ Total Phases: 6
 ## Current Position
 
 Phase: 16 (Retire the safe profile: full-only wrapper and playbook) — EXECUTING
-Plan: 4 of 10
+Plan: 7 of 10
 Status: Ready to execute
 Total Plans in Phase: 10
-Last activity: 2026-09-07 — Phase 16 execution started
+Last activity: 2026-09-08 — Phase 16 execution resumed (wave continue)
 
-Progress: [████████████████████] 17/17 plans ([████████░░] 79%)
+Progress: [████████████████████] 17/17 plans ([█████████░] 86%)
 
 ## Session
 
-**Last session:** 2026-09-07T13:22:00.601Z
-**Stopped at:** Completed 16-03-PLAN.md
+**Last session:** 2026-09-08T05:06:44.959Z
+**Stopped at:** Completed 16-06-PLAN.md
 **Resume file:** None
-**Next command:** `/gsd-plan-phase 16`
+**Next command:** `/gsd-execute-phase 16`
 
 ## Project Reference
 
@@ -146,6 +146,7 @@ Phase archives: `milestones/v0.2-phases/`.
 | Phase 16 P01 | 38 min | 3 tasks | 2 files |
 | Phase 16 P02 | 10 min | 2 tasks | 2 files |
 | Phase 16 P03 | 10 min | 2 tasks | 3 files |
+| Phase 16 P06 | 25 min | 2 tasks | 2 files |
 
 ## Decisions
 
@@ -172,3 +173,5 @@ Phase archives: `milestones/v0.2-phases/`.
 - [Phase 16]: 16-03: ADOPT-04 was retired from every message in scripts/phase14-verify.sh, not just from the surviving removal probe — D-26 deletes the ADOPT-04 row from REQUIREMENTS.md this phase, so a live [PASS] line citing it would name a requirement with no definition anywhere in the repo. The two surviving pre-adopt conf probes now cite D-20 and the removal probe cites D-10; assertions, hashing and pass/fail structure are unchanged (message-only).
 - [Phase 16]: 16-03: the sha256sum file-wide absence criterion was satisfied in scope, not literally — Three of its four call sites are inside assertions D-37 explicitly keeps (check_tier1_source, check_untouched, check_sidecar). Deletion of the backup-integrity block is proven instead by the absence of backup_dir_hyprland_conf_mtime, 'D-36 backup' and BK_CONF. Recorded as WINDOWS.md id 4.
 - [Phase 16]: 16-03: IN-11 closed by deletion of scripts/phase14-preflight.sh, not by fixing its --rotate-backup message — D-33 supersedes the earlier fix-the-message plan. The script gated an adopt that ran on 2026-09-04 and nothing re-runs it; running it today would rename away a rollback source. Post-deletion sweep outside .git/, .planning/ and docs/ returned RUNNERS:none. Two artifacts still record IN-11 as open until wave 5: v0.3-MILESTONE-AUDIT.md (plan 16-07) and STATE.md (plan 16-09).
+- [Phase 16]: Wrapper drift baseline re-pinned to 0771cc2, resolved at execution time — git log -1 on arch/dots-hyprland.sh plus an empty-diff confirmation is self-correcting; a SHA copied from a planning document would be wrong because the wrapper was split across plans 16-01 and 16-02
+- [Phase 16]: 16-DOC-SWEEP.md is a load-bearing marker, not only a record — scripts/phase13-d19-assert.sh selects its wrapper drift baseline by testing for the file's presence, so moving or renaming it silently reverts the comparison to the Phase 14 pin
