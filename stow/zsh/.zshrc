@@ -117,3 +117,6 @@ autoload -Uz compinit && compinit -C
 
 # claude
 alias claude="TMPDIR=$HOME/.cache/claude-tmp claude --dangerously-skip-permissions"
+
+# Google Drive (rclone & fuse3)
+rclone mount gdrive: ~/GoogleDrive --vfs-cache-mode writes --daemon
