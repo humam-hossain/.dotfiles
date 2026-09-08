@@ -4,17 +4,17 @@ milestone: v0.3
 milestone_name: Full ii install
 current_phase: 16
 current_phase_name: "Retire the safe profile: full-only wrapper and playbook"
-status: executing
-stopped_at: Completed 16-09-PLAN.md
-last_updated: "2026-09-08T07:43:59.314Z"
+status: verifying
+stopped_at: Completed 16-10-PLAN.md — Phase 16 complete; D-40 human re-login outstanding
+last_updated: "2026-09-08T10:13:02.224Z"
 last_activity: 2026-09-08
 last_activity_desc: Phase 16 execution resumed (wave continue)
-state_head: 4570379238f0b2a5f5431463ce50206b9cb6cb7a
+state_head: 0d569eb04950eaacf8ed96154b5e4f2ef933af6c
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 33
-  completed_plans: 32
+  completed_plans: 33
   percent: 86
 ---
 
@@ -26,7 +26,7 @@ Total Phases: 6
 
 Phase: 16 (Retire the safe profile: full-only wrapper and playbook) — EXECUTING
 Plan: 10 of 10
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Total Plans in Phase: 10
 Last activity: 2026-09-08 — Phase 16 execution resumed (wave continue)
 
@@ -34,8 +34,8 @@ Progress: [████████████████████] 17/17 p
 
 ## Session
 
-**Last session:** 2026-09-08T07:43:44.742Z
-**Stopped at:** Completed 16-09-PLAN.md
+**Last session:** 2026-09-08T10:13:02.098Z
+**Stopped at:** Completed 16-10-PLAN.md — Phase 16 complete; D-40 human re-login outstanding
 **Resume file:** None
 **Next command:** `/gsd-execute-phase 16`
 
@@ -151,6 +151,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 | Phase 16 P07 | 15 min | 2 tasks | 2 files |
 | Phase 16 P08 | 11 min | 2 tasks | 2 files |
 | Phase 16 P09 | 13 min | 2 tasks | 2 files |
+| Phase 16 P10 | 17 min | 2 tasks | 1 files |
 
 ## Decisions
 
@@ -187,3 +188,6 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 16]: 16-09: the ROADMAP coverage line was recomputed to 19/19 from the live REQUIREMENTS.md arithmetic, not from the plan prose — the plan text and the requirement set are checked against each other because a coverage line that disagrees with the requirement set produces a milestone-audit finding that is an artifact of bookkeeping rather than of the work
 - [Phase 16]: 16-09: Phase 15's success criterion 1 was amended and annotated rather than frozen as history — the task's forbidden-string gate bans 'documents safe vs full' file-wide and D-28's leave-as-history list names only Phases 11, 12 and 14. The criterion still records what Phase 15 shipped; only the banned literal changed.
 - [Phase 16]: 16-09: three historical entries lost a banned token while keeping their claim — the Phase 6 decision row, the annotation-form decision entry and operator next step 2. Each of the plan's gates is file-wide while its prose instruction is site-scoped, so a mark-as-history-only treatment left the gate red; the resolution changes the token form and preserves the assertion.
+- [Phase 16]: Phase 16 gate (D-40) ran green on a clean tree at 95b86fd: phase16-retire, phase12-full-smoke, phase11-dispositions and phase10-inventory each FAIL=0, phase13-d19 FAIL=0 with the 0771cc2 drift pin and W-3 fence intact, phase14-verify FAIL=0 FINDINGS=1 — the known D-38 loss, still emitted and still allowed. Transcript quoted verbatim in 16-DOC-SWEEP.md.
+- [Phase 16]: The D-40 human re-login is OUTSTANDING, not performed — the executing agent cannot end the operator's Hyprland session. The automated post-change probes (configProvider lua, qs -c ii running, waybar/swaync stopped) did run and are a weaker statement than a fresh login. Recorded as outstanding in 16-DOC-SWEEP.md's phase-gate section with the four checks the operator still owes.
+- [Phase 16]: 16-10: the sweep record is the only place FULL-03, FULL-05 and ADOPT-04 are named — REQUIREMENTS.md's orphan check bans them file-wide, so its coverage note points there. The record also carries the resolved D-26-over-D-27 conflict on INV-04 and the four frozen-artifact override sites.
