@@ -303,3 +303,10 @@ Record the date and result in the table at the end of `16-DOC-SWEEP.md`'s `## Ph
 ---
 *Phase: 16-retire-the-safe-profile-full-only-wrapper-and-playbook*
 *Completed: 2026-09-08*
+
+## Self-Check: PASSED
+
+Files claimed, verified present on disk: `16-DOC-SWEEP.md`, `16-10-SUMMARY.md`.
+Commits claimed, verified in `git log`: `95b86fd`, `0d569eb`, `9ad36b9`.
+All six assert suites re-run on the committed tree at `9ad36b9`: five at `FAIL=0`, `phase14-verify.sh` at `FAIL=0 FINDINGS=1`.
+`git status --porcelain` is empty.
