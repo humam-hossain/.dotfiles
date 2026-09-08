@@ -5,16 +5,16 @@ milestone_name: Full ii install
 current_phase: 16
 current_phase_name: "Retire the safe profile: full-only wrapper and playbook"
 status: executing
-stopped_at: Completed 16-08-PLAN.md
-last_updated: "2026-09-08T07:33:22.581Z"
+stopped_at: Completed 16-09-PLAN.md
+last_updated: "2026-09-08T07:43:59.314Z"
 last_activity: 2026-09-08
 last_activity_desc: Phase 16 execution resumed (wave continue)
-state_head: 74be123fe1ae1832d6b7ce7121a6343a6be1f17a
+state_head: 4570379238f0b2a5f5431463ce50206b9cb6cb7a
 progress:
   total_phases: 7
   completed_phases: 6
   total_plans: 33
-  completed_plans: 31
+  completed_plans: 32
   percent: 86
 ---
 
@@ -25,7 +25,7 @@ Total Phases: 6
 ## Current Position
 
 Phase: 16 (Retire the safe profile: full-only wrapper and playbook) — EXECUTING
-Plan: 9 of 10
+Plan: 10 of 10
 Status: Ready to execute
 Total Plans in Phase: 10
 Last activity: 2026-09-08 — Phase 16 execution resumed (wave continue)
@@ -34,8 +34,8 @@ Progress: [████████████████████] 17/17 p
 
 ## Session
 
-**Last session:** 2026-09-08T07:33:22.471Z
-**Stopped at:** Completed 16-08-PLAN.md
+**Last session:** 2026-09-08T07:43:44.742Z
+**Stopped at:** Completed 16-09-PLAN.md
 **Resume file:** None
 **Next command:** `/gsd-execute-phase 16`
 
@@ -150,6 +150,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 | Phase 16 P06 | 25 min | 2 tasks | 2 files |
 | Phase 16 P07 | 15 min | 2 tasks | 2 files |
 | Phase 16 P08 | 11 min | 2 tasks | 2 files |
+| Phase 16 P09 | 13 min | 2 tasks | 2 files |
 
 ## Decisions
 
@@ -183,3 +184,6 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 16]: 16-07: the three retired requirement IDs are not named anywhere in REQUIREMENTS.md, not even in the coverage note explaining the 22-to-19 drop — The plan's own orphan check bans FULL-03, FULL-05 and ADOPT-04 file-wide, so a coverage note naming them reads as an orphan. The note describes what each row promised instead, and points at 16-DOC-SWEEP.md for the identifiers.
 - [Phase 16]: 16-07: the milestone audit's status: gaps_found and its scores block are left as the 2026-09-06 measurement; findings are dispositioned in place with added disposition and resolution keys — Rewriting the scores would make the audit assert numbers it never measured. A dispositioned metadata block plus a disposition_note records the later state without restructuring the audit or erasing its findings (A21).
 - [Phase 16]: 16-07: Flow A was retired out of the end-to-end completion count rather than left counted as broken; Flow C moved to complete, and both section headings state the audit-time and post-disposition counts — A22 required restating a flow honestly rather than silently upgrading it. Flow A's destination no longer exists, so broken would misdescribe it; Flow C's apply hop is now one flat install-files, which is what closed B-1.
+- [Phase 16]: 16-09: the ROADMAP coverage line was recomputed to 19/19 from the live REQUIREMENTS.md arithmetic, not from the plan prose — the plan text and the requirement set are checked against each other because a coverage line that disagrees with the requirement set produces a milestone-audit finding that is an artifact of bookkeeping rather than of the work
+- [Phase 16]: 16-09: Phase 15's success criterion 1 was amended and annotated rather than frozen as history — the task's forbidden-string gate bans 'documents safe vs full' file-wide and D-28's leave-as-history list names only Phases 11, 12 and 14. The criterion still records what Phase 15 shipped; only the banned literal changed.
+- [Phase 16]: 16-09: three historical entries lost a banned token while keeping their claim — the Phase 6 decision row, the annotation-form decision entry and operator next step 2. Each of the plan's gates is file-wide while its prose instruction is site-scoped, so a mark-as-history-only treatment left the gate red; the resolution changes the token form and preserves the assertion.
