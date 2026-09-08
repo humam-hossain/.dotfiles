@@ -13,7 +13,7 @@ Requirements for this milestone only. Phase numbering continues after v0.2 (last
 - [x] **INV-01**: Operator has a written impact inventory listing every filesystem path and package/sysupdate effect of a full dots-hyprland install **without** `--skip-hyprland`, and separately noting effects of dropping `--core` and `--skip-sysupdate`
 - [x] **INV-02**: Inventory compares personal `.config/hypr` (at least `hyprland.conf`, hyprlock, hypridle, hyprpaper, any `hypr/hyprland` content) against upstream `dots/.config/hypr` install behavior (conf → `.old`, hyprland dir sync, hyprland.lua entry, lock/idle auto_backup, custom ignore_existing)
 - [x] **INV-03**: Inventory lists non-hypr personal configs that clash if `--core` is dropped (at least fish, kitty, starship, fontconfig, and other `dots/.config` misc targets present on this machine)
-- [x] **INV-04**: Inventory records current SAFE_DEFAULTS behavior and that safe dual-run install remains available after this milestone
+- [x] **INV-04**: Inventory records the SAFE_DEFAULTS install behavior as Phase 10 found it — a frozen record of what that phase captured, not a claim about what the wrapper does now (Phase 16 retired the profile; the Phase 10 record stands)
 
 ### Disposition decisions
 
@@ -30,22 +30,19 @@ Requirements for this milestone only. Phase numbering continues after v0.2 (last
 
 ### Full-install path (wrapper)
 
-- [x] **FULL-01**: Operator can invoke a **documented explicit opt-in** full-install path (wrapper flag/profile or equivalent) that does not inject `--skip-hyprland` (and applies other flag drops only per DISP-02)
-- [x] **FULL-02**: Default `./arch/dots-hyprland.sh install` / `install-files` **still** injects SAFE_DEFAULTS (`--core --skip-hyprland --skip-sysupdate`) — full is never accidental
-- [x] **FULL-03**: Full path retains backup gate behavior and continues to refuse bare `--skip-backup` without explicit allow override
-- [x] **FULL-04**: Full path supports `--dry-run` showing argv **without** unwanted SAFE_DEFAULTS injection so operator can verify before mutation
-- [x] **FULL-05**: After full install/deps, PROTECT_EXPLICIT re-mark (or equivalent protect) still runs so personal stack packages are not left only asdeps
+- [x] **FULL-01**: The wrapper's only install path is the full one — no subcommand injects `--core`, `--skip-hyprland` or `--skip-sysupdate`, and there is no profile to choose
+- [x] **FULL-02**: A bare `./arch/dots-hyprland.sh install` / `install-files` **is** the full behavior; `--full` survives only as an announced no-op alias
+- [x] **FULL-04**: The install path supports `--dry-run`, printing the exact `./setup` argv so the operator can verify it before any mutation
 
 ### Live adopt & verify
 
 - [x] **ADOPT-01**: Live full install is executed only after INV-* and DISP-* are satisfied (process gate)
 - [x] **ADOPT-02**: After full hypr adopt, Hyprland session loads via ii Lua entry (`hyprland.lua` / hyprland tree) rather than the pre-adopt personal `hyprland.conf` as primary
-- [x] **ADOPT-03**: After adopt, operator-verified: monitors/layout per disposition, shell chrome (`qs -c ii`) runs, and dual-run policy matches DISP-03
-- [x] **ADOPT-04**: Rollback guidance exists that does **not** use upstream `./setup uninstall` (backup restore and/or wrapper safe uninstall/protect only)
+- [x] **ADOPT-03**: After adopt, operator-verified: monitors/layout per disposition, and the ii shell (`qs -c ii`) runs
 
 ### Documentation
 
-- [x] **DOC-03**: Playbook documents **safe vs full** install profiles, inventory→disposition→adopt sequence, and flag axes (`skip-hyprland` / `core` / `sysupdate`)
+- [x] **DOC-03**: Playbook documents the single full-only install path, the inventory→disposition→adopt sequence, and the update and recovery contracts
 - [x] **DOC-04**: Playbook documents hypr/custom overlay expectations and repo/live/fork SoT policy from OVL-03
 
 ## Future Requirements
@@ -61,7 +58,7 @@ Deferred beyond v0.3.
 
 ### Cutover & polish
 
-- **CUT-01**: Remove Waybar/rofi/swaync from Hyprland startup once parity is accepted
+- **CUT-01**: Remove Waybar/rofi/swaync from Hyprland startup once parity is accepted — **[superseded by Phase 16]** already delivered by the Phase 11 D-11 accept-remove decision and the Phase 14 adopt; stays outside the coverage count
 - **CUT-02**: (partially in v0.3 as full hypr adopt) residual Lua/session polish after first full adopt
 - **POLISH-01**: Wrapper `verify` subcommand (qs binary, config path, submodule SHA)
 - **POLISH-02**: FWK-02 / IPC-02 style auto-start and bar-toggle keybind under upstream model
@@ -72,8 +69,7 @@ Deferred beyond v0.3.
 | Feature | Reason |
 |---------|--------|
 | Blind full install without inventory/dispositions | Explicit anti-goal of this milestone |
-| Waybar custom module ports (CUST-01..03) | Separate parity track; dual-run remains valid |
-| Removing Waybar/rofi/swaync by default (CUT-01) | Only if DISP-03 explicitly accepts; default keep |
+| Waybar custom module ports (CUST-01..03) | Separate parity track; Waybar, rofi and swaync were accept-removed from the session at the Phase 14 adopt, so the ports are parity work with no v0.3 deliverable |
 | Reimplement ii package install in `arch/` without `./setup` | Upstream setup remains SoT |
 | DDC/CI brightness / ddcutil polling | iGPU hang post-mortem |
 | Replace hyprlock with Quickshell lock screen | Product choice unchanged |
@@ -81,7 +77,6 @@ Deferred beyond v0.3.
 | Debian/Ubuntu parity | Arch primary |
 | Auto-bump submodule on every parent pull | Breaks reproducibility |
 | Upstream `./setup uninstall` as rollback | Cascade risk; wrapper safe paths only |
-| Making full profile the default wrapper behavior | Safe defaults remain default |
 
 ## Traceability
 
@@ -95,27 +90,32 @@ Deferred beyond v0.3.
 | DISP-02 | Phase 11 | Complete |
 | DISP-03 | Phase 11 | Complete |
 | DISP-04 | Phase 11 | Complete |
-| FULL-01 | Phase 12 | Complete |
-| FULL-02 | Phase 12 | Complete |
-| FULL-03 | Phase 12 | Complete |
-| FULL-04 | Phase 12 | Complete |
-| FULL-05 | Phase 12 | Complete |
+| FULL-01 | Phase 16 | Complete |
+| FULL-02 | Phase 16 | Complete |
+| FULL-04 | Phase 16 | Complete |
 | OVL-01 | Phase 13 | Complete |
 | OVL-02 | Phase 13 | Complete |
 | OVL-03 | Phase 13 | Complete |
 | ADOPT-01 | Phase 14 | Complete |
 | ADOPT-02 | Phase 14 | Complete |
-| ADOPT-03 | Phase 14 | Complete |
-| ADOPT-04 | Phase 14 | Complete |
-| DOC-03 | Phase 15 | Complete |
+| ADOPT-03 | Phase 16 | Complete |
+| DOC-03 | Phase 16 | Complete |
 | DOC-04 | Phase 15 | Complete |
 
 **Coverage:**
 
-- v0.3 requirements: 22 total
-- Mapped to phases: 22
+- v0.3 requirements: 19 total
+- Mapped to phases: 19
 - Unmapped: 0 ✓
+
+Phase 16 retired three rows together with the machinery each described — the install-time
+snapshot prompt, the post-install package re-marking pass, and the rollback guidance that
+depended on both — dropping the v0.3 count from 22 to 19. The retired identifiers are
+listed in `.planning/phases/16-retire-the-safe-profile-full-only-wrapper-and-playbook/16-DOC-SWEEP.md`
+so no deleted ID survives here as an orphan. `INV-04` was rewritten but stays mapped to Phase 10, because it records what
+Phase 10 captured and `scripts/phase10-inventory-assert.sh` still verifies that frozen
+record (D-26 over D-27, D-39).
 
 ---
 *Requirements defined: 2026-08-03*  
-*Last updated: 2026-08-03 after v0.3 roadmap mapping*
+*Last updated: 2026-09-08 after the Phase 16 safe-profile retirement (D-26, D-27)*
