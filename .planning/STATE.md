@@ -5,11 +5,11 @@ milestone_name: Full ii install
 current_phase: 16
 current_phase_name: "Retire the safe profile: full-only wrapper and playbook"
 status: executing
-stopped_at: Completed 16-06-PLAN.md
-last_updated: "2026-09-08T05:06:45.088Z"
+stopped_at: Completed 16-07-PLAN.md
+last_updated: "2026-09-08T05:21:11.174Z"
 last_activity: 2026-09-08
 last_activity_desc: Phase 16 execution resumed (wave continue)
-state_head: 3b0b6f5da82e87a7c4493ade7b53531390aeb5fb
+state_head: 993be6d9402ce3b2827220552d0e4004399e8e31
 progress:
   total_phases: 7
   completed_phases: 6
@@ -25,7 +25,7 @@ Total Phases: 6
 ## Current Position
 
 Phase: 16 (Retire the safe profile: full-only wrapper and playbook) — EXECUTING
-Plan: 7 of 10
+Plan: 8 of 10
 Status: Ready to execute
 Total Plans in Phase: 10
 Last activity: 2026-09-08 — Phase 16 execution resumed (wave continue)
@@ -34,8 +34,8 @@ Progress: [████████████████████] 17/17 p
 
 ## Session
 
-**Last session:** 2026-09-08T05:06:44.959Z
-**Stopped at:** Completed 16-06-PLAN.md
+**Last session:** 2026-09-08T05:20:10.651Z
+**Stopped at:** Completed 16-07-PLAN.md
 **Resume file:** None
 **Next command:** `/gsd-execute-phase 16`
 
@@ -147,6 +147,7 @@ Phase archives: `milestones/v0.2-phases/`.
 | Phase 16 P02 | 10 min | 2 tasks | 2 files |
 | Phase 16 P03 | 10 min | 2 tasks | 3 files |
 | Phase 16 P06 | 25 min | 2 tasks | 2 files |
+| Phase 16 P07 | 15 min | 2 tasks | 2 files |
 
 ## Decisions
 
@@ -175,3 +176,8 @@ Phase archives: `milestones/v0.2-phases/`.
 - [Phase 16]: 16-03: IN-11 closed by deletion of scripts/phase14-preflight.sh, not by fixing its --rotate-backup message — D-33 supersedes the earlier fix-the-message plan. The script gated an adopt that ran on 2026-09-04 and nothing re-runs it; running it today would rename away a rollback source. Post-deletion sweep outside .git/, .planning/ and docs/ returned RUNNERS:none. Two artifacts still record IN-11 as open until wave 5: v0.3-MILESTONE-AUDIT.md (plan 16-07) and STATE.md (plan 16-09).
 - [Phase 16]: Wrapper drift baseline re-pinned to 0771cc2, resolved at execution time — git log -1 on arch/dots-hyprland.sh plus an empty-diff confirmation is self-correcting; a SHA copied from a planning document would be wrong because the wrapper was split across plans 16-01 and 16-02
 - [Phase 16]: 16-DOC-SWEEP.md is a load-bearing marker, not only a record — scripts/phase13-d19-assert.sh selects its wrapper drift baseline by testing for the file's presence, so moving or renaming it silently reverts the comparison to the Phase 14 pin
+- [Phase 16]: 16-07: INV-04 keeps its Phase 10 traceability mapping although its text was rewritten — D-26 says it stays at Phase 10; D-27 says rewritten rows map to Phase 16. The two conflict for exactly this one ID. The specific rule governs, and it is what keeps the row consistent with D-39, which deliberately leaves scripts/phase10-inventory-assert.sh requiring the retired language in the frozen Phase 10 record.
+- [Phase 16]: 16-07: the phase superseded-annotation form is a bold bracketed suffix, **[superseded by Phase 16]**, followed by a short clause naming what delivered it — CONTEXT.md left the wording to the executor as long as one form is used across REQUIREMENTS.md, PROJECT.md and STATE.md. First applied to CUT-01 in REQUIREMENTS.md; plans 16-08 and 16-09 reuse it verbatim.
+- [Phase 16]: 16-07: the three retired requirement IDs are not named anywhere in REQUIREMENTS.md, not even in the coverage note explaining the 22-to-19 drop — The plan's own orphan check bans FULL-03, FULL-05 and ADOPT-04 file-wide, so a coverage note naming them reads as an orphan. The note describes what each row promised instead, and points at 16-DOC-SWEEP.md for the identifiers.
+- [Phase 16]: 16-07: the milestone audit's status: gaps_found and its scores block are left as the 2026-09-06 measurement; findings are dispositioned in place with added disposition and resolution keys — Rewriting the scores would make the audit assert numbers it never measured. A dispositioned metadata block plus a disposition_note records the later state without restructuring the audit or erasing its findings (A21).
+- [Phase 16]: 16-07: Flow A was retired out of the end-to-end completion count rather than left counted as broken; Flow C moved to complete, and both section headings state the audit-time and post-disposition counts — A22 required restating a flow honestly rather than silently upgrading it. Flow A's destination no longer exists, so broken would misdescribe it; Flow C's apply hop is now one flat install-files, which is what closed B-1.
