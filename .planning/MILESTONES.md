@@ -1,5 +1,45 @@
 # Milestones
 
+## v0.3 Full ii install (Shipped: 2026-09-09)
+
+**Closeout type:** `standard`  
+**Phases completed:** 7 phases, 33 plans (Phases 10–16)  
+**Git range:** `v0.2` → `v0.3` (2026-08-02 → 2026-09-09) · 264 commits  
+**Diffstat:** 290 files changed, +50,448 / −3,942
+
+**Delivered:** Full dots-hyprland install path — impact inventory, per-surface dispositions, personal `hypr/custom` Lua overlays, live full adopt with session running via ii Lua entry, safe profile retired (no SAFE_DEFAULTS, no flags to choose), full-only playbook with bare commands end-to-end.
+
+### Key accomplishments
+
+1. Full-install impact inventory (`10-INVENTORY.md`) mapping every path/flag/package effect of full install vs personal configs, with Wave 0 assert harness — INV-01..04
+2. Per-surface disposition decisions (`11-DISPOSITIONS.md`) covering keep/migrate/accept/defer for all high-risk surfaces, staged flag choices, chrome accept-remove — DISP-01..04
+3. Personal `hypr/custom` Lua overlays: `general.lua` dual-head + 11 workspace pins, empty `env.lua`/`execs.lua` require slots, SoT fence and D-19 adversarial assert — OVL-01..03
+4. Live full adopt: `install --full` behind preflight gate; session loads via ii Lua entry (`hyprland.lua`); overlays applied byte-identical; Waybar/rofi/swaync accept-removed — ADOPT-01..03
+5. Safe profile retirement: `SAFE_DEFAULTS` removed, bare `install`/`install-files` is the full behavior, `--full` is announced no-op alias, all assertion suites green — FULL-01, FULL-02, FULL-04
+6. Full-only playbook `docs/dots-hyprland-workflow.md` rewritten end-to-end with bare commands — DOC-03, DOC-04
+
+### Known Gaps / Tech Debt
+
+| ID / Item | Description | Disposition |
+|-----------|-------------|-------------|
+| D-38 | `graphical-session.target` autostart lost at adopt | Unowned; no closing phase assigned |
+| WR-02 | Three roles of repo `hyprland.conf` — two live roles remain | Open in `14-REVIEW.md`; low exposure |
+| D-40 | Human re-login after Phase 16 changes | Pending operator confirmation |
+| Process | Phases 11, 15 missing SECURITY.md / UAT.md | Defensible — documentation-only phases |
+| CUST-01..04 | Waybar custom ports (ping, weather, earthquake) | Future milestone |
+| POLISH-01..03 | Wrapper verify; FWK-02/IPC-02; v0.1 debug re-eval | Future milestone |
+
+**Known verification overrides:** 0 (milestone audit passed with `tech_debt` status)
+
+**Archives:**
+
+- [milestones/v0.3-ROADMAP.md](milestones/v0.3-ROADMAP.md)
+- [milestones/v0.3-REQUIREMENTS.md](milestones/v0.3-REQUIREMENTS.md)
+- [milestones/v0.3-phases/](milestones/v0.3-phases/)
+- [milestones/v0.3-MILESTONE-AUDIT.md](milestones/v0.3-MILESTONE-AUDIT.md)
+
+---
+
 ## v0.2 Adopt dots-hyprland (Shipped: 2026-08-02)
 
 **Closeout type:** `override_closeout`  

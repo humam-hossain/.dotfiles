@@ -2,8 +2,8 @@
 
 ## Current State
 
-**Shipped:** v0.2 Adopt dots-hyprland (2026-08-02)  
-**In progress:** v0.3 Full ii install — Phases 10–16 complete (all milestone phases finished)
+**Shipped:** v0.3 Full ii install (2026-09-09)  
+**Next milestone:** Not yet defined — run `/gsd-new-milestone` to start
 
 Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, operator playbook for install and pin-bump updates. As of Phase 14 the session runs the full ii model — the Lua entry is authoritative and Waybar/rofi/swaync no longer dual-run.
 
@@ -31,21 +31,27 @@ Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery mo
 - Playbook: `docs/dots-hyprland-workflow.md`
 - Inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`
 
-## Current Milestone: v0.3 Full ii install
+## Prior Milestones
+
+<details>
+<summary>v0.3 Full ii install (shipped 2026-09-09)</summary>
 
 **Goal:** Identify everything a full dots-hyprland install (no `--skip-hyprland` / `--skip-sysupdate` / `--core` protection) would replace or change — especially personal `.config/hypr` and other colliding configs — then decide dispositions and only then perform the full install safely.
 
-**Target features:**
-- Impact inventory: dry-run / diff map of full install vs personal configs (hypr entry, hyprland tree, hyprlock/idle, misc configs skipped by `--core`, package/sysupdate side effects, backup behavior)
-- Disposition decisions: per surface keep personal, migrate into `hypr/custom/`, accept upstream, merge, or defer
-- Full-only install path: the wrapper injects no residual flags and owns no backup gate — full is the only behavior
-- Execute full adopt: apply agreed dispositions, run full install, verify session boots on ii hypr model without orphaning personal must-keeps
-- Document: a full-only playbook, with no safe or dual-run profile to choose between
+**Shipped features:**
+- Full-install impact inventory mapping every path/flag/package effect
+- Per-surface disposition decisions for all high-risk surfaces
+- Personal `hypr/custom` Lua overlays (monitors, workspace pins, env/execs slots)
+- Live full adopt — session loads via ii Lua entry, overlays applied, Waybar/rofi/swaync accept-removed
+- Safe profile retired — one install path, no flags to choose, `--full` is no-op alias
+- Full-only playbook `docs/dots-hyprland-workflow.md` with bare commands end-to-end
 
-**Not this milestone:** Waybar custom module ports (CUST-01..04), Waybar/rofi/swaync dual-run removal as a pure bar cutover (may follow after full hypr adopt if still dual-running chrome) **[superseded by Phase 16]** — the dual-run session ended at the Phase 14 adopt.
+**Not that milestone:** Waybar custom module ports (CUST-01..04).
+
+</details>
 
 <details>
-<summary>Prior milestone: v0.2 Adopt dots-hyprland (shipped 2026-08-02)</summary>
+<summary>v0.2 Adopt dots-hyprland (shipped 2026-08-02)</summary>
 
 **Goal:** Stop owning a hand-rolled Quickshell product tree; install end-4/dots-hyprland properly as a personal fork + git submodule and wire it into the `.dotfiles` Arch install style.
 
@@ -111,7 +117,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Operator playbook: clone → recursive submodule → wrapper install → hypr hooks → dual-run — Phase 9 / DOC-01 **[superseded by Phase 16]** — the dual-run session ended at the Phase 14 adopt.
 - ✓ Operator playbook: pin-bump update; exp-merge / online cache non-primary — Phase 9 / DOC-02
 
-### Validated — v0.3 (in progress)
+### Validated — v0.3 (shipped)
 
 - ✓ Full-install impact inventory: filesystem + package/sysupdate effects without `--skip-hyprland`, and separately for dropping `--core` / `--skip-sysupdate` — Phase 10 / INV-01
 - ✓ Personal hypr vs upstream install behavior (conf→`.old`, hyprland sync, lua, lock/idle auto_backup, custom ignore_existing) — Phase 10 / INV-02
@@ -241,4 +247,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-08 after Phase 16 — safe profile retired; milestone v0.3 complete*
+*Last updated: 2026-09-09 — v0.3 milestone archived; next milestone not yet defined*
