@@ -88,7 +88,7 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 
 **Verification risk:** Criterion 5 needs one operator re-login; an agent cannot end the session. Criterion 2 runs a real install script against the live session — run it after criterion 1 lands, never before.
 **Known hand-sync window:** START-02 edits `custom/execs.lua` in *both* the repo and the live tree, because `stow/hypr/` does not exist yet. That duplication is closed by FIX-03 (Phase 18) and HYPR-01 (Phase 20); until then the two copies must be diffed by hand.
-**Plans:** 2/7 plans executed in 7 sequential waves — every plan grows `scripts/phase17-unblock-assert.sh`, so none can run in parallel, and the ordering encodes the two hard sequencing constraints (criterion 2 strictly after criterion 1; the `.env` triage before any FIX-06 work).
+**Plans:** 3/7 plans executed in 7 sequential waves — every plan grows `scripts/phase17-unblock-assert.sh`, so none can run in parallel, and the ordering encodes the two hard sequencing constraints (criterion 2 strictly after criterion 1; the `.env` triage before any FIX-06 work).
 
 Plans:
 **Wave 1**
@@ -101,7 +101,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 17-03-PLAN.md — blocking `.env` triage gate, then `.gitattributes` and tree-qualified `.gitignore` patterns proven by `git check-ignore`
+- [x] 17-03-PLAN.md — blocking `.env` triage gate, then `.gitattributes` and tree-qualified `.gitignore` patterns proven by `git check-ignore`
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -241,7 +241,7 @@ Plans:
 | 14. Live full adopt & verify | v0.3 | 2/2 | Complete | 2026-09-05 |
 | 15. Playbook safe vs full | v0.3 | 6/6 | Complete | 2026-09-06 |
 | 16. Retire the safe profile | v0.3 | 10/10 | Complete | 2026-09-08 |
-| 17. Unblock stow and restore the session target | v0.4 | 2/7 | In Progress|  |
+| 17. Unblock stow and restore the session target | v0.4 | 3/7 | In Progress|  |
 | 18. Capture model — three trees and the collision map | v0.4 | 0/? | Not started | - |
 | 19. Link-aware `verify` | v0.4 | 0/? | Not started | - |
 | 20. hypr/custom overlays and startup restore | v0.4 | 0/? | Not started | - |
