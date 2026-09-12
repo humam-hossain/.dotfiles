@@ -88,7 +88,16 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 
 **Verification risk:** Criterion 5 needs one operator re-login; an agent cannot end the session. Criterion 2 runs a real install script against the live session — run it after criterion 1 lands, never before.
 **Known hand-sync window:** START-02 edits `custom/execs.lua` in *both* the repo and the live tree, because `stow/hypr/` does not exist yet. That duplication is closed by FIX-03 (Phase 18) and HYPR-01 (Phase 20); until then the two copies must be diffed by hand.
-**Plans:** TBD
+**Plans:** 7 plans in 7 sequential waves — every plan grows `scripts/phase17-unblock-assert.sh`, so none can run in parallel, and the ordering encodes the two hard sequencing constraints (criterion 2 strictly after criterion 1; the `.env` triage before any FIX-06 work).
+
+Plans:
+- [ ] 17-01-PLAN.md — tracer: assert harness (D-20) plus the FIX-01/CAP-04 flag sweep across 15 `arch/` sites and the 16th in `docs/`
+- [ ] 17-02-PLAN.md — `safe_rm_path` repo-containment clause and the source-safe dispatch guard, with the sibling drift baseline re-pinned
+- [ ] 17-03-PLAN.md — blocking `.env` triage gate, then `.gitattributes` and tree-qualified `.gitignore` patterns proven by `git check-ignore`
+- [ ] 17-04-PLAN.md — gitleaks installed from Arch `extra`, history and working-tree scans, per-finding triage
+- [ ] 17-05-PLAN.md — `graphical-session.target` restored from `custom/execs.lua`, the `disable` footgun documented, Phase 18 handoff rows
+- [ ] 17-06-PLAN.md — `arch/hyprland.sh` pre-adopt restore deleted and attributed to Phase 20, static half of criterion 2 asserted
+- [ ] 17-07-PLAN.md — terminal, operator-gated: the one-way live run of `arch/hyprland.sh` under a transcript
 
 ### Phase 18: Capture model — three trees and the collision map
 
@@ -212,7 +221,7 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 | 14. Live full adopt & verify | v0.3 | 2/2 | Complete | 2026-09-05 |
 | 15. Playbook safe vs full | v0.3 | 6/6 | Complete | 2026-09-06 |
 | 16. Retire the safe profile | v0.3 | 10/10 | Complete | 2026-09-08 |
-| 17. Unblock stow and restore the session target | v0.4 | 0/? | Not started | - |
+| 17. Unblock stow and restore the session target | v0.4 | 0/7 | Not started | - |
 | 18. Capture model — three trees and the collision map | v0.4 | 0/? | Not started | - |
 | 19. Link-aware `verify` | v0.4 | 0/? | Not started | - |
 | 20. hypr/custom overlays and startup restore | v0.4 | 0/? | Not started | - |
