@@ -6,7 +6,10 @@ set -euo pipefail
 # Divergence: no package arrays; delegates install logic to upstream setup.
 # Uninstall is the one wrapper-owned path (D-07 / D-10) — do NOT call upstream ./setup uninstall.
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# D-06: `pwd -P` (not plain `pwd`) so REPO_ROOT is a fully resolved physical
+# path — safe_rm_path compares it against a realpath-resolved candidate, and a
+# logical path with an unresolved symlink component would never match.
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 II_ROOT="$REPO_ROOT/vendor/dots-hyprland"
 SETUP="$II_ROOT/setup"
 # D-04: full is the only install behavior; no residual flag injection.
@@ -445,6 +448,22 @@ safe_rm_path() {
       return 1
       ;;
   esac
+  # Extra belt: never anything inside this repo (D-05/D-08).
+  # Must sit AFTER the $HOME allow-list, not replace it: the repo lives inside
+  # $HOME on this machine, so every repo path already passes that clause. Both
+  # sides are canonicalised by realpath(1) because a $HOME-shaped path can
+  # reach the repo through a symlink — ~/.config/systemd/user/hyprland-session.service
+  # already is one. A literal prefix test on the unresolved $path would miss it.
+  # No carve-out for vendor/dots-hyprland (use `git submodule deinit`), and no
+  # override flag: a destructive path that has reached the repo means the
+  # caller's assumptions are already wrong.
+  local resolved_path resolved_root
+  resolved_path="$(realpath -m -- "$path")"
+  resolved_root="$(realpath -m -- "$REPO_ROOT")"
+  if [[ "$resolved_path" == "$resolved_root" || "$resolved_path" == "$resolved_root"/* ]]; then
+    echo "[FAIL] Refusing to delete path inside the repo: $path" >&2
+    return 1
+  fi
   echo "[UNINSTALL] rm -rf -- $path"
   rm -rf -- "$path"
 }
