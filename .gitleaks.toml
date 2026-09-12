@@ -1,54 +1,234 @@
 # Phase 17 / FIX-06 — gitleaks allowlist (D-13).
 #
-# Every entry in this file records an OPERATOR TRIAGE DECISION, not a
-# convenience suppression. Each `description` carries the one-line reason the
-# match is not a credential, so a later reader can re-audit the decision
-# without re-deriving it.
+# Every entry in this file records a TRIAGE DECISION, not a convenience
+# suppression. Each `description` carries the one-line reason the match is not a
+# credential, so a later reader can re-audit the decision without re-deriving it.
 #
-# Provenance: the plan 17-03 `blocking-human` checkpoint "triage the tracked
-# .env before any FIX-06 work". The operator answered outcome A on 2026-09-12
-# and approved allowlisting the pre-redacted placeholder strings on sight.
+# Provenance: the plan 17-03 `blocking-human` checkpoint ("triage the tracked
+# .env before any FIX-06 work") and the plan 17-04 `blocking-human` checkpoint
+# ("triage the history findings"). The operator answered both on 2026-09-12.
 #
-# The scan itself belongs to plan 17-04. This file lands in 17-03 because the
-# checkpoint that gated the wave produced dispositions, and a disposition with
-# nowhere to live is a decision that gets re-litigated.
+# Requires gitleaks >= 8.19 for the `[[allowlists]]` array-of-tables form and
+# >= 8.25 for `condition` / `targetRules`. Installed: Arch `extra/gitleaks`
+# 8.30.1-1, /usr/bin/gitleaks, pacman-owned.
 #
-# Requires gitleaks >= 8.19 for the `[[allowlists]]` array-of-tables form
-# (Arch `extra/gitleaks` is 8.30.1, which plan 17-04 installs).
+# =============================================================================
+# THE SCOPING IDIOM — read this before adding an entry.
+#
+# Every `[[allowlists]]` entry in this file MUST carry BOTH of the following,
+# and neither is cosmetic. Both were established empirically against the
+# installed 8.30.1 binary during plan 17-04, after the 17-03 entries were found
+# to be doing the opposite of what they claimed.
+#
+#   condition = "AND"
+#     Without it the default is OR, which means a multi-key entry allowlists a
+#     finding that matches ANY ONE key. An entry written as `paths` + `regexes`
+#     and INTENDED to mean "this path AND this line shape" actually means "this
+#     whole path, OR that line shape anywhere". That is a blanket path
+#     suppression wearing the costume of a narrow one.
+#     Measured on the real history scan: one probe entry with
+#     commits=[44f9bc38] + paths=[^arch/wakatime\.sh$] suppressed 1 finding
+#     under `condition = "AND"` and 4 under the default.
+#
+#   targetRules = [...]
+#     Without it, a global allowlist carrying `paths` makes gitleaks skip the
+#     matching file WHOLESALE in `gitleaks dir` mode, before reading a byte of
+#     it — `condition = "AND"` does NOT prevent this. Measured: a fixture
+#     holding a live-shaped `export ANTHROPIC_API_KEY=<40 random chars>` at
+#     stow/zsh/.zshrc was reported by the built-in ruleset ("scanned ~66 bytes,
+#     leaks found: 1") and went completely unseen under a paths-bearing global
+#     allowlist ("scanned ~0 bytes, no leaks found",
+#     `DBG skipping file: global allowlist path=stow/zsh/.zshrc`). Adding
+#     targetRules restored detection. This matters concretely here:
+#     debian/wakatime.sh, ubuntu/wakatime.sh and arch/wakatime.sh all EXIST in
+#     the working tree, so the history entries below would blind three live
+#     files without it.
+#
+# A path-only allowlist is the "green produced by narrowing the instrument"
+# this phase's prohibition names. It is indistinguishable from a clean repo.
+# =============================================================================
 
 title = "dotfiles secret-scan allowlist (Phase 17 FIX-06)"
 
 [extend]
 useDefault = true
 
-# --- pre-redacted placeholder strings -------------------------------------
+# =============================================================================
+# GROUP 1 — pre-redacted placeholder strings (operator triage, plan 17-03)
+#
 # All three carry the literal token `REDACTED` as their value and all three sit
 # in comments. They are placeholders left behind by an earlier redaction pass,
-# not live values. Each entry is scoped to BOTH the file path AND a line regex
-# requiring the literal `REDACTED`, so a real credential written to the same
-# line in the future is still reported.
+# not live values. The source files were not edited to remove them.
+#
+# Each entry is scoped to the file path AND a line regex requiring the literal
+# `REDACTED`, joined by `condition = "AND"`, so a real credential written to the
+# same line later is still reported. `targetRules` keeps the path clause from
+# turning into a whole-file skip.
+#
+# Note for a future reader: the built-in 8.30.1 ruleset does not flag these two
+# zshrc lines in the working tree on its own. These entries are retained
+# anyway, correctly scoped, because they are the operator's decision on record
+# and because the same lines DO match in older revisions of the file.
+# =============================================================================
 
 [[allowlists]]
 description = "Commented-out ANTHROPIC_AUTH_TOKEN export in the zsh rc whose value is the literal placeholder token REDACTED, not a credential (operator triage, 2026-09-12)."
+condition = "AND"
+targetRules = ["generic-api-key"]
 paths = ['''^stow/zsh/\.zshrc$''']
 regexTarget = "line"
 regexes = ['''#\s*export\s+ANTHROPIC_AUTH_TOKEN=REDACTED''']
 
 [[allowlists]]
 description = "Commented-out ANTHROPIC_API_KEY export in the zsh rc whose value is the literal placeholder token REDACTED, not a credential (operator triage, 2026-09-12)."
+condition = "AND"
+targetRules = ["generic-api-key"]
 paths = ['''^stow/zsh/\.zshrc$''']
 regexTarget = "line"
 regexes = ['''#\s*export\s+ANTHROPIC_API_KEY=REDACTED''']
 
 [[allowlists]]
 description = "AccuWeather API key in the Waybar config's // comment block whose value is the literal placeholder token REDACTED, not a credential (operator triage, 2026-09-12)."
+condition = "AND"
+targetRules = ["generic-api-key"]
 paths = ['''^stow/waybar/\.config/waybar/config\.jsonc$''']
 regexTarget = "line"
 regexes = ['''^\s*//.*REDACTED''']
 
-# --- stow/system_monitor/.config/system_monitor/ping/.env -----------------
-# NOT allowlisted, deliberately. Recorded here so plan 17-04 has the reasoning
-# in hand at the moment it reads the scan output.
+# =============================================================================
+# GROUP 2 — git-history findings (operator triage, plan 17-04, 2026-09-12)
+#
+# Ten findings across seven commits and five paths, two credentials:
+#   - a WakaTime API key (entropy 3.8638263) in the three wakatime.sh installers
+#   - an AccuWeather API key (entropy 4.53891) in the two waybar config.jsonc
+#
+# OPERATOR VERDICT: "Both keys already dead / never live." No rotation is
+# outstanding, no history rewrite is performed, and no tag is deleted.
+#
+# Reachability, verified at triage time rather than assumed:
+#   - NONE of the seven commits is an ancestor of local HEAD or of origin/main
+#     (origin/main = f3144919). Main's history is already clean of them, so a
+#     `git filter-repo` would have rewritten every one of 2687 commits to remove
+#     commits main does not contain.
+#   - Four of the seven (44f9bc38, a5c2f3c5, ba2c4f00, 86de82ea) ARE reachable
+#     from tags v0.1, v0.2, v1.0 and v1.1. `git ls-remote origin` shows v0.2 and
+#     v1.0 are PUBLISHED on git@github.com:humam-hossain/.dotfiles.git.
+#   - The operator's decision is to leave every tag in place, local and remote.
+#
+# So the honest one-line framing each entry below carries: reachable from
+# published tags v0.2 and v1.0 but not from main; credential confirmed dead by
+# the operator on 2026-09-12; no rewrite performed by operator decision.
+#
+# Scoping: each entry pins ONE commit AND ONE path under `condition = "AND"`.
+# The commit SHA is the fingerprint component (a gitleaks fingerprint is
+# `commit:file:rule:line`), so this is the path-plus-fingerprint scope the
+# phase requires. A line regex is deliberately NOT used here: the only regex
+# that would pin the line further is the secret value itself, and writing a
+# matched value into this file is prohibited.
+# =============================================================================
+
+# --- WakaTime API key, six findings across three installer scripts ----------
+
+[[allowlists]]
+description = "WakaTime API key in the Debian installer; reachable from published tags v0.2 and v1.0 but not from main; credential confirmed dead by the operator on 2026-09-12; no rewrite performed by operator decision."
+condition = "AND"
+targetRules = ["generic-api-key"]
+commits = ["ba2c4f00915b653c0c9afc23efb23bb3f34f9a6d"]
+paths = ['''^debian/wakatime\.sh$''']
+
+[[allowlists]]
+description = "WakaTime API key in the Debian installer, second commit; not reachable from main or from any tag; credential confirmed dead by the operator on 2026-09-12; no rewrite performed by operator decision."
+condition = "AND"
+targetRules = ["generic-api-key"]
+commits = ["fb8983568d2e8f302d526aebd5cbdf7bec3d4691"]
+paths = ['''^debian/wakatime\.sh$''']
+
+[[allowlists]]
+description = "WakaTime API key in the Ubuntu installer; reachable from published tags v0.2 and v1.0 but not from main; credential confirmed dead by the operator on 2026-09-12; no rewrite performed by operator decision."
+condition = "AND"
+targetRules = ["generic-api-key"]
+commits = ["86de82eaf57ca4e051427129deb958691ac8e18a"]
+paths = ['''^ubuntu/wakatime\.sh$''']
+
+[[allowlists]]
+description = "WakaTime API key in the Ubuntu installer, second commit; not reachable from main or from any tag; credential confirmed dead by the operator on 2026-09-12; no rewrite performed by operator decision."
+condition = "AND"
+targetRules = ["generic-api-key"]
+commits = ["34fcb1c10a676457ff7b274b3b181eff18248628"]
+paths = ['''^ubuntu/wakatime\.sh$''']
+
+[[allowlists]]
+description = "WakaTime API key in the Arch installer; reachable from published tags v0.2 and v1.0 but not from main; credential confirmed dead by the operator on 2026-09-12; no rewrite performed by operator decision."
+condition = "AND"
+targetRules = ["generic-api-key"]
+commits = ["44f9bc389f8a9d5a4f35c415656a2c17f3d22400"]
+paths = ['''^arch/wakatime\.sh$''']
+
+[[allowlists]]
+description = "WakaTime API key in the Arch installer, second commit; not reachable from main or from any tag; credential confirmed dead by the operator on 2026-09-12; no rewrite performed by operator decision."
+condition = "AND"
+targetRules = ["generic-api-key"]
+commits = ["e1b90297451af5823cc1c6bc9befffe78adc5b25"]
+paths = ['''^arch/wakatime\.sh$''']
+
+# --- AccuWeather API key, four findings across two waybar configs -----------
+# Same key the GROUP 1 waybar entry covers in its post-redaction form: these
+# are the pre-redaction revisions of the same two lines.
+
+[[allowlists]]
+description = "AccuWeather API key in the repo-root Waybar config (two lines, 54 and 56); reachable from published tags v0.2 and v1.0 but not from main; credential confirmed dead by the operator on 2026-09-12; no rewrite performed by operator decision."
+condition = "AND"
+targetRules = ["generic-api-key"]
+commits = ["a5c2f3c5a04fa8eb297f9ee4d4b95cbbec71252d"]
+paths = ['''^\.config/waybar/config\.jsonc$''']
+
+[[allowlists]]
+description = "AccuWeather API key in the arch/configs Waybar config (two lines, 55 and 57); reachable from published tags v0.2 and v1.0 but not from main; credential confirmed dead by the operator on 2026-09-12; no rewrite performed by operator decision."
+condition = "AND"
+targetRules = ["generic-api-key"]
+commits = ["44f9bc389f8a9d5a4f35c415656a2c17f3d22400"]
+paths = ['''^arch/configs/waybar/config\.jsonc$''']
+
+# =============================================================================
+# GROUP 3 — GSD install manifest digests (executor triage, plan 17-04)
+#
+# Four working-tree findings in .claude/gsd-file-manifest.json, all rule
+# generic-api-key, at the entries for gsd-core/bin/lib/api-coverage.cjs,
+# gsd-core/bin/lib/secrets.cjs, gsd-core/bin/lib/token-scanner.cjs and
+# gsd-core/references/api-coverage.md. The rule fires because those KEY names
+# contain credential-shaped words (secrets, token, api) next to a high-entropy
+# value.
+#
+# The values are SHA-256 content digests, and that is a checked claim, not an
+# inference: all 735 values in the file are exactly 64 lowercase hex characters,
+# and the four flagged ones recompute byte-for-byte as
+# sha256(<the file named by the key>) against both the repo-local and the
+# user-level .claude runtime root. No human judgement is involved.
+#
+# The file is untracked and gitignored (.gitignore:4 `.claude/`), so it cannot
+# reach a commit; it is machine-local GSD install state.
+#
+# Scoping: the path AND a line regex requiring the JSON `"<key>": "<64 lowercase
+# hex>"` manifest shape, under `condition = "AND"`. Line numbers are NOT used —
+# the manifest is regenerated on every GSD update and they would drift. A
+# credential written into this file in any other shape is still reported.
+# =============================================================================
+
+[[allowlists]]
+description = "SHA-256 content digests in the untracked, gitignored GSD install manifest; every value is 64 lowercase hex and the four flagged entries recompute exactly as sha256 of the file each key names, so they are integrity hashes and not credentials (executor triage, verified by recomputation, 2026-09-12)."
+condition = "AND"
+targetRules = ["generic-api-key"]
+paths = ['''^\.claude/gsd-file-manifest\.json$''']
+regexTarget = "line"
+regexes = ['''^\s*"[^"]+":\s*"[0-9a-f]{64}",?\s*$''']
+
+# =============================================================================
+# WITHHELD — stow/system_monitor/.config/system_monitor/ping/.env
+#
+# NOT allowlisted, deliberately, and plan 17-04's scan CONFIRMED no entry is
+# needed: neither the history scan nor the working-tree scan flagged this path.
+# The block below therefore stays inactive. It is kept only so the reasoning
+# travels with the file.
 #
 # Operator triage outcome: A — no live credential. The file STAYS TRACKED; it
 # is not untracked and gets no ignore pattern. Supporting finding, independently
@@ -66,10 +246,12 @@ regexes = ['''^\s*//.*REDACTED''']
 #     port / bind-host override.
 #
 # A path allowlist is withheld on purpose: adding one now would suppress a
-# GENUINE finding if that file ever gains a real secret. If and only if the
-# 17-04 scan flags it, activate the block below verbatim — the reason above is
-# the reason that entry carries.
+# GENUINE finding if that file ever gains a real secret — and, per the scoping
+# idiom above, a paths clause without targetRules would skip the file wholesale
+# in dir mode, which is strictly worse.
 #
 # [[allowlists]]
 # description = "Local port/bind-host override for the system_monitor ping app; the app reads only PORT, BIND_HOST, COLLECTION_INTERVAL and STALE_AFTER_SECONDS, has no env_file: directive and no load_dotenv call, so it takes no credential-shaped input (operator triage outcome A, 2026-09-12)."
+# condition = "AND"
+# targetRules = ["generic-api-key"]
 # paths = ['''^stow/system_monitor/\.config/system_monitor/ping/\.env$''']
