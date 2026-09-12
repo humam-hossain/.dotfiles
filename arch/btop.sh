@@ -5,5 +5,5 @@ set -x
 
 echo "[INSTALL] btop htop"
 sudo pacman -Sy --noconfirm --needed btop htop
-cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow -v=5 -t ~ btop
+cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow --verbose=5 --no-folding -t ~ btop
 
