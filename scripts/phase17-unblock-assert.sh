@@ -227,6 +227,188 @@ else
 fi
 
 # =============================================================================
+# criterion 4 / FIX-06 — git metadata. Sections 4a and 4b ONLY.
+#
+# The scan half (4c, 4d) belongs to plan 17-04 and is deliberately ABSENT here
+# rather than stubbed. A stub that always passes is worse than a missing
+# section, because it reads as coverage.
+#
+# NON-MUTATING. `git check-ignore` is a read-only path/pattern query — it
+# consults .gitignore and the index and writes neither — and the rest of this
+# section is grep, awk and `[[ ]]`. No index-writing git subcommand (add / rm /
+# commit) appears below, and none belongs in an assert script — the plan's own
+# ban-grep for those three verbs runs over this file, so they are named here by
+# verb rather than spelled out.
+# =============================================================================
+echo "=== Phase 17 criterion 4 / FIX-06 git metadata (4a, 4b) ==="
+
+# --- 4a guard: assert the input exists before asserting its content ---------
+# A whole-line grep over a MISSING file exits 1, and over an EMPTY file exits 1
+# too — both of which read as "the line is absent". That is the right verdict
+# for the wrong reason, and it hides a deleted .gitattributes behind what looks
+# like a content failure. Assert existence and non-emptiness first.
+if [[ -f .gitattributes && -s .gitattributes ]]; then
+  pass "4a guard: .gitattributes exists and is non-empty ($(grep -c . .gitattributes || true) non-empty line(s))"
+else
+  fail "4a guard: .gitattributes is missing or empty — the whole-line grep below cannot distinguish that from a wrong line"
+  ls -la .gitattributes 2>&1 || true
+fi
+
+# --- 4a / D-10: the exact normalisation line, whole-line -------------------
+# -F -x: fixed string, WHOLE line. A substring match would accept a commented
+# `# * text=auto eol=lf` or a trailing-comment variant, neither of which is the
+# D-10 line git actually honours.
+if [[ -s .gitattributes ]] && grep -Fxq '* text=auto eol=lf' .gitattributes; then
+  pass "4a .gitattributes carries the exact whole line '* text=auto eol=lf' (D-10)"
+else
+  fail "4a .gitattributes does not carry '* text=auto eol=lf' as a whole line (D-10)"
+  cat -A .gitattributes 2>&1 || true
+fi
+
+# --- 4b guard: .gitignore exists and is non-empty --------------------------
+if [[ -f .gitignore && -s .gitignore ]]; then
+  pass "4b guard: .gitignore exists and is non-empty"
+else
+  fail "4b guard: .gitignore is missing or empty — every proof below would be about nothing"
+  ls -la .gitignore 2>&1 || true
+fi
+
+# --- 4b / D-14: every new pattern proves itself against its target path -----
+# One `git check-ignore -v` per pattern, each emitting its own pass/fail, so a
+# single silently-dead pattern cannot hide behind a passing sibling. Each row is
+# `pattern|probe-path`. The probe path need not exist: check-ignore is a pure
+# path-versus-pattern match, which is what lets a pattern written to govern
+# FUTURE writes still be proven today.
+FIX06_PROOFS=(
+  "kdeglobals|stow/kde/.config/kdeglobals"
+  "gtk.css|stow/gtk/.config/gtk-3.0/gtk.css"
+  "gtk.css|stow/gtk/.config/gtk-4.0/gtk.css"
+  "Kvantum/|.config/Kvantum/kvantum.kvconfig"
+  "colors.lua|.config/hypr/hyprland/colors.lua"
+  "colors.conf|.config/hypr/hyprlock/colors.conf"
+  "fuzzel_theme.ini|.config/fuzzel/fuzzel_theme.ini"
+  ".venv/|stow/system_monitor/.config/system_monitor/ping/.venv/pyvenv.cfg"
+  ".mypy_cache/|.mypy_cache/probe.json"
+  ".ruff_cache/|.ruff_cache/probe.json"
+  ".pytest_cache/|.pytest_cache/probe"
+  "*.pyc|scripts/probe.pyc"
+  "*.swp|scripts/.probe.swp"
+  "*~|scripts/probe~"
+  ".DS_Store|.DS_Store"
+  "*.sock|stow/qbittorrent/.config/qBittorrent/probe.sock"
+  "*.socket|stow/qbittorrent/.config/qBittorrent/probe.socket"
+  "*.lock|stow/qbittorrent/.config/qBittorrent/probe.lock"
+)
+
+# --- 4b coverage guard: the proof table matches the file, both directions ---
+# The loop below can only prove the patterns it is handed. Two ways it could
+# pass while observing less than it claims: a pattern is deleted from
+# .gitignore and its row quietly stops meaning anything, or a pattern is ADDED
+# to .gitignore later with no row and therefore no proof. Deriving the file's
+# side by content — every non-comment, non-blank line from the D-14 generated-
+# theme header to EOF — and requiring set equality closes both.
+FIX06_IN_FILE="$(awk '/^# Generated theme output \(D-14\)/{f=1} f && !/^#/ && NF {print}' .gitignore | sort -u)"
+FIX06_DECLARED="$(printf '%s\n' "${FIX06_PROOFS[@]}" | cut -d'|' -f1 | sort -u)"
+FIX06_IN_FILE_N="$(printf '%s\n' "$FIX06_IN_FILE" | grep -c . || true)"
+if [[ "$FIX06_IN_FILE_N" -gt 0 && "$FIX06_IN_FILE" == "$FIX06_DECLARED" ]]; then
+  pass "4b guard: all $FIX06_IN_FILE_N D-14 patterns in .gitignore have a proof row, and every proof row names a pattern still in the file"
+else
+  fail "4b guard: the D-14 pattern set in .gitignore and the proof table have diverged — a pattern is unproven or a proof row is stale"
+  diff <(printf '%s\n' "$FIX06_IN_FILE") <(printf '%s\n' "$FIX06_DECLARED") || true
+fi
+
+for row in "${FIX06_PROOFS[@]}"; do
+  FIX06_PATTERN="${row%%|*}"
+  FIX06_PROBE="${row#*|}"
+  # Capture before testing: the -v output is both the verdict and the evidence,
+  # and `set -e` would kill the script on the non-zero exit we are measuring.
+  FIX06_OUT="$(git check-ignore -v -- "$FIX06_PROBE" 2>/dev/null || true)"
+  if [[ -z "$FIX06_OUT" ]]; then
+    fail "4b check-ignore: pattern '$FIX06_PATTERN' does NOT reach $FIX06_PROBE (exit 1 — the pattern is dead, as .gitignore lines 1-2 are)"
+    git check-ignore -v -- "$FIX06_PROBE" || true
+    continue
+  fi
+  # `<source>:<lineno>:<pattern>\t<pathname>`. Attributing the match to the
+  # EXPECTED pattern matters: without it a proof could be satisfied by some
+  # unrelated pre-existing line and report green for a pattern never written.
+  FIX06_SRC="$(printf '%s' "$FIX06_OUT" | cut -f1 | cut -d: -f1)"
+  FIX06_HIT="$(printf '%s' "$FIX06_OUT" | cut -f1 | cut -d: -f3-)"
+  if [[ "$FIX06_SRC" == ".gitignore" && "$FIX06_HIT" == "$FIX06_PATTERN" ]]; then
+    pass "4b check-ignore: pattern '$FIX06_PATTERN' reaches $FIX06_PROBE"
+  else
+    fail "4b check-ignore: $FIX06_PROBE is ignored, but by '$FIX06_HIT' from '$FIX06_SRC', not by the expected '$FIX06_PATTERN'"
+    git check-ignore -v -- "$FIX06_PROBE" || true
+  fi
+done
+
+# --- 4b negative controls: authored source must NOT be ignored -------------
+# Without these, an over-broad pattern that swallowed the repo would be
+# celebrated by the loop above — every probe would pass. general.lua and
+# hyprlock.conf are here specifically: they are what a careless `*.lua` or
+# `*.conf` instead of `colors.lua` / `colors.conf` would eat.
+FIX06_MUST_NOT_IGNORE=(
+  arch/btop.sh
+  .config/hypr/custom/general.lua
+  .config/hypr/hyprlock.conf
+  stow/zsh/.zshrc
+  README.md
+  scripts/phase17-unblock-assert.sh
+)
+for p in "${FIX06_MUST_NOT_IGNORE[@]}"; do
+  if [[ ! -e "$p" ]]; then
+    # A control over a path that no longer exists proves nothing about breadth.
+    fail "4b negative control path is missing, so over-breadth could not be tested on it: $p"
+  elif git check-ignore -q -- "$p"; then
+    fail "4b an ignore pattern swallows authored source: $p"
+    git check-ignore -v -- "$p" || true
+  else
+    pass "4b negative control: authored source is not ignored: $p"
+  fi
+done
+
+# --- 4b breadth sweep: the whole tracked tree, not a hand-picked sample -----
+# --no-index is required. By default check-ignore reports a TRACKED file as not
+# ignored, which would make this sweep silently blind to exactly the over-broad
+# pattern it exists to catch. Expected hits are the three below and nothing
+# else: .config/kdeglobals is the generated theme file this phase deliberately
+# targets, and the two research-cache blobs are matched by a pre-existing line.
+FIX06_SWEEP="$(git ls-files | git check-ignore --no-index --stdin -v 2>/dev/null | cut -f2 | sort -u || true)"
+FIX06_SWEEP_EXPECTED="$(printf '%s\n' \
+  .config/kdeglobals \
+  .planning/research/.cache/2f4b26ce890661ba0645dd78d447abbf7b378f04b5839ad8e198626b1cb1d55f.json \
+  .planning/research/.cache/dfdd484be7d5ea93abf51575e0a89a7a22af4ff586b669c939200b3f1ede0a78.json \
+  | sort -u)"
+if [[ "$FIX06_SWEEP" == "$FIX06_SWEEP_EXPECTED" ]]; then
+  pass "4b breadth sweep: across all $(git ls-files | wc -l || true) tracked files the ignore set reaches only the 3 expected generated/cache paths"
+else
+  fail "4b breadth sweep: the set of tracked files an ignore pattern reaches has changed — a pattern is over-broad, or an expected path moved"
+  diff <(printf '%s\n' "$FIX06_SWEEP_EXPECTED") <(printf '%s\n' "$FIX06_SWEEP") || true
+fi
+
+# --- 4b / F-9: the tracked-file exemption, made observable ------------------
+# The reason this plan does NOT untrack .config/kdeglobals. A gitignore line has
+# no effect on a file already in the index, so the pattern governs future writes
+# only. Asserting all three facts together stops a later reader concluding from
+# the exit-1 alone that the pattern is broken, and stops a silent untracking
+# passing unnoticed — untracking it is Phase 18's call under FIX-03.
+if [[ -n "$(git ls-files .config/kdeglobals)" ]]; then
+  pass "4b F-9: .config/kdeglobals is still tracked (untracking it is a Phase 18 / FIX-03 decision, not this plan's)"
+else
+  fail "4b F-9: .config/kdeglobals is no longer tracked — a file another phase owns was untracked"
+fi
+if git check-ignore -q -- .config/kdeglobals; then
+  fail "4b F-9: check-ignore reports the TRACKED .config/kdeglobals as ignored, contradicting the index-aware behaviour this handoff rests on"
+else
+  pass "4b F-9: check-ignore exits non-zero on the tracked .config/kdeglobals — a gitignore line does not reach a tracked file"
+fi
+if git check-ignore -q --no-index -- .config/kdeglobals; then
+  pass "4b F-9: under --no-index the 'kdeglobals' pattern does reach .config/kdeglobals, so it correctly governs any future write"
+else
+  fail "4b F-9: even under --no-index no pattern reaches .config/kdeglobals — the generated-theme pattern is dead"
+  git check-ignore -v --no-index -- .config/kdeglobals || true
+fi
+
+# =============================================================================
 # D-02 folding audit — READ-ONLY, [INFO] only, never [PASS]/[FAIL].
 #
 # This section deliberately asserts nothing. `--no-folding` governs NEW stow
