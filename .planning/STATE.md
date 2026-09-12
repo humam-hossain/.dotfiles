@@ -2,9 +2,14 @@
 gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Personal config layer
+current_phase: 17
+current_phase_name: Unblock stow and restore the session target
 status: roadmapped
-last_updated: "2026-09-12T00:00:00.000Z"
+stopped_at: Phase 17 context gathered
+last_updated: "2026-09-12T10:59:19.345Z"
 last_activity: 2026-09-12
+last_activity_desc: v0.4 roadmap created
+state_head: 3816c39ee98b312e22c64959d5b9a0ece91fbfd6
 progress:
   total_phases: 7
   completed_phases: 0
@@ -27,9 +32,9 @@ Last activity: 2026-09-12 — v0.4 roadmap created
 
 ## Session
 
-**Last session:** 2026-09-12
-**Stopped at:** v0.4 roadmap written — Phases 17-23, coverage 33/33
-**Resume file:** None
+**Last session:** 2026-09-12T10:59:19.332Z
+**Stopped at:** Phase 17 context gathered
+**Resume file:** .planning/phases/17-unblock-stow-and-restore-the-session-target/17-CONTEXT.md
 **Next command:** `/gsd-plan-phase 17`
 
 ## Project Reference
