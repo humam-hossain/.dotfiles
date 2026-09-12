@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 3
+open_count: 5
 waived_count: 0
 fixed_count: 1
-total_count: 4
-last_updated: 2026-09-07T13:19:34.277Z
+total_count: 6
+last_updated: 2026-09-12T14:27:01.776Z
 ---
 
 # Broken Windows Ledger
@@ -19,6 +19,8 @@ last_updated: 2026-09-07T13:19:34.277Z
 | 2 | 16 | deviation | scripts/phase12-full-smoke.sh |  | Expected-red from 16-01: asserts the retired safe-profile behavior; rewritten in plan 16-02 (D-34) | fixed |  | 2026-09-07T12:59:12.993Z | 2026-09-07T13:10:51.053Z |
 | 3 | 16 | deviation | scripts/phase13-d19-assert.sh |  | Expected-red from 16-01: hard-fails on any arch/dots-hyprland.sh diff from its pinned base; re-pinned in plan 16-06 (D-38) | open |  | 2026-09-07T12:59:13.113Z |  |
 | 4 | 16 | deviation | scripts/phase14-verify.sh |  | 16-03 acceptance criterion demanded file-wide absence of sha256sum, but three call sites are inside assertions D-37 keeps (check_tier1_source, check_untouched, check_sidecar); criterion satisfied in scope (the deleted D-36 backup-integrity block) rather than literally | open |  | 2026-09-07T13:19:34.277Z |  |
+| 5 | 17 | deviation | scripts/phase17-unblock-assert.sh |  | Criterion 3 fixture could invoke the real rm -rf through safe_rm_path when the guard under test regresses; mitigated by shadowing rm in every fixture subshell (repo was deleted once and restored from git during 17-02) | open |  | 2026-09-12T14:27:01.669Z |  |
+| 6 | 17 | deviation | scripts/phase13-d19-assert.sh |  | Script hard-coded .planning/phases/ paths that the v0.3 milestone archival moved; repaired with an archive-aware phase_artifact() resolver plus an in-the-open path rewrite on the extracted D-19 fence | open |  | 2026-09-12T14:27:01.776Z |  |
 
 ````json
 [
@@ -68,6 +70,30 @@ last_updated: 2026-09-07T13:19:34.277Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-07T13:19:34.277Z",
+    "resolved_at": null
+  },
+  {
+    "id": 5,
+    "kind": "deviation",
+    "phase": "17",
+    "file": "scripts/phase17-unblock-assert.sh",
+    "line": null,
+    "description": "Criterion 3 fixture could invoke the real rm -rf through safe_rm_path when the guard under test regresses; mitigated by shadowing rm in every fixture subshell (repo was deleted once and restored from git during 17-02)",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T14:27:01.669Z",
+    "resolved_at": null
+  },
+  {
+    "id": 6,
+    "kind": "deviation",
+    "phase": "17",
+    "file": "scripts/phase13-d19-assert.sh",
+    "line": null,
+    "description": "Script hard-coded .planning/phases/ paths that the v0.3 milestone archival moved; repaired with an archive-aware phase_artifact() resolver plus an in-the-open path rewrite on the extracted D-19 fence",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-12T14:27:01.776Z",
     "resolved_at": null
   }
 ]

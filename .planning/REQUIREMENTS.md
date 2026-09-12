@@ -15,7 +15,7 @@ Currently-live defects. Nothing else in the milestone works until these land.
 - [x] **FIX-01**: Every `stow` call site uses a valid verbosity flag — `stow -v=5` exits 1 on GNU Stow 2.4.1 at all 15 call sites across 14 `arch/*.sh` files
 - [ ] **FIX-02**: `arch/hyprland.sh` no longer restores the pre-adopt `hyprland.conf` over the ii Lua session — lines 25-26 (`cp -rf .config/hypr/*`) are deleted and replaced with a stow invocation
 - [ ] **FIX-03**: Repo-root `.config/` is retired as a second authoring tree — contents are redistributed to `stow/`, `restow/`, or `docs/archive/`, or deleted where generated
-- [ ] **FIX-04**: `safe_rm_path` refuses any path inside the repo, so destructive `uninstall` paths cannot reach captured configs
+- [x] **FIX-04**: `safe_rm_path` refuses any path inside the repo, so destructive `uninstall` paths cannot reach captured configs
 - [ ] **FIX-05**: `verify` and `capture` are first-class subcommands in `arch/dots-hyprland.sh` — registered in `ALLOWLIST` and dispatched in `main`, with `verify` able to run without an initialised submodule
 - [ ] **FIX-06**: Repo has `.gitattributes` (`* text=auto eol=lf`), `.gitignore` entries for generated and machine-state paths, and a secret scan over the capture trees
 
@@ -112,7 +112,7 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 |-------------|-------|------------|--------|
 | FIX-01 | Phase 17 | Unblock stow and restore the session target | Complete |
 | FIX-02 | Phase 17 | Unblock stow and restore the session target | Pending |
-| FIX-04 | Phase 17 | Unblock stow and restore the session target | Pending |
+| FIX-04 | Phase 17 | Unblock stow and restore the session target | Complete |
 | FIX-06 | Phase 17 | Unblock stow and restore the session target | Pending |
 | CAP-04 | Phase 17 | Unblock stow and restore the session target | Complete |
 | START-02 | Phase 17 | Unblock stow and restore the session target | Pending |

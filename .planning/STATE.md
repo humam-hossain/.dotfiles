@@ -5,16 +5,16 @@ milestone_name: Personal config layer
 current_phase: 17
 current_phase_name: Unblock stow and restore the session target
 status: executing
-stopped_at: Completed 17-01-PLAN.md
-last_updated: "2026-09-12T14:21:16.985Z"
+stopped_at: Completed 17-02-PLAN.md
+last_updated: "2026-09-12T14:26:54.507Z"
 last_activity: 2026-09-12
 last_activity_desc: Phase 17 execution started
-state_head: 943da095bd6f68242aa648b5d0b23d168ac64982
+state_head: 8a3f7224b7eac3c87a14b29e857f9f853aafe38e
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 7
-  completed_plans: 0
+  completed_plans: 2
   percent: 0
 ---
 
@@ -25,15 +25,15 @@ Total Phases: 7 (Phases 17-23)
 ## Current Position
 
 Phase: 17 (Unblock stow and restore the session target) — EXECUTING
-Plan: 2 of 7
+Plan: 3 of 7
 Status: Ready to execute
 Progress: [░░░░░░░░░░] 0%
 Last activity: 2026-09-12 — Phase 17 execution started
 
 ## Session
 
-**Last session:** 2026-09-12T14:21:09.605Z
-**Stopped at:** Completed 17-01-PLAN.md
+**Last session:** 2026-09-12T14:26:43.983Z
+**Stopped at:** Completed 17-02-PLAN.md
 **Resume file:** None
 **Next command:** `/gsd-plan-phase 17`
 
@@ -154,6 +154,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 | Phase 16 P09 | 13 min | 2 tasks | 2 files |
 | Phase 16 P10 | 17 min | 2 tasks | 1 files |
 | Phase 17 P01 | 2 min | 3 tasks | 16 files |
+| Phase 17 P02 | 3 min | 3 tasks | 3 files |
 
 ## Decisions
 
@@ -196,3 +197,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 16]: 16-10: the sweep record is the only place FULL-03, FULL-05 and ADOPT-04 are named — REQUIREMENTS.md's orphan check bans them file-wide, so its coverage note points there. The record also carries the resolved D-26-over-D-27 conflict on INV-04 and the four frozen-artifact override sites.
 - [Phase 17]: Ban greps for the retired stow spelling are scoped by explicit path list to arch/ and docs/ — .planning/research/PITFALLS.md carries the same string as frozen history under the Phase 16 precedent and is never edited to make a gate green — A gate turned green by rewriting the historical record is a false green; the frozen copy is evidence, not code
 - [Phase 17]: The D-02 folding audit reports [INFO] only and never [PASS]/[FAIL] — the two pre-existing folded directory symlinks are recorded and handed to Phase 18 rather than unfolded here — no-folding governs new stow runs only; unfolding is a tree-taxonomy decision Phase 18 owns
+- [Phase 17]: The dispatch guard is the `if … fi` spelling, not CONTEXT D-09 conjunction form — Research F-5 falsified the conjunction form live: as the last statement of a sourced file it leaves the source return status at 1 and aborts a set -e caller before it reaches any fixture, defeating D-21 in a place that looks unrelated to the guard
+- [Phase 17]: safe_rm_path repo refusal compares realpath -m resolved strings, never a literal prefix on the unresolved argument — D-05: a $HOME-shaped path can reach the repo through a symlink and one already does — ~/.config/systemd/user/hyprland-session.service resolves into stow/systemd/ and is accepted by a literal prefix test, refused by the resolved comparison
+- [Phase 17]: Every assert-harness subshell exercising a destructive function shadows rm with a no-op after loading the code under test — The plan non-mutating by construction claim was conditional on the guard under test being correct; performing the plan own commented-out-clause check deleted README.md, the stow/ tree and the vendored submodule. A verifier whose safety depends on the correctness of the code it verifies is not safe. All files were restored from git and the fixture now enforces non-mutation instead of assuming it
+- [Phase 17]: Wrapper drift baseline re-pinned to b32faf6 behind a new Phase 17 tier; scripts/phase13-d19-assert.sh now resolves phase artifacts through the v0.3 milestone archive — The v0.3 archival moved every .planning/phases/ path the script hard-coded, so it died before its first assert and its marker-file tier chain would have selected the Phase 12 pin; the frozen 13-SOT-APPLY.md is not edited — the path is rewritten on the extracted fence at the call site
