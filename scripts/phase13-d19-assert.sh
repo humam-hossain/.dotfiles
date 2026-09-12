@@ -21,9 +21,26 @@ FAIL=0
 pass() { printf '[PASS] %s\n' "$1"; }
 fail() { printf '[FAIL] %s\n' "$1"; FAIL=$((FAIL + 1)); }
 
-SOT=".planning/phases/13-personal-hypr-custom-overlays/13-SOT-APPLY.md"
+# Phase artifacts MOVE when a milestone is archived: completing a milestone
+# relocates .planning/phases/<phase>/ to
+# .planning/milestones/<version>-phases/<phase>/. v0.3 was archived after Phase
+# 16, which left every hard-coded .planning/phases/ path in this script pointing
+# at nothing — the extractor below died on a missing file before reaching a
+# single assert. Resolve the live tree first, then the archive, so this script
+# keeps reading the same artifact across an archival instead of dying on a path
+# that moved. The marker-file tiers further down depend on this too: a marker
+# that silently "disappears" into the archive would select the wrong baseline.
+phase_artifact() {
+  local rel="$1" cand
+  for cand in ".planning/phases/$rel" .planning/milestones/*-phases/"$rel"; do
+    if [ -f "$cand" ]; then printf '%s\n' "$cand"; return 0; fi
+  done
+  printf '%s\n' ".planning/phases/$rel"   # unresolved: report the canonical path
+}
+
+SOT="$(phase_artifact '13-personal-hypr-custom-overlays/13-SOT-APPLY.md')"
 PLAYBOOK="docs/dots-hyprland-workflow.md"
-DOC_SWEEP_16=".planning/phases/16-retire-the-safe-profile-full-only-wrapper-and-playbook/16-DOC-SWEEP.md"
+DOC_SWEEP_16="$(phase_artifact '16-retire-the-safe-profile-full-only-wrapper-and-playbook/16-DOC-SWEEP.md')"
 GENERAL=".config/hypr/custom/general.lua"
 ENV=".config/hypr/custom/env.lua"
 EXECS=".config/hypr/custom/execs.lua"
@@ -54,7 +71,18 @@ PY
 }
 
 # --- D-19 fence extracted from 13-SOT-APPLY.md (not a copy of the checks) ---
-FENCE="$(extract_fence "$SOT" '## In-repo verify (D-19)')"
+# The fence body names its own SoT document by the .planning/phases/ path that
+# was live when Phase 13 wrote it, and the v0.3 archival moved that document.
+# The path is rewritten HERE, in the open, on the extracted text -- exactly as
+# the W-3 filter below is applied in the open -- rather than by editing the
+# archived document, which is frozen history under the Phase 16 precedent and is
+# never edited to turn a gate green. The fence stays the single source of the
+# checks; only the location of the artifact it points at is corrected. When the
+# document has not been archived, $SOT equals the literal below and the
+# substitution is a no-op.
+SOT_LITERAL=".planning/phases/13-personal-hypr-custom-overlays/13-SOT-APPLY.md"
+FENCE="$(extract_fence "$SOT" '## In-repo verify (D-19)' \
+  | sed "s#${SOT_LITERAL}#${SOT}#g")"   # <- load-bearing rewrite, explained just above
 if [ -z "$FENCE" ]; then
   fail "extract D-19 fence from $SOT"
 else
@@ -136,7 +164,10 @@ fi
 # Before that apply the live tree must be absent. After it, the three named files
 # must match the repo source byte for byte, and the files the fence deliberately
 # leaves to upstream must not have been copied over.
-LIVE_VERIFY=".planning/phases/14-live-full-adopt-verify/14-LIVE-VERIFY.md"
+LIVE_VERIFY="$(phase_artifact '14-live-full-adopt-verify/14-LIVE-VERIFY.md')"
+# Phase 17 marker. Not a phase artifact: it is a script in the live tree, so it
+# does not move when a milestone is archived and needs no resolver.
+PHASE17_ASSERT="scripts/phase17-unblock-assert.sh"
 if [ ! -f "$LIVE_VERIFY" ]; then
   if [ ! -e "$LIVE_CUSTOM" ]; then
     pass "live $LIVE_CUSTOM absent (apply not run)"
@@ -186,18 +217,22 @@ fi
 # untouched since phase 12. Phase 14 then changed it deliberately under D-28, so
 # after that phase the known-good state is 14c6828, not e7e4e9f. Phase 16 then
 # rewrote the wrapper full-only, so after that phase it was 0771cc2 — and then the
-# phase 16 review's C-01/H-01 fixes changed it again, so it is now cfa63ad. Pinning
-# all three keeps drift detection live without asserting a premise the project has
-# moved past.
+# phase 16 review's C-01/H-01 fixes changed it again, so it became cfa63ad. Phase
+# 17 plan 02 then added the D-09 dispatch guard and the safe_rm_path repo-
+# containment clause, so it is now b32faf6. Pinning all four keeps drift detection
+# live without asserting a premise the project has moved past.
 #
 # ORDERING IS LOAD-BEARING: the newest marker must be tested FIRST. 14-LIVE-VERIFY.md
-# still exists on disk, so a branch placed after its test would never fire.
+# and 16-DOC-SWEEP.md both still exist, so a branch placed after their tests would
+# never fire.
 #
 # git diff <BASE> -- <path> compares BASE against the WORKING TREE, not HEAD. So
 # each pin names a commit whose blob is byte-identical to the working tree at the
 # time it was written, and no later plan may touch arch/dots-hyprland.sh without
 # re-pinning here.
-if [ -f "$DOC_SWEEP_16" ]; then
+if [ -f "$PHASE17_ASSERT" ]; then
+  WRAPPER_BASE="b32faf6"   # fix(17-02): safe_rm_path refuses any target resolving inside the repo
+elif [ -f "$DOC_SWEEP_16" ]; then
   WRAPPER_BASE="cfa63ad"   # fix(16): close C-01/H-01 from the phase 16 review
 elif [ -f "$LIVE_VERIFY" ]; then
   WRAPPER_BASE="14c6828"   # refactor(14-01): drop waybar and swaync from PROTECT_EXPLICIT (D-28)

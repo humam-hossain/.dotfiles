@@ -140,6 +140,92 @@ for f in "${SYNTAX_FILES[@]}"; do
   fi
 done
 
+# --- criterion 3 / FIX-04 (D-21): safe_rm_path refuses every repo path -------
+# Three constraints, each from a verified trap in the function's own clause
+# ordering, and each one a way this section could pass while observing nothing:
+#   1. The fixture runs inside a ( ... ) SUBSHELL. Loading the wrapper imports
+#      its `set -euo pipefail` and its own global REPO_ROOT, which collides with
+#      this script's. The wrapper is never loaded at this script's top level.
+#   2. Every fixture path must EXIST. safe_rm_path's `! -e && ! -L` early return
+#      fires ahead of all three refusals and returns 0 with a skip message, so a
+#      missing path would be read as "accepted" and indict a correct guard.
+#   3. The positive paths must live under $HOME. The $HOME allow-list sits in
+#      front of the new clause, and this repo is at /home/pera/github_repo/
+#      .dotfiles — inside $HOME — so a path outside $HOME would be refused by the
+#      OLDER clause and never exercise the new one at all.
+# The `if ( ... ); then fail; else pass; fi` form is required: the expected
+# return is non-zero, and a bare call plus `rc=$?` would trip this script's own
+# `set -e` before the result could be read.
+#
+# NON-MUTATING BY ENFORCEMENT, NOT BY ASSUMPTION. Every path handed to
+# safe_rm_path is one the function is supposed to refuse, so control is supposed
+# never to reach its `rm -rf` — but "supposed to" is exactly the thing under
+# test. If the guard ever regresses, an unprotected fixture would hand the real
+# `rm -rf` this repo's README.md, stow/ and vendor/dots-hyprland and delete them,
+# which is what happened once while this section was being written. A verifier
+# whose safety depends on the correctness of the code it verifies is not safe.
+# So every subshell below shadows `rm` with a no-op function AFTER loading the
+# wrapper. safe_rm_path calls a bare `rm` (not `command rm`, not /usr/bin/rm), so
+# the shadow intercepts it, the call still returns 0, and an accepted path is
+# still reported as ACCEPTED — the assert keeps its discriminating power while
+# losing its blast radius. Do not remove the shadow, and do not add a path that
+# would be accepted.
+
+# --- 3a: positive cases — existing, $HOME-resident paths inside the repo -----
+FIX04_REPO_PATHS=(
+  "$REPO_ROOT/README.md"
+  "$REPO_ROOT/stow"
+  "$REPO_ROOT/vendor/dots-hyprland"
+)
+for p in "${FIX04_REPO_PATHS[@]}"; do
+  if [[ ! -e "$p" && ! -L "$p" ]]; then
+    # Constraint 2 above: a missing path takes the early return and would be
+    # scored as an acceptance. Fail loudly on the fixture, not on the guard.
+    fail "3a fixture path is missing, so safe_rm_path could not be exercised on it: $p"
+    continue
+  fi
+  if ( source "$REPO_ROOT/arch/dots-hyprland.sh" >/dev/null 2>&1; rm() { printf '[FIXTURE-GUARD] blocked: rm %s\n' "$*" >&2; }; safe_rm_path "$p" ) >/dev/null 2>&1; then
+    fail "3a safe_rm_path ACCEPTED a path inside the repo: $p"
+    ( source "$REPO_ROOT/arch/dots-hyprland.sh" >/dev/null 2>&1; rm() { printf '[FIXTURE-GUARD] blocked: rm %s\n' "$*" >&2; }; safe_rm_path "$p" ) || true
+  else
+    pass "3a safe_rm_path refuses a path inside the repo: $p"
+  fi
+done
+
+# --- 3b: negative control — the pre-existing outside-$HOME clause still fires -
+# Without 3b and 3c the section would still be green with the new clause
+# commented out, for the wrong reason: a refusal from an older clause reads the
+# same as a refusal from the new one.
+FIX04_OUTSIDE="/etc/passwd"
+if [[ ! -e "$FIX04_OUTSIDE" ]]; then
+  fail "3b negative-control path is missing, so safe_rm_path could not be exercised on it: $FIX04_OUTSIDE"
+elif ( source "$REPO_ROOT/arch/dots-hyprland.sh" >/dev/null 2>&1; rm() { printf '[FIXTURE-GUARD] blocked: rm %s\n' "$*" >&2; }; safe_rm_path "$FIX04_OUTSIDE" ) >/dev/null 2>&1; then
+  fail "3b safe_rm_path ACCEPTED a path outside \$HOME: $FIX04_OUTSIDE"
+else
+  pass "3b safe_rm_path still refuses a path outside \$HOME: $FIX04_OUTSIDE"
+fi
+
+# --- 3c: negative control — the pre-existing hypr clause still fires ---------
+FIX04_HYPR="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/custom"
+if [[ ! -e "$FIX04_HYPR" && ! -L "$FIX04_HYPR" ]]; then
+  fail "3c negative-control path is missing, so safe_rm_path could not be exercised on it: $FIX04_HYPR"
+elif ( source "$REPO_ROOT/arch/dots-hyprland.sh" >/dev/null 2>&1; rm() { printf '[FIXTURE-GUARD] blocked: rm %s\n' "$*" >&2; }; safe_rm_path "$FIX04_HYPR" ) >/dev/null 2>&1; then
+  fail "3c safe_rm_path ACCEPTED a hypr path: $FIX04_HYPR"
+else
+  pass "3c safe_rm_path still refuses a hypr path: $FIX04_HYPR"
+fi
+
+# --- 3d: sourceability — the D-09 dispatch guard holds ----------------------
+# The prerequisite for 3a-3c. Against the unguarded wrapper the load runs
+# `usage` and exits 0, so every fixture above would report the opposite of the
+# truth. Asserted separately so a regression in the guard is named as one.
+if ( source "$REPO_ROOT/arch/dots-hyprland.sh" >/dev/null 2>&1; [[ "$(type -t safe_rm_path)" == "function" ]] ); then
+  pass "3d the wrapper loads cleanly in a subshell and safe_rm_path is defined (D-09 dispatch guard)"
+else
+  fail "3d loading the wrapper in a subshell did not leave safe_rm_path defined (D-09 dispatch guard regressed)"
+  ( source "$REPO_ROOT/arch/dots-hyprland.sh"; type -t safe_rm_path ) || true
+fi
+
 # =============================================================================
 # D-02 folding audit — READ-ONLY, [INFO] only, never [PASS]/[FAIL].
 #
