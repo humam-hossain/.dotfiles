@@ -802,4 +802,13 @@ main() {
   esac
 }
 
-main "$@"
+# Dispatch guard (D-09). Written as an `if` block, NOT as the idiomatic
+# conjunction one-liner: as the LAST statement of a sourced file the `[[ ... ]]`
+# conjunction form leaves the source's return status at 1, which aborts a
+# `set -e` caller before it can reach safe_rm_path (Phase 17 research F-5).
+# Both spellings behave identically on direct execution; only the sourced path
+# differs. Sourcing this file must define its functions and return 0 so
+# safe_rm_path is reachable as a library function (D-21).
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  main "$@"
+fi
