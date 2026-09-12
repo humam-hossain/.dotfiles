@@ -91,12 +91,32 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 **Plans:** 7 plans in 7 sequential waves — every plan grows `scripts/phase17-unblock-assert.sh`, so none can run in parallel, and the ordering encodes the two hard sequencing constraints (criterion 2 strictly after criterion 1; the `.env` triage before any FIX-06 work).
 
 Plans:
+**Wave 1**
+
 - [ ] 17-01-PLAN.md — tracer: assert harness (D-20) plus the FIX-01/CAP-04 flag sweep across 15 `arch/` sites and the 16th in `docs/`
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 17-02-PLAN.md — `safe_rm_path` repo-containment clause and the source-safe dispatch guard, with the sibling drift baseline re-pinned
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 17-03-PLAN.md — blocking `.env` triage gate, then `.gitattributes` and tree-qualified `.gitignore` patterns proven by `git check-ignore`
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 17-04-PLAN.md — gitleaks installed from Arch `extra`, history and working-tree scans, per-finding triage
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 17-05-PLAN.md — `graphical-session.target` restored from `custom/execs.lua`, the `disable` footgun documented, Phase 18 handoff rows
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
 - [ ] 17-06-PLAN.md — `arch/hyprland.sh` pre-adopt restore deleted and attributed to Phase 20, static half of criterion 2 asserted
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
 - [ ] 17-07-PLAN.md — terminal, operator-gated: the one-way live run of `arch/hyprland.sh` under a transcript
 
 ### Phase 18: Capture model — three trees and the collision map
