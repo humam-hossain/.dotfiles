@@ -1,0 +1,75 @@
+# Phase 17 / FIX-06 — gitleaks allowlist (D-13).
+#
+# Every entry in this file records an OPERATOR TRIAGE DECISION, not a
+# convenience suppression. Each `description` carries the one-line reason the
+# match is not a credential, so a later reader can re-audit the decision
+# without re-deriving it.
+#
+# Provenance: the plan 17-03 `blocking-human` checkpoint "triage the tracked
+# .env before any FIX-06 work". The operator answered outcome A on 2026-09-12
+# and approved allowlisting the pre-redacted placeholder strings on sight.
+#
+# The scan itself belongs to plan 17-04. This file lands in 17-03 because the
+# checkpoint that gated the wave produced dispositions, and a disposition with
+# nowhere to live is a decision that gets re-litigated.
+#
+# Requires gitleaks >= 8.19 for the `[[allowlists]]` array-of-tables form
+# (Arch `extra/gitleaks` is 8.30.1, which plan 17-04 installs).
+
+title = "dotfiles secret-scan allowlist (Phase 17 FIX-06)"
+
+[extend]
+useDefault = true
+
+# --- pre-redacted placeholder strings -------------------------------------
+# All three carry the literal token `REDACTED` as their value and all three sit
+# in comments. They are placeholders left behind by an earlier redaction pass,
+# not live values. Each entry is scoped to BOTH the file path AND a line regex
+# requiring the literal `REDACTED`, so a real credential written to the same
+# line in the future is still reported.
+
+[[allowlists]]
+description = "Commented-out ANTHROPIC_AUTH_TOKEN export in the zsh rc whose value is the literal placeholder token REDACTED, not a credential (operator triage, 2026-09-12)."
+paths = ['''^stow/zsh/\.zshrc$''']
+regexTarget = "line"
+regexes = ['''#\s*export\s+ANTHROPIC_AUTH_TOKEN=REDACTED''']
+
+[[allowlists]]
+description = "Commented-out ANTHROPIC_API_KEY export in the zsh rc whose value is the literal placeholder token REDACTED, not a credential (operator triage, 2026-09-12)."
+paths = ['''^stow/zsh/\.zshrc$''']
+regexTarget = "line"
+regexes = ['''#\s*export\s+ANTHROPIC_API_KEY=REDACTED''']
+
+[[allowlists]]
+description = "AccuWeather API key in the Waybar config's // comment block whose value is the literal placeholder token REDACTED, not a credential (operator triage, 2026-09-12)."
+paths = ['''^stow/waybar/\.config/waybar/config\.jsonc$''']
+regexTarget = "line"
+regexes = ['''^\s*//.*REDACTED''']
+
+# --- stow/system_monitor/.config/system_monitor/ping/.env -----------------
+# NOT allowlisted, deliberately. Recorded here so plan 17-04 has the reasoning
+# in hand at the moment it reads the scan output.
+#
+# Operator triage outcome: A — no live credential. The file STAYS TRACKED; it
+# is not untracked and gets no ignore pattern. Supporting finding, independently
+# re-verified against the live tree at triage time:
+#
+#   - The app reads exactly four environment variables, all non-secret tuning
+#     knobs with literal defaults: PORT, BIND_HOST, COLLECTION_INTERVAL,
+#     STALE_AFTER_SECONDS (server.py).
+#   - docker-compose.yml substitutes those same four names, each with a literal
+#     default.
+#   - There is no `env_file:` directive and no `load_dotenv` call anywhere in
+#     the app tree. Docker Compose auto-loads a sibling .env purely for that
+#     four-name substitution.
+#   - Therefore the app has no credential-shaped input, and the file is a local
+#     port / bind-host override.
+#
+# A path allowlist is withheld on purpose: adding one now would suppress a
+# GENUINE finding if that file ever gains a real secret. If and only if the
+# 17-04 scan flags it, activate the block below verbatim — the reason above is
+# the reason that entry carries.
+#
+# [[allowlists]]
+# description = "Local port/bind-host override for the system_monitor ping app; the app reads only PORT, BIND_HOST, COLLECTION_INTERVAL and STALE_AFTER_SECONDS, has no env_file: directive and no load_dotenv call, so it takes no credential-shaped input (operator triage outcome A, 2026-09-12)."
+# paths = ['''^stow/system_monitor/\.config/system_monitor/ping/\.env$''']
