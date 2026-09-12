@@ -101,6 +101,72 @@ else
   pass "1d docs/ carries zero invalid stow invocations (CAP-04 operator-doc scope)"
 fi
 
+# --- criterion 1c / FIX-01: the edited installer scripts still parse --------
+# `bash -n` passed on all 14 files before the sweep, so this is a regression
+# guard on the edit rather than a currently-failing check. The guard in front
+# of the loop asserts every path still exists: a renamed or deleted file would
+# otherwise shrink the loop silently and let it pass over less than it claims.
+SYNTAX_FILES=(
+  arch/alacritty.sh
+  arch/btop.sh
+  arch/define.sh
+  arch/fish.sh
+  arch/hyprland.sh
+  arch/kitty.sh
+  arch/nvim.sh
+  arch/rofi.sh
+  arch/tmux.sh
+  arch/wezterm.sh
+  arch/xterm.sh
+  arch/yazi.sh
+  arch/zsh.sh
+  arch/zsh_powerlevel.sh
+)
+SYNTAX_MISSING=0
+for f in "${SYNTAX_FILES[@]}"; do
+  [[ -f "$f" ]] || { SYNTAX_MISSING=$((SYNTAX_MISSING + 1)); printf '  missing: %s\n' "$f"; }
+done
+if [[ "${#SYNTAX_FILES[@]}" -eq 14 && "$SYNTAX_MISSING" -eq 0 ]]; then
+  pass "1c guard: all 14 files holding a stow call site are present (the syntax loop cannot shrink silently)"
+else
+  fail "1c guard: expected 14 present call-site files, list holds ${#SYNTAX_FILES[@]} with $SYNTAX_MISSING missing"
+fi
+for f in "${SYNTAX_FILES[@]}"; do
+  if bash -n "$f" 2>/dev/null; then
+    pass "1c syntax: bash -n $f"
+  else
+    fail "1c syntax: bash -n $f"
+    bash -n "$f" || true
+  fi
+done
+
+# =============================================================================
+# D-02 folding audit — READ-ONLY, [INFO] only, never [PASS]/[FAIL].
+#
+# This section deliberately asserts nothing. `--no-folding` governs NEW stow
+# runs only, so the directories that folded before this phase stay folded and
+# this phase does not unfold one. The audit exists to produce a live record
+# rather than a note frozen into a research artifact, and Phase 18 — which owns
+# the tree taxonomy — inherits that list and decides what each folded directory
+# becomes. Unfolding later is a `stow -D` plus a re-stow with --no-folding.
+#
+# Non-mutating by construction: the section runs `find`, `readlink` and a `-d`
+# test. It invokes no stow, and removes, moves or links nothing. (The `-lname`
+# predicate below is a find test, not the link-creating command it echoes.)
+# =============================================================================
+echo "=== Phase 17 D-02 folding audit (read-only, [INFO] only) ==="
+
+FOLDED_COUNT=0
+while IFS= read -r LINKPATH; do
+  [[ -n "$LINKPATH" ]] || continue
+  if [[ -d "$LINKPATH" ]]; then
+    FOLDED_COUNT=$((FOLDED_COUNT + 1))
+    info "D-02 folded directory symlink: $LINKPATH -> $(readlink "$LINKPATH")"
+  fi
+done < <(find "$HOME/.config" -maxdepth 2 -type l -lname '*.dotfiles*' 2>/dev/null | sort)
+
+info "D-02 audit complete: $FOLDED_COUNT folded stow directory symlink(s) under \$HOME/.config. Phase 17 does not unfold them — --no-folding governs new runs only. Phase 18 owns the tree taxonomy that decides what each folded directory becomes."
+
 echo "=== done: FAIL=${FAIL} ==="
 if [[ "$FAIL" -gt 0 ]]; then
   exit 1
