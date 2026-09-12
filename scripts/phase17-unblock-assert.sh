@@ -45,6 +45,62 @@ else
   ( cd "$REPO_ROOT/stow" && stow --verbose=5 --no-folding -n -t ~ btop ) || true
 fi
 
+# --- vacuity guard for the criterion 1a / 1d ban greps ---------------------
+# A ban-grep over a missing directory, or over a directory holding none of the
+# files it means to police, passes while observing nothing. Both scoped trees
+# are asserted present and non-empty before either ban runs.
+ARCH_SH_COUNT="$(find arch -maxdepth 1 -type f -name '*.sh' | wc -l || true)"
+DOCS_MD_COUNT="$(find docs -type f -name '*.md' | wc -l || true)"
+if [[ -d arch && "$ARCH_SH_COUNT" -gt 0 ]]; then
+  pass "1a guard: arch/ exists and holds $ARCH_SH_COUNT *.sh files (the ban below cannot pass vacuously)"
+else
+  fail "1a guard: arch/ is missing or holds no *.sh file — the ban-grep would pass over nothing"
+  ls -la arch 2>&1 || true
+fi
+if [[ -d docs && "$DOCS_MD_COUNT" -gt 0 ]]; then
+  pass "1d guard: docs/ exists and holds $DOCS_MD_COUNT *.md files (the ban below cannot pass vacuously)"
+else
+  fail "1d guard: docs/ is missing or holds no *.md file — the ban-grep would pass over nothing"
+  ls -la docs 2>&1 || true
+fi
+
+# --- criterion 1a / FIX-01 + CAP-04: the invalid spelling survives nowhere ---
+# Scoped by EXPLICIT path list to arch/ and docs/, never recursed from the repo
+# root. The same string lives in .planning/research/PITFALLS.md, a frozen
+# research artifact that is history under the Phase 16 precedent and must not
+# be edited to turn this grep green.
+if grep -rn -- '-v=5' arch/ docs/ >/dev/null 2>&1; then
+  fail "1a the invalid short-verbosity spelling still survives under arch/ or docs/"
+  grep -rn -- '-v=5' arch/ docs/ || true
+else
+  pass "1a the invalid short-verbosity spelling survives at zero sites under arch/ and docs/"
+fi
+
+# --- criterion 1b / FIX-01: all 15 arch/ call sites carry the valid pair ----
+# A counted grep, not a ban: the fixed flag order (--verbose=5 then
+# --no-folding) at every site is what makes a single literal count a complete
+# audit of all 15 sites. arch/hyprland.sh holds two of them.
+PAIR_COUNT="$(grep -ho -- '--verbose=5 --no-folding' arch/*.sh | wc -l || true)"
+if [[ "$PAIR_COUNT" -eq 15 ]]; then
+  pass "1b all 15 arch/ stow call sites carry the literal --verbose=5 --no-folding"
+else
+  fail "1b expected 15 arch/ sites carrying --verbose=5 --no-folding, counted $PAIR_COUNT"
+  grep -rn -- '--verbose=5 --no-folding' arch/*.sh || true
+  grep -rn 'stow ' arch/*.sh || true
+fi
+
+# --- criterion 1d / CAP-04: the operator doc is a named claim ---------------
+# 1a already covers docs/ as part of its path list. This re-asserts the same
+# ban scoped to docs/ alone so the operator-doc scope of CAP-04 is an explicit
+# claim rather than a side effect of the wider grep — the 16th invocation (the
+# documented kitty re-stow recovery command) is copy-pasteable and exited 1.
+if grep -rn -- '-v=5' docs/ >/dev/null 2>&1; then
+  fail "1d the operator docs still carry the invalid short-verbosity spelling"
+  grep -rn -- '-v=5' docs/ || true
+else
+  pass "1d docs/ carries zero invalid stow invocations (CAP-04 operator-doc scope)"
+fi
+
 echo "=== done: FAIL=${FAIL} ==="
 if [[ "$FAIL" -gt 0 ]]; then
   exit 1

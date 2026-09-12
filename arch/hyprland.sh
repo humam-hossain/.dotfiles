@@ -26,8 +26,8 @@ mkdir -p ~/.config/hypr
 cp -rf .config/hypr/* ~/.config/hypr/
 
 echo "[CONFIG] Graphical Session Bootstrap (systemd xdg-desktop-portal fix)"
-cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow -v=5 -t ~ systemd
+cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow --verbose=5 --no-folding -t ~ systemd
 systemctl --user daemon-reload || true
 
 echo "[CONFIG] Swaync Config"
-cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow -v=5 -t ~ swaync
+cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow --verbose=5 --no-folding -t ~ swaync

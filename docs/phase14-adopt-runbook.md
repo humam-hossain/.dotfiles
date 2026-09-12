@@ -244,7 +244,7 @@ luac -p ~/.config/hypr/custom/*.lua
 
 ```bash
 # run from the repo root; matches arch/kitty.sh:10
-cd stow && stow -R -v=5 -t ~ kitty
+cd stow && stow -R --verbose=5 --no-folding -t ~ kitty
 ```
 
 Packages live under `stow/`, and the target must be `-t ~`. A bare `stow -R kitty`

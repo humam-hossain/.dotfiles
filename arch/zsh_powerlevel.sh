@@ -58,4 +58,4 @@ fi
 
 echo "[DONE] all Oh My Zsh plugins/themes are present."
 
-cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow -v=5 -t ~ zsh
+cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow --verbose=5 --no-folding -t ~ zsh

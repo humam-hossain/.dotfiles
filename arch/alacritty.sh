@@ -6,4 +6,4 @@ echo "[INSTALL] alacritty"
 sudo pacman -Sy --noconfirm --needed alacritty
 
 echo "[CONFIG] alacritty"
-cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow -v=5 -t ~ alacritty
+cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow --verbose=5 --no-folding -t ~ alacritty

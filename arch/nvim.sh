@@ -17,4 +17,4 @@ echo "[INSTALL] neovim"
 sudo pacman -Sy --noconfirm --needed neovim
 
 echo "[CONFIG] syncing .config"
-cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow -v=5 -t ~ nvim
+cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow --verbose=5 --no-folding -t ~ nvim

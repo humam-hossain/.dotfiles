@@ -14,4 +14,4 @@ else
 fi
 
 echo "[CONFIG] copying config file"
-cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow -v=5 -t ~ tmux
+cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow --verbose=5 --no-folding -t ~ tmux
