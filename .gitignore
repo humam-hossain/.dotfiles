@@ -17,3 +17,45 @@ stow/qbittorrent/.config/qBittorrent/rss/articles/
 .planning/milestone.lock
 .planning/state.json
 .planning/research/.cache/
+
+# Generated theme output (D-14) — matugen rewrites these on every wallpaper or
+# colour-scheme change, so tracking them means a diff per wallpaper. PROJECT.md
+# already excludes kdeglobals, Kvantum/ and both gtk.css siblings by hand;
+# these patterns make that exclusion mechanical.
+#
+# Slash-free ON PURPOSE. A gitignore pattern with no slash, or with a slash only
+# at the end, matches at ANY depth — which is exactly the semantics these need,
+# because the same generated file appears at the repo root (.config/kdeglobals),
+# under stow/<pkg>/.config/, and under any future restow/ tree. Do NOT rewrite
+# them as .config/<path>: a pattern with a non-trailing slash is anchored to the
+# directory holding this file (the repo root), which is why the two patterns at
+# the top of this file reach nothing.
+#
+# .config/kdeglobals is already TRACKED, and a gitignore line never untracks a
+# tracked file. This pattern governs future writes only; the untracking is a
+# Phase 18 redistribution decision under FIX-03 and is handed off, not taken here.
+kdeglobals
+gtk.css
+Kvantum/
+colors.lua
+colors.conf
+fuzzel_theme.ini
+
+# Machine-written state (D-14) — caches, virtualenvs, editor droppings, runtime
+# sockets and lockfiles. Same anchoring rule as the block above: slash-free
+# means any depth, and anything that belongs to ONE package must instead be
+# written fully qualified from the repo root, like the qBittorrent block.
+#
+# Per-tree ignore rules are deliberately absent: they need Phase 18's collision
+# map to say which tree a path belongs to (D-14).
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+*.pyc
+*.swp
+*~
+.DS_Store
+*.sock
+*.socket
+*.lock
