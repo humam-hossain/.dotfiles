@@ -3,7 +3,7 @@
 ## Current State
 
 **Shipped:** v0.3 Full ii install (2026-09-09)  
-**Next milestone:** Not yet defined — run `/gsd-new-milestone` to start
+**Next milestone:** v0.4 Personal config layer — started 2026-09-12
 
 Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, operator playbook for install and pin-bump updates. As of Phase 14 the session runs the full ii model — the Lua entry is authoritative and Waybar/rofi/swaync no longer dual-run.
 
@@ -30,6 +30,22 @@ Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery mo
 - Rollback: clean reinstall from the pinned `vendor/dots-hyprland` submodule; runbook `docs/phase14-adopt-runbook.md` §14
 - Playbook: `docs/dots-hyprland-workflow.md`
 - Inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`
+
+## Current Milestone: v0.4 Personal config layer
+
+**Goal:** Own every personal config on top of the installed ii shell, captured in this repo automatically, reproducible on a fresh machine with one command.
+
+**Target features:**
+- Hypr custom overlays fully under repo SoT — `keybinds.lua`, `rules.lua`, `variables.lua`, `custom/scripts/` joining the existing `general/env/execs.lua` (live already drifted past repo)
+- Quickshell ii bar config owned — `~/.config/illogical-impulse/config.json` capture strategy proven against ii's `FileView.writeAdapter()` atomic write
+- Startup applications restored — `execs.lua` / `~/.config/autostart`; folds in open D-38 `graphical-session.target` autostart
+- Dolphin + KDE app configs captured — `dolphinrc`, `kdeglobals`, `kiorc`, `ktrashrc`, `kservicemenurc`, `Kvantum`, `darklyrc`, gtk-3.0/4.0
+- Capture mechanism live — stow-symlink by default, narrow copy-capture for self-rewriting files, `verify` drift check (folds in POLISH-01)
+- One-command fresh-machine bootstrap — clone then one command yields the exact setup, verified
+
+**Capture decision (D-41):** Stow symlinks are the default capture path — live *is* the repo, no manual sync. Exception is any file an app rewrites atomically (temp + rename replaces the symlink with a plain file, silently losing capture); those get copy-capture instead. `~/.config/illogical-impulse/config.json` is the known candidate and must be tested empirically before the mechanism is fixed. A `verify` drift check backstops both paths so "no manual sync" is asserted, not assumed.
+
+**Scope note:** No upfront inventory of every config dots-hyprland installs. Capture as touched.
 
 ## Prior Milestones
 
@@ -137,16 +153,21 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 - ✓ Playbook: single full-only install path with no profile to choose — DOC-03 / DOC-04 (Phase 15 authored it; Phase 16 made it full-only)
 
-### Active
+### Active — v0.4
 
-- [ ] Re-establish the `graphical-session.target` autostart lost with the renamed conf (D-38) — no owning phase yet; Phase 15's criteria are documentation-only
+- [ ] Live `~/.config/hypr/custom/` tree fully under repo SoT (`keybinds.lua`, `rules.lua`, `variables.lua`, `scripts/`, plus the existing three)
+- [ ] Quickshell ii bar config (`illogical-impulse/config.json`) captured through a mechanism proven against ii's atomic write
+- [ ] Startup applications restored, including the `graphical-session.target` autostart lost at adopt (D-38)
+- [ ] Dolphin and KDE/Qt/GTK app configs captured in the repo
+- [ ] Capture mechanism operational — stow-symlink default, copy-capture exception, `verify` drift check (POLISH-01)
+- [ ] Fresh machine reproduces the exact setup from clone with one command
 
 ### Carry-forward candidates (not yet committed requirements)
 
 - [ ] Port Waybar customs into ii: ping, weather (+ forecast), earthquake, etc. (CUST-01..03)
 - [ ] Machine-specific overlays as documented fork layer (CUST-04) — may overlap with hypr/custom migration this milestone
 - [ ] Cutover: remove Waybar/rofi/swaync from Hyprland `exec-once` once parity is verified (CUT-01)
-- [ ] Wrapper `verify` subcommand (qs binary, config path, submodule SHA) (POLISH-01)
+- [x] Wrapper `verify` subcommand (qs binary, config path, submodule SHA) (POLISH-01) — promoted into v0.4 as the drift check
 - [ ] FWK-02 / IPC-02 style session integration under upstream model (POLISH-02)
 - [ ] Open v0.1 debug polish items (only if still relevant after switch) (POLISH-03)
 
@@ -247,4 +268,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-09 — v0.3 milestone archived; next milestone not yet defined*
+*Last updated: 2026-09-12 — v0.4 Personal config layer milestone started*

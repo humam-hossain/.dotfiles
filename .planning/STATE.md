@@ -1,20 +1,16 @@
 ---
-gsd_state_version: "1.0"
-milestone: v0.3
-milestone_name: Full ii install
-current_phase: 16
-status: archived
-stopped_at: Milestone v0.3 archived
-last_updated: "2026-09-09T02:42:00.000Z"
-last_activity: 2026-09-09
-last_activity_desc: Milestone v0.3 archived
-state_head: f28d558336b3a75615b3463e9cb4cda00c810905
+gsd_state_version: 1.0
+milestone: v0.4
+milestone_name: Personal config layer
+status: planning
+last_updated: "2026-09-12T09:35:17.516Z"
+last_activity: 2026-09-12
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 33
-  completed_plans: 33
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 Total Phases: 7
@@ -23,13 +19,10 @@ Total Phases: 7
 
 ## Current Position
 
-Phase: —
+Phase: Not started (defining requirements)
 Plan: —
-Status: Milestone v0.3 archived — awaiting next milestone
-Total Plans in Phase: —
-Last activity: 2026-09-09 — Milestone v0.3 archived
-
-Progress: [████████████████████] 33/33 plans (100%) — SHIPPED
+Status: Defining requirements
+Last activity: 2026-09-12 — Milestone v0.4 started
 
 ## Session
 
