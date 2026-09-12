@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Personal config layer
 current_phase: 17
-current_phase_name: unblock-stow-and-restore-the-session-target
-status: roadmapped
-stopped_at: Phase 17 context gathered
-last_updated: "2026-09-12T14:16:44.064Z"
+current_phase_name: Unblock stow and restore the session target
+status: executing
+stopped_at: Completed 17-01-PLAN.md
+last_updated: "2026-09-12T14:21:16.985Z"
 last_activity: 2026-09-12
-last_activity_desc: v0.4 roadmap created
-state_head: fa0369d751069a3150fdaaf63bc5493a6b2c3374
+last_activity_desc: Phase 17 execution started
+state_head: 943da095bd6f68242aa648b5d0b23d168ac64982
 progress:
   total_phases: 7
   completed_phases: 0
@@ -24,17 +24,17 @@ Total Phases: 7 (Phases 17-23)
 
 ## Current Position
 
-Phase: 17 (unblock-stow-and-restore-the-session-target) — READY TO EXECUTE
-Plan: —
-Status: Roadmapped — 7 phases (17-23), 33/33 requirements mapped
-Progress: [                    ] 0/7 phases
-Last activity: 2026-09-12 — v0.4 roadmap created
+Phase: 17 (Unblock stow and restore the session target) — EXECUTING
+Plan: 2 of 7
+Status: Ready to execute
+Progress: [░░░░░░░░░░] 0%
+Last activity: 2026-09-12 — Phase 17 execution started
 
 ## Session
 
-**Last session:** 2026-09-12T10:59:19.332Z
-**Stopped at:** Phase 17 context gathered
-**Resume file:** .planning/phases/17-unblock-stow-and-restore-the-session-target/17-CONTEXT.md
+**Last session:** 2026-09-12T14:21:09.605Z
+**Stopped at:** Completed 17-01-PLAN.md
+**Resume file:** None
 **Next command:** `/gsd-plan-phase 17`
 
 ## Project Reference
@@ -42,7 +42,7 @@ Last activity: 2026-09-12 — v0.4 roadmap created
 See: .planning/PROJECT.md (updated 2026-09-08)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** v0.4 Personal config layer — Phases 17-23 roadmapped, Phase 17 (unblock) is next
+**Current focus:** Phase 17 — Unblock stow and restore the session target
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
@@ -153,6 +153,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 | Phase 16 P08 | 11 min | 2 tasks | 2 files |
 | Phase 16 P09 | 13 min | 2 tasks | 2 files |
 | Phase 16 P10 | 17 min | 2 tasks | 1 files |
+| Phase 17 P01 | 2 min | 3 tasks | 16 files |
 
 ## Decisions
 
@@ -193,3 +194,5 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 16]: Phase 16 gate (D-40) ran green on a clean tree at 95b86fd: phase16-retire, phase12-full-smoke, phase11-dispositions and phase10-inventory each FAIL=0, phase13-d19 FAIL=0 with the 0771cc2 drift pin and W-3 fence intact, phase14-verify FAIL=0 FINDINGS=1 — the known D-38 loss, still emitted and still allowed. Transcript quoted verbatim in 16-DOC-SWEEP.md.
 - [Phase 16]: The D-40 human re-login is OUTSTANDING, not performed — the executing agent cannot end the operator's Hyprland session. The automated post-change probes (configProvider lua, qs -c ii running, waybar/swaync stopped) did run and are a weaker statement than a fresh login. Recorded as outstanding in 16-DOC-SWEEP.md's phase-gate section with the four checks the operator still owes.
 - [Phase 16]: 16-10: the sweep record is the only place FULL-03, FULL-05 and ADOPT-04 are named — REQUIREMENTS.md's orphan check bans them file-wide, so its coverage note points there. The record also carries the resolved D-26-over-D-27 conflict on INV-04 and the four frozen-artifact override sites.
+- [Phase 17]: Ban greps for the retired stow spelling are scoped by explicit path list to arch/ and docs/ — .planning/research/PITFALLS.md carries the same string as frozen history under the Phase 16 precedent and is never edited to make a gate green — A gate turned green by rewriting the historical record is a false green; the frozen copy is evidence, not code
+- [Phase 17]: The D-02 folding audit reports [INFO] only and never [PASS]/[FAIL] — the two pre-existing folded directory symlinks are recorded and handed to Phase 18 rather than unfolded here — no-folding governs new stow runs only; unfolding is a tree-taxonomy decision Phase 18 owns

@@ -12,7 +12,7 @@ Requirements for this milestone. Each maps to a roadmap phase.
 
 Currently-live defects. Nothing else in the milestone works until these land.
 
-- [ ] **FIX-01**: Every `stow` call site uses a valid verbosity flag — `stow -v=5` exits 1 on GNU Stow 2.4.1 at all 15 call sites across 14 `arch/*.sh` files
+- [x] **FIX-01**: Every `stow` call site uses a valid verbosity flag — `stow -v=5` exits 1 on GNU Stow 2.4.1 at all 15 call sites across 14 `arch/*.sh` files
 - [ ] **FIX-02**: `arch/hyprland.sh` no longer restores the pre-adopt `hyprland.conf` over the ii Lua session — lines 25-26 (`cp -rf .config/hypr/*`) are deleted and replaced with a stow invocation
 - [ ] **FIX-03**: Repo-root `.config/` is retired as a second authoring tree — contents are redistributed to `stow/`, `restow/`, or `docs/archive/`, or deleted where generated
 - [ ] **FIX-04**: `safe_rm_path` refuses any path inside the repo, so destructive `uninstall` paths cannot reach captured configs
@@ -24,7 +24,7 @@ Currently-live defects. Nothing else in the milestone works until these land.
 - [ ] **CAP-01**: A file's capture mechanism is knowable from its location alone — three trees with distinct semantics: `stow/` (installer never collides), `restow/` (installer overwrites; re-stow or `git checkout` after install), `capture/` (writer renames over the link; copy only)
 - [ ] **CAP-02**: The installer collision map is checked into the repo as data — `path → installer primitive → symlink outcome → repo outcome` — derived from the vendored install scripts at the pinned SHA
 - [ ] **CAP-03**: An assert script fails when a path's declared mechanism contradicts the collision map, so the map cannot silently rot against a submodule bump
-- [ ] **CAP-04**: Every stow invocation in the repo uses `--no-folding`, so no destination directory ever becomes a symlink into the working tree
+- [x] **CAP-04**: Every stow invocation in the repo uses `--no-folding`, so no destination directory ever becomes a symlink into the working tree
 - [ ] **CAP-05**: `capture` copies live to repo for `capture/` paths only, never stages or commits, and skips any path whose repo mirror is already dirty against HEAD
 - [ ] **CAP-06**: `capture` runs unattended on a systemd user timer, so `capture/` paths need no manual sync
 - [ ] **CAP-07**: `stow --adopt` appears in no script — it silently replaces repo content with live content at exit 0
@@ -110,11 +110,11 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 
 | Requirement | Phase | Phase Name | Status |
 |-------------|-------|------------|--------|
-| FIX-01 | Phase 17 | Unblock stow and restore the session target | Pending |
+| FIX-01 | Phase 17 | Unblock stow and restore the session target | Complete |
 | FIX-02 | Phase 17 | Unblock stow and restore the session target | Pending |
 | FIX-04 | Phase 17 | Unblock stow and restore the session target | Pending |
 | FIX-06 | Phase 17 | Unblock stow and restore the session target | Pending |
-| CAP-04 | Phase 17 | Unblock stow and restore the session target | Pending |
+| CAP-04 | Phase 17 | Unblock stow and restore the session target | Complete |
 | START-02 | Phase 17 | Unblock stow and restore the session target | Pending |
 | START-03 | Phase 17 | Unblock stow and restore the session target | Pending |
 | CAP-01 | Phase 18 | Capture model — three trees and the collision map | Pending |
@@ -147,6 +147,7 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 | BOOT-05 | Phase 23 | One-command bootstrap | Pending |
 
 **Coverage:**
+
 - v0.4 requirements: 35 total
 - Mapped: 35
 - Unmapped: 0 ✓
@@ -154,6 +155,7 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 **Per-phase counts:** Phase 17 — 7 · Phase 18 — 7 · Phase 19 — 4 · Phase 20 — 4 · Phase 21 — 3 · Phase 22 — 3 · Phase 23 — 5
 
 **Mapping notes:**
+
 - `FIX-01` and `CAP-04` are the same edit at the same 15 `stow` call sites, so they share Phase 17 rather than being split across phases.
 - `FIX-03` (retire repo-root `.config/`) maps to Phase 18 rather than to the hypr or KDE phase: its contents redistribute into *both* those trees, and a second authoring tree at the repo root directly falsifies `CAP-01`. Phase 18 places the files; Phases 20 and 22 claim them live.
 - `CAP-05` (the `capture` command) maps to Phase 18 with `FIX-05`, so the registered subcommand has real behaviour; `CAP-06` (the timer) maps to Phase 21, where the first real `capture/` path arrives.
