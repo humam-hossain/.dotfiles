@@ -28,6 +28,7 @@ Currently-live defects. Nothing else in the milestone works until these land.
 - [ ] **CAP-05**: `capture` copies live to repo for `capture/` paths only, never stages or commits, and skips any path whose repo mirror is already dirty against HEAD
 - [ ] **CAP-06**: `capture` runs unattended on a systemd user timer, so `capture/` paths need no manual sync
 - [ ] **CAP-07**: `stow --adopt` appears in no script — it silently replaces repo content with live content at exit 0
+- [ ] **CAP-08**: The wrapper refuses `--exp-files` rather than forwarding it — that flag routes installation through `3.files-exp.sh`, which the collision map does not cover, so every row of the map would be void
 
 ### Hypr Custom Overlays
 
@@ -51,6 +52,10 @@ Currently-live defects. Nothing else in the milestone works until these land.
 - [ ] **KDE-01**: `kiorc`, `ktrashrc`, `kservicemenurc` are stow-managed — ii ships none of them, so there is no collision
 - [ ] **KDE-02**: `gtk-3.0/settings.ini`, `gtk-3.0/bookmarks`, `gtk-4.0/settings.ini` are captured per file, and the generated `gtk.css` siblings are gitignored rather than captured
 - [ ] **KDE-03**: `dolphinrc` and `chrome-flags.conf` live in `restow/` with a documented recovery step, because the installer writes through the link and overwrites the repo copy
+
+### Capture Safety
+
+- [ ] **SAFE-01**: No bulk stow over existing live files runs without a rehearsed escape — a timestamped `cp -a` backup of the target paths, a `stow -n --no-folding` dry run first, one package per commit, and a one-line undo that has been executed at least once
 
 ### Drift Verification
 
@@ -101,17 +106,59 @@ Deferred. Tracked, not in this roadmap.
 
 ## Traceability
 
-Populated during roadmap creation.
+Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exactly one phase.
 
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| (pending roadmap) | | |
+| Requirement | Phase | Phase Name | Status |
+|-------------|-------|------------|--------|
+| FIX-01 | Phase 17 | Unblock stow and restore the session target | Pending |
+| FIX-02 | Phase 17 | Unblock stow and restore the session target | Pending |
+| FIX-04 | Phase 17 | Unblock stow and restore the session target | Pending |
+| FIX-06 | Phase 17 | Unblock stow and restore the session target | Pending |
+| CAP-04 | Phase 17 | Unblock stow and restore the session target | Pending |
+| START-02 | Phase 17 | Unblock stow and restore the session target | Pending |
+| START-03 | Phase 17 | Unblock stow and restore the session target | Pending |
+| CAP-01 | Phase 18 | Capture model — three trees and the collision map | Pending |
+| CAP-02 | Phase 18 | Capture model — three trees and the collision map | Pending |
+| CAP-03 | Phase 18 | Capture model — three trees and the collision map | Pending |
+| CAP-05 | Phase 18 | Capture model — three trees and the collision map | Pending |
+| CAP-07 | Phase 18 |
+| CAP-08 | Phase 18 | Capture model — three trees and the collision map | Pending |
+| FIX-03 | Phase 18 | Capture model — three trees and the collision map | Pending |
+| FIX-05 | Phase 18 | Capture model — three trees and the collision map | Pending |
+| VER-01 | Phase 19 | Link-aware `verify` | Pending |
+| VER-02 | Phase 19 | Link-aware `verify` | Pending |
+| VER-03 | Phase 19 | Link-aware `verify` | Pending |
+| VER-04 | Phase 19 | Link-aware `verify` | Pending |
+| HYPR-01 | Phase 20 | hypr/custom overlays and startup restore | Pending |
+| HYPR-02 | Phase 20 | hypr/custom overlays and startup restore | Pending |
+| HYPR-03 | Phase 20 | hypr/custom overlays and startup restore | Pending |
+| START-01 | Phase 20 | hypr/custom overlays and startup restore | Pending |
+| SAFE-01 | Phase 20 | hypr/custom overlays and startup restore | Pending |
+| BAR-01 | Phase 21 | ii bar config capture | Pending |
+| BAR-02 | Phase 21 | ii bar config capture | Pending |
+| CAP-06 | Phase 21 | ii bar config capture | Pending |
+| KDE-01 | Phase 22 | KDE and GTK capture | Pending |
+| KDE-02 | Phase 22 | KDE and GTK capture | Pending |
+| KDE-03 | Phase 22 | KDE and GTK capture | Pending |
+| BOOT-01 | Phase 23 | One-command bootstrap | Pending |
+| BOOT-02 | Phase 23 | One-command bootstrap | Pending |
+| BOOT-03 | Phase 23 | One-command bootstrap | Pending |
+| BOOT-04 | Phase 23 | One-command bootstrap | Pending |
+| BOOT-05 | Phase 23 | One-command bootstrap | Pending |
 
 **Coverage:**
-- v0.4 requirements: 33 total
-- Mapped to phases: 0
-- Unmapped: 33 ⚠️
+- v0.4 requirements: 35 total
+- Mapped: 35
+- Unmapped: 0 ✓
+
+**Per-phase counts:** Phase 17 — 7 · Phase 18 — 7 · Phase 19 — 4 · Phase 20 — 4 · Phase 21 — 3 · Phase 22 — 3 · Phase 23 — 5
+
+**Mapping notes:**
+- `FIX-01` and `CAP-04` are the same edit at the same 15 `stow` call sites, so they share Phase 17 rather than being split across phases.
+- `FIX-03` (retire repo-root `.config/`) maps to Phase 18 rather than to the hypr or KDE phase: its contents redistribute into *both* those trees, and a second authoring tree at the repo root directly falsifies `CAP-01`. Phase 18 places the files; Phases 20 and 22 claim them live.
+- `CAP-05` (the `capture` command) maps to Phase 18 with `FIX-05`, so the registered subcommand has real behaviour; `CAP-06` (the timer) maps to Phase 21, where the first real `capture/` path arrives.
+- `START-03` maps to Phase 17 beside `START-02`, because the `systemctl --user disable` footgun is created by the D-38 fix.
 
 ---
 *Requirements defined: 2026-09-12*
-*Last updated: 2026-09-12 after v0.4 research synthesis*
+*Last updated: 2026-09-12 after v0.4 roadmap creation (Phases 17-23)*

@@ -35,17 +35,17 @@ Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery mo
 
 **Goal:** Own every personal config on top of the installed ii shell, captured in this repo automatically, reproducible on a fresh machine with one command.
 
-**Target features:**
-- Hypr custom overlays fully under repo SoT — `keybinds.lua`, `rules.lua`, `variables.lua`, `custom/scripts/` joining the existing `general/env/execs.lua` (live already drifted past repo)
-- Quickshell ii bar config owned — `~/.config/illogical-impulse/config.json` capture strategy proven against ii's `FileView.writeAdapter()` atomic write
-- Startup applications restored — `execs.lua` / `~/.config/autostart`; folds in open D-38 `graphical-session.target` autostart
-- Dolphin + KDE app configs captured — `dolphinrc`, `kdeglobals`, `kiorc`, `ktrashrc`, `kservicemenurc`, `Kvantum`, `darklyrc`, gtk-3.0/4.0
-- Capture mechanism live — stow-symlink by default, narrow copy-capture for self-rewriting files, `verify` drift check (folds in POLISH-01)
+**Target features:** (revised 2026-09-12 after research — see `.planning/research/SUMMARY.md`)
+- Hypr custom overlays under repo SoT — all six of `custom/{env,execs,general,rules,keybinds,variables}.lua` stow-managed. `custom/scripts/` is dropped: it holds generated output, and `hyprland.lua` never sources it.
+- Quickshell ii bar config owned — `~/.config/illogical-impulse/config.json` copy-captured, because `switchwall.sh` renames over the path on every wallpaper change. Bar *widget composition* is out of scope; it requires editing QML the installer replaces wholesale.
+- Startup applications restored — seven `exec-once` entries in `custom/execs.lua`, closing D-38 by starting `hyprland-session.service`. XDG `~/.config/autostart` is dropped: nothing in this session reads it.
+- Dolphin and KDE/GTK configs captured — `dolphinrc`, `chrome-flags.conf`, `kiorc`, `ktrashrc`, `kservicemenurc`, and `gtk-{3,4}.0/settings.ini` per file. `kdeglobals`, `Kvantum/` and both `gtk.css` files are dropped: they are generated theme output, and capturing them means a diff on every wallpaper change.
+- Capture mechanism live — three trees (`stow/`, `restow/`, `capture/`) keyed to installer collision class, a checked-in collision map, and a link-aware `verify` drift check (folds in POLISH-01)
 - One-command fresh-machine bootstrap — clone then one command yields the exact setup, verified
 
-**Capture decision (D-41):** Stow symlinks are the default capture path — live *is* the repo, no manual sync. Exception is any file an app rewrites atomically (temp + rename replaces the symlink with a plain file, silently losing capture); those get copy-capture instead. `~/.config/illogical-impulse/config.json` is the known candidate and must be tested empirically before the mechanism is fixed. A `verify` drift check backstops both paths so "no manual sync" is asserted, not assumed.
+**Capture decision (D-41, corrected 2026-09-12):** Stow symlinks (`--no-folding`, always) are the default capture path — live *is* the repo, no manual sync. The original exception was stated as "any file an app rewrites atomically". That premise is disproven: Qt's `QSaveFile`, which backs both Quickshell's `FileView` and every KDE `KConfig` write, resolves the symlink chain before renaming onto the resolved target, so the symlink survives and the repo file is correctly updated. Atomic writing is the *best* case for symlink capture. The real exceptions are two, both reproduced empirically on this host: a writer performing a bare `rename(2)`/`mv` onto the link path (`switchwall.sh` on `config.json`), and the ii installer, whose `rsync -a --delete` destroys the symlink outright and whose `cp -f` writes through it and overwrites the repo copy. Capture is therefore organised by installer collision class and write primitive, not by atomicity. A link-aware `verify` backstops all three trees — asserting link identity *before* content, because both destroying primitives leave the repo file untouched and a content-only check reports green in exactly the case that matters.
 
-**Scope note:** No upfront inventory of every config dots-hyprland installs. Capture as touched.
+**Scope note:** No upfront inventory of every config dots-hyprland installs. Capture as touched — and a full `diff -rq vendor/dots-hyprland/dots/.config ~/.config` against the pin returns five drifted files, so the pin itself is the inventory, computed on demand.
 
 ## Prior Milestones
 
@@ -155,8 +155,8 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 ### Active — v0.4
 
-- [ ] Live `~/.config/hypr/custom/` tree fully under repo SoT (`keybinds.lua`, `rules.lua`, `variables.lua`, `scripts/`, plus the existing three)
-- [ ] Quickshell ii bar config (`illogical-impulse/config.json`) captured through a mechanism proven against ii's atomic write
+- [ ] Live `~/.config/hypr/custom/` tree fully under repo SoT (all six `*.lua`; `scripts/` excluded as generated and unsourced)
+- [ ] Quickshell ii bar config (`illogical-impulse/config.json`) copy-captured against `switchwall.sh`'s rename-over-link
 - [ ] Startup applications restored, including the `graphical-session.target` autostart lost at adopt (D-38)
 - [ ] Dolphin and KDE/Qt/GTK app configs captured in the repo
 - [ ] Capture mechanism operational — stow-symlink default, copy-capture exception, `verify` drift check (POLISH-01)
@@ -268,4 +268,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-12 — v0.4 Personal config layer milestone started*
+*Last updated: 2026-09-12 — v0.4 research complete, D-41 corrected, roadmap Phases 17-23 created*

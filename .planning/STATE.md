@@ -2,41 +2,43 @@
 gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Personal config layer
-status: planning
-last_updated: "2026-09-12T09:35:17.516Z"
+status: roadmapped
+last_updated: "2026-09-12T00:00:00.000Z"
 last_activity: 2026-09-12
 progress:
-  total_phases: 0
+  total_phases: 7
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
   percent: 0
 ---
 
-Total Phases: 7
+Total Phases: 7 (Phases 17-23)
 
 # Project State
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 17 — Unblock stow and restore the session target (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-09-12 — Milestone v0.4 started
+Status: Roadmapped — 7 phases (17-23), 33/33 requirements mapped
+Progress: [                    ] 0/7 phases
+Last activity: 2026-09-12 — v0.4 roadmap created
 
 ## Session
 
-**Last session:** 2026-09-09
-**Stopped at:** Milestone v0.3 archived
+**Last session:** 2026-09-12
+**Stopped at:** v0.4 roadmap written — Phases 17-23, coverage 33/33
 **Resume file:** None
-**Next command:** `/gsd-new-milestone`
+**Next command:** `/gsd-plan-phase 17`
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-08)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** v0.3 milestone complete — all 7 phases finished
+**Current focus:** v0.4 Personal config layer — Phases 17-23 roadmapped, Phase 17 (unblock) is next
+**v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
 
@@ -53,7 +55,7 @@ Items acknowledged and deferred at milestone close on 2026-07-25 (v0.1) and re-a
 | backlog | Waybar cutover (CUT-01) | deferred until parity accepted; DISP-03 defaults keep dual-run **[superseded by Phase 16]** — the dual-run session ended at the Phase 14 adopt. |
 | backlog | Waybar customs (CUST-01..04) | deferred past v0.3 full hypr adopt |
 | process | v0.2 formal milestone audit | skipped at close; per-phase verification passed |
-| requirement | D-38 `graphical-session.target` autostart (post-adopt) | **open, no owning phase** — Phase 15's criteria are documentation-only; needs an owner (14-VERIFICATION.md warning 3) |
+| requirement | D-38 `graphical-session.target` autostart (post-adopt) | **owned — Phase 17 / START-02** (v0.4 roadmap 2026-09-12); ships as one line in `custom/execs.lua` |
 
 See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 
@@ -99,18 +101,20 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 
 ### Concerns carried forward
 
-- ⚠️ [Phase 14] `graphical-session.target` autostart died with the renamed conf (D-38). Screen share may stop working. Open, **no owning phase** — Phase 15's criteria are documentation-only. Fix is one `systemctl --user start` or one line in `custom/execs.lua`.
+- ✅ [Phase 14] `graphical-session.target` autostart died with the renamed conf (D-38). **Now owned: Phase 17 / START-02** — ships early and deliberately, because it is one line in `custom/execs.lua`, independent of the capture mechanism, and in the one directory the installer provably never touches.
 - ⚠️ [Phase 14] Review WR-02 left open: the repo's `.config/hypr/hyprland.conf` is simultaneously a rollback source, frozen D-36 evidence, and a live hook-injection target. Exposure is bounded (content is in git history), but the three roles should be split.
 
 ### Roadmap Evolution
 
+- v0.4 roadmapped 2026-09-12 — Phases **17-23**, continuing from v0.3's last phase 16. Seven phases, 33/33 requirements mapped, no orphans. Ordering is de-risk-first because the live desktop session is the production system: blockers (17) → capture model and collision map (18) → link-aware `verify` (19) → first bulk stow at `hypr/custom` (20) → `config.json` capture + timer (21) → KDE/GTK (22) → bootstrap (23).
+- v0.4 deviation from the research's six-phase proposal: its P18 (collision map **and** `verify`) is split into Phases 18 and 19, so the adversarial `verify` test (VER-04) is a phase gate in its own right rather than one criterion among ten — and so `verify` provably exists before the first bulk stow in Phase 20.
 - Phase 16 added as a DOC-03 gap closure, then retitled on 2026-09-07 and widened to the safe-profile retirement — full-only wrapper, full-only playbook, and the planning artifacts swept to match. Its original B-1 update-path / B-2 restore-path scope was replaced before execution began; both closed by retiring the destination rather than documenting a route to it.
 
 ## Operator Next Steps
 
-1. `/gsd-new-milestone` — start next milestone (questioning → research → requirements → roadmap) ← recommended  
-2. Find a home for the open D-38 `graphical-session.target` autostart bootstrap — its own phase, or the next milestone; it stays open and unowned until then  
-3. `/gsd-map-codebase` re-run — the six `.planning/codebase/` snapshots are all stamped 2026-08-21 and describe the retired wrapper
+1. `/gsd-plan-phase 17` — plan the unblock phase (no research needed; every defect is located to a line) ← recommended  
+2. `/gsd-map-codebase` re-run — the six `.planning/codebase/` snapshots are all stamped 2026-08-21 and describe the retired wrapper  
+3. Decide before Phase 23 whether a VM or container can be stood up — it is the only way to exercise the fresh-machine relogin hop; otherwise BOOT-01 is verified at the scratch-`XDG_CONFIG_HOME` level and must be labelled as such
 
 ## Performance Metrics
 
@@ -154,6 +158,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 9]: Canonical playbook; pin-bump primary update; exp-merge/online cache non-primary
 - [v0.2 close]: override_closeout — no formal milestone audit; 4 v0.1 debug sessions re-acknowledged (local product retired)
 - [v0.3 start]: Full ii install = inventory → disposition → full profile → overlays → adopt → playbook; phases 10–15
+- [v0.4 start]: Personal config layer = unblock → capture model → verify → hypr/custom → config.json → KDE/GTK → bootstrap; phases 17–23. Three capture trees (`stow/` installer-never-collides, `restow/` installer-overwrites, `capture/` writer-renames-over-the-link) replace D-41's "atomic writes" framing, which the research falsified: Qt `QSaveFile` resolves symlinks and is the *safest* writer; the real threats are the ii installer's `rsync -a --delete` / `cp -f` and `switchwall.sh`'s bare `mv`.
 - [Phase 10]: Neutral 10-INVENTORY.md + phase10-inventory-assert.sh; INV-01..04 verified + UAT; SAFE_DEFAULTS residual intact **[superseded by Phase 16]** — the safe profile and its machinery were retired.
 - [Phase 11]: 11-DISPOSITIONS.md eight sections; DISP-01..04 complete; full-adopt drops triple residual (D-05); chrome accept-remove (D-11); lock keep-personal (D-24); assert green; VERIFICATION passed 2026-08-10
 - [Phase 12]: D-14/D-15/D-16: existing post-setup arms already run when full==1; no wrapper edit — Task 1 official verify passed; no full==0 skip around protect/hooks
