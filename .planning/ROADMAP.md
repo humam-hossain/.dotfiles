@@ -136,13 +136,13 @@ Plans:
   7. `verify` and `capture` are registered in `ALLOWLIST` and dispatched by `main` as their own handlers rather than through `run_install_family`; `verify` runs to a real exit code with `vendor/dots-hyprland` de-initialised; `capture` copies live→repo for a `capture/` fixture, leaves `git diff --cached` empty, and refuses any path whose repo mirror is already dirty against `HEAD` (FIX-05, CAP-05)
 
 **Note:** `capture/` is legitimately empty at the end of this phase — the mechanism ships here, its first real inhabitant arrives in Phase 21. Criterion 7 is therefore proven against a fixture, not a live config.
-**Plans:** 11 plans in 9 waves
+**Plans:** 1/11 plans executed in 9 waves
 
 Plans:
 
 **Wave 1**
 
-- [ ] 18-01-PLAN.md — tracer: the collision map generator, the committed map, and the assert spine that makes it unable to rot
+- [x] 18-01-PLAN.md — tracer: the collision map generator, the committed map, and the assert spine that makes it unable to rot
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -284,7 +284,7 @@ Plans:
 | 15. Playbook safe vs full | v0.3 | 6/6 | Complete | 2026-09-06 |
 | 16. Retire the safe profile | v0.3 | 10/10 | Complete | 2026-09-08 |
 | 17. Unblock stow and restore the session target | v0.4 | 7/7 | Complete    | 2026-09-13 |
-| 18. Capture model — three trees and the collision map | v0.4 | 0/? | Not started | - |
+| 18. Capture model — three trees and the collision map | v0.4 | 1/11 | In Progress|  |
 | 19. Link-aware `verify` | v0.4 | 0/? | Not started | - |
 | 20. hypr/custom overlays and startup restore | v0.4 | 0/? | Not started | - |
 | 21. ii bar config capture | v0.4 | 0/? | Not started | - |

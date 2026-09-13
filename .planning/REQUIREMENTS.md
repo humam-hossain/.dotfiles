@@ -22,7 +22,7 @@ Currently-live defects. Nothing else in the milestone works until these land.
 ### Capture Mechanism
 
 - [ ] **CAP-01**: A file's capture mechanism is knowable from its location alone — three trees with distinct semantics: `stow/` (installer never collides), `restow/` (installer overwrites; re-stow or `git checkout` after install), `capture/` (writer renames over the link; copy only)
-- [ ] **CAP-02**: The installer collision map is checked into the repo as data — `path → installer primitive → symlink outcome → repo outcome` — derived from the vendored install scripts at the pinned SHA
+- [x] **CAP-02**: The installer collision map is checked into the repo as data — `path → installer primitive → symlink outcome → repo outcome` — derived from the vendored install scripts at the pinned SHA
 - [ ] **CAP-03**: An assert script fails when a path's declared mechanism contradicts the collision map, so the map cannot silently rot against a submodule bump
 - [x] **CAP-04**: Every stow invocation in the repo uses `--no-folding`, so no destination directory ever becomes a symlink into the working tree
 - [ ] **CAP-05**: `capture` copies live to repo for `capture/` paths only, never stages or commits, and skips any path whose repo mirror is already dirty against HEAD
@@ -118,7 +118,7 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 | START-02 | Phase 17 | Unblock stow and restore the session target | Complete |
 | START-03 | Phase 17 | Unblock stow and restore the session target | Complete |
 | CAP-01 | Phase 18 | Capture model — three trees and the collision map | Pending |
-| CAP-02 | Phase 18 | Capture model — three trees and the collision map | Pending |
+| CAP-02 | Phase 18 | Capture model — three trees and the collision map | Complete |
 | CAP-03 | Phase 18 | Capture model — three trees and the collision map | Pending |
 | CAP-05 | Phase 18 | Capture model — three trees and the collision map | Pending |
 | CAP-07 | Phase 18 | Capture model — three trees and the collision map | Pending |
