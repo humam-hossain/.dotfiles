@@ -121,7 +121,7 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 | CAP-02 | Phase 18 | Capture model — three trees and the collision map | Pending |
 | CAP-03 | Phase 18 | Capture model — three trees and the collision map | Pending |
 | CAP-05 | Phase 18 | Capture model — three trees and the collision map | Pending |
-| CAP-07 | Phase 18 |
+| CAP-07 | Phase 18 | Capture model — three trees and the collision map | Pending |
 | CAP-08 | Phase 18 | Capture model — three trees and the collision map | Pending |
 | FIX-03 | Phase 18 | Capture model — three trees and the collision map | Pending |
 | FIX-05 | Phase 18 | Capture model — three trees and the collision map | Pending |
@@ -152,7 +152,7 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 - Mapped: 35
 - Unmapped: 0 ✓
 
-**Per-phase counts:** Phase 17 — 7 · Phase 18 — 7 · Phase 19 — 4 · Phase 20 — 4 · Phase 21 — 3 · Phase 22 — 3 · Phase 23 — 5
+**Per-phase counts:** Phase 17 — 7 · Phase 18 — 8 · Phase 19 — 4 · Phase 20 — 5 · Phase 21 — 3 · Phase 22 — 3 · Phase 23 — 5 — 35 total
 
 **Mapping notes:**
 
