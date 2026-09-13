@@ -14,18 +14,18 @@ Currently-live defects. Nothing else in the milestone works until these land.
 
 - [x] **FIX-01**: Every `stow` call site uses a valid verbosity flag — `stow -v=5` exits 1 on GNU Stow 2.4.1 at all 15 call sites across 14 `arch/*.sh` files
 - [x] **FIX-02**: `arch/hyprland.sh` no longer restores the pre-adopt `hyprland.conf` over the ii Lua session — the `cp -rf .config/hypr/*` stanza is deleted outright, leaving a marker comment naming Phase 20 / HYPR-01 as the owner of Hyprland config placement (text amended per Phase 17 D-03: the original wording said "replaced with a stow invocation", but `stow/hypr/` does not exist until Phase 20, so ROADMAP criterion 2 is the binding wording — no `cp -rf .config/hypr/*` and no cwd-relative path)
-- [ ] **FIX-03**: Repo-root `.config/` is retired as a second authoring tree — contents are redistributed to `stow/`, `restow/`, or `docs/archive/`, or deleted where generated
+- [x] **FIX-03**: Repo-root `.config/` is retired as a second authoring tree — contents are redistributed to `stow/`, `restow/`, or `docs/archive/`, or deleted where generated
 - [x] **FIX-04**: `safe_rm_path` refuses any path inside the repo, so destructive `uninstall` paths cannot reach captured configs
-- [ ] **FIX-05**: `verify` and `capture` are first-class subcommands in `arch/dots-hyprland.sh` — registered in `ALLOWLIST` and dispatched in `main`, with `verify` able to run without an initialised submodule
+- [x] **FIX-05**: `verify` and `capture` are first-class subcommands in `arch/dots-hyprland.sh` — registered in `ALLOWLIST` and dispatched in `main`, with `verify` able to run without an initialised submodule
 - [x] **FIX-06**: Repo has `.gitattributes` (`* text=auto eol=lf`), `.gitignore` entries for generated and machine-state paths, and a secret scan over the capture trees
 
 ### Capture Mechanism
 
-- [ ] **CAP-01**: A file's capture mechanism is knowable from its location alone — three trees with distinct semantics: `stow/` (installer never collides), `restow/` (installer overwrites; re-stow or `git checkout` after install), `capture/` (writer renames over the link; copy only)
+- [x] **CAP-01**: A file's capture mechanism is knowable from its location alone — three trees with distinct semantics: `stow/` (installer never collides), `restow/` (installer overwrites; re-stow or `git checkout` after install), `capture/` (writer renames over the link; copy only)
 - [x] **CAP-02**: The installer collision map is checked into the repo as data — `path → installer primitive → symlink outcome → repo outcome` — derived from the vendored install scripts at the pinned SHA
-- [ ] **CAP-03**: An assert script fails when a path's declared mechanism contradicts the collision map, so the map cannot silently rot against a submodule bump
+- [x] **CAP-03**: An assert script fails when a path's declared mechanism contradicts the collision map, so the map cannot silently rot against a submodule bump
 - [x] **CAP-04**: Every stow invocation in the repo uses `--no-folding`, so no destination directory ever becomes a symlink into the working tree
-- [ ] **CAP-05**: `capture` copies live to repo for `capture/` paths only, never stages or commits, and skips any path whose repo mirror is already dirty against HEAD
+- [x] **CAP-05**: `capture` copies live to repo for `capture/` paths only, never stages or commits, and skips any path whose repo mirror is already dirty against HEAD
 - [ ] **CAP-06**: `capture` runs unattended on a systemd user timer, so `capture/` paths need no manual sync
 - [x] **CAP-07**: `stow --adopt` appears in no script — it silently replaces repo content with live content at exit 0
 - [x] **CAP-08**: The wrapper refuses `--exp-files` rather than forwarding it — that flag routes installation through `3.files-exp.sh`, which the collision map does not cover, so every row of the map would be void
@@ -117,14 +117,14 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 | CAP-04 | Phase 17 | Unblock stow and restore the session target | Complete |
 | START-02 | Phase 17 | Unblock stow and restore the session target | Complete |
 | START-03 | Phase 17 | Unblock stow and restore the session target | Complete |
-| CAP-01 | Phase 18 | Capture model — three trees and the collision map | Pending |
+| CAP-01 | Phase 18 | Capture model — three trees and the collision map | Complete |
 | CAP-02 | Phase 18 | Capture model — three trees and the collision map | Complete |
-| CAP-03 | Phase 18 | Capture model — three trees and the collision map | Pending |
-| CAP-05 | Phase 18 | Capture model — three trees and the collision map | Pending |
+| CAP-03 | Phase 18 | Capture model — three trees and the collision map | Complete |
+| CAP-05 | Phase 18 | Capture model — three trees and the collision map | Complete |
 | CAP-07 | Phase 18 | Capture model — three trees and the collision map | Complete |
 | CAP-08 | Phase 18 | Capture model — three trees and the collision map | Complete |
-| FIX-03 | Phase 18 | Capture model — three trees and the collision map | Pending |
-| FIX-05 | Phase 18 | Capture model — three trees and the collision map | Pending |
+| FIX-03 | Phase 18 | Capture model — three trees and the collision map | Complete |
+| FIX-05 | Phase 18 | Capture model — three trees and the collision map | Complete |
 | VER-01 | Phase 19 | Link-aware `verify` | Pending |
 | VER-02 | Phase 19 | Link-aware `verify` | Pending |
 | VER-03 | Phase 19 | Link-aware `verify` | Pending |

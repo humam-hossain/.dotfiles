@@ -62,7 +62,7 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 **Ordering principle:** This is a single-operator repo on a daily-driver machine — the live desktop session *is* the production system. De-risk before bulk capture; `verify` exists before the first file is stowed; no phase may end with the session in a broken state.
 
 - [x] **Phase 17: Unblock stow and restore the session target** — Fix the live stow/install defects, stop the repo's own scripts from being able to destroy it, ship D-38 (completed 2026-09-13)
-- [ ] **Phase 18: Capture model — three trees and the collision map** — A file's location determines its mechanism, and the installer map is checked-in, machine-asserted data
+- [x] **Phase 18: Capture model — three trees and the collision map** — A file's location determines its mechanism, and the installer map is checked-in, machine-asserted data (completed 2026-09-14)
 - [ ] **Phase 19: Link-aware `verify`** — A destroyed symlink becomes a loud failure instead of a clean `git status`, proven adversarially
 - [ ] **Phase 20: hypr/custom overlays and startup restore** — Six `*.lua` files stow-managed; personal keybinds, launcher variables, and the `exec-once` entries lost at adopt
 - [ ] **Phase 21: ii bar config capture** — `config.json` through the `capture/` path plus the unattended timer
@@ -136,7 +136,7 @@ Plans:
   7. `verify` and `capture` are registered in `ALLOWLIST` and dispatched by `main` as their own handlers rather than through `run_install_family`; `verify` runs to a real exit code with `vendor/dots-hyprland` de-initialised; `capture` copies live→repo for a `capture/` fixture, leaves `git diff --cached` empty, and refuses any path whose repo mirror is already dirty against `HEAD` (FIX-05, CAP-05)
 
 **Note:** `capture/` is legitimately empty at the end of this phase — the mechanism ships here, its first real inhabitant arrives in Phase 21. Criterion 7 is therefore proven against a fixture, not a live config.
-**Plans:** 11/11 plans executed in 9 waves
+**Plans:** 11/11 plans complete
 
 Plans:
 
@@ -284,7 +284,7 @@ Plans:
 | 15. Playbook safe vs full | v0.3 | 6/6 | Complete | 2026-09-06 |
 | 16. Retire the safe profile | v0.3 | 10/10 | Complete | 2026-09-08 |
 | 17. Unblock stow and restore the session target | v0.4 | 7/7 | Complete    | 2026-09-13 |
-| 18. Capture model — three trees and the collision map | v0.4 | 11/11 | In Progress|  |
+| 18. Capture model — three trees and the collision map | v0.4 | 11/11 | Complete    | 2026-09-14 |
 | 19. Link-aware `verify` | v0.4 | 0/? | Not started | - |
 | 20. hypr/custom overlays and startup restore | v0.4 | 0/? | Not started | - |
 | 21. ii bar config capture | v0.4 | 0/? | Not started | - |

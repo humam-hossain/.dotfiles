@@ -2,20 +2,20 @@
 gsd_state_version: "1.0"
 milestone: v0.4
 milestone_name: Personal config layer
-current_phase: 18
-current_phase_name: Capture model — three trees and the collision map
-status: executing
-stopped_at: Completed 18-11-PLAN.md
-last_updated: "2026-09-14T01:43:00.000Z"
+current_phase: 19
+current_phase_name: Link-aware `verify`
+status: planning
+stopped_at: Phase 18 complete, ready to plan Phase 19
+last_updated: "2026-09-13T19:44:25.662Z"
 last_activity: 2026-09-14
-last_activity_desc: Plan 18-11 completed (live-side linking, unfold, closing verification)
-state_head: 167f23e
+last_activity_desc: Phase 18 complete, transitioned to Phase 19
+state_head: db4a0b54cb6a707c9e8f91e23e558270f663e244
 progress:
   total_phases: 7
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 18
   completed_plans: 18
-  percent: 17
+  percent: 29
 ---
 
 Total Phases: 7 (Phases 17-23)
@@ -24,15 +24,15 @@ Total Phases: 7 (Phases 17-23)
 
 ## Current Position
 
-Phase: 18 (Capture model — three trees and the collision map) — EXECUTING
-Plan: 11 of 11 completed
-Status: Phase 18 plans executed — ready for verification
-Last activity: 2026-09-14 — Plan 18-11 completed (live-side linking, unfold, closing verification)
+Phase: 19 — Link-aware `verify`
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-14 — Phase 18 complete, transitioned to Phase 19
 
 ## Session
 
 **Last session:** 2026-09-13T19:09:44.104Z
-**Stopped at:** Completed 18-04-PLAN.md
+**Stopped at:** Phase 18 complete, ready to plan Phase 19
 **Resume file:** None
 **Next command:** `/gsd-plan-phase 18`
 
