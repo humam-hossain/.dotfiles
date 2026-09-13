@@ -1,9 +1,9 @@
 ---
 phase: 17-unblock-stow-and-restore-the-session-target
 verified: 2026-09-13T17:32:00Z
-status: human_needed
-score: 5/6 must-haves verified
-behavior_unverified: 1
+status: passed
+score: 6/6 must-haves verified
+behavior_unverified: 0
 overrides_applied: 0
 verification_method: goal-backward, evidence-first — every criterion re-established
   against the working tree and the live system, not read out of a SUMMARY
@@ -13,7 +13,20 @@ assert_results:
   phase11_dispositions_assert: "=== done: FAIL=1 ===  (PRE-EXISTING, reconfirmed)"
   phase10_inventory_assert: "=== done: FAIL=1 ===  (PRE-EXISTING, reconfirmed)"
   phase14_verify: "aborts on missing baseline fixture (PRE-EXISTING, reconfirmed)"
-behavior_unverified_items:
+resolved_after_verification:
+  - id: START-02
+    resolved: 2026-09-13T17:43:39+06:00
+    how: "The operator logged out and back in. `systemctl --user is-active
+      graphical-session.target` returned `active`. Hyprland restarted as pid 156671 at
+      17:43:38 and hyprland-session.service started at 17:43:39.806068, 1.2s later, with
+      no operator command in between — so the start came from the `hyprland.start`
+      handler, not by hand. The journal entry is a third one, distinct from the wave-5
+      16:40:47 start / 16:40:49 stop pair. Unit still Loaded as `linked`, so the stow
+      symlink survived the logout. `configProvider` still `lua` and
+      ~/.config/hypr/hyprland.conf still absent. Re-running the phase assert now reports
+      `[PASS] 5e graphical-session.target is ACTIVE` instead of [INFO], with
+      `=== done: FAIL=0 ===`. Recorded in full at 17-START02-POSTLOGIN-CHECK.md."
+was_behavior_unverified_at_verification_time:
   - truth: "Criterion 5 (START-02) — `systemctl --user is-active graphical-session.target`
       returns `active` after a fresh login, started from `custom/execs.lua`"
     test: "Log out of the Hyprland session and log back in. Then run
@@ -85,8 +98,8 @@ human_verification:
 delete what the milestone captures, and the live session has `graphical-session.target` back
 **Verified:** 2026-09-13
 **Verified at HEAD:** `ec6d97d` — working tree clean (`git status --porcelain` empty)
-**Status:** `human_needed`
-**Score:** 5 of 6 success criteria verified; 1 present-but-behavior-unverified
+**Status:** `passed` — was `human_needed` at verification time; criterion 5 observed afterwards (see the resolution note below)
+**Score:** 6 of 6 success criteria verified
 
 ---
 
@@ -480,7 +493,7 @@ See findings V-4 and V-5 for two observations that do not affect this criterion.
 
 ---
 
-### Criterion 5 — session target (START-02) — ⚠️ PRESENT_BEHAVIOR_UNVERIFIED
+### Criterion 5 — session target (START-02) — ✓ VERIFIED (after re-login)
 
 > *`systemctl --user is-active graphical-session.target` returns `active` after a fresh
 > login, started from `custom/execs.lua` — and the repo copy of `execs.lua` is
@@ -768,10 +781,10 @@ resolutions, the unit-state queries, and the journal reads myself.
 | 2 | `arch/hyprland.sh` clean, runs end-to-end, session survives | FIX-02 | ✓ VERIFIED | execution |
 | 3 | `safe_rm_path` refuses any repo path | FIX-04 | ✓ VERIFIED | execution |
 | 4 | `.gitattributes`, `.gitignore`, re-runnable clean secret scan | FIX-06 | ✓ VERIFIED | execution |
-| 5 | `graphical-session.target` active after fresh login | START-02 | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | blocked on operator re-login |
+| 5 | `graphical-session.target` active after fresh login | START-02 | ✓ VERIFIED | execution — observed after the operator re-login, 17:43:39 |
 | 6 | `disable` footgun documented with recovery | START-03 | ✓ VERIFIED | inspection |
 
-**Score: 5/6 verified, 1 present-but-behavior-unverified.**
+**Score: 6/6 verified.**
 
 The phase goal is substantively achieved. The repo's install scripts run (proved by a real
 end-to-end run that exited 0 and left the Lua session intact), they can no longer destroy
@@ -792,3 +805,44 @@ Neither is a defect in the delivered work.
 _Verified: 2026-09-13 at HEAD `ec6d97d`, clean working tree_
 _Verifier: Claude (gsd-verifier) — goal-backward, evidence-first_
 _No unit started, stopped or restarted; no installer run; no `sudo`; no `stow` outside `-n` simulate_
+
+---
+
+## Resolution — criterion 5 / START-02, observed after this report was written
+
+This report closed at `human_needed` with one criterion open. The operator then chose to
+log out and observe it rather than defer. It passed.
+
+| Fact | Evidence |
+| --- | --- |
+| Target is up | `systemctl --user is-active graphical-session.target` → `active` |
+| Unit ran | `active (exited) since Sun 2026-09-13 17:43:39 +06`, `ExecStart=/usr/bin/true (code=exited, status=0/SUCCESS)` |
+| Still `linked` | `Loaded: loaded (…; linked; preset: enabled)` — the stow symlink survived the logout |
+| A new start, not the wave-5 pair | journal carries `17:43:39.806068 Starting…` as a third entry, distinct from `16:40:47.593787` / `16:40:49.932249` |
+| The hook fired it | Hyprland restarted as pid 156671 at `17:43:38`; the unit started 1.2 s later with no operator command between them |
+| Lua session survived | `configProvider: lua`; `~/.config/hypr/hyprland.conf` still absent |
+
+The 1.2-second gap is the load-bearing evidence: it places the start inside Hyprland's own
+startup, where `hl.on("hyprland.start", …)` fires, and rules out both a leftover and a
+manual `systemctl --user start`.
+
+Re-running `bash scripts/phase17-unblock-assert.sh` now reports
+`[PASS] 5e graphical-session.target is ACTIVE` where it previously reported `[INFO]`,
+closing at `=== done: FAIL=0 ===`. Note V-3 in this report is therefore discharged rather
+than refuted: the assert was genuinely silent on this criterion before the login, and only
+became load-bearing once the target was up.
+
+**Finding V-1 is repaired.** All seven requirement markers now read complete in
+`.planning/REQUIREMENTS.md` — FIX-01, FIX-02, FIX-04, FIX-06, CAP-04, START-02, START-03.
+FIX-02's text was additionally amended per the phase's own D-03 decision, which had
+recorded that the original wording ("replaced with a stow invocation") could not be met
+because `stow/hypr/` does not exist until Phase 20.
+
+**Finding V-2 stands as written and corrected the orchestrator's premise.** Empty
+`ActiveEnterTimestamp` and `InactiveEnterTimestamp` did not prove "never started this
+boot"; systemd garbage-collects inactive units and reloads them with no history. The
+journal showed the units had run at 16:40:47 and stopped at 16:40:49. The orchestrator's
+conclusion — that the live run stopped nothing — survives on the timing instead: the run
+began at 17:22:39, 42 minutes after those units were already down.
+
+**Score after resolution: 6 of 6. Status: `passed`.**
