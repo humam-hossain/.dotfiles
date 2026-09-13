@@ -27,7 +27,7 @@ Currently-live defects. Nothing else in the milestone works until these land.
 - [x] **CAP-04**: Every stow invocation in the repo uses `--no-folding`, so no destination directory ever becomes a symlink into the working tree
 - [ ] **CAP-05**: `capture` copies live to repo for `capture/` paths only, never stages or commits, and skips any path whose repo mirror is already dirty against HEAD
 - [ ] **CAP-06**: `capture` runs unattended on a systemd user timer, so `capture/` paths need no manual sync
-- [ ] **CAP-07**: `stow --adopt` appears in no script — it silently replaces repo content with live content at exit 0
+- [x] **CAP-07**: `stow --adopt` appears in no script — it silently replaces repo content with live content at exit 0
 - [ ] **CAP-08**: The wrapper refuses `--exp-files` rather than forwarding it — that flag routes installation through `3.files-exp.sh`, which the collision map does not cover, so every row of the map would be void
 
 ### Hypr Custom Overlays
@@ -121,7 +121,7 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 | CAP-02 | Phase 18 | Capture model — three trees and the collision map | Complete |
 | CAP-03 | Phase 18 | Capture model — three trees and the collision map | Pending |
 | CAP-05 | Phase 18 | Capture model — three trees and the collision map | Pending |
-| CAP-07 | Phase 18 | Capture model — three trees and the collision map | Pending |
+| CAP-07 | Phase 18 | Capture model — three trees and the collision map | Complete |
 | CAP-08 | Phase 18 | Capture model — three trees and the collision map | Pending |
 | FIX-03 | Phase 18 | Capture model — three trees and the collision map | Pending |
 | FIX-05 | Phase 18 | Capture model — three trees and the collision map | Pending |
