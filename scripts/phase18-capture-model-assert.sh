@@ -339,6 +339,56 @@ else
 fi
 
 # =============================================================================
+# Section 4 / CAP-08 -- the experimental files flag is refused with exit 2
+# =============================================================================
+echo "=== Section 4 / CAP-08: --exp-files refusal gate ==="
+
+WRAPPER="./arch/dots-hyprland.sh"
+if [[ -x "$WRAPPER" ]]; then
+  EXP_RC=0
+  EXP_OUT="$("$WRAPPER" install --dry-run --exp-files 2>&1)" || EXP_RC=$?
+  if [[ "$EXP_RC" -eq 2 ]] \
+     && grep -q 'collision-map.tsv' <<<"$EXP_OUT" \
+     && ! grep -q '\./setup' <<<"$EXP_OUT"; then
+    pass "4a --exp-files refused with exit 2, names collision-map.tsv, never reached ./setup"
+  else
+    fail "4a --exp-files was not refused correctly (rc=$EXP_RC, expected 2; map named=$(grep -c 'collision-map.tsv' <<<"$EXP_OUT"); setup announced=$(grep -c '\./setup' <<<"$EXP_OUT"))"
+    printf '%s\n' "$EXP_OUT" | sed 's/^/       /' >&2
+  fi
+
+  POS_RC=0
+  POS_OUT="$("$WRAPPER" install --dry-run other-arg --exp-files 2>&1)" || POS_RC=$?
+  if [[ "$POS_RC" -eq 2 ]] && grep -q 'collision-map.tsv' <<<"$POS_OUT"; then
+    pass "4b --exp-files is refused identically when placed after other arguments (exit 2)"
+  else
+    fail "4b --exp-files position independence failed (rc=$POS_RC, expected 2)"
+    printf '%s\n' "$POS_OUT" | sed 's/^/       /' >&2
+  fi
+
+  EQ_RC=0
+  EQ_OUT="$("$WRAPPER" install --dry-run --exp-files=true 2>&1)" || EQ_RC=$?
+  if [[ "$EQ_RC" -eq 2 ]] && grep -q 'collision-map.tsv' <<<"$EQ_OUT"; then
+    pass "4c --exp-files=... is refused identically (exit 2)"
+  else
+    fail "4c --exp-files=... refusal failed (rc=$EQ_RC, expected 2)"
+    printf '%s\n' "$EQ_OUT" | sed 's/^/       /' >&2
+  fi
+
+  SUB_RC=0
+  SUB_OUT="$("$WRAPPER" --exp-files-not 2>&1)" || SUB_RC=$?
+  if ! grep -q 'collision-map.tsv' <<<"$SUB_OUT" && grep -q 'Unknown or non-allowlisted' <<<"$SUB_OUT"; then
+    pass "4d argument merely containing the token as a substring is not refused by the gate (reaches allowlist)"
+  else
+    fail "4d substring argument was wrongly caught by the --exp-files gate or bypassed allowlist"
+    printf '%s\n' "$SUB_OUT" | sed 's/^/       /' >&2
+  fi
+
+  info "4e D-32: the gate is a deny-list of exactly one flag (--exp-files). The font-set flag (--fontset) still forwards to 3.files-legacy.sh:42, a source the map does not model, recorded as an accepted coverage gap in collision-map.tsv."
+else
+  fail "4 wrapper $WRAPPER is missing or not executable"
+fi
+
+# =============================================================================
 # Section 5 / CAP-07 -- the banned stow flag is absent and documented
 # =============================================================================
 echo "=== Section 5 / CAP-07: the banned stow flag is absent and documented ==="
