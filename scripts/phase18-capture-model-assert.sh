@@ -64,12 +64,16 @@ FAKE_OUT="$(mktemp /tmp/p18-fakemap-XXXXXX)"
 PORCELAIN_BEFORE="$(mktemp /tmp/p18-porcelain-before-XXXXXX)"
 PORCELAIN_AFTER="$(mktemp /tmp/p18-porcelain-after-XXXXXX)"
 FAKE_ROOT="$(mktemp -d /tmp/p18-fakeroot-XXXXXX)"
+FIX_HOME_7B=""
+FIX_HOME_7C=""
 cleanup() {
   if [[ -e "$SUBMODULE/.git.aside" && ! -e "$SUBMODULE/.git" ]]; then
     mv "$SUBMODULE/.git.aside" "$SUBMODULE/.git" 2>/dev/null || true
   fi
   rm -f "$REGEN_OUT" "$DET_OUT_1" "$DET_OUT_2" "$FAKE_OUT" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER"
   rm -rf "$FAKE_ROOT"
+  [[ -n "$FIX_HOME_7B" ]] && rm -rf "$FIX_HOME_7B"
+  [[ -n "$FIX_HOME_7C" ]] && rm -rf "$FIX_HOME_7C"
 }
 trap cleanup EXIT
 
@@ -498,6 +502,227 @@ else
 fi
 
 # =============================================================================
+# Section 7b / CAP-05 -- capture fixture, copy, and refusals
+# =============================================================================
+echo "=== Section 7b / CAP-05: capture fixture copy and refusals ==="
+
+FIX_HOME_7B="$(mktemp -d /tmp/p18-fix7b-XXXXXX)"
+FIX_REPO_7B="$FIX_HOME_7B/fixture-repo"
+
+git init -q "$FIX_REPO_7B"
+git -C "$FIX_REPO_7B" config user.name "GSD Assert"
+git -C "$FIX_REPO_7B" config user.email "assert@local"
+
+mkdir -p "$FIX_REPO_7B/arch" "$FIX_REPO_7B/capture/testpkg/.config/testpkg"
+cp "$REPO_ROOT/arch/dots-hyprland.sh" "$FIX_REPO_7B/arch/dots-hyprland.sh"
+chmod +x "$FIX_REPO_7B/arch/dots-hyprland.sh"
+
+mkdir -p "$FIX_HOME_7B/.config/testpkg"
+
+# 1. Clean and tracked mirror
+CLEAN_MIRROR="$FIX_REPO_7B/capture/testpkg/.config/testpkg/clean_tracked.conf"
+CLEAN_LIVE="$FIX_HOME_7B/.config/testpkg/clean_tracked.conf"
+printf 'clean_initial_repo\n' > "$CLEAN_MIRROR"
+printf 'clean_modified_live\n' > "$CLEAN_LIVE"
+
+# 2. Tracked and dirty mirror
+DIRTY_MIRROR="$FIX_REPO_7B/capture/testpkg/.config/testpkg/tracked_dirty.conf"
+DIRTY_LIVE="$FIX_HOME_7B/.config/testpkg/tracked_dirty.conf"
+printf 'dirty_initial_repo\n' > "$DIRTY_MIRROR"
+printf 'dirty_live_content\n' > "$DIRTY_LIVE"
+
+# 3. Missing live counterpart
+MISSING_MIRROR="$FIX_REPO_7B/capture/testpkg/.config/testpkg/missing_live.conf"
+printf 'missing_live_repo_content\n' > "$MISSING_MIRROR"
+
+# Initial commit in fixture repo (clean_tracked, tracked_dirty, missing_live)
+git -C "$FIX_REPO_7B" add .
+git -C "$FIX_REPO_7B" commit -q -m "initial fixture state"
+
+# Make tracked_dirty dirty against HEAD in working tree
+printf 'dirty_working_tree_edit\n' >> "$DIRTY_MIRROR"
+
+# 4. Untracked mirror (created after initial commit, never added to git)
+UNTRACKED_MIRROR="$FIX_REPO_7B/capture/testpkg/.config/testpkg/untracked.conf"
+UNTRACKED_LIVE="$FIX_HOME_7B/.config/testpkg/untracked.conf"
+printf 'untracked_repo_content\n' > "$UNTRACKED_MIRROR"
+printf 'untracked_live_content\n' > "$UNTRACKED_LIVE"
+
+# Run capture in fixture environment
+CAP_7B_RC=0
+CAP_7B_OUT="$(cd "$FIX_REPO_7B" && HOME="$FIX_HOME_7B" ./arch/dots-hyprland.sh capture 2>&1)" || CAP_7B_RC=$?
+
+# Sub-check 1: Overall run exits non-zero because dirty/untracked/missing were skipped (D-36, D-43)
+if [[ "$CAP_7B_RC" -ne 0 ]]; then
+  pass "7b overall capture run exited non-zero due to skipped paths (rc=$CAP_7B_RC)"
+else
+  fail "7b overall capture run exited 0 despite dirty, untracked, and missing-live mirrors"
+fi
+
+# Sub-check 2: Clean and tracked mirror was copied, and staged diff in fixture is empty (D-38)
+if cmp -s "$CLEAN_MIRROR" "$CLEAN_LIVE"; then
+  pass "7b clean tracked mirror copied live content successfully"
+else
+  fail "7b clean tracked mirror was not copied"
+fi
+
+CACHED_DIFF_7B="$(git -C "$FIX_REPO_7B" diff --cached)"
+if [[ -z "$CACHED_DIFF_7B" ]]; then
+  pass "7b fixture git diff --cached is empty (never staged, never committed)"
+else
+  fail "7b fixture git diff --cached is non-empty after capture"
+  printf '%s\n' "$CACHED_DIFF_7B" | sed 's/^/       /' >&2
+fi
+
+# Sub-check 3: Tracked and dirty mirror was refused with dirty reason and bytes unchanged (D-36, D-37)
+if grep -q -- "repo mirror is dirty against HEAD" <<<"$CAP_7B_OUT" && grep -q -- "tracked_dirty.conf" <<<"$CAP_7B_OUT"; then
+  pass "7b tracked dirty mirror refused naming dirty against HEAD"
+else
+  fail "7b tracked dirty mirror not refused with dirty-against-HEAD reason"
+  printf '%s\n' "$CAP_7B_OUT" | sed 's/^/       /' >&2
+fi
+if grep -q "dirty_working_tree_edit" "$DIRTY_MIRROR" && ! grep -q "dirty_live_content" "$DIRTY_MIRROR"; then
+  pass "7b tracked dirty mirror working-tree bytes left intact (not overwritten by live)"
+else
+  fail "7b tracked dirty mirror was corrupted or overwritten"
+fi
+
+# Sub-check 4: Untracked mirror was refused with distinct untracked reason (RESEARCH F-8)
+if grep -q -- "repo mirror is untracked" <<<"$CAP_7B_OUT" && grep -q -- "untracked.conf" <<<"$CAP_7B_OUT"; then
+  pass "7b untracked repo mirror refused with distinct untracked reason"
+else
+  fail "7b untracked repo mirror not refused with untracked reason"
+  printf '%s\n' "$CAP_7B_OUT" | sed 's/^/       /' >&2
+fi
+if ! cmp -s "$UNTRACKED_MIRROR" "$UNTRACKED_LIVE"; then
+  pass "7b untracked repo mirror bytes unchanged"
+else
+  fail "7b untracked repo mirror was wrongly overwritten"
+fi
+
+# Sub-check 5: Missing live counterpart reported as [FINDING], moves exit code, repo copy preserved (D-43)
+if grep -q -- "\[FINDING\].*live counterpart missing" <<<"$CAP_7B_OUT" && grep -q -- "missing_live.conf" <<<"$CAP_7B_OUT"; then
+  pass "7b missing live counterpart produced [FINDING] naming missing_live.conf"
+else
+  fail "7b missing live counterpart did not produce expected [FINDING]"
+  printf '%s\n' "$CAP_7B_OUT" | sed 's/^/       /' >&2
+fi
+if [[ -f "$MISSING_MIRROR" ]] && grep -q "missing_live_repo_content" "$MISSING_MIRROR"; then
+  pass "7b missing live counterpart repo copy was preserved and not deleted"
+else
+  fail "7b missing live counterpart repo copy was deleted or corrupted"
+fi
+
+# =============================================================================
+# Section 7c / ROADMAP criterion 7 -- dry run, empty tree, symlink refusal, D-45
+# =============================================================================
+echo "=== Section 7c / ROADMAP criterion 7: dry run, empty tree, symlink refusal ==="
+
+FIX_HOME_7C="$(mktemp -d /tmp/p18-fix7c-XXXXXX)"
+FIX_REPO_7C="$FIX_HOME_7C/fixture-repo"
+
+git init -q "$FIX_REPO_7C"
+git -C "$FIX_REPO_7C" config user.name "GSD Assert"
+git -C "$FIX_REPO_7C" config user.email "assert@local"
+
+mkdir -p "$FIX_REPO_7C/arch" "$FIX_REPO_7C/capture/testpkg/.config/testpkg"
+cp "$REPO_ROOT/arch/dots-hyprland.sh" "$FIX_REPO_7C/arch/dots-hyprland.sh"
+chmod +x "$FIX_REPO_7C/arch/dots-hyprland.sh"
+
+mkdir -p "$FIX_HOME_7C/.config/testpkg"
+
+DRY_MIRROR="$FIX_REPO_7C/capture/testpkg/.config/testpkg/dry_test.conf"
+DRY_LIVE="$FIX_HOME_7C/.config/testpkg/dry_test.conf"
+printf 'dry_repo_initial\n' > "$DRY_MIRROR"
+printf 'dry_live_new\n' > "$DRY_LIVE"
+
+git -C "$FIX_REPO_7C" add .
+git -C "$FIX_REPO_7C" commit -q -m "dry run fixture initial"
+PORCELAIN_PRE_DRY="$(git -C "$FIX_REPO_7C" status --porcelain)"
+
+# 7c-1: Dry run preview (D-42)
+DRY_RC=0
+DRY_OUT="$(cd "$FIX_REPO_7C" && HOME="$FIX_HOME_7C" ./arch/dots-hyprland.sh capture --dry-run 2>&1)" || DRY_RC=$?
+PORCELAIN_POST_DRY="$(git -C "$FIX_REPO_7C" status --porcelain)"
+
+if [[ "$DRY_RC" -eq 0 ]] && grep -q -- "dry-run: would copy" <<<"$DRY_OUT" && grep -q -- "dry_test.conf" <<<"$DRY_OUT"; then
+  pass "7c capture --dry-run printed would-copy preview naming dry_test.conf"
+else
+  fail "7c capture --dry-run failed or did not print expected preview message"
+  printf '%s\n' "$DRY_OUT" | sed 's/^/       /' >&2
+fi
+if grep -q "dry_repo_initial" "$DRY_MIRROR" && ! grep -q "dry_live_new" "$DRY_MIRROR"; then
+  pass "7c capture --dry-run left repo mirror bytes unchanged"
+else
+  fail "7c capture --dry-run modified repo mirror bytes"
+fi
+if [[ "$PORCELAIN_PRE_DRY" == "$PORCELAIN_POST_DRY" ]]; then
+  pass "7c capture --dry-run left fixture git status unchanged"
+else
+  fail "7c capture --dry-run changed fixture git status"
+fi
+
+# 7c-2: Empty tree in fixture repo (D-41)
+EMPTY_REPO_7C="$FIX_HOME_7C/empty-repo"
+git init -q "$EMPTY_REPO_7C"
+mkdir -p "$EMPTY_REPO_7C/arch" "$EMPTY_REPO_7C/capture"
+cp "$REPO_ROOT/arch/dots-hyprland.sh" "$EMPTY_REPO_7C/arch/dots-hyprland.sh"
+chmod +x "$EMPTY_REPO_7C/arch/dots-hyprland.sh"
+
+EMPTY_RC=0
+EMPTY_OUT="$(cd "$EMPTY_REPO_7C" && HOME="$FIX_HOME_7C" ./arch/dots-hyprland.sh capture 2>&1)" || EMPTY_RC=$?
+if [[ "$EMPTY_RC" -eq 0 ]] && grep -q -i "capture/ is empty, nothing to capture" <<<"$EMPTY_OUT"; then
+  pass "7c capture against fixture empty capture/ exits 0 with explicit message"
+else
+  fail "7c capture against fixture empty capture/ failed (rc=$EMPTY_RC) or missing explicit message"
+  printf '%s\n' "$EMPTY_OUT" | sed 's/^/       /' >&2
+fi
+
+# Also check against this repository's real empty capture/ tree
+REAL_EMPTY_RC=0
+REAL_EMPTY_OUT="$(./arch/dots-hyprland.sh capture 2>&1)" || REAL_EMPTY_RC=$?
+if [[ "$REAL_EMPTY_RC" -eq 0 ]] && grep -q -i "capture/ is empty, nothing to capture" <<<"$REAL_EMPTY_OUT"; then
+  pass "7c capture against real repository empty capture/ exits 0 with explicit message"
+else
+  fail "7c capture against real repository empty capture/ failed (rc=$REAL_EMPTY_RC)"
+fi
+
+# 7c-3: Symlink refusal (D-39)
+# In fixture, set up live path as a symlink pointing into the repo mirror
+SYMLINK_MIRROR="$FIX_REPO_7C/capture/testpkg/.config/testpkg/symlink_test.conf"
+SYMLINK_LIVE="$FIX_HOME_7C/.config/testpkg/symlink_test.conf"
+printf 'symlink_repo_initial\n' > "$SYMLINK_MIRROR"
+git -C "$FIX_REPO_7C" add "$SYMLINK_MIRROR"
+git -C "$FIX_REPO_7C" commit -q -m "add symlink test mirror"
+ln -s "$SYMLINK_MIRROR" "$SYMLINK_LIVE"
+
+SYM_RC=0
+SYM_OUT="$(cd "$FIX_REPO_7C" && HOME="$FIX_HOME_7C" ./arch/dots-hyprland.sh capture 2>&1)" || SYM_RC=$?
+if [[ "$SYM_RC" -ne 0 ]] && grep -q -- "refusing live path that is a symlink" <<<"$SYM_OUT"; then
+  pass "7c capture refused live path that is a symlink into repo (D-39)"
+else
+  fail "7c capture did not refuse live symlink into repo (rc=$SYM_RC)"
+  printf '%s\n' "$SYM_OUT" | sed 's/^/       /' >&2
+fi
+
+# 7c-4: Range-scoped check for D-45 implementation constraint
+# run_capture body must contain no hardcoded /home/ and no bare ~
+CAPTURE_BODY="$(awk '/^run_capture\(\)/,/^}$/' arch/dots-hyprland.sh)"
+if grep -q '/home/' <<<"$CAPTURE_BODY"; then
+  fail "7c arch/dots-hyprland.sh run_capture() contains hardcoded /home/ path"
+else
+  pass "7c arch/dots-hyprland.sh run_capture() contains no hardcoded /home/ path"
+fi
+if grep -q -- '~[a-zA-Z0-9_/]' <<<"$CAPTURE_BODY"; then
+  fail "7c arch/dots-hyprland.sh run_capture() contains tilde path bypassing \$HOME"
+else
+  pass "7c arch/dots-hyprland.sh run_capture() contains no tilde path bypassing \$HOME"
+fi
+
+# 7c-5: Record accepted TOCTOU risk
+info "7c accepted risk: window between capturability test and copy is a TOCTOU gap, accepted on single-operator single-machine repo"
+
+# =============================================================================
 # Named conditions this run cannot decide. [INFO] only -- neither moves the exit
 # code, and both exist so a green run is not read as saying more than it does.
 # =============================================================================
@@ -525,7 +750,8 @@ else
   diff -u "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" || true
 fi
 FIXTURE_LEAK=0
-for FIXTURE in "$REGEN_OUT" "$DET_OUT_1" "$DET_OUT_2" "$FAKE_OUT" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" "$FAKE_ROOT"; do
+for FIXTURE in "$REGEN_OUT" "$DET_OUT_1" "$DET_OUT_2" "$FAKE_OUT" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" "$FAKE_ROOT" "$FIX_HOME_7B" "$FIX_HOME_7C"; do
+  [[ -z "$FIXTURE" ]] && continue
   if grep -q -F -- "$(basename "$FIXTURE")" "$PORCELAIN_AFTER"; then
     fail "self-check: git status names a path this script created: $FIXTURE"
     FIXTURE_LEAK=$((FIXTURE_LEAK + 1))
