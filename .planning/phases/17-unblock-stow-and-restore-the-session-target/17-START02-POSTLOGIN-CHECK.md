@@ -2,8 +2,9 @@
 phase: 17
 requirement: START-02
 document: post-login-check
-status: pending-observation
+status: observed-pass
 created: 2026-09-13
+observed: 2026-09-13 17:43:39
 ---
 
 # START-02 — post-login observation
@@ -71,3 +72,45 @@ recovery.
 `scripts/phase17-unblock-assert.sh` reporting `FAIL=0` does **not** certify START-02.
 Assertion 5e calls `info()` on every inactive branch and `pass()` only when the target
 is already up. The assert going green is not a substitute for the reading above.
+
+---
+
+# Observation — 2026-09-13, PASS
+
+The operator logged out and back in. `graphical-session.target` came up.
+
+| Fact | Evidence |
+| --- | --- |
+| Target is up | `systemctl --user is-active graphical-session.target` → `active` |
+| Unit ran | `Active: active (exited) since Sun 2026-09-13 17:43:39 +06`, `ExecStart=/usr/bin/true (code=exited, status=0/SUCCESS)`, main PID 156725 |
+| Unit is still `linked` | `Loaded: loaded (/home/pera/.config/systemd/user/hyprland-session.service; linked; preset: enabled)` — the stow link survived the logout |
+| Start is new, not the wave-5 pair | journal shows `17:43:39.806068 Starting…` as a third entry, distinct from the `16:40:47.593787` start and `16:40:49.932249` stop |
+| It was the hook, not a hand start | Hyprland restarted as pid 156671 at `17:43:38`; the unit started at `17:43:39.806068`, 1.2 s later. No operator command ran between them. |
+| The Lua session survived | `hyprctl -j status` → `configProvider: lua`; `~/.config/hypr/hyprland.conf` still absent |
+
+The 1.2-second gap between the compositor starting and the unit starting is the
+load-bearing evidence. It places the start inside Hyprland's own startup, which is
+where `hl.on("hyprland.start", …)` fires, and rules out both a leftover from the
+earlier session and a manual `systemctl --user start`.
+
+START-02 is flipped to complete in `.planning/REQUIREMENTS.md`. Phase 17 closes at 7
+of 7 requirements.
+
+## Two observations from the same login, neither a Phase 17 defect
+
+**`plasma-xdg-desktop-portal-kde.service` is failed.** It died at `17:43:35` with
+`The Wayland connection broke. Did the Wayland compositor die?` and
+`status=255/EXCEPTION` — that is the old compositor (pid 1501) going down during the
+logout, three seconds before the new one came up. It had also been logging
+`Failed to register with host portal … Connection already associated with an
+application ID` since `16:34:32`, before this phase touched anything. Pre-existing,
+plus a logout artifact. It is a KDE portal on a Hyprland session and is unrelated to
+the `xdg-desktop-portal-hyprland` path that `graphical-session.target` exists to serve.
+
+**`waybar.service`, `swaync.service` and `hyprpaper.service` are all `inactive`.**
+They were inactive before the logout too. `graphical-session.target` being up does not
+pull them; nothing currently does. Under the ii shell, Quickshell owns the bar and the
+wallpaper, so this is a changed owner rather than breakage — see the
+`docs/dots-hyprland-workflow.md` adopt-cost list. START-02 asks only that the target be
+active, which it is. Whether these units should be wired to the target is Phase 20's
+question.

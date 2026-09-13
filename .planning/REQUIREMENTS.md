@@ -39,7 +39,7 @@ Currently-live defects. Nothing else in the milestone works until these land.
 ### Startup Applications
 
 - [ ] **START-01**: The `exec-once` entries lost at the Phase 14 adopt are restored in `custom/execs.lua` — polkit agent, `wl-clip-persist`, cursor, and the workspace-pinned applications
-- [ ] **START-02**: `graphical-session.target` is active in a live session (D-38) — `hyprland-session.service` is started from `custom/execs.lua`
+- [x] **START-02**: `graphical-session.target` is active in a live session (D-38) — `hyprland-session.service` is started from `custom/execs.lua`
 - [x] **START-03**: The `systemctl --user disable` footgun is documented — it deletes the stow symlink for a unit in state `linked`
 
 ### Quickshell ii Bar Config
@@ -115,7 +115,7 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 | FIX-04 | Phase 17 | Unblock stow and restore the session target | Complete |
 | FIX-06 | Phase 17 | Unblock stow and restore the session target | Complete |
 | CAP-04 | Phase 17 | Unblock stow and restore the session target | Complete |
-| START-02 | Phase 17 | Unblock stow and restore the session target | Pending |
+| START-02 | Phase 17 | Unblock stow and restore the session target | Complete |
 | START-03 | Phase 17 | Unblock stow and restore the session target | Complete |
 | CAP-01 | Phase 18 | Capture model — three trees and the collision map | Pending |
 | CAP-02 | Phase 18 | Capture model — three trees and the collision map | Pending |
