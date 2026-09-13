@@ -21,9 +21,13 @@ echo "[INSTALL] Notifications, Bluetooth & Casting (Swaync dependencies)"
 sudo pacman -Sy --noconfirm --needed swaync blueman dnsmasq
 yay -Sy --noconfirm --needed gnome-network-displays
 
-echo "[CONFIG] Hyprland Config"
-mkdir -p ~/.config/hypr
-cp -rf .config/hypr/* ~/.config/hypr/
+# Hyprland configuration placement is deliberately absent here. Phase 20,
+# requirement HYPR-01, owns it: once a stow package for the Hyprland
+# configuration exists, its invocation belongs at exactly this point in the
+# script. What stood here before was a recursive, forced copy of the
+# repository's own pre-adopt configuration tree over the live session tree,
+# which the Phase 14 adopt had deliberately moved away from; it also resolved
+# its source only when the script happened to run from the repository root.
 
 echo "[CONFIG] Graphical Session Bootstrap (systemd xdg-desktop-portal fix)"
 cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow --verbose=5 --no-folding -t ~ systemd
