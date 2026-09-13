@@ -78,3 +78,86 @@ live-tree-then-milestone-archive lookup".
 
 **Impact if left:** every future milestone archival silently breaks another
 batch of harnesses, each discovered only when someone runs it.
+
+---
+
+## D-3 — stopping `graphical-session.target` fans a stop out to eight live helper services
+
+**Found during:** plan 17-05, Task 1 (the single by-hand proof of the START-02
+mechanism that the plan authorises).
+
+**Symptom:** reverting the proof with
+`systemctl --user stop hyprland-session.service` also stopped eight services
+that were active before it and had nothing to do with the proof:
+
+```
+at-spi-dbus-bus.service          active -> inactive
+xdg-desktop-portal.service       active -> inactive
+xdg-desktop-portal-gtk.service   active -> inactive
+xdg-desktop-portal-hyprland.service active -> inactive
+plasma-xdg-desktop-portal-kde.service active -> inactive
+xdg-document-portal.service      active -> inactive
+xdg-permission-store.service     active -> inactive
+gvfs-daemon.service              active -> inactive
+```
+
+**Cause:** measured, not inferred. `graphical-session.target` carries
+`StopWhenUnneeded=yes`, and `hyprland-session.service` is the only unit that
+`Wants=` it — none of the eight declares `Requisite=` or `Requires=` on it, so
+stopping the service makes the target unneeded and systemd stops it. All eight
+carry `PartOf=graphical-session.target` (visible as the target's `ConsistsOf=`),
+and `PartOf` propagates stop. The start direction does **not** propagate, which
+is why starting the unit brings up the target and nothing else — that half was
+already recorded as threat T-17-18.
+
+**Not a repo defect.** This is the operator's systemd graph behaving exactly as
+configured, and the same fan-out happens at every normal session end. Nothing in
+this repository causes it and nothing here should suppress it.
+
+**Why deferred:** there is nothing to fix, only something to know. It is logged
+because the blast radius is invisible from the plan text, which describes the
+revert as simply returning two units to inactive.
+
+**Mitigation applied in 17-05, for whoever repeats the proof:** the proof was
+run only after confirming `/run/user/1000/gvfs` held no active fuse mount and no
+capture process was running, so nothing could be lost by a portal restart. All
+eight services were then returned to `active` by natural D-Bus activation —
+read-only property reads and getters, no `systemctl` verb — and the session was
+confirmed back in its as-found state.
+
+**Suggested owner / fix:** Phase 20, when START-01 restores the remaining six
+startup entries and will want to re-prove the same mechanism. Prefer proving it
+at a real login rather than by a hand start-and-stop, or accept the fan-out
+knowingly and reactivate as above.
+
+**Impact if left:** an agent or operator who hand-proves START-02 without
+knowing this will stop a running screen share or an open portal dialog and read
+it as an unrelated failure.
+
+---
+
+## D-4 — the playbook's §7 observed-counts line cannot be re-measured while D-1 stands
+
+**Found during:** plan 17-05, Task 2 (rewriting §7's expected-output block).
+
+**Symptom:** §7 records `33 [PASS], 0 [FAIL], one [FINDING]` as the observed
+output of `./scripts/phase14-verify.sh`. That observation cannot be refreshed
+today, because the script aborts on the relocated baseline fixture (D-1) before
+reaching a single assert, let alone its closing line.
+
+**Cause:** D-1. The counts themselves are not suspect — they were recorded on a
+committed tree after the Phase 16 script edits — but they are now a historical
+observation rather than a reproducible one.
+
+**Why deferred:** fixing it means fixing D-1 first, which is already deferred to
+Phase 18 under D-2. Plan 17-05 did what it could without that: §7 now states
+both the pre- and post-re-login expected finding counts and the single condition
+that selects between them, so the playbook is correct in both states even though
+neither can be re-measured until D-1 is closed.
+
+**Suggested owner / fix:** whoever closes D-1. Re-run the script and refresh the
+observed counts in §7 in the same change.
+
+**Impact if left:** a reader who runs the §7 command gets an abort rather than
+either documented outcome, and has no way to tell from the playbook alone that
+the abort is a known unrelated defect.
