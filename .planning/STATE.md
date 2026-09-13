@@ -5,16 +5,16 @@ milestone_name: Personal config layer
 current_phase: 18
 current_phase_name: Capture model — three trees and the collision map
 status: executing
-stopped_at: Completed 18-02-PLAN.md
-last_updated: "2026-09-13T19:05:39.629Z"
+stopped_at: Completed 18-03-PLAN.md
+last_updated: "2026-09-13T19:07:06.165Z"
 last_activity: 2026-09-13
 last_activity_desc: Phase 18 execution started
-state_head: fdd0f0fc3b009409ff28ec4f3fbb69076ebd112c
+state_head: 17a72e77cba9f2957a9ddf34f24732e97f5bf91b
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 18
-  completed_plans: 9
+  completed_plans: 10
   percent: 14
 ---
 
@@ -25,15 +25,15 @@ Total Phases: 7 (Phases 17-23)
 ## Current Position
 
 Phase: 18 (Capture model — three trees and the collision map) — EXECUTING
-Plan: 3 of 11
+Plan: 4 of 11
 Status: Ready to execute
 Progress: [█░░░░░░░░░] 14%
 Last activity: 2026-09-13 — Phase 18 execution started
 
 ## Session
 
-**Last session:** 2026-09-13T19:05:36.563Z
-**Stopped at:** Completed 18-02-PLAN.md
+**Last session:** 2026-09-13T19:07:05.756Z
+**Stopped at:** Completed 18-03-PLAN.md
 **Resume file:** None
 **Next command:** `/gsd-plan-phase 18`
 
@@ -157,6 +157,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 | Phase 17 P02 | 3 min | 3 tasks | 3 files |
 | Phase 18 P01 | 12 min | 3 tasks | 4 files |
 | Phase 18 P02 | 8 min | 3 tasks | 5 files |
+| Phase 18 P03 | 7 min | 3 tasks | 3 files |
 
 ## Decisions
 
@@ -206,3 +207,4 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 18]: 18-01: the collision map's tree column is derived from the two outcome columns and holds only stow or restow; no authored override column exists — Checkpoint resolved derived-two-value (D-05). One source of truth for 'how is this file captured' is the property CAP-01 rests on; capture/ membership is consequently hand-assigned prose in capture/README.md, not derivable from the map.
 - [Phase 18]: 18-01: a call site whose source argument lives under dots-extra/ is skipped as a flag-reached alternate, and both such sites are named in the map header as coverage gaps — Excluding 3.files-legacy.sh:42 (--fontset) and :66 (--via-nix) by line number would rot at the next pin bump; the source-path rule survives it and covers the D-32 accepted risk mechanically.
 - [Phase 18]: 18-02: tree contracts established; stow and restow membership predicates match collision-map.tsv derived outcomes, capture/ membership is hand-assigned prose — Location alone decides how a file is captured (CAP-01)
+- [Phase 18]: 18-03: wrapper main() prologue refuses --exp-files with exit 2 and names collision-map.tsv — Experimental files path uses disjoint write primitives that would void every row of collision-map.tsv (CAP-08)
