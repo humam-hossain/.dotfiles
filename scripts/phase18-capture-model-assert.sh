@@ -446,6 +446,92 @@ else
 fi
 
 # =============================================================================
+# Section 6 / FIX-03: Repo-root .config/ removal and scoped reader scan
+# =============================================================================
+echo "=== Section 6 / FIX-03: repo-root .config/ removal and scoped reader scan ==="
+
+# 6a: The tree is gone from the filesystem and untracked in git
+if [[ ! -e .config ]]; then
+  pass "6a repo-root .config/ directory is absent from filesystem (not present-and-empty)"
+else
+  fail "6a repo-root .config/ directory still exists on filesystem"
+fi
+
+CONFIG_TRACKED="$(git ls-files -- .config/ 2>/dev/null || true)"
+if [[ -z "$CONFIG_TRACKED" ]]; then
+  pass "6a git ls-files tracks no path under repo-root .config/"
+else
+  fail "6a git ls-files still tracks path(s) under repo-root .config/:"
+  printf '%s\n' "$CONFIG_TRACKED" | sed 's/^/       /' >&2
+fi
+
+# 6b: Every destination named in docs/config-redistribution.md exists
+REDIST_DOC="docs/config-redistribution.md"
+if [[ ! -f "$REDIST_DOC" ]]; then
+  fail "6b redistribution doc missing: $REDIST_DOC — cannot verify destinations"
+else
+  REDIST_ROWS="$(awk -F'|' '/^\| *`?\.config/{gsub(/[` ]/, "", $4); if ($4 != "") print $4}' "$REDIST_DOC")"
+  REDIST_COUNT="$(grep -c . <<<"$REDIST_ROWS" || true)"
+  if [[ "$REDIST_COUNT" -eq 0 ]]; then
+    fail "6b redistribution doc has zero data rows — table is missing or corrupted"
+  else
+    pass "6b redistribution doc exists and holds $REDIST_COUNT destination row(s)"
+    MISSING_DEST=0
+    while IFS= read -r dest_path; do
+      [[ -n "$dest_path" ]] || continue
+      if [[ -e "$dest_path" ]]; then
+        pass "6b destination exists: $dest_path"
+      else
+        fail "6b destination missing: $dest_path"
+        MISSING_DEST=$((MISSING_DEST + 1))
+      fi
+    done <<<"$REDIST_ROWS"
+    if [[ "$MISSING_DEST" -eq 0 ]]; then
+      pass "6b all $REDIST_COUNT redistribution destinations exist on disk"
+    fi
+  fi
+fi
+
+# 6c: Scoped, doubly-anchored reader scan with vacuity guards and exclusions
+# Vacuity guards for arch/ and scripts/ (shape of scripts/phase17-unblock-assert.sh:54-71)
+ARCH_SH_N="$(find arch -maxdepth 1 -type f -name '*.sh' 2>/dev/null | wc -l || true)"
+SCRIPTS_SH_N="$(find scripts -maxdepth 1 -type f -name '*.sh' 2>/dev/null | wc -l || true)"
+if [[ -d arch && "$ARCH_SH_N" -gt 0 ]]; then
+  pass "6c guard: arch/ exists and holds $ARCH_SH_N *.sh files (the reader scan cannot pass vacuously)"
+else
+  fail "6c guard: arch/ is missing or holds no *.sh file — scan would pass over nothing"
+fi
+
+if [[ -d scripts && "$SCRIPTS_SH_N" -gt 0 ]]; then
+  pass "6c guard: scripts/ exists and holds $SCRIPTS_SH_N *.sh files (the reader scan cannot pass vacuously)"
+else
+  fail "6c guard: scripts/ is missing or holds no *.sh file — scan would pass over nothing"
+fi
+
+# Scoped scan over arch/ and scripts/ for the 12 moved files:
+# Pattern 1: Working-directory relative: line start, whitespace, or quote before .config/(hypr|dolphinrc|kdeglobals)
+# Pattern 2: REPO_ROOT-variable anchored: ($REPO_ROOT|${REPO_ROOT})/.config/(hypr|dolphinrc|kdeglobals)
+# Exclusions:
+# 1. scripts/phase17-unblock-assert.sh: holds 19 hits that are quoted grep patterns, not reads; frozen closed-phase record (D-20)
+# 2. arch/dots-hyprland.sh: safe_rm_path holds live-path glob (*)/.config/hypr protecting live dir; shipped safety control (RESEARCH F-9)
+# 3. scripts/phase18-capture-model-assert.sh: this assert script itself (RESEARCH F-9 trap 1)
+READER_HITS="$(grep -rnE \
+  --exclude="phase17-unblock-assert.sh" \
+  --exclude="phase18-capture-model-assert.sh" \
+  --exclude="dots-hyprland.sh" \
+  '((^|[[:space:]]|")\.config/(hypr|dolphinrc|kdeglobals)|(\$REPO_ROOT|\$\{REPO_ROOT\})/\.config/(hypr|dolphinrc|kdeglobals))' \
+  arch scripts 2>/dev/null || true)"
+
+if [[ -z "$READER_HITS" ]]; then
+  pass "6c no in-scope script under arch/ or scripts/ reads moved configuration paths"
+else
+  fail "6c found in-scope reader(s) of retired repo-root configuration path(s):"
+  printf '%s\n' "$READER_HITS" | sed 's/^/       /' >&2
+fi
+
+info "6c out-of-scope legacy readers in ubuntu/ and debian/ (30 files / 53 lines) tracked in .planning/todos/backlog-legacy-config-readers.md"
+
+# =============================================================================
 # Section 7a / ROADMAP criterion 7 -- wrapper-owned verify and capture dispatch
 # =============================================================================
 echo "=== Section 7a / ROADMAP criterion 7: wrapper-owned verify and capture dispatch ==="
