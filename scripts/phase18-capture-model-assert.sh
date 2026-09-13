@@ -66,6 +66,7 @@ PORCELAIN_AFTER="$(mktemp /tmp/p18-porcelain-after-XXXXXX)"
 FAKE_ROOT="$(mktemp -d /tmp/p18-fakeroot-XXXXXX)"
 FIX_HOME_7B=""
 FIX_HOME_7C=""
+MISFILED_FIXTURE=""
 cleanup() {
   if [[ -e "$SUBMODULE/.git.aside" && ! -e "$SUBMODULE/.git" ]]; then
     mv "$SUBMODULE/.git.aside" "$SUBMODULE/.git" 2>/dev/null || true
@@ -74,6 +75,8 @@ cleanup() {
   rm -rf "$FAKE_ROOT"
   [[ -n "$FIX_HOME_7B" ]] && rm -rf "$FIX_HOME_7B"
   [[ -n "$FIX_HOME_7C" ]] && rm -rf "$FIX_HOME_7C"
+  [[ -n "$MISFILED_FIXTURE" ]] && rm -rf "$MISFILED_FIXTURE"
+  return 0
 }
 trap cleanup EXIT
 
@@ -387,6 +390,114 @@ FAKE_LEGACY_EOF
   fi
 else
   info "3c skipped: the map or the generator is unavailable"
+fi
+
+# =============================================================================
+# Section 3d / CAP-03 -- tree placement check and mis-filed fixture (D-56).
+# The placement check derives each package's tree from collision-map.tsv.
+# Zero contradictions on real trees; exactly one on a mis-filed fixture in stow/.
+# =============================================================================
+echo "=== Section 3d / CAP-03: tree placement check and mis-filed fixture refusal ==="
+
+check_tree_placement() {
+  local target_pkgs=("$@")
+  local contradictions=0
+  local checked=0
+
+  local -a map_rows=()
+  while IFS= read -r row; do
+    [[ "$row" == "#"* || -z "$row" ]] && continue
+    map_rows+=("$row")
+  done < "$MAP"
+
+  for pkg_dir in "${target_pkgs[@]}"; do
+    [[ -d "$pkg_dir" ]] || continue
+    checked=$((checked + 1))
+    local pkg="$(basename "$pkg_dir")"
+    local tree_name="$(basename "$(dirname "$(cd "$pkg_dir" && pwd)")")"
+
+    while IFS= read -r -d '' f; do
+      local rel="${f#"$pkg_dir"/}"
+      local xdg_target=""
+      if [[ "$rel" == .config/* ]]; then
+        xdg_target="\$XDG_CONFIG_HOME/${rel#.config/}"
+      elif [[ "$rel" == .local/share/* ]]; then
+        xdg_target="\$XDG_DATA_HOME/${rel#.local/share/}"
+      else
+        xdg_target="\$HOME/$rel"
+      fi
+
+      for row in "${map_rows[@]}"; do
+        IFS=$'\t' read -r r_dest r_prim r_sym r_repo r_tree r_src <<< "$row"
+        if [[ "$xdg_target" == "$r_dest" || "$xdg_target" == "$r_dest"/* ]]; then
+          if [[ "$r_tree" != "$tree_name" ]]; then
+            printf 'CONTRADICTION: package %s/%s file %s maps to %s (expected tree %s, sits in %s)\n' \
+              "$tree_name" "$pkg" "$rel" "$r_dest" "$r_tree" "$tree_name"
+            contradictions=$((contradictions + 1))
+          fi
+        fi
+      done
+    done < <(find "$pkg_dir" -type f -print0 | LC_ALL=C sort -z)
+  done
+
+  printf 'CHECKED=%d CONTRADICTIONS=%d\n' "$checked" "$contradictions"
+  if (( contradictions > 0 )); then
+    return 1
+  fi
+  return 0
+}
+
+if [[ "$MAP_PRESENT" -eq 1 ]]; then
+  REAL_PKGS=()
+  while IFS= read -r p; do
+    [[ -n "$p" ]] && REAL_PKGS+=("$p")
+  done < <(find restow -mindepth 1 -maxdepth 1 -type d | LC_ALL=C sort)
+  if [[ -d stow/hypr ]]; then
+    REAL_PKGS+=("stow/hypr")
+  fi
+
+  REAL_OUT="$(check_tree_placement "${REAL_PKGS[@]}" 2>&1)" || true
+  REAL_CHECKED="$(grep -o 'CHECKED=[0-9]*' <<<"$REAL_OUT" | cut -d= -f2 || echo 0)"
+  REAL_CONTRA="$(grep -o 'CONTRADICTIONS=[0-9]*' <<<"$REAL_OUT" | cut -d= -f2 || echo -1)"
+
+  if (( REAL_CHECKED == 0 )); then
+    fail "3d real-tree placement check found zero packages (vacuous check)"
+  elif (( REAL_CONTRA == 0 )); then
+    pass "3d real trees contain zero placement contradictions ($REAL_CHECKED packages checked)"
+  else
+    fail "3d real trees contain $REAL_CONTRA placement contradictions"
+    printf '%s\n' "$REAL_OUT" | sed 's/^/       /' >&2
+  fi
+
+  MISFILED_NAME="p18-misfiled-fixture"
+  MISFILED_FIXTURE="$REPO_ROOT/stow/$MISFILED_NAME"
+  mkdir -p "$MISFILED_FIXTURE/.config/hypr/hyprland"
+  : > "$MISFILED_FIXTURE/.config/hypr/hyprland/fixture.conf"
+  trap 'rm -rf "$MISFILED_FIXTURE"; cleanup' EXIT
+
+  FIXT_RC=0
+  FIXT_OUT="$(check_tree_placement "${REAL_PKGS[@]}" "$MISFILED_FIXTURE" 2>&1)" || FIXT_RC=$?
+  FIXT_CHECKED="$(grep -o 'CHECKED=[0-9]*' <<<"$FIXT_OUT" | cut -d= -f2 || echo 0)"
+  FIXT_CONTRA="$(grep -o 'CONTRADICTIONS=[0-9]*' <<<"$FIXT_OUT" | cut -d= -f2 || echo 0)"
+
+  rm -rf "$MISFILED_FIXTURE"
+  MISFILED_FIXTURE=""
+  trap cleanup EXIT
+
+  if [[ -e "$REPO_ROOT/stow/$MISFILED_NAME" ]]; then
+    fail "3d mis-filed fixture $MISFILED_NAME survived removal"
+  else
+    pass "3d mis-filed fixture $MISFILED_NAME removed after check"
+  fi
+
+  if (( FIXT_RC != 0 && FIXT_CONTRA == 1 )) && grep -q "stow/$MISFILED_NAME.*maps to.*expected tree restow" <<<"$FIXT_OUT"; then
+    pass "3d mis-filed fixture in stow/ produced exactly 1 placement contradiction (rc=$FIXT_RC, naming expected restow)"
+  else
+    fail "3d mis-filed fixture did not produce expected placement contradiction (rc=$FIXT_RC, contra=$FIXT_CONTRA)"
+    printf '%s\n' "$FIXT_OUT" | sed 's/^/       /' >&2
+  fi
+else
+  info "3d skipped: collision-map.tsv is unavailable"
 fi
 
 # =============================================================================
@@ -877,16 +988,29 @@ else
   diff -u "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" || true
 fi
 FIXTURE_LEAK=0
-for FIXTURE in "$REGEN_OUT" "$DET_OUT_1" "$DET_OUT_2" "$FAKE_OUT" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" "$FAKE_ROOT" "$FIX_HOME_7B" "$FIX_HOME_7C"; do
+for FIXTURE in "$REGEN_OUT" "$DET_OUT_1" "$DET_OUT_2" "$FAKE_OUT" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" "$FAKE_ROOT" "$FIX_HOME_7B" "$FIX_HOME_7C" "p18-misfiled-fixture"; do
   [[ -z "$FIXTURE" ]] && continue
   if grep -q -F -- "$(basename "$FIXTURE")" "$PORCELAIN_AFTER"; then
     fail "self-check: git status names a path this script created: $FIXTURE"
     FIXTURE_LEAK=$((FIXTURE_LEAK + 1))
   fi
 done
-if [[ "$FIXTURE_LEAK" -eq 0 ]]; then
-  pass "self-check: git status names no fixture path this script created (all fixtures live outside the repo and are removed by the EXIT trap)"
+if [[ -e "$REPO_ROOT/stow/p18-misfiled-fixture" ]]; then
+  fail "self-check: stow/p18-misfiled-fixture exists on filesystem after run"
+  FIXTURE_LEAK=$((FIXTURE_LEAK + 1))
 fi
+if [[ "$FIXTURE_LEAK" -eq 0 ]]; then
+  pass "self-check: git status names no fixture path this script created (all fixtures live outside the repo or are removed by the EXIT trap)"
+fi
+
+echo "=== Phase 18 ROADMAP Criteria Summary ==="
+echo "Criterion 1 (three trees, contracts, recovery commands, restow tags): Section 1"
+echo "Criterion 2 (collision map coverage, submodule pin, outcome derivation): Section 2"
+echo "Criterion 3 (placement contradiction check: mis-filed fixture & pin bump): Section 3"
+echo "Criterion 4 (--exp-files refusal gate naming collision-map.tsv): Section 4"
+echo "Criterion 5 (--adopt ban and documentation of exception terms): Section 5"
+echo "Criterion 6 (repo-root .config removal, redistribution table, reader scan): Section 6"
+echo "Criterion 7 (wrapper verify/capture dispatch, live copy, refusal gates): Section 7"
 
 echo "=== done: FAIL=${FAIL} FINDINGS=${FINDINGS} ==="
 if [[ "$FAIL" -gt 0 ]]; then
