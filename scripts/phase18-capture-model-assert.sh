@@ -50,9 +50,24 @@ LEGACY_NAME="3.files-legacy.sh"
 LEGACY="$SUBMODULE/sdata/subcmd-install/$LEGACY_NAME"
 REGEN_CMD="$GEN > $MAP"
 
+# Fixtures. All of them live outside the repo, and the EXIT trap is set
+# immediately after the last mktemp so a failing check -- or any non-zero command
+# under `set -euo pipefail` between here and the end -- still removes them
+# (D-56; shape from scripts/phase16-retire-assert.sh:32-41). A fail() only
+# increments a counter and does not abort, but nothing else here is so forgiving,
+# and STATE.md records the Phase 17 incident where a fixture-handling assumption
+# destroyed tracked files.
 REGEN_OUT="$(mktemp /tmp/p18-regen-XXXXXX)"
+DET_OUT_1="$(mktemp /tmp/p18-det1-XXXXXX)"
+DET_OUT_2="$(mktemp /tmp/p18-det2-XXXXXX)"
+FAKE_OUT="$(mktemp /tmp/p18-fakemap-XXXXXX)"
+PORCELAIN_BEFORE="$(mktemp /tmp/p18-porcelain-before-XXXXXX)"
+PORCELAIN_AFTER="$(mktemp /tmp/p18-porcelain-after-XXXXXX)"
+FAKE_ROOT="$(mktemp -d /tmp/p18-fakeroot-XXXXXX)"
 # shellcheck disable=SC2064
-trap 'rm -f "$REGEN_OUT"' EXIT
+trap 'rm -f "$REGEN_OUT" "$DET_OUT_1" "$DET_OUT_2" "$FAKE_OUT" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER"; rm -rf "$FAKE_ROOT"' EXIT
+
+git status --porcelain > "$PORCELAIN_BEFORE"
 
 echo "=== Phase 18 capture model (non-mutating) ==="
 
@@ -180,6 +195,118 @@ if [[ "$MAP_PRESENT" -eq 1 && "$GEN_PRESENT" -eq 1 ]]; then
   fi
 else
   info "3a skipped: the map or the generator is unavailable"
+fi
+
+# =============================================================================
+# Section 3b / CAP-03 -- determinism. A flaky gate gets ignored, and ignoring it
+# discards the real pin-bump signal along with the noise (RESEARCH F-3).
+# =============================================================================
+echo "=== Section 3b / CAP-03: two consecutive generator runs are byte-identical ==="
+
+if [[ "$GEN_PRESENT" -eq 1 ]]; then
+  if "$GEN" > "$DET_OUT_1" && "$GEN" > "$DET_OUT_2"; then
+    if cmp -s "$DET_OUT_1" "$DET_OUT_2"; then
+      pass "3b two consecutive runs of $GEN produce byte-identical output"
+    else
+      fail "3b two consecutive runs of $GEN differ -- the row order is not deterministic"
+      diff -u "$DET_OUT_1" "$DET_OUT_2" || true
+      echo "       GNU find returns readdir order; the generator must emit through LC_ALL=C sort." >&2
+    fi
+  else
+    fail "3b $GEN exited non-zero during the determinism check; see its own [FAIL] output above"
+  fi
+else
+  info "3b skipped: the generator is unavailable"
+fi
+
+# =============================================================================
+# Section 3c / CAP-03 -- simulated pin bump (D-55). A fake source tree with one
+# primitive changed must produce a different map. This proves the generator
+# reacts to upstream, not merely that a diff can be produced. The real submodule
+# is never touched.
+# =============================================================================
+echo "=== Section 3c / CAP-03: a changed upstream primitive changes the map ==="
+
+if [[ "$MAP_PRESENT" -eq 1 && "$GEN_PRESENT" -eq 1 ]]; then
+  mkdir -p "$FAKE_ROOT/dots/.config/fakedir" \
+           "$FAKE_ROOT/dots/.local/share/konsole" \
+           "$FAKE_ROOT/sdata/subcmd-install"
+  : > "$FAKE_ROOT/dots/.config/fakedir/settings.conf"
+  : > "$FAKE_ROOT/dots/.config/fakefile.conf"
+  : > "$FAKE_ROOT/dots/.local/share/konsole/fake.profile"
+
+  # The hypr/custom call site below uses install_dir__sync where the real one at
+  # 3.files-legacy.sh:75 uses install_dir__ignore_existing -- the one changed
+  # primitive. Everything else is shaped like upstream so the generator parses it.
+  cat > "$FAKE_ROOT/sdata/subcmd-install/3.files-legacy.sh" <<'FAKE_LEGACY_EOF'
+# Fake dots-hyprland installer fragment. Fixture only.
+for i in $(find dots/.config/ -mindepth 1 -maxdepth 1 ! -name 'quickshell' ! -name 'fish' ! -name 'hypr' ! -name 'fontconfig' -exec basename {} \;); do
+  if [ -d "dots/.config/$i" ];then install_dir__sync "dots/.config/$i" "$XDG_CONFIG_HOME/$i"
+  elif [ -f "dots/.config/$i" ];then install_file "dots/.config/$i" "$XDG_CONFIG_HOME/$i"
+  fi
+done
+install_dir "dots/.local/share/konsole" "${XDG_DATA_HOME}"/konsole
+install_dir__sync "dots/.config/hypr/custom" "${XDG_CONFIG_HOME}/hypr/custom"
+FAKE_LEGACY_EOF
+
+  if "$GEN" "$FAKE_ROOT" > "$FAKE_OUT"; then
+    if diff -q "$MAP" "$FAKE_OUT" > /dev/null 2>&1; then
+      fail "3c a source tree with install_dir__ignore_existing swapped for install_dir__sync produced a map identical to $MAP"
+      echo "       The generator is not reading upstream; the regenerate-and-diff signal is void." >&2
+    else
+      pass "3c a source tree with one primitive changed produces a map that differs from $MAP"
+    fi
+    SWAPPED_ROW="$(awk -F'\t' '$1=="$XDG_CONFIG_HOME/hypr/custom"' "$FAKE_OUT" || true)"
+    if [[ "$SWAPPED_ROW" == *"install_dir__sync"*"restow"* ]]; then
+      pass "3c the swapped hypr/custom call site is read from the source tree and re-derives tree=restow"
+    else
+      fail "3c the swapped hypr/custom call site did not produce an install_dir__sync/restow row"
+      echo "       Got: ${SWAPPED_ROW:-<no row>}" >&2
+      echo "       The map would then differ for some unrelated reason, which is not the property D-55 claims." >&2
+    fi
+  else
+    fail "3c $GEN exited non-zero against the fake source root; see its own [FAIL] output above"
+  fi
+else
+  info "3c skipped: the map or the generator is unavailable"
+fi
+
+# =============================================================================
+# Named conditions this run cannot decide. [INFO] only -- neither moves the exit
+# code, and both exist so a green run is not read as saying more than it does.
+# =============================================================================
+echo "=== Named conditions (INFO only) ==="
+
+II_MARKER="${XDG_CONFIG_HOME:-$HOME/.config}/illogical-impulse/installed_true"
+if [[ -e "$II_MARKER" ]]; then
+  info "RESEARCH F-5: $II_MARKER exists, so install_file__auto_backup's DESTRUCTIVE branch is DISARMED on this host -- an install run today writes a .new sidecar and leaves hypridle.conf and hyprlock.conf intact. The map deliberately records the FIRSTRUN outcome (DESTROYED), which is one deleted marker or one --firstrun away. An empirical spot-check will contradict those rows; the rows are right and the observation is the disarmed branch. Do not 'correct' the map to match the host."
+else
+  info "RESEARCH F-5: $II_MARKER is ABSENT, so install_file__auto_backup's destructive firstrun branch is ARMED on this host -- the outcome the map records (DESTROYED) is the one an install run would take today."
+fi
+
+info "RESEARCH F-11: scripts/phase17-unblock-assert.sh still reports 'all 14 files holding a stow call site are present'. That sentence goes factually stale as this phase adds call sites, but the check counts its own 14-element SYNTAX_FILES list rather than the filesystem, so it stays green and is deliberately NOT edited (D-20): a closed assert must keep describing what its own phase verified. The current count lives in this phase's own asserts."
+
+# =============================================================================
+# Closing self-check -- this script mutates nothing it can see.
+# =============================================================================
+echo "=== Closing self-check: working tree unchanged ==="
+
+git status --porcelain > "$PORCELAIN_AFTER"
+if cmp -s "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER"; then
+  pass "self-check: git status --porcelain is identical before and after this run"
+else
+  fail "self-check: git status --porcelain changed during this run -- something here mutated the working tree"
+  diff -u "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" || true
+fi
+FIXTURE_LEAK=0
+for FIXTURE in "$REGEN_OUT" "$DET_OUT_1" "$DET_OUT_2" "$FAKE_OUT" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" "$FAKE_ROOT"; do
+  if grep -q -F -- "$(basename "$FIXTURE")" "$PORCELAIN_AFTER"; then
+    fail "self-check: git status names a path this script created: $FIXTURE"
+    FIXTURE_LEAK=$((FIXTURE_LEAK + 1))
+  fi
+done
+if [[ "$FIXTURE_LEAK" -eq 0 ]]; then
+  pass "self-check: git status names no fixture path this script created (all fixtures live outside the repo and are removed by the EXIT trap)"
 fi
 
 echo "=== done: FAIL=${FAIL} FINDINGS=${FINDINGS} ==="
