@@ -5,16 +5,16 @@ milestone_name: Personal config layer
 current_phase: 18
 current_phase_name: Capture model — three trees and the collision map
 status: executing
-stopped_at: Completed 18-03-PLAN.md
-last_updated: "2026-09-13T19:07:06.165Z"
+stopped_at: Completed 18-04-PLAN.md
+last_updated: "2026-09-13T19:09:44.509Z"
 last_activity: 2026-09-13
 last_activity_desc: Phase 18 execution started
-state_head: 17a72e77cba9f2957a9ddf34f24732e97f5bf91b
+state_head: 2f1d30d35248e6f01a87c840b1228a10a98e7c23
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 18
-  completed_plans: 10
+  completed_plans: 11
   percent: 14
 ---
 
@@ -25,15 +25,15 @@ Total Phases: 7 (Phases 17-23)
 ## Current Position
 
 Phase: 18 (Capture model — three trees and the collision map) — EXECUTING
-Plan: 4 of 11
+Plan: 5 of 11
 Status: Ready to execute
 Progress: [█░░░░░░░░░] 14%
 Last activity: 2026-09-13 — Phase 18 execution started
 
 ## Session
 
-**Last session:** 2026-09-13T19:07:05.756Z
-**Stopped at:** Completed 18-03-PLAN.md
+**Last session:** 2026-09-13T19:09:44.104Z
+**Stopped at:** Completed 18-04-PLAN.md
 **Resume file:** None
 **Next command:** `/gsd-plan-phase 18`
 
@@ -158,6 +158,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 | Phase 18 P01 | 12 min | 3 tasks | 4 files |
 | Phase 18 P02 | 8 min | 3 tasks | 5 files |
 | Phase 18 P03 | 7 min | 3 tasks | 3 files |
+| Phase 18 P04 | 8 min | 3 tasks | 7 files |
 
 ## Decisions
 
@@ -208,3 +209,4 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 18]: 18-01: a call site whose source argument lives under dots-extra/ is skipped as a flag-reached alternate, and both such sites are named in the map header as coverage gaps — Excluding 3.files-legacy.sh:42 (--fontset) and :66 (--via-nix) by line number would rot at the next pin bump; the source-path rule survives it and covers the D-32 accepted risk mechanically.
 - [Phase 18]: 18-02: tree contracts established; stow and restow membership predicates match collision-map.tsv derived outcomes, capture/ membership is hand-assigned prose — Location alone decides how a file is captured (CAP-01)
 - [Phase 18]: 18-03: wrapper main() prologue refuses --exp-files with exit 2 and names collision-map.tsv — Experimental files path uses disjoint write primitives that would void every row of collision-map.tsv (CAP-08)
+- [Phase 18]: 18-04: config redistribution table committed; hyprland.conf archived in docs/archive/ and KDE configs moved to restow/ with live state adopted — Every file leaving repo-root .config is accounted for with independently revertible commits per disposition (FIX-03)
