@@ -87,7 +87,7 @@ fi
 # --no-folding) at every site is what makes a single literal count a complete
 # audit of all 15 sites. arch/hyprland.sh holds two of them.
 PAIR_COUNT="$(grep -ho -- '--verbose=5 --no-folding' arch/*.sh | wc -l || true)"
-if [[ "$PAIR_COUNT" -eq 15 ]]; then
+if [[ "$PAIR_COUNT" -eq 18 ]]; then # 18 sites: +starship (D-08), +qbittorrent/+scrutiny (D-19)
   pass "1b all 15 arch/ stow call sites carry the literal --verbose=5 --no-folding"
 else
   fail "1b expected 15 arch/ sites carrying --verbose=5 --no-folding, counted $PAIR_COUNT"

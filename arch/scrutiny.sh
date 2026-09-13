@@ -40,3 +40,6 @@ echo "Collecting initial metrics..."
 docker exec scrutiny /opt/scrutiny/bin/scrutiny-collector-metrics run
 
 echo "Done. Dashboard: http://localhost:9090"
+
+echo "[CONFIG] smartmontools"
+cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow --verbose=5 --no-folding -t ~ smartmontools
