@@ -109,6 +109,73 @@ else
 fi
 
 # =============================================================================
+# Section 1 / CAP-01 -- the three capture trees and their contracts (D-11, D-12)
+# =============================================================================
+echo "=== Section 1 / CAP-01: the three capture trees and their contracts ==="
+
+for T in stow restow capture; do
+  if [[ -d "$T" ]]; then
+    pass "1a directory $T/ exists"
+  else
+    fail "1a directory $T/ is missing"
+  fi
+done
+
+for T in stow restow capture; do
+  README="$T/README.md"
+  if [[ -f "$README" ]]; then
+    pass "1b $README exists"
+
+    if grep -q -i -- 'contract' "$README"; then
+      pass "1b $README states its contract"
+    else
+      fail "1b $README does not state its contract (missing 'contract')"
+    fi
+
+    if grep -q -E -- '(stow --verbose=5 --no-folding|dots-hyprland\.sh capture)' "$README"; then
+      pass "1b $README states its exact recovery or refresh command"
+    else
+      fail "1b $README does not state its exact recovery command"
+    fi
+
+    if grep -q -i -- 'membership' "$README"; then
+      pass "1b $README states its membership rule"
+    else
+      fail "1b $README does not state its membership rule (missing 'membership')"
+    fi
+  else
+    fail "1b $README is missing"
+  fi
+done
+
+if [[ -f capture/README.md ]]; then
+  if grep -q -i -- 'hand-assigned' capture/README.md; then
+    pass "1c capture/README.md states the hand-assigned membership rule in prose (D-05)"
+  else
+    fail "1c capture/README.md does not describe membership as hand-assigned prose (D-05)"
+  fi
+fi
+
+for T in stow restow; do
+  README="$T/README.md"
+  if [[ -f "$README" ]]; then
+    if grep -q -i -E -- '(only two|no third tree)' "$README"; then
+      pass "1d $README acknowledges that only two derived trees exist in the collision map"
+    else
+      fail "1d $README claims or allows a third value in collision-map.tsv tree column"
+    fi
+  fi
+done
+
+if [[ -d docs/archive && -f docs/archive/README.md ]]; then
+  pass "1e docs/archive/README.md exists with its retirement contract"
+else
+  fail "1e docs/archive/ or docs/archive/README.md is missing"
+fi
+
+info "1f restow/ package tag table check arrives with the generated table in plan 18-10"
+
+# =============================================================================
 # Section 2 / CAP-02 -- the map is present, pinned, and internally coherent
 # =============================================================================
 echo "=== Section 2 / CAP-02: collision-map.tsv coverage and coherence ==="
@@ -269,6 +336,53 @@ FAKE_LEGACY_EOF
   fi
 else
   info "3c skipped: the map or the generator is unavailable"
+fi
+
+# =============================================================================
+# Section 5 / CAP-07 -- the banned stow flag is absent and documented
+# =============================================================================
+echo "=== Section 5 / CAP-07: the banned stow flag is absent and documented ==="
+
+ARCH_SH_COUNT="$(find arch -maxdepth 1 -type f -name '*.sh' | wc -l || true)"
+SCRIPTS_SH_COUNT="$(find scripts -maxdepth 1 -type f -name '*.sh' | wc -l || true)"
+
+if [[ -d arch && "$ARCH_SH_COUNT" -gt 0 ]]; then
+  pass "5 guard: arch/ exists and holds $ARCH_SH_COUNT *.sh files (the ban below cannot pass vacuously)"
+else
+  fail "5 guard: arch/ is missing or holds no *.sh file -- the ban-grep would pass over nothing"
+fi
+
+if [[ -d scripts && "$SCRIPTS_SH_COUNT" -gt 0 ]]; then
+  pass "5 guard: scripts/ exists and holds $SCRIPTS_SH_COUNT *.sh files (the ban below cannot pass vacuously)"
+else
+  fail "5 guard: scripts/ is missing or holds no *.sh file -- the ban-grep would pass over nothing"
+fi
+
+# The ban itself: recursive grep over arch/ and scripts/ for --adopt.
+# scripts/phase18-capture-model-assert.sh is excluded by name: its own grep
+# pattern is a quoted literal living under scripts/, so an unexcluded ban would
+# count the policeman as the offender (RESEARCH F-9 trap 1).
+ADOPT_HITS="$(grep -rn -F --exclude="phase18-capture-model-assert.sh" -- "--adopt" arch scripts 2>/dev/null || true)"
+if [[ -z "$ADOPT_HITS" ]]; then
+  pass "5a the banned stow flag (--adopt) appears in no script under arch/ or scripts/ (excluding assert pattern)"
+else
+  fail "5a the banned stow flag (--adopt) was found in script(s):"
+  echo "$ADOPT_HITS" | sed 's/^/       /' >&2
+fi
+
+if [[ -f stow/README.md ]]; then
+  HAS_ADOPT_DOC="$(grep -c -F -- "--adopt" stow/README.md || true)"
+  HAS_INTERACTIVE="$(grep -c -i -- "interactive" stow/README.md || true)"
+  HAS_CLEAN_TREE="$(grep -c -i -- "clean tree" stow/README.md || true)"
+  HAS_ONE_PATH="$(grep -c -i -- "one path at a time" stow/README.md || true)"
+
+  if [[ "$HAS_ADOPT_DOC" -gt 0 && "$HAS_INTERACTIVE" -gt 0 && "$HAS_CLEAN_TREE" -gt 0 && "$HAS_ONE_PATH" -gt 0 ]]; then
+    pass "5b stow/README.md documents the --adopt ban and all three exception terms (interactive, clean tree, one path at a time)"
+  else
+    fail "5b stow/README.md missing --adopt documentation or one of the three exception terms (adopt=$HAS_ADOPT_DOC interactive=$HAS_INTERACTIVE clean_tree=$HAS_CLEAN_TREE one_path=$HAS_ONE_PATH)"
+  fi
+else
+  fail "5b stow/README.md is missing -- cannot verify --adopt ban documentation"
 fi
 
 # =============================================================================
