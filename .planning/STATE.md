@@ -5,16 +5,16 @@ milestone_name: Personal config layer
 current_phase: 17
 current_phase_name: Unblock stow and restore the session target
 status: executing
-stopped_at: Completed 17-03-PLAN.md
-last_updated: "2026-09-12T15:50:29.812Z"
-last_activity: 2026-09-12
-last_activity_desc: Phase 17 execution — 17-03 complete
-state_head: 517f722b029cd4ad9432ab9357244e7aba5c22fb
+stopped_at: "Phase 17 wave 6/7 complete — 17-06 done, next wave 7 (17-07, autonomous: false, live run)"
+last_updated: "2026-09-13T11:08:54.643Z"
+last_activity: 2026-09-13
+last_activity_desc: Phase 17 execution — 17-06 complete, wave 7 pending operator decision
+state_head: 4599a86b0622fbbf1200e51f588fcc44921387b3
 progress:
   total_phases: 7
   completed_phases: 0
   total_plans: 7
-  completed_plans: 3
+  completed_plans: 6
   percent: 0
 ---
 
@@ -25,15 +25,15 @@ Total Phases: 7 (Phases 17-23)
 ## Current Position
 
 Phase: 17 (Unblock stow and restore the session target) — EXECUTING
-Plan: 4 of 7
+Plan: 7 of 7
 Status: Ready to execute
 Progress: [░░░░░░░░░░] 0%
-Last activity: 2026-09-12 — Phase 17 execution started
+Last activity: 2026-09-13 — Phase 17 execution, 17-06 complete, wave 7 pending operator decision
 
 ## Session
 
 **Last session:** 2026-09-12T14:26:43.983Z
-**Stopped at:** Completed 17-03-PLAN.md
+**Stopped at:** Phase 17 wave 6/7 complete — 17-06 done, next wave 7 (17-07, autonomous: false, live run)
 **Resume file:** None
 **Next command:** `/gsd-plan-phase 17`
 

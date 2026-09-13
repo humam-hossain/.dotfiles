@@ -88,7 +88,7 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 
 **Verification risk:** Criterion 5 needs one operator re-login; an agent cannot end the session. Criterion 2 runs a real install script against the live session — run it after criterion 1 lands, never before.
 **Known hand-sync window:** START-02 edits `custom/execs.lua` in *both* the repo and the live tree, because `stow/hypr/` does not exist yet. That duplication is closed by FIX-03 (Phase 18) and HYPR-01 (Phase 20); until then the two copies must be diffed by hand.
-**Plans:** 3/7 plans executed in 7 sequential waves — every plan grows `scripts/phase17-unblock-assert.sh`, so none can run in parallel, and the ordering encodes the two hard sequencing constraints (criterion 2 strictly after criterion 1; the `.env` triage before any FIX-06 work).
+**Plans:** 6/7 plans executed in 7 sequential waves — every plan grows `scripts/phase17-unblock-assert.sh`, so none can run in parallel, and the ordering encodes the two hard sequencing constraints (criterion 2 strictly after criterion 1; the `.env` triage before any FIX-06 work).
 
 Plans:
 **Wave 1**
@@ -105,15 +105,15 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 17-04-PLAN.md — gitleaks installed from Arch `extra`, history and working-tree scans, per-finding triage
+- [x] 17-04-PLAN.md — gitleaks installed from Arch `extra`, history and working-tree scans, per-finding triage
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 17-05-PLAN.md — `graphical-session.target` restored from `custom/execs.lua`, the `disable` footgun documented, Phase 18 handoff rows
+- [x] 17-05-PLAN.md — `graphical-session.target` restored from `custom/execs.lua`, the `disable` footgun documented, Phase 18 handoff rows
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 17-06-PLAN.md — `arch/hyprland.sh` pre-adopt restore deleted and attributed to Phase 20, static half of criterion 2 asserted
+- [x] 17-06-PLAN.md — `arch/hyprland.sh` pre-adopt restore deleted and attributed to Phase 20, static half of criterion 2 asserted
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
@@ -241,7 +241,7 @@ Plans:
 | 14. Live full adopt & verify | v0.3 | 2/2 | Complete | 2026-09-05 |
 | 15. Playbook safe vs full | v0.3 | 6/6 | Complete | 2026-09-06 |
 | 16. Retire the safe profile | v0.3 | 10/10 | Complete | 2026-09-08 |
-| 17. Unblock stow and restore the session target | v0.4 | 3/7 | In Progress|  |
+| 17. Unblock stow and restore the session target | v0.4 | 6/7 | In Progress|  |
 | 18. Capture model — three trees and the collision map | v0.4 | 0/? | Not started | - |
 | 19. Link-aware `verify` | v0.4 | 0/? | Not started | - |
 | 20. hypr/custom overlays and startup restore | v0.4 | 0/? | Not started | - |
