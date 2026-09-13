@@ -17,6 +17,12 @@
 #   - The D-02 folding audit is read-only and reports [INFO] only. This phase
 #     records the already-folded directories and hands them to Phase 18; it
 #     never unfolds one.
+#   - Criteria 5 and 6 query the systemd user manager with is-enabled, is-active
+#     and show only. Those three are read-only. The four mutating verbs appear in
+#     this file solely as quoted grep patterns and inside quoted messages, never
+#     in command position -- see the criterion 5 header for how the ban-grep
+#     tells the two apart. The one mutating proof of the mechanism was run by
+#     hand once during plan 17-05 and lives nowhere in this file, under no flag.
 #   - Contract (D-20): three prefixes [PASS] [FAIL] [INFO], ONE counter FAIL,
 #     closing line `=== done: FAIL=n ===`. The sibling phase14-verify.sh uses a
 #     different contract (a second counter and a fourth prefix); it is not
@@ -555,6 +561,221 @@ if [[ -f .gitleaks.toml ]]; then
   fi
 else
   info "4d: .gitleaks.toml does not exist, so zero findings were accepted and there is no allowlist to check. This is [INFO] and not [PASS] — nothing was verified."
+fi
+
+# =============================================================================
+# criterion 5 / START-02 — the session bootstrap. Sections 5a, 5b, 5c, 5e.
+#
+# The claim has five sub-parts. Four are checkable now: the command literal is
+# in the authoring copy (5a), the authoring and applied copies are byte-
+# identical (5b), the unit is in state linked rather than enabled (5c), and the
+# mechanism itself works (5d). 5d is NOT here on purpose — see below. 5e, that
+# the target is actually up, is an observation only a real login can make.
+#
+# NON-MUTATING, and this is the section where that guarantee is least obvious.
+# 5a and 6a are REQUIRED to carry the literal strings that name the two mutating
+# verbs, as quoted arguments to grep, because those literals are exactly what
+# they search for. So the words do appear in this file. What must never appear
+# is any of the four in COMMAND position, where the shell would run it. The
+# plan ban-grep strips quoted strings and comments before counting, which is
+# what separates a search pattern from a call site; a whole-file count would be
+# at least 2 by construction and would fail on a correct script. Every systemd
+# query below is read-only: is-enabled, is-active, show.
+#
+# 5d — start the unit, watch the target come up, stop it again — was run ONCE BY
+# HAND during plan 17-05 task 1 and is deliberately absent here under any flag.
+# Re-proving it on every run would cost this script its non-mutating guarantee,
+# and it would also leave the target hand-started, which is the exact false
+# green 5e exists to avoid.
+# =============================================================================
+echo "=== Phase 17 criterion 5 / START-02 session bootstrap (5a, 5b, 5c, 5e) ==="
+
+OVERLAY_REPO=".config/hypr/custom/execs.lua"
+OVERLAY_LIVE="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/custom/execs.lua"
+
+# --- 5a guard: the authoring copy exists and actually holds something --------
+# `-s` alone is not enough here, and the reason is this file specifically: until
+# plan 17-05 wrote it, it was one byte holding a single newline. That passes
+# `-s` while holding nothing, so the guard would have been green over an empty
+# overlay. Count non-empty LINES instead. Without the guard, a deleted file and
+# a wrongly-edited file both surface as the same content failure below.
+OVERLAY_LINES="$(grep -c . "$OVERLAY_REPO" 2>/dev/null || true)"
+if [[ -f "$OVERLAY_REPO" && "${OVERLAY_LINES:-0}" -gt 0 ]]; then
+  pass "5a guard: $OVERLAY_REPO exists and holds $OVERLAY_LINES non-empty line(s) — the literal grep below cannot pass or fail vacuously"
+else
+  fail "5a guard: $OVERLAY_REPO is missing, or holds no non-empty line — a fixed-string grep over it would report absence for the wrong reason"
+  ls -la "$OVERLAY_REPO" 2>&1 || true
+fi
+
+# --- 5a / D-22: the command literal is present in the AUTHORING copy ---------
+# Asserted against the repo copy, not the live one: the repo copy is the
+# authoring source of truth (D-18) and the live copy is produced from it by one
+# cp. 5b below cannot substitute for this — a byte comparison passes happily
+# when both copies are equally wrong, so a partial edit propagated by the apply
+# hop would satisfy cmp and break the session bootstrap at the same time.
+# -F, fixed string: the literal carries no regex metacharacter today, and -F
+# keeps that true if one is ever added to the spelling.
+if [[ "${OVERLAY_LINES:-0}" -gt 0 ]] && grep -Fq 'systemctl --user start hyprland-session.service' "$OVERLAY_REPO"; then
+  pass "5a $OVERLAY_REPO carries the session-bootstrap command literal (D-22 grep gate)"
+else
+  fail "5a $OVERLAY_REPO does not carry the literal 'systemctl --user start hyprland-session.service' — the startup entry is absent, or was edited into a different spelling"
+  cat -A "$OVERLAY_REPO" 2>&1 | head -30 || true
+fi
+
+# --- 5b / D-22: authoring copy and applied copy are byte-identical -----------
+# Scoped to this ONE file deliberately. The live custom/ directory legitimately
+# holds four files the repo copy does not — upstream seeds keybinds.lua,
+# rules.lua, variables.lua and a scripts/ directory there, and the named-files
+# apply leaves every one alone — so widening this to a directory comparison
+# would go red on a difference this phase does not own.
+# The window being watched is real and temporary: stow/hypr/ does not exist
+# until Phase 20, so the two copies are hand-synced by one cp until HYPR-01
+# lands. 17-HANDOFF.md row 3 is what closes it; this check is what holds the
+# line until then, and it survives into Phase 18 as the drift probe.
+if [[ ! -f "$OVERLAY_LIVE" ]]; then
+  fail "5b the applied copy is missing at $OVERLAY_LIVE — the apply hop was never run, or something removed it"
+elif cmp -s "$OVERLAY_REPO" "$OVERLAY_LIVE"; then
+  pass "5b the authoring copy and the applied copy of custom/execs.lua are byte-identical (cmp -s), so the hand-sync window is closed"
+else
+  fail "5b $OVERLAY_REPO and $OVERLAY_LIVE have DIVERGED — re-apply with cp from the authoring copy, and commit the authoring copy if the live one is the newer"
+  diff "$OVERLAY_REPO" "$OVERLAY_LIVE" 2>&1 | head -30 || true
+fi
+
+# --- 5c / D-17: the unit is in state `linked`, never `enabled` ---------------
+# Compare the printed STRING, never the exit status. `is-enabled` prints
+# `linked` and exits 1 for a unit whose only presence in the user unit directory
+# is a symlink — which is exactly the correct state here — so a status-based
+# assertion reports the precise opposite of the truth. The `|| true` inside the
+# substitution is load-bearing for the same reason: under this script `set -euo
+# pipefail`, an unguarded substitution returning 1 aborts the whole run before
+# the word can be read at all.
+UNIT_STATE="$(systemctl --user is-enabled hyprland-session.service 2>/dev/null || true)"
+case "$UNIT_STATE" in
+  linked)
+    pass "5c hyprland-session.service is in state 'linked' — stow symlink present, unit never enabled (D-17), so the START-03 footgun stays out of reach"
+    ;;
+  enabled|enabled-runtime|linked-runtime)
+    fail "5c hyprland-session.service is in state '$UNIT_STATE', expected 'linked' — enabling creates wants-directory entries and is precisely the state in which the START-03 footgun bites"
+    ;;
+  not-found)
+    fail "5c hyprland-session.service is 'not-found' — the stow symlink in the user unit directory is gone. Recovery is the re-stow plus daemon-reload block in docs/dots-hyprland-workflow.md section 8"
+    ;;
+  "")
+    fail "5c 'systemctl --user is-enabled hyprland-session.service' printed nothing — the systemd user manager did not answer, so the state is unknown rather than wrong"
+    ;;
+  *)
+    fail "5c hyprland-session.service is in state '$UNIT_STATE', expected 'linked'"
+    ;;
+esac
+
+# --- 5e / D-23: the session target, reported [INFO] when inactive ------------
+# Never [FAIL]. The target comes up at LOGIN, from the overlay entry 5a asserts,
+# and no agent can end the operator session — so a red here would be permanently
+# red through no defect, which is worse than no check at all. The probe is the
+# one phase14-verify.sh already uses, kept verbatim; only the classification
+# changes, from that script finding() to info() here (D-23).
+#
+# The inactive branch distinguishes THREE states, which is the difference
+# between a pending operator step and a real regression.
+#
+# ActiveEnterTimestamp alone cannot do it, and the reason is worth writing down
+# because it silently inverts the verdict. Once this unit goes inactive it is
+# unreferenced, not enabled and jobless, so the systemd user manager garbage-
+# collects the unit object and every runtime property resets to empty — measured
+# on this machine immediately after plan 17-05 hand-proved the mechanism:
+# ActiveEnterTimestamp, ActiveExitTimestamp, InactiveEnterTimestamp and
+# StateChangeTimestamp were ALL empty seconds after a successful start and stop.
+# So an empty timestamp does not mean "never started". It means "not currently
+# loaded", which is the normal state and tells us nothing.
+#
+# The journal survives that collection and is the probe that actually
+# discriminates: 3 records for the unit this boot after the hand proof, 0 for a
+# unit that genuinely never ran this boot (measured against
+# plasma-plasmashell.service as the control). It is read-only.
+#
+# A POPULATED ActiveEnterTimestamp is still worth reading first, and it means
+# something sharper than the plan assumed: the unit is still LOADED and went
+# active this boot while the target is down. That is the genuinely broken state,
+# not a pending one.
+if systemctl --user is-active graphical-session.target >/dev/null 2>&1; then
+  pass "5e graphical-session.target is ACTIVE — the session bootstrap is up, so the xdg-desktop-portal ScreenCast path has the dependency it requires"
+else
+  SESSION_ENTERED="$(systemctl --user show hyprland-session.service -p ActiveEnterTimestamp --value 2>/dev/null || true)"
+  SESSION_LOGGED="$(journalctl --user -u hyprland-session.service -b --output=cat 2>/dev/null | wc -l || true)"
+  if [[ -n "$SESSION_ENTERED" ]]; then
+    info "5e graphical-session.target is inactive, but hyprland-session.service is still LOADED and went active this boot at $SESSION_ENTERED — the unit is up while the target it exists to pull up is down. That is not a pending re-login; check the unit Wants= line and the systemd user manager."
+  elif [[ "${SESSION_LOGGED:-0}" -gt 0 ]]; then
+    info "5e graphical-session.target is inactive, and hyprland-session.service is unloaded but DID run this boot ($SESSION_LOGGED journal record(s)) — it started and later stopped. Plan 17-05 ran exactly one hand proof of the mechanism and reverted it, which is the benign explanation on this machine; after a genuine operator re-login this line should read ACTIVE."
+  else
+    info "5e graphical-session.target is inactive, and hyprland-session.service has NEVER run this boot (no journal record for it). The required step is an operator re-login of the Hyprland session, which is what fires the custom/execs.lua entry. Pending, not broken."
+  fi
+fi
+
+# =============================================================================
+# criterion 6 / START-03 — the footgun is written down. Sections 6a, 6b, 6c.
+#
+# Three separate fixed-string checks rather than one alternation. A single
+# `grep -E 'a|b|c'` is satisfied by ANY one of the three, so a playbook that
+# named the footgun and forgot both the recovery and the safe alternative would
+# pass it — and a half-documented footgun is the one that gets someone. Each
+# claim gets its own line.
+#
+# NON-MUTATING. The mutating verb on the 6a line is a quoted search pattern
+# handed to grep; see the criterion 5 header for why that is unavoidable here
+# and how the ban-grep separates a pattern from a call site.
+# =============================================================================
+echo "=== Phase 17 criterion 6 / START-03 footgun documentation (6a, 6b, 6c) ==="
+
+PLAYBOOK="docs/dots-hyprland-workflow.md"
+
+# --- 6 guard: the playbook exists and is non-empty --------------------------
+# All three greps below exit 1 over a MISSING file exactly as they do over a
+# file that never mentions the footgun. Without this guard, deleting the
+# playbook outright would surface as three ordinary content failures, which
+# names the wrong defect and sends the reader to the wrong fix.
+PLAYBOOK_LINES="$(grep -c . "$PLAYBOOK" 2>/dev/null || true)"
+if [[ -f "$PLAYBOOK" && "${PLAYBOOK_LINES:-0}" -gt 0 ]]; then
+  pass "6 guard: $PLAYBOOK exists and holds $PLAYBOOK_LINES non-empty line(s) — none of the three checks below can pass or fail over a missing file"
+else
+  fail "6 guard: $PLAYBOOK is missing or empty — the three content checks below would all report absence for the wrong reason"
+  ls -la "$PLAYBOOK" 2>&1 || true
+fi
+
+# --- 6a: the footgun itself is named ----------------------------------------
+# The verb has to appear verbatim. A warning that says "do not disable this
+# unit" in prose is not findable by an operator who is about to type the command
+# and greps the playbook for it first.
+if [[ "${PLAYBOOK_LINES:-0}" -gt 0 ]] && grep -Fq 'systemctl --user disable' "$PLAYBOOK"; then
+  pass "6a $PLAYBOOK names the footgun verb verbatim (START-03)"
+else
+  fail "6a $PLAYBOOK does not name the footgun verb verbatim — an operator grepping the playbook for the command before running it would find nothing"
+fi
+
+# --- 6b: the recovery, both halves of it ------------------------------------
+# Two literals, because the recovery is two commands and either alone leaves the
+# operator stuck: the re-stow puts the symlink back, and the daemon-reload is
+# what makes the user manager notice. The re-stow literal also pins the flag
+# pair landed in plan 17-01 — a recovery command documented with the invalid
+# short-verbosity spelling would be copy-pasteable and would exit 1.
+RECOVERY_STOW=0
+RECOVERY_RELOAD=0
+if grep -Fq 'stow --verbose=5 --no-folding -t ~ systemd' "$PLAYBOOK" 2>/dev/null; then RECOVERY_STOW=1; fi
+if grep -Fq 'systemctl --user daemon-reload' "$PLAYBOOK" 2>/dev/null; then RECOVERY_RELOAD=1; fi
+if [[ "${PLAYBOOK_LINES:-0}" -gt 0 && "$RECOVERY_STOW" -eq 1 && "$RECOVERY_RELOAD" -eq 1 ]]; then
+  pass "6b $PLAYBOOK carries both halves of the recovery — the re-stow with the valid flag pair, and the daemon-reload that makes the manager notice"
+else
+  fail "6b $PLAYBOOK is missing a half of the recovery (re-stow literal present=$RECOVERY_STOW, daemon-reload present=$RECOVERY_RELOAD) — either half alone leaves the operator stuck"
+fi
+
+# --- 6c: the safe alternative -----------------------------------------------
+# Naming the footgun without naming what to use instead documents a prohibition
+# and not a practice. The operator still has a real need — keep the unit from
+# starting — and will reach for the dangerous verb unless the safe one is right
+# there beside it.
+if [[ "${PLAYBOOK_LINES:-0}" -gt 0 ]] && grep -Fq 'systemctl --user mask' "$PLAYBOOK"; then
+  pass "6c $PLAYBOOK names the safe alternative for a stow-managed unit, so the warning documents a practice rather than only a prohibition"
+else
+  fail "6c $PLAYBOOK does not name the safe alternative — the warning forbids a verb without offering the one that does the same job safely"
 fi
 
 # =============================================================================

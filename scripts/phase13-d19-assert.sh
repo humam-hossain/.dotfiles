@@ -148,10 +148,31 @@ else
   fail "env.lua exists with no Lua statements (test -f)"
 fi
 
-if no_lua_stmts "$EXECS"; then
-  pass "execs.lua exists with no Lua statements (test -f)"
+# execs.lua is NO LONGER an empty placeholder, and this assert was rewritten
+# rather than deleted when that changed. Phase 13 asserted the slot held no Lua
+# statement because at that point it held nothing and a stray statement would
+# have meant the apply had invented content. Phase 17 plan 17-05 authored the
+# session bootstrap into it under START-02, so the old spelling asserted the
+# exact absence of the thing a later requirement demands — a check that would
+# have had to be deleted to land the feature is a check that was testing the
+# wrong property. What survives, and is the property actually worth fencing, is
+# that the slot holds THAT ONE entry and nothing else: exactly one hl.exec_cmd,
+# and it is the session bootstrap. The six workspace-pinned autostarts belong to
+# START-01 in Phase 20 (D-15), so an early leak of one shows up here as a count
+# greater than 1 rather than silently riding along.
+EXECS_CMDS="$(grep -c 'hl\.exec_cmd' "$EXECS" 2>/dev/null || true)"
+if [ -f "$EXECS" ] \
+  && [ "${EXECS_CMDS:-0}" -eq 1 ] \
+  && grep -Fq 'systemctl --user start hyprland-session.service' "$EXECS"; then
+  pass "execs.lua holds exactly one hl.exec_cmd and it is the START-02 session bootstrap"
 else
-  fail "execs.lua exists with no Lua statements (test -f)"
+  fail "execs.lua should hold exactly the one START-02 session-bootstrap hl.exec_cmd (counted ${EXECS_CMDS:-0}) — a Phase 20 START-01 entry may have landed early, or the bootstrap line is gone"
+fi
+
+if luac -p "$EXECS" >/dev/null 2>&1; then
+  pass "luac -p $EXECS"
+else
+  fail "luac -p $EXECS"
 fi
 
 if grep -q 'cp -a' "$SOT" && grep -Eiq 'fail' "$SOT" && grep -Eiq 'warn' "$SOT" && grep -q 'rsync --delete' "$SOT"; then
