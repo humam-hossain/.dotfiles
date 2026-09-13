@@ -800,6 +800,24 @@ main() {
       ;;
   esac
 
+  # Refusal gate for --exp-files (D-30..D-33 / CAP-08).
+  # Sits in main() before the allowlist check so it covers install, install-files,
+  # uninstall and any subcommand added later. Only this one flag is refused (D-32):
+  # the nix, core and skip-family flags still route through 3.files-legacy.sh,
+  # keeping the collision map valid. The font-set flag (--fontset) is recorded as
+  # an accepted coverage gap in the map header rather than turned into a second refusal.
+  for _arg in "$@"; do
+    if [[ "$_arg" == "--exp-files" || "$_arg" == --exp-files=* ]]; then
+      echo "[FAIL] Refusing --exp-files." >&2
+      echo "[FAIL] It routes installation through sdata/subcmd-install/3.files-exp.sh," >&2
+      echo "[FAIL] which reads its destinations from 3.files-exp.yaml and uses a different" >&2
+      echo "[FAIL] set of write primitives (rsync -av --delete, rsync -av, cp -r, cp -r to" >&2
+      echo "[FAIL] .old.N / .new) from the ones collision-map.tsv was derived from." >&2
+      echo "[FAIL] Every row of collision-map.tsv would be void under this flag." >&2
+      exit 2
+    fi
+  done
+
   # 2) allowlist
   if ! is_allowlisted "$1"; then
     echo "[FAIL] Unknown or non-allowlisted subcommand: $1" >&2
