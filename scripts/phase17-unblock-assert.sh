@@ -146,6 +146,106 @@ for f in "${SYNTAX_FILES[@]}"; do
   fi
 done
 
+# =============================================================================
+# criterion 2 / FIX-02 — the Hyprland installer places no configuration.
+# Sections 2a, 2b, 2c.
+#
+# NON-MUTATING, and scoped by path rather than by tree. Every grep below names
+# arch/hyprland.sh explicitly and none of them recurses. That is not a style
+# preference: this script carries the banned literals as its own grep
+# arguments, so a ban run from the repository root would match the file that
+# implements the ban and report a defect in the wrong place, permanently.
+#
+# The section is bracketed by the two marker comments below, and they are
+# load-bearing rather than decorative. Plan 17-06's verify extracts the range
+# between them and asserts that the range carries no privileged or mutating
+# token, which is how the one-way live run is kept out of a script that has to
+# stay safe to run on every commit. The range is what makes that ban correct: a
+# whole-file ban would go red on section 4c's read-only `pacman -Qo` package
+# ownership query, which is plan 17-04's T-17-SC homonym mitigation and stays
+# exactly as 17-04 wrote it.
+#
+# What is deliberately NOT here: the end-to-end run of arch/hyprland.sh. It is
+# one-way, needs elevated privileges and mutates the live system. It belongs to
+# plan 17-07, behind that plan's checkpoint, and to no flag in this file.
+# =============================================================================
+# --- criterion 2: begin (FIX-02) ---
+echo "=== Phase 17 criterion 2 / FIX-02 installer configuration placement (2a, 2b, 2c) ==="
+
+# --- 2 guard: the input exists and actually holds something -----------------
+# Three bans in a row follow, and a ban is satisfied by an absent file. Renaming
+# arch/hyprland.sh, or emptying it, would turn all three green while proving
+# nothing whatsoever. Count non-empty LINES rather than testing -s: a file
+# holding a single newline is one byte and passes -s while holding nothing.
+HYPR_INSTALLER=arch/hyprland.sh
+HYPR_INSTALLER_LINES="$(grep -c . "$HYPR_INSTALLER" 2>/dev/null || true)"
+if [[ -f "$HYPR_INSTALLER" && "${HYPR_INSTALLER_LINES:-0}" -gt 0 ]]; then
+  pass "2 guard: $HYPR_INSTALLER exists and is non-empty ($HYPR_INSTALLER_LINES non-empty line(s)) — the three bans below observe a real file"
+else
+  fail "2 guard: $HYPR_INSTALLER is missing or empty — the three bans below would all pass over nothing"
+  ls -la "$HYPR_INSTALLER" 2>&1 || true
+fi
+
+# --- 2a: the pre-adopt configuration restore is gone, and stays gone --------
+# -F: fixed string. The stanza was two statements, and both are banned. The
+# copy is the defect itself — it writes the repository's pre-adopt Hyprland
+# tree over a live tree that was deliberately moved away from it at the Phase
+# 14 adopt, and it writes through symlinks. The directory creation existed only
+# to receive that copy, so leaving it behind would leave the landing pad for a
+# reintroduction. Both counts are reported so a failure names which returned.
+HYPR_COPY_HITS=0
+HYPR_MKDIR_HITS=0
+if [[ "${HYPR_INSTALLER_LINES:-0}" -gt 0 ]]; then
+  HYPR_COPY_HITS="$(grep -c -F -- 'cp -rf .config/hypr/' "$HYPR_INSTALLER" || true)"
+  HYPR_MKDIR_HITS="$(grep -c -F -- 'mkdir -p ~/.config/hypr' "$HYPR_INSTALLER" || true)"
+fi
+if [[ "${HYPR_INSTALLER_LINES:-0}" -eq 0 ]]; then
+  fail "2a cannot be evaluated: $HYPR_INSTALLER is missing or empty (see the guard above) — a ban over nothing is not a pass"
+elif [[ "$HYPR_COPY_HITS" -eq 0 && "$HYPR_MKDIR_HITS" -eq 0 ]]; then
+  pass "2a $HYPR_INSTALLER holds neither the recursive-force copy of the repo Hyprland tree nor the directory creation that received it (FIX-02)"
+else
+  fail "2a $HYPR_INSTALLER has the pre-adopt configuration restore back (copy hits=$HYPR_COPY_HITS, mkdir hits=$HYPR_MKDIR_HITS) — it would overwrite the live session tree the Phase 14 adopt moved away from"
+  grep -n -F -- 'cp -rf .config/hypr/' "$HYPR_INSTALLER" || true
+  grep -n -F -- 'mkdir -p ~/.config/hypr' "$HYPR_INSTALLER" || true
+fi
+
+# --- 2b: no working-directory-relative source path --------------------------
+# Anchored to line start or whitespace, which is the whole point of the
+# pattern. A configuration path written bare — `.config/...` as an argument —
+# resolves against whatever directory the script happens to be run from, so the
+# installer's behaviour depends on how it was invoked. A path anchored to the
+# home directory (`~/.config/...`, `$HOME/.config/...`) or to the script's own
+# location (`$REPO_ROOT/.config/...`) has the configuration component preceded
+# by a slash, not by whitespace, and is correct — so it must not false-positive
+# here or the ban would forbid the fix along with the defect.
+HYPR_RELATIVE_HITS=0
+if [[ "${HYPR_INSTALLER_LINES:-0}" -gt 0 ]]; then
+  HYPR_RELATIVE_HITS="$(grep -c -E '(^|[[:space:]])\.config/' "$HYPR_INSTALLER" || true)"
+fi
+if [[ "${HYPR_INSTALLER_LINES:-0}" -eq 0 ]]; then
+  fail "2b cannot be evaluated: $HYPR_INSTALLER is missing or empty (see the guard above)"
+elif [[ "$HYPR_RELATIVE_HITS" -eq 0 ]]; then
+  pass "2b $HYPR_INSTALLER resolves no configuration path relative to the working directory — every path it names is anchored to the home directory or to the script's own location (FIX-02)"
+else
+  fail "2b $HYPR_INSTALLER names $HYPR_RELATIVE_HITS working-directory-relative configuration path(s) — the script would behave differently depending on where it was invoked from"
+  grep -n -E '(^|[[:space:]])\.config/' "$HYPR_INSTALLER" || true
+fi
+
+# --- 2c: the gap the deletion leaves is attributed, not silent --------------
+# Anchored to a comment line, because the marker must produce no runtime output
+# — the surrounding stanzas label themselves with bracketed echoes that
+# describe work actually being done, and an echo here would announce a step
+# that does not happen. A bare presence check would accept exactly that.
+if [[ "${HYPR_INSTALLER_LINES:-0}" -eq 0 ]]; then
+  fail "2c cannot be evaluated: $HYPR_INSTALLER is missing or empty (see the guard above)"
+elif grep -q -E '^[[:space:]]*#.*HYPR-01' "$HYPR_INSTALLER"; then
+  pass "2c $HYPR_INSTALLER attributes Hyprland configuration placement to its owner — a comment naming HYPR-01, so the gap left by the deletion is accounted for rather than silent"
+else
+  fail "2c $HYPR_INSTALLER carries no comment naming HYPR-01 — the deleted configuration placement is an unattributed gap, and the next reader cannot tell it from an oversight"
+  grep -n -- 'HYPR-01' "$HYPR_INSTALLER" || true
+fi
+# --- criterion 2: end ---
+
 # --- criterion 3 / FIX-04 (D-21): safe_rm_path refuses every repo path -------
 # Three constraints, each from a verified trap in the function's own clause
 # ordering, and each one a way this section could pass while observing nothing:
