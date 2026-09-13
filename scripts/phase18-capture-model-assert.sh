@@ -64,8 +64,14 @@ FAKE_OUT="$(mktemp /tmp/p18-fakemap-XXXXXX)"
 PORCELAIN_BEFORE="$(mktemp /tmp/p18-porcelain-before-XXXXXX)"
 PORCELAIN_AFTER="$(mktemp /tmp/p18-porcelain-after-XXXXXX)"
 FAKE_ROOT="$(mktemp -d /tmp/p18-fakeroot-XXXXXX)"
-# shellcheck disable=SC2064
-trap 'rm -f "$REGEN_OUT" "$DET_OUT_1" "$DET_OUT_2" "$FAKE_OUT" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER"; rm -rf "$FAKE_ROOT"' EXIT
+cleanup() {
+  if [[ -e "$SUBMODULE/.git.aside" && ! -e "$SUBMODULE/.git" ]]; then
+    mv "$SUBMODULE/.git.aside" "$SUBMODULE/.git" 2>/dev/null || true
+  fi
+  rm -f "$REGEN_OUT" "$DET_OUT_1" "$DET_OUT_2" "$FAKE_OUT" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER"
+  rm -rf "$FAKE_ROOT"
+}
+trap cleanup EXIT
 
 git status --porcelain > "$PORCELAIN_BEFORE"
 
@@ -433,6 +439,62 @@ if [[ -f stow/README.md ]]; then
   fi
 else
   fail "5b stow/README.md is missing -- cannot verify --adopt ban documentation"
+fi
+
+# =============================================================================
+# Section 7a / ROADMAP criterion 7 -- wrapper-owned verify and capture dispatch
+# =============================================================================
+echo "=== Section 7a / ROADMAP criterion 7: wrapper-owned verify and capture dispatch ==="
+
+# 7a-1: Behavioural read of allowlist output on refusal of unknown subcommand
+NON_ALLOW_OUT="$(./arch/dots-hyprland.sh __nonexistent_subcmd__ 2>&1 || true)"
+if grep -q -w "verify" <<<"$NON_ALLOW_OUT" && grep -q -w "capture" <<<"$NON_ALLOW_OUT"; then
+  pass "7a allowlist refusal output contains both verify and capture"
+else
+  fail "7a allowlist refusal output missing verify or capture"
+  printf '%s\n' "$NON_ALLOW_OUT" | sed 's/^/       /' >&2
+fi
+
+# 7a-2: verify runs to a real exit code without reaching upstream setup
+VERIFY_RC=0
+VERIFY_OUT="$(./arch/dots-hyprland.sh verify 2>&1)" || VERIFY_RC=$?
+if grep -q -- "setup verify" <<<"$VERIFY_OUT" || grep -q '\./setup' <<<"$VERIFY_OUT"; then
+  fail "7a ./arch/dots-hyprland.sh verify reached upstream setup dispatch (catch-all reached)"
+  printf '%s\n' "$VERIFY_OUT" | sed 's/^/       /' >&2
+elif grep -q -- "non-allowlisted" <<<"$VERIFY_OUT"; then
+  fail "7a ./arch/dots-hyprland.sh verify was rejected as non-allowlisted"
+else
+  pass "7a ./arch/dots-hyprland.sh verify dispatched to wrapper handler (rc=$VERIFY_RC, never named ./setup)"
+fi
+
+# 7a-3: capture on empty tree exits 0 with explicit empty-tree message
+CAPTURE_RC=0
+CAPTURE_OUT="$(./arch/dots-hyprland.sh capture 2>&1)" || CAPTURE_RC=$?
+if [[ "$CAPTURE_RC" -eq 0 ]] && grep -q -i 'empty' <<<"$CAPTURE_OUT" && ! grep -q -- "setup capture" <<<"$CAPTURE_OUT" && ! grep -q '\./setup' <<<"$CAPTURE_OUT"; then
+  pass "7a ./arch/dots-hyprland.sh capture exits 0 with explicit empty-tree message on empty capture/ tree"
+else
+  fail "7a ./arch/dots-hyprland.sh capture failed (rc=$CAPTURE_RC) or missing empty-tree message or reached ./setup"
+  printf '%s\n' "$CAPTURE_OUT" | sed 's/^/       /' >&2
+fi
+
+# 7a-4: verify survives de-initialised submodule
+SUB_DIRTY="$(git -C "$SUBMODULE" status --porcelain 2>/dev/null || true)"
+if [[ -n "$SUB_DIRTY" ]]; then
+  fail "7a submodule $SUBMODULE is dirty -- skipping de-init test to prevent risking uncommitted work"
+elif [[ ! -e "$SUBMODULE/.git" ]]; then
+  fail "7a submodule $SUBMODULE/.git is missing before de-init test"
+else
+  mv "$SUBMODULE/.git" "$SUBMODULE/.git.aside"
+  DEINIT_RC=0
+  DEINIT_OUT="$(./arch/dots-hyprland.sh verify 2>&1)" || DEINIT_RC=$?
+  mv "$SUBMODULE/.git.aside" "$SUBMODULE/.git"
+
+  if grep -q -i 'submodule' <<<"$DEINIT_OUT" || grep -q 'missing .git' <<<"$DEINIT_OUT" || grep -q '\./setup' <<<"$DEINIT_OUT"; then
+    fail "7a verify with de-initialised submodule reported submodule error or reached ./setup"
+    printf '%s\n' "$DEINIT_OUT" | sed 's/^/       /' >&2
+  else
+    pass "7a verify runs to a real exit code (rc=$DEINIT_RC) with $SUBMODULE de-initialised (preflight never reached)"
+  fi
 fi
 
 # =============================================================================

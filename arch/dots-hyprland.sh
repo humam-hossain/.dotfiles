@@ -13,8 +13,8 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 II_ROOT="$REPO_ROOT/vendor/dots-hyprland"
 SETUP="$II_ROOT/setup"
 # D-04: full is the only install behavior; no residual flag injection.
-# install* → upstream ./setup; uninstall → the one wrapper-owned path (D-07)
-ALLOWLIST=(install install-deps install-setups install-files uninstall)
+# install* → upstream ./setup; uninstall, verify, capture → wrapper-owned paths (D-07, D-48, D-61)
+ALLOWLIST=(install install-deps install-setups install-files uninstall verify capture)
 
 # XDG defaults (match upstream environment-variables.sh)
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -29,6 +29,8 @@ arch/dots-hyprland.sh — thin wrapper for vendor/dots-hyprland/./setup
 Usage:
   arch/dots-hyprland.sh <install|install-deps|install-setups|install-files> [flags…]
   arch/dots-hyprland.sh uninstall [flags…]
+  arch/dots-hyprland.sh verify
+  arch/dots-hyprland.sh capture [--dry-run]
   arch/dots-hyprland.sh help|-h|--help
 
 What this wrapper does:
@@ -710,6 +712,280 @@ run_uninstall() {
   run_safe_uninstall "$dry_run" "$packages_only" "$configs_only" "$keep_venv"
 }
 
+get_main_repo_root() {
+  local common_dir
+  if common_dir="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)"; then
+    dirname "$common_dir"
+  else
+    printf '%s\n' "$REPO_ROOT"
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# run_verify (wrapper-owned)
+#
+# D-47: Neither run_verify nor run_capture calls preflight. This subcommand
+# reads only the repo's own trees (stow/, restow/, capture/) and the live
+# filesystem, never touches vendor/dots-hyprland, and runs to a real exit code
+# even when the vendored submodule is de-initialised.
+#
+# D-46: Order matters: link-ness is asserted BEFORE any content comparison.
+# D-53: Takes no arguments; always walks all three trees.
+# D-54: Missing live link is a [FAIL] naming recovery stow command.
+# D-50: For capture/ paths, expectation is inverted (symlink into repo is [FAIL]).
+# ---------------------------------------------------------------------------
+run_verify() {
+  local -a unknown=()
+  local arg
+  for arg in "$@"; do
+    case "$arg" in
+      -h|--help)
+        usage
+        exit 0
+        ;;
+      *)
+        unknown+=("$arg")
+        ;;
+    esac
+  done
+
+  if ((${#unknown[@]} > 0)); then
+    echo "[FAIL] Unknown verify flag(s): ${unknown[*]}" >&2
+    echo "[FAIL] See: ./arch/dots-hyprland.sh help" >&2
+    exit 1
+  fi
+
+  local fail_count=0
+  local finding_count=0
+  pass() { printf '[PASS] %s\n' "$1"; }
+  fail() { printf '[FAIL] %s\n' "$1"; fail_count=$((fail_count + 1)); }
+  finding() { printf '[FINDING] %s\n' "$1"; finding_count=$((finding_count + 1)); }
+  info() { printf '[INFO] %s\n' "$1"; }
+
+  local main_root
+  main_root="$(get_main_repo_root)"
+
+  # D-53: Always walks all three trees.
+  # Walks repo side only (RESEARCH P-8). Live sidecars are never visited.
+  local tree pkg_dir pkg file_path rel live canonical_repo
+  for tree in stow restow; do
+    local tree_dir="$REPO_ROOT/$tree"
+    [[ -d "$tree_dir" ]] || continue
+    for pkg_dir in "$tree_dir"/*; do
+      [[ -d "$pkg_dir" ]] || continue
+      pkg="$(basename "$pkg_dir")"
+      while IFS= read -r -d '' file_path; do
+        rel="${file_path#"$pkg_dir"/}"
+        live="$HOME/$rel"
+        canonical_repo="$main_root/$tree/$pkg/$rel"
+
+        # D-46 / D-54: Link-ness BEFORE content comparison.
+        # Single-machine repo assumption: every package is expected to be installed.
+        if [[ ! -e "$live" && ! -L "$live" ]]; then
+          fail "no live counterpart: $live — recover with: cd $tree && stow --verbose=5 --no-folding -t ~ $pkg"
+          continue
+        fi
+        if [[ ! -L "$live" ]]; then
+          fail "not a symlink: $live — recover with: cd $tree && stow --verbose=5 --no-folding -t ~ $pkg"
+          continue
+        fi
+
+        local live_target repo_target
+        live_target="$(readlink -f -- "$live" || true)"
+        repo_target="$(readlink -f -- "$canonical_repo" || true)"
+        if [[ "$live_target" != "$repo_target" ]]; then
+          fail "symlink points elsewhere: $live -> $live_target (expected $repo_target) — recover with: cd $tree && stow --verbose=5 --no-folding -t ~ $pkg"
+          continue
+        fi
+
+        pass "verified: $live -> $canonical_repo"
+      done < <(find "$pkg_dir" -type f -print0 | LC_ALL=C sort -z)
+    done
+  done
+
+  # D-50: capture/ tree check with inverted expectation.
+  local capture_dir="$REPO_ROOT/capture"
+  if [[ -d "$capture_dir" ]]; then
+    for pkg_dir in "$capture_dir"/*; do
+      [[ -d "$pkg_dir" ]] || continue
+      pkg="$(basename "$pkg_dir")"
+      while IFS= read -r -d '' file_path; do
+        rel="${file_path#"$pkg_dir"/}"
+        live="$HOME/$rel"
+        canonical_repo="$main_root/capture/$pkg/$rel"
+
+        if [[ -L "$live" ]]; then
+          local live_target
+          live_target="$(readlink -f -- "$live" || true)"
+          if [[ "$live_target" == "$main_root"/* || "$live_target" == "$REPO_ROOT"/* ]]; then
+            fail "live path is a symlink into repo: $live -> $live_target (wrongly stowed)"
+            continue
+          fi
+        fi
+
+        if [[ ! -e "$live" && ! -L "$live" ]]; then
+          finding "live counterpart does not exist: $live"
+          continue
+        fi
+
+        if ! cmp -s -- "$live" "$canonical_repo"; then
+          finding "content drift between live and repo: $live"
+        else
+          pass "capture path verified: $live"
+        fi
+      done < <(find "$pkg_dir" -type f -print0 | LC_ALL=C sort -z)
+    done
+  fi
+
+  echo "=== done: FAIL=$fail_count FINDINGS=$finding_count ==="
+  if ((fail_count > 0)); then
+    exit 1
+  fi
+  exit 0
+}
+
+# ---------------------------------------------------------------------------
+# run_capture (wrapper-owned)
+#
+# D-47: preflight is deliberately not called. This subcommand operates solely
+# on the repo's own trees and the live filesystem without vendor dependencies.
+#
+# D-43 / D-49 divergence: in scripts/phase14-verify.sh, findings never move
+# the exit code. In run_capture, a [FINDING] (such as a dirty, untracked, or
+# absent repo mirror, or a missing live file) DOES move the exit code: the run
+# exits non-zero if fail_count > 0 || finding_count > 0.
+#
+# D-38: Copies live to repo in working tree; never runs git add and never commits.
+# D-39: Resolved path guards for capture/ containment and live symlink refusal.
+# D-41: When capture/ is empty, exits 0 with an explicit empty-tree message.
+# D-42: Honours --dry-run.
+# ---------------------------------------------------------------------------
+run_capture() {
+  local dry_run=0
+  local -a unknown=()
+  local arg
+  for arg in "$@"; do
+    case "$arg" in
+      -h|--help)
+        usage
+        exit 0
+        ;;
+      --dry-run)
+        dry_run=1
+        ;;
+      *)
+        unknown+=("$arg")
+        ;;
+    esac
+  done
+
+  if ((${#unknown[@]} > 0)); then
+    echo "[FAIL] Unknown capture flag(s): ${unknown[*]}" >&2
+    echo "[FAIL] See: ./arch/dots-hyprland.sh help" >&2
+    exit 1
+  fi
+
+  local fail_count=0
+  local finding_count=0
+  pass() { printf '[PASS] %s\n' "$1"; }
+  fail() { printf '[FAIL] %s\n' "$1"; fail_count=$((fail_count + 1)); }
+  finding() { printf '[FINDING] %s\n' "$1"; finding_count=$((finding_count + 1)); }
+  info() { printf '[INFO] %s\n' "$1"; }
+
+  local capture_dir="$REPO_ROOT/capture"
+  local -a packages=()
+  if [[ -d "$capture_dir" ]]; then
+    for d in "$capture_dir"/*; do
+      [[ -d "$d" ]] && packages+=("$d")
+    done
+  fi
+
+  # D-41: Empty tree exits 0 with explicit message.
+  if ((${#packages[@]} == 0)); then
+    info "capture/ is empty, nothing to capture."
+    exit 0
+  fi
+
+  mirror_is_capturable() {
+    local p="$1"
+    if [[ ! -e "$p" ]]; then
+      finding "repo mirror does not exist: $p"
+      return 1
+    fi
+    if ! git ls-files --error-unmatch -- "$p" >/dev/null 2>&1; then
+      finding "repo mirror is untracked (no HEAD version to recover): $p"
+      return 1
+    fi
+    if ! git diff --quiet HEAD -- "$p"; then
+      finding "repo mirror is dirty against HEAD: $p"
+      return 1
+    fi
+    return 0
+  }
+
+  local pkg_dir pkg repo_file rel live
+  local capture_real
+  capture_real="$(realpath -m -- "$capture_dir")"
+  local main_root
+  main_root="$(get_main_repo_root)"
+
+  # D-38 / D-40: Walk repo side only; derive live paths from stow layout.
+  for pkg_dir in "${packages[@]}"; do
+    pkg="$(basename "$pkg_dir")"
+    while IFS= read -r -d '' repo_file; do
+      rel="${repo_file#"$pkg_dir"/}"
+      live="$HOME/$rel"
+
+      # D-39: Repo mirror must live under capture/ (resolved paths)
+      local repo_real
+      repo_real="$(realpath -m -- "$repo_file")"
+      if [[ "$repo_real" != "$capture_real"/* ]]; then
+        fail "repo mirror not under capture/: $repo_file"
+        continue
+      fi
+
+      # D-37 / RESEARCH F-8: Test repo mirror capturability (two-part test)
+      if ! mirror_is_capturable "$repo_file"; then
+        continue
+      fi
+
+      # D-39: Live path must not be a symlink resolving into the repo
+      if [[ -L "$live" ]]; then
+        local live_target
+        live_target="$(readlink -f -- "$live" || true)"
+        if [[ "$live_target" == "$main_root"/* || "$live_target" == "$REPO_ROOT"/* ]]; then
+          fail "refusing live path that is a symlink resolving into repo: $live -> $live_target"
+          continue
+        fi
+      fi
+
+      # D-43: Repo mirror whose live counterpart is missing
+      if [[ ! -e "$live" && ! -L "$live" ]]; then
+        finding "live counterpart missing: $live (repo copy kept intact)"
+        continue
+      fi
+
+      # Clean and capturable: copy live to repo mirror in working tree
+      # D-38: Never runs git add and never commits
+      if ((dry_run == 1)); then
+        info "dry-run: would copy $live -> $repo_file"
+      else
+        if cp -p -- "$live" "$repo_file"; then
+          pass "captured: $live -> $repo_file"
+        else
+          fail "failed to copy $live -> $repo_file"
+        fi
+      fi
+    done < <(find "$pkg_dir" -type f -print0 | LC_ALL=C sort -z)
+  done
+
+  echo "=== done: FAIL=$fail_count FINDINGS=$finding_count ==="
+  if ((fail_count > 0 || finding_count > 0)); then
+    exit 1
+  fi
+  exit 0
+}
+
 # D-06: the files-touching install paths are the only ones where upstream reads
 # the skip-backup flag (vendor/dots-hyprland/sdata/subcmd-install/3.files.sh:219),
 # so it is appended there and nowhere else.
@@ -832,6 +1108,12 @@ main() {
   case "$subcmd" in
     uninstall)
       run_uninstall "$@"
+      ;;
+    verify)
+      run_verify "$@"
+      ;;
+    capture)
+      run_capture "$@"
       ;;
     *)
       run_install_family "$subcmd" "$@"
