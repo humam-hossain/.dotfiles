@@ -41,6 +41,7 @@ install_plugin "zsh-autocomplete" "https://github.com/marlonrichert/zsh-autocomp
 # 4. Copy Configs
 echo "[CONFIG] copying .zshrc"
 cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow --verbose=5 --no-folding -t ~ zsh
+cd "$(dirname "${BASH_SOURCE[0]}")/../restow" && stow --verbose=5 --no-folding -t ~ starship
 
 # 5. Set Default Shell
 current_shell=$(basename "$SHELL")
