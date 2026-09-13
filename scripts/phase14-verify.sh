@@ -41,7 +41,7 @@ finding() { printf '[FINDING] %s\n' "$1"; FINDINGS=$((FINDINGS + 1)); }
 info() { printf '[INFO] %s\n' "$1"; }
 
 XDG="${XDG_CONFIG_HOME:-$HOME/.config}"
-BASELINE=".planning/phases/14-live-full-adopt-verify/14-PRE-ADOPT-BASELINE.txt"
+BASELINE=".planning/milestones/v0.3-phases/14-live-full-adopt-verify/14-PRE-ADOPT-BASELINE.txt"
 BACKUP_DIR="$HOME/ii-original-dots-backup"
 WRAP="./arch/dots-hyprland.sh"
 
@@ -207,13 +207,13 @@ fi
 # =============================================================================
 # ADOPT-03 — the Phase 13 overlay LOADED, not merely got copied
 #
-# Overlay-declared values below are cited from .config/hypr/custom/general.lua
+# Overlay-declared values below are cited from stow/hypr/.config/hypr/custom/general.lua
 # (the authoring source of truth, see 13-SOT-APPLY.md). The guard immediately
 # after re-reads that file so a drifted overlay is caught rather than silently
 # compared against a stale constant.
 # =============================================================================
 
-OVERLAY_GENERAL=".config/hypr/custom/general.lua"
+OVERLAY_GENERAL="stow/hypr/.config/hypr/custom/general.lua"
 HDMI_A2_SCALE_DECLARED="1.5"
 HDMI_A2_TRANSFORM_DECLARED="1"
 
@@ -285,7 +285,7 @@ if [[ "$HYPR_LIVE" -eq 1 ]]; then
     fail "ADOPT-03 hyprctl -j workspacerules did not return JSON even though an instance is live"
   fi
 fi
-# workspace -> monitor, verbatim from .config/hypr/custom/general.lua:17-27
+# workspace -> monitor, verbatim from stow/hypr/.config/hypr/custom/general.lua:17-27
 WS_EXPECT=(
   "1=DP-1" "2=DP-1" "3=DP-1" "4=DP-1" "5=DP-1" "special:social=DP-1"
   "6=HDMI-A-2" "7=HDMI-A-2" "8=HDMI-A-2" "9=HDMI-A-2" "10=HDMI-A-2"
@@ -354,7 +354,7 @@ UNINST_OUT="$(mktemp /tmp/p14-verify-uninst-XXXXXX)"
 # shellcheck disable=SC2064
 trap 'rm -f "$UNINST_OUT"' EXIT
 
-REPO_HYPRCONF=".config/hypr/hyprland.conf"
+REPO_HYPRCONF="docs/archive/hyprland.conf"
 
 # Presence is not identity. The record claims all three tier-1 sources carry the
 # pre-adopt sha256, so the instrument must hash them -- a `-s` test would keep
@@ -486,7 +486,7 @@ else
 fi
 
 LIVE_LAUNCHER="$XDG/hypr/hyprland/scripts/launch_first_available.sh"
-REPO_LAUNCHER=".config/hypr/hyprland/scripts/launch_first_available.sh"
+REPO_LAUNCHER="restow/hypr/.config/hypr/hyprland/scripts/launch_first_available.sh"
 if [[ ! -f "$LIVE_LAUNCHER" ]]; then
   info "D-38 known loss 'hyprland/scripts/launch_first_available.sh' CONFIRMED deleted from live; the personal copy is tracked at repo $REPO_LAUNCHER"
 elif cmp -s "$LIVE_LAUNCHER" "$REPO_LAUNCHER"; then

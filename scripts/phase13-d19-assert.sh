@@ -41,9 +41,9 @@ phase_artifact() {
 SOT="$(phase_artifact '13-personal-hypr-custom-overlays/13-SOT-APPLY.md')"
 PLAYBOOK="docs/dots-hyprland-workflow.md"
 DOC_SWEEP_16="$(phase_artifact '16-retire-the-safe-profile-full-only-wrapper-and-playbook/16-DOC-SWEEP.md')"
-GENERAL=".config/hypr/custom/general.lua"
-ENV=".config/hypr/custom/env.lua"
-EXECS=".config/hypr/custom/execs.lua"
+GENERAL="stow/hypr/.config/hypr/custom/general.lua"
+ENV="stow/hypr/.config/hypr/custom/env.lua"
+EXECS="stow/hypr/.config/hypr/custom/execs.lua"
 LIVE_CUSTOM="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/custom"
 
 echo "=== Phase 13 overlay D-19 / OVL asserts (non-mutating) ==="
@@ -82,7 +82,7 @@ PY
 # substitution is a no-op.
 SOT_LITERAL=".planning/phases/13-personal-hypr-custom-overlays/13-SOT-APPLY.md"
 FENCE="$(extract_fence "$SOT" '## In-repo verify (D-19)' \
-  | sed "s#${SOT_LITERAL}#${SOT}#g")"   # <- load-bearing rewrite, explained just above
+  | sed -e "s#${SOT_LITERAL}#${SOT}#g" -e 's#\.config/hypr/custom/#stow/hypr/.config/hypr/custom/#g')"   # <- load-bearing rewrite, explained just above
 if [ -z "$FENCE" ]; then
   fail "extract D-19 fence from $SOT"
 else
@@ -202,8 +202,8 @@ else
     fail "live $LIVE_CUSTOM present (phase 14 apply recorded)"
   fi
   for f in general.lua env.lua execs.lua; do
-    if [ -f ".config/hypr/custom/$f" ] && [ -f "$LIVE_CUSTOM/$f" ] \
-      && cmp -s ".config/hypr/custom/$f" "$LIVE_CUSTOM/$f"; then
+    if [ -f "stow/hypr/.config/hypr/custom/$f" ] && [ -f "$LIVE_CUSTOM/$f" ] \
+      && cmp -s "stow/hypr/.config/hypr/custom/$f" "$LIVE_CUSTOM/$f"; then
       pass "live custom/$f matches repo source"
     else
       fail "live custom/$f matches repo source"
@@ -214,9 +214,9 @@ else
   # print PASS for a condition never checked. What IS observable, and is the real
   # D-18 property, is that the repo never grew a copy to widen the fence with.
   for f in keybinds.lua rules.lua variables.lua; do
-    if [ ! -e ".config/hypr/custom/$f" ]; then
+    if [ ! -e "stow/hypr/.config/hypr/custom/$f" ]; then
       pass "repo has no custom/$f — D-18 fence cannot widen to it"
-    elif ! cmp -s ".config/hypr/custom/$f" "$LIVE_CUSTOM/$f"; then
+    elif ! cmp -s "stow/hypr/.config/hypr/custom/$f" "$LIVE_CUSTOM/$f"; then
       pass "repo custom/$f exists but live copy differs (not applied)"
     else
       fail "live custom/$f is byte-identical to a repo copy — D-18 fence widened past its named files"
@@ -224,7 +224,7 @@ else
   done
 fi
 
-if [ "$(realpath -m .config/hypr/custom)" != "$(realpath -m "$LIVE_CUSTOM")" ]; then
+if [ "$(realpath -m stow/hypr/.config/hypr/custom)" != "$(realpath -m "$LIVE_CUSTOM")" ]; then
   pass "worktree custom/ realpath != live custom"
 else
   fail "worktree custom/ realpath != live custom"
@@ -252,7 +252,7 @@ fi
 # time it was written, and no later plan may touch arch/dots-hyprland.sh without
 # re-pinning here.
 if [ -f "$PHASE17_ASSERT" ]; then
-  WRAPPER_BASE="b32faf6"   # fix(17-02): safe_rm_path refuses any target resolving inside the repo
+  WRAPPER_BASE="8497511"   # fix(18-05): capture model wrapper-owned subcommands
 elif [ -f "$DOC_SWEEP_16" ]; then
   WRAPPER_BASE="cfa63ad"   # fix(16): close C-01/H-01 from the phase 16 review
 elif [ -f "$LIVE_VERIFY" ]; then
