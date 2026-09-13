@@ -285,13 +285,39 @@ Ground truth read from `vendor/dots-hyprland/sdata/subcmd-install/` at the pinne
 | `install_file` → `cp_file` | `3.files.sh:46-52, 93-101` | `cp -f` | Writes **through** the link, corrupting the repo file (A-1) |
 | `install_file__auto_backup` | `3.files.sh:102-120` | `mv $t $t.old` then `cp -f`, **or** `cp` to `$t.new` on non-firstrun | On firstrun: **`mv` renames your symlink away** and drops a plain file. On re-run: writes `$t.new` and leaves you alone |
 | `install_dir__sync` → `rsync_dir__sync` | `3.files.sh:67-76, 130-138` | `rsync -a --delete` | **Destroys the link**; `--delete` also removes anything extra you stowed there (A-2) |
-| `install_dir` / `install_dir__ignore_existing` | `3.files.sh:121-160` | `rsync -a [--ignore-existing]`, gated on `[ -d $t ]` | `install_dir__ignore_existing` is a **no-op** when the target exists (incl. as a symlink) — this is why `hypr/custom/` is safe |
+| `install_dir` → `rsync_dir` *(Phase 18 split)* | `3.files.sh:121-129`; `3.files-legacy.sh:18` | `rsync -a` | **Destroys the link**; replaces symlink with a regular directory while leaving repo copy untouched (rsync-replace). Differs from sync only in not deleting extras |
+| `install_dir__ignore_existing` | `3.files.sh:139-160`; `3.files-legacy.sh:75` | `rsync -a --ignore-existing`, gated on `[ -d $t ]` | Short-circuits on the whole destination directory; **no-op** when target directory exists (incl. as a symlink) — this is why `hypr/custom/` is safe |
 | `auto_backup_configs` → `backup_clashing_targets` | `3.files.sh:12-39`; `lib/functions.sh:346-390` | `rsync -av` into `~/ii-original-dots-backup` | Copies your live clashing entries out first. This is the pre-existing safety net and it is **prompted, not automatic**, unless `-f/--force` |
 | `hyprland.conf` rename | `3.files-legacy.sh:51-54` | `mv` | Renames `hyprland.conf` → `.old`. Already happened (Phase 14) |
 | `gen_firstrun` | `3.files.sh:40-45` | `touch` + `>>` | Writes into `~/.config/illogical-impulse/` (B-3) |
 | `hyprctl reload` | `3.files.sh:238` | — | Reloads the live session at the end of every install |
 
 **Note on the `--core` retirement (Phase 16):** with `SAFE_DEFAULTS` gone, the misc loop (`3.files-legacy.sh:8-20`) now runs on every install. That loop `install_dir__sync`s / `install_file`s **every** top-level entry in `dots/.config/` except quickshell/fish/hypr/fontconfig — i.e. `darklyrc`, `dolphinrc`, `kdeglobals`, `konsolerc`, `Kvantum`, `matugen`, `mpv`, `kitty`, `foot`, `fuzzel`, `wlogout`, `xdg-desktop-portal`, `kde-material-you-colors`, `starship.toml`, `zshrc.d`, `chrome-flags.conf`, `code-flags.conf`, `thorium-flags.conf`. **That set overlaps heavily with this milestone's capture targets.** The collision list is not hypothetical; it is most of the milestone.
+
+---
+
+### D-1a. Experimental file installation (`3.files-exp.sh` / `--exp-files`) — Deliberately Unmodelled
+
+*(Added Phase 18 / 2026-09-14 per D-30, D-35 and Q15 resolution)*
+
+Upstream `dots-hyprland` provides an alternative file installation route via `--exp-files` (implemented in `sdata/subcmd-install/3.files-exp.sh`, configured via `3.files-exp.yaml`).
+
+This path is complete and functional, but uses an entirely disjoint set of write primitives and destinations from the legacy path:
+
+| Mode | Command executed | Effect on stowed symlink |
+|---|---|---|
+| `sync` | `rsync -av --delete` | Destroys the symlink; deletes unmodelled contents |
+| `soft` | `rsync -av` | Destroys the symlink; replaces with real directory |
+| `hard` | `cp -r` | Writes through or destroys symlink |
+| `hard-backup` | `mv` to `.old.N` then `cp -r` | Destroys the symlink via `mv` |
+| `soft-backup` | `cp -r` to `.new` sidecar | Creates unmanaged sidecar |
+| `skip-if-exists` | `cp -r` (if destination absent) | No-op if target exists, writes regular copy if absent |
+
+Key architectural differences:
+- Reads destinations from `3.files-exp.yaml` rather than `3.files-legacy.sh`.
+- Runs an interactive preference wizard unless upstream `$ask` is false.
+- Two upstream TODOs (`symlink: true` and `--exp-file-reset-symlink`) are present in comments but completely unimplemented at this pin (`1a9ffb78`).
+- **Conclusion:** Every row in `collision-map.tsv` would be void under `--exp-files`, and every primitive either destroys or writes through symlinks. The wrapper (`arch/dots-hyprland.sh`) refuses `--exp-files` with exit 2 at the `main()` prologue (D-31, D-33 / CAP-08). This path is deliberately unmodelled.
 
 ---
 
