@@ -136,7 +136,7 @@ Plans:
   7. `verify` and `capture` are registered in `ALLOWLIST` and dispatched by `main` as their own handlers rather than through `run_install_family`; `verify` runs to a real exit code with `vendor/dots-hyprland` de-initialised; `capture` copies live→repo for a `capture/` fixture, leaves `git diff --cached` empty, and refuses any path whose repo mirror is already dirty against `HEAD` (FIX-05, CAP-05)
 
 **Note:** `capture/` is legitimately empty at the end of this phase — the mechanism ships here, its first real inhabitant arrives in Phase 21. Criterion 7 is therefore proven against a fixture, not a live config.
-**Plans:** 10 plans in 8 waves
+**Plans:** 11 plans in 9 waves
 
 Plans:
 
@@ -159,12 +159,12 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 18-06-PLAN.md — the hypr split across `stow/` and `restow/`, both re-stowed, and repo-root `.config/` removed — its closing `verify` gate needs the handler plan 18-05 registers
+- [ ] 18-06-PLAN.md — the hypr split across `stow/` and `restow/`, and repo-root `.config/` removed (repo-side only)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
 - [ ] 18-07-PLAN.md — the `capture` fixture suite: the copy, the four refusals, the dry run and the empty tree
-- [ ] 18-08-PLAN.md — the starship split, three new stow call sites, the one authorised constant, and the two folded directories unfolded
+- [ ] 18-08-PLAN.md — the starship split, three new stow call sites, and the one authorised constant (repo-side only)
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
@@ -172,7 +172,13 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 18-10-PLAN.md — the generated `restow/` tag table, the mis-filed fixture, and the phase gate
+- [ ] 18-10-PLAN.md — the generated `restow/` tag table, the mis-filed fixture, and the one-verdict summary
+
+**Wave 9** *(blocked on Wave 8 completion)*
+
+- [ ] 18-11-PLAN.md — every live-side operation: link the five migrated packages from the main worktree root, unfold the last two folded directories, then `verify` and the eight-script phase gate
+
+**Note on plan shape:** plans 18-04, 18-06 and 18-08 are deliberately repo-side only. Each has more than two tasks and no decision checkpoint, so each dispatches to a subagent that under the default worktree isolation runs in a per-agent worktree removed at wave teardown — a GNU Stow run from inside one creates live symlinks resolving into a directory that is about to be deleted. Every stow invocation in this phase is therefore concentrated in 18-11, which resolves the canonical main worktree root and refuses to run from a linked worktree.
 
 ### Phase 19: Link-aware `verify`
 
