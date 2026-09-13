@@ -325,10 +325,13 @@ ls ~/.config/hypr/custom/{general,env,execs}.lua
 
 # 6. Full check — the executable source of truth for everything above
 ./scripts/phase14-verify.sh
-# expect: === done: FAIL=0 FINDINGS=1 ===   (the 1 finding is the D-38 known loss)
+# expect BEFORE the first re-login after Phase 17 (graphical-session.target still inactive):
+#   === done: FAIL=0 FINDINGS=1 ===   (the 1 finding is the D-38 session-target loss)
+# expect AFTER that re-login (the target came up from custom/execs.lua):
+#   === done: FAIL=0 FINDINGS=0 ===   (the same check takes its informational branch instead)
 ```
 
-`scripts/phase14-verify.sh` is the executable source of truth for every check in the block above; the individual commands are the hand version of what it asserts. Observed on a committed tree after the Phase 16 script edits: **33 `[PASS]`, 0 `[FAIL]`, one `[FINDING]`** — the known loss in §8. Two caveats on running it: it asserts a clean working tree, so commit first; and it is the *whole* check, not a rollback trigger. If something is wrong, §9 has the recovery story.
+`scripts/phase14-verify.sh` is the executable source of truth for every check in the block above; the individual commands are the hand version of what it asserts. Its finding count is selected by one condition and one only: whether `graphical-session.target` is active. Inactive — the state between the Phase 14 adopt and the first re-login after Phase 17 — and the D-38 check emits its `[FINDING]`; active, and the same check emits `[INFO]` instead and the count is zero. Observed on a committed tree after the Phase 16 script edits, with the target inactive: **33 `[PASS]`, 0 `[FAIL]`, one `[FINDING]`** — the known loss in §8. After the re-login that loss is closed and the expected line is the zero-finding one. Two caveats on running it: it asserts a clean working tree, so commit first; and it is the *whole* check, not a rollback trigger. If something is wrong, §9 has the recovery story.
 
 ---
 
@@ -336,12 +339,29 @@ ls ~/.config/hypr/custom/{general,env,execs}.lua
 
 These are the surfaces the adopt actually cost this machine. They are an accepted cost under Phase 11 D-11, not a goal of the milestone and not a defect. Read the whole list before filing anything as a bug: each item leads with what **survives**, so the damage is neither over- nor under-estimated.
 
-- **The personal `hyprland-session.service` autostart.** The unit file itself **survives** — it lives under `stow/systemd/` and the symlink in `~/.config/systemd/user/` is untouched. What died with the renamed conf is the `exec-once` line that started it, so `graphical-session.target` is now inactive. Consequence: the xdg-desktop-portal ScreenCast path depends on that target, so screen share **may** stop working. The portal still answers with an unchanged `AvailableSourceTypes`, so what was lost is the session bootstrap, not the portal itself. This is not a deletion.
+- **The personal `hyprland-session.service` autostart.** The unit file itself **survives** — it lives under `stow/systemd/` and the symlink in `~/.config/systemd/user/` is untouched. What died with the renamed conf is the `exec-once` line that started it, so `graphical-session.target` is now inactive. Consequence: the xdg-desktop-portal ScreenCast path depends on that target, so screen share **may** stop working. The portal still answers with an unchanged `AvailableSourceTypes`, so what was lost is the session bootstrap, not the portal itself. This is not a deletion. **Restored in Phase 17 under START-02:** `.config/hypr/custom/execs.lua` now carries `hl.exec_cmd("systemctl --user start hyprland-session.service")` inside its `hyprland.start` handler, so this bullet describes the machine only up to the next login. The target refuses a manual start (`RefuseManualStart=yes`), so what pulls it up is the unit's own `Wants=`, and nothing else can.
 - **`wl-clip-persist`.** Not running; same cause — its `exec-once` line went with the renamed conf. The binary is still installed.
 - **The four workspace-pinned autostarts.** `google-chrome-stable` on workspace 1, `kitty -e tmux` on workspace 1, `btop` on its special workspace, and `discord` on `special:social`. All four applications are still installed; only the pinned launch-at-login behaviour is gone.
 - **`hyprpaper`.** Stopped but installed — the binary is on PATH and `~/.config/hypr/hyprpaper.conf` survives untouched; nothing starts it. Wallpaper is Quickshell's job under the ii shell, so this is a changed owner rather than breakage.
 
-This document records these losses and owns no fix — restoring the session bootstrap, `wl-clip-persist` and the four autostarts is **unowned work with no owning phase**, and the sweep record at `.planning/phases/15-playbook-safe-vs-full/15-DOC-SWEEP.md` carries it as a deferred item. `scripts/phase14-verify.sh` reports the session-target loss as a `[FINDING]` rather than a failure, which is why the expected output in §7 is one finding rather than zero.
+> **Footgun — `systemctl --user disable` deletes the stow symlink.** `disable` removes **every** symlink to a unit from `~/.config/systemd/user/`, including ones systemd did not create itself — and a stow link is exactly that. Run it on `hyprland-session.service` and the link is gone, with a single `Removed '/home/you/.config/systemd/user/hyprland-session.service'` line as the whole warning. What **survives** is the repo copy under `stow/systemd/`; only the link dies. This is recoverable, not a data loss.
+>
+> **Recovery**, from **REPO_ROOT**:
+>
+> ```bash
+> cd stow && stow --verbose=5 --no-folding -t ~ systemd && cd ..
+> systemctl --user daemon-reload
+> ```
+>
+> Run that recovery after **any** `disable`, `mask` or `unmask` on a stow-managed unit — unconditionally. Whether `mask` replaces an existing stow link rather than leaving it alone was not measured, and the re-stow is the correct move under either answer.
+>
+> **Safe alternative:** to stop a stow-managed unit from starting, use `systemctl --user mask`; to put it down for this session only, use `systemctl --user stop`. Neither touches the link. `disable` is the one verb that does.
+>
+> **This unit is never enabled.** It stays in state `linked`, and `systemctl --user is-enabled hyprland-session.service` printing `linked` while exiting 1 is the correct state rather than an error. It is started from `custom/execs.lua` at session start, never from a wants-directory entry — and `enabled` is precisely the state in which the footgun above becomes reachable.
+
+> **Invocation form for `arch/hyprland.sh`.** That script — the one that stows the `systemd` and `swaync` packages, so the one you reach for after the recovery above — must be invoked by an **absolute** path or from inside `arch/`: `bash "$PWD/arch/hyprland.sh"` from REPO_ROOT, or `cd arch && ./hyprland.sh`. Invoked by a repo-root-relative path it goes red at its *second* `cd "$(dirname "${BASH_SOURCE[0]}")/../stow"`, which is evaluated from the directory the first `cd` already left behind. The failure looks like a broken install and is a caller mistake. This is a documented invocation constraint, not a code fix: the directory-change idiom is kept verbatim under D-01.
+
+These losses are **owned work now**, and the list above is a record rather than an open bill. Phase 17 owns the session bootstrap under **START-02** and has restored it; Phase 20 owns the remaining six under **START-01** — `wl-clip-persist`, the four workspace-pinned autostarts, and `hyprpaper`. The Phase 15 sweep record that first carried them as deferred items now lives under the archived milestone, at `.planning/milestones/v0.3-phases/15-playbook-safe-vs-full/15-DOC-SWEEP.md`. `scripts/phase14-verify.sh` reports the session-target loss as a `[FINDING]` rather than a failure, which is why §7 expects one finding before the re-login and zero after it.
 
 ---
 
