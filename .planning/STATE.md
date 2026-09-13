@@ -5,16 +5,16 @@ milestone_name: Personal config layer
 current_phase: 18
 current_phase_name: Capture model — three trees and the collision map
 status: executing
-stopped_at: Completed 18-09-PLAN.md
-last_updated: "2026-09-14T01:28:45.000Z"
+stopped_at: Completed 18-10-PLAN.md
+last_updated: "2026-09-14T01:36:00.000Z"
 last_activity: 2026-09-14
-last_activity_desc: Plan 18-09 completed (legacy config readers retargeting and section 6 assert)
-state_head: 66f5102
+last_activity_desc: Plan 18-10 completed (restow tag table, placement check, Section 1f & 3d)
+state_head: ce691f7
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 18
-  completed_plans: 16
+  completed_plans: 17
   percent: 16
 ---
 
@@ -25,10 +25,9 @@ Total Phases: 7 (Phases 17-23)
 ## Current Position
 
 Phase: 18 (Capture model — three trees and the collision map) — EXECUTING
-Plan: 9 of 11 completed (Plan 10 of 11 next)
-Status: Ready to execute Plan 18-10
-Progress: [█░░░░░░░░░] 16%
-Last activity: 2026-09-14 — Plan 18-09 completed (legacy config readers retargeting and section 6 assert)
+Plan: 10 of 11 completed (Plan 11 of 11 next)
+Status: Ready to execute Plan 18-11
+Last activity: 2026-09-14 — Plan 18-10 completed (restow tag table, placement check, Section 1f & 3d)
 
 ## Session
 
