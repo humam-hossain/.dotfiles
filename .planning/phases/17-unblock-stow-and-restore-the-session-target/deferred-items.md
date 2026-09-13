@@ -233,3 +233,80 @@ red, while the shipped file is the only one that passes.
 **Documentation:** `docs/dots-hyprland-workflow.md` § "Invocation form for
 `arch/hyprland.sh`" is rewritten from a pinned-form constraint to a record of the
 fix, and no longer claims the defect is documented rather than corrected.
+
+---
+
+## D-6 — `safe_rm_path` refuses a symlink that points into the repo, and the refusal aborts an in-flight uninstall
+
+**Found during:** the `execute:post` code-review hook, after all seven plans had
+completed. Recorded in full at `17-REVIEW.md` § Findings 1.
+
+**Symptom:** the repo-containment clause at `arch/dots-hyprland.sh:461`
+canonicalises the candidate with `realpath -m`, which resolves the path's own
+symlink. A symlink that merely *points* into the repository is refused, even
+though `rm -rf` on a symlink removes only the link and never touches the target.
+The clause's own comment names exactly such a path —
+`~/.config/systemd/user/hyprland-session.service`, a stow link this repository
+creates.
+
+The refusal is not cosmetic. `safe_rm_path` is called bare at
+`arch/dots-hyprland.sh:271`, `:280`, `:551`, `:560`, `:566` and `:590`, all under
+`set -euo pipefail`, so `return 1` terminates the script — mid-uninstall, after
+`sudo pacman -R` has already removed the ii meta packages. If any ii config or
+state target ever becomes stow-managed, `--uninstall` leaves a half-uninstalled
+system.
+
+**Verified, not assumed:** `realpath -m` is present at line 461, and each of the
+six call sites is bare, with no `||` guard. The reviewing agent additionally
+reproduced the refusal against a scratchpad symlink pointing at the repository's
+`README.md`.
+
+**Why deferred:** the defect is latent. No ii uninstall target is stow-managed
+today, so no current invocation reaches the abort. Changing a destructive-path
+predicate is the kind of edit that earned this repository a `rm -rf` incident in
+plan 17-02; it deserves its own plan with its own fixtures, not a tail-end patch
+committed after the phase's verification gate.
+
+**Owner:** whichever phase next touches `arch/dots-hyprland.sh --uninstall`.
+Resolve only the parent (`realpath --no-symlinks`, or short-circuit on
+`[[ -L "$path" ]]`), and decide deliberately whether a refusal should `continue`
+rather than kill the run.
+
+**Related:** finding 3 in `17-REVIEW.md` — the `--dry-run` branch at
+`arch/dots-hyprland.sh:504` does not route through `safe_rm_path`, so with this
+defect standing the dry run advertises deletions the real run refuses. Fix both
+together by extracting a shared `safe_rm_check` predicate.
+
+---
+
+## D-7 — `.gitignore` `*.socket` silently ignores systemd socket units this repo would author
+
+**Found during:** the `execute:post` code-review hook. Recorded in full at
+`17-REVIEW.md` § Findings 2.
+
+**Symptom:** `.gitignore:60` carries `*.socket` alongside `*.sock` and `*.lock`.
+The pattern contains no slash, so it matches at any depth. `.socket` is also the
+extension of systemd **unit files**, which this repository authors and tracks
+under `stow/systemd/.config/systemd/user/`.
+
+**Verified, not assumed:**
+
+    $ git check-ignore -v --no-index -- stow/systemd/.config/systemd/user/foo.socket
+    .gitignore:60:*.socket  stow/systemd/.config/systemd/user/foo.socket
+
+That directory already tracks `hyprland-session.service`. A socket unit added
+beside it would be skipped by `git add` with no message.
+
+**Why deferred:** no socket unit exists in the repository today, so nothing is
+currently being lost — the hazard is that a future one would vanish silently.
+The pattern arrived with this phase's `.gitignore` work, and narrowing it is a
+one-line change, but it lands after the phase's verification gate and belongs
+with the phase that first needs a socket unit.
+
+**Owner:** Phase 20 (HYPR-01) or whichever phase first adds a systemd socket
+unit. Either scope `*.socket` out of the runtime block, or anchor it from the
+repository root the way the qBittorrent block above it is anchored.
+
+**Not a silent loss today:** `git ls-files stow/systemd/.config/systemd/user/`
+returns exactly one entry, `hyprland-session.service`, so no unit file is
+presently missing from the index because of this pattern.
