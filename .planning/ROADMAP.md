@@ -136,7 +136,7 @@ Plans:
   7. `verify` and `capture` are registered in `ALLOWLIST` and dispatched by `main` as their own handlers rather than through `run_install_family`; `verify` runs to a real exit code with `vendor/dots-hyprland` de-initialised; `capture` copies live→repo for a `capture/` fixture, leaves `git diff --cached` empty, and refuses any path whose repo mirror is already dirty against `HEAD` (FIX-05, CAP-05)
 
 **Note:** `capture/` is legitimately empty at the end of this phase — the mechanism ships here, its first real inhabitant arrives in Phase 21. Criterion 7 is therefore proven against a fixture, not a live config.
-**Plans:** 4/11 plans executed in 9 waves
+**Plans:** 5/11 plans executed in 9 waves
 
 Plans:
 
@@ -155,7 +155,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 18-05-PLAN.md — `run_verify` and `run_capture`, the ALLOWLIST entries and the two dispatch arms
+- [x] 18-05-PLAN.md — `run_verify` and `run_capture`, the ALLOWLIST entries and the two dispatch arms
 
 **Wave 5** *(blocked on Wave 4 completion)*
 

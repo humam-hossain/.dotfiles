@@ -5,16 +5,16 @@ milestone_name: Personal config layer
 current_phase: 18
 current_phase_name: Capture model — three trees and the collision map
 status: executing
-stopped_at: Completed 18-04-PLAN.md
-last_updated: "2026-09-13T19:09:44.509Z"
-last_activity: 2026-09-13
-last_activity_desc: Phase 18 execution started
-state_head: 2f1d30d35248e6f01a87c840b1228a10a98e7c23
+stopped_at: Completed 18-05-PLAN.md
+last_updated: "2026-09-14T01:16:30.000Z"
+last_activity: 2026-09-14
+last_activity_desc: Plan 18-05 completed (verify and capture wrapper subcommands)
+state_head: dfd1df3
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 18
-  completed_plans: 11
+  completed_plans: 12
   percent: 14
 ---
 
@@ -25,10 +25,10 @@ Total Phases: 7 (Phases 17-23)
 ## Current Position
 
 Phase: 18 (Capture model — three trees and the collision map) — EXECUTING
-Plan: 5 of 11
+Plan: 6 of 11
 Status: Ready to execute
 Progress: [█░░░░░░░░░] 14%
-Last activity: 2026-09-13 — Phase 18 execution started
+Last activity: 2026-09-14 — Plan 18-05 completed (verify and capture wrapper subcommands)
 
 ## Session
 
