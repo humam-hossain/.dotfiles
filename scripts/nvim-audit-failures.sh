@@ -21,7 +21,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 OUTPUT_DIR="$REPO_ROOT/.planning/phases/06-runtime-failure-inventory"
 REPORT_DIR="$REPO_ROOT/.planning/tmp/nvim-validate"
-NVIM_CONFIG="$REPO_ROOT/.config/nvim"
+NVIM_CONFIG="$REPO_ROOT/stow/nvim/.config/nvim"
 
 # --- Required dependencies ---
 if ! command -v jq >/dev/null 2>&1; then

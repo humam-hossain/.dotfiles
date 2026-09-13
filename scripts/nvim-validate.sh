@@ -109,8 +109,8 @@ cmd_startup() {
 	local log="$REPORT_DIR/startup.log"
 	echo "==> startup: running headless startup smoke..."
 	nvim --headless \
-		-u "$REPO_ROOT/.config/nvim/init.lua" \
-		--cmd "set rtp^=$REPO_ROOT/.config/nvim" \
+		-u "$REPO_ROOT/stow/nvim/.config/nvim/init.lua" \
+		--cmd "set rtp^=$REPO_ROOT/stow/nvim/.config/nvim" \
 		+"lua vim.defer_fn(function() vim.cmd('qa!') end, 50)" \
 		> "$log" 2>&1
 	local rc=$?
@@ -140,8 +140,8 @@ cmd_sync() {
 	local log="$REPORT_DIR/sync.log"
 	echo "==> sync: running Lazy! sync (120s timeout)..."
 	timeout 120 nvim --headless \
-		-u "$REPO_ROOT/.config/nvim/init.lua" \
-		--cmd "set rtp^=$REPO_ROOT/.config/nvim" \
+		-u "$REPO_ROOT/stow/nvim/.config/nvim/init.lua" \
+		--cmd "set rtp^=$REPO_ROOT/stow/nvim/.config/nvim" \
 		+"Lazy! sync" \
 		+"qa!" \
 		> "$log" 2>&1
@@ -179,8 +179,8 @@ cmd_health() {
 	echo "==> health: invoking core.health.snapshot..."
 
 	nvim --headless \
-		-u "$REPO_ROOT/.config/nvim/init.lua" \
-		--cmd "set rtp^=$REPO_ROOT/.config/nvim" \
+		-u "$REPO_ROOT/stow/nvim/.config/nvim/init.lua" \
+		--cmd "set rtp^=$REPO_ROOT/stow/nvim/.config/nvim" \
 		+"lua local h=require('core.health'); local rc=h.snapshot({ out_path='$json', plugins=$PLUGIN_LIST, tools=$TOOL_LIST }); vim.cmd(rc==0 and 'qa!' or 'cq')" \
 		> "$log" 2>&1
 	local rc=$?
@@ -291,8 +291,8 @@ vim.cmd('qa!')
 LUA
 
 	nvim --headless \
-		-u "$REPO_ROOT/.config/nvim/init.lua" \
-		--cmd "set rtp^=$REPO_ROOT/.config/nvim" \
+		-u "$REPO_ROOT/stow/nvim/.config/nvim/init.lua" \
+		--cmd "set rtp^=$REPO_ROOT/stow/nvim/.config/nvim" \
 		--cmd "set noswapfile" \
 		-l "$lua_tmp" \
 		> "$log" 2>&1
@@ -399,8 +399,8 @@ LUA
 	printf '%s' "$lua_script" > "$lua_tmp"
 
 	SMOKE_FAIL_PATH="$REPORT_DIR/SMOKE_FAIL" nvim --headless \
-		-u "$REPO_ROOT/.config/nvim/init.lua" \
-		--cmd "set rtp^=$REPO_ROOT/.config/nvim" \
+		-u "$REPO_ROOT/stow/nvim/.config/nvim/init.lua" \
+		--cmd "set rtp^=$REPO_ROOT/stow/nvim/.config/nvim" \
 		-l "$lua_tmp" \
 		> "$log" 2>&1
 	local rc=$?
@@ -506,8 +506,8 @@ LUA
 	nvim_log=$(mktemp)
 
 	KEYMAP_LOG="$log" nvim --headless \
-		-u "$REPO_ROOT/.config/nvim/init.lua" \
-		--cmd "set rtp^=$REPO_ROOT/.config/nvim" \
+		-u "$REPO_ROOT/stow/nvim/.config/nvim/init.lua" \
+		--cmd "set rtp^=$REPO_ROOT/stow/nvim/.config/nvim" \
 		-l "$lua_tmp" \
 		> "$nvim_log" 2>&1
 	local rc=$?
@@ -681,8 +681,8 @@ LUA
 	nvim_log=$(mktemp)
 
 	FORMAT_LOG="$log" nvim --headless \
-		-u "$REPO_ROOT/.config/nvim/init.lua" \
-		--cmd "set rtp^=$REPO_ROOT/.config/nvim" \
+		-u "$REPO_ROOT/stow/nvim/.config/nvim/init.lua" \
+		--cmd "set rtp^=$REPO_ROOT/stow/nvim/.config/nvim" \
 		-l "$lua_tmp" \
 		> "$nvim_log" 2>&1
 	local rc=$?

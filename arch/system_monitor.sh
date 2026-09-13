@@ -3,7 +3,7 @@ set -euo pipefail
 set -x
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-MONITOR_SRC="$REPO_ROOT/.config/system_monitor/ping"
+MONITOR_SRC="$REPO_ROOT/stow/system_monitor/.config/system_monitor/ping"
 MONITOR_DST="$HOME/.config/system_monitor/ping"
 
 # Source environment
