@@ -136,7 +136,7 @@ Plans:
   7. `verify` and `capture` are registered in `ALLOWLIST` and dispatched by `main` as their own handlers rather than through `run_install_family`; `verify` runs to a real exit code with `vendor/dots-hyprland` de-initialised; `capture` copies live→repo for a `capture/` fixture, leaves `git diff --cached` empty, and refuses any path whose repo mirror is already dirty against `HEAD` (FIX-05, CAP-05)
 
 **Note:** `capture/` is legitimately empty at the end of this phase — the mechanism ships here, its first real inhabitant arrives in Phase 21. Criterion 7 is therefore proven against a fixture, not a live config.
-**Plans:** 5/11 plans executed in 9 waves
+**Plans:** 6/11 plans executed in 9 waves
 
 Plans:
 
@@ -159,7 +159,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 18-06-PLAN.md — the hypr split across `stow/` and `restow/`, and repo-root `.config/` removed (repo-side only)
+- [x] 18-06-PLAN.md — the hypr split across `stow/` and `restow/`, and repo-root `.config/` removed (repo-side only)
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
