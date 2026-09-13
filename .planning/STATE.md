@@ -5,16 +5,16 @@ milestone_name: Personal config layer
 current_phase: 18
 current_phase_name: Capture model — three trees and the collision map
 status: executing
-stopped_at: Completed 18-06-PLAN.md
-last_updated: "2026-09-14T01:18:00.000Z"
+stopped_at: Completed 18-07-PLAN.md
+last_updated: "2026-09-14T01:19:40.000Z"
 last_activity: 2026-09-14
-last_activity_desc: Plan 18-06 completed (hypr tree split and repo-root .config/ removal)
-state_head: 4ad665f
+last_activity_desc: Plan 18-07 completed (capture fixture assertions)
+state_head: 609bee0
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 18
-  completed_plans: 13
+  completed_plans: 14
   percent: 14
 ---
 
@@ -25,10 +25,10 @@ Total Phases: 7 (Phases 17-23)
 ## Current Position
 
 Phase: 18 (Capture model — three trees and the collision map) — EXECUTING
-Plan: 7 of 11
+Plan: 8 of 11
 Status: Ready to execute
 Progress: [█░░░░░░░░░] 14%
-Last activity: 2026-09-14 — Plan 18-06 completed (hypr tree split and repo-root .config/ removal)
+Last activity: 2026-09-14 — Plan 18-07 completed (capture fixture assertions)
 
 ## Session
 
