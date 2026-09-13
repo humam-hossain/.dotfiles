@@ -1,0 +1,769 @@
+Script started on 2026-09-13 17:22:39+06:00 [COMMAND="bash /home/pera/github_repo/.dotfiles/arch/hyprland.sh" TERM="tmux-256color" TTY="/dev/pts/1" COLUMNS="135" LINES="33"]
++++ dirname /home/pera/github_repo/.dotfiles/arch/hyprland.sh
+++ cd /home/pera/github_repo/.dotfiles/arch/..
+++ pwd
++ REPO_ROOT=/home/pera/github_repo/.dotfiles
++ echo '[INSTALL] Core Hyprland & Wayland Protocols'
+[INSTALL] Core Hyprland & Wayland Protocols
++ sudo pacman -Sy --noconfirm --needed hyprland hyprland-protocols
+[sudo] password for pera: 
+]3008;start=97ca0648bd92475397b8af349f8a1732;user=pera;hostname=arch;machineid=REDACTED-MACHINE-ID;bootid=REDACTED-BOOT-ID;pid=119726;pidfdid=121359;comm=sudo;targetuser=root;type=session\[?25l:: Synchronizing package databases...
+ core
+[1F core is up to date[K[1E extra
+[1F extra                                               1360.0   B  0.00   B/s --:-- [----------------------------------------------]   0% extra                                                750.0 KiB  1145 KiB/s 00:06 [###-------------------------------------------]   8% extra                                               1918.0 KiB  2.65 MiB/s 00:02 [##########------------------------------------]  22% extra                                                  2.9 MiB  3.54 MiB/s 00:01 [###############-------------------------------]  34% extra                                                  3.4 MiB  3.20 MiB/s 00:01 [##################----------------------------]  40% extra                                                  4.6 MiB  4.02 MiB/s 00:00 [########################----------------------]  54% extra                                                  5.6 MiB  4.28 MiB/s 00:00 [#############################-----------------]  65% extra                                                  6.7 MiB  4.77 MiB/s 00:00 [####################################----------]  79% extra                                                  7.6 MiB  4.62 MiB/s 00:00 [########################################------]  89% extra                                                  8.2 MiB  3.99 MiB/s 00:00 [############################################--]  97% extra                                                  8.5 MiB  4.30 MiB/s 00:02 [##############################################] 100%[1E multilib
+[1F multilib                                               0.0   B  0.00   B/s --:-- [----------------------------------------------]   0% multilib                                              82.7 KiB  2.18 MiB/s 00:00 [##############################################] 100%[1Ewarning: hyprland-0.56.2-3 is up to date -- skipping
+warning: hyprland-protocols-0.7.0-1 is up to date -- skipping
+ there is nothing to do
+[?25h]3008;end=97ca0648bd92475397b8af349f8a1732\+ echo '[INSTALL] XDG Desktop Portals'
+[INSTALL] XDG Desktop Portals
++ sudo pacman -Sy --noconfirm --needed xdg-desktop-portal-hyprland xdg-desktop-portal-wlr xdg-desktop-portal-gtk
+]3008;start=b45a165671cb4146bfb54c86823f3f65;user=pera;hostname=arch;machineid=REDACTED-MACHINE-ID;bootid=REDACTED-BOOT-ID;pid=119760;pidfdid=121360;comm=sudo;targetuser=root;type=session\[?25l:: Synchronizing package databases...
+ core
+[1F core is up to date[K[1E extra
+[1F extra is up to date[K[1E multilib
+[1F multilib is up to date[K[1Ewarning: xdg-desktop-portal-hyprland-1.4.1-2 is up to date -- skipping
+warning: xdg-desktop-portal-wlr-0.8.4-1 is up to date -- skipping
+warning: xdg-desktop-portal-gtk-1.15.3-1 is up to date -- skipping
+ there is nothing to do
+[?25h]3008;end=b45a165671cb4146bfb54c86823f3f65\+ echo '[INSTALL] Hyprland Ecosystem (Wallpaper, Lock, Idle, Screen etc.)'
+[INSTALL] Hyprland Ecosystem (Wallpaper, Lock, Idle, Screen etc.)
++ sudo pacman -Sy --noconfirm --needed hyprpaper hyprshot hyprlock hyprcursor hypridle hyprpicker hyprsunset
+]3008;start=b41ab99d75d849f68d42223b0c596b48;user=pera;hostname=arch;machineid=REDACTED-MACHINE-ID;bootid=REDACTED-BOOT-ID;pid=119791;pidfdid=121362;comm=sudo;targetuser=root;type=session\[?25l:: Synchronizing package databases...
+ core
+[1F core is up to date[K[1E extra
+[1F extra is up to date[K[1E multilib
+[1F multilib is up to date[K[1Ewarning: hyprpaper-0.8.4-8 is up to date -- skipping
+warning: hyprshot-1.3.0-4 is up to date -- skipping
+warning: hyprlock-0.9.6-3 is up to date -- skipping
+warning: hyprcursor-0.1.13-7 is up to date -- skipping
+warning: hypridle-0.1.8-2 is up to date -- skipping
+warning: hyprpicker-0.4.7-4 is up to date -- skipping
+warning: hyprsunset-0.4.0-3 is up to date -- skipping
+ there is nothing to do
+[?25h]3008;end=b41ab99d75d849f68d42223b0c596b48\+ echo '[INSTALL] Utilities & Clipboard'
+[INSTALL] Utilities & Clipboard
++ sudo pacman -Sy --noconfirm --needed cliphist wl-clipboard brightnessctl ddcutil
+]3008;start=643933f6aa6b447b9f9d46c941396047;user=pera;hostname=arch;machineid=REDACTED-MACHINE-ID;bootid=REDACTED-BOOT-ID;pid=119798;pidfdid=121363;comm=sudo;targetuser=root;type=session\[?25l:: Synchronizing package databases...
+ core
+[1F core is up to date[K[1E extra
+[1F extra is up to date[K[1E multilib
+[1F multilib is up to date[K[1Ewarning: cliphist-1:0.7.0-2 is up to date -- skipping
+warning: wl-clipboard-1:2.3.0-1 is up to date -- skipping
+warning: brightnessctl-0.5.1-3 is up to date -- skipping
+warning: ddcutil-3.0.1-1 is up to date -- skipping
+ there is nothing to do
+[?25h]3008;end=643933f6aa6b447b9f9d46c941396047\+ echo '[CONFIG] Setup i2c group for ddcutil'
+[CONFIG] Setup i2c group for ddcutil
++ sudo usermod -aG i2c pera
+]3008;start=fa10c80c196e4d0f82870eeba91ff099;user=pera;hostname=arch;machineid=REDACTED-MACHINE-ID;bootid=REDACTED-BOOT-ID;pid=119805;pidfdid=121365;comm=sudo;targetuser=root;type=session\]3008;end=fa10c80c196e4d0f82870eeba91ff099\+ echo '[INSTALL] Notifications, Bluetooth & Casting (Swaync dependencies)'
+[INSTALL] Notifications, Bluetooth & Casting (Swaync dependencies)
++ sudo pacman -Sy --noconfirm --needed swaync blueman dnsmasq
+]3008;start=9b11c6d255124b9eabfa40ded2d81fb5;user=pera;hostname=arch;machineid=REDACTED-MACHINE-ID;bootid=REDACTED-BOOT-ID;pid=119809;pidfdid=121368;comm=sudo;targetuser=root;type=session\[?25l:: Synchronizing package databases...
+ core
+[1F core is up to date[K[1E extra
+[1F extra is up to date[K[1E multilib
+[1F multilib is up to date[K[1Ewarning: swaync-0.12.6-1 is up to date -- skipping
+warning: blueman-2.4.6-2 is up to date -- skipping
+warning: dnsmasq-2.93-1 is up to date -- skipping
+ there is nothing to do
+[?25h]3008;end=9b11c6d255124b9eabfa40ded2d81fb5\+ yay -Sy --noconfirm --needed gnome-network-displays
+]3008;start=40ee3c99ddd640a89fbe9dd018123e10;user=pera;hostname=arch;machineid=REDACTED-MACHINE-ID;bootid=REDACTED-BOOT-ID;pid=119824;pidfdid=136182;comm=sudo;targetuser=root;type=session\[?25l:: Synchronizing package databases...
+ core
+[1F core is up to date[K[1E extra
+[1F extra is up to date[K[1E multilib
+[1F multilib is up to date[K[1E[?25h]3008;end=40ee3c99ddd640a89fbe9dd018123e10\ -> gnome-network-displays-0.99.0-1 is up to date -- skipping
+ there is nothing to do
++ echo '[CONFIG] Graphical Session Bootstrap (systemd xdg-desktop-portal fix)'
+[CONFIG] Graphical Session Bootstrap (systemd xdg-desktop-portal fix)
++ cd /home/pera/github_repo/.dotfiles/stow
++ stow --verbose=5 --no-folding -t /home/pera systemd
+stow dir is /home/pera/github_repo/.dotfiles/stow
+stow dir path relative to target /home/pera is github_repo/.dotfiles/stow
+Planning stow of: systemd ...
+cwd now /home/pera
+                    | Joining: github_repo/.dotfiles/stow systemd
+                    | Final join: github_repo/.dotfiles/stow/systemd
+Planning stow of package systemd...
+                    | Joining: . .stow
+                    | Final join: .stow
+                    | Joining: . .nonstow
+                    | Final join: .nonstow
+    . not protected; shouldn't skip
+Stowing contents of github_repo/.dotfiles/stow / systemd / . (cwd=/home/pera)
+    target subdir is .
+                    | Joining: github_repo/.dotfiles/stow systemd .
+                    | Final join: github_repo/.dotfiles/stow/systemd
+                | Checking whether . is a current/planned node
+                | link_task_action(.): no task
+                | dir_task_action(.): no task
+                    | Joining:  .
+                    | Final join: .
+                | parent_link_scheduled_for_removal(.): prefix .
+                | parent_link_scheduled_for_removal(.): returning false
+            | is_a_node(.): really exists
+                    | Joining: . .config
+                    | Final join: .config
+                    | Joining: . .config
+                    | Final join: .config
+                    | Joining: github_repo/.dotfiles/stow systemd
+                    | Final join: github_repo/.dotfiles/stow/systemd
+                    | Joining: github_repo/.dotfiles/stow/systemd .stow-local-ignore
+                    | Final join: github_repo/.dotfiles/stow/systemd/.stow-local-ignore
+                    | Joining: /home/pera .stow-global-ignore
+                    | Final join: /home/pera/.stow-global-ignore
+    github_repo/.dotfiles/stow/systemd/.stow-local-ignore didn't exist
+    /home/pera/.stow-global-ignore didn't exist
+    Using built-in ignore list
+        Ignore list regexp for paths:    /(?^:(^|/)(^/README.*|^/LICENSE.*|^/\.stow\-local\-ignore$|^/COPYING)(/|$))/
+        Ignore list regexp for segments: /(?^:^(CVS|\.hg|\.gitmodules|.+~|_darcs|RCS|\.cvsignore|\.#.+|.+,v|#.*#|\.svn|\.git|\.gitignore)$)/
+    Not ignoring .config
+Stowing entry github_repo/.dotfiles/stow / systemd / .config
+                    | Joining: github_repo/.dotfiles/stow systemd .config
+                    | Final join: github_repo/.dotfiles/stow/systemd/.config
+    level of .config is 0
+                    | Joining:  github_repo/.dotfiles/stow/systemd/.config
+                    | Final join: github_repo/.dotfiles/stow/systemd/.config
+    link destination github_repo/.dotfiles/stow/systemd/.config
+        is_a_link(.config)
+                | link_task_action(.config): no task
+        is_a_link(.config): returning 0
+                | Checking whether .config is a current/planned node
+                | link_task_action(.config): no task
+                | dir_task_action(.config): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config): prefix .config
+                | parent_link_scheduled_for_removal(.config): returning false
+            | is_a_node(.config): really exists
+    Evaluate existing node: .config
+    is_a_dir(.config)
+                | dir_task_action(.config): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config): prefix .config
+                | parent_link_scheduled_for_removal(.config): returning false
+    is_a_dir(.config): real dir
+                    | Joining: .config .stow
+                    | Final join: .config/.stow
+                    | Joining: .config .nonstow
+                    | Final join: .config/.nonstow
+    .config not protected; shouldn't skip
+Stowing contents of github_repo/.dotfiles/stow / systemd / .config (cwd=/home/pera)
+    target subdir is .config
+                    | Joining: github_repo/.dotfiles/stow systemd .config
+                    | Final join: github_repo/.dotfiles/stow/systemd/.config
+                | Checking whether .config is a current/planned node
+                | link_task_action(.config): no task
+                | dir_task_action(.config): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config): prefix .config
+                | parent_link_scheduled_for_removal(.config): returning false
+            | is_a_node(.config): really exists
+                    | Joining: .config systemd
+                    | Final join: .config/systemd
+                    | Joining: .config systemd
+                    | Final join: .config/systemd
+                    | Joining: github_repo/.dotfiles/stow systemd
+                    | Final join: github_repo/.dotfiles/stow/systemd
+                    | Joining: github_repo/.dotfiles/stow/systemd .stow-local-ignore
+                    | Final join: github_repo/.dotfiles/stow/systemd/.stow-local-ignore
+                    | Joining: /home/pera .stow-global-ignore
+                    | Final join: /home/pera/.stow-global-ignore
+    github_repo/.dotfiles/stow/systemd/.stow-local-ignore didn't exist
+    /home/pera/.stow-global-ignore didn't exist
+    Using built-in ignore list
+        Ignore list regexp for paths:    /(?^:(^|/)(^/README.*|^/LICENSE.*|^/\.stow\-local\-ignore$|^/COPYING)(/|$))/
+        Ignore list regexp for segments: /(?^:^(CVS|\.hg|\.gitmodules|.+~|_darcs|RCS|\.cvsignore|\.#.+|.+,v|#.*#|\.svn|\.git|\.gitignore)$)/
+    Not ignoring .config/systemd
+Stowing entry github_repo/.dotfiles/stow / systemd / .config/systemd
+                    | Joining: github_repo/.dotfiles/stow systemd .config/systemd
+                    | Final join: github_repo/.dotfiles/stow/systemd/.config/systemd
+    level of .config/systemd is 1
+                    | Joining: ../ github_repo/.dotfiles/stow/systemd/.config/systemd
+                    | Final join: ../github_repo/.dotfiles/stow/systemd/.config/systemd
+    link destination ../github_repo/.dotfiles/stow/systemd/.config/systemd
+        is_a_link(.config/systemd)
+                | link_task_action(.config/systemd): no task
+        is_a_link(.config/systemd): returning 0
+                | Checking whether .config/systemd is a current/planned node
+                | link_task_action(.config/systemd): no task
+                | dir_task_action(.config/systemd): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config/systemd): prefix .config
+                    | Joining: .config systemd
+                    | Final join: .config/systemd
+                | parent_link_scheduled_for_removal(.config/systemd): prefix .config/systemd
+                | parent_link_scheduled_for_removal(.config/systemd): returning false
+            | is_a_node(.config/systemd): really exists
+    Evaluate existing node: .config/systemd
+    is_a_dir(.config/systemd)
+                | dir_task_action(.config/systemd): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config/systemd): prefix .config
+                    | Joining: .config systemd
+                    | Final join: .config/systemd
+                | parent_link_scheduled_for_removal(.config/systemd): prefix .config/systemd
+                | parent_link_scheduled_for_removal(.config/systemd): returning false
+    is_a_dir(.config/systemd): real dir
+                    | Joining: .config/systemd .stow
+                    | Final join: .config/systemd/.stow
+                    | Joining: .config/systemd .nonstow
+                    | Final join: .config/systemd/.nonstow
+    .config/systemd not protected; shouldn't skip
+Stowing contents of github_repo/.dotfiles/stow / systemd / .config/systemd (cwd=/home/pera)
+    target subdir is .config/systemd
+                    | Joining: github_repo/.dotfiles/stow systemd .config/systemd
+                    | Final join: github_repo/.dotfiles/stow/systemd/.config/systemd
+                | Checking whether .config/systemd is a current/planned node
+                | link_task_action(.config/systemd): no task
+                | dir_task_action(.config/systemd): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config/systemd): prefix .config
+                    | Joining: .config systemd
+                    | Final join: .config/systemd
+                | parent_link_scheduled_for_removal(.config/systemd): prefix .config/systemd
+                | parent_link_scheduled_for_removal(.config/systemd): returning false
+            | is_a_node(.config/systemd): really exists
+                    | Joining: .config/systemd user
+                    | Final join: .config/systemd/user
+                    | Joining: .config/systemd user
+                    | Final join: .config/systemd/user
+                    | Joining: github_repo/.dotfiles/stow systemd
+                    | Final join: github_repo/.dotfiles/stow/systemd
+                    | Joining: github_repo/.dotfiles/stow/systemd .stow-local-ignore
+                    | Final join: github_repo/.dotfiles/stow/systemd/.stow-local-ignore
+                    | Joining: /home/pera .stow-global-ignore
+                    | Final join: /home/pera/.stow-global-ignore
+    github_repo/.dotfiles/stow/systemd/.stow-local-ignore didn't exist
+    /home/pera/.stow-global-ignore didn't exist
+    Using built-in ignore list
+        Ignore list regexp for paths:    /(?^:(^|/)(^/README.*|^/LICENSE.*|^/\.stow\-local\-ignore$|^/COPYING)(/|$))/
+        Ignore list regexp for segments: /(?^:^(CVS|\.hg|\.gitmodules|.+~|_darcs|RCS|\.cvsignore|\.#.+|.+,v|#.*#|\.svn|\.git|\.gitignore)$)/
+    Not ignoring .config/systemd/user
+Stowing entry github_repo/.dotfiles/stow / systemd / .config/systemd/user
+                    | Joining: github_repo/.dotfiles/stow systemd .config/systemd/user
+                    | Final join: github_repo/.dotfiles/stow/systemd/.config/systemd/user
+    level of .config/systemd/user is 2
+                    | Joining: ../../ github_repo/.dotfiles/stow/systemd/.config/systemd/user
+                    | Final join: ../../github_repo/.dotfiles/stow/systemd/.config/systemd/user
+    link destination ../../github_repo/.dotfiles/stow/systemd/.config/systemd/user
+        is_a_link(.config/systemd/user)
+                | link_task_action(.config/systemd/user): no task
+        is_a_link(.config/systemd/user): returning 0
+                | Checking whether .config/systemd/user is a current/planned node
+                | link_task_action(.config/systemd/user): no task
+                | dir_task_action(.config/systemd/user): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config/systemd/user): prefix .config
+                    | Joining: .config systemd
+                    | Final join: .config/systemd
+                | parent_link_scheduled_for_removal(.config/systemd/user): prefix .config/systemd
+                    | Joining: .config/systemd user
+                    | Final join: .config/systemd/user
+                | parent_link_scheduled_for_removal(.config/systemd/user): prefix .config/systemd/user
+                | parent_link_scheduled_for_removal(.config/systemd/user): returning false
+            | is_a_node(.config/systemd/user): really exists
+    Evaluate existing node: .config/systemd/user
+    is_a_dir(.config/systemd/user)
+                | dir_task_action(.config/systemd/user): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config/systemd/user): prefix .config
+                    | Joining: .config systemd
+                    | Final join: .config/systemd
+                | parent_link_scheduled_for_removal(.config/systemd/user): prefix .config/systemd
+                    | Joining: .config/systemd user
+                    | Final join: .config/systemd/user
+                | parent_link_scheduled_for_removal(.config/systemd/user): prefix .config/systemd/user
+                | parent_link_scheduled_for_removal(.config/systemd/user): returning false
+    is_a_dir(.config/systemd/user): real dir
+                    | Joining: .config/systemd/user .stow
+                    | Final join: .config/systemd/user/.stow
+                    | Joining: .config/systemd/user .nonstow
+                    | Final join: .config/systemd/user/.nonstow
+    .config/systemd/user not protected; shouldn't skip
+Stowing contents of github_repo/.dotfiles/stow / systemd / .config/systemd/user (cwd=/home/pera)
+    target subdir is .config/systemd/user
+                    | Joining: github_repo/.dotfiles/stow systemd .config/systemd/user
+                    | Final join: github_repo/.dotfiles/stow/systemd/.config/systemd/user
+                | Checking whether .config/systemd/user is a current/planned node
+                | link_task_action(.config/systemd/user): no task
+                | dir_task_action(.config/systemd/user): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config/systemd/user): prefix .config
+                    | Joining: .config systemd
+                    | Final join: .config/systemd
+                | parent_link_scheduled_for_removal(.config/systemd/user): prefix .config/systemd
+                    | Joining: .config/systemd user
+                    | Final join: .config/systemd/user
+                | parent_link_scheduled_for_removal(.config/systemd/user): prefix .config/systemd/user
+                | parent_link_scheduled_for_removal(.config/systemd/user): returning false
+            | is_a_node(.config/systemd/user): really exists
+                    | Joining: .config/systemd/user hyprland-session.service
+                    | Final join: .config/systemd/user/hyprland-session.service
+                    | Joining: .config/systemd/user hyprland-session.service
+                    | Final join: .config/systemd/user/hyprland-session.service
+                    | Joining: github_repo/.dotfiles/stow systemd
+                    | Final join: github_repo/.dotfiles/stow/systemd
+                    | Joining: github_repo/.dotfiles/stow/systemd .stow-local-ignore
+                    | Final join: github_repo/.dotfiles/stow/systemd/.stow-local-ignore
+                    | Joining: /home/pera .stow-global-ignore
+                    | Final join: /home/pera/.stow-global-ignore
+    github_repo/.dotfiles/stow/systemd/.stow-local-ignore didn't exist
+    /home/pera/.stow-global-ignore didn't exist
+    Using built-in ignore list
+        Ignore list regexp for paths:    /(?^:(^|/)(^/README.*|^/LICENSE.*|^/\.stow\-local\-ignore$|^/COPYING)(/|$))/
+        Ignore list regexp for segments: /(?^:^(CVS|\.hg|\.gitmodules|.+~|_darcs|RCS|\.cvsignore|\.#.+|.+,v|#.*#|\.svn|\.git|\.gitignore)$)/
+    Not ignoring .config/systemd/user/hyprland-session.service
+Stowing entry github_repo/.dotfiles/stow / systemd / .config/systemd/user/hyprland-session.service
+                    | Joining: github_repo/.dotfiles/stow systemd .config/systemd/user/hyprland-session.service
+                    | Final join: github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service
+    level of .config/systemd/user/hyprland-session.service is 3
+                    | Joining: ../../../ github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service
+                    | Final join: ../../../github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service
+    link destination ../../../github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service
+        is_a_link(.config/systemd/user/hyprland-session.service)
+                | link_task_action(.config/systemd/user/hyprland-session.service): no task
+        is_a_link(.config/systemd/user/hyprland-session.service): is a real link
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config/systemd/user/hyprland-session.service): prefix .config
+                    | Joining: .config systemd
+                    | Final join: .config/systemd
+                | parent_link_scheduled_for_removal(.config/systemd/user/hyprland-session.service): prefix .config/systemd
+                    | Joining: .config/systemd user
+                    | Final join: .config/systemd/user
+                | parent_link_scheduled_for_removal(.config/systemd/user/hyprland-session.service): prefix .config/systemd/user
+                    | Joining: .config/systemd/user hyprland-session.service
+                    | Final join: .config/systemd/user/hyprland-session.service
+                | parent_link_scheduled_for_removal(.config/systemd/user/hyprland-session.service): prefix .config/systemd/user/hyprland-session.service
+                | parent_link_scheduled_for_removal(.config/systemd/user/hyprland-session.service): returning false
+                | link_task_action(.config/systemd/user/hyprland-session.service): no task
+        read_a_link(.config/systemd/user/hyprland-session.service): is a real link
+    Evaluate existing link: .config/systemd/user/hyprland-session.service => ../../../github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service
+        find_stowed_path(target=.config/systemd/user/hyprland-session.service; source=../../../github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service)
+                    | Joining: .config/systemd/user ../../../github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service
+                    | Final join: github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service
+            is symlink destination github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service owned by stow?
+                common prefix? link_dest=github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service; stow_path=github_repo/.dotfiles/stow
+                remaining after removing github_repo/.dotfiles/stow: systemd/.config/systemd/user/hyprland-session.service
+            yes - package systemd in github_repo/.dotfiles/stow may contain .config/systemd/user/hyprland-session.service
+                | Checking whether github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service is a current/planned node
+                | link_task_action(github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service): no task
+                | dir_task_action(github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service): no task
+                    | Joining:  github_repo
+                    | Final join: github_repo
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service): prefix github_repo
+                    | Joining: github_repo .dotfiles
+                    | Final join: github_repo/.dotfiles
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service): prefix github_repo/.dotfiles
+                    | Joining: github_repo/.dotfiles stow
+                    | Final join: github_repo/.dotfiles/stow
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service): prefix github_repo/.dotfiles/stow
+                    | Joining: github_repo/.dotfiles/stow systemd
+                    | Final join: github_repo/.dotfiles/stow/systemd
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service): prefix github_repo/.dotfiles/stow/systemd
+                    | Joining: github_repo/.dotfiles/stow/systemd .config
+                    | Final join: github_repo/.dotfiles/stow/systemd/.config
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service): prefix github_repo/.dotfiles/stow/systemd/.config
+                    | Joining: github_repo/.dotfiles/stow/systemd/.config systemd
+                    | Final join: github_repo/.dotfiles/stow/systemd/.config/systemd
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service): prefix github_repo/.dotfiles/stow/systemd/.config/systemd
+                    | Joining: github_repo/.dotfiles/stow/systemd/.config/systemd user
+                    | Final join: github_repo/.dotfiles/stow/systemd/.config/systemd/user
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service): prefix github_repo/.dotfiles/stow/systemd/.config/systemd/user
+                    | Joining: github_repo/.dotfiles/stow/systemd/.config/systemd/user hyprland-session.service
+                    | Final join: github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service): prefix github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service): returning false
+            | is_a_node(github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service): really exists
+--- Skipping .config/systemd/user/hyprland-session.service as it already points to ../../../github_repo/.dotfiles/stow/systemd/.config/systemd/user/hyprland-session.service
+Planning stow of package systemd... done
+cwd restored to /home/pera/github_repo/.dotfiles/stow
+Processing tasks...
++ systemctl --user daemon-reload
++ echo '[CONFIG] Swaync Config'
+[CONFIG] Swaync Config
++ cd /home/pera/github_repo/.dotfiles/stow
++ stow --verbose=5 --no-folding -t /home/pera swaync
+stow dir is /home/pera/github_repo/.dotfiles/stow
+stow dir path relative to target /home/pera is github_repo/.dotfiles/stow
+Planning stow of: swaync ...
+cwd now /home/pera
+                    | Joining: github_repo/.dotfiles/stow swaync
+                    | Final join: github_repo/.dotfiles/stow/swaync
+Planning stow of package swaync...
+                    | Joining: . .stow
+                    | Final join: .stow
+                    | Joining: . .nonstow
+                    | Final join: .nonstow
+    . not protected; shouldn't skip
+Stowing contents of github_repo/.dotfiles/stow / swaync / . (cwd=/home/pera)
+    target subdir is .
+                    | Joining: github_repo/.dotfiles/stow swaync .
+                    | Final join: github_repo/.dotfiles/stow/swaync
+                | Checking whether . is a current/planned node
+                | link_task_action(.): no task
+                | dir_task_action(.): no task
+                    | Joining:  .
+                    | Final join: .
+                | parent_link_scheduled_for_removal(.): prefix .
+                | parent_link_scheduled_for_removal(.): returning false
+            | is_a_node(.): really exists
+                    | Joining: . .config
+                    | Final join: .config
+                    | Joining: . .config
+                    | Final join: .config
+                    | Joining: github_repo/.dotfiles/stow swaync
+                    | Final join: github_repo/.dotfiles/stow/swaync
+                    | Joining: github_repo/.dotfiles/stow/swaync .stow-local-ignore
+                    | Final join: github_repo/.dotfiles/stow/swaync/.stow-local-ignore
+                    | Joining: /home/pera .stow-global-ignore
+                    | Final join: /home/pera/.stow-global-ignore
+    github_repo/.dotfiles/stow/swaync/.stow-local-ignore didn't exist
+    /home/pera/.stow-global-ignore didn't exist
+    Using built-in ignore list
+        Ignore list regexp for paths:    /(?^:(^|/)(^/COPYING|^/\.stow\-local\-ignore$|^/LICENSE.*|^/README.*)(/|$))/
+        Ignore list regexp for segments: /(?^:^(\.cvsignore|RCS|.+~|_darcs|#.*#|\.gitmodules|\.#.+|\.gitignore|\.hg|\.git|CVS|\.svn|.+,v)$)/
+    Not ignoring .config
+Stowing entry github_repo/.dotfiles/stow / swaync / .config
+                    | Joining: github_repo/.dotfiles/stow swaync .config
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config
+    level of .config is 0
+                    | Joining:  github_repo/.dotfiles/stow/swaync/.config
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config
+    link destination github_repo/.dotfiles/stow/swaync/.config
+        is_a_link(.config)
+                | link_task_action(.config): no task
+        is_a_link(.config): returning 0
+                | Checking whether .config is a current/planned node
+                | link_task_action(.config): no task
+                | dir_task_action(.config): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config): prefix .config
+                | parent_link_scheduled_for_removal(.config): returning false
+            | is_a_node(.config): really exists
+    Evaluate existing node: .config
+    is_a_dir(.config)
+                | dir_task_action(.config): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config): prefix .config
+                | parent_link_scheduled_for_removal(.config): returning false
+    is_a_dir(.config): real dir
+                    | Joining: .config .stow
+                    | Final join: .config/.stow
+                    | Joining: .config .nonstow
+                    | Final join: .config/.nonstow
+    .config not protected; shouldn't skip
+Stowing contents of github_repo/.dotfiles/stow / swaync / .config (cwd=/home/pera)
+    target subdir is .config
+                    | Joining: github_repo/.dotfiles/stow swaync .config
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config
+                | Checking whether .config is a current/planned node
+                | link_task_action(.config): no task
+                | dir_task_action(.config): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config): prefix .config
+                | parent_link_scheduled_for_removal(.config): returning false
+            | is_a_node(.config): really exists
+                    | Joining: .config swaync
+                    | Final join: .config/swaync
+                    | Joining: .config swaync
+                    | Final join: .config/swaync
+                    | Joining: github_repo/.dotfiles/stow swaync
+                    | Final join: github_repo/.dotfiles/stow/swaync
+                    | Joining: github_repo/.dotfiles/stow/swaync .stow-local-ignore
+                    | Final join: github_repo/.dotfiles/stow/swaync/.stow-local-ignore
+                    | Joining: /home/pera .stow-global-ignore
+                    | Final join: /home/pera/.stow-global-ignore
+    github_repo/.dotfiles/stow/swaync/.stow-local-ignore didn't exist
+    /home/pera/.stow-global-ignore didn't exist
+    Using built-in ignore list
+        Ignore list regexp for paths:    /(?^:(^|/)(^/COPYING|^/\.stow\-local\-ignore$|^/LICENSE.*|^/README.*)(/|$))/
+        Ignore list regexp for segments: /(?^:^(\.cvsignore|RCS|.+~|_darcs|#.*#|\.gitmodules|\.#.+|\.gitignore|\.hg|\.git|CVS|\.svn|.+,v)$)/
+    Not ignoring .config/swaync
+Stowing entry github_repo/.dotfiles/stow / swaync / .config/swaync
+                    | Joining: github_repo/.dotfiles/stow swaync .config/swaync
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config/swaync
+    level of .config/swaync is 1
+                    | Joining: ../ github_repo/.dotfiles/stow/swaync/.config/swaync
+                    | Final join: ../github_repo/.dotfiles/stow/swaync/.config/swaync
+    link destination ../github_repo/.dotfiles/stow/swaync/.config/swaync
+        is_a_link(.config/swaync)
+                | link_task_action(.config/swaync): no task
+        is_a_link(.config/swaync): returning 0
+                | Checking whether .config/swaync is a current/planned node
+                | link_task_action(.config/swaync): no task
+                | dir_task_action(.config/swaync): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config/swaync): prefix .config
+                    | Joining: .config swaync
+                    | Final join: .config/swaync
+                | parent_link_scheduled_for_removal(.config/swaync): prefix .config/swaync
+                | parent_link_scheduled_for_removal(.config/swaync): returning false
+            | is_a_node(.config/swaync): really exists
+    Evaluate existing node: .config/swaync
+    is_a_dir(.config/swaync)
+                | dir_task_action(.config/swaync): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config/swaync): prefix .config
+                    | Joining: .config swaync
+                    | Final join: .config/swaync
+                | parent_link_scheduled_for_removal(.config/swaync): prefix .config/swaync
+                | parent_link_scheduled_for_removal(.config/swaync): returning false
+    is_a_dir(.config/swaync): real dir
+                    | Joining: .config/swaync .stow
+                    | Final join: .config/swaync/.stow
+                    | Joining: .config/swaync .nonstow
+                    | Final join: .config/swaync/.nonstow
+    .config/swaync not protected; shouldn't skip
+Stowing contents of github_repo/.dotfiles/stow / swaync / .config/swaync (cwd=/home/pera)
+    target subdir is .config/swaync
+                    | Joining: github_repo/.dotfiles/stow swaync .config/swaync
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config/swaync
+                | Checking whether .config/swaync is a current/planned node
+                | link_task_action(.config/swaync): no task
+                | dir_task_action(.config/swaync): no task
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config/swaync): prefix .config
+                    | Joining: .config swaync
+                    | Final join: .config/swaync
+                | parent_link_scheduled_for_removal(.config/swaync): prefix .config/swaync
+                | parent_link_scheduled_for_removal(.config/swaync): returning false
+            | is_a_node(.config/swaync): really exists
+                    | Joining: .config/swaync config.json
+                    | Final join: .config/swaync/config.json
+                    | Joining: .config/swaync config.json
+                    | Final join: .config/swaync/config.json
+                    | Joining: github_repo/.dotfiles/stow swaync
+                    | Final join: github_repo/.dotfiles/stow/swaync
+                    | Joining: github_repo/.dotfiles/stow/swaync .stow-local-ignore
+                    | Final join: github_repo/.dotfiles/stow/swaync/.stow-local-ignore
+                    | Joining: /home/pera .stow-global-ignore
+                    | Final join: /home/pera/.stow-global-ignore
+    github_repo/.dotfiles/stow/swaync/.stow-local-ignore didn't exist
+    /home/pera/.stow-global-ignore didn't exist
+    Using built-in ignore list
+        Ignore list regexp for paths:    /(?^:(^|/)(^/COPYING|^/\.stow\-local\-ignore$|^/LICENSE.*|^/README.*)(/|$))/
+        Ignore list regexp for segments: /(?^:^(\.cvsignore|RCS|.+~|_darcs|#.*#|\.gitmodules|\.#.+|\.gitignore|\.hg|\.git|CVS|\.svn|.+,v)$)/
+    Not ignoring .config/swaync/config.json
+Stowing entry github_repo/.dotfiles/stow / swaync / .config/swaync/config.json
+                    | Joining: github_repo/.dotfiles/stow swaync .config/swaync/config.json
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config/swaync/config.json
+    level of .config/swaync/config.json is 2
+                    | Joining: ../../ github_repo/.dotfiles/stow/swaync/.config/swaync/config.json
+                    | Final join: ../../github_repo/.dotfiles/stow/swaync/.config/swaync/config.json
+    link destination ../../github_repo/.dotfiles/stow/swaync/.config/swaync/config.json
+        is_a_link(.config/swaync/config.json)
+                | link_task_action(.config/swaync/config.json): no task
+        is_a_link(.config/swaync/config.json): is a real link
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config/swaync/config.json): prefix .config
+                    | Joining: .config swaync
+                    | Final join: .config/swaync
+                | parent_link_scheduled_for_removal(.config/swaync/config.json): prefix .config/swaync
+                    | Joining: .config/swaync config.json
+                    | Final join: .config/swaync/config.json
+                | parent_link_scheduled_for_removal(.config/swaync/config.json): prefix .config/swaync/config.json
+                | parent_link_scheduled_for_removal(.config/swaync/config.json): returning false
+                | link_task_action(.config/swaync/config.json): no task
+        read_a_link(.config/swaync/config.json): is a real link
+    Evaluate existing link: .config/swaync/config.json => ../../github_repo/.dotfiles/stow/swaync/.config/swaync/config.json
+        find_stowed_path(target=.config/swaync/config.json; source=../../github_repo/.dotfiles/stow/swaync/.config/swaync/config.json)
+                    | Joining: .config/swaync ../../github_repo/.dotfiles/stow/swaync/.config/swaync/config.json
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config/swaync/config.json
+            is symlink destination github_repo/.dotfiles/stow/swaync/.config/swaync/config.json owned by stow?
+                common prefix? link_dest=github_repo/.dotfiles/stow/swaync/.config/swaync/config.json; stow_path=github_repo/.dotfiles/stow
+                remaining after removing github_repo/.dotfiles/stow: swaync/.config/swaync/config.json
+            yes - package swaync in github_repo/.dotfiles/stow may contain .config/swaync/config.json
+                | Checking whether github_repo/.dotfiles/stow/swaync/.config/swaync/config.json is a current/planned node
+                | link_task_action(github_repo/.dotfiles/stow/swaync/.config/swaync/config.json): no task
+                | dir_task_action(github_repo/.dotfiles/stow/swaync/.config/swaync/config.json): no task
+                    | Joining:  github_repo
+                    | Final join: github_repo
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/config.json): prefix github_repo
+                    | Joining: github_repo .dotfiles
+                    | Final join: github_repo/.dotfiles
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/config.json): prefix github_repo/.dotfiles
+                    | Joining: github_repo/.dotfiles stow
+                    | Final join: github_repo/.dotfiles/stow
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/config.json): prefix github_repo/.dotfiles/stow
+                    | Joining: github_repo/.dotfiles/stow swaync
+                    | Final join: github_repo/.dotfiles/stow/swaync
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/config.json): prefix github_repo/.dotfiles/stow/swaync
+                    | Joining: github_repo/.dotfiles/stow/swaync .config
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/config.json): prefix github_repo/.dotfiles/stow/swaync/.config
+                    | Joining: github_repo/.dotfiles/stow/swaync/.config swaync
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config/swaync
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/config.json): prefix github_repo/.dotfiles/stow/swaync/.config/swaync
+                    | Joining: github_repo/.dotfiles/stow/swaync/.config/swaync config.json
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config/swaync/config.json
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/config.json): prefix github_repo/.dotfiles/stow/swaync/.config/swaync/config.json
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/config.json): returning false
+            | is_a_node(github_repo/.dotfiles/stow/swaync/.config/swaync/config.json): really exists
+--- Skipping .config/swaync/config.json as it already points to ../../github_repo/.dotfiles/stow/swaync/.config/swaync/config.json
+                    | Joining: .config/swaync mocha.css
+                    | Final join: .config/swaync/mocha.css
+                    | Joining: .config/swaync mocha.css
+                    | Final join: .config/swaync/mocha.css
+                    | Joining: github_repo/.dotfiles/stow swaync
+                    | Final join: github_repo/.dotfiles/stow/swaync
+                    | Joining: github_repo/.dotfiles/stow/swaync .stow-local-ignore
+                    | Final join: github_repo/.dotfiles/stow/swaync/.stow-local-ignore
+                    | Joining: /home/pera .stow-global-ignore
+                    | Final join: /home/pera/.stow-global-ignore
+    github_repo/.dotfiles/stow/swaync/.stow-local-ignore didn't exist
+    /home/pera/.stow-global-ignore didn't exist
+    Using built-in ignore list
+        Ignore list regexp for paths:    /(?^:(^|/)(^/COPYING|^/\.stow\-local\-ignore$|^/LICENSE.*|^/README.*)(/|$))/
+        Ignore list regexp for segments: /(?^:^(\.cvsignore|RCS|.+~|_darcs|#.*#|\.gitmodules|\.#.+|\.gitignore|\.hg|\.git|CVS|\.svn|.+,v)$)/
+    Not ignoring .config/swaync/mocha.css
+Stowing entry github_repo/.dotfiles/stow / swaync / .config/swaync/mocha.css
+                    | Joining: github_repo/.dotfiles/stow swaync .config/swaync/mocha.css
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css
+    level of .config/swaync/mocha.css is 2
+                    | Joining: ../../ github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css
+                    | Final join: ../../github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css
+    link destination ../../github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css
+        is_a_link(.config/swaync/mocha.css)
+                | link_task_action(.config/swaync/mocha.css): no task
+        is_a_link(.config/swaync/mocha.css): is a real link
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config/swaync/mocha.css): prefix .config
+                    | Joining: .config swaync
+                    | Final join: .config/swaync
+                | parent_link_scheduled_for_removal(.config/swaync/mocha.css): prefix .config/swaync
+                    | Joining: .config/swaync mocha.css
+                    | Final join: .config/swaync/mocha.css
+                | parent_link_scheduled_for_removal(.config/swaync/mocha.css): prefix .config/swaync/mocha.css
+                | parent_link_scheduled_for_removal(.config/swaync/mocha.css): returning false
+                | link_task_action(.config/swaync/mocha.css): no task
+        read_a_link(.config/swaync/mocha.css): is a real link
+    Evaluate existing link: .config/swaync/mocha.css => ../../github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css
+        find_stowed_path(target=.config/swaync/mocha.css; source=../../github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css)
+                    | Joining: .config/swaync ../../github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css
+            is symlink destination github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css owned by stow?
+                common prefix? link_dest=github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css; stow_path=github_repo/.dotfiles/stow
+                remaining after removing github_repo/.dotfiles/stow: swaync/.config/swaync/mocha.css
+            yes - package swaync in github_repo/.dotfiles/stow may contain .config/swaync/mocha.css
+                | Checking whether github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css is a current/planned node
+                | link_task_action(github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css): no task
+                | dir_task_action(github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css): no task
+                    | Joining:  github_repo
+                    | Final join: github_repo
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css): prefix github_repo
+                    | Joining: github_repo .dotfiles
+                    | Final join: github_repo/.dotfiles
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css): prefix github_repo/.dotfiles
+                    | Joining: github_repo/.dotfiles stow
+                    | Final join: github_repo/.dotfiles/stow
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css): prefix github_repo/.dotfiles/stow
+                    | Joining: github_repo/.dotfiles/stow swaync
+                    | Final join: github_repo/.dotfiles/stow/swaync
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css): prefix github_repo/.dotfiles/stow/swaync
+                    | Joining: github_repo/.dotfiles/stow/swaync .config
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css): prefix github_repo/.dotfiles/stow/swaync/.config
+                    | Joining: github_repo/.dotfiles/stow/swaync/.config swaync
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config/swaync
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css): prefix github_repo/.dotfiles/stow/swaync/.config/swaync
+                    | Joining: github_repo/.dotfiles/stow/swaync/.config/swaync mocha.css
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css): prefix github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css): returning false
+            | is_a_node(github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css): really exists
+--- Skipping .config/swaync/mocha.css as it already points to ../../github_repo/.dotfiles/stow/swaync/.config/swaync/mocha.css
+                    | Joining: .config/swaync style.css
+                    | Final join: .config/swaync/style.css
+                    | Joining: .config/swaync style.css
+                    | Final join: .config/swaync/style.css
+                    | Joining: github_repo/.dotfiles/stow swaync
+                    | Final join: github_repo/.dotfiles/stow/swaync
+                    | Joining: github_repo/.dotfiles/stow/swaync .stow-local-ignore
+                    | Final join: github_repo/.dotfiles/stow/swaync/.stow-local-ignore
+                    | Joining: /home/pera .stow-global-ignore
+                    | Final join: /home/pera/.stow-global-ignore
+    github_repo/.dotfiles/stow/swaync/.stow-local-ignore didn't exist
+    /home/pera/.stow-global-ignore didn't exist
+    Using built-in ignore list
+        Ignore list regexp for paths:    /(?^:(^|/)(^/COPYING|^/\.stow\-local\-ignore$|^/LICENSE.*|^/README.*)(/|$))/
+        Ignore list regexp for segments: /(?^:^(\.cvsignore|RCS|.+~|_darcs|#.*#|\.gitmodules|\.#.+|\.gitignore|\.hg|\.git|CVS|\.svn|.+,v)$)/
+    Not ignoring .config/swaync/style.css
+Stowing entry github_repo/.dotfiles/stow / swaync / .config/swaync/style.css
+                    | Joining: github_repo/.dotfiles/stow swaync .config/swaync/style.css
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config/swaync/style.css
+    level of .config/swaync/style.css is 2
+                    | Joining: ../../ github_repo/.dotfiles/stow/swaync/.config/swaync/style.css
+                    | Final join: ../../github_repo/.dotfiles/stow/swaync/.config/swaync/style.css
+    link destination ../../github_repo/.dotfiles/stow/swaync/.config/swaync/style.css
+        is_a_link(.config/swaync/style.css)
+                | link_task_action(.config/swaync/style.css): no task
+        is_a_link(.config/swaync/style.css): is a real link
+                    | Joining:  .config
+                    | Final join: .config
+                | parent_link_scheduled_for_removal(.config/swaync/style.css): prefix .config
+                    | Joining: .config swaync
+                    | Final join: .config/swaync
+                | parent_link_scheduled_for_removal(.config/swaync/style.css): prefix .config/swaync
+                    | Joining: .config/swaync style.css
+                    | Final join: .config/swaync/style.css
+                | parent_link_scheduled_for_removal(.config/swaync/style.css): prefix .config/swaync/style.css
+                | parent_link_scheduled_for_removal(.config/swaync/style.css): returning false
+                | link_task_action(.config/swaync/style.css): no task
+        read_a_link(.config/swaync/style.css): is a real link
+    Evaluate existing link: .config/swaync/style.css => ../../github_repo/.dotfiles/stow/swaync/.config/swaync/style.css
+        find_stowed_path(target=.config/swaync/style.css; source=../../github_repo/.dotfiles/stow/swaync/.config/swaync/style.css)
+                    | Joining: .config/swaync ../../github_repo/.dotfiles/stow/swaync/.config/swaync/style.css
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config/swaync/style.css
+            is symlink destination github_repo/.dotfiles/stow/swaync/.config/swaync/style.css owned by stow?
+                common prefix? link_dest=github_repo/.dotfiles/stow/swaync/.config/swaync/style.css; stow_path=github_repo/.dotfiles/stow
+                remaining after removing github_repo/.dotfiles/stow: swaync/.config/swaync/style.css
+            yes - package swaync in github_repo/.dotfiles/stow may contain .config/swaync/style.css
+                | Checking whether github_repo/.dotfiles/stow/swaync/.config/swaync/style.css is a current/planned node
+                | link_task_action(github_repo/.dotfiles/stow/swaync/.config/swaync/style.css): no task
+                | dir_task_action(github_repo/.dotfiles/stow/swaync/.config/swaync/style.css): no task
+                    | Joining:  github_repo
+                    | Final join: github_repo
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/style.css): prefix github_repo
+                    | Joining: github_repo .dotfiles
+                    | Final join: github_repo/.dotfiles
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/style.css): prefix github_repo/.dotfiles
+                    | Joining: github_repo/.dotfiles stow
+                    | Final join: github_repo/.dotfiles/stow
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/style.css): prefix github_repo/.dotfiles/stow
+                    | Joining: github_repo/.dotfiles/stow swaync
+                    | Final join: github_repo/.dotfiles/stow/swaync
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/style.css): prefix github_repo/.dotfiles/stow/swaync
+                    | Joining: github_repo/.dotfiles/stow/swaync .config
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/style.css): prefix github_repo/.dotfiles/stow/swaync/.config
+                    | Joining: github_repo/.dotfiles/stow/swaync/.config swaync
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config/swaync
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/style.css): prefix github_repo/.dotfiles/stow/swaync/.config/swaync
+                    | Joining: github_repo/.dotfiles/stow/swaync/.config/swaync style.css
+                    | Final join: github_repo/.dotfiles/stow/swaync/.config/swaync/style.css
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/style.css): prefix github_repo/.dotfiles/stow/swaync/.config/swaync/style.css
+                | parent_link_scheduled_for_removal(github_repo/.dotfiles/stow/swaync/.config/swaync/style.css): returning false
+            | is_a_node(github_repo/.dotfiles/stow/swaync/.config/swaync/style.css): really exists
+--- Skipping .config/swaync/style.css as it already points to ../../github_repo/.dotfiles/stow/swaync/.config/swaync/style.css
+Planning stow of package swaync... done
+cwd restored to /home/pera/github_repo/.dotfiles/stow
+Processing tasks...
+
+Script done on 2026-09-13 17:22:47+06:00 [COMMAND_EXIT_CODE="0"]
