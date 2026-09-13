@@ -6,10 +6,10 @@ current_phase: 18
 current_phase_name: Capture model — three trees and the collision map
 status: executing
 stopped_at: Phase 18 context gathered — ready for planning
-last_updated: "2026-09-13T16:20:06.406Z"
+last_updated: "2026-09-13T16:23:22.118Z"
 last_activity: 2026-09-13
-last_activity_desc: Phase 17 complete, transitioned to Phase 18
-state_head: e222a23c161c3c81c476c53941d07a824b51c6bf
+last_activity_desc: Phase 18 execution started
+state_head: e1d5c0fad053547aeaca9031ce2dee5d2e9e0807
 progress:
   total_phases: 7
   completed_phases: 1
@@ -24,11 +24,11 @@ Total Phases: 7 (Phases 17-23)
 
 ## Current Position
 
-Phase: 18 (Capture model — three trees and the collision map) — READY TO EXECUTE
-Plan: Not started
-Status: Ready to execute
+Phase: 18 (Capture model — three trees and the collision map) — EXECUTING
+Plan: 1 of 11
+Status: Executing Phase 18
 Progress: [░░░░░░░░░░] 0%
-Last activity: 2026-09-13 — Phase 17 complete, transitioned to Phase 18
+Last activity: 2026-09-13 — Phase 18 execution started
 
 ## Session
 
@@ -42,7 +42,7 @@ Last activity: 2026-09-13 — Phase 17 complete, transitioned to Phase 18
 See: .planning/PROJECT.md (updated 2026-09-08)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 17 — Unblock stow and restore the session target
+**Current focus:** Phase 18 — Capture model — three trees and the collision map
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
