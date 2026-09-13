@@ -227,11 +227,12 @@ else
 fi
 
 # =============================================================================
-# criterion 4 / FIX-06 — git metadata. Sections 4a and 4b ONLY.
+# criterion 4 / FIX-06 — git metadata. Sections 4a and 4b.
 #
-# The scan half (4c, 4d) belongs to plan 17-04 and is deliberately ABSENT here
-# rather than stubbed. A stub that always passes is worse than a missing
-# section, because it reads as coverage.
+# The scan half (4c, 4d) was added by plan 17-04 and lives further down, after
+# section 4b. It is kept separate because it covers a different thing: 4a/4b
+# assert the git metadata files, 4c/4d assert that a real scanner runs over
+# both surfaces and that every accepted finding carries a written reason.
 #
 # NON-MUTATING. `git check-ignore` is a read-only path/pattern query — it
 # consults .gitignore and the index and writes neither — and the rest of this
@@ -406,6 +407,154 @@ if git check-ignore -q --no-index -- .config/kdeglobals; then
 else
   fail "4b F-9: even under --no-index no pattern reaches .config/kdeglobals — the generated-theme pattern is dead"
   git check-ignore -v --no-index -- .config/kdeglobals || true
+fi
+
+# =============================================================================
+# criterion 4 / FIX-06 — the scan half. Sections 4c and 4d (plan 17-04).
+#
+# 4a and 4b above cover git METADATA (.gitattributes, .gitignore). This half
+# covers the SCAN: that a real secret scanner runs over both surfaces and that
+# every finding it once reported was individually dispositioned with a written
+# reason rather than blanket-suppressed.
+#
+# Two surfaces, deliberately both. `gitleaks git` walks commit history;
+# `gitleaks dir` walks the working tree. They cover different things — a file
+# deleted from the tree survives in history, and an untracked file exists only
+# in the tree — so a green on one is not a green on the other. `gitleaks
+# detect` does not exist in 8.x and a typo'd sub-command is a loud error, not a
+# silent pass.
+#
+# NON-MUTATING. Both invocations are read-only walks. Neither carries
+# --report-path, so neither writes a report file; the verdict is the exit code.
+# Every invocation carries --redact, so no matched value can reach stdout even
+# on a failure dump.
+#
+# Timing note (plan 17-04): the history scan reads ~2600 commits / ~35 MB in
+# under 3 seconds on this repo, so it stays on the per-commit clock with the
+# rest of this script rather than moving behind the per-wave sampling rate.
+# =============================================================================
+echo "=== Phase 17 criterion 4 / FIX-06 secret scan (4c, 4d) ==="
+
+# --- 4c guard: a missing scanner is a loud red, never a skipped section -----
+# Without this guard the two scans below would simply not run, and a reader of
+# an all-green log would conclude the repo was scanned clean when nothing was
+# scanned at all. That is the same "green produced by narrowing the instrument"
+# failure the phase prohibits, arrived at by absence instead of by config.
+GITLEAKS_BIN="$(command -v gitleaks 2>/dev/null || true)"
+if [[ -n "$GITLEAKS_BIN" ]]; then
+  pass "4c guard: gitleaks is on PATH at $GITLEAKS_BIN"
+else
+  fail "4c guard: gitleaks is not on PATH — the two scans below cannot run and MUST NOT be read as clean"
+fi
+
+# --- 4c / D-11: the binary is the Arch package, not a name-alike ------------
+# `gitleaks` also names an unrelated npm package. Resolving on PATH proves only
+# that something answers to the name. `pacman -Qo` ties the resolved path back
+# to extra/gitleaks, which makes the homonym hazard a checked claim rather than
+# an assumption. Guarded: pacman -Qo exits non-zero on an unowned file, which
+# under `set -e` would abort the script rather than report.
+if [[ -n "$GITLEAKS_BIN" ]]; then
+  if GITLEAKS_OWNER="$(pacman -Qo "$GITLEAKS_BIN" 2>/dev/null)"; then
+    pass "4c package ownership: $GITLEAKS_OWNER"
+  else
+    fail "4c package ownership: $GITLEAKS_BIN resolves on PATH but no pacman package owns it — it may be a cross-ecosystem homonym rather than extra/gitleaks"
+  fi
+fi
+
+# --- 4c: the history surface ------------------------------------------------
+# gitleaks exits 0 on no findings and non-zero when it finds something OR when
+# it fails to run. Both are the wrong verdict here and both are reported, so a
+# broken invocation cannot masquerade as a clean one.
+if [[ -n "$GITLEAKS_BIN" ]]; then
+  if gitleaks git . --redact --no-banner >/dev/null 2>&1; then
+    pass "4c history scan: 'gitleaks git . --redact --no-banner' exits 0 — no unreviewed finding in git history"
+  else
+    fail "4c history scan: 'gitleaks git . --redact --no-banner' did not return the clean verdict"
+    gitleaks git . --redact --no-banner 2>&1 | tail -20 || true
+  fi
+fi
+
+# --- 4c: the working-tree surface -------------------------------------------
+if [[ -n "$GITLEAKS_BIN" ]]; then
+  if gitleaks dir . --redact --no-banner >/dev/null 2>&1; then
+    pass "4c working-tree scan: 'gitleaks dir . --redact --no-banner' exits 0 — no unreviewed finding in the working tree"
+  else
+    fail "4c working-tree scan: 'gitleaks dir . --redact --no-banner' did not return the clean verdict"
+    gitleaks dir . --redact --no-banner 2>&1 | tail -20 || true
+  fi
+fi
+
+# --- 4d: every accepted finding carries a written reason --------------------
+# Conditional by construction (D-11): the config exists if and only if the
+# triage accepted at least one finding. With zero accepted findings there is no
+# file and nothing is verified, so that branch emits [INFO] — not [PASS], which
+# would claim a check that never ran.
+if [[ -f .gitleaks.toml ]]; then
+  ALLOWLIST_COUNT="$(grep -c '^\[\[allowlists\]\]' .gitleaks.toml || true)"
+  COMMENT_COUNT="$(grep -c '^[[:space:]]*#' .gitleaks.toml || true)"
+
+  if [[ "$ALLOWLIST_COUNT" -gt 0 ]]; then
+    pass "4d guard: .gitleaks.toml holds $ALLOWLIST_COUNT active [[allowlists]] entr(ies) — the per-entry checks below cannot pass vacuously"
+  else
+    fail "4d guard: .gitleaks.toml exists but holds no active [[allowlists]] entry — either the file is a stub or every entry was commented out"
+  fi
+
+  if [[ "$COMMENT_COUNT" -gt 0 ]]; then
+    pass "4d: .gitleaks.toml carries $COMMENT_COUNT comment line(s) recording the triage reasoning"
+  else
+    fail "4d: .gitleaks.toml carries no comment line at all — an allowlist with no written reasons"
+  fi
+
+  # Each `[[allowlists]]` header must be IMMEDIATELY followed by a description
+  # carrying a substantive reason. Adjacency is the point: a reason three
+  # entries away cannot be matched to the entry it excuses. 40 characters is a
+  # deliberate floor — it rejects "false positive" and "not a secret", which
+  # record a verdict without recording why.
+  BAD_REASON="$(awk '
+    /^\[\[allowlists\]\]$/ {
+      hdr = NR
+      if ((getline nxt) <= 0) { print hdr ": entry has no following line"; next }
+      if (nxt !~ /^description = ".+"$/) { print hdr ": next line is not a description ("  nxt  ")"; next }
+      body = nxt
+      sub(/^description = "/, "", body); sub(/"$/, "", body)
+      if (length(body) < 40) { print hdr ": description is only " length(body) " chars, too short to be a reason" }
+    }
+  ' .gitleaks.toml)"
+  if [[ -z "$BAD_REASON" ]]; then
+    pass "4d: all $ALLOWLIST_COUNT allowlist entr(ies) are immediately followed by a description line stating a reason"
+  else
+    fail "4d: an allowlist entry is missing an adjacent written reason"
+    printf '       %s\n' "$BAD_REASON"
+  fi
+
+  # Every entry must be narrowly scoped. `condition = "AND"` is not cosmetic:
+  # the gitleaks default is OR, under which a multi-key entry allowlists any
+  # finding matching ANY ONE key — a blanket suppression wearing the costume of
+  # a narrow one. `targetRules` is not cosmetic either: without it a global
+  # allowlist carrying `paths` makes `gitleaks dir` skip the matching file
+  # wholesale before reading a byte, and `condition = "AND"` does NOT prevent
+  # that. Both counts must equal the entry count.
+  AND_COUNT="$(grep -c '^condition = "AND"$' .gitleaks.toml || true)"
+  TARGETRULES_COUNT="$(grep -c '^targetRules = ' .gitleaks.toml || true)"
+  if [[ "$AND_COUNT" -eq "$ALLOWLIST_COUNT" && "$TARGETRULES_COUNT" -eq "$ALLOWLIST_COUNT" ]]; then
+    pass "4d scoping: all $ALLOWLIST_COUNT entr(ies) carry both condition = \"AND\" and targetRules — no entry degrades to an OR match or to a whole-file skip"
+  else
+    fail "4d scoping: $AND_COUNT of $ALLOWLIST_COUNT entr(ies) carry condition = \"AND\" and $TARGETRULES_COUNT carry targetRules — an entry is broader than it reads"
+    grep -n '^\[\[allowlists\]\]$\|^condition = \|^targetRules = ' .gitleaks.toml || true
+  fi
+
+  # The config must not exempt itself. .gitleaks.toml is tracked, so it sits
+  # inside the 4c working-tree surface — which is what proves no entry above
+  # contains a matched secret value. An entry scoped to this file's own path
+  # would remove that proof.
+  if grep -q "gitleaks\\\\.toml" .gitleaks.toml; then
+    fail "4d self-scope: an allowlist entry names .gitleaks.toml itself — the config would exempt itself from the working-tree scan that proves it holds no secret value"
+    grep -n "gitleaks\\\\.toml" .gitleaks.toml || true
+  else
+    pass "4d self-scope: no entry names .gitleaks.toml, so the config stays inside the 4c working-tree surface that proves it carries no matched value"
+  fi
+else
+  info "4d: .gitleaks.toml does not exist, so zero findings were accepted and there is no allowlist to check. This is [INFO] and not [PASS] — nothing was verified."
 fi
 
 # =============================================================================
