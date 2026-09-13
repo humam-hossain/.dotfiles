@@ -170,7 +170,7 @@ done
 # plan 17-07, behind that plan's checkpoint, and to no flag in this file.
 # =============================================================================
 # --- criterion 2: begin (FIX-02) ---
-echo "=== Phase 17 criterion 2 / FIX-02 installer configuration placement (2a, 2b, 2c) ==="
+echo "=== Phase 17 criterion 2 / FIX-02 installer configuration placement (2a, 2b, 2c, 2d) ==="
 
 # --- 2 guard: the input exists and actually holds something -----------------
 # Three bans in a row follow, and a ban is satisfied by an absent file. Renaming
@@ -244,6 +244,34 @@ else
   fail "2c $HYPR_INSTALLER carries no comment naming HYPR-01 — the deleted configuration placement is an unattributed gap, and the next reader cannot tell it from an oversight"
   grep -n -- 'HYPR-01' "$HYPR_INSTALLER" || true
 fi
+# --- 2d: the directory changes resolve from one hoisted, absolute base -------
+# The script changes directory twice. Resolving `$(dirname "${BASH_SOURCE[0]}")`
+# at each point of use evaluates the second one from the directory the first
+# change already moved to, so the run aborts under `set -e` whenever the script
+# was invoked by a relative path — and it aborts after the package operations
+# above have already mutated the system. Measured before the fix: of four
+# invocation forms, `bash arch/hyprland.sh` and `bash ./arch/hyprland.sh` both
+# failed at the SECOND change with `cd: arch/../stow: No such file or
+# directory`, while the absolute form and the from-inside-arch form survived.
+# The fix hoists one resolved base and reuses it, the idiom arch/waybar.sh
+# already uses. The ban is therefore: exactly one occurrence of the resolving
+# expression, and it must be the hoist, not a directory change.
+HYPR_HOIST_HITS=0
+HYPR_INLINE_CD_HITS=0
+if [[ "${HYPR_INSTALLER_LINES:-0}" -gt 0 ]]; then
+  HYPR_HOIST_HITS="$(grep -c -E '^[A-Za-z_][A-Za-z0-9_]*="\$\(cd "\$\(dirname "\$\{BASH_SOURCE\[0\]\}"\)/\.\." && pwd\)"$' "$HYPR_INSTALLER" || true)"
+  HYPR_INLINE_CD_HITS="$(grep -c -E '^[[:space:]]*cd "\$\(dirname' "$HYPR_INSTALLER" || true)"
+fi
+if [[ "${HYPR_INSTALLER_LINES:-0}" -eq 0 ]]; then
+  fail "2d cannot be evaluated: $HYPR_INSTALLER is missing or empty (see the guard above)"
+elif [[ "$HYPR_HOIST_HITS" -eq 1 && "$HYPR_INLINE_CD_HITS" -eq 0 ]]; then
+  pass "2d $HYPR_INSTALLER hoists exactly one resolved base and performs no directory change that re-resolves the script path, so no invocation form can abort at the second change after the package operations have run (D-5)"
+else
+  fail "2d $HYPR_INSTALLER does not resolve its directory changes from one hoisted base (hoist assignments=$HYPR_HOIST_HITS, expected 1; inline re-resolving directory changes=$HYPR_INLINE_CD_HITS, expected 0) — a relative invocation aborts at the second change"
+  grep -n -E '^[[:space:]]*cd "\$\(dirname' "$HYPR_INSTALLER" || true
+  grep -n -E '^[A-Za-z_][A-Za-z0-9_]*="\$\(cd ' "$HYPR_INSTALLER" || true
+fi
+
 # --- criterion 2: end ---
 
 # --- criterion 3 / FIX-04 (D-21): safe_rm_path refuses every repo path -------

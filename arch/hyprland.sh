@@ -2,6 +2,15 @@
 set -euo pipefail
 set -x
 
+# Resolved once, at the top, so that every path below is absolute and the
+# script behaves identically however it was invoked. The two stow stanzas
+# below each change directory; resolving the expression at the point of use
+# would evaluate the second one from the directory the first had already
+# moved to, which aborts the run under `set -e` after the package operations
+# above have already mutated the system. This is the same idiom arch/waybar.sh
+# already uses.
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
 echo "[INSTALL] Core Hyprland & Wayland Protocols"
 sudo pacman -Sy --noconfirm --needed hyprland hyprland-protocols
 
@@ -30,8 +39,8 @@ yay -Sy --noconfirm --needed gnome-network-displays
 # its source only when the script happened to run from the repository root.
 
 echo "[CONFIG] Graphical Session Bootstrap (systemd xdg-desktop-portal fix)"
-cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow --verbose=5 --no-folding -t ~ systemd
+cd "$REPO_ROOT/stow" && stow --verbose=5 --no-folding -t ~ systemd
 systemctl --user daemon-reload || true
 
 echo "[CONFIG] Swaync Config"
-cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow --verbose=5 --no-folding -t ~ swaync
+cd "$REPO_ROOT/stow" && stow --verbose=5 --no-folding -t ~ swaync
