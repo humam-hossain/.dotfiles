@@ -61,7 +61,7 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 
 **Ordering principle:** This is a single-operator repo on a daily-driver machine — the live desktop session *is* the production system. De-risk before bulk capture; `verify` exists before the first file is stowed; no phase may end with the session in a broken state.
 
-- [ ] **Phase 17: Unblock stow and restore the session target** — Fix the live stow/install defects, stop the repo's own scripts from being able to destroy it, ship D-38
+- [x] **Phase 17: Unblock stow and restore the session target** — Fix the live stow/install defects, stop the repo's own scripts from being able to destroy it, ship D-38 (completed 2026-09-13)
 - [ ] **Phase 18: Capture model — three trees and the collision map** — A file's location determines its mechanism, and the installer map is checked-in, machine-asserted data
 - [ ] **Phase 19: Link-aware `verify`** — A destroyed symlink becomes a loud failure instead of a clean `git status`, proven adversarially
 - [ ] **Phase 20: hypr/custom overlays and startup restore** — Six `*.lua` files stow-managed; personal keybinds, launcher variables, and the `exec-once` entries lost at adopt
@@ -88,7 +88,7 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 
 **Verification risk:** Criterion 5 needs one operator re-login; an agent cannot end the session. Criterion 2 runs a real install script against the live session — run it after criterion 1 lands, never before.
 **Known hand-sync window:** START-02 edits `custom/execs.lua` in *both* the repo and the live tree, because `stow/hypr/` does not exist yet. That duplication is closed by FIX-03 (Phase 18) and HYPR-01 (Phase 20); until then the two copies must be diffed by hand.
-**Plans:** 7/7 plans executed in 7 sequential waves — every plan grows `scripts/phase17-unblock-assert.sh`, so none can run in parallel, and the ordering encodes the two hard sequencing constraints (criterion 2 strictly after criterion 1; the `.env` triage before any FIX-06 work).
+**Plans:** 7/7 plans complete
 
 Plans:
 **Wave 1**
@@ -241,7 +241,7 @@ Plans:
 | 14. Live full adopt & verify | v0.3 | 2/2 | Complete | 2026-09-05 |
 | 15. Playbook safe vs full | v0.3 | 6/6 | Complete | 2026-09-06 |
 | 16. Retire the safe profile | v0.3 | 10/10 | Complete | 2026-09-08 |
-| 17. Unblock stow and restore the session target | v0.4 | 7/7 | In Progress|  |
+| 17. Unblock stow and restore the session target | v0.4 | 7/7 | Complete    | 2026-09-13 |
 | 18. Capture model — three trees and the collision map | v0.4 | 0/? | Not started | - |
 | 19. Link-aware `verify` | v0.4 | 0/? | Not started | - |
 | 20. hypr/custom overlays and startup restore | v0.4 | 0/? | Not started | - |

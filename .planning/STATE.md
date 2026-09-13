@@ -2,20 +2,20 @@
 gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Personal config layer
-current_phase: 17
-current_phase_name: Unblock stow and restore the session target
-status: verifying
-stopped_at: Phase 17 wave 7/7 complete — 17-07 done, all 7 plans executed, phase verification pending
-last_updated: "2026-09-13T11:25:22.303Z"
+current_phase: 18
+current_phase_name: Capture model — three trees and the collision map
+status: planning
+stopped_at: Phase 17 complete, ready to plan Phase 18
+last_updated: "2026-09-13T11:45:29.357Z"
 last_activity: 2026-09-13
-last_activity_desc: Phase 17 execution — all 7 plans complete, phase verification pending
-state_head: 30044c6a24477681e9304d359338846f2a4d0e53
+last_activity_desc: Phase 17 complete, transitioned to Phase 18
+state_head: b1b93772250a9ef2d76d1ef56cb2b070c96ada9e
 progress:
   total_phases: 7
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 7
   completed_plans: 7
-  percent: 0
+  percent: 14
 ---
 
 Total Phases: 7 (Phases 17-23)
@@ -24,16 +24,16 @@ Total Phases: 7 (Phases 17-23)
 
 ## Current Position
 
-Phase: 17 (Unblock stow and restore the session target) — EXECUTING
-Plan: 7 of 7
-Status: Phase complete — ready for verification
+Phase: 18 — Capture model — three trees and the collision map
+Plan: Not started
+Status: Ready to plan
 Progress: [░░░░░░░░░░] 0%
-Last activity: 2026-09-13 — Phase 17 execution, all 7 plans complete, phase verification pending
+Last activity: 2026-09-13 — Phase 17 complete, transitioned to Phase 18
 
 ## Session
 
 **Last session:** 2026-09-12T14:26:43.983Z
-**Stopped at:** Phase 17 wave 7/7 complete — 17-07 done, all 7 plans executed, phase verification pending
+**Stopped at:** Phase 17 complete, ready to plan Phase 18
 **Resume file:** None
 **Next command:** `/gsd-plan-phase 17`
 
