@@ -136,7 +136,40 @@ Plans:
   7. `verify` and `capture` are registered in `ALLOWLIST` and dispatched by `main` as their own handlers rather than through `run_install_family`; `verify` runs to a real exit code with `vendor/dots-hyprland` de-initialised; `capture` copies live→repo for a `capture/` fixture, leaves `git diff --cached` empty, and refuses any path whose repo mirror is already dirty against `HEAD` (FIX-05, CAP-05)
 
 **Note:** `capture/` is legitimately empty at the end of this phase — the mechanism ships here, its first real inhabitant arrives in Phase 21. Criterion 7 is therefore proven against a fixture, not a live config.
-**Plans:** TBD
+**Plans:** 10 plans in 7 waves
+
+Plans:
+
+**Wave 1**
+
+- [ ] 18-01-PLAN.md — tracer: the collision map generator, the committed map, and the assert spine that makes it unable to rot
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 18-02-PLAN.md — the three trees, their contracts and recovery commands, `docs/archive/`, and the `--adopt` ban with its exception
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 18-03-PLAN.md — refuse `--exp-files` before dispatch, prove it fires, and record the experimental primitives in PITFALLS
+- [ ] 18-04-PLAN.md — reconcile the redistribution against the map, archive the two retired files, move `dolphinrc` and `kdeglobals` into `restow/`
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 18-05-PLAN.md — `run_verify` and `run_capture`, the ALLOWLIST entries and the two dispatch arms
+- [ ] 18-06-PLAN.md — the hypr split across `stow/` and `restow/`, both re-stowed, and repo-root `.config/` removed
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
+- [ ] 18-07-PLAN.md — the `capture` fixture suite: the copy, the four refusals, the dry run and the empty tree
+- [ ] 18-08-PLAN.md — the starship split, three new stow call sites, the one authorised constant, and the two folded directories unfolded
+
+**Wave 6** *(blocked on Wave 5 completion)*
+
+- [ ] 18-09-PLAN.md — retarget the live readers, repoint the two closed-phase fixtures, and assert the removal with a scoped reader scan
+
+**Wave 7** *(blocked on Wave 6 completion)*
+
+- [ ] 18-10-PLAN.md — the generated `restow/` tag table, the mis-filed fixture, and the phase gate
 
 ### Phase 19: Link-aware `verify`
 
