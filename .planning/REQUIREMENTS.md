@@ -13,11 +13,11 @@ Requirements for this milestone. Each maps to a roadmap phase.
 Currently-live defects. Nothing else in the milestone works until these land.
 
 - [x] **FIX-01**: Every `stow` call site uses a valid verbosity flag — `stow -v=5` exits 1 on GNU Stow 2.4.1 at all 15 call sites across 14 `arch/*.sh` files
-- [ ] **FIX-02**: `arch/hyprland.sh` no longer restores the pre-adopt `hyprland.conf` over the ii Lua session — lines 25-26 (`cp -rf .config/hypr/*`) are deleted and replaced with a stow invocation
+- [x] **FIX-02**: `arch/hyprland.sh` no longer restores the pre-adopt `hyprland.conf` over the ii Lua session — the `cp -rf .config/hypr/*` stanza is deleted outright, leaving a marker comment naming Phase 20 / HYPR-01 as the owner of Hyprland config placement (text amended per Phase 17 D-03: the original wording said "replaced with a stow invocation", but `stow/hypr/` does not exist until Phase 20, so ROADMAP criterion 2 is the binding wording — no `cp -rf .config/hypr/*` and no cwd-relative path)
 - [ ] **FIX-03**: Repo-root `.config/` is retired as a second authoring tree — contents are redistributed to `stow/`, `restow/`, or `docs/archive/`, or deleted where generated
 - [x] **FIX-04**: `safe_rm_path` refuses any path inside the repo, so destructive `uninstall` paths cannot reach captured configs
 - [ ] **FIX-05**: `verify` and `capture` are first-class subcommands in `arch/dots-hyprland.sh` — registered in `ALLOWLIST` and dispatched in `main`, with `verify` able to run without an initialised submodule
-- [ ] **FIX-06**: Repo has `.gitattributes` (`* text=auto eol=lf`), `.gitignore` entries for generated and machine-state paths, and a secret scan over the capture trees
+- [x] **FIX-06**: Repo has `.gitattributes` (`* text=auto eol=lf`), `.gitignore` entries for generated and machine-state paths, and a secret scan over the capture trees
 
 ### Capture Mechanism
 
@@ -40,7 +40,7 @@ Currently-live defects. Nothing else in the milestone works until these land.
 
 - [ ] **START-01**: The `exec-once` entries lost at the Phase 14 adopt are restored in `custom/execs.lua` — polkit agent, `wl-clip-persist`, cursor, and the workspace-pinned applications
 - [ ] **START-02**: `graphical-session.target` is active in a live session (D-38) — `hyprland-session.service` is started from `custom/execs.lua`
-- [ ] **START-03**: The `systemctl --user disable` footgun is documented — it deletes the stow symlink for a unit in state `linked`
+- [x] **START-03**: The `systemctl --user disable` footgun is documented — it deletes the stow symlink for a unit in state `linked`
 
 ### Quickshell ii Bar Config
 
@@ -111,12 +111,12 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 | Requirement | Phase | Phase Name | Status |
 |-------------|-------|------------|--------|
 | FIX-01 | Phase 17 | Unblock stow and restore the session target | Complete |
-| FIX-02 | Phase 17 | Unblock stow and restore the session target | Pending |
+| FIX-02 | Phase 17 | Unblock stow and restore the session target | Complete |
 | FIX-04 | Phase 17 | Unblock stow and restore the session target | Complete |
-| FIX-06 | Phase 17 | Unblock stow and restore the session target | Pending |
+| FIX-06 | Phase 17 | Unblock stow and restore the session target | Complete |
 | CAP-04 | Phase 17 | Unblock stow and restore the session target | Complete |
 | START-02 | Phase 17 | Unblock stow and restore the session target | Pending |
-| START-03 | Phase 17 | Unblock stow and restore the session target | Pending |
+| START-03 | Phase 17 | Unblock stow and restore the session target | Complete |
 | CAP-01 | Phase 18 | Capture model — three trees and the collision map | Pending |
 | CAP-02 | Phase 18 | Capture model — three trees and the collision map | Pending |
 | CAP-03 | Phase 18 | Capture model — three trees and the collision map | Pending |
