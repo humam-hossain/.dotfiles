@@ -782,11 +782,11 @@ run_verify() {
         # D-46 / D-54: Link-ness BEFORE content comparison.
         # Single-machine repo assumption: every package is expected to be installed.
         if [[ ! -e "$live" && ! -L "$live" ]]; then
-          fail "no live counterpart: $live — recover with: cd $tree && stow --verbose=5 --no-folding -t ~ $pkg"
+          fail "no live counterpart: $live — recover with: cd $tree && stow -t ~ $pkg"
           continue
         fi
         if [[ ! -L "$live" ]]; then
-          fail "not a symlink: $live — recover with: cd $tree && stow --verbose=5 --no-folding -t ~ $pkg"
+          fail "not a symlink: $live — recover with: cd $tree && stow -t ~ $pkg"
           continue
         fi
 
@@ -794,7 +794,7 @@ run_verify() {
         live_target="$(readlink -f -- "$live" || true)"
         repo_target="$(readlink -f -- "$canonical_repo" || true)"
         if [[ "$live_target" != "$repo_target" ]]; then
-          fail "symlink points elsewhere: $live -> $live_target (expected $repo_target) — recover with: cd $tree && stow --verbose=5 --no-folding -t ~ $pkg"
+          fail "symlink points elsewhere: $live -> $live_target (expected $repo_target) — recover with: cd $tree && stow -t ~ $pkg"
           continue
         fi
 
