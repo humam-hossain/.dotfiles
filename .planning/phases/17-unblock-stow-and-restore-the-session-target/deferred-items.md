@@ -48,3 +48,33 @@ lookup".
 The three live harnesses — `phase17-unblock-assert.sh`,
 `phase16-retire-assert.sh`, `phase13-d19-assert.sh` — all close `FAIL=0`, so
 phase coverage is intact apart from this stale path.
+
+---
+
+## D-2 — no repo-wide sweep for scripts hard-coding a pre-archive `.planning/phases/` path
+
+**Found during:** plan 17-04, while re-running the sibling suites at wave close.
+
+**Symptom:** the same defect has now appeared in two separate scripts. Plan
+17-02 fixed it in `scripts/phase13-d19-assert.sh`; D-1 above records it still
+open in `scripts/phase14-verify.sh`. Both hard-code a `.planning/phases/…` path
+that `f314491 chore: archive v0.3 milestone` relocated to
+`.planning/milestones/v0.3-phases/…`.
+
+**Cause:** milestone archival moves phase directories, and nothing checks
+whether a script still points at the old location. Each occurrence has been
+found by a script failing at run time, one at a time.
+
+**Why deferred:** this is a cross-cutting repository sweep, not a Phase 17
+change. Phase 17's scope is the stow unblock and the session target; editing
+every phase harness to be archive-aware is outside it, and doing it piecemeal as
+each script happens to fail is what produced two separate fixes already.
+
+**Suggested owner / fix:** Phase 18. Grep the repository for the literal
+`.planning/phases/` outside `.planning/` itself, and convert each hit to the
+live-tree-then-milestone-archive lookup that 17-02 established. See
+17-02-SUMMARY.md, pattern "Phase artifacts are resolved through a
+live-tree-then-milestone-archive lookup".
+
+**Impact if left:** every future milestone archival silently breaks another
+batch of harnesses, each discovered only when someone runs it.
