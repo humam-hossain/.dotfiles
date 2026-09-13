@@ -1,0 +1,90 @@
+# collision-map v1  pin=1a9ffb78f0c272a45f82342587dc3bec72762233
+#
+# Generated -- do not hand-edit. Regenerate with, from REPO_ROOT:
+#   ./scripts/gen-collision-map.sh > collision-map.tsv
+#
+# Columns (tab-separated):
+# dest	primitive	symlink_outcome	repo_outcome	tree	source
+#
+# tree is DERIVED from the two outcome columns, never authored (D-05):
+#   symlink preserved AND repo untouched  -> stow
+#   symlink DESTROYED OR  repo OVERWRITTEN -> restow
+# Those are the only two values that ever appear. `capture` is not derivable
+# from an installer-scoped map -- no installer primitive renames over the link
+# the way switchwall.sh and matugen do -- so capture/ membership is hand-assigned
+# prose in capture/README.md and is deliberately absent from this column.
+#
+# source cites the line of the primitive call site in sdata/subcmd-install/3.files-legacy.sh at the pin above.
+# The MISC rows cite the [ -d ] / [ -f ] arm they were installed by; the inline
+# rename cites its whole if/fi block.
+#
+# ORDERING (RESEARCH F-3) -- a guarantee, not an accident: rows are emitted
+# through LC_ALL=C sort, keyed on the whole line and therefore on dest first.
+# GNU find returns readdir order, which differs across filesystems and after
+# directory-entry churn; without the sort the assert regenerate-and-diff would
+# fire spuriously on a clean tree and the real pin-bump signal would be ignored.
+#
+# COVERAGE (D-04): every destination 3.files-legacy.sh writes, whichever XDG base it
+# lands in -- so $XDG_DATA_HOME/konsole and $XDG_DATA_HOME/icons/... are in,
+# alongside the $XDG_CONFIG_HOME rows. 2.setups.sh is out: its only link-touching
+# line is a `sudo ln -s` for a systemd unit outside $HOME, which nothing here can
+# capture. Font *package* installation and installer state are out; the fontconfig
+# *destination* is in.
+#
+# NO SKIP_* COLUMN (D-06): Phase 16 retired the safe profile, so there is one
+# install path and every SKIP_* is false on it. Paths keep their literal XDG
+# variable and are expanded at read time, which keeps the map host-independent.
+#
+# install_file__auto_backup RECORDS THE FIRSTRUN OUTCOME (RESEARCH F-5).
+# Firstrun renames the target away (`mv $t $t.old`, 3.files.sh:102) -- DESTROYED.
+# On this host that branch is currently DISARMED, because
+# ~/.config/illogical-impulse/installed_true exists: an install run today writes a
+# .new sidecar and leaves hypridle.conf and hyprlock.conf intact. Deleting that
+# marker, or passing upstream --firstrun, re-arms it. An empirical spot-check will
+# therefore contradict these rows. The rows are right; the observation is the
+# disarmed branch. Do NOT "correct" the map to match the host.
+#
+# KNOWN COVERAGE GAPS (RESEARCH F-13), neither a defect:
+#   3.files-legacy.sh:42 -- the alternate fontconfig source under dots-extra/fontsets/,
+#     reached only by upstream --fontset. Same destination, different source.
+#   3.files-legacy.sh:66 -- the alternate hypridle.conf source under dots-extra/via-nix/,
+#     reached only by --via-nix. Same destination, same primitive.
+#   3.files-legacy.sh:72 -- the fedora-only execs.conf append, unreachable on Arch.
+# The generator skips a call site whose SOURCE argument lives under dots-extra/;
+# it is a flag-reached alternate, not a modelled destination.
+#
+# ACCEPTED RISK (D-32), stated so the gap is auditable rather than silent: the
+# CAP-08 gate is a deny-list of exactly one flag, --exp-files. Upstream nix, core
+# and skip-family flags still forward, and so does --fontset, which reaches
+# 3.files-legacy.sh:42 -- a fontconfig source this map does not model. That is a
+# deliberate, recorded coverage gap, not an oversight.
+#
+$XDG_CONFIG_HOME/Kvantum	install_dir__sync	DESTROYED	untouched	restow	3.files-legacy.sh:14
+$XDG_CONFIG_HOME/chrome-flags.conf	install_file	preserved	OVERWRITTEN	restow	3.files-legacy.sh:15
+$XDG_CONFIG_HOME/code-flags.conf	install_file	preserved	OVERWRITTEN	restow	3.files-legacy.sh:15
+$XDG_CONFIG_HOME/darklyrc	install_file	preserved	OVERWRITTEN	restow	3.files-legacy.sh:15
+$XDG_CONFIG_HOME/dolphinrc	install_file	preserved	OVERWRITTEN	restow	3.files-legacy.sh:15
+$XDG_CONFIG_HOME/fish	install_dir__sync_exclude	DESTROYED	untouched	restow	3.files-legacy.sh:33
+$XDG_CONFIG_HOME/fontconfig	install_dir__sync	DESTROYED	untouched	restow	3.files-legacy.sh:41
+$XDG_CONFIG_HOME/foot	install_dir__sync	DESTROYED	untouched	restow	3.files-legacy.sh:14
+$XDG_CONFIG_HOME/fuzzel	install_dir__sync	DESTROYED	untouched	restow	3.files-legacy.sh:14
+$XDG_CONFIG_HOME/hypr/custom	install_dir__ignore_existing	preserved	untouched	stow	3.files-legacy.sh:75
+$XDG_CONFIG_HOME/hypr/hypridle.conf	install_file__auto_backup	DESTROYED	untouched	restow	3.files-legacy.sh:68
+$XDG_CONFIG_HOME/hypr/hyprland	install_dir__sync	DESTROYED	untouched	restow	3.files-legacy.sh:50
+$XDG_CONFIG_HOME/hypr/hyprland.conf	inline_rename	DESTROYED	untouched	restow	3.files-legacy.sh:51-54
+$XDG_CONFIG_HOME/hypr/hyprland.lua	install_file	preserved	OVERWRITTEN	restow	3.files-legacy.sh:61
+$XDG_CONFIG_HOME/hypr/hyprlock.conf	install_file__auto_backup	DESTROYED	untouched	restow	3.files-legacy.sh:56
+$XDG_CONFIG_HOME/kde-material-you-colors	install_dir__sync	DESTROYED	untouched	restow	3.files-legacy.sh:14
+$XDG_CONFIG_HOME/kdeglobals	install_file	preserved	OVERWRITTEN	restow	3.files-legacy.sh:15
+$XDG_CONFIG_HOME/kitty	install_dir__sync	DESTROYED	untouched	restow	3.files-legacy.sh:14
+$XDG_CONFIG_HOME/konsolerc	install_file	preserved	OVERWRITTEN	restow	3.files-legacy.sh:15
+$XDG_CONFIG_HOME/matugen	install_dir__sync	DESTROYED	untouched	restow	3.files-legacy.sh:14
+$XDG_CONFIG_HOME/mpv	install_dir__sync	DESTROYED	untouched	restow	3.files-legacy.sh:14
+$XDG_CONFIG_HOME/quickshell	install_dir__sync	DESTROYED	untouched	restow	3.files-legacy.sh:26
+$XDG_CONFIG_HOME/starship.toml	install_file	preserved	OVERWRITTEN	restow	3.files-legacy.sh:15
+$XDG_CONFIG_HOME/thorium-flags.conf	install_file	preserved	OVERWRITTEN	restow	3.files-legacy.sh:15
+$XDG_CONFIG_HOME/wlogout	install_dir__sync	DESTROYED	untouched	restow	3.files-legacy.sh:14
+$XDG_CONFIG_HOME/xdg-desktop-portal	install_dir__sync	DESTROYED	untouched	restow	3.files-legacy.sh:14
+$XDG_CONFIG_HOME/zshrc.d	install_dir__sync	DESTROYED	untouched	restow	3.files-legacy.sh:14
+$XDG_DATA_HOME/icons/illogical-impulse.svg	install_file	preserved	OVERWRITTEN	restow	3.files-legacy.sh:79
+$XDG_DATA_HOME/konsole	install_dir	DESTROYED	untouched	restow	3.files-legacy.sh:18
