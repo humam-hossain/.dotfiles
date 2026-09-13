@@ -46,7 +46,7 @@ key-decisions:
   - "2b bans the configuration path generally rather than the Hyprland path specifically, so a future relative source under any configuration subdirectory is caught rather than only the one that was deleted"
   - "Non-vacuity for 2a's copy literal was proven against a byte copy of the shipped installer under the scratchpad, not by restoring the line in the real file. The plan's acceptance wording says confirm by hand and revert; a fixture copy proves the same thing without a window in which the shipped installer holds a destructive copy"
 
-requirements-completed: []
+requirements-completed: [FIX-02]
 
 coverage:
   - id: D1
