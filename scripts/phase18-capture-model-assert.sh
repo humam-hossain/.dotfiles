@@ -183,7 +183,48 @@ else
   fail "1e docs/archive/ or docs/archive/README.md is missing"
 fi
 
-info "1f restow/ package tag table check arrives with the generated table in plan 18-10"
+if [[ -f restow/README.md && -d restow ]]; then
+  TABLE_REGEN_CMD="./scripts/gen-collision-map.sh --restow-table"
+  COMMITTED_REGION="$(sed -n '/<!-- BEGIN generated: gen-collision-map.sh --restow-table -->/,/<!-- END generated: gen-collision-map.sh --restow-table -->/{//!p;}' restow/README.md || true)"
+
+  if [[ -z "$COMMITTED_REGION" ]]; then
+    fail "1f restow/README.md has no generated table region between marker comments"
+  else
+    RESTOW_COUNT=0
+    RESTOW_BAD=0
+    while IFS= read -r p; do
+      [[ -z "$p" ]] && continue
+      pkg="$(basename "$p")"
+      RESTOW_COUNT=$((RESTOW_COUNT + 1))
+      if echo "$COMMITTED_REGION" | grep -qE "^\| \`$pkg\` \| \`(rsync-replace|cp-through)\` \|"; then
+        :
+      else
+        fail "1f package '$pkg' under restow/ is missing or untagged in restow/README.md table"
+        RESTOW_BAD=$((RESTOW_BAD + 1))
+      fi
+    done < <(find restow -mindepth 1 -maxdepth 1 -type d | LC_ALL=C sort)
+
+    if (( RESTOW_COUNT == 0 )); then
+      fail "1f restow/ holds zero packages (vacuous check)"
+    elif (( RESTOW_BAD == 0 )); then
+      pass "1f every restow/ package ($RESTOW_COUNT packages) is tagged with a valid recovery class in restow/README.md"
+    fi
+
+    if [[ "$GEN_PRESENT" -eq 1 ]]; then
+      FRESH_TABLE="$("$GEN" --restow-table 2>/dev/null || true)"
+      if diff -u <(echo "$COMMITTED_REGION") <(echo "$FRESH_TABLE") > /dev/null 2>&1; then
+        pass "1f restow/README.md table matches fresh generation from $TABLE_REGEN_CMD"
+      else
+        fail "1f restow/README.md table differs from fresh generation. Regenerate: $TABLE_REGEN_CMD"
+        diff -u <(echo "$COMMITTED_REGION") <(echo "$FRESH_TABLE") || true
+      fi
+    else
+      fail "1f $GEN is unavailable to regenerate the restow table"
+    fi
+  fi
+else
+  fail "1f restow/ or restow/README.md is missing"
+fi
 
 # =============================================================================
 # Section 2 / CAP-02 -- the map is present, pinned, and internally coherent

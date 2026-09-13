@@ -43,6 +43,12 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+MODE="map"
+if [[ "${1:-}" == "--restow-table" ]]; then
+  MODE="table"
+  shift
+fi
+
 SRC_ROOT="${1:-$REPO_ROOT/vendor/dots-hyprland}"
 LEGACY_NAME="3.files-legacy.sh"
 LEGACY_REL="sdata/subcmd-install/$LEGACY_NAME"
@@ -310,6 +316,81 @@ if [[ -n "$MV_LINE" ]]; then
     exit 1
   fi
   emit_row "\$XDG_CONFIG_HOME/hypr/hyprland.conf" "inline_rename" "$LEGACY_NAME:$IF_LINE-$FI_LINE"
+fi
+
+# --- restow table mode (D-09, D-12, D-13) ------------------------------------
+emit_restow_table() {
+  local restow_dir="$REPO_ROOT/restow"
+  if [[ ! -d "$restow_dir" ]]; then
+    echo "[FAIL] restow directory not found: $restow_dir" >&2
+    exit 1
+  fi
+
+  local -a pkgs=()
+  while IFS= read -r d; do
+    [[ -n "$d" ]] && pkgs+=("$(basename "$d")")
+  done < <(find "$restow_dir" -mindepth 1 -maxdepth 1 -type d | LC_ALL=C sort)
+
+  if (( ${#pkgs[@]} == 0 )); then
+    echo "[FAIL] restow/ holds zero packages" >&2
+    exit 1
+  fi
+
+  printf '| Package | Tag | Recovery Command |\n'
+  printf '|---|---|---|\n'
+
+  for pkg in "${pkgs[@]}"; do
+    local pkg_dir="$restow_dir/$pkg"
+    local tag=""
+    local sample_path=""
+    local has_destroyed=0
+    local has_overwritten=0
+
+    while IFS= read -r -d '' f; do
+      local rel="${f#"$pkg_dir"/}"
+      local xdg_target=""
+      if [[ "$rel" == .config/* ]]; then
+        xdg_target="\$XDG_CONFIG_HOME/${rel#.config/}"
+      elif [[ "$rel" == .local/share/* ]]; then
+        xdg_target="\$XDG_DATA_HOME/${rel#.local/share/}"
+      else
+        xdg_target="\$HOME/$rel"
+      fi
+
+      for row in "${ROWS[@]}"; do
+        IFS=$'\t' read -r r_dest r_prim r_sym r_repo r_tree r_src <<< "$row"
+        if [[ "$xdg_target" == "$r_dest"* || "$r_dest" == "$xdg_target"* ]]; then
+          if [[ "$r_sym" == "DESTROYED" ]]; then
+            has_destroyed=1
+          elif [[ "$r_repo" == "OVERWRITTEN" ]]; then
+            has_overwritten=1
+            if [[ -z "$sample_path" ]]; then
+              sample_path="restow/$pkg/$rel"
+            fi
+          fi
+        fi
+      done
+    done < <(find "$pkg_dir" -type f -print0 | LC_ALL=C sort -z)
+
+    if (( has_destroyed == 1 )); then
+      tag="rsync-replace"
+      printf '| `%s` | `%s` | `cd restow && stow --verbose=5 --no-folding -t ~ %s` |\n' "$pkg" "$tag" "$pkg"
+    elif (( has_overwritten == 1 )); then
+      tag="cp-through"
+      if [[ -z "$sample_path" ]]; then
+        sample_path="restow/$pkg"
+      fi
+      printf '| `%s` | `%s` | `git checkout -- %s && cd restow && stow --verbose=5 --no-folding -t ~ %s` |\n' "$pkg" "$tag" "$sample_path" "$pkg"
+    else
+      echo "[FAIL] Package '$pkg' under restow/ matches no collision-map row with a destroying or overwriting outcome" >&2
+      exit 1
+    fi
+  done
+}
+
+if [[ "$MODE" == "table" ]]; then
+  emit_restow_table
+  exit 0
 fi
 
 # --- refuse an empty body -----------------------------------------------------
