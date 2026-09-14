@@ -236,9 +236,20 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 20-01-PLAN.md — Assert test harness foundation and SAFE-01 fixture verification
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 20-02-PLAN.md — Repo-side custom overlay configs and cursor theme alignment
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 20-03-PLAN.md — Repo-side keybind overrides with unbinds and cheatsheet taxonomy
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 20-04-PLAN.md — Safe Stow migration drill execution and live link verification
 
 ### Phase 21: ii bar config capture
