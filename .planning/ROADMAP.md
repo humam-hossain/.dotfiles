@@ -64,7 +64,7 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 - [x] **Phase 17: Unblock stow and restore the session target** — Fix the live stow/install defects, stop the repo's own scripts from being able to destroy it, ship D-38 (completed 2026-09-13)
 - [x] **Phase 18: Capture model — three trees and the collision map** — A file's location determines its mechanism, and the installer map is checked-in, machine-asserted data (completed 2026-09-14)
 - [x] **Phase 19: Link-aware `verify`** — A destroyed symlink becomes a loud failure instead of a clean `git status`, proven adversarially (completed 2026-09-14)
-- [ ] **Phase 20: hypr/custom overlays and startup restore** — Six `*.lua` files stow-managed; personal keybinds, launcher variables, and the `exec-once` entries lost at adopt
+- [x] **Phase 20: hypr/custom overlays and startup restore** — Six `*.lua` files stow-managed; personal keybinds, launcher variables, and the `exec-once` entries lost at adopt (completed 2026-09-14)
 - [ ] **Phase 21: ii bar config capture** — `config.json` through the `capture/` path plus the unattended timer
 - [ ] **Phase 22: KDE and GTK capture** — Per-file `stow/kde` and `stow/gtk`, cp-through `restow/`, generated theme output guarded out
 - [ ] **Phase 23: One-command bootstrap** — Clone, one command, and `verify --strict` as the exit code
@@ -233,7 +233,7 @@ Plans:
   5. The escape route was rehearsed before the bulk stow, not designed after it — a timestamped `cp -a` backup exists, `stow -n --no-folding` ran first, each package is its own commit, and the documented one-line undo has been executed once and the state restored (SAFE-01)
 
 **Verification risk — first bulk stow over live files.** The live `custom/*.lua` files are plain copies today, so `stow` will conflict on every one. Required containment: a timestamped `cp -a` backup of the live paths, `stow -n --no-folding` first, one package, one commit, and a tested one-line undo (`stow -D -t ~ hypr && cp -a <backup>/hypr/. ~/`). Criterion 4 needs an operator re-login. Note that the untracked files in `custom/` are **upstream stubs, not personal drift** — this phase is authoring, not rescuing.
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
 **Wave 1**
@@ -250,7 +250,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 20-04-PLAN.md — Safe Stow migration drill execution and live link verification
+- [x] 20-04-PLAN.md — Safe Stow migration drill execution and live link verification
 
 ### Phase 21: ii bar config capture
 
@@ -324,7 +324,7 @@ Plans:
 | 17. Unblock stow and restore the session target | v0.4 | 7/7 | Complete    | 2026-09-13 |
 | 18. Capture model — three trees and the collision map | v0.4 | 11/11 | Complete    | 2026-09-14 |
 | 19. Link-aware `verify` | v0.4 | 5/5 | Complete    | 2026-09-14 |
-| 20. hypr/custom overlays and startup restore | v0.4 | 3/4 | In Progress|  |
+| 20. hypr/custom overlays and startup restore | v0.4 | 4/4 | Complete   | 2026-09-14 |
 | 21. ii bar config capture | v0.4 | 0/? | Not started | - |
 | 22. KDE and GTK capture | v0.4 | 0/? | Not started | - |
 | 23. One-command bootstrap | v0.4 | 0/? | Not started | - |
