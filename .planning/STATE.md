@@ -6,10 +6,10 @@ current_phase: 20
 current_phase_name: hypr/custom overlays and startup restore
 status: planning
 stopped_at: Phase 19 complete, ready to plan Phase 20
-last_updated: "2026-09-14T07:26:36.849Z"
+last_updated: "2026-09-14T08:08:09.298Z"
 last_activity: 2026-09-14
 last_activity_desc: Phase 19 complete, transitioned to Phase 20
-state_head: 41ea2aa38000908b4d7f579ba9c11a4a3f45d4cf
+state_head: f5ee263391e746e6436893fc0a66bc3a5b28c2e8
 progress:
   total_phases: 7
   completed_phases: 3
@@ -31,14 +31,14 @@ Last activity: 2026-09-14 — Phase 19 complete, transitioned to Phase 20
 
 ## Session
 
-**Last session:** 2026-09-14T07:28:00Z
+**Last session:** 2026-09-14T14:08:00Z
 **Stopped at:** Phase 19 complete, ready to plan Phase 20
 **Resume file:** None
-**Next command:** `/gsd-plan-phase 18`
+**Next command:** `/gsd-plan-phase 20`
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-08)
+See: .planning/PROJECT.md (updated 2026-09-14)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
 **Current focus:** Phase 20 — hypr/custom overlays and startup restore
