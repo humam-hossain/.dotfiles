@@ -39,11 +39,37 @@
 #   [FAIL]     hard condition violated -- moves the exit code
 #   [FINDING]  observed condition recorded; FINDINGS never move the exit code
 #   [INFO]     a condition this run could not observe, named rather than skipped
+#
+# Section index -- which section owns which claim:
+#   1  VER-04: `rsync -a --delete` over a stowed fixture, plus the negative
+#      control that proves the same fixture is green without it, plus the
+#      three-case probe proving the destruction guard discriminates
+#   2  the exit-code contract: the closed flag surface, exit 2 on anything
+#      outside it, and the precondition refusals decided before the walk
+#   3  --strict and --quiet change the verdict and the volume, never the scope
+#   4  the cp-through boundary -- the link [PASS]es, the repo file is named on
+#      an [INFO] -- and the untracked repo-side file
+#   5  the live-side sweep's four pathologies staged together in one $HOME, the
+#      counter aggregation they buy, sweep determinism, and the unreadable
+#      managed directory
+#   6  the findings-only `capture/` fixture and the --strict promotion: drift as
+#      its own [FINDING] class, the absent counterpart, the wrongly-stowed
+#      [FAIL], the vacuous empty shape, and listing order
+#   7  both branches of the installer's auto-backup primitive, and D-47 proven
+#      read-only from run_verify()'s source text plus a scratch fixture
+#   8  the read-only run against the real tree -- exit code only (D-36)
+#   closing self-check: the porcelain bracket, the fixture-leak sweep, and the
+#      ROADMAP criteria summary
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
+
+# This script's own path, for the two source gates the closing self-check makes
+# about the porcelain bracket. Resolved from BASH_SOURCE rather than assumed, so
+# a rename cannot leave those gates silently scanning nothing.
+ASSERT_SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename -- "${BASH_SOURCE[0]}")"
 
 FAIL=0
 FINDINGS=0
@@ -72,6 +98,22 @@ STRIP_STRICT="$(mktemp /tmp/p19-strip-strict-XXXXXX)"
 FILTER_NONE="$(mktemp /tmp/p19-filter-none-XXXXXX)"
 CAP_A="$(mktemp /tmp/p19-cap-a-XXXXXX)"
 CAP_B="$(mktemp /tmp/p19-cap-b-XXXXXX)"
+
+# Every temp FILE this script creates, in one array. cleanup() removes them and
+# the closing self-check's fixture-leak sweep names them; both read this array
+# rather than their own hand-maintained lists, so a temp file added by a later
+# section cannot be added to one and forgotten in the other. A sweep that was
+# written when there was one fixture and never extended is a self-check that
+# silently stopped checking.
+TMP_FILES=("$OUT" "$ERR" "$GOUT" "$GERR" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER"
+           "$CAP_NONE" "$CAP_STRICT" "$CAP_QUIET"
+           "$STRIP_NONE" "$STRIP_STRICT" "$FILTER_NONE"
+           "$CAP_A" "$CAP_B")
+
+# Every scratch ROOT any section creates, appended by each fixture builder
+# immediately after its `mktemp -d` and never removed from the array -- the
+# teardown before Section 8 deletes the directories but leaves the names here,
+# so the leak sweep still covers a root whose directory is already gone.
 SCRATCH_ROOTS=()
 T=""
 T_REAL=""
@@ -81,10 +123,7 @@ BARE_REPO=""
 rc=0
 
 cleanup() {
-  rm -f "$OUT" "$ERR" "$GOUT" "$GERR" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" \
-        "$CAP_NONE" "$CAP_STRICT" "$CAP_QUIET" \
-        "$STRIP_NONE" "$STRIP_STRICT" "$FILTER_NONE" \
-        "$CAP_A" "$CAP_B" 2>/dev/null || true
+  rm -f ${TMP_FILES[@]+"${TMP_FILES[@]}"} 2>/dev/null || true
   local root
   for root in ${SCRATCH_ROOTS[@]+"${SCRATCH_ROOTS[@]}"}; do
     [[ -n "$root" ]] || continue
@@ -102,6 +141,26 @@ cleanup() {
 trap cleanup EXIT
 
 # ---------------------------------------------------------------------------
+# teardown_scratch_roots -- cleanup()'s scratch-root half, callable mid-run.
+#
+# Section 8 runs `verify` against the real $HOME and the real repo, and its
+# answer must be about the TREE rather than about this harness. A scratch root
+# left open past its own section is a directory this script created that is
+# still on disk while that run happens; calling this immediately before Section 8
+# is the property that section relies on (T-19-10). The array is deliberately
+# NOT emptied -- the closing self-check's leak sweep still needs every name.
+# ---------------------------------------------------------------------------
+teardown_scratch_roots() {
+  local root
+  for root in ${SCRATCH_ROOTS[@]+"${SCRATCH_ROOTS[@]}"}; do
+    [[ -n "$root" ]] || continue
+    chmod -R u+rwX "$root" 2>/dev/null || true
+    rm -rf "$root" 2>/dev/null || true
+  done
+  return 0
+}
+
+# ---------------------------------------------------------------------------
 # Porcelain bracket (D-38).
 #
 # The --ignored form, NOT the plain one. .gitignore's deliberately slash-free
@@ -112,8 +171,22 @@ trap cleanup EXIT
 # pattern: .gitignore's generated-theme block explicitly forbids rewriting it
 # and D-41 forbids contradicting that prose.
 # ---------------------------------------------------------------------------
+# The ONE `git status --porcelain` invocation in this whole script. Both ends of
+# the bracket reach the working tree through here, which is what makes "the
+# ignored form at both ends" a structural property rather than a convention two
+# call sites have to keep agreeing on. The closing self-check asserts that this
+# is the only invocation and that it carries --ignored.
+porcelain_snapshot_raw() {
+  git status --porcelain --ignored || true
+}
+
+# The filter is an EXACT-MATCH anchored alternation of exactly two prefixes
+# known to be ignored on a clean tree -- `^!! ...$`, never a bare prefix test --
+# so a newly-ignored path cannot be swallowed by it. The closing self-check
+# asserts that the filtered snapshot differs from the raw one by exactly the
+# number of lines matching that anchored pattern and by no others.
 porcelain_snapshot() {
-  git status --porcelain --ignored \
+  porcelain_snapshot_raw \
     | grep -v -E '^!! (\.commandcode/|scripts/__pycache__/)$' || true
 }
 
@@ -1498,31 +1571,150 @@ fi
 
 
 # =============================================================================
+# Section 8 / ROADMAP criterion 5 -- the read-only run against the real tree.
+#
+# THIS SECTION CHECKS CRITERION 5. IT DOES NOT ASSERT IT (D-36).
+#
+# It asserts exactly one thing about the real tree: that `verify` exits 0, bare
+# and under --strict. Everything else it learns, it RECORDS as [INFO] and
+# asserts nowhere.
+#
+# Do not "strengthen" this into a brittle assertion. Encoding today's [INFO]
+# volume, today's [PASS] count or today's total line count as an expectation is
+# exactly the rot research warns about: that volume moves with the operator's
+# uncommitted edits -- one is live right now, stow/fish/.config/fish/config.fish,
+# and D-21's arm names it on every run -- and with whatever installer backup
+# files the last install left behind. Nineteen of those exist today; the number
+# is a fact about the last install, not a property of this code. An assertion
+# built on either goes red on a tree that is perfectly healthy, and the next
+# person to see it go red will delete it rather than investigate.
+#
+# Two things this section must NOT do. It must not run `verify` with any
+# argument that would make it write -- there is no such argument, and adding one
+# would be out of scope for a read-only verifier. And it must not be moved above
+# the fixture sections for tidiness: its position AFTER teardown is the property
+# being relied on, because a scratch root still on disk during this run would
+# make the answer about this harness rather than about the tree (T-19-10).
+# =============================================================================
+echo "=== Section 8 / ROADMAP criterion 5: the read-only run against the real tree ==="
+
+# Every fixture from Sections 1 through 7 goes here, before the first real-tree
+# read. The EXIT trap would remove them eventually; "eventually" is after this
+# section, which is too late to be the property this section needs.
+teardown_scratch_roots
+
+S8_SURVIVORS=0
+for S8_ROOT in ${SCRATCH_ROOTS[@]+"${SCRATCH_ROOTS[@]}"}; do
+  [[ -n "$S8_ROOT" ]] || continue
+  if [[ -e "$S8_ROOT" ]]; then
+    fail "8 teardown: scratch root still on disk before the real-tree run: $S8_ROOT"
+    S8_SURVIVORS=$((S8_SURVIVORS + 1))
+  fi
+done
+if [[ "$S8_SURVIVORS" -eq 0 ]]; then
+  pass "8 teardown: all ${#SCRATCH_ROOTS[@]} scratch roots created by Sections 1 through 7 are gone before the real-tree run -- this section's answer is about the tree, not about the harness"
+fi
+
+# --- the bare run ------------------------------------------------------------
+S8_RC=0
+./arch/dots-hyprland.sh verify >"$CAP_A" 2>"$ERR" || S8_RC=$?
+if [[ "$S8_RC" -eq 0 ]]; then
+  pass "8 D-36 / criterion 5: ./arch/dots-hyprland.sh verify exits 0 against the real \$HOME and the real repo (rc=$S8_RC)"
+else
+  fail "8 D-36 / criterion 5: ./arch/dots-hyprland.sh verify exited $S8_RC against the real tree, expected 0"
+  sed 's/^/       /' < "$CAP_A" >&2 || true
+  sed 's/^/       /' < "$ERR" >&2 || true
+fi
+
+# --- the same run under --strict --------------------------------------------
+S8_RC_STRICT=0
+./arch/dots-hyprland.sh verify --strict >"$CAP_B" 2>"$ERR" || S8_RC_STRICT=$?
+if [[ "$S8_RC_STRICT" -eq 0 ]]; then
+  pass "8 D-36 / D-13: ./arch/dots-hyprland.sh verify --strict also exits 0 against the real tree (rc=$S8_RC_STRICT) -- today's tree carries no findings for --strict to promote"
+else
+  fail "8 D-36 / D-13: ./arch/dots-hyprland.sh verify --strict exited $S8_RC_STRICT against the real tree, expected 0"
+  sed 's/^/       /' < "$CAP_B" >&2 || true
+  sed 's/^/       /' < "$ERR" >&2 || true
+fi
+
+# --- what the run SAW, recorded and asserted nowhere -------------------------
+# The transcript a post-mortem needs. An exit code alone says the tree was green
+# and says nothing about what green looked like on the day it was measured.
+info "8 real tree, recorded and asserted nowhere: $(grep -- '^=== done:' "$CAP_A" | tail -1 || true)"
+info "8 real tree label counts, recorded and asserted nowhere: [PASS]=$(grep -c '^\[PASS\]' "$CAP_A" || true) [FAIL]=$(grep -c '^\[FAIL\]' "$CAP_A" || true) [FINDING]=$(grep -c '^\[FINDING\]' "$CAP_A" || true) [INFO]=$(grep -c '^\[INFO\]' "$CAP_A" || true). These four numbers move with the operator's uncommitted edits and with whatever installer backup files the last install left; none of them is an expectation, and a later reader must not make one of them into one (D-36)"
+
+
+# =============================================================================
 # Closing self-check -- this script mutates nothing outside its own scratch.
 # =============================================================================
 echo "=== Closing self-check: working tree unchanged ==="
 
+# --- the bracket compares the ignored form at both ends ---------------------
+# Structural, not conventional: both ends call porcelain_snapshot(), which is
+# the only `git status --porcelain` invocation in this file. Asserted against
+# the file's own text so a second, unfiltered or non-ignored invocation added
+# later cannot slip in beside it (RESEARCH Pitfall 4: .gitignore's slash-free
+# `kdeglobals` pattern is unanchored and also matches the DIRECTORY
+# restow/kdeglobals/, so a plain bracket is blind in exactly the package a Qt
+# application is most likely to write through).
+# The probe's own pattern is composed from three halves so that no line of this
+# gate -- neither the grep nor either verdict message -- is itself an invocation
+# the gate would then count. Written as one literal, this check counts itself
+# and every sentence in this file that mentions the command, and reports eleven
+# invocations on a script that makes one.
+PC_HEAD="git status"
+PC_TAIL="--porcelain"
+PC_IGN="--ignored"
+PC_SCAN="$(grep -v '^[[:space:]]*#' -- "$ASSERT_SELF" | grep -F -- "$PC_HEAD $PC_TAIL" || true)"
+PC_INVOCATIONS="$(printf '%s' "$PC_SCAN" | grep -c '^' || true)"
+PC_IGNORED="$(printf '%s' "$PC_SCAN" | grep -c -F -- "$PC_HEAD $PC_TAIL $PC_IGN" || true)"
+if [[ "$PC_INVOCATIONS" -eq 1 ]] && [[ "$PC_IGNORED" -eq 1 ]]; then
+  pass "self-check: this script makes exactly one '$PC_HEAD $PC_TAIL' invocation and it carries $PC_IGN, so both ends of the bracket necessarily compare the ignored form"
+else
+  fail "self-check: expected exactly one '$PC_HEAD $PC_TAIL' invocation carrying $PC_IGN, found $PC_INVOCATIONS invocations of which $PC_IGNORED are the ignored form -- one end of the bracket may be blind to ignored paths"
+  printf '%s\n' "$PC_SCAN" | sed 's/^/       /' >&2 || true
+fi
+
+# --- the filter swallows only the prefixes it names --------------------------
+# The pattern is exact-match anchored (`^!! ...$`), so the filtered snapshot
+# must differ from the raw one by exactly the lines matching it and by no
+# others. A filter widened into a prefix test would remove more than this
+# arithmetic allows and fail here.
+PC_RAW_N="$(porcelain_snapshot_raw | grep -c '^' || true)"
+PC_FILTERED_N="$(porcelain_snapshot | grep -c '^' || true)"
+PC_KNOWN_N="$(porcelain_snapshot_raw | grep -c -E '^!! (\.commandcode/|scripts/__pycache__/)$' || true)"
+if [[ $((PC_RAW_N - PC_FILTERED_N)) -eq "$PC_KNOWN_N" ]] && [[ "$PC_KNOWN_N" -le 2 ]]; then
+  pass "self-check: the porcelain filter removed exactly the $PC_KNOWN_N line(s) matching its anchored two-prefix pattern and nothing else ($PC_RAW_N raw, $PC_FILTERED_N filtered) -- it covers only the prefixes known to be ignored on a clean tree and swallows no new ones"
+else
+  fail "self-check: the porcelain filter removed $((PC_RAW_N - PC_FILTERED_N)) line(s) but only $PC_KNOWN_N match its anchored pattern -- the filter is swallowing paths it does not name"
+  porcelain_snapshot_raw | sed 's/^/       /' >&2 || true
+fi
+
 porcelain_snapshot > "$PORCELAIN_AFTER"
 if cmp -s "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER"; then
-  pass "self-check: git status --porcelain --ignored is identical before and after this run"
+  pass "self-check: $PC_HEAD $PC_TAIL $PC_IGN is identical before and after this run"
 else
-  fail "self-check: git status --porcelain --ignored changed during this run -- something here mutated the working tree"
+  fail "self-check: $PC_HEAD $PC_TAIL $PC_IGN changed during this run -- something here mutated the working tree"
   diff -u "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" || true
 fi
 
+# The sweep reads the two ARRAYS rather than a hand-copied list, so it covers
+# every temp file and every scratch root any section creates -- including every
+# root added in plans 19-02, 19-03 and 19-04 -- without anyone having to
+# remember to extend it. That is the whole fix: a sweep written when there was
+# one fixture and never extended is a self-check that silently stopped checking.
 FIXTURE_LEAK=0
-for FIXTURE in "$OUT" "$ERR" "$GOUT" "$GERR" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" \
-               "$CAP_NONE" "$CAP_STRICT" "$CAP_QUIET" \
-               "$STRIP_NONE" "$STRIP_STRICT" "$FILTER_NONE" \
-               ${SCRATCH_ROOTS[@]+"${SCRATCH_ROOTS[@]}"}; do
+FIXTURE_SWEPT=0
+for FIXTURE in ${TMP_FILES[@]+"${TMP_FILES[@]}"} ${SCRATCH_ROOTS[@]+"${SCRATCH_ROOTS[@]}"}; do
   [[ -z "$FIXTURE" ]] && continue
+  FIXTURE_SWEPT=$((FIXTURE_SWEPT + 1))
   if grep -q -F -- "$(basename -- "$FIXTURE")" "$PORCELAIN_AFTER"; then
     fail "self-check: git status names a path this script created: $FIXTURE"
     FIXTURE_LEAK=$((FIXTURE_LEAK + 1))
   fi
 done
 if [[ "$FIXTURE_LEAK" -eq 0 ]]; then
-  pass "self-check: git status names no fixture path this script created (every fixture lives outside the repo and is removed by the EXIT trap)"
+  pass "self-check: git status names none of the $FIXTURE_SWEPT paths this script created (${#TMP_FILES[@]} temp files and ${#SCRATCH_ROOTS[@]} scratch roots, every one outside the repo, torn down before Section 8 and removed by the EXIT trap)"
 fi
 
 echo "=== Phase 19 ROADMAP Criteria Summary ==="
@@ -1530,7 +1722,7 @@ echo "Criterion 1 (repo-side link order: -L, readlink -f, folded ancestor, dangl
 echo "Criterion 2 (capture/ drift as its own finding class): Section 6 -- a staged capture/ package with drifted content is a [FINDING] and never a [FAIL], its absent-live-counterpart sibling is the phase's only other [FINDING], a live path that is a symlink into the repo is a [FAIL] under the inverted expectation, and a package-less capture/ tree (the shape of the real tree today) emits no capture-tree line and changes neither counter"
 echo "Criterion 3 (exit 0/1/2, --strict promotion, frozen output contract): Sections 1, 2 and 3 (exit 0/1, closed flag surface and exit 2, flag-invariant scope); the findings-only --strict promotion: Section 6 -- one fixture, FINDINGS asserted by exact number, exit 0 bare and exit 1 under --strict with FAIL=0 in both and byte-identical output above the summary line"
 echo "Criterion 4 (adversarial rsync -a --delete and its negative control): Section 1; cp-through class: Section 4; the installer auto-backup primitive, both branches, and D-47 proven read-only from the run_verify() body text plus a scratch de-initialised-submodule fixture: Section 7"
-echo "Criterion 5 (green on today's tree, repo-vs-HEAD [INFO], unclaimed stub [INFO]): repo-vs-HEAD [INFO] and its untracked-file extension: Section 4; green-on-today's-tree and the unclaimed-stub [INFO] pending -- plan 19-04"
+echo "Criterion 5 (green on today's tree, repo-vs-HEAD [INFO], unclaimed stub [INFO]): repo-vs-HEAD [INFO] and its untracked-file extension: Section 4; the unclaimed-stub [INFO] and its shared-root exemption: Sections 5 and 7; green-on-today's-tree: Section 8 -- CHECKED and not asserted (D-36), a read-only run after every fixture is torn down that asserts only the exit code, bare and under --strict, and records the summary line and the four label counts as [INFO] so a post-mortem can see what the tree looked like without any of it becoming an expectation that rots"
 
 echo "=== done: FAIL=${FAIL} FINDINGS=${FINDINGS} ==="
 if [[ "$FAIL" -gt 0 ]]; then
