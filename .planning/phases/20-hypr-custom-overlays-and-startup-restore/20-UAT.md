@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 20-hypr-custom-overlays-and-startup-restore
 source: [20-01-SUMMARY.md, 20-02-SUMMARY.md, 20-03-SUMMARY.md, 20-04-SUMMARY.md]
 started: 2026-09-14T15:53:32Z
-updated: 2026-09-14T16:17:00Z
+updated: 2026-09-14T16:17:18Z
 ---
 
 ## Current Test
@@ -140,5 +140,11 @@ blocked: 0
   reason: "User reported: Discord has slight issue of not properly opening in the social workspace properly first loading does open in the special:social but after that new window opens in whatever workspace i'm in. The rest is pass"
   severity: minor
   test: 1
-  artifacts: []
-  missing: []
+  root_cause: "custom/rules.lua lacks persistent window rule for discord/vesktop class to special:social workspace; only initial execs.lua hook had one-time workspace assignment"
+  artifacts:
+    - path: "stow/hypr/.config/hypr/custom/rules.lua"
+      issue: "Missing window rule pinning class ^(discord|vesktop)$ to special:social silent"
+  missing:
+    - "Add hl.window_rule matching class ^(discord|vesktop)$ with workspace special:social silent in custom/rules.lua"
+    - "Update phase 20 assert script section 3 to assert rule presence"
+  debug_session: .planning/debug/discord-special-social-window-rule.md
