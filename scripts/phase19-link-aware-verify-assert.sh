@@ -1216,6 +1216,288 @@ fi
 
 
 # =============================================================================
+# Section 7 / ROADMAP criterion 4 -- both branches of the installer's auto-backup
+# primitive, and D-47 proven read-only (D-32, D-33, D-47).
+#
+# The primitive branches on ONE flag and its two arms land on OPPOSITE sides of
+# the link/content boundary. Firstrun renames the target aside and copies a
+# fresh regular file into its place: on a stowed path the link is DESTROYED and
+# a suffixed sibling appears beside it. Non-firstrun copies alongside instead:
+# the link is INTACT and a differently-suffixed sibling appears. One branch is a
+# loud failure; the other is a silent survivor that only the sweep's
+# artifact-shape arm reports at all. That contrast is this section's point.
+#
+# Both branches are reproduced with PLAIN SHELL COMMANDS inside the fixture.
+# Nothing here sources, executes, reads or stats anything under the vendored
+# submodule: D-47 requires `verify` to run with it de-initialised and this
+# assert holds the same line. The primitive's two effects were read out of the
+# vendor file once, by a human, and staged by hand.
+#
+# MEASURED DEVIATION FROM D-32, recorded here rather than papered over.
+# D-32 predicts the firstrun branch's `.old` sibling lands on an [INFO] line
+# naming it an installer backup artifact. On a STOWED path it does not, and
+# cannot: `mv` renames the SYMLINK itself, so the sibling is a symlink into the
+# repo at a path the repo never declared, and the sweep classifier tests -L
+# before it reaches the artifact-shape arm -- so arm 2 claims it first and it is
+# a [FAIL], not an [INFO]. Measured on a scratch fixture during execution of
+# plan 19-04:
+#     [FAIL] not a symlink: .../home/.config/fixpkg/conf - recover with: ...
+#     [FAIL] stale link into repo at an undeclared path:
+#            .../home/.config/fixpkg/conf.old -> .../repo/stow/.../conf
+#     === done: FAIL=2 FINDINGS=0 ===
+# The assertion below therefore encodes what the primitive actually produces.
+# This is louder than D-32 predicted, not quieter, and the firstrun branch stays
+# the loud half of the contrast. The artifact-shape [INFO] that D-32 wanted from
+# the `.old` suffix is asserted where the primitive really produces one: on the
+# UNSTOWED target in the shared root below, which is the shape all nineteen
+# artifacts on the real tree have.
+# =============================================================================
+echo "=== Section 7 / ROADMAP criterion 4: both branches of the installer auto-backup primitive, and D-47 read-only ==="
+
+# ---------------------------------------------------------------------------
+# build_backup_fixture -- build_fixture's mechanics with a package declaring one
+# file in a package-owned directory at depth two below the scratch $HOME and one
+# file directly in the shared root, so a sibling artifact can be staged in each
+# and the arm-ordering property can be exercised on both.
+#
+# Both placements matter and the shared-root one is the regression guard: the
+# classifier tests the artifact-shape arm BEFORE the shared-root exemption, and
+# research measured five of the nineteen installer artifacts on the real tree
+# living in the two shared roots. Invert those two arms and those five vanish
+# from the report while every other assertion in this script still passes.
+# ---------------------------------------------------------------------------
+build_backup_fixture() {
+  T="$(mktemp -d /tmp/p19-backup-XXXXXX)"
+  SCRATCH_ROOTS+=("$T"); trap cleanup EXIT   # D-30: before the first write
+  T_REAL="$(realpath -- "$T")"               # D-26: captured at setup
+
+  mkdir -p "$T/repo/arch" "$T/repo/stow/backupfix/.config/backuppkg" \
+           "$T/home/.config/backuppkg"
+  cp -- "$REPO_ROOT/arch/dots-hyprland.sh" "$T/repo/arch/dots-hyprland.sh"
+  chmod +x "$T/repo/arch/dots-hyprland.sh"
+  printf 'mine\n' > "$T/repo/stow/backupfix/.config/backuppkg/app.conf"
+  printf 'mine-shared\n' > "$T/repo/stow/backupfix/.config/shared.conf"
+
+  git -c init.defaultBranch=main init -q "$T/repo"
+  git -C "$T/repo" config user.name "GSD Assert"
+  git -C "$T/repo" config user.email "assert@local"
+  git -C "$T/repo" add -A
+  git -C "$T/repo" -c commit.gpgsign=false commit -q -m "auto-backup fixture initial state"
+
+  ( cd "$T/repo/stow" && stow --no-folding -t "$T/home" backupfix )
+
+  # Upstream's payload, staged outside both the repo and the scratch home so the
+  # copies below are unambiguously "new content arriving from the installer".
+  mkdir -p "$T/vendorpayload"
+  printf 'upstream\n' > "$T/vendorpayload/app.conf"
+
+  RUN_REPO="$T/repo"
+  RUN_HOME="$T/home"
+}
+
+# --- branch 1: firstrun -- rename the target aside, copy a fresh file in ------
+build_backup_fixture
+S7_LIVE="$T/home/.config/backuppkg/app.conf"
+S7_OLD="$T/home/.config/backuppkg/app.conf.old"
+
+# The primitive's firstrun effect, by hand: `mv $t $t.old` then `cp $s $t`.
+guard_scratch_target "$S7_LIVE" || exit 1
+mv -- "$S7_LIVE" "$S7_OLD"
+cp -f -- "$T/vendorpayload/app.conf" "$S7_LIVE"
+
+# The same primitive's firstrun effect on an UNSTOWED target in the shared root:
+# the original was a regular file, so the sibling it leaves behind is a regular
+# file too. This is the shape every installer artifact on the real tree has, and
+# it is the one that exercises the artifact-shape arm against the shared-root
+# exemption.
+printf 'upstream\n' > "$T/home/.config/upstream-thing.conf"
+printf 'theirs-previous\n' > "$T/home/.config/upstream-thing.conf.old"
+S7_SHARED_OLD="$T/home/.config/upstream-thing.conf.old"
+
+if [[ ! -L "$S7_LIVE" && -f "$S7_LIVE" && -L "$S7_OLD" ]]; then
+  pass "7 D-32 firstrun fixture: the stowed link was renamed aside and a plain regular file now sits at $S7_LIVE -- the destroying arm really destroyed something"
+else
+  fail "7 D-32 firstrun fixture: $S7_LIVE is not a plain regular file, or $S7_OLD is not the renamed link -- this fixture is not staging the firstrun branch"
+  ls -la -- "$T/home/.config/backuppkg" >&2 || true
+fi
+
+run_fixture_verify
+cp -- "$OUT" "$CAP_A"
+S7_FIRSTRUN_RC="$rc"
+S7_FIRSTRUN_COUNTERS="$(summary_counters "$CAP_A")"
+
+S7_FAIL_LINE="$(grep '^\[FAIL\]' "$CAP_A" | grep -F -- "$S7_LIVE" | grep -F -- 'not a symlink' | head -1 || true)"
+if [[ -n "$S7_FAIL_LINE" ]] \
+   && printf '%s\n' "$S7_FAIL_LINE" | grep -q -F -- 'stow -t' \
+   && printf '%s\n' "$S7_FAIL_LINE" | grep -q -F -- 'backupfix'; then
+  pass "7 D-32/D-33 firstrun: the destroyed link is a [FAIL] stating it is not a symlink, and the line carries a stow -t recovery invocation naming the package: $S7_LIVE"
+else
+  fail "7 D-32/D-33 firstrun: no [FAIL] names $S7_LIVE as not a symlink together with a stow -t recovery invocation naming the package -- a failure the operator cannot act on"
+  sed 's/^/       /' < "$CAP_A" >&2 || true
+fi
+
+if grep '^\[FAIL\]' "$CAP_A" | grep -F -- "$S7_OLD" | grep -q -F -- 'stale link into repo at an undeclared path'; then
+  pass "7 D-32 firstrun (measured, not as D-32 predicted): the renamed-aside sibling is itself a symlink into the repo, so the sweep's arm 2 claims it as a stale link at an undeclared path before the artifact-shape arm is ever reached: $S7_OLD"
+else
+  fail "7 D-32 firstrun: $S7_OLD is on no [FAIL] naming it a stale link into the repo at an undeclared path -- mv renames the link itself, so this sibling IS a link and the classifier must say so"
+  sed 's/^/       /' < "$CAP_A" >&2 || true
+fi
+
+if grep '^\[INFO\]' "$CAP_A" | grep -F -- "$S7_SHARED_OLD" | grep -q -F -- 'installer backup artifact'; then
+  pass "7 D-32/D-05 arm ordering: the regular-file backup sibling sitting in the SHARED ROOT is still named on an [INFO] installer-backup-artifact line: $S7_SHARED_OLD -- the artifact-shape arm runs before the shared-root exemption, and inverting them would silence five of the nineteen artifacts on the real tree"
+else
+  fail "7 D-32/D-05 arm ordering: no [INFO] names $S7_SHARED_OLD as an installer backup artifact -- the shared-root exemption swallowed it, which is the exact arm inversion the ordering exists to prevent"
+  sed 's/^/       /' < "$CAP_A" >&2 || true
+fi
+
+if [[ "$S7_FIRSTRUN_RC" -eq 1 ]] && [[ "$S7_FIRSTRUN_COUNTERS" == "2 0" ]]; then
+  pass "7 D-32 firstrun: the destroying branch exits 1 and summarises FAIL=2 FINDINGS=0 (rc=$S7_FIRSTRUN_RC) -- the destroyed link and the link renamed aside with it, counted once each"
+else
+  fail "7 D-32 firstrun: the destroying branch exited $S7_FIRSTRUN_RC with counters '$S7_FIRSTRUN_COUNTERS', expected 1 and '2 0'"
+  sed 's/^/       /' < "$CAP_A" >&2 || true
+fi
+
+# --- branch 2: non-firstrun -- copy alongside, leave the target alone --------
+# Its own fixture, so neither branch can mask the other.
+build_backup_fixture
+S7_LIVE2="$T/home/.config/backuppkg/app.conf"
+S7_NEW="$T/home/.config/backuppkg/app.conf.new"
+
+# The primitive's non-firstrun effect, by hand: `cp $s $t.new`, and $t untouched.
+cp -f -- "$T/vendorpayload/app.conf" "$S7_NEW"
+
+if [[ -L "$S7_LIVE2" && -f "$S7_NEW" && ! -L "$S7_NEW" ]]; then
+  pass "7 D-32 non-firstrun fixture: the stowed link is INTACT and a plain regular sibling sits beside it at $S7_NEW -- the surviving arm really survived"
+else
+  fail "7 D-32 non-firstrun fixture: $S7_LIVE2 is not still a symlink, or $S7_NEW is not a plain regular file -- this fixture is staging the firstrun branch, not the non-firstrun one"
+  ls -la -- "$T/home/.config/backuppkg" >&2 || true
+fi
+
+run_fixture_verify
+cp -- "$OUT" "$CAP_B"
+S7_NONFIRST_RC="$rc"
+S7_NONFIRST_COUNTERS="$(summary_counters "$CAP_B")"
+
+if grep '^\[PASS\]' "$CAP_B" | grep -q -F -- "$S7_LIVE2"; then
+  pass "7 D-32 non-firstrun: the live path is still on a [PASS] line: $S7_LIVE2 -- this branch never touched the link, and every link assertion passes"
+else
+  fail "7 D-32 non-firstrun: $S7_LIVE2 is absent from any [PASS] line -- a branch that copies ALONGSIDE the link was reported as a link failure"
+  sed 's/^/       /' < "$CAP_B" >&2 || true
+fi
+
+if grep '^\[INFO\]' "$CAP_B" | grep -F -- "$S7_NEW" | grep -q -F -- 'installer backup artifact'; then
+  pass "7 D-32 non-firstrun: the sibling in a package-owned directory is named on an [INFO] installer-backup-artifact line: $S7_NEW -- the sweep's artifact arm is the only thing in the whole run that reports this branch at all"
+else
+  fail "7 D-32 non-firstrun: no [INFO] names $S7_NEW as an installer backup artifact -- the silent-survivor branch is completely invisible, which is the condition it exists to make visible"
+  sed 's/^/       /' < "$CAP_B" >&2 || true
+fi
+
+if [[ "$S7_NONFIRST_RC" -eq 0 ]] && [[ "$S7_NONFIRST_COUNTERS" == "0 0" ]]; then
+  pass "7 D-32 non-firstrun: the surviving branch exits 0 and summarises FAIL=0 FINDINGS=0 (rc=$S7_NONFIRST_RC) -- the same primitive, one flag apart, on the opposite side of the link/content boundary from the branch above"
+else
+  fail "7 D-32 non-firstrun: the surviving branch exited $S7_NONFIRST_RC with counters '$S7_NONFIRST_COUNTERS', expected 0 and '0 0' -- an [INFO] moved a counter"
+  sed 's/^/       /' < "$CAP_B" >&2 || true
+fi
+
+# ---------------------------------------------------------------------------
+# D-47, proven read-only: against run_verify()'s own source text and against a
+# scratch fixture, and NEVER against the operator's real submodule.
+#
+# The real submodule is not de-initialised here, and no verify command in this
+# phase de-initialises it either. That form discards local submodule
+# modifications on its way out, and a restore that is tolerated is invisible
+# when it fails -- leaving the daily-driver checkout broken while the command
+# still reports success, inside a phase whose entire discipline is a
+# `git status --porcelain --ignored` bracket proving nothing moved. The scratch
+# fixture answers the identical question without touching it.
+#
+# What the fixture DOES reproduce: the on-disk shape a de-initialised submodule
+# leaves behind -- a committed `.gitmodules` entry naming the vendored path, and
+# that path present as an EMPTY directory. Those two are the whole of what
+# run_verify() could observe about the submodule.
+#
+# What it deliberately does NOT stage: the index gitlink for that path. Nothing
+# in run_verify() reads the index for it -- the static gate immediately below
+# asserts exactly that, against the function's own body -- so staging a gitlink
+# would add a fixture detail that no code path can see and would imply a
+# dependency the source text says does not exist.
+# ---------------------------------------------------------------------------
+S7_BODY="$(sed -n '/^run_verify()/,/^}/p' arch/dots-hyprland.sh | grep -v '^[[:space:]]*#' || true)"
+if [[ -z "$S7_BODY" ]]; then
+  fail "7 D-47 static gate: run_verify()'s body could not be extracted from arch/dots-hyprland.sh -- the function's boundaries moved and this gate would otherwise scan nothing and pass"
+elif printf '%s\n' "$S7_BODY" | grep -q -F -- "$VENDOR_PATH"; then
+  fail "7 D-47 static gate: run_verify()'s body names the vendored submodule path -- verify has taken a dependency on a directory that may be de-initialised"
+  printf '%s\n' "$S7_BODY" | grep -F -- "$VENDOR_PATH" | sed 's/^/       /' >&2 || true
+elif printf '%s\n' "$S7_BODY" | grep -q -F -- 'preflight'; then
+  fail "7 D-47 static gate: run_verify()'s body calls preflight -- the subcommand routes through the vendored setup path it is required to stay clear of"
+  printf '%s\n' "$S7_BODY" | grep -F -- 'preflight' | sed 's/^/       /' >&2 || true
+else
+  pass "7 D-47 static gate: run_verify()'s own body ($(printf '%s\n' "$S7_BODY" | wc -l) non-comment lines) names neither the vendored submodule path nor preflight"
+fi
+
+# ---------------------------------------------------------------------------
+# build_d47_fixture -- a clean stowed fixture carrying, additionally, the
+# on-disk shape of a de-initialised submodule. Sets T, T_REAL, RUN_REPO and
+# RUN_HOME exactly as build_fixture does, plus D47_GITMODULES and D47_VENDOR_DIR.
+# ---------------------------------------------------------------------------
+D47_GITMODULES=""
+D47_VENDOR_DIR=""
+build_d47_fixture() {
+  T="$(mktemp -d /tmp/p19-d47-XXXXXX)"
+  SCRATCH_ROOTS+=("$T"); trap cleanup EXIT   # D-30: before the first write
+  T_REAL="$(realpath -- "$T")"               # D-26: captured at setup
+
+  mkdir -p "$T/repo/arch" "$T/repo/stow/fixture/.config/fixpkg" "$T/home/.config/fixpkg"
+  cp -- "$REPO_ROOT/arch/dots-hyprland.sh" "$T/repo/arch/dots-hyprland.sh"
+  chmod +x "$T/repo/arch/dots-hyprland.sh"
+  printf 'v1\n' > "$T/repo/stow/fixture/.config/fixpkg/conf"
+
+  D47_GITMODULES="$T/repo/.gitmodules"
+  D47_VENDOR_DIR="$T/repo/$VENDOR_PATH"
+  {
+    printf '[submodule "%s"]\n' "$VENDOR_PATH"
+    printf '\tpath = %s\n' "$VENDOR_PATH"
+    printf '\turl = git@example.invalid:scratch/fixture.git\n'
+  } > "$D47_GITMODULES"
+  # Present, and EMPTY -- which is what a de-initialised submodule leaves on
+  # disk. git cannot track an empty directory, so it survives the commit below
+  # as a directory with no entries rather than as a gitlink.
+  mkdir -p "$D47_VENDOR_DIR"
+
+  git -c init.defaultBranch=main init -q "$T/repo"
+  git -C "$T/repo" config user.name "GSD Assert"
+  git -C "$T/repo" config user.email "assert@local"
+  git -C "$T/repo" add -A
+  git -C "$T/repo" -c commit.gpgsign=false commit -q -m "d47 fixture: committed .gitmodules beside an empty vendored directory"
+
+  ( cd "$T/repo/stow" && stow --no-folding -t "$T/home" fixture )
+
+  RUN_REPO="$T/repo"
+  RUN_HOME="$T/home"
+}
+
+build_d47_fixture
+
+if git -C "$RUN_REPO" ls-files --error-unmatch -- .gitmodules >/dev/null 2>&1 \
+   && [[ -d "$D47_VENDOR_DIR" ]] \
+   && [[ -z "$(ls -A -- "$D47_VENDOR_DIR" 2>/dev/null || true)" ]]; then
+  pass "7 D-47 fixture: the scratch repo carries a COMMITTED .gitmodules naming the vendored path beside that path as an EMPTY directory -- the on-disk shape of a de-initialised submodule, staged without touching the real one"
+else
+  fail "7 D-47 fixture: the scratch repo does not carry a committed .gitmodules plus an empty vendored directory -- the runtime half of D-47 would prove nothing"
+  git -C "$RUN_REPO" ls-files | sed 's/^/       /' >&2 || true
+fi
+
+run_fixture_verify
+if [[ "$rc" -eq 0 ]]; then
+  pass "7 D-47 runtime: verify runs to exit 0 over a repo whose vendored submodule directory is present and empty with its .gitmodules entry committed (rc=$rc) -- the subcommand reads the repo's own trees and the live filesystem and nothing else"
+else
+  fail "7 D-47 runtime: verify exited $rc over the de-initialised-submodule fixture, expected 0 -- verify has a dependency on the vendored submodule that the static gate above could not see"
+  sed 's/^/       /' < "$OUT" >&2 || true
+  sed 's/^/       /' < "$ERR" >&2 || true
+fi
+
+
+# =============================================================================
 # Closing self-check -- this script mutates nothing outside its own scratch.
 # =============================================================================
 echo "=== Closing self-check: working tree unchanged ==="
@@ -1247,7 +1529,7 @@ echo "=== Phase 19 ROADMAP Criteria Summary ==="
 echo "Criterion 1 (repo-side link order: -L, readlink -f, folded ancestor, dangling; plus the live-side sweep for the two conditions the repo-side walk structurally cannot see): Section 5 -- the composite fixture stages a folded ancestor, a link dangling into the repo, its dangling-outside-repo [INFO] control, a stale link at an undeclared path and an unclaimed stub in five disjoint managed directories, and one run names all of them, carries the recovery text, exits 1 and reports FAIL=4 FINDINGS=0. Section 5 is the only live positive the folded-ancestor and dangling-into-repo checks have anywhere"
 echo "Criterion 2 (capture/ drift as its own finding class): Section 6 -- a staged capture/ package with drifted content is a [FINDING] and never a [FAIL], its absent-live-counterpart sibling is the phase's only other [FINDING], a live path that is a symlink into the repo is a [FAIL] under the inverted expectation, and a package-less capture/ tree (the shape of the real tree today) emits no capture-tree line and changes neither counter"
 echo "Criterion 3 (exit 0/1/2, --strict promotion, frozen output contract): Sections 1, 2 and 3 (exit 0/1, closed flag surface and exit 2, flag-invariant scope); the findings-only --strict promotion: Section 6 -- one fixture, FINDINGS asserted by exact number, exit 0 bare and exit 1 under --strict with FAIL=0 in both and byte-identical output above the summary line"
-echo "Criterion 4 (adversarial rsync -a --delete and its negative control): Section 1; cp-through class: Section 4"
+echo "Criterion 4 (adversarial rsync -a --delete and its negative control): Section 1; cp-through class: Section 4; the installer auto-backup primitive, both branches, and D-47 proven read-only from the run_verify() body text plus a scratch de-initialised-submodule fixture: Section 7"
 echo "Criterion 5 (green on today's tree, repo-vs-HEAD [INFO], unclaimed stub [INFO]): repo-vs-HEAD [INFO] and its untracked-file extension: Section 4; green-on-today's-tree and the unclaimed-stub [INFO] pending -- plan 19-04"
 
 echo "=== done: FAIL=${FAIL} FINDINGS=${FINDINGS} ==="
