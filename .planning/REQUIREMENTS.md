@@ -32,13 +32,13 @@ Currently-live defects. Nothing else in the milestone works until these land.
 
 ### Hypr Custom Overlays
 
-- [ ] **HYPR-01**: `~/.config/hypr/custom/{env,execs,general,rules,keybinds,variables}.lua` are stow-managed, with live and repo the same inode
-- [ ] **HYPR-02**: Personal keybinds are authored in `custom/keybinds.lua` using `hl.unbind` for upstream binds being replaced and `"Category: Label"` descriptions, and the ii cheatsheet groups them correctly
-- [ ] **HYPR-03**: App-launcher and terminal choices are set in `custom/variables.lua` rather than by forking upstream files
+- [x] **HYPR-01**: `~/.config/hypr/custom/{env,execs,general,rules,keybinds,variables}.lua` are stow-managed, with live and repo the same inode
+- [x] **HYPR-02**: Personal keybinds are authored in `custom/keybinds.lua` using `hl.unbind` for upstream binds being replaced and `"Category: Label"` descriptions, and the ii cheatsheet groups them correctly
+- [x] **HYPR-03**: App-launcher and terminal choices are set in `custom/variables.lua` rather than by forking upstream files
 
 ### Startup Applications
 
-- [ ] **START-01**: The `exec-once` entries lost at the Phase 14 adopt are restored in `custom/execs.lua` — polkit agent, `wl-clip-persist`, cursor, and the workspace-pinned applications
+- [x] **START-01**: The `exec-once` entries lost at the Phase 14 adopt are restored in `custom/execs.lua` — polkit agent, `wl-clip-persist`, cursor, and the workspace-pinned applications
 - [x] **START-02**: `graphical-session.target` is active in a live session (D-38) — `hyprland-session.service` is started from `custom/execs.lua`
 - [x] **START-03**: The `systemctl --user disable` footgun is documented — it deletes the stow symlink for a unit in state `linked`
 
@@ -55,7 +55,7 @@ Currently-live defects. Nothing else in the milestone works until these land.
 
 ### Capture Safety
 
-- [ ] **SAFE-01**: No bulk stow over existing live files runs without a rehearsed escape — a timestamped `cp -a` backup of the target paths, a `stow -n --no-folding` dry run first, one package per commit, and a one-line undo that has been executed at least once
+- [x] **SAFE-01**: No bulk stow over existing live files runs without a rehearsed escape — a timestamped `cp -a` backup of the target paths, a `stow -n --no-folding` dry run first, one package per commit, and a one-line undo that has been executed at least once
 
 ### Drift Verification
 
