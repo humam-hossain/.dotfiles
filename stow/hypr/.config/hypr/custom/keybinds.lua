@@ -11,6 +11,13 @@ hl.unbind("SUPER + P")     -- upstream window pin
 hl.unbind("SUPER + M")     -- upstream media controls
 hl.unbind("SUPER + S")     -- upstream special scratchpad
 hl.unbind("SUPER + Minus") -- upstream zoom out (conflicts with special:btop)
+hl.unbind("SUPER + Q")     -- upstream close window (replaced by SUPER + C)
+hl.unbind("SUPER + Left")  -- upstream focus left (replaced by SUPER + H)
+hl.unbind("SUPER + Right") -- upstream focus right (replaced by SUPER + L)
+hl.unbind("SUPER + Up")    -- upstream focus up (replaced by SUPER + K)
+hl.unbind("SUPER + Down")  -- upstream focus down (replaced by SUPER + J)
+hl.unbind("SUPER + ALT + M")   -- upstream mic toggle (reassigned)
+hl.unbind("SUPER + SHIFT + M") -- upstream volume mute (conflicting)
 
 -- Window management (D-07, D-08, D-10)
 hl.bind("SUPER + C", hl.dsp.window.close(), { description = "Window: Close" })
@@ -25,8 +32,9 @@ hl.bind("SUPER + L", hl.dsp.focus({ direction = "r" }), { description = "Window:
 hl.bind("SUPER + K", hl.dsp.focus({ direction = "u" }), { description = "Window: Focus up" })
 hl.bind("SUPER + J", hl.dsp.focus({ direction = "d" }), { description = "Window: Focus down" })
 
--- Audio controls (D-11)
-hl.bind("SUPER + M", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { description = "Audio: Toggle mute" })
+-- Audio controls (D-11, G-20-2)
+hl.bind("SUPER + M", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), { locked = true, description = "Audio: Toggle mic" })
+hl.bind("SUPER + ALT + M", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { locked = true, description = "Audio: Toggle mute" })
 
 -- Shell search (D-12)
 hl.bind("SUPER + Space", hl.dsp.global("quickshell:searchToggleRelease"), { description = "Shell: Toggle search" })

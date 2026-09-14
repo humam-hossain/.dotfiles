@@ -394,7 +394,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
       fail "HYPR-02 (S6): keybinds.lua failed luac syntax validation"
     fi
 
-    # 2. Verify all 9 unbind chords
+    # 2. Verify all 16 unbind chords
     unbind_chords=(
       'hl\.unbind\("SUPER \+ C"\)'
       'hl\.unbind\("SUPER \+ L"\)'
@@ -405,6 +405,13 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
       'hl\.unbind\("SUPER \+ M"\)'
       'hl\.unbind\("SUPER \+ S"\)'
       'hl\.unbind\("SUPER \+ Minus"\)'
+      'hl\.unbind\("SUPER \+ Q"\)'
+      'hl\.unbind\("SUPER \+ Left"\)'
+      'hl\.unbind\("SUPER \+ Right"\)'
+      'hl\.unbind\("SUPER \+ Up"\)'
+      'hl\.unbind\("SUPER \+ Down"\)'
+      'hl\.unbind\("SUPER \+ ALT \+ M"\)'
+      'hl\.unbind\("SUPER \+ SHIFT \+ M"\)'
     )
     all_unbinds_ok=1
     for ub in "${unbind_chords[@]}"; do
@@ -414,7 +421,15 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
       fi
     done
     if [[ "$all_unbinds_ok" -eq 1 ]]; then
-      pass "HYPR-02 (S6): all 9 upstream unbind declarations present per D-06"
+      pass "HYPR-02 (S6): all 16 upstream unbind declarations present per D-06 and G-20-2"
+    fi
+
+    # 2b. Verify audio mic and sink mute binds
+    if grep -qF 'hl.bind("SUPER + M", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle")' "$KEYBINDS_FILE" && \
+       grep -qF 'hl.bind("SUPER + ALT + M", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle")' "$KEYBINDS_FILE"; then
+      pass "HYPR-02 / G-20-2 (S6): audio mic and sink mute binds correctly assigned"
+    else
+      fail "HYPR-02 / G-20-2 (S6): audio mic and sink mute binds incorrectly assigned"
     fi
 
     # 3. Python verification for cheatsheet taxonomy and non-duplication
