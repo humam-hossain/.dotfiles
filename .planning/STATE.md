@@ -31,7 +31,7 @@ Last activity: 2026-09-14 — Phase 19 complete, transitioned to Phase 20
 
 ## Session
 
-**Last session:** 2026-09-14T04:27:52.491Z
+**Last session:** 2026-09-14T07:28:00Z
 **Stopped at:** Phase 19 complete, ready to plan Phase 20
 **Resume file:** None
 **Next command:** `/gsd-plan-phase 18`
@@ -41,7 +41,7 @@ Last activity: 2026-09-14 — Phase 19 complete, transitioned to Phase 20
 See: .planning/PROJECT.md (updated 2026-09-08)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 19 — Link-aware verify
+**Current focus:** Phase 20 — hypr/custom overlays and startup restore
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items

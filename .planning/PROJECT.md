@@ -159,7 +159,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - [ ] Quickshell ii bar config (`illogical-impulse/config.json`) copy-captured against `switchwall.sh`'s rename-over-link
 - [ ] Startup applications restored, including the `graphical-session.target` autostart lost at adopt (D-38)
 - [ ] Dolphin and KDE/Qt/GTK app configs captured in the repo
-- [ ] Capture mechanism operational — stow-symlink default, copy-capture exception, `verify` drift check (POLISH-01)
+- [ ] Capture mechanism operational — stow-symlink default, copy-capture exception, `verify` drift check (POLISH-01) **[verify proven Phase 19: link identity before content, adversarial rsync test, 3-exit-code contract, live-side sweep, capture/ drift class; first real-tree exercise deferred to Phases 20-22]**
 - [ ] Fresh machine reproduces the exact setup from clone with one command
 
 ### Carry-forward candidates (not yet committed requirements)
@@ -268,4 +268,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-12 — v0.4 research complete, D-41 corrected, roadmap Phases 17-23 created*
+*Last updated: 2026-09-14 after Phase 19 — verify drift check proven (VER-01..04), capture mechanism verified adversarially*
