@@ -106,11 +106,50 @@ Additionally, KConfig actively re-`chmod`s: `writeToDevice` (`kconfiginibackendr
 - Target's **parent directory also missing**: `QSaveFile::open()` returns **false**. Verified — Quickshell logs `Write of … failed: Unknown error when opening file`, sets `FileViewError::Unknown`, and **does not crash**. The shell runs on the QML-declared defaults in `Config.qml`; the bar starts, but with default appearance.
 - Target's **parent directory exists, file missing**: `QSaveFile` **creates the target** through the link at default umask (0644). Verified. So the shell will happily write a defaults-populated `config.json` into your repo.
 
-On this machine `/home` and the repo are the same ext4 filesystem (`stat -c %d` both `66311`), so cross-filesystem rename failures are not a live concern — but they would be if the repo ever moved to a separate mount, because `QSaveFile`/`rsync` temp files are created next to the *resolved* target.
+On this machine `/home`, the repo and `~/.config` are all the same filesystem (`stat -c %d` reports device `66311` for each; `stat -f -c %T` reports ext2/ext3), so cross-filesystem rename failures are not a live concern — and, re-measured under D-43, they would not become one if the repo moved to a separate mount either. `QSaveFile`/`rsync` temp files are created next to the *resolved* target, which means the temp file is materialised in the resolved directory and renamed within that same directory: the link-and-rename pair happens entirely inside the repo's own filesystem, on both sides of such a move. The genuine cross-device hazard this entry describes is the different one already stated above — a writer creating the target through a dangling link at default permissions.
 
-**Detection signal:** `find ~/.config -xtype l` (broken symlinks).
+#### Q3 — the atomic-write temp file *is* observable in `git status` (D-40 → D-43)
 
-**Mitigation:** Bootstrap must clone before it stows, and `verify` must include a `-xtype l` sweep. Also see F-3 on the hard-coded clone path.
+**The mechanism.** `QSaveFile` resolves the symlink chain before it writes, so its temp file is created in the
+*resolved* directory — inside the repo working tree, not beside the link in `~/.config`. During the write
+itself that file has **no directory entry at all**: Qt opens it with `O_TMPFILE`. That is why a probe which
+holds a write open and looks for a name reports "never observable" and returns the wrong answer. The name
+appears at commit time. With the target already present — the normal case — the `linkat()` of the unnamed
+file to the final name fails with an already-exists error, so the writer materialises the file under the
+target's name plus a six-random-character suffix (`<target>.XXXXXX`) in that same resolved directory, and
+then renames it over the target. The named window is two syscalls wide.
+
+**The measurement (D-40).** Writes were driven through a stowed link in a scratch repo on the same device as
+the real one, with a concurrent loop polling `git status --porcelain` and `ls -A` against the resolved
+directory. A 3000-write burst against 2000 polls produced **11 hits** — ≈ 0.55 % of polls. Every observed
+name was the target name plus exactly six mixed-case alphanumerics, matching the `.XXXXXX` template. The
+method carries the number: a single-write probe measures nothing, and the rate is a property of the
+burst-to-poll ratio, so the figure is reproducible only by restating both halves of it.
+
+**The decision: no ignore rule ships (D-41).** The measurement observed an artifact, which satisfies the
+first half of D-41's condition; the second half fails. The suffix is random, so the only pattern that matches
+it is `*.??????`, which would also swallow `foo.python`, `bar.config` and `x.backup` — an enormous
+over-match. It is **not** an instance of the deliberate slash-free convention documented in `.gitignore`'s
+own prose block: those patterns are unanchored *by depth* on purpose and each names an exact generated file,
+whereas this one would be unanchored *by name*, which is the opposite property and must not be confused with
+it. The artifact also cannot persist — it exists only between the link and the rename, and the writer removes
+it on failure. The one artifact that could outlive a process is the `<target>.lock` that the real KDE config
+writer (`kwriteconfig6`/KConfig) produces, and that is already covered by the `*.lock` pattern shipped for an
+unrelated reason.
+
+**The `verify` consequence: no dedicated check (D-42).** A transient artifact makes a verdict
+non-deterministic, and a check that flaps between runs is worse than no check at all. `verify`'s
+before-and-after working-tree bracket already catches a temp file that *outlives* a run, which is the only
+case such a check could honestly claim to detect.
+
+**Detection signal:** `find ~/.config -xtype l` (broken symlinks). **Delivered:** `verify` now reports this
+condition from both ends — the repo-side walk (plan `19-02`) and the bounded live-side sweep over the managed
+directories (plan `19-03`), whose classifier splits a dangling link that resolves into the repo from one that
+does not.
+
+**Mitigation:** Bootstrap must clone before it stows — still outstanding, and owned by the bootstrap phase.
+The `-xtype l` sweep this entry asked of `verify` is shipped, not pending. Also see F-3 on the hard-coded
+clone path.
 
 ---
 
