@@ -215,6 +215,163 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
 fi
 
 # ===========================================================================
+# Section 3: HYPR-03: application defaults, rules, and vendor isolation
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
+  info "--- Section 3: HYPR-03 application defaults, rules, and vendor isolation ---"
+
+  VARS_FILE="stow/hypr/.config/hypr/custom/variables.lua"
+  RULES_FILE="stow/hypr/.config/hypr/custom/rules.lua"
+  ENV_FILE="stow/hypr/.config/hypr/custom/env.lua"
+
+  # 1. Variables file assertions
+  if [[ -f "$VARS_FILE" ]]; then
+    pass "HYPR-03 (S3): variables.lua exists in stow tree"
+    
+    all_vars_ok=1
+    var_patterns=(
+      'terminal = "kitty"'
+      'browser = "google-chrome-stable"'
+      'fileManager = "dolphin"'
+      'textEditor = "kitty -e nvim"'
+      'taskManager = "kitty --class btop -e btop"'
+      'officeSoftware = "libreoffice"'
+      'workspaceGroupSize = 10'
+      'hl\.env\("qsConfig", "ii"\)'
+    )
+    for pat in "${var_patterns[@]}"; do
+      if ! grep -qE "$pat" "$VARS_FILE"; then
+        all_vars_ok=0
+        fail "HYPR-03 (S3): missing expected variable pattern: $pat"
+      fi
+    done
+    if [[ "$all_vars_ok" -eq 1 ]]; then
+      pass "HYPR-03 (S3): all 8 primary application variables locked per D-16"
+    fi
+  else
+    fail "HYPR-03 (S3): variables.lua does not exist in stow tree"
+  fi
+
+  # 2. Rules file assertions
+  if [[ -f "$RULES_FILE" ]]; then
+    if grep -qF 'hl.window_rule({ match = { class = "^(main.py)$" }, float = true })' "$RULES_FILE" && \
+       grep -qF 'hl.window_rule({ match = { class = "^(python3)$" }, float = true })' "$RULES_FILE"; then
+      pass "HYPR-03 (S3): python float rules present in rules.lua per D-17"
+    else
+      fail "HYPR-03 (S3): python float rules missing from rules.lua"
+    fi
+  else
+    fail "HYPR-03 (S3): rules.lua does not exist in stow tree"
+  fi
+
+  # 3. Env file assertions
+  if [[ -f "$ENV_FILE" ]] && grep -q 'Authoring SoT: parent-repo' "$ENV_FILE"; then
+    pass "HYPR-03 (S3): env.lua exists with authoring header per D-18"
+  else
+    fail "HYPR-03 (S3): env.lua missing or lacking authoring header"
+  fi
+
+  # 4. Vendor submodule cleanliness
+  if git diff --exit-code vendor/dots-hyprland >/dev/null 2>&1; then
+    pass "HYPR-03 (S3): vendor/dots-hyprland submodule has zero modifications"
+  else
+    fail "HYPR-03 (S3): vendor/dots-hyprland submodule has uncommitted modifications"
+  fi
+fi
+
+# ===========================================================================
+# Section 4: START-01: startup restore and lifecycle containment
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
+  info "--- Section 4: START-01 startup restore and lifecycle containment ---"
+
+  EXECS_FILE="stow/hypr/.config/hypr/custom/execs.lua"
+  if [[ -f "$EXECS_FILE" ]]; then
+    if grep -q 'hl\.on("hyprland\.start"' "$EXECS_FILE"; then
+      pass "START-01 (S4): execs.lua registers commands inside hl.on('hyprland.start', ...)"
+    else
+      fail "START-01 (S4): execs.lua missing hl.on('hyprland.start', ...) single-fire lifecycle hook"
+    fi
+
+    all_execs_ok=1
+    exec_cmds=(
+      'systemctl --user start hyprland-session.service'
+      '/usr/lib/polkit-kde-authentication-agent-1'
+      '\[workspace 1\] google-chrome-stable --profile-directory=.Default. --ozone-platform-hint=auto'
+      '\[workspace 1\] kitty -e tmux'
+      '\[workspace special:btop silent\] kitty --class btop -e btop'
+      '\[workspace special:social silent\] sh -c .command -v vesktop >/dev/null 2>&1 && exec vesktop || exec discord.'
+    )
+    for cmd_pat in "${exec_cmds[@]}"; do
+      if ! grep -qE "$cmd_pat" "$EXECS_FILE"; then
+        all_execs_ok=0
+        fail "START-01 (S4): missing autostart command pattern: $cmd_pat"
+      fi
+    done
+    if [[ "$all_execs_ok" -eq 1 ]]; then
+      pass "START-01 (S4): all 6 restored autostart entries present inside startup hook"
+    fi
+
+    # Absence of wl-clip-persist
+    if grep -q 'wl-clip-persist' "$EXECS_FILE"; then
+      fail "START-01 (S4): wl-clip-persist found in execs.lua (should be omitted per D-03)"
+    else
+      pass "START-01 (S4): wl-clip-persist absent (Quickshell cliphist handles clipboard per D-03)"
+    fi
+  else
+    fail "START-01 (S4): execs.lua does not exist in stow tree"
+  fi
+fi
+
+# ===========================================================================
+# Section 5: D-04: cursor theme consistency across toolkits
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
+  info "--- Section 5: D-04 cursor theme consistency across toolkits ---"
+
+  GTK3_FILE="$HOME/.config/gtk-3.0/settings.ini"
+  XSETTINGS_FILE="$HOME/.config/xsettingsd/xsettingsd.conf"
+
+  # 1. GTK-3 settings
+  if [[ -f "$GTK3_FILE" ]]; then
+    if grep -q '^gtk-cursor-theme-name=Bibata-Modern-Classic$' "$GTK3_FILE" && \
+       grep -q '^gtk-cursor-theme-size=24$' "$GTK3_FILE"; then
+      pass "D-04 (S5): GTK-3 settings.ini aligned to Bibata-Modern-Classic 24"
+    else
+      fail "D-04 (S5): GTK-3 settings.ini cursor theme/size not matching Bibata-Modern-Classic 24"
+    fi
+  else
+    fail "D-04 (S5): $GTK3_FILE does not exist"
+  fi
+
+  # 2. XSettings config
+  if [[ -f "$XSETTINGS_FILE" ]]; then
+    if grep -q '^Gtk/CursorThemeName "Bibata-Modern-Classic"$' "$XSETTINGS_FILE" && \
+       grep -q '^Gtk/CursorThemeSize 24$' "$XSETTINGS_FILE"; then
+      pass "D-04 (S5): xsettingsd.conf aligned to Bibata-Modern-Classic 24"
+    else
+      fail "D-04 (S5): xsettingsd.conf cursor theme/size not matching Bibata-Modern-Classic 24"
+    fi
+  else
+    fail "D-04 (S5): $XSETTINGS_FILE does not exist"
+  fi
+
+  # 3. Absence of legacy Catppuccin cursor overrides
+  catppuccin_leak=0
+  if grep -q 'catppuccin-mocha-blue-cursors' "$GTK3_FILE" 2>/dev/null; then
+    catppuccin_leak=1
+    fail "D-04 (S5): legacy catppuccin cursor found in GTK-3 settings.ini"
+  fi
+  if grep -q 'catppuccin-mocha-blue-cursors' "$XSETTINGS_FILE" 2>/dev/null; then
+    catppuccin_leak=1
+    fail "D-04 (S5): legacy catppuccin cursor found in xsettingsd.conf"
+  fi
+  if [[ "$catppuccin_leak" -eq 0 ]]; then
+    pass "D-04 (S5): legacy catppuccin-mocha-blue-cursors purged from both toolkit configs"
+  fi
+fi
+
+# ===========================================================================
 # Terminal Summary
 # ===========================================================================
 echo "=== done: FAIL=${FAIL} FINDINGS=${FINDINGS} ==="
