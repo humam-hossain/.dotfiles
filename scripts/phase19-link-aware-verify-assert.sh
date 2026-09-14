@@ -64,6 +64,12 @@ GOUT="$(mktemp /tmp/p19-gout-XXXXXX)"
 GERR="$(mktemp /tmp/p19-gerr-XXXXXX)"
 PORCELAIN_BEFORE="$(mktemp /tmp/p19-porcelain-before-XXXXXX)"
 PORCELAIN_AFTER="$(mktemp /tmp/p19-porcelain-after-XXXXXX)"
+CAP_NONE="$(mktemp /tmp/p19-cap-none-XXXXXX)"
+CAP_STRICT="$(mktemp /tmp/p19-cap-strict-XXXXXX)"
+CAP_QUIET="$(mktemp /tmp/p19-cap-quiet-XXXXXX)"
+STRIP_NONE="$(mktemp /tmp/p19-strip-none-XXXXXX)"
+STRIP_STRICT="$(mktemp /tmp/p19-strip-strict-XXXXXX)"
+FILTER_NONE="$(mktemp /tmp/p19-filter-none-XXXXXX)"
 SCRATCH_ROOTS=()
 T=""
 T_REAL=""
@@ -73,7 +79,9 @@ BARE_REPO=""
 rc=0
 
 cleanup() {
-  rm -f "$OUT" "$ERR" "$GOUT" "$GERR" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" 2>/dev/null || true
+  rm -f "$OUT" "$ERR" "$GOUT" "$GERR" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" \
+        "$CAP_NONE" "$CAP_STRICT" "$CAP_QUIET" \
+        "$STRIP_NONE" "$STRIP_STRICT" "$FILTER_NONE" 2>/dev/null || true
   local root
   for root in ${SCRATCH_ROOTS[@]+"${SCRATCH_ROOTS[@]}"}; do
     [[ -n "$root" ]] && rm -rf "$root" 2>/dev/null || true
@@ -423,6 +431,89 @@ RUN_HOME="$T/home"
 # --- the one case this entry point cannot reach, named rather than skipped ---
 info "2 a fully UNSET HOME cannot be exercised through this entry point: the wrapper dereferences \$HOME at file scope to default XDG_CONFIG_HOME under set -u, so the process dies before dispatch and never reaches the precondition block. The two reachable exit-2 HOME forms are an empty HOME and a HOME naming a non-directory, and both are asserted above (scripts/phase14-verify.sh:10-14 applied to this assert itself)."
 
+# ---------------------------------------------------------------------------
+# summary_counters -- prints the two numbers off the frozen summary line of the
+# capture named by $1, as "<fail> <findings>". Nothing else in this script ever
+# reads a count out of a capture.
+# ---------------------------------------------------------------------------
+summary_counters() {
+  sed -n 's/^=== done: FAIL=\([0-9][0-9]*\) FINDINGS=\([0-9][0-9]*\) ===$/\1 \2/p' -- "$1" | tail -1
+}
+
+# =============================================================================
+# Section 3 / ROADMAP criterion 3 -- --strict and --quiet change the verdict and
+# the volume, never the scope (D-13, D-14, D-16, D-18, D-20).
+# =============================================================================
+echo "=== Section 3 / ROADMAP criterion 3: --strict and --quiet change the verdict and the volume, never the scope ==="
+
+build_fixture
+
+run_fixture_verify
+cp -- "$OUT" "$CAP_NONE"
+RC_NONE="$rc"
+
+run_fixture_verify --strict
+cp -- "$OUT" "$CAP_STRICT"
+RC_STRICT="$rc"
+
+run_fixture_verify --quiet
+cp -- "$OUT" "$CAP_QUIET"
+RC_QUIET="$rc"
+
+# --- D-14: byte-identical output above the summary line ---------------------
+grep -v '^=== done: ' -- "$CAP_NONE" > "$STRIP_NONE" || true
+grep -v '^=== done: ' -- "$CAP_STRICT" > "$STRIP_STRICT" || true
+if cmp -s "$STRIP_NONE" "$STRIP_STRICT"; then
+  pass "3 D-14: output above the summary line is byte-identical with and without --strict -- labels are fixed under --strict and only the exit code moves"
+else
+  fail "3 D-14: output above the summary line DIFFERS between the normal and the --strict run -- --strict changed a label, not just the verdict"
+  diff -u "$STRIP_NONE" "$STRIP_STRICT" || true
+fi
+
+# --- D-20: --quiet suppresses [PASS] lines ONLY -----------------------------
+if ! grep -q '^\[PASS\]' -- "$CAP_QUIET"; then
+  pass "3 D-20: the --quiet capture contains zero [PASS] lines"
+else
+  fail "3 D-20: the --quiet capture still carries [PASS] lines"
+  grep '^\[PASS\]' -- "$CAP_QUIET" | sed 's/^/       /' >&2 || true
+fi
+
+grep -v '^\[PASS\]' -- "$CAP_NONE" > "$FILTER_NONE" || true
+if cmp -s "$FILTER_NONE" "$CAP_QUIET"; then
+  pass "3 D-20: filtering [PASS] lines out of the no-flag capture yields the --quiet capture byte-for-byte -- --quiet suppressed only that label and reordered nothing"
+else
+  fail "3 D-20: the --quiet capture is not the no-flag capture minus its [PASS] lines -- --quiet suppressed or moved something else"
+  diff -u "$FILTER_NONE" "$CAP_QUIET" || true
+fi
+
+# --- D-13 / D-16: no flag narrows what is examined --------------------------
+COUNTERS_NONE="$(summary_counters "$CAP_NONE")"
+COUNTERS_STRICT="$(summary_counters "$CAP_STRICT")"
+COUNTERS_QUIET="$(summary_counters "$CAP_QUIET")"
+if [[ -n "$COUNTERS_NONE" ]] \
+   && [[ "$COUNTERS_NONE" == "$COUNTERS_STRICT" ]] \
+   && [[ "$COUNTERS_NONE" == "$COUNTERS_QUIET" ]]; then
+  pass "3 D-13/D-16: the FAIL and FINDINGS counters are identical across the normal, --strict and --quiet runs over the same tree (both runs report: $COUNTERS_NONE) -- --strict makes the verdict harsher and --quiet makes the output shorter, both over the identical full sweep"
+else
+  fail "3 D-13/D-16: the counters differ across the three runs (normal: '$COUNTERS_NONE', strict: '$COUNTERS_STRICT', quiet: '$COUNTERS_QUIET') -- a flag narrowed what is examined"
+fi
+
+# --- D-13's exit arithmetic, the half a clean fixture can prove --------------
+# The findings-but-no-failures case needs a capture/ package staged in the
+# scratch repo, which is plan 19-04's section for VER-02; it is deliberately NOT
+# built here. 19-04 owns the findings-only --strict promotion case. What a clean
+# fixture can prove is asserted here instead: --strict over a fixture reporting
+# no failures and no findings still exits 0, so --strict is not a blanket
+# demotion of green.
+if [[ "$RC_NONE" -eq 0 ]] && [[ "$RC_STRICT" -eq 0 ]] && [[ "$RC_QUIET" -eq 0 ]]; then
+  pass "3 D-13: over a clean fixture all three runs exit 0 -- --strict is not a blanket demotion of green (plan 19-04 owns the findings-only promotion case)"
+else
+  fail "3 D-13: a clean fixture did not exit 0 under all three runs (normal rc=$RC_NONE, strict rc=$RC_STRICT, quiet rc=$RC_QUIET)"
+fi
+
+# --- the superseded D-20 measurements, recorded once and asserted nowhere ----
+info "3 superseded measurements, recorded here and asserted nowhere. 19-CONTEXT.md D-20's clean-run figures (30 [INFO] lines, 153 total, roughly 31 under --quiet) were re-measured during research to 32, 157 and 34 respectively, because D-06's own review moved the two non-repo dangling links from [FINDING] to [INFO] after the 30 was counted. This script therefore asserts no total line count anywhere: [INFO] volume moves with the operator's uncommitted edits and with whatever installer backup files the last install left, while the two summary counters are stable because [INFO] cannot move them (D-13). An executor reading D-20 later must not restore those numbers."
+
 # =============================================================================
 # Closing self-check -- this script mutates nothing outside its own scratch.
 # =============================================================================
@@ -438,6 +529,8 @@ fi
 
 FIXTURE_LEAK=0
 for FIXTURE in "$OUT" "$ERR" "$GOUT" "$GERR" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" \
+               "$CAP_NONE" "$CAP_STRICT" "$CAP_QUIET" \
+               "$STRIP_NONE" "$STRIP_STRICT" "$FILTER_NONE" \
                ${SCRATCH_ROOTS[@]+"${SCRATCH_ROOTS[@]}"}; do
   [[ -z "$FIXTURE" ]] && continue
   if grep -q -F -- "$(basename -- "$FIXTURE")" "$PORCELAIN_AFTER"; then
@@ -452,7 +545,7 @@ fi
 echo "=== Phase 19 ROADMAP Criteria Summary ==="
 echo "Criterion 1 (repo-side link order: -L, readlink -f, folded ancestor, dangling): pending -- plan 19-02 and 19-03"
 echo "Criterion 2 (capture/ drift as its own finding class): pending -- plan 19-04"
-echo "Criterion 3 (exit 0/1/2, --strict promotion, frozen output contract): Section 1 (exit 0 and 1) and Section 2 (closed flag surface, exit 2, precondition cases); Section 3 pending -- this plan"
+echo "Criterion 3 (exit 0/1/2, --strict promotion, frozen output contract): Sections 1, 2 and 3 (exit 0/1, closed flag surface and exit 2, flag-invariant scope); findings-only --strict promotion pending -- plan 19-04"
 echo "Criterion 4 (adversarial rsync -a --delete and its negative control): Section 1; cp-through class pending -- plan 19-02"
 echo "Criterion 5 (green on today's tree, repo-vs-HEAD [INFO], unclaimed stub [INFO]): pending -- plan 19-04"
 
