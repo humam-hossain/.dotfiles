@@ -212,3 +212,42 @@ D-40 gate transcript.
 **Approval:** validation map complete and signed off; phase gate **red pending** the two
 conditions above, both of which belong to other phases' assert scripts and are recorded
 rather than repaired here.
+
+---
+
+## Validation Audit 2026-09-14
+
+Run by `/gsd-validate-phase 19` at the `verify:post` nyquist step hook, against the
+working tree at `f15f9c6` — four commits later than the `8c04382` tree the Phase Gate
+section above was captured on. Every command in the map and in the gate table was
+re-run rather than read, and every result was identical to the one recorded. The two
+red lines are red for the same two reasons, with the same counts.
+
+| Metric | Count |
+|--------|-------|
+| Requirements in scope | 4 (VER-01 … VER-04) |
+| Map rows | 20, covering all 15 executed tasks across `19-01`…`19-05` |
+| Gaps found | 0 |
+| Resolved | 0 |
+| Escalated | 0 |
+| Tests generated | 0 — none were needed, and none were added |
+
+**Why zero gaps.** Each of VER-01 … VER-04 is named by at least one map row, every row
+carries an automated command, and every one of those commands exits 0 on the current
+tree. The single row marked red is the `regression` row, not a `VER-*` row: it is the
+deliberate probe that runs the Phase 17 and Phase 14 asserts, and it is red for two
+conditions that belong to those phases' scripts. It is a reported truth, not a missing
+test — the coverage it provides is exactly what surfaced the Phase 14 link-awareness
+defect in the first place. Generating a new test here would add nothing; repairing
+`scripts/phase14-verify.sh` from inside Phase 19 would be closing a red gate by editing
+the thing that reports it, which this repo's standing rule forbids.
+
+`nyquist_compliant` stays `true` and `phase_gate` stays `red`. Those are two different
+claims about two different things, and this audit changes neither.
+
+**Owed to other phases, unchanged by this audit:**
+
+1. `scripts/phase14-verify.sh` — add `-L` to the `stat` in `check_untouched()` so the
+   D-37 probe dereferences the way its own `sha256sum` already does. WINDOWS id 9.
+2. `scripts/phase17-unblock-assert.sh` — re-point its repo-root `.config/…` paths at
+   where Phase 18 moved them. WINDOWS id 7.
