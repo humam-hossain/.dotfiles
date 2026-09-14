@@ -1,0 +1,15 @@
+[Unit]
+Description=Capture dotfiles from live environment to repository mirror
+Documentation=file://%h/github_repo/.dotfiles/capture/README.md
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/github_repo/.dotfiles
+ExecStart=%h/github_repo/.dotfiles/arch/dots-hyprland.sh capture --quiet --notify
+Nice=19
+TimeoutStartSec=30s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dotfiles-capture
+PassEnvironment=WAYLAND_DISPLAY DISPLAY DBUS_SESSION_BUS_ADDRESS
+SuccessExitStatus=0 1

@@ -41,6 +41,8 @@ yay -Sy --noconfirm --needed gnome-network-displays
 echo "[CONFIG] Graphical Session Bootstrap (systemd xdg-desktop-portal fix)"
 cd "$REPO_ROOT/stow" && stow --verbose=5 --no-folding -t ~ systemd
 systemctl --user daemon-reload || true
+systemctl --user enable --now dotfiles-capture.timer || true
+systemctl --user restart dotfiles-capture.timer || true
 
 echo "[CONFIG] Swaync Config"
 cd "$REPO_ROOT/stow" && stow --verbose=5 --no-folding -t ~ swaync

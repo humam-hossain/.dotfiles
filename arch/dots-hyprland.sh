@@ -1498,11 +1498,6 @@ run_capture() {
         continue
       fi
 
-      # D-37 / RESEARCH F-8: Test repo mirror capturability (two-part test)
-      if ! mirror_is_capturable "$repo_file"; then
-        continue
-      fi
-
       # D-39: Live path must not be a symlink resolving into the repo
       if [[ -L "$live" ]]; then
         local live_target
@@ -1522,6 +1517,11 @@ run_capture() {
       # D-02: Change detection: skip byte-identical files (avoids disk writes & jq forks)
       if cmp -s -- "$live" "$repo_file"; then
         info "unchanged: $live"
+        continue
+      fi
+
+      # D-37 / RESEARCH F-8: Test repo mirror capturability (two-part test)
+      if ! mirror_is_capturable "$repo_file"; then
         continue
       fi
 

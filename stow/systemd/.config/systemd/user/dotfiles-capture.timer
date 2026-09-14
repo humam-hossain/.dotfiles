@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodic capture of live dotfiles to repository mirror
+Documentation=file://%h/github_repo/.dotfiles/capture/README.md
+
+[Timer]
+OnStartupSec=2m
+OnUnitActiveSec=15m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -215,16 +215,128 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
 fi
 
 # ===========================================================================
-# Sections 3-7 Stubs (implemented in Plans 21-02 and 21-03)
+# Section 4: CAP-06: Systemd user timer enabled, active, stowed, and oneshot service execution
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
+  info "--- Section 4: Systemd user timer enabled, active, stowed, and oneshot service execution ---"
+
+  # 1. Verify unit file syntax
+  if systemd-analyze --user verify "$HOME/.config/systemd/user/dotfiles-capture.service" "$HOME/.config/systemd/user/dotfiles-capture.timer" 2>&1; then
+    pass "Section 4: systemd-analyze verify passed for service and timer units"
+  else
+    fail "Section 4: systemd-analyze verify failed"
+  fi
+
+  # 2. Verify stow symlinks
+  S_UNIT="$HOME/.config/systemd/user/dotfiles-capture.service"
+  T_UNIT="$HOME/.config/systemd/user/dotfiles-capture.timer"
+  if [[ -L "$S_UNIT" ]] && [[ "$(readlink -f -- "$S_UNIT")" == "$REPO_ROOT/stow/systemd/.config/systemd/user/dotfiles-capture.service" ]]; then
+    pass "Section 4: dotfiles-capture.service is a symlink resolving into stow/systemd"
+  else
+    fail "Section 4: dotfiles-capture.service symlink missing or does not resolve to stow/systemd"
+  fi
+
+  if [[ -L "$T_UNIT" ]] && [[ "$(readlink -f -- "$T_UNIT")" == "$REPO_ROOT/stow/systemd/.config/systemd/user/dotfiles-capture.timer" ]]; then
+    pass "Section 4: dotfiles-capture.timer is a symlink resolving into stow/systemd"
+  else
+    fail "Section 4: dotfiles-capture.timer symlink missing or does not resolve to stow/systemd"
+  fi
+
+  # 3. Verify timer enablement
+  IS_EN="$(systemctl --user is-enabled dotfiles-capture.timer 2>&1 || true)"
+  if [[ "$IS_EN" == "enabled" ]]; then
+    pass "Section 4: dotfiles-capture.timer is enabled"
+  else
+    fail "Section 4: dotfiles-capture.timer is not enabled (status: $IS_EN)"
+  fi
+
+  # 4. Verify timer active
+  IS_ACT="$(systemctl --user is-active dotfiles-capture.timer 2>&1 || true)"
+  if [[ "$IS_ACT" == "active" ]]; then
+    pass "Section 4: dotfiles-capture.timer is active"
+  else
+    fail "Section 4: dotfiles-capture.timer is not active (status: $IS_ACT)"
+  fi
+
+  # 5. Verify service oneshot execution
+  SVC_RC=0
+  systemctl --user start dotfiles-capture.service 2>&1 || SVC_RC=$?
+  J_OUT="$(journalctl --user -u dotfiles-capture -n 20 2>&1 || true)"
+  if [[ "$SVC_RC" -eq 0 ]] && grep -qi -- "Capture dotfiles from live environment" <<<"$J_OUT"; then
+    pass "Section 4: oneshot dotfiles-capture.service executed successfully"
+  else
+    fail "Section 4: oneshot dotfiles-capture.service failed or missing journal entry (rc=$SVC_RC)"
+    printf '%s\n' "$J_OUT" | sed 's/^/       /' >&2
+  fi
+fi
+
+# ===========================================================================
+# Section 5: CAP-06: Drift capture drill: hand-edited live file captured to unstaged git status
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
+  info "--- Section 5: Drift capture drill: hand-edited live file captured to unstaged git status ---"
+  S5_ROOT="$(mktemp -d /tmp/p21-assert-s5-XXXXXX)"
+  SCRATCH_ROOTS+=("$S5_ROOT")
+
+  mkdir -p "$S5_ROOT/repo/arch" "$S5_ROOT/repo/capture/testpkg/.config/testpkg" "$S5_ROOT/home/.config/testpkg"
+  cp "$REPO_ROOT/arch/dots-hyprland.sh" "$S5_ROOT/repo/arch/dots-hyprland.sh"
+  chmod +x "$S5_ROOT/repo/arch/dots-hyprland.sh"
+
+  git -C "$S5_ROOT/repo" init -q
+  git -C "$S5_ROOT/repo" config user.email "s5@example.com"
+  git -C "$S5_ROOT/repo" config user.name "S5 Runner"
+
+  printf '{"setting": "initial"}\n' > "$S5_ROOT/repo/capture/testpkg/.config/testpkg/config.json"
+  git -C "$S5_ROOT/repo" add capture
+  git -C "$S5_ROOT/repo" commit -q -m "initial capture mirror"
+  printf '{"setting": "initial"}\n' > "$S5_ROOT/home/.config/testpkg/config.json"
+
+  # User hand-edits the live file
+  printf '{"setting": "user-modified"}\n' > "$S5_ROOT/home/.config/testpkg/config.json"
+
+  # Run capture
+  S5_CAP_RC=0
+  S5_CAP_OUT="$(cd "$S5_ROOT/repo" && HOME="$S5_ROOT/home" ./arch/dots-hyprland.sh capture 2>&1)" || S5_CAP_RC=$?
+  if [[ "$S5_CAP_RC" -eq 0 ]] && grep -q -- "captured:" <<<"$S5_CAP_OUT"; then
+    pass "Section 5: live configuration drift captured to repository mirror"
+  else
+    fail "Section 5: live drift capture failed (rc=$S5_CAP_RC)"
+    printf '%s\n' "$S5_CAP_OUT" | sed 's/^/       /' >&2
+  fi
+
+  # Verify git status is unstaged modified (" M ")
+  S5_STATUS="$(git -C "$S5_ROOT/repo" status --porcelain)"
+  if [[ "$S5_STATUS" =~ [[:space:]]M[[:space:]]capture/testpkg/\.config/testpkg/config\.json ]]; then
+    pass "Section 5: drift captured into unstaged git status"
+  else
+    fail "Section 5: unexpected git status: $S5_STATUS"
+  fi
+
+  # Verify staging index is completely empty (no git add / commit)
+  S5_CACHED_DIFF="$(git -C "$S5_ROOT/repo" diff --cached)"
+  if [[ -z "$S5_CACHED_DIFF" ]]; then
+    pass "Section 5: git staging index is clean (no automatic git add)"
+  else
+    fail "Section 5: git staging index contains staged changes"
+    printf '%s\n' "$S5_CACHED_DIFF" | sed 's/^/       /' >&2
+  fi
+
+  # Re-run capture: assert cmp -s skips as unchanged no-op
+  S5_SECOND_RC=0
+  S5_SECOND_OUT="$(cd "$S5_ROOT/repo" && HOME="$S5_ROOT/home" ./arch/dots-hyprland.sh capture 2>&1)" || S5_SECOND_RC=$?
+  if [[ "$S5_SECOND_RC" -eq 0 ]] && grep -q -- "unchanged:" <<<"$S5_SECOND_OUT"; then
+    pass "Section 5: second capture run detects byte identity and skips as no-op"
+  else
+    fail "Section 5: second capture run failed or did not skip unchanged (rc=$S5_SECOND_RC)"
+    printf '%s\n' "$S5_SECOND_OUT" | sed 's/^/       /' >&2
+  fi
+fi
+
+# ===========================================================================
+# Sections 3, 6, 7 Stubs (implemented in Plan 21-03)
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 3 ]]; then
   info "Section 3: Wallpaper update confirmation (Plan 21-03 stub)"
-fi
-if [[ "$RUN_SECTION" -eq 4 ]]; then
-  info "Section 4: Systemd user unit activation & timer scheduling (Plan 21-02 stub)"
-fi
-if [[ "$RUN_SECTION" -eq 5 ]]; then
-  info "Section 5: End-to-end background timer drift capture (Plan 21-02 stub)"
 fi
 if [[ "$RUN_SECTION" -eq 6 ]]; then
   info "Section 6: Defaults-reset recovery drill (Plan 21-03 stub)"
