@@ -59,10 +59,10 @@ Currently-live defects. Nothing else in the milestone works until these land.
 
 ### Drift Verification
 
-- [ ] **VER-01**: `verify` asserts link identity before content for `stow/` and `restow/` paths — a destroyed symlink is the failure a content-only check cannot see
-- [ ] **VER-02**: `verify` diffs content for `capture/` paths and reports drift
-- [ ] **VER-03**: `verify` has defined exit codes — 0 clean, 1 drift, 2 precondition failure — and a `--strict` mode
-- [ ] **VER-04**: `verify` is proven adversarially — stow a file, run `rsync -a --delete` over it, and confirm `verify` fails
+- [x] **VER-01**: `verify` asserts link identity before content for `stow/` and `restow/` paths — a destroyed symlink is the failure a content-only check cannot see
+- [x] **VER-02**: `verify` diffs content for `capture/` paths and reports drift
+- [x] **VER-03**: `verify` has defined exit codes — 0 clean, 1 drift, 2 precondition failure — and a `--strict` mode
+- [x] **VER-04**: `verify` is proven adversarially — stow a file, run `rsync -a --delete` over it, and confirm `verify` fails
 
 ### One-Command Bootstrap
 
@@ -125,10 +125,10 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 | CAP-08 | Phase 18 | Capture model — three trees and the collision map | Complete |
 | FIX-03 | Phase 18 | Capture model — three trees and the collision map | Complete |
 | FIX-05 | Phase 18 | Capture model — three trees and the collision map | Complete |
-| VER-01 | Phase 19 | Link-aware `verify` | Pending |
-| VER-02 | Phase 19 | Link-aware `verify` | Pending |
-| VER-03 | Phase 19 | Link-aware `verify` | Pending |
-| VER-04 | Phase 19 | Link-aware `verify` | Pending |
+| VER-01 | Phase 19 | Link-aware `verify` | Complete |
+| VER-02 | Phase 19 | Link-aware `verify` | Complete |
+| VER-03 | Phase 19 | Link-aware `verify` | Complete |
+| VER-04 | Phase 19 | Link-aware `verify` | Complete |
 | HYPR-01 | Phase 20 | hypr/custom overlays and startup restore | Pending |
 | HYPR-02 | Phase 20 | hypr/custom overlays and startup restore | Pending |
 | HYPR-03 | Phase 20 | hypr/custom overlays and startup restore | Pending |
