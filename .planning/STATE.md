@@ -1,20 +1,19 @@
 ---
-gsd_state_version: "1.0"
+gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Personal config layer
 current_phase: 20
-current_phase_name: hypr/custom overlays and startup restore
-status: planning
+current_phase_name: hypr-custom-overlays-and-startup-restore
+status: executing
 stopped_at: Phase 20 context gathered
-last_updated: "2026-09-14T09:22:51.482Z"
+last_updated: "2026-09-14T09:46:20.352Z"
 last_activity: 2026-09-14
-last_activity_desc: Phase 19 complete, transitioned to Phase 20
-state_head: eec79227fc241cdf29a4737b79b17c4bd66e6542
+last_activity_desc: Phase 20 execution started
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 23
-  completed_plans: 23
+  total_plans: 27
+  completed_plans: 24
   percent: 43
 ---
 
@@ -24,10 +23,10 @@ Total Phases: 7 (Phases 17-23)
 
 ## Current Position
 
-Phase: 20 — hypr/custom overlays and startup restore
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-14 — Phase 19 complete, transitioned to Phase 20
+Phase: 20 (hypr-custom-overlays-and-startup-restore) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-09-14 — Phase 20 execution started
 
 ## Session
 
@@ -41,7 +40,7 @@ Last activity: 2026-09-14 — Phase 19 complete, transitioned to Phase 20
 See: .planning/PROJECT.md (updated 2026-09-14)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 20 — hypr/custom overlays and startup restore
+**Current focus:** Phase 20 — hypr-custom-overlays-and-startup-restore
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
