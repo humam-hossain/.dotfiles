@@ -808,13 +808,29 @@ run_verify() {
     exit 2
   fi
 
-  # Declared as a local array so plan 19-02 can add `git` to it under D-23
-  # without restructuring this block.
+  # D-23, rated one-way and resolved at the 19-02 Task 2 checkpoint as
+  # `hard-dependency`: `git` is a DECLARED required binary. Its absence is a
+  # precondition failure and this subcommand exits 2 right here — before the
+  # walk starts, and before get_main_repo_root() is ever called, so that
+  # helper's fallback to $REPO_ROOT when `git rev-parse` fails is unreachable
+  # from `verify`. The dependency was soft until now; it is hard from here on,
+  # and there is deliberately no soft-degrade arm. D-21's repo-vs-HEAD
+  # observation has no filesystem substitute, so a run without `git` could not
+  # make it at all, and `verify` never reports a condition it could not observe
+  # (scripts/phase14-verify.sh:10-14). A second, quieter meaning for a green run
+  # that a caller cannot tell apart from a full one is worse than a refusal.
+  #
+  # This is a published contract: any caller running `verify` in a git-less
+  # context — a container, a rescue shell, a bootstrap stage before the clone
+  # finishes — now gets a precondition failure instead of a verdict. The one
+  # known future caller (BOOT-04, Phase 23) clones before it stows, so `git` is
+  # necessarily present by the time it calls this.
+  #
   # `realpath` is declared here because the folded-ancestor and dangling arms
   # below canonicalise with it (T-19-02); an undeclared dependency that only
   # matters on a pathological tree is a verdict that degrades silently in
   # exactly the case it exists for.
-  local -a required_bins=(find readlink cmp dirname basename realpath)
+  local -a required_bins=(find readlink cmp dirname basename realpath git)
   local required_bin
   for required_bin in "${required_bins[@]}"; do
     if ! command -v "$required_bin" >/dev/null 2>&1; then
