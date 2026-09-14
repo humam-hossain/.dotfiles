@@ -3,3 +3,7 @@
 -- Floating rules for python graphical tools (D-17, docs/archive/hyprland.conf:458-467)
 hl.window_rule({ match = { class = "^(main.py)$" }, float = true })
 hl.window_rule({ match = { class = "^(python3)$" }, float = true })
+
+-- Social workspace pinning for Discord / Vesktop (G-20-1)
+hl.window_rule({ match = { class = "^(discord|vesktop)$" }, workspace = "special:social silent" })
+

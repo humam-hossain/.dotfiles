@@ -260,6 +260,12 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
     else
       fail "HYPR-03 (S3): python float rules missing from rules.lua"
     fi
+
+    if grep -qE 'hl\.window_rule\(\{\s*match\s*=\s*\{\s*class\s*=\s*"\^\(discord\|vesktop\)\$"\s*\}\s*,\s*workspace\s*=\s*"special:social silent"\s*\}\)' "$RULES_FILE"; then
+      pass "START-01 / G-20-1 (S3): discord/vesktop special:social silent window rule present in rules.lua"
+    else
+      fail "START-01 / G-20-1 (S3): missing discord/vesktop special:social silent window rule in rules.lua"
+    fi
   else
     fail "HYPR-03 (S3): rules.lua does not exist in stow tree"
   fi
