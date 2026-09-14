@@ -195,7 +195,7 @@ Plans:
   5. `verify` is green on today's tree: a stowed file whose repo content differs from `HEAD` is `[INFO]` (that is capture working), and an unclaimed upstream stub beside a managed file is `[INFO]` until claimed (VER-01/VER-02 boundary)
 
 **Verification risk — destructive by construction.** VER-04 runs `rsync -a --delete` over a stowed path on purpose. It must operate on a scratch package and a scratch target directory, and must refuse to run if its target resolves under `$HOME/.config` or into a tracked repo tree. There is no fallback that proves the same thing — a simulated failure would test the simulator.
-**Plans:** 1/5 plans executed
+**Plans:** 2/5 plans executed
 
 Plans:
 **Wave 1**
@@ -204,7 +204,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 19-02-PLAN.md — Repo-side pass: folded ancestor directories, links dangling into the repo, the repo-vs-`HEAD` content observation, and the cp-through boundary
+- [x] 19-02-PLAN.md — Repo-side pass: folded ancestor directories, links dangling into the repo, the repo-vs-`HEAD` content observation, and the cp-through boundary
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -306,7 +306,7 @@ Plans:
 | 16. Retire the safe profile | v0.3 | 10/10 | Complete | 2026-09-08 |
 | 17. Unblock stow and restore the session target | v0.4 | 7/7 | Complete    | 2026-09-13 |
 | 18. Capture model — three trees and the collision map | v0.4 | 11/11 | Complete    | 2026-09-14 |
-| 19. Link-aware `verify` | v0.4 | 1/5 | In Progress|  |
+| 19. Link-aware `verify` | v0.4 | 2/5 | In Progress|  |
 | 20. hypr/custom overlays and startup restore | v0.4 | 0/? | Not started | - |
 | 21. ii bar config capture | v0.4 | 0/? | Not started | - |
 | 22. KDE and GTK capture | v0.4 | 0/? | Not started | - |
