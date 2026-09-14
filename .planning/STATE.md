@@ -5,11 +5,11 @@ milestone_name: Personal config layer
 current_phase: 20
 current_phase_name: hypr/custom overlays and startup restore
 status: planning
-stopped_at: Phase 19 complete, ready to plan Phase 20
-last_updated: "2026-09-14T08:08:09.298Z"
+stopped_at: Phase 20 context gathered
+last_updated: "2026-09-14T09:22:51.482Z"
 last_activity: 2026-09-14
 last_activity_desc: Phase 19 complete, transitioned to Phase 20
-state_head: f5ee263391e746e6436893fc0a66bc3a5b28c2e8
+state_head: eec79227fc241cdf29a4737b79b17c4bd66e6542
 progress:
   total_phases: 7
   completed_phases: 3
@@ -31,9 +31,9 @@ Last activity: 2026-09-14 — Phase 19 complete, transitioned to Phase 20
 
 ## Session
 
-**Last session:** 2026-09-14T14:08:00Z
-**Stopped at:** Phase 19 complete, ready to plan Phase 20
-**Resume file:** None
+**Last session:** 2026-09-14T09:22:51.378Z
+**Stopped at:** Phase 20 context gathered
+**Resume file:** .planning/phases/20-hypr-custom-overlays-and-startup-restore/20-CONTEXT.md
 **Next command:** `/gsd-plan-phase 20`
 
 ## Project Reference
