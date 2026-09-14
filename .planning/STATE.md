@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Personal config layer
-current_phase: 21
-current_phase_name: ii bar config capture
-status: verifying
+current_phase: 20
+current_phase_name: hypr-custom-overlays-and-startup-restore
+status: executing
 stopped_at: Phase 20 context gathered
-last_updated: "2026-09-14T09:51:55.051Z"
+last_updated: "2026-09-14T10:24:49.021Z"
 last_activity: 2026-09-14
-last_activity_desc: Phase 20 complete, transitioned to Phase 21
+last_activity_desc: Phase 20 execution started
 progress:
   total_phases: 7
-  completed_phases: 4
-  total_plans: 27
+  completed_phases: 3
+  total_plans: 28
   completed_plans: 27
-  percent: 57
+  percent: 43
 ---
 
 Total Phases: 7 (Phases 17-23)
@@ -23,10 +23,10 @@ Total Phases: 7 (Phases 17-23)
 
 ## Current Position
 
-Phase: 21 — ii bar config capture
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-09-14 — Phase 20 complete, transitioned to Phase 21
+Phase: 20 (hypr-custom-overlays-and-startup-restore) — EXECUTING
+Plan: 1 of 5
+Status: Executing Phase 20
+Last activity: 2026-09-14 — Phase 20 execution started
 
 ## Session
 
