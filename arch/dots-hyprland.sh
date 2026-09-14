@@ -873,6 +873,44 @@ run_verify() {
   finding() { printf '[FINDING] %s\n' "$1"; finding_count=$((finding_count + 1)); }
   info() { printf '[INFO] %s\n' "$1"; }
 
+  # ---------------------------------------------------------------------------
+  # resolve_dangling_target — the raw-target resolution for a DANGLING symlink,
+  # written once and shared by both callers: the repo-side walk's dangling arm
+  # below and the live-side sweep's classifier further down. Two copies of this
+  # four-line rule is two chances for them to drift into disagreeing about the
+  # same link, and the repo/non-repo split is precisely the [FAIL]-versus-[INFO]
+  # boundary D-06 draws.
+  #
+  # $1 = the link path, $2 = the directory the link lives in. Sets two of
+  # run_verify()'s locals rather than printing, because BOTH values are needed
+  # at every call site — the canonicalised target to test the repo prefix
+  # against, and the RAW target to name in the message. Same dynamic-scope
+  # convention fail()/finding() already use for the counters.
+  #
+  # `readlink` WITHOUT -f, deliberately. `readlink -f` returns the empty string
+  # for a dangling link, which has already discarded where the link pointed —
+  # the exact information this split keys on (RESEARCH Pitfall 3).
+  #
+  # `realpath -m` on the JOINED path, because stow writes RELATIVE targets: the
+  # live shape of PITFALLS.md A-6 is `../../github_repo/.dotfiles/stow/…`, and a
+  # literal prefix test on that string never matches the repo root. `-m` is what
+  # allows canonicalising a path whose final component does not exist, which is
+  # the definition of the dangling case.
+  # ---------------------------------------------------------------------------
+  local dangling_raw_target=""
+  local dangling_abs_target=""
+  resolve_dangling_target() {
+    local link="$1" link_dir="$2"
+    local joined
+    dangling_raw_target="$(readlink -- "$link" || true)"
+    case "$dangling_raw_target" in
+      /*) joined="$dangling_raw_target" ;;
+      *)  joined="$link_dir/$dangling_raw_target" ;;
+    esac
+    dangling_abs_target="$(realpath -m -- "$joined" || true)"
+    return 0
+  }
+
   # D-53: Always walks all three trees.
   # Walks repo side only (RESEARCH P-8). Live sidecars are never visited.
   local tree pkg_dir pkg file_path rel live canonical_repo
@@ -976,19 +1014,12 @@ run_verify() {
         # folded-ancestor check above has a live positive to validate against —
         # the composite fixture in plan 19-03 is the only proof either works.
         if [[ ! -e "$live" ]]; then
-          raw_target="$(readlink -- "$live" || true)"
-          case "$raw_target" in
-            /*) abs_target="$raw_target" ;;
-            *)  abs_target="$live_dir/$raw_target" ;;
-          esac
-          # Canonicalise the JOINED path before the prefix test. Stow writes
-          # RELATIVE targets, so the live shape of A-6 is
-          # `../../github_repo/.dotfiles/stow/…`; a literal prefix test on that
-          # string never matches the repo root and would misreport the one
-          # condition this arm exists to catch as [INFO]. `-m` is what allows
-          # canonicalising a path whose final component does not exist, which is
-          # the definition of the dangling case.
-          abs_target="$(realpath -m -- "$abs_target" || true)"
+          # The resolution itself lives in resolve_dangling_target() above, so
+          # this arm and the live-side sweep's dangling arms cannot drift apart
+          # (plan 19-03 Task 2 factored it out; the rule is unchanged).
+          resolve_dangling_target "$live" "$live_dir"
+          raw_target="$dangling_raw_target"
+          abs_target="$dangling_abs_target"
           case "$abs_target" in
             "$main_root_real"/*)
               fail "dangling symlink into repo: $live -> $raw_target"
@@ -1156,14 +1187,123 @@ run_verify() {
     done
   done
 
-  # PLACEHOLDER — replaced by the real entry classifier in plan 19-03 Task 2,
-  # together with the per-directory [INFO] emitted below. It is deliberately NOT
-  # a silently-passing no-op: a sweep that enumerated every entry and said
-  # nothing about any of them would be indistinguishable from a clean sweep,
-  # which is the one thing `verify` must never let a reader conclude
-  # (scripts/phase14-verify.sh:10-14).
+  # ---------------------------------------------------------------------------
+  # classify_sweep_entry — D-03's entry classifier.
+  #
+  # $1 = the absolute entry path, $2 = the managed root it was listed from.
+  #
+  # ONE decision point. Every entry the sweep sees gets its verdict from this
+  # function and from nowhere else; five independent rules scattered through the
+  # enumeration loop is exactly the shape D-03 was taken to avoid, because that
+  # shape is how two rules quietly start disagreeing about one entry.
+  #
+  # Nine arms, and the ordering is load-bearing at one place — see arm 6.
+  #
+  # Read-only throughout (T-19-08): this function `stat`s and `readlink`s and
+  # does nothing else. It creates no temp file, writes nothing, renames nothing
+  # and removes nothing.
+  #
+  # T-19-04: every arm returns 0 explicitly, every probe whose non-zero status
+  # is expected carries `|| true`, and `local x` is declared on a line separate
+  # from `x="$(cmd)"` so `local` cannot swallow a command's exit status. Under
+  # `set -euo pipefail` any one of those omissions ends the run silently in the
+  # middle of a sweep that had found something.
+  # ---------------------------------------------------------------------------
   classify_sweep_entry() {
-    : "${1:-}" "${2:-}"
+    local entry="$1" entry_dir="$2"
+    local entry_base
+    local resolved
+    entry_base="${entry##*/}"
+
+    if [[ -L "$entry" ]]; then
+      # T-19-02: the repo-prefix test compares CANONICALISED strings, never a
+      # literal prefix on the unresolved argument. STATE.md's Phase 17 entry
+      # records a live path in this very tree — a systemd user unit under
+      # $HOME/.config — that resolves into stow/systemd/ and is accepted by a
+      # literal test while being correctly refused by the resolved one.
+      resolved="$(readlink -f -- "$entry" 2>/dev/null || true)"
+      if [[ -n "$resolved" && -e "$resolved" ]]; then
+        case "$resolved" in
+          "$main_root_real"/*)
+            # Arm 1: a link into the repo at a path the repo DECLARES. Skip
+            # silently — the repo-side pass owns it and has already reported on
+            # it. This arm is the whole of the "every managed path is reported
+            # exactly once per run" invariant: get the key shape wrong and a
+            # clean tree turns into 94 false stale-link failures.
+            if [[ -n "${declared_live[$entry]:-}" ]]; then
+              return 0
+            fi
+            # Arm 2: a link into the repo at a path the repo does NOT declare.
+            # Structurally invisible to the repo-side walk, which is why the
+            # sweep exists.
+            fail "stale link into repo at an undeclared path: $entry -> $resolved"
+            return 0
+            ;;
+          *)
+            # Arm 4: resolves outside the repo. Not ours; silent.
+            return 0
+            ;;
+        esac
+      fi
+
+      # Dangling. The split between arms 3 and 5 is D-06's, and it is decided on
+      # the RAW target — see resolve_dangling_target() for why `readlink -f` is
+      # useless here.
+      resolve_dangling_target "$entry" "$entry_dir"
+      case "$dangling_abs_target" in
+        "$main_root_real"/*)
+          # Arm 3: dangles INTO the repo. PITFALLS.md A-6 — repo unavailable at
+          # login — produces exactly this shape.
+          fail "dangling symlink into repo: $entry -> $dangling_raw_target"
+          ;;
+        *)
+          # Arm 5: dangles outside the repo. [INFO], never [FAIL]. Measured: two
+          # links on a healthy machine ($HOME/.steampath and $HOME/.steampid)
+          # dangle this way whenever Steam is not running, so this arm is the
+          # difference between a clean tree and a permanently noisy one.
+          info "dangling symlink (outside repo): $entry -> $dangling_raw_target"
+          ;;
+      esac
+      return 0
+    fi
+
+    if [[ -f "$entry" ]]; then
+      # Arm 6: the four installer-artifact shapes.
+      #
+      # ORDERING IS LOAD-BEARING HERE, and this is the only place in the
+      # classifier where it is. This test must run BEFORE arm 8's shared-root
+      # exemption. D-05 exempts the shared roots from the unclaimed-stub clause
+      # ONLY — the artifact-shape clause, the link check, the folded-ancestor
+      # check and the dangling check all run there without exception.
+      #
+      # Measured: 5 of the 19 installer artifacts on this tree sit in the two
+      # shared roots — a backed-up shell rc file, a backed-up profile, two
+      # backed-up KDE configs and a backed-up mimeapps list. Invert these two
+      # arms and those five vanish from the report.
+      case "$entry_base" in
+        *.old|*.new|*.bak|*.bak.*)
+          info "installer backup artifact: $entry"
+          return 0
+          ;;
+      esac
+
+      # Arm 8: a shared root is $HOME itself or $HOME/.config — the two
+      # directories every application writes into by convention. Measured: 44
+      # unrelated regular files in the first and 27 in the second. Silent.
+      if [[ "$entry_dir" == "$HOME" || "$entry_dir" == "$HOME/.config" ]]; then
+        return 0
+      fi
+
+      # Arm 7: any other regular file in a package-owned directory — that is,
+      # any managed directory at depth two or more below $HOME, which is the
+      # exact complement of the two shared roots above. Naming them is all this
+      # phase does with them; deciding which of them belong in a tree is later
+      # work.
+      info "unclaimed upstream stub: $entry"
+      return 0
+    fi
+
+    # Arm 9: a directory, or any other file type. Silent.
     return 0
   }
 
@@ -1205,11 +1345,6 @@ run_verify() {
       fi
 
       pass "managed directory: $sweep_root"
-
-      # PLACEHOLDER — removed by plan 19-03 Task 2 along with the stub
-      # classifier above. Until the classifier lands, say so once per directory
-      # rather than enumerating in silence.
-      info "entry classification not yet implemented for: $sweep_root"
 
       # D-02: non-recursive by construction. This lists the directory's own
       # entries and never descends into an unmanaged subtree.
