@@ -30,7 +30,7 @@ Usage:
   arch/dots-hyprland.sh <install|install-deps|install-setups|install-files> [flags…]
   arch/dots-hyprland.sh uninstall [flags…]
   arch/dots-hyprland.sh verify [--strict] [--quiet]
-  arch/dots-hyprland.sh capture [--dry-run]
+  arch/dots-hyprland.sh capture [--dry-run] [--quiet] [--notify]
   arch/dots-hyprland.sh help|-h|--help
 
 What this wrapper does:
@@ -97,6 +97,12 @@ Verify (wrapper-owned; reads the repo trees and the live filesystem only):
     --strict          Promote [FINDING]s to a failing exit code; labels are unchanged
     --quiet           Suppress [PASS] lines only; every other label still prints
   Any other flag exits 2 — an unknown flag means the tree was never examined.
+
+Capture (wrapper-owned; copies live configs to repo mirror in capture/):
+  capture flags:
+    --dry-run         Print plan only; change nothing
+    --quiet           Suppress [PASS] and [INFO] lines; [FAIL] and [FINDING] still print
+    --notify          Send desktop notification via notify-send if any files were captured
 
 Examples:
   ./arch/dots-hyprland.sh install --dry-run          # preview the argv; changes nothing
@@ -1393,6 +1399,9 @@ run_verify() {
 # ---------------------------------------------------------------------------
 run_capture() {
   local dry_run=0
+  local quiet=0
+  local notify=0
+  local captured_count=0
   local -a unknown=()
   local arg
   for arg in "$@"; do
@@ -1403,6 +1412,12 @@ run_capture() {
         ;;
       --dry-run)
         dry_run=1
+        ;;
+      --quiet)
+        quiet=1
+        ;;
+      --notify)
+        notify=1
         ;;
       *)
         unknown+=("$arg")
@@ -1418,10 +1433,18 @@ run_capture() {
 
   local fail_count=0
   local finding_count=0
-  pass() { printf '[PASS] %s\n' "$1"; }
+  pass() {
+    if ((quiet == 0)); then
+      printf '[PASS] %s\n' "$1"
+    fi
+  }
   fail() { printf '[FAIL] %s\n' "$1"; fail_count=$((fail_count + 1)); }
   finding() { printf '[FINDING] %s\n' "$1"; finding_count=$((finding_count + 1)); }
-  info() { printf '[INFO] %s\n' "$1"; }
+  info() {
+    if ((quiet == 0)); then
+      printf '[INFO] %s\n' "$1"
+    fi
+  }
 
   local capture_dir="$REPO_ROOT/capture"
   local -a packages=()
@@ -1496,19 +1519,42 @@ run_capture() {
         continue
       fi
 
+      # D-02: Change detection: skip byte-identical files (avoids disk writes & jq forks)
+      if cmp -s -- "$live" "$repo_file"; then
+        info "unchanged: $live"
+        continue
+      fi
+
+      # D-01, D-03: Format validation: generic check for *.json (fails closed on 0-byte or corrupt JSON)
+      if [[ "$live" == *.json ]]; then
+        if [[ ! -s "$live" ]] || ! jq empty "$live" >/dev/null 2>&1; then
+          fail "invalid or empty JSON: $live"
+          continue
+        fi
+      fi
+
       # Clean and capturable: copy live to repo mirror in working tree
       # D-38: Never runs git add and never commits
+      # D-04, D-05: Atomic replacement via temporary file rename
       if ((dry_run == 1)); then
         info "dry-run: would copy $live -> $repo_file"
       else
-        if cp -p -- "$live" "$repo_file"; then
+        local tmp_repo="${repo_file}.tmp.$$"
+        if cp -p -- "$live" "$tmp_repo" && mv -f -- "$tmp_repo" "$repo_file"; then
           pass "captured: $live -> $repo_file"
+          captured_count=$((captured_count + 1))
         else
+          rm -f -- "$tmp_repo" 2>/dev/null || true
           fail "failed to copy $live -> $repo_file"
         fi
       fi
     done < <(find "$pkg_dir" -type f -print0 | LC_ALL=C sort -z)
   done
+
+  # D-12, D-13: Desktop notification only when updates were written and --notify passed
+  if ((notify == 1 && captured_count > 0)); then
+    notify-send "Dotfiles Capture" "Captured updates to repository" -a "Shell" -u low || true
+  fi
 
   echo "=== done: FAIL=$fail_count FINDINGS=$finding_count ==="
   if ((fail_count > 0 || finding_count > 0)); then
