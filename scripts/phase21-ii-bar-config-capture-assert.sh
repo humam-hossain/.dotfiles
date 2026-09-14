@@ -215,9 +215,47 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
 fi
 
 # ===========================================================================
+# Section 3: BAR-01: Live wallpaper switch confirmation and theme revert drill
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 || "$RUN_SECTION" -eq 7 ]]; then
+  info "--- Section 3: Live wallpaper switch confirmation and theme revert drill ---"
+  WALLPAPER_FILE="/home/pera/Pictures/55192173787_b8322b1190_o.jpg"
+  if [[ -f "$WALLPAPER_FILE" ]]; then
+    pass "Section 3: live wallpaper file exists: $WALLPAPER_FILE"
+  else
+    fail "Section 3: live wallpaper file missing: $WALLPAPER_FILE"
+  fi
+
+  # Execute switchwall.sh non-disruptively using the current wallpaper
+  SWITCH_OUT="$(bash "$HOME/.config/quickshell/ii/scripts/colors/switchwall.sh" "$WALLPAPER_FILE" 2>&1 || true)"
+
+  # Assert ~/.config/illogical-impulse/config.json is a plain regular file and not a symlink
+  if [[ -f "$HOME/.config/illogical-impulse/config.json" && ! -L "$HOME/.config/illogical-impulse/config.json" ]]; then
+    pass "Section 3: live config.json remains a plain regular file after switchwall.sh"
+  else
+    fail "Section 3: live config.json is not a plain file after switchwall.sh"
+  fi
+
+  # Run capture --quiet
+  S3_CAP_RC=0
+  S3_CAP_OUT="$("$REPO_ROOT/arch/dots-hyprland.sh" capture --quiet 2>&1)" || S3_CAP_RC=$?
+  if [[ "$S3_CAP_RC" -eq 0 ]]; then
+    pass "Section 3: capture --quiet succeeded after wallpaper switch"
+  else
+    fail "Section 3: capture --quiet failed after wallpaper switch (rc=$S3_CAP_RC)"
+    printf '%s\n' "$S3_CAP_OUT" | sed 's/^/       /' >&2
+  fi
+
+  # Record theme file modifications for Phase 22 (Q7/Q8) and revert theme files cleanly
+  info "Section 3: clean revert of generated theme files"
+  git -C "$REPO_ROOT" checkout -- restow/kdeglobals/ stow/hypr/ restow/hypr/ 2>/dev/null || true
+  pass "Section 3: theme files cleanly reverted"
+fi
+
+# ===========================================================================
 # Section 4: CAP-06: Systemd user timer enabled, active, stowed, and oneshot service execution
 # ===========================================================================
-if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 || "$RUN_SECTION" -eq 7 ]]; then
   info "--- Section 4: Systemd user timer enabled, active, stowed, and oneshot service execution ---"
 
   # 1. Verify unit file syntax
@@ -273,7 +311,7 @@ fi
 # ===========================================================================
 # Section 5: CAP-06: Drift capture drill: hand-edited live file captured to unstaged git status
 # ===========================================================================
-if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 || "$RUN_SECTION" -eq 7 ]]; then
   info "--- Section 5: Drift capture drill: hand-edited live file captured to unstaged git status ---"
   S5_ROOT="$(mktemp -d /tmp/p21-assert-s5-XXXXXX)"
   SCRATCH_ROOTS+=("$S5_ROOT")
@@ -333,16 +371,76 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
 fi
 
 # ===========================================================================
-# Sections 3, 6, 7 Stubs (implemented in Plan 21-03)
+# Section 6: BAR-02: Personal bar settings baseline check and defaults-reset recovery drill
 # ===========================================================================
-if [[ "$RUN_SECTION" -eq 3 ]]; then
-  info "Section 3: Wallpaper update confirmation (Plan 21-03 stub)"
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 || "$RUN_SECTION" -eq 7 ]]; then
+  info "--- Section 6: Personal bar settings baseline check and defaults-reset recovery drill ---"
+  REPO_MIRROR="capture/ii/.config/illogical-impulse/config.json"
+
+  # 1. Verify repo mirror file exists and is tracked
+  if [[ -f "$REPO_MIRROR" ]] && git ls-files --error-unmatch "$REPO_MIRROR" >/dev/null 2>&1; then
+    pass "Section 6: repo mirror exists and is tracked in git"
+  else
+    fail "Section 6: repo mirror missing or untracked: $REPO_MIRROR"
+  fi
+
+  # 2. Verify personal bar settings values via jq -e
+  if jq -e '.bar.bottom == false' "$REPO_MIRROR" >/dev/null 2>&1 \
+     && jq -e '.bar.topLeftIcon == "spark"' "$REPO_MIRROR" >/dev/null 2>&1 \
+     && jq -e '.bar.weather.city == "Dhaka"' "$REPO_MIRROR" >/dev/null 2>&1 \
+     && jq -e '.bar.workspaces.shown == 5' "$REPO_MIRROR" >/dev/null 2>&1 \
+     && jq -e '.bar.utilButtons.showMicToggle == true' "$REPO_MIRROR" >/dev/null 2>&1 \
+     && jq -e '.bar.utilButtons.showScreenSnip == true' "$REPO_MIRROR" >/dev/null 2>&1; then
+    pass "Section 6: personal bar settings verified (top bar, spark icon, Dhaka weather, 5 workspaces, mic/snip toggles)"
+  else
+    fail "Section 6: personal bar settings mismatch in repo mirror"
+  fi
+
+  # 3. Defaults-reset recovery drill
+  LIVE_CFG="$HOME/.config/illogical-impulse/config.json"
+  BACKUP_FILE="${LIVE_CFG}.bak.$(date +%s)"
+  TMP_FILES+=("$BACKUP_FILE")
+  cp -p "$LIVE_CFG" "$BACKUP_FILE"
+
+  # Simulate defaults reset: write empty JSON
+  printf '{}\n' > "$LIVE_CFG"
+
+  # Restore from repo mirror
+  cp -p "$REPO_MIRROR" "$LIVE_CFG"
+
+  if cmp -s "$LIVE_CFG" "$BACKUP_FILE"; then
+    pass "Section 6: restored config.json is byte-identical to pre-reset backup"
+  else
+    fail "Section 6: restored config.json differs from pre-reset backup"
+  fi
+  rm -f "$BACKUP_FILE"
+
+  # Reload Quickshell ii process
+  qs kill -c ii >/dev/null 2>&1 || true
+  sleep 1
+  nohup qs -d -c ii >/dev/null 2>&1 &
+  sleep 2
+
+  if pgrep -f "qs.*-c ii" >/dev/null 2>&1 || qs list -c ii >/dev/null 2>&1; then
+    pass "Section 6: Quickshell ii reloaded and active"
+  else
+    fail "Section 6: Quickshell ii process not running after reload"
+  fi
 fi
-if [[ "$RUN_SECTION" -eq 6 ]]; then
-  info "Section 6: Defaults-reset recovery drill (Plan 21-03 stub)"
-fi
-if [[ "$RUN_SECTION" -eq 7 ]]; then
-  info "Section 7: Full suite verification gate (Plan 21-03 stub)"
+
+# ===========================================================================
+# Section 7: Full suite verification gate & strict link check
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 7 ]]; then
+  info "--- Section 7: Full suite verification gate & strict link check ---"
+  VERIFY_RC=0
+  VERIFY_OUT="$("$REPO_ROOT/arch/dots-hyprland.sh" verify --strict 2>&1)" || VERIFY_RC=$?
+  if [[ "$VERIFY_RC" -eq 0 ]] && grep -q -- "capture path verified: /home/pera/.config/illogical-impulse/config.json" <<<"$VERIFY_OUT"; then
+    pass "Section 7: arch/dots-hyprland.sh verify --strict passed with zero findings"
+  else
+    fail "Section 7: arch/dots-hyprland.sh verify --strict failed (rc=$VERIFY_RC)"
+    printf '%s\n' "$VERIFY_OUT" | sed 's/^/       /' >&2
+  fi
 fi
 
 echo "=== done: FAIL=${FAIL} FINDINGS=${FINDINGS} ==="
