@@ -195,7 +195,14 @@ Plans:
   5. `verify` is green on today's tree: a stowed file whose repo content differs from `HEAD` is `[INFO]` (that is capture working), and an unclaimed upstream stub beside a managed file is `[INFO]` until claimed (VER-01/VER-02 boundary)
 
 **Verification risk — destructive by construction.** VER-04 runs `rsync -a --delete` over a stowed path on purpose. It must operate on a scratch package and a scratch target directory, and must refuse to run if its target resolves under `$HOME/.config` or into a tracked repo tree. There is no fallback that proves the same thing — a simulated failure would test the simulator.
-**Plans:** TBD
+**Plans:** 5 plans
+
+Plans:
+- [ ] 19-01-PLAN.md — Tracer: argv to exit code, proven by a fixture destroyed on purpose (flag surface, preconditions, `--strict`/`--quiet`, the VER-04 rsync-replace harness)
+- [ ] 19-02-PLAN.md — Repo-side pass: folded ancestor directories, links dangling into the repo, the repo-vs-`HEAD` content observation, and the cp-through boundary
+- [ ] 19-03-PLAN.md — The live-side sweep: bounded root set, per-directory verdicts, the nine-arm entry classifier, and the composite four-pathology fixture
+- [ ] 19-04-PLAN.md — The `capture/` finding class, the `--strict` promotion, both installer auto-backup branches, and the read-only real-tree check
+- [ ] 19-05-PLAN.md — Close the record: the Q3 answer in PITFALLS.md, the wrapper drift re-pin, and the phase gate
 
 ### Phase 20: hypr/custom overlays and startup restore
 
