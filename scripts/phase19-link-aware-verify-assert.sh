@@ -515,6 +515,135 @@ fi
 info "3 superseded measurements, recorded here and asserted nowhere. 19-CONTEXT.md D-20's clean-run figures (30 [INFO] lines, 153 total, roughly 31 under --quiet) were re-measured during research to 32, 157 and 34 respectively, because D-06's own review moved the two non-repo dangling links from [FINDING] to [INFO] after the 30 was counted. This script therefore asserts no total line count anywhere: [INFO] volume moves with the operator's uncommitted edits and with whatever installer backup files the last install left, while the two summary counters are stable because [INFO] cannot move them (D-13). An executor reading D-20 later must not restore those numbers."
 
 # =============================================================================
+# Section 4 / ROADMAP criteria 4 and 5 -- the cp-through destruction class
+# (D-27) and the untracked repo-side file (RESEARCH Pitfall 5).
+#
+# This is the section that makes `verify` honest, and it is the mirror image of
+# Section 1. PITFALLS.md §30's claim is that BOTH destroying installer
+# primitives leave the repo file untouched, so a CONTENT-only `verify` reports
+# "no drift" in exactly the case that matters -- Section 1 proves that half by
+# destroying the link and watching the verdict go red. The mirror of the same
+# claim is that a LINK-only `verify` reports a clean [PASS] for a repo file that
+# was overwritten THROUGH an intact link -- `cp -f` follows the destination
+# symlink and rewrites its target, so every `test -L` and `readlink -f`
+# assertion still passes while the repo file now holds upstream's bytes
+# (PITFALLS.md A-1). Section 4 proves that half.
+#
+# The boundary this pins: the link class and the content class stay DISTINCT.
+# The link still [PASS]es, the run still exits 0, and the content change is
+# named as [INFO] (D-21/D-27) -- an observation, not a defect, because `verify`
+# cannot tell an installer write-through from an ordinary uncommitted edit and
+# reporting a guess as a defect is what scripts/phase14-verify.sh:10-14 forbids.
+# =============================================================================
+echo "=== Section 4 / ROADMAP criteria 4 and 5: the cp-through boundary and the untracked repo-side file ==="
+
+# --- cp-through destruction (D-27) ------------------------------------------
+build_fixture
+S4_LIVE="$T/home/.config/fixpkg/conf"
+S4_REPO="$(realpath -m -- "$T/repo/stow/fixture/.config/fixpkg/conf")"
+
+mkdir -p "$T/vendor/fixpkg"
+printf 'vendorcontent\n' > "$T/vendor/fixpkg/conf"
+
+# The same fail-closed gate Section 1 uses, for the same reason: `cp -f`
+# resolves the destination symlink, so the path actually written is the RESOLVED
+# one. Handing the guard the link is therefore exactly right -- it resolves at
+# call time and answers the question that matters, "is the file this write lands
+# on inside the scratch root".
+guard_scratch_target "$S4_LIVE" || exit 1
+cp -f -- "$T/vendor/fixpkg/conf" "$S4_LIVE"
+
+if [[ -L "$S4_LIVE" ]]; then
+  pass "4 D-27 fixture: the live path is STILL a symlink after cp -f wrote through it -- the link survived, which is the whole point of this class"
+else
+  fail "4 D-27 fixture: cp -f replaced the link instead of writing through it -- this fixture is staging the Section 1 class, not the cp-through class"
+fi
+
+if [[ "$(cat -- "$S4_REPO")" == "vendorcontent" ]]; then
+  pass "4 D-27 fixture: the REPO-side file now holds the vendor payload -- the destruction really happened, on the repo side, with the link untouched"
+else
+  fail "4 D-27 fixture: the repo-side file does not hold the vendor payload (got: $(cat -- "$S4_REPO")) -- nothing was destroyed and the assertions below would prove nothing"
+fi
+
+run_fixture_verify
+if [[ "$rc" -eq 0 ]]; then
+  pass "4 D-27: verify exits 0 after the cp-through (rc=$rc) -- an overwritten repo file is not a link failure"
+else
+  fail "4 D-27: verify exited $rc after the cp-through, expected 0 -- the content class leaked into the link verdict"
+  sed 's/^/       /' < "$OUT" >&2 || true
+  sed 's/^/       /' < "$ERR" >&2 || true
+fi
+
+if grep '^\[PASS\]' "$OUT" | grep -q -F -- "$S4_LIVE"; then
+  pass "4 D-27: the live path is still on a [PASS] line: $S4_LIVE -- it survived every test -L and readlink -f assertion intact"
+else
+  fail "4 D-27: $S4_LIVE is absent from any [PASS] line -- the link was reported as broken when only its target's content changed"
+  sed 's/^/       /' < "$OUT" >&2 || true
+fi
+
+if grep '^\[INFO\]' "$OUT" | grep -F -- "$S4_REPO" | grep -q -F -- 'differs from HEAD'; then
+  pass "4 D-21/D-27: the repo-side path is named on an [INFO] line as differing from HEAD: $S4_REPO -- only this observation can see a cp-through"
+else
+  fail "4 D-21/D-27: no [INFO] line names $S4_REPO as differing from HEAD -- the cp-through is invisible to this verify"
+  sed 's/^/       /' < "$OUT" >&2 || true
+fi
+
+if grep -q -F -- '=== done: FAIL=0 FINDINGS=0 ===' "$OUT"; then
+  pass "4 D-13/D-27: the cp-through run summarises FAIL=0 FINDINGS=0 -- an [INFO] moves neither counter"
+else
+  fail "4 D-13/D-27: the cp-through run did not summarise FAIL=0 FINDINGS=0 -- the content observation was wired as a failure or a finding"
+  grep -- '=== done:' "$OUT" >&2 || true
+fi
+
+# --- the untracked repo-side file (RESEARCH Pitfall 5) ----------------------
+# A FRESH fixture, so the only content anomaly in this run is the untracked one
+# and the [INFO] asserted below cannot be the cp-through's line in disguise.
+# This is the case where `git diff --quiet HEAD` returns 0 -- a literal "matches
+# HEAD" for a file that was never committed -- and would otherwise have said
+# nothing at all.
+build_fixture
+S4_NEW_REPO="$(realpath -m -- "$T/repo/stow/fixture/.config/fixpkg/newfile")"
+S4_NEW_LIVE="$T/home/.config/fixpkg/newfile"
+
+printf 'never committed\n' > "$T/repo/stow/fixture/.config/fixpkg/newfile"
+( cd "$T/repo/stow" && stow --no-folding -t "$T/home" fixture )
+
+if [[ -L "$S4_NEW_LIVE" ]]; then
+  pass "4 Pitfall 5 fixture: the never-committed repo file is stowed and its live counterpart is a symlink -- it reaches the content observation at all"
+else
+  fail "4 Pitfall 5 fixture: $S4_NEW_LIVE is not a symlink -- the walk would stop at the link test and never reach the trackedness arm"
+fi
+
+run_fixture_verify
+if [[ "$rc" -eq 0 ]]; then
+  pass "4 Pitfall 5: verify exits 0 over a fixture holding an untracked repo-side file (rc=$rc)"
+else
+  fail "4 Pitfall 5: verify exited $rc, expected 0 -- an untracked file was wired to move the verdict"
+  sed 's/^/       /' < "$OUT" >&2 || true
+  sed 's/^/       /' < "$ERR" >&2 || true
+fi
+
+if grep '^\[INFO\]' "$OUT" | grep -F -- "$S4_NEW_REPO" | grep -q -F -- 'untracked'; then
+  pass "4 Pitfall 5: the never-committed repo file is named on its own untracked [INFO] line: $S4_NEW_REPO"
+else
+  fail "4 Pitfall 5: no untracked [INFO] line names $S4_NEW_REPO -- git diff --quiet HEAD returned 0 for it and verify silently called that 'matches HEAD'"
+  sed 's/^/       /' < "$OUT" >&2 || true
+fi
+
+if grep '^\[INFO\]' "$OUT" | grep -F -- "$S4_NEW_REPO" | grep -q -F -- 'differs from HEAD'; then
+  fail "4 Pitfall 5: $S4_NEW_REPO is reported as differing from HEAD -- the untracked class is not distinct from the differs-from-HEAD class"
+else
+  pass "4 Pitfall 5: the untracked class is worded distinctly -- no 'differs from HEAD' line names $S4_NEW_REPO"
+fi
+
+if grep -q -F -- '=== done: FAIL=0 FINDINGS=0 ===' "$OUT"; then
+  pass "4 D-13/Pitfall 5: the untracked run summarises FAIL=0 FINDINGS=0 -- both new emissions are [INFO] and move no counter"
+else
+  fail "4 D-13/Pitfall 5: the untracked run did not summarise FAIL=0 FINDINGS=0"
+  grep -- '=== done:' "$OUT" >&2 || true
+fi
+
+# =============================================================================
 # Closing self-check -- this script mutates nothing outside its own scratch.
 # =============================================================================
 echo "=== Closing self-check: working tree unchanged ==="
@@ -543,11 +672,11 @@ if [[ "$FIXTURE_LEAK" -eq 0 ]]; then
 fi
 
 echo "=== Phase 19 ROADMAP Criteria Summary ==="
-echo "Criterion 1 (repo-side link order: -L, readlink -f, folded ancestor, dangling): pending -- plan 19-02 and 19-03"
+echo "Criterion 1 (repo-side link order: -L, readlink -f, folded ancestor, dangling): the folded-ancestor and dangling arms shipped in plan 19-02; their proof is pending -- plan 19-03's composite fixture is the only live positive either check has"
 echo "Criterion 2 (capture/ drift as its own finding class): pending -- plan 19-04"
 echo "Criterion 3 (exit 0/1/2, --strict promotion, frozen output contract): Sections 1, 2 and 3 (exit 0/1, closed flag surface and exit 2, flag-invariant scope); findings-only --strict promotion pending -- plan 19-04"
-echo "Criterion 4 (adversarial rsync -a --delete and its negative control): Section 1; cp-through class pending -- plan 19-02"
-echo "Criterion 5 (green on today's tree, repo-vs-HEAD [INFO], unclaimed stub [INFO]): pending -- plan 19-04"
+echo "Criterion 4 (adversarial rsync -a --delete and its negative control): Section 1; cp-through class: Section 4"
+echo "Criterion 5 (green on today's tree, repo-vs-HEAD [INFO], unclaimed stub [INFO]): repo-vs-HEAD [INFO] and its untracked-file extension: Section 4; green-on-today's-tree and the unclaimed-stub [INFO] pending -- plan 19-04"
 
 echo "=== done: FAIL=${FAIL} FINDINGS=${FINDINGS} ==="
 if [[ "$FAIL" -gt 0 ]]; then

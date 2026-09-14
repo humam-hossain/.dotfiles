@@ -877,6 +877,7 @@ run_verify() {
   # Walks repo side only (RESEARCH P-8). Live sidecars are never visited.
   local tree pkg_dir pkg file_path rel live canonical_repo
   local live_dir folded_hit cur ancestor_target raw_target abs_target
+  local repo_rel diff_rc tracked_path
   # D-04: the folded-ancestor check is keyed PER DIRECTORY, not per file. Two
   # memos are needed and they answer different questions: folded_verdict caches
   # whether a given live directory sits under a folded ancestor (so the walk is
@@ -887,6 +888,27 @@ run_verify() {
   # scripts/phase14-verify.sh states about a wall of derived failures.
   local -A folded_verdict=()
   local -A folded_reported=()
+
+  # RESEARCH Pitfall 5, and Open Question 3 decided IN SCOPE as [INFO]. This is
+  # an EXTENSION of D-21, not a new decision: the walk enumerates repo-side
+  # files from the FILESYSTEM, so a file that exists on disk but was never
+  # committed makes `git diff --quiet HEAD` return 0 — a literal statement that
+  # it matches HEAD, which is false. The tracked set closes that gap.
+  #
+  # Read ONCE, before the walk, with a single `git ls-files -z`. Do NOT add a
+  # per-path trackedness probe here: 94 single-path `git ls-files` calls on top
+  # of D-21's 94 `git diff` calls is the anti-pattern research names explicitly.
+  # run_capture()'s mirror_is_capturable() legitimately uses the single-path
+  # form — it tests ONE path per call, on demand — and that call site is
+  # untouched. The distinction is batch-versus-per-file in a 94-iteration walk,
+  # not the probe itself.
+  # `-z` because a repo-relative path may contain anything but NUL, and the key
+  # is the repo-relative path exactly as `$tree/$pkg/$rel` reconstructs it.
+  local -A tracked_repo_files=()
+  while IFS= read -r -d '' tracked_path; do
+    tracked_repo_files["$tracked_path"]=1
+  done < <(git -C "$main_root" ls-files -z -- stow restow 2>/dev/null || true)
+
   for tree in stow restow; do
     local tree_dir="$REPO_ROOT/$tree"
     [[ -d "$tree_dir" ]] || continue
@@ -987,6 +1009,51 @@ run_verify() {
         fi
 
         pass "verified: $live -> $canonical_repo"
+
+        # D-21 / D-46: the content observation, reached ONLY by a path that
+        # passed every link test above. Link-ness before content,
+        # unconditionally — a path that failed any link assertion `continue`d
+        # long before here and is never described in content terms.
+        #
+        # This is the class the cp-through destruction sits exactly on: `cp -f`
+        # through an intact link overwrites the REPO file and leaves the link
+        # untouched, so every `test -L` / `readlink -f` assertion above passes
+        # and only this observation can see it (PITFALLS.md §30, mirrored).
+        #
+        # It is [INFO] and never [FINDING] or [FAIL]. The check cannot
+        # distinguish an installer write-through from an ordinary uncommitted
+        # edit — measured right now, `git diff --name-only HEAD -- stow restow`
+        # reports the operator's own edit to stow/fish/.config/fish/config.fish.
+        # Reporting a guess as a defect is what scripts/phase14-verify.sh:10-14
+        # forbids, and ROADMAP criterion 5 mandates [INFO] independently. Both
+        # emissions below go through info(), so neither moves a counter and
+        # neither can move the exit code under any flag (D-13).
+        #
+        # The root comes from get_main_repo_root() and NOT from $HOME: the
+        # VER-04 harness overrides HOME and the repo root must not follow it.
+        #
+        # D-21's per-file form is honoured LITERALLY. Research measured it at
+        # 0.437 s against 0.006 s for a single batched call, with identical
+        # results, on a subcommand whose total wall time is under a second. That
+        # cost is known and accepted — do not "optimise" it into a batch.
+        repo_rel="$tree/$pkg/$rel"
+        if [[ -z "${tracked_repo_files[$repo_rel]:-}" ]]; then
+          # RESEARCH Pitfall 5: `git diff --quiet HEAD` returns 0 here and would
+          # otherwise say nothing at all. Its own [INFO] class, worded
+          # distinctly from the differs-from-HEAD one, and still [INFO] because
+          # `verify` cannot distinguish a deliberate addition awaiting commit
+          # from a stray file.
+          info "repo file is untracked: $canonical_repo — never committed, so its content cannot be compared against HEAD"
+        else
+          # T-19-04: status captured with the `rc=0; cmd || rc=$?` idiom rather
+          # than tested inline, so `set -euo pipefail` cannot end the run on the
+          # expected non-zero. T-19-03: `--` before the path argument.
+          diff_rc=0
+          git -C "$main_root" diff --quiet HEAD -- "$repo_rel" || diff_rc=$?
+          if ((diff_rc != 0)); then
+            info "repo file differs from HEAD: $canonical_repo — an installer write-through and an uncommitted edit are indistinguishable here"
+          fi
+        fi
       done < <(find "$pkg_dir" -type f -print0 | LC_ALL=C sort -z)
     done
   done
