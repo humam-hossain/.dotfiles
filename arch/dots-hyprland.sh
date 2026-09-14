@@ -29,7 +29,7 @@ arch/dots-hyprland.sh — thin wrapper for vendor/dots-hyprland/./setup
 Usage:
   arch/dots-hyprland.sh <install|install-deps|install-setups|install-files> [flags…]
   arch/dots-hyprland.sh uninstall [flags…]
-  arch/dots-hyprland.sh verify
+  arch/dots-hyprland.sh verify [--strict] [--quiet]
   arch/dots-hyprland.sh capture [--dry-run]
   arch/dots-hyprland.sh help|-h|--help
 
@@ -91,6 +91,12 @@ Uninstall (wrapper-owned; does NOT call upstream ./setup uninstall):
     --upstream-dangerous
                       Run vendor ./setup uninstall as-is (WILL cascade packages / groups).
                       Requires typing: UPSTREAM-UNINSTALL
+
+Verify (wrapper-owned; reads the repo trees and the live filesystem only):
+  verify flags:
+    --strict          Promote [FINDING]s to a failing exit code; labels are unchanged
+    --quiet           Suppress [PASS] lines only; every other label still prints
+  Any other flag exits 2 — an unknown flag means the tree was never examined.
 
 Examples:
   ./arch/dots-hyprland.sh install --dry-run          # preview the argv; changes nothing
@@ -730,18 +736,30 @@ get_main_repo_root() {
 # even when the vendored submodule is de-initialised.
 #
 # D-46: Order matters: link-ness is asserted BEFORE any content comparison.
-# D-53: Takes no arguments; always walks all three trees.
+# D-53 (narrowed by D-16): accepts exactly -h/--help/--strict/--quiet and
+# always walks all three trees. No flag narrows what is examined --- --strict
+# makes the verdict harsher, --quiet makes the output shorter, both over the
+# identical full sweep. D-12/D-15: anything else exits 2.
 # D-54: Missing live link is a [FAIL] naming recovery stow command.
 # D-50: For capture/ paths, expectation is inverted (symlink into repo is [FAIL]).
 # ---------------------------------------------------------------------------
 run_verify() {
   local -a unknown=()
   local arg
+  # D-19: the accepted flag surface is exactly these four and nothing else.
+  # A closed surface is what makes D-15's exit 2 meaningful.
+  local strict=0 quiet=0
   for arg in "$@"; do
     case "$arg" in
       -h|--help)
         usage
         exit 0
+        ;;
+      --strict)
+        strict=1
+        ;;
+      --quiet)
+        quiet=1
         ;;
       *)
         unknown+=("$arg")
@@ -750,20 +768,81 @@ run_verify() {
   done
 
   if ((${#unknown[@]} > 0)); then
+    # D-15: exit 2, not 1 — an unknown flag means the tree was never examined.
     echo "[FAIL] Unknown verify flag(s): ${unknown[*]}" >&2
     echo "[FAIL] See: ./arch/dots-hyprland.sh help" >&2
-    exit 1
+    exit 2
+  fi
+
+  # -------------------------------------------------------------------------
+  # Precondition block (D-12, D-17).
+  #
+  # D-12's rule is POSITIONAL, not semantic: everything decided here, before
+  # the walk starts, is exit 2; everything discovered during the walk --- an
+  # unreadable directory included --- is exit 1. This one placement (below the
+  # parser, above the counters) also satisfies D-17: an exit-2 refusal returns
+  # before the closing `=== done:` line, which asserts a completed verdict.
+  #
+  # Deliberately NOT routed through fail(): that helper writes to stdout and
+  # increments a counter this run is about to discard. Same `echo ... >&2`
+  # shape the unknown-flag block above already uses.
+  # -------------------------------------------------------------------------
+
+  # A fully *unset* HOME cannot reach run_verify at all: the XDG_CONFIG_HOME
+  # default near the top of this file dereferences $HOME at file scope under
+  # `set -u`, so the process dies before dispatch. The two REACHABLE exit-2
+  # forms are an EMPTY HOME and a HOME naming a non-directory. Naming the
+  # unreachable case rather than pretending to cover it is the
+  # scripts/phase14-verify.sh:10-14 principle applied to this code.
+  if [[ -z "${HOME:-}" ]]; then
+    echo "[FAIL] precondition: HOME is empty — no live path can be resolved" >&2
+    exit 2
+  fi
+  if [[ ! -d "$HOME" ]]; then
+    echo "[FAIL] precondition: HOME is not a directory: $HOME" >&2
+    exit 2
+  fi
+
+  if [[ ! -d "$REPO_ROOT/stow" && ! -d "$REPO_ROOT/restow" ]]; then
+    echo "[FAIL] precondition: neither $REPO_ROOT/stow nor $REPO_ROOT/restow is a directory" >&2
+    exit 2
+  fi
+
+  # Declared as a local array so plan 19-02 can add `git` to it under D-23
+  # without restructuring this block.
+  local -a required_bins=(find readlink cmp dirname basename)
+  local required_bin
+  for required_bin in "${required_bins[@]}"; do
+    if ! command -v "$required_bin" >/dev/null 2>&1; then
+      echo "[FAIL] precondition: required command not found on PATH: $required_bin" >&2
+      exit 2
+    fi
+  done
+
+  # Relocated from below the counters so the root-resolvable condition is
+  # genuinely checked BEFORE the walk starts (D-12).
+  local main_root
+  main_root="$(get_main_repo_root)"
+  if [[ -z "$main_root" || ! -d "$main_root" ]]; then
+    echo "[FAIL] precondition: main repo root unresolvable or not a directory: ${main_root:-<empty>}" >&2
+    exit 2
   fi
 
   local fail_count=0
   local finding_count=0
-  pass() { printf '[PASS] %s\n' "$1"; }
+  # D-20: --quiet suppresses [PASS] lines ONLY. Written as an `if` block, never
+  # as a trailing `((quiet)) && return`-style conjunction: as the last command
+  # of a function that form leaves the return status at 1 whenever quiet is 0,
+  # which aborts the `set -euo pipefail` caller at the first passing check
+  # (STATE.md records that exact defect falsified live in Phase 17).
+  pass() {
+    if ((quiet == 0)); then
+      printf '[PASS] %s\n' "$1"
+    fi
+  }
   fail() { printf '[FAIL] %s\n' "$1"; fail_count=$((fail_count + 1)); }
   finding() { printf '[FINDING] %s\n' "$1"; finding_count=$((finding_count + 1)); }
   info() { printf '[INFO] %s\n' "$1"; }
-
-  local main_root
-  main_root="$(get_main_repo_root)"
 
   # D-53: Always walks all three trees.
   # Walks repo side only (RESEARCH P-8). Live sidecars are never visited.
@@ -838,7 +917,10 @@ run_verify() {
   fi
 
   echo "=== done: FAIL=$fail_count FINDINGS=$finding_count ==="
-  if ((fail_count > 0)); then
+  # D-13: --strict promotes findings to a failing exit code. The second half is
+  # a braced group inside the `if` condition so `set -e` cannot fire on the
+  # arithmetic test. The echo above is byte-frozen (D-14, D-18).
+  if ((fail_count > 0)) || { ((strict)) && ((finding_count > 0)); }; then
     exit 1
   fi
   exit 0
