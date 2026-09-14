@@ -31,16 +31,16 @@ hl.bind("SUPER + P", hl.dsp.window.pseudo(), { description = "Window: Toggle pse
 hl.bind("SUPER + Z", hl.dsp.layout("togglesplit"), { description = "Window: Toggle split layout" })
 
 -- Window movement to numbered workspaces (1-10)
-hl.bind("SUPER + SHIFT + 1", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(1), follow = false })) end, { description = "Window: Move to workspace 1" })
-hl.bind("SUPER + SHIFT + 2", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(2), follow = false })) end, { description = "Window: Move to workspace 2" })
-hl.bind("SUPER + SHIFT + 3", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(3), follow = false })) end, { description = "Window: Move to workspace 3" })
-hl.bind("SUPER + SHIFT + 4", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(4), follow = false })) end, { description = "Window: Move to workspace 4" })
-hl.bind("SUPER + SHIFT + 5", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(5), follow = false })) end, { description = "Window: Move to workspace 5" })
-hl.bind("SUPER + SHIFT + 6", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(6), follow = false })) end, { description = "Window: Move to workspace 6" })
-hl.bind("SUPER + SHIFT + 7", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(7), follow = false })) end, { description = "Window: Move to workspace 7" })
-hl.bind("SUPER + SHIFT + 8", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(8), follow = false })) end, { description = "Window: Move to workspace 8" })
-hl.bind("SUPER + SHIFT + 9", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(9), follow = false })) end, { description = "Window: Move to workspace 9" })
-hl.bind("SUPER + SHIFT + 0", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(10), follow = false })) end, { description = "Window: Move to workspace 10" })
+hl.bind("SUPER + SHIFT + 1", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(1), follow = true })) end, { description = "Window: Move to workspace 1" })
+hl.bind("SUPER + SHIFT + 2", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(2), follow = true  })) end, { description = "Window: Move to workspace 2" })
+hl.bind("SUPER + SHIFT + 3", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(3), follow = true  })) end, { description = "Window: Move to workspace 3" })
+hl.bind("SUPER + SHIFT + 4", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(4), follow = true  })) end, { description = "Window: Move to workspace 4" })
+hl.bind("SUPER + SHIFT + 5", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(5), follow = true  })) end, { description = "Window: Move to workspace 5" })
+hl.bind("SUPER + SHIFT + 6", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(6), follow = true  })) end, { description = "Window: Move to workspace 6" })
+hl.bind("SUPER + SHIFT + 7", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(7), follow = true  })) end, { description = "Window: Move to workspace 7" })
+hl.bind("SUPER + SHIFT + 8", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(8), follow = true  })) end, { description = "Window: Move to workspace 8" })
+hl.bind("SUPER + SHIFT + 9", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(9), follow = true  })) end, { description = "Window: Move to workspace 9" })
+hl.bind("SUPER + SHIFT + 0", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(10), follow = true  })) end, { description = "Window: Move to workspace 10" })
 
 -- Vim-style window focus navigation (D-09)
 hl.bind("SUPER + H", hl.dsp.focus({ direction = "l" }), { description = "Window: Focus left" })
@@ -56,12 +56,12 @@ hl.bind("SUPER + ALT + M", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 
 hl.bind("SUPER + Space", hl.dsp.global("quickshell:searchToggle"), { description = "Shell: Toggle search" })
 
 -- Utilities: Screenshot and screen snip
-hl.bind("Print", hl.dsp.exec_cmd("hyprshot -m window --clipboard-only --freeze"), { locked = true, description = "Utilities: Screenshot window" })
+hl.bind("Print", hl.dsp.exec_cmd("hyprshot -m window --freeze -o $HOME/Pictures/Screenshots"), { locked = true, description = "Utilities: Screenshot window" })
 hl.bind("SHIFT + Print", hl.dsp.global("quickshell:regionScreenshot"), { description = "Utilities: Screen snip" })
 
 -- Session controls (D-13)
 hl.bind("Scroll_Lock", hl.dsp.exec_cmd("hyprlock"), { description = "Session: Lock screen" })
-hl.bind("SUPER + ALT + Scroll_Lock", hl.dsp.exit(), { description = "Session: Logout" })
+hl.bind("SUPER + Scroll_Lock", hl.dsp.exit(), { description = "Session: Logout" })
 
 -- Special workspaces (D-14)
 hl.bind("SUPER + grave", hl.dsp.workspace.toggle_special("social"), { description = "Workspace: Toggle social" })
