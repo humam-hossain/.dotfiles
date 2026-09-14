@@ -17,4 +17,13 @@
 -- custom.execs after hyprland.execs.
 hl.on("hyprland.start", function ()
     hl.exec_cmd("systemctl --user start hyprland-session.service")
+
+    -- Authentication Agent (START-01 / D-02)
+    hl.exec_cmd("/usr/lib/polkit-kde-authentication-agent-1")
+
+    -- Workspace-pinned autostart applications (START-01 / D-01)
+    hl.exec_cmd("[workspace 1] google-chrome-stable --profile-directory='Default' --ozone-platform-hint=auto")
+    hl.exec_cmd("[workspace 1] kitty -e tmux")
+    hl.exec_cmd("[workspace special:btop silent] kitty --class btop -e btop")
+    hl.exec_cmd("[workspace special:social silent] sh -c 'command -v vesktop >/dev/null 2>&1 && exec vesktop || exec discord'")
 end)
