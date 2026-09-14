@@ -189,6 +189,10 @@ LIVE_VERIFY="$(phase_artifact '14-live-full-adopt-verify/14-LIVE-VERIFY.md')"
 # Phase 17 marker. Not a phase artifact: it is a script in the live tree, so it
 # does not move when a milestone is archived and needs no resolver.
 PHASE17_ASSERT="scripts/phase17-unblock-assert.sh"
+# Phase 19 marker, same kind: a script in the live tree, tracked and present, so
+# the Phase 19 tier below fires. If this file is ever moved or renamed, the tier
+# stops firing and the chain silently falls back to the Phase 17 pin.
+PHASE19_ASSERT="scripts/phase19-link-aware-verify-assert.sh"
 if [ ! -f "$LIVE_VERIFY" ]; then
   if [ ! -e "$LIVE_CUSTOM" ]; then
     pass "live $LIVE_CUSTOM absent (apply not run)"
@@ -240,8 +244,13 @@ fi
 # rewrote the wrapper full-only, so after that phase it was 0771cc2 — and then the
 # phase 16 review's C-01/H-01 fixes changed it again, so it became cfa63ad. Phase
 # 17 plan 02 then added the D-09 dispatch guard and the safe_rm_path repo-
-# containment clause, so it is now b32faf6. Pinning all four keeps drift detection
-# live without asserting a premise the project has moved past.
+# containment clause, so it became b32faf6, and plan 18-05 re-pinned that same
+# tier in place to 8497511 for the capture-model wrapper-owned subcommands.
+# Phase 19 then added the live-side sweep, the --strict/--quiet flag surface and
+# the required_bins precondition block to run_verify(), so the known-good state
+# moved again and is selected by a new tier tested ahead of the Phase 17 one.
+# Pinning all five keeps drift detection live without asserting a premise the
+# project has moved past.
 #
 # ORDERING IS LOAD-BEARING: the newest marker must be tested FIRST. 14-LIVE-VERIFY.md
 # and 16-DOC-SWEEP.md both still exist, so a branch placed after their tests would
@@ -251,7 +260,9 @@ fi
 # each pin names a commit whose blob is byte-identical to the working tree at the
 # time it was written, and no later plan may touch arch/dots-hyprland.sh without
 # re-pinning here.
-if [ -f "$PHASE17_ASSERT" ]; then
+if [ -f "$PHASE19_ASSERT" ]; then
+  WRAPPER_BASE="85dbfbc"   # feat(19-03): add the sweep's entry classifier — one decision point, nine arms (scripts/phase19-link-aware-verify-assert.sh)
+elif [ -f "$PHASE17_ASSERT" ]; then
   WRAPPER_BASE="8497511"   # fix(18-05): capture model wrapper-owned subcommands
 elif [ -f "$DOC_SWEEP_16" ]; then
   WRAPPER_BASE="cfa63ad"   # fix(16): close C-01/H-01 from the phase 16 review
