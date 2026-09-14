@@ -1,14 +1,15 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: v0.4
 milestone_name: Personal config layer
 current_phase: 21
 current_phase_name: ii bar config capture
 status: executing
-stopped_at: Phase 20 context gathered
-last_updated: "2026-09-14T10:28:31.540Z"
+stopped_at: Phase 21 context gathered
+last_updated: "2026-09-14T23:09:56.877Z"
 last_activity: 2026-09-14
 last_activity_desc: Phase 20 complete, transitioned to Phase 21
+state_head: 327943d0c6f68b94184b2d9ed2d51bb395fec098
 progress:
   total_phases: 7
   completed_phases: 4
@@ -30,9 +31,9 @@ Last activity: 2026-09-14 — Phase 20 complete, transitioned to Phase 21
 
 ## Session
 
-**Last session:** 2026-09-14T09:22:51.378Z
-**Stopped at:** Phase 20 context gathered
-**Resume file:** .planning/phases/20-hypr-custom-overlays-and-startup-restore/20-CONTEXT.md
+**Last session:** 2026-09-14T23:09:56.692Z
+**Stopped at:** Phase 21 context gathered
+**Resume file:** .planning/phases/21-ii-bar-config-capture/21-CONTEXT.md
 **Next command:** `/gsd-plan-phase 20`
 
 ## Project Reference
