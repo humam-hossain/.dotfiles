@@ -802,22 +802,27 @@ Quantified in a second, isolated run: **`git_status_polls=2000  git_status_hits=
 | A4 | No caller outside this repo invokes `arch/dots-hyprland.sh verify` and depends on exit 1 for an unknown flag (D-15's contract change) | Runtime State Inventory | Low — grep found dispatch only at `arch/dots-hyprland.sh:1112-1116` and references in `scripts/phase18-capture-model-assert.sh`. A fresh-machine bootstrap (BOOT-04, Phase 23) will consume the new codes and does not exist yet |
 | A5 | Phase 18's `scripts/phase18-capture-model-assert.sh` Section 7a (wrapper verify/capture dispatch) does not assert the unknown-flag exit code, so D-15 will not break it | Runtime State Inventory | Medium — not read in full this session (the file is 47 KB; only its head, section headers and tail were read). **The planner must grep Section 7a for `verify --` and for an exit-code assertion before landing D-15.** If it does assert exit 1, that assert needs the same-commit update |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All three were decided during planning. Each carries its resolution and the plan that owns it; none is outstanding.
 
 1. **Does `scripts/phase18-capture-model-assert.sh` Section 7a assert `verify`'s unknown-flag exit code?**
    - What we know: the section exists (`arch/dots-hyprland.sh` line 689 header: *"Section 7a / ROADMAP criterion 7: wrapper-owned verify and capture dispatch"*), and D-15 changes that code from 1 to 2.
    - What's unclear: whether the assertion is on the exit code, on the `[FAIL] Unknown verify flag(s)` message, or only on dispatch reachability.
    - Recommendation: a two-line grep during planning (`grep -n 'verify --\|Unknown verify flag' scripts/phase18-capture-model-assert.sh`). If it asserts, the update belongs in the **same commit** as D-15, or the repo is red between commits.
+   - **(RESOLVED — owner: plan `19-01`, Task 1.)** The grep was run during planning. Section 7a asserts dispatch reachability and reports `rc`; it never asserts `rc -eq 1` for a rejected flag. D-15's 1→2 change therefore needs no same-commit edit to `scripts/phase18-capture-model-assert.sh`, and `19-01` Task 1 carries `./scripts/phase18-capture-model-assert.sh` exiting 0 as an acceptance criterion so the conclusion is re-checked rather than trusted. Assumption A5 is discharged by the same grep.
 
 2. **Should D-04's folded-ancestor `[FAIL]` recovery text name `stow -D` + re-stow, or just point at a doc?**
    - What we know: `scripts/phase17-unblock-assert.sh:917` states the recovery as *"a `stow -D` plus a re-stow with `--no-folding`"*. D-04 says "with the unfold command".
    - What's unclear: whether embedding the literal adjacent pair `--verbose=5 --no-folding` is intended. It would push `PAIR_COUNT` from 18 to 19 and fail `phase17-unblock-assert.sh:90`.
    - Recommendation: write `stow -D --no-folding -t ~ <pkg> && stow --no-folding -t ~ <pkg>` — correct, and adds zero matches to the `--verbose=5 --no-folding` pair grep. Verified: that grep is for the adjacent pair only, and `arch/dots-hyprland.sh` contains 0 occurrences today.
+   - **(RESOLVED — owner: plan `19-02`, which emits the message; asserted in plan `19-03`, Task 2; guarded in plan `19-01`, Task 1.)** The recommendation is adopted as written: the folded-ancestor `[FAIL]` names the unstow-and-re-stow pair rather than pointing at a doc, in the non-adjacent form, per `19-PATTERNS.md` §`scripts/phase17-unblock-assert.sh:89-90`. `19-03` Task 2 asserts the recovery text is present on the folded-ancestor line, and `19-01` Task 1 carries the zero-occurrence count for `arch/dots-hyprland.sh` plus a green `./scripts/phase17-unblock-assert.sh` as acceptance criteria, so the pair total stays 18.
 
 3. **Is the untracked-repo-side-file gap (Pitfall 5) in scope for this phase?**
    - What we know: D-21 specifies the diff and nothing else; the gap is real and measured.
    - What's unclear: whether closing it counts as a D-21 extension or a new decision.
    - Recommendation: treat it as in scope and `[INFO]`-labelled — it costs one batched `git ls-files` call, it cannot change any exit code, and leaving it open means `verify` silently reports a never-committed `stow/` file as matching `HEAD`, which is a false statement of the kind the `phase14-verify.sh` principle forbids.
+   - **(RESOLVED — owner: plan `19-02`, Task 3.)** Decided IN SCOPE, as `[INFO]`, per the recommendation, and recorded in the code as an extension of D-21 rather than as a new decision. The tracked set is read once with a single `git ls-files -z -- stow restow` before the walk — not per-path — and the untracked arm is its own `[INFO]` class, worded distinctly from the differs-from-`HEAD` one. `19-02` Task 3 asserts it against a never-committed repo-side file with `rc` and both counters staying 0.
 
 ## Environment Availability
 
