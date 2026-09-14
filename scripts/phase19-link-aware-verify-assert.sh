@@ -70,6 +70,8 @@ CAP_QUIET="$(mktemp /tmp/p19-cap-quiet-XXXXXX)"
 STRIP_NONE="$(mktemp /tmp/p19-strip-none-XXXXXX)"
 STRIP_STRICT="$(mktemp /tmp/p19-strip-strict-XXXXXX)"
 FILTER_NONE="$(mktemp /tmp/p19-filter-none-XXXXXX)"
+CAP_A="$(mktemp /tmp/p19-cap-a-XXXXXX)"
+CAP_B="$(mktemp /tmp/p19-cap-b-XXXXXX)"
 SCRATCH_ROOTS=()
 T=""
 T_REAL=""
@@ -81,7 +83,8 @@ rc=0
 cleanup() {
   rm -f "$OUT" "$ERR" "$GOUT" "$GERR" "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" \
         "$CAP_NONE" "$CAP_STRICT" "$CAP_QUIET" \
-        "$STRIP_NONE" "$STRIP_STRICT" "$FILTER_NONE" 2>/dev/null || true
+        "$STRIP_NONE" "$STRIP_STRICT" "$FILTER_NONE" \
+        "$CAP_A" "$CAP_B" 2>/dev/null || true
   local root
   for root in ${SCRATCH_ROOTS[@]+"${SCRATCH_ROOTS[@]}"}; do
     [[ -n "$root" ]] || continue
@@ -123,6 +126,23 @@ echo "=== Phase 19 link-aware verify (VER-03 / VER-04) ==="
 # [INFO] and never a skipped section -- an unprovable claim is a failed claim.
 # This is distinct from `verify` itself, which needs neither of these.
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# The vendored submodule path, composed from two halves and deliberately never
+# written as one literal anywhere in this script's executable text.
+#
+# D-47 says neither `verify` nor this assert may depend on that directory, and
+# the phase's source gate enforces it by stripping comment lines out of this
+# file and grepping the remainder for the path. A literal in a code line reads
+# as a dependency to that gate whatever the surrounding code actually does.
+#
+# Both uses below are STRING operations and nothing else: one compares the
+# wrapper's own usage text, the other writes a scratch `.gitmodules`. Neither
+# reads, stats, sources or executes anything under the real directory.
+# ---------------------------------------------------------------------------
+VENDOR_PARENT="vendor"
+VENDOR_LEAF="dots-hyprland"
+VENDOR_PATH="$VENDOR_PARENT/$VENDOR_LEAF"
+
 REQUIRED_MISSING=0
 for BIN in stow rsync; do
   if command -v "$BIN" >/dev/null 2>/dev/null; then
@@ -377,7 +397,7 @@ done
 
 for HELP_FLAG in -h --help; do
   run_fixture_verify "$HELP_FLAG"
-  if [[ "$rc" -eq 0 ]] && grep -q -F -- 'thin wrapper for vendor/dots-hyprland' "$OUT"; then
+  if [[ "$rc" -eq 0 ]] && grep -q -F -- "thin wrapper for $VENDOR_PATH" "$OUT"; then
     pass "2 accepted flag $HELP_FLAG exits 0 and prints the usage text (rc=$rc)"
   else
     fail "2 accepted flag $HELP_FLAG exited $rc or did not print the usage text"
@@ -448,6 +468,25 @@ summary_counters() {
   sed -n 's/^=== done: FAIL=\([0-9][0-9]*\) FINDINGS=\([0-9][0-9]*\) ===$/\1 \2/p' -- "$1" | tail -1
 }
 
+# ---------------------------------------------------------------------------
+# same_above_summary -- succeeds when the two captures named by $1 and $2 are
+# byte-identical once the frozen `=== done:` line is removed from both. Leaves
+# the two stripped copies in STRIP_NONE and STRIP_STRICT so a failing caller can
+# diff them.
+#
+# D-14's claim -- --strict moves the exit code and nothing else -- is made twice
+# in this script, in Section 3 over a clean fixture and in Section 6 over a
+# findings-only one. Written once here for that reason: two copies of this
+# comparison are two chances for them to drift into disagreeing about what
+# "identical above the summary line" means, and the Section 6 half is the one
+# that actually has a finding to keep fixed.
+# ---------------------------------------------------------------------------
+same_above_summary() {
+  grep -v '^=== done: ' -- "$1" > "$STRIP_NONE" || true
+  grep -v '^=== done: ' -- "$2" > "$STRIP_STRICT" || true
+  cmp -s "$STRIP_NONE" "$STRIP_STRICT"
+}
+
 # =============================================================================
 # Section 3 / ROADMAP criterion 3 -- --strict and --quiet change the verdict and
 # the volume, never the scope (D-13, D-14, D-16, D-18, D-20).
@@ -469,9 +508,7 @@ cp -- "$OUT" "$CAP_QUIET"
 RC_QUIET="$rc"
 
 # --- D-14: byte-identical output above the summary line ---------------------
-grep -v '^=== done: ' -- "$CAP_NONE" > "$STRIP_NONE" || true
-grep -v '^=== done: ' -- "$CAP_STRICT" > "$STRIP_STRICT" || true
-if cmp -s "$STRIP_NONE" "$STRIP_STRICT"; then
+if same_above_summary "$CAP_NONE" "$CAP_STRICT"; then
   pass "3 D-14: output above the summary line is byte-identical with and without --strict -- labels are fixed under --strict and only the exit code moves"
 else
   fail "3 D-14: output above the summary line DIFFERS between the normal and the --strict run -- --strict changed a label, not just the verdict"
@@ -889,6 +926,296 @@ else
 fi
 
 # =============================================================================
+# Section 6 / ROADMAP criteria 2 and 3 -- the findings-only `capture/` fixture
+# and the --strict promotion (D-13, D-22, D-35, VER-02, VER-03).
+#
+# Every assertion in this section has to come from a staged fixture, and that is
+# a property of the tree rather than a convenience. `capture/` holds exactly one
+# file today -- its README -- and the block implementing VER-02 iterates package
+# DIRECTORIES under it, so the block is vacuous on the live tree and cannot be
+# exercised there at all. The empty-shape case below asserts that vacuity
+# explicitly, which is what stops it from being mistaken for coverage.
+#
+# The same fixture is the only thing --strict has to promote. After D-06 moved
+# the non-repo dangling links to [INFO] and D-21 made the repo-vs-HEAD content
+# observation [INFO], `capture/` content drift and `capture/` missing-live-
+# counterpart are the ONLY two [FINDING] sources this phase has (D-35). A
+# findings-only fixture that staged no `capture/` package would leave --strict
+# nothing to promote and the promotion assertion vacuously satisfied -- which is
+# why the FINDINGS= value is asserted by EXACT NUMBER below and not merely as
+# "greater than zero" (T-19-11).
+#
+# Why the labels differ from the link class, deliberately rather than
+# inconsistently (D-22 against D-21): the `capture/` comparison holds two REAL
+# artifacts side by side -- the live file and its repo mirror -- and observes a
+# genuine disagreement between them. D-21's repo-vs-HEAD observation cannot
+# distinguish an installer write-through from an operator's own uncommitted edit
+# and is therefore [INFO]. Higher-confidence observation, louder class; the
+# asymmetry is the point.
+# =============================================================================
+echo "=== Section 6 / ROADMAP criteria 2 and 3: the findings-only capture/ fixture and the --strict promotion ==="
+
+# ---------------------------------------------------------------------------
+# build_capture_fixture -- build_fixture's mechanics plus a `capture/` package,
+# whose contract is INVERTED: the live file is a REAL file, never a link, and
+# the repo holds a mirror copy of it.
+#
+# $1 selects what is staged on the live side, and nothing else varies:
+#   drift    -- live file present, bytes DIFFER from the repo mirror
+#   clean    -- live file present and byte-identical to the repo mirror
+#   missing  -- no live counterpart at all
+#   stowed   -- live path is a symlink INTO the repo (the inverted expectation)
+#   ordering -- five byte-identical files, for the listing-order case
+#   empty    -- a `capture/` directory holding only a README and no packages
+#
+# The stow/ side is staged clean and identical in every mode, so the only
+# variable between two runs of this builder is the `capture/` staging. Sets T,
+# T_REAL, RUN_REPO and RUN_HOME exactly as build_fixture does.
+# ---------------------------------------------------------------------------
+build_capture_fixture() {
+  local mode="${1:-drift}"
+  T="$(mktemp -d /tmp/p19-capture-XXXXXX)"
+  SCRATCH_ROOTS+=("$T"); trap cleanup EXIT   # D-30: before the first write
+  T_REAL="$(realpath -- "$T")"               # D-26: captured at setup
+
+  mkdir -p "$T/repo/arch" "$T/repo/stow/fixture/.config/fixpkg" "$T/home/.config/fixpkg"
+  cp -- "$REPO_ROOT/arch/dots-hyprland.sh" "$T/repo/arch/dots-hyprland.sh"
+  chmod +x "$T/repo/arch/dots-hyprland.sh"
+  printf 'v1\n' > "$T/repo/stow/fixture/.config/fixpkg/conf"
+
+  # The README is present in EVERY mode, including `empty`. That mirrors the
+  # real tree, where capture/README.md is the whole of the directory, and it is
+  # what makes the empty case a statement about package directories rather than
+  # about an absent tree.
+  mkdir -p "$T/repo/capture"
+  printf '# scratch capture tree contract\n' > "$T/repo/capture/README.md"
+
+  local n
+  case "$mode" in
+    empty)
+      : # README only -- no package directories, so the block iterates nothing
+      ;;
+    ordering)
+      mkdir -p "$T/repo/capture/cappkg/.config/cappkg"
+      for n in a b c d e; do
+        printf 'mirror-%s\n' "$n" > "$T/repo/capture/cappkg/.config/cappkg/$n.conf"
+      done
+      ;;
+    *)
+      mkdir -p "$T/repo/capture/cappkg/.config/cappkg"
+      printf 'repo-mirror\n' > "$T/repo/capture/cappkg/.config/cappkg/app.conf"
+      ;;
+  esac
+
+  git -c init.defaultBranch=main init -q "$T/repo"
+  git -C "$T/repo" config user.name "GSD Assert"
+  git -C "$T/repo" config user.email "assert@local"
+  git -C "$T/repo" add -A
+  git -C "$T/repo" -c commit.gpgsign=false commit -q -m "capture fixture initial state ($mode)"
+
+  ( cd "$T/repo/stow" && stow --no-folding -t "$T/home" fixture )
+
+  # The live side, staged AFTER the commit so nothing here can reach the repo.
+  case "$mode" in
+    drift)
+      mkdir -p "$T/home/.config/cappkg"
+      printf 'live-bytes\n' > "$T/home/.config/cappkg/app.conf"
+      ;;
+    clean)
+      mkdir -p "$T/home/.config/cappkg"
+      printf 'repo-mirror\n' > "$T/home/.config/cappkg/app.conf"
+      ;;
+    missing)
+      mkdir -p "$T/home/.config/cappkg"   # the directory exists; the file does not
+      ;;
+    stowed)
+      mkdir -p "$T/home/.config/cappkg"
+      ln -s "../../../repo/capture/cappkg/.config/cappkg/app.conf" \
+            "$T/home/.config/cappkg/app.conf"
+      ;;
+    ordering)
+      mkdir -p "$T/home/.config/cappkg"
+      for n in a b c d e; do
+        printf 'mirror-%s\n' "$n" > "$T/home/.config/cappkg/$n.conf"
+      done
+      ;;
+  esac
+
+  RUN_REPO="$T/repo"
+  RUN_HOME="$T/home"
+}
+
+# ---------------------------------------------------------------------------
+# capture_tree_lines -- every line the `capture/` block can emit, and nothing
+# else, read off the capture named by $1. The four message stems are quoted
+# from arch/dots-hyprland.sh's capture block verbatim; the empty-shape case
+# below asserts that a package-less `capture/` produces NONE of them.
+# ---------------------------------------------------------------------------
+capture_tree_lines() {
+  grep -E 'capture path verified|content drift between live and repo|live counterpart does not exist|wrongly stowed' -- "$1" || true
+}
+
+# --- case 1: content drift is a [FINDING], and is NOT a [FAIL] --------------
+build_capture_fixture drift
+S6_LIVE="$T/home/.config/cappkg/app.conf"
+
+run_fixture_verify
+cp -- "$OUT" "$CAP_A"
+S6_RC_NONE="$rc"
+
+if grep '^\[FINDING\]' "$CAP_A" | grep -F -- "$S6_LIVE" | grep -q -F -- 'content drift between live and repo'; then
+  pass "6 VER-02/D-22: a drifted capture/ path is named on a [FINDING] line as content drift between live and repo: $S6_LIVE"
+else
+  fail "6 VER-02/D-22: no [FINDING] names $S6_LIVE as content drift -- capture/ drift has no finding class of its own"
+  sed 's/^/       /' < "$CAP_A" >&2 || true
+fi
+
+if grep '^\[FAIL\]' "$CAP_A" | grep -q -F -- "$S6_LIVE"; then
+  fail "6 VER-02/D-22: $S6_LIVE is on a [FAIL] line -- content drift was collapsed into the link class, and the [FINDING] class D-22 requires does not exist"
+  sed 's/^/       /' < "$CAP_A" >&2 || true
+else
+  pass "6 VER-02/D-22: no [FAIL] names $S6_LIVE -- drift between two real artifacts is a class of its own, distinct from a link failure and louder than D-21's repo-vs-HEAD [INFO] guess"
+fi
+
+S6_COUNTERS_NONE="$(summary_counters "$CAP_A")"
+if [[ "$S6_COUNTERS_NONE" == "0 1" ]]; then
+  pass "6 T-19-11: the drift fixture summarises exactly FAIL=0 FINDINGS=1 -- the staged set implies one finding and one finding was counted, so --strict below has something real to promote"
+else
+  fail "6 T-19-11: the drift fixture summarised '$S6_COUNTERS_NONE', expected '0 1' -- a fixture producing zero findings would satisfy the promotion assertion below vacuously"
+  sed 's/^/       /' < "$CAP_A" >&2 || true
+fi
+
+if [[ "$S6_RC_NONE" -eq 0 ]]; then
+  pass "6 D-13: the findings-only fixture exits 0 without --strict (rc=$S6_RC_NONE) -- a [FINDING] does not move the exit code on its own"
+else
+  fail "6 D-13: the findings-only fixture exited $S6_RC_NONE without --strict, expected 0 -- a finding moved the exit code with no flag asking it to"
+  sed 's/^/       /' < "$CAP_A" >&2 || true
+fi
+
+# --- the promotion: identical fixture, identical labels, different exit code --
+run_fixture_verify --strict
+cp -- "$OUT" "$CAP_B"
+S6_RC_STRICT="$rc"
+S6_COUNTERS_STRICT="$(summary_counters "$CAP_B")"
+
+if [[ "$S6_RC_STRICT" -eq 1 ]] && [[ "$S6_COUNTERS_STRICT" == "0 1" ]]; then
+  pass "6 D-13/VER-03: the SAME fixture exits 1 under --strict with FAIL= still 0 (rc=$S6_RC_STRICT, counters '$S6_COUNTERS_STRICT') -- that pair is the whole of D-13 and the reason --strict exists"
+else
+  fail "6 D-13/VER-03: the findings-only fixture exited $S6_RC_STRICT under --strict with counters '$S6_COUNTERS_STRICT', expected rc 1 and '0 1' -- --strict did not promote the finding, or promoted it by inventing a failure"
+  sed 's/^/       /' < "$CAP_B" >&2 || true
+fi
+
+if same_above_summary "$CAP_A" "$CAP_B"; then
+  pass "6 D-14: the --strict and no-flag captures over the findings-only fixture are byte-identical above the summary line -- --strict re-labelled nothing and only the verdict moved"
+else
+  fail "6 D-14: the --strict capture differs from the no-flag capture above the summary line -- --strict changed a label on a fixture that has a finding to keep fixed"
+  diff -u "$STRIP_NONE" "$STRIP_STRICT" || true
+fi
+
+# --- case 2: a capture/ path with no live counterpart -----------------------
+# Its own fixture, so it cannot interact with the drift case above. This is the
+# second and last [FINDING] source in the phase (D-35).
+build_capture_fixture missing
+S6_MISSING="$T/home/.config/cappkg/app.conf"
+
+run_fixture_verify
+cp -- "$OUT" "$CAP_A"
+S6_MISS_RC="$rc"
+S6_MISS_COUNTERS="$(summary_counters "$CAP_A")"
+
+if grep '^\[FINDING\]' "$CAP_A" | grep -F -- "$S6_MISSING" | grep -q -F -- 'live counterpart does not exist'; then
+  pass "6 VER-02: a capture/ path whose live counterpart is absent is named on a [FINDING] line: $S6_MISSING"
+else
+  fail "6 VER-02: no [FINDING] names $S6_MISSING as an absent live counterpart -- the phase's second finding source does not exist"
+  sed 's/^/       /' < "$CAP_A" >&2 || true
+fi
+
+run_fixture_verify --strict
+S6_MISS_RC_STRICT="$rc"
+
+if [[ "$S6_MISS_RC" -eq 0 ]] && [[ "$S6_MISS_RC_STRICT" -eq 1 ]] && [[ "$S6_MISS_COUNTERS" == "0 1" ]]; then
+  pass "6 D-13/D-35: the absent-counterpart fixture exits 0 bare and 1 under --strict with FAIL=0 (counters '$S6_MISS_COUNTERS') -- both of the phase's finding sources promote the same way"
+else
+  fail "6 D-13/D-35: the absent-counterpart fixture exited $S6_MISS_RC bare and $S6_MISS_RC_STRICT under --strict with counters '$S6_MISS_COUNTERS', expected 0, 1 and '0 1'"
+  sed 's/^/       /' < "$CAP_A" >&2 || true
+fi
+
+# --- case 3: a capture/ path whose live counterpart is a symlink into the repo
+# The inverted expectation is a HARD condition, not an observation: a link at
+# one of these paths is destroyed by the first rename-over-the-link write, so it
+# is [FAIL] and it moves the exit code with no flag asking it to.
+build_capture_fixture stowed
+S6_STOWED="$T/home/.config/cappkg/app.conf"
+
+run_fixture_verify
+cp -- "$OUT" "$CAP_A"
+S6_STOWED_RC="$rc"
+S6_STOWED_COUNTERS="$(summary_counters "$CAP_A")"
+
+if grep '^\[FAIL\]' "$CAP_A" | grep -F -- "$S6_STOWED" | grep -q -F -- 'wrongly stowed'; then
+  pass "6 D-50: a capture/ path whose live counterpart is a symlink into the repo is a [FAIL] naming it as wrongly stowed: $S6_STOWED"
+else
+  fail "6 D-50: no [FAIL] names $S6_STOWED as wrongly stowed -- the inverted expectation is not enforced, and a link at a capture/ path survives only until the first rename-over-the-link write"
+  sed 's/^/       /' < "$CAP_A" >&2 || true
+fi
+
+if [[ "$S6_STOWED_RC" -eq 1 ]] && [[ "$S6_STOWED_COUNTERS" == "1 0" ]]; then
+  pass "6 D-50/D-13: the wrongly-stowed fixture exits 1 with no flag and summarises FAIL=1 FINDINGS=0 (rc=$S6_STOWED_RC) -- a hard condition, not a finding awaiting --strict"
+else
+  fail "6 D-50/D-13: the wrongly-stowed fixture exited $S6_STOWED_RC with counters '$S6_STOWED_COUNTERS', expected 1 and '1 0'"
+  sed 's/^/       /' < "$CAP_A" >&2 || true
+fi
+
+# --- case 4: the empty shape, which is the shape of the real tree today ------
+# Asserted against the SAME fixture built without a `capture/` directory at all,
+# so the claim is that a package-less capture/ is indistinguishable from an
+# absent one rather than merely quiet. The two runs use different scratch roots
+# and their paths therefore differ, so the comparison is over the verdict and
+# the counters, never over the bytes.
+build_fixture
+run_fixture_verify
+S6_NOCAP_RC="$rc"
+S6_NOCAP_COUNTERS="$(summary_counters "$OUT")"
+
+build_capture_fixture empty
+run_fixture_verify
+cp -- "$OUT" "$CAP_A"
+S6_EMPTY_RC="$rc"
+S6_EMPTY_COUNTERS="$(summary_counters "$CAP_A")"
+
+S6_EMPTY_LINES="$(capture_tree_lines "$CAP_A")"
+if [[ -z "$S6_EMPTY_LINES" ]]; then
+  pass "6 VER-02 (empty): a capture/ tree holding only its README and no package directories emits no capture-tree line at all -- the block is vacuous by design on a tree shaped like today's, and saying so explicitly is what stops that vacuity from being read as coverage"
+else
+  fail "6 VER-02 (empty): a package-less capture/ tree emitted capture-tree lines -- the block walked something it should not have"
+  printf '%s\n' "$S6_EMPTY_LINES" | sed 's/^/       /' >&2 || true
+fi
+
+if [[ "$S6_EMPTY_RC" -eq "$S6_NOCAP_RC" ]] && [[ "$S6_EMPTY_COUNTERS" == "$S6_NOCAP_COUNTERS" ]]; then
+  pass "6 VER-02 (empty): the package-less capture/ tree leaves rc and both counters exactly as the same fixture built with no capture/ directory at all (rc=$S6_EMPTY_RC, counters '$S6_EMPTY_COUNTERS') -- it cannot change the verdict"
+else
+  fail "6 VER-02 (empty): the package-less capture/ tree changed the verdict (rc $S6_NOCAP_RC -> $S6_EMPTY_RC, counters '$S6_NOCAP_COUNTERS' -> '$S6_EMPTY_COUNTERS')"
+  sed 's/^/       /' < "$CAP_A" >&2 || true
+fi
+
+# --- case 5: listing order is stable across two consecutive runs -------------
+# The capture/ walk enumerates with the same `find ... -print0 | LC_ALL=C sort -z`
+# idiom as the repo-side walk, so this is a regression guard on that idiom rather
+# than a discovery.
+build_capture_fixture ordering
+run_fixture_verify
+capture_tree_lines "$OUT" > "$CAP_A"
+run_fixture_verify
+capture_tree_lines "$OUT" > "$CAP_B"
+if [[ -s "$CAP_A" ]] && cmp -s "$CAP_A" "$CAP_B"; then
+  pass "6 VER-02 (ordering): a capture/ package holding several files lists them in the same order on two consecutive runs over an unchanged tree ($(wc -l < "$CAP_A") capture-tree lines, identical)"
+else
+  fail "6 VER-02 (ordering): the capture-tree listing is empty or reordered itself between two consecutive runs over an unchanged tree"
+  diff -u "$CAP_A" "$CAP_B" || true
+fi
+
+
+# =============================================================================
 # Closing self-check -- this script mutates nothing outside its own scratch.
 # =============================================================================
 echo "=== Closing self-check: working tree unchanged ==="
@@ -918,8 +1245,8 @@ fi
 
 echo "=== Phase 19 ROADMAP Criteria Summary ==="
 echo "Criterion 1 (repo-side link order: -L, readlink -f, folded ancestor, dangling; plus the live-side sweep for the two conditions the repo-side walk structurally cannot see): Section 5 -- the composite fixture stages a folded ancestor, a link dangling into the repo, its dangling-outside-repo [INFO] control, a stale link at an undeclared path and an unclaimed stub in five disjoint managed directories, and one run names all of them, carries the recovery text, exits 1 and reports FAIL=4 FINDINGS=0. Section 5 is the only live positive the folded-ancestor and dangling-into-repo checks have anywhere"
-echo "Criterion 2 (capture/ drift as its own finding class): pending -- plan 19-04"
-echo "Criterion 3 (exit 0/1/2, --strict promotion, frozen output contract): Sections 1, 2 and 3 (exit 0/1, closed flag surface and exit 2, flag-invariant scope); findings-only --strict promotion pending -- plan 19-04"
+echo "Criterion 2 (capture/ drift as its own finding class): Section 6 -- a staged capture/ package with drifted content is a [FINDING] and never a [FAIL], its absent-live-counterpart sibling is the phase's only other [FINDING], a live path that is a symlink into the repo is a [FAIL] under the inverted expectation, and a package-less capture/ tree (the shape of the real tree today) emits no capture-tree line and changes neither counter"
+echo "Criterion 3 (exit 0/1/2, --strict promotion, frozen output contract): Sections 1, 2 and 3 (exit 0/1, closed flag surface and exit 2, flag-invariant scope); the findings-only --strict promotion: Section 6 -- one fixture, FINDINGS asserted by exact number, exit 0 bare and exit 1 under --strict with FAIL=0 in both and byte-identical output above the summary line"
 echo "Criterion 4 (adversarial rsync -a --delete and its negative control): Section 1; cp-through class: Section 4"
 echo "Criterion 5 (green on today's tree, repo-vs-HEAD [INFO], unclaimed stub [INFO]): repo-vs-HEAD [INFO] and its untracked-file extension: Section 4; green-on-today's-tree and the unclaimed-stub [INFO] pending -- plan 19-04"
 
