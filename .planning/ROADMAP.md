@@ -198,10 +198,24 @@ Plans:
 **Plans:** 5 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 19-01-PLAN.md — Tracer: argv to exit code, proven by a fixture destroyed on purpose (flag surface, preconditions, `--strict`/`--quiet`, the VER-04 rsync-replace harness)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 19-02-PLAN.md — Repo-side pass: folded ancestor directories, links dangling into the repo, the repo-vs-`HEAD` content observation, and the cp-through boundary
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 19-03-PLAN.md — The live-side sweep: bounded root set, per-directory verdicts, the nine-arm entry classifier, and the composite four-pathology fixture
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 19-04-PLAN.md — The `capture/` finding class, the `--strict` promotion, both installer auto-backup branches, and the read-only real-tree check
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 19-05-PLAN.md — Close the record: the Q3 answer in PITFALLS.md, the wrapper drift re-pin, and the phase gate
 
 ### Phase 20: hypr/custom overlays and startup restore
