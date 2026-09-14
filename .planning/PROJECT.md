@@ -155,9 +155,9 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 ### Active — v0.4
 
-- [ ] Live `~/.config/hypr/custom/` tree fully under repo SoT (all six `*.lua`; `scripts/` excluded as generated and unsourced)
+- [x] Live `~/.config/hypr/custom/` tree fully under repo SoT (all six `*.lua`; `scripts/` excluded as generated and unsourced) — Phase 20 / HYPR-01, HYPR-02, HYPR-03, SAFE-01
 - [ ] Quickshell ii bar config (`illogical-impulse/config.json`) copy-captured against `switchwall.sh`'s rename-over-link
-- [ ] Startup applications restored, including the `graphical-session.target` autostart lost at adopt (D-38)
+- [x] Startup applications restored, including the `graphical-session.target` autostart lost at adopt (D-38) — Phase 20 / START-01, START-02
 - [ ] Dolphin and KDE/Qt/GTK app configs captured in the repo
 - [ ] Capture mechanism operational — stow-symlink default, copy-capture exception, `verify` drift check (POLISH-01) **[verify proven Phase 19: link identity before content, adversarial rsync test, 3-exit-code contract, live-side sweep, capture/ drift class; first real-tree exercise deferred to Phases 20-22]**
 - [ ] Fresh machine reproduces the exact setup from clone with one command
@@ -268,4 +268,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-14 after Phase 19 — verify drift check proven (VER-01..04), capture mechanism verified adversarially*
+*Last updated: 2026-09-14 after Phase 20 — hypr/custom overlays and startup restore complete (HYPR-01..03, START-01, SAFE-01)*
