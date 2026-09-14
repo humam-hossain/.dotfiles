@@ -233,7 +233,7 @@ Plans:
   5. The escape route was rehearsed before the bulk stow, not designed after it — a timestamped `cp -a` backup exists, `stow -n --no-folding` ran first, each package is its own commit, and the documented one-line undo has been executed once and the state restored (SAFE-01)
 
 **Verification risk — first bulk stow over live files.** The live `custom/*.lua` files are plain copies today, so `stow` will conflict on every one. Required containment: a timestamped `cp -a` backup of the live paths, `stow -n --no-folding` first, one package, one commit, and a tested one-line undo (`stow -D -t ~ hypr && cp -a <backup>/hypr/. ~/`). Criterion 4 needs an operator re-login. Note that the untracked files in `custom/` are **upstream stubs, not personal drift** — this phase is authoring, not rescuing.
-**Plans:** 1/4 plans executed
+**Plans:** 2/4 plans executed
 
 Plans:
 **Wave 1**
@@ -242,7 +242,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 20-02-PLAN.md — Repo-side custom overlay configs and cursor theme alignment
+- [x] 20-02-PLAN.md — Repo-side custom overlay configs and cursor theme alignment
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -324,7 +324,7 @@ Plans:
 | 17. Unblock stow and restore the session target | v0.4 | 7/7 | Complete    | 2026-09-13 |
 | 18. Capture model — three trees and the collision map | v0.4 | 11/11 | Complete    | 2026-09-14 |
 | 19. Link-aware `verify` | v0.4 | 5/5 | Complete    | 2026-09-14 |
-| 20. hypr/custom overlays and startup restore | v0.4 | 1/4 | In Progress|  |
+| 20. hypr/custom overlays and startup restore | v0.4 | 2/4 | In Progress|  |
 | 21. ii bar config capture | v0.4 | 0/? | Not started | - |
 | 22. KDE and GTK capture | v0.4 | 0/? | Not started | - |
 | 23. One-command bootstrap | v0.4 | 0/? | Not started | - |
