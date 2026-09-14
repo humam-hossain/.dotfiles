@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 5
+open_count: 7
 waived_count: 0
 fixed_count: 1
-total_count: 6
-last_updated: 2026-09-12T14:27:01.776Z
+total_count: 8
+last_updated: 2026-09-14T04:28:00.227Z
 ---
 
 # Broken Windows Ledger
@@ -21,6 +21,8 @@ last_updated: 2026-09-12T14:27:01.776Z
 | 4 | 16 | deviation | scripts/phase14-verify.sh |  | 16-03 acceptance criterion demanded file-wide absence of sha256sum, but three call sites are inside assertions D-37 keeps (check_tier1_source, check_untouched, check_sidecar); criterion satisfied in scope (the deleted D-36 backup-integrity block) rather than literally | open |  | 2026-09-07T13:19:34.277Z |  |
 | 5 | 17 | deviation | scripts/phase17-unblock-assert.sh |  | Criterion 3 fixture could invoke the real rm -rf through safe_rm_path when the guard under test regresses; mitigated by shadowing rm in every fixture subshell (repo was deleted once and restored from git during 17-02) | open |  | 2026-09-12T14:27:01.669Z |  |
 | 6 | 17 | deviation | scripts/phase13-d19-assert.sh |  | Script hard-coded .planning/phases/ paths that the v0.3 milestone archival moved; repaired with an archive-aware phase_artifact() resolver plus an in-the-open path rewrite on the extracted D-19 fence | open |  | 2026-09-12T14:27:01.776Z |  |
+| 7 | 19 | deviation | scripts/phase17-unblock-assert.sh |  | 19-01 acceptance criterion requires phase17-unblock-assert.sh to exit 0; it is pre-existing FAIL=8 since Phase 18 removed repo-root .config/ (dispositioned in 18-VERIFICATION.md). Not fixed here — scope boundary. | open |  | 2026-09-14T04:28:00.122Z |  |
+| 8 | 19 | unrun-verify | scripts/phase19-link-aware-verify-assert.sh |  | 19-01 Task 3 <human-check>: read the real-tree 'verify --quiet' output and confirm it is one-screen scannable. Deferred by workflow.human_verify_mode=end-of-phase. | open |  | 2026-09-14T04:28:00.227Z |  |
 
 ````json
 [
@@ -94,6 +96,30 @@ last_updated: 2026-09-12T14:27:01.776Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-12T14:27:01.776Z",
+    "resolved_at": null
+  },
+  {
+    "id": 7,
+    "kind": "deviation",
+    "phase": "19",
+    "file": "scripts/phase17-unblock-assert.sh",
+    "line": null,
+    "description": "19-01 acceptance criterion requires phase17-unblock-assert.sh to exit 0; it is pre-existing FAIL=8 since Phase 18 removed repo-root .config/ (dispositioned in 18-VERIFICATION.md). Not fixed here — scope boundary.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-14T04:28:00.122Z",
+    "resolved_at": null
+  },
+  {
+    "id": 8,
+    "kind": "unrun-verify",
+    "phase": "19",
+    "file": "scripts/phase19-link-aware-verify-assert.sh",
+    "line": null,
+    "description": "19-01 Task 3 <human-check>: read the real-tree 'verify --quiet' output and confirm it is one-screen scannable. Deferred by workflow.human_verify_mode=end-of-phase.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-14T04:28:00.227Z",
     "resolved_at": null
   }
 ]

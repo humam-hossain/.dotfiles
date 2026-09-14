@@ -3,18 +3,18 @@ gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Personal config layer
 current_phase: 19
-current_phase_name: link-aware-verify
+current_phase_name: Link-aware `verify`
 status: executing
-stopped_at: Phase 19 context gathered
-last_updated: "2026-09-14T04:18:30.653Z"
+stopped_at: Completed 19-01-PLAN.md
+last_updated: "2026-09-14T04:27:56.044Z"
 last_activity: 2026-09-14
-last_activity_desc: Phase 18 complete, transitioned to Phase 19
-state_head: 0d7e65751dcd8f0a9ee2f5efafd021bcb1c432c5
+last_activity_desc: Phase 19 execution started
+state_head: 437936b5db0ea2c07b061b4eb9e4316326b86873
 progress:
   total_phases: 7
   completed_phases: 2
   total_plans: 23
-  completed_plans: 18
+  completed_plans: 19
   percent: 29
 ---
 
@@ -24,16 +24,16 @@ Total Phases: 7 (Phases 17-23)
 
 ## Current Position
 
-Phase: 19 (link-aware-verify) — READY TO EXECUTE
-Plan: Not started
+Phase: 19 (Link-aware `verify`) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-09-14 — Phase 18 complete, transitioned to Phase 19
+Last activity: 2026-09-14 — Phase 19 execution started
 
 ## Session
 
-**Last session:** 2026-09-14T02:50:28.907Z
-**Stopped at:** Phase 19 context gathered
-**Resume file:** .planning/phases/19-link-aware-verify/19-CONTEXT.md
+**Last session:** 2026-09-14T04:27:52.491Z
+**Stopped at:** Completed 19-01-PLAN.md
+**Resume file:** None
 **Next command:** `/gsd-plan-phase 18`
 
 ## Project Reference
@@ -41,7 +41,7 @@ Last activity: 2026-09-14 — Phase 18 complete, transitioned to Phase 19
 See: .planning/PROJECT.md (updated 2026-09-08)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 18 — Capture model — three trees and the collision map
+**Current focus:** Phase 19 — Link-aware `verify`
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
@@ -158,6 +158,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 | Phase 18 P02 | 8 min | 3 tasks | 5 files |
 | Phase 18 P03 | 7 min | 3 tasks | 3 files |
 | Phase 18 P04 | 8 min | 3 tasks | 7 files |
+| Phase 19 P01 | 3 min | 3 tasks | 2 files |
 
 ## Decisions
 
@@ -209,3 +210,6 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 18]: 18-02: tree contracts established; stow and restow membership predicates match collision-map.tsv derived outcomes, capture/ membership is hand-assigned prose — Location alone decides how a file is captured (CAP-01)
 - [Phase 18]: 18-03: wrapper main() prologue refuses --exp-files with exit 2 and names collision-map.tsv — Experimental files path uses disjoint write primitives that would void every row of collision-map.tsv (CAP-08)
 - [Phase 18]: 18-04: config redistribution table committed; hyprland.conf archived in docs/archive/ and KDE configs moved to restow/ with live state adopted — Every file leaving repo-root .config is accounted for with independently revertible commits per disposition (FIX-03)
+- [Phase 19]: Phase 19: unknown verify flags exit 2, not 1 (D-15) — an unknown flag means the tree was never examined; the refusal lands on fd 2 and prints no summary line
+- [Phase 19]: Phase 19: --quiet gates pass() as an if block, never a trailing conjunction — that form leaves the function return status at 1 when quiet is 0 and aborts the set -euo pipefail caller at the first passing check
+- [Phase 19]: Phase 19: the destructive harness guard is one callable fail-closed function whose refusal branch is proven by a three-case subshell probe against two real out-of-scratch paths, never inferred from its source text
