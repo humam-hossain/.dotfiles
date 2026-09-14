@@ -268,8 +268,17 @@ Plans:
   3. `dotfiles-capture.timer` is enabled and active, its unit is stow-managed, its journal shows a successful run, and a hand-edited live `config.json` shows up in `git status` within one interval with nothing staged and nothing committed (CAP-06)
   4. Bar position, style, auto-hide, utility buttons, workspaces and weather are set deliberately, and restoring `capture/ii/config.json` over a defaults-reset live file and restarting `qs -c ii` reproduces every one of them (BAR-02)
 
-**Verification risk — one deliberate live mutation.** Criterion 2's confirming run changes the wallpaper on the production session, which also rewrites generated theme output (`kdeglobals`, `colors.lua`, `hyprlock/colors.conf`). Containment: scratch-XDG reproduction first, clean working tree before the live run so `git checkout` reverts it, and treat the resulting churn as the measurement that settles Q7 for Phase 22. Criterion 4's defaults-reset needs a backup of `config.json` taken first.
-**Plans:** TBD
+**Plans:** 3 plans
+
+Plans:
+**Wave 1**
+- [ ] 21-01-PLAN.md — tracer: CLI ingest validation, atomic replace, and assert harness Section 1 & 2
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 21-02-PLAN.md — stow-managed systemd user capture service and timer, arch/hyprland.sh wiring, and Section 4 & 5 asserts
+
+**Wave 3** *(blocked on Wave 2 completion)*
+- [ ] 21-03-PLAN.md — adopt personal bar baseline in capture/ii/, live wallpaper and defaults-reset drills, Section 3, 6, 7 asserts, and strict verify
 
 ### Phase 22: KDE and GTK capture
 
@@ -328,7 +337,7 @@ Plans:
 | 18. Capture model — three trees and the collision map | v0.4 | 11/11 | Complete    | 2026-09-14 |
 | 19. Link-aware `verify` | v0.4 | 5/5 | Complete    | 2026-09-14 |
 | 20. hypr/custom overlays and startup restore | v0.4 | 5/5 | Complete    | 2026-09-14 |
-| 21. ii bar config capture | v0.4 | 0/? | Not started | - |
+| 21. ii bar config capture | v0.4 | 0/3 | Not started | - |
 | 22. KDE and GTK capture | v0.4 | 0/? | Not started | - |
 | 23. One-command bootstrap | v0.4 | 0/? | Not started | - |
 
