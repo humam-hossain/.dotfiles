@@ -1,6 +1,6 @@
 # DEBUG: Discord new windows open outside special:social (G-20-1)
 
-**Status:** root_cause_found  
+**Status:** resolved  
 **Phase:** 20-hypr-custom-overlays-and-startup-restore  
 **Gap:** G-20-1  
 **Discovered:** UAT test 1

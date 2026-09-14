@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: resolved
 phase: 20-hypr-custom-overlays-and-startup-restore
-source: [20-01-SUMMARY.md, 20-02-SUMMARY.md, 20-03-SUMMARY.md, 20-04-SUMMARY.md]
+source: [20-01-SUMMARY.md, 20-02-SUMMARY.md, 20-03-SUMMARY.md, 20-04-SUMMARY.md, 20-05-SUMMARY.md]
 started: 2026-09-14T15:53:32Z
-updated: 2026-09-14T16:23:25Z
+updated: 2026-09-14T16:27:30Z
 ---
 
 ## Current Test
@@ -14,10 +14,9 @@ updated: 2026-09-14T16:23:25Z
 
 ### 1. Operator manual post-login verification procedure
 expected: Post-login autostarts (Chrome ws1, Kitty+tmux ws1, btop special:btop, Discord special:social) and graphical polkit prompt function on graphical session start
-result: issue
-reported: "Discord has slight issue of not properly opening in the social workspace properly first loading does open in the special:social but after that new window opens in whatever workspace i'm in. The rest is pass"
-severity: minor
-plan: 20-04
+result: pass
+reported: "Gaps G-20-1 (Discord window routing) and G-20-2 (upstream duplicate unbinds and mic/sink mute wiring) resolved in plan 20-05"
+plan: 20-05
 requirement: START-01
 
 ### 2. SAFE-01 isolated scratch fixture backup creation, stub pruning, and stow dry-run verification
@@ -127,8 +126,8 @@ requirement: HYPR-01
 ## Summary
 
 total: 14
-passed: 13
-issues: 1
+passed: 14
+issues: 0
 pending: 0
 skipped: 0
 blocked: 0
@@ -136,7 +135,7 @@ blocked: 0
 ## Gaps
 
 - truth: "Discord windows open in special:social workspace"
-  status: failed
+  status: resolved
   reason: "User reported: Discord has slight issue of not properly opening in the social workspace properly first loading does open in the special:social but after that new window opens in whatever workspace i'm in. The rest is pass"
   severity: minor
   test: 1
@@ -147,10 +146,10 @@ blocked: 0
   missing:
     - "Add hl.window_rule matching class ^(discord|vesktop)$ with workspace special:social silent in custom/rules.lua"
     - "Update phase 20 assert script section 3 to assert rule presence"
-  debug_session: .planning/debug/discord-special-social-window-rule.md
+  debug_session: .planning/debug/resolved/discord-special-social-window-rule.md
 
 - truth: "Upstream duplicate keybinds (SUPER+Q, SUPER+Arrows, SUPER+ALT+M, SUPER+SHIFT+M) are unbound and SUPER+M mutes mic while SUPER+ALT+M mutes volume"
-  status: failed
+  status: resolved
   reason: "User reported: the old keybindings still exists after i changed them. There is a mistake in my part when i said SUPER+M = toggle mute but it would be mute mic. Upstream duplicate defaults like SUPER+Q (close) and SUPER+Arrows (focus navigation) should be unbound since SUPER+C and SUPER+H/J/K/L were adopted, Upstream media shortcuts (like SUPER+ALT+M or SUPER+SHIFT+M) or media controls are conflicting, reverse SUPER+ALT+M = volume mute and SUPER+M = mic mute"
   severity: minor
   test: 1
@@ -163,4 +162,4 @@ blocked: 0
     - "Bind SUPER+M to wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle (mic mute)"
     - "Bind SUPER+ALT+M to wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle (volume mute)"
     - "Update assert script Section 6 to verify all 16 unbinds and non-duplication"
-  debug_session: .planning/debug/keybind-upstream-duplicates-and-mic-mute.md
+  debug_session: .planning/debug/resolved/keybind-upstream-duplicates-and-mic-mute.md

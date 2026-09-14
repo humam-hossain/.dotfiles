@@ -1,6 +1,6 @@
 # DEBUG: Upstream keybind duplicates and inverted audio mute (G-20-2)
 
-**Status:** root_cause_found  
+**Status:** resolved  
 **Phase:** 20-hypr-custom-overlays-and-startup-restore  
 **Gap:** G-20-2  
 **Discovered:** UAT post-test review
