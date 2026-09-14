@@ -67,6 +67,9 @@ PORCELAIN_AFTER="$(mktemp /tmp/p19-porcelain-after-XXXXXX)"
 SCRATCH_ROOTS=()
 T=""
 T_REAL=""
+RUN_REPO=""
+RUN_HOME=""
+BARE_REPO=""
 rc=0
 
 cleanup() {
@@ -106,7 +109,7 @@ echo "=== Phase 19 link-aware verify (VER-03 / VER-04) ==="
 # ---------------------------------------------------------------------------
 REQUIRED_MISSING=0
 for BIN in stow rsync; do
-  if command -v "$BIN" >/dev/null 2>&1; then
+  if command -v "$BIN" >/dev/null 2>/dev/null; then
     pass "0 required binary present: $BIN ($(command -v "$BIN"))"
   else
     fail "0 required binary missing: $BIN -- the VER-04 destruction section cannot prove anything without it"
@@ -143,6 +146,35 @@ build_fixture() {
   git -C "$T/repo" -c commit.gpgsign=false commit -q -m "fixture initial state"
 
   ( cd "$T/repo/stow" && stow --no-folding -t "$T/home" fixture )
+
+  # The runner's two roots, so the precondition cases in Section 2 can vary one
+  # of them at a time without a second copy of the runner.
+  RUN_REPO="$T/repo"
+  RUN_HOME="$T/home"
+}
+
+# ---------------------------------------------------------------------------
+# build_bare_repo -- the fixture builder's scratch-repo mechanics ONLY: a
+# `git init`ed repo holding nothing but the copied wrapper, so the single
+# variable against build_fixture is the absence of stow/ and restow/.
+# Sets the global BARE_REPO.
+# ---------------------------------------------------------------------------
+build_bare_repo() {
+  local root
+  root="$(mktemp -d /tmp/p19-bare-XXXXXX)"
+  SCRATCH_ROOTS+=("$root"); trap cleanup EXIT   # D-30: before the first write
+
+  mkdir -p "$root/repo/arch"
+  cp -- "$REPO_ROOT/arch/dots-hyprland.sh" "$root/repo/arch/dots-hyprland.sh"
+  chmod +x "$root/repo/arch/dots-hyprland.sh"
+
+  git -c init.defaultBranch=main init -q "$root/repo"
+  git -C "$root/repo" config user.name "GSD Assert"
+  git -C "$root/repo" config user.email "assert@local"
+  git -C "$root/repo" add -A
+  git -C "$root/repo" -c commit.gpgsign=false commit -q -m "bare fixture: wrapper only, no stow/ or restow/"
+
+  BARE_REPO="$root/repo"
 }
 
 # ---------------------------------------------------------------------------
@@ -165,7 +197,7 @@ build_fixture() {
 # ---------------------------------------------------------------------------
 run_fixture_verify() {
   rc=0
-  ( cd "$T/repo" && HOME="$T/home" ./arch/dots-hyprland.sh verify "$@" ) >"$OUT" 2>"$ERR" || rc=$?
+  ( cd "$RUN_REPO" && HOME="$RUN_HOME" ./arch/dots-hyprland.sh verify "$@" ) >"$OUT" 2>"$ERR" || rc=$?
 }
 
 # ---------------------------------------------------------------------------
@@ -307,6 +339,91 @@ else
 fi
 
 # =============================================================================
+# Section 2 / ROADMAP criterion 3 -- the exit-code contract and the closed flag
+# surface (D-12, D-15, D-17, D-19, D-37).
+# =============================================================================
+echo "=== Section 2 / ROADMAP criterion 3: exit-code contract and closed flag surface ==="
+
+build_fixture
+
+# --- accepted surface, enumerated LITERALLY and exhaustively (D-19) ---------
+# A closed surface is what makes D-15 meaningful, so the accepted set is spelled
+# out here rather than sampled.
+for ACCEPTED in --strict --quiet; do
+  run_fixture_verify "$ACCEPTED"
+  if [[ "$rc" -eq 0 ]]; then
+    pass "2 accepted flag $ACCEPTED exits 0 over a clean fixture (rc=$rc)"
+  else
+    fail "2 accepted flag $ACCEPTED exited $rc over a clean fixture, expected 0"
+    sed 's/^/       /' < "$ERR" >&2 || true
+  fi
+done
+
+for HELP_FLAG in -h --help; do
+  run_fixture_verify "$HELP_FLAG"
+  if [[ "$rc" -eq 0 ]] && grep -q -F -- 'thin wrapper for vendor/dots-hyprland' "$OUT"; then
+    pass "2 accepted flag $HELP_FLAG exits 0 and prints the usage text (rc=$rc)"
+  else
+    fail "2 accepted flag $HELP_FLAG exited $rc or did not print the usage text"
+    sed 's/^/       /' < "$ERR" >&2 || true
+  fi
+done
+
+# --- rejected surface (D-15, D-17, D-37) ------------------------------------
+# The two captures stay in SEPARATE files for every one of these calls. That
+# separation is the only thing that proves the reason landed on fd 2 and that
+# the `=== done:` line -- which asserts a completed verdict -- was never emitted
+# on either stream.
+for REJECTED in --nonexistent-flag --json -x extraword; do
+  run_fixture_verify "$REJECTED"
+  REJ_OK=1
+  [[ "$rc" -eq 2 ]] || REJ_OK=0
+  grep -q -F -- "$REJECTED" "$ERR" || REJ_OK=0
+  grep -q -F -- '=== done:' "$OUT" && REJ_OK=0
+  grep -q -F -- '=== done:' "$ERR" && REJ_OK=0
+  if [[ "$REJ_OK" -eq 1 ]]; then
+    pass "2 rejected argument $REJECTED exits 2, names the token on fd 2, and emits the summary line on neither stream (rc=$rc)"
+  else
+    fail "2 rejected argument $REJECTED did not meet the exit-2 contract (rc=$rc, expected 2; token on fd 2; no === done: in either stream)"
+    sed 's/^/       /' < "$OUT" >&2 || true
+    sed 's/^/       /' < "$ERR" >&2 || true
+  fi
+done
+
+# --- precondition exit-2 cases (D-12) ---------------------------------------
+# D-12's rule is POSITIONAL, not semantic: everything decided before the walk
+# starts is exit 2, and everything discovered DURING the walk -- an unreadable
+# directory included -- is exit 1. The unreadable-directory half of that pair is
+# proven in plan 19-03, once the live-side sweep that can encounter one exists;
+# it is named here as the section that owes it rather than left unstated.
+
+HOME_AS_FILE="$T/home-is-a-regular-file"
+printf 'not a directory\n' > "$HOME_AS_FILE"
+build_bare_repo
+
+PRE_LABELS=("empty HOME" "HOME naming a regular file" "repo with neither stow/ nor restow/")
+PRE_REPOS=("$T/repo" "$T/repo" "$BARE_REPO")
+PRE_HOMES=("" "$HOME_AS_FILE" "$T/home")
+
+for PRE_I in 0 1 2; do
+  RUN_REPO="${PRE_REPOS[$PRE_I]}"
+  RUN_HOME="${PRE_HOMES[$PRE_I]}"
+  run_fixture_verify
+  if [[ "$rc" -eq 2 ]] && grep -q -- '^\[FAIL\] precondition:' "$ERR"; then
+    pass "2 precondition (${PRE_LABELS[$PRE_I]}) exits 2 with a named reason on fd 2 (rc=$rc)"
+  else
+    fail "2 precondition (${PRE_LABELS[$PRE_I]}) exited $rc without a '[FAIL] precondition:' line on fd 2, expected 2"
+    sed 's/^/       /' < "$ERR" >&2 || true
+  fi
+done
+
+RUN_REPO="$T/repo"
+RUN_HOME="$T/home"
+
+# --- the one case this entry point cannot reach, named rather than skipped ---
+info "2 a fully UNSET HOME cannot be exercised through this entry point: the wrapper dereferences \$HOME at file scope to default XDG_CONFIG_HOME under set -u, so the process dies before dispatch and never reaches the precondition block. The two reachable exit-2 HOME forms are an empty HOME and a HOME naming a non-directory, and both are asserted above (scripts/phase14-verify.sh:10-14 applied to this assert itself)."
+
+# =============================================================================
 # Closing self-check -- this script mutates nothing outside its own scratch.
 # =============================================================================
 echo "=== Closing self-check: working tree unchanged ==="
@@ -335,7 +452,7 @@ fi
 echo "=== Phase 19 ROADMAP Criteria Summary ==="
 echo "Criterion 1 (repo-side link order: -L, readlink -f, folded ancestor, dangling): pending -- plan 19-02 and 19-03"
 echo "Criterion 2 (capture/ drift as its own finding class): pending -- plan 19-04"
-echo "Criterion 3 (exit 0/1/2, --strict promotion, frozen output contract): Section 1 (exit 0 and 1); Sections 2 and 3 pending -- this plan"
+echo "Criterion 3 (exit 0/1/2, --strict promotion, frozen output contract): Section 1 (exit 0 and 1) and Section 2 (closed flag surface, exit 2, precondition cases); Section 3 pending -- this plan"
 echo "Criterion 4 (adversarial rsync -a --delete and its negative control): Section 1; cp-through class pending -- plan 19-02"
 echo "Criterion 5 (green on today's tree, repo-vs-HEAD [INFO], unclaimed stub [INFO]): pending -- plan 19-04"
 
