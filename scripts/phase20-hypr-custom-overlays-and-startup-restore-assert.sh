@@ -372,6 +372,104 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
 fi
 
 # ===========================================================================
+# Section 6: HYPR-02: keybind unbinds and cheatsheet taxonomy
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
+  info "--- Section 6: HYPR-02 keybind unbinds and cheatsheet taxonomy ---"
+
+  KEYBINDS_FILE="stow/hypr/.config/hypr/custom/keybinds.lua"
+  if [[ -f "$KEYBINDS_FILE" ]]; then
+    pass "HYPR-02 (S6): keybinds.lua exists in stow tree"
+
+    # 1. Lua syntax check
+    if luac -p "$KEYBINDS_FILE" >/dev/null 2>&1; then
+      pass "HYPR-02 (S6): keybinds.lua passes luac syntax validation"
+    else
+      fail "HYPR-02 (S6): keybinds.lua failed luac syntax validation"
+    fi
+
+    # 2. Verify all 9 unbind chords
+    unbind_chords=(
+      'hl\.unbind\("SUPER \+ C"\)'
+      'hl\.unbind\("SUPER \+ L"\)'
+      'hl\.unbind\("SUPER \+ K"\)'
+      'hl\.unbind\("SUPER \+ J"\)'
+      'hl\.unbind\("SUPER \+ D"\)'
+      'hl\.unbind\("SUPER \+ P"\)'
+      'hl\.unbind\("SUPER \+ M"\)'
+      'hl\.unbind\("SUPER \+ S"\)'
+      'hl\.unbind\("SUPER \+ Minus"\)'
+    )
+    all_unbinds_ok=1
+    for ub in "${unbind_chords[@]}"; do
+      if ! grep -qE "$ub" "$KEYBINDS_FILE"; then
+        all_unbinds_ok=0
+        fail "HYPR-02 (S6): missing unbind declaration: $ub"
+      fi
+    done
+    if [[ "$all_unbinds_ok" -eq 1 ]]; then
+      pass "HYPR-02 (S6): all 9 upstream unbind declarations present per D-06"
+    fi
+
+    # 3. Python verification for cheatsheet taxonomy and non-duplication
+    TAXONOMY_RES="$(python3 - << 'PYEOF'
+import re, sys
+
+path = "stow/hypr/.config/hypr/custom/keybinds.lua"
+with open(path, "r") as f:
+    content = f.read()
+
+bind_re = re.compile(r'hl\.bind\(\s*"([^"]+)"\s*,.*?description\s*=\s*"([^"]+)"', re.DOTALL)
+matches = bind_re.findall(content)
+
+if not matches:
+    print("NO_MATCHES")
+    sys.exit(1)
+
+chords = []
+bad_desc = []
+for chord, desc in matches:
+    chords.append(chord)
+    parts = desc.split(":")
+    if len(parts) != 2 or not parts[0].strip() or not parts[1].strip():
+        bad_desc.append(desc)
+
+dup_chords = [c for c in chords if chords.count(c) > 1]
+dup_chords = list(set(dup_chords))
+
+if bad_desc:
+    print(f"BAD_DESC:{','.join(bad_desc)}")
+    sys.exit(2)
+
+if dup_chords:
+    print(f"DUPS:{','.join(dup_chords)}")
+    sys.exit(3)
+
+print(f"OK:{len(matches)}")
+PYEOF
+)"
+    case "$TAXONOMY_RES" in
+      OK:*)
+        COUNT="${TAXONOMY_RES#OK:}"
+        pass "HYPR-02 (S6): all $COUNT keybinds strictly adhere to 'Category: Label' taxonomy"
+        pass "HYPR-02 (S6): zero duplicate key chords detected within keybinds.lua"
+        ;;
+      BAD_DESC:*)
+        fail "HYPR-02 (S6): descriptions not following Category: Label taxonomy: ${TAXONOMY_RES#BAD_DESC:}"
+        ;;
+      DUPS:*)
+        fail "HYPR-02 (S6): duplicate key chord bindings found: ${TAXONOMY_RES#DUPS:}"
+        ;;
+      *)
+        fail "HYPR-02 (S6): python taxonomy inspection failed: $TAXONOMY_RES"
+        ;;
+    esac
+  else
+    fail "HYPR-02 (S6): keybinds.lua does not exist in stow tree"
+  fi
+fi
+
+# ===========================================================================
 # Terminal Summary
 # ===========================================================================
 echo "=== done: FAIL=${FAIL} FINDINGS=${FINDINGS} ==="
