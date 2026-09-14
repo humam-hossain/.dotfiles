@@ -470,6 +470,65 @@ PYEOF
 fi
 
 # ===========================================================================
+# Section 7: HYPR-01: live overlay link identity and no parent directory folding
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 7 ]]; then
+  info "--- Section 7: HYPR-01 live overlay link identity and no parent directory folding ---"
+
+  CUSTOM_DIR="$HOME/.config/hypr/custom"
+
+  # 1. Assert custom dir is real directory and not a symlink (no folding)
+  if [[ -d "$CUSTOM_DIR" ]] && [[ ! -L "$CUSTOM_DIR" ]]; then
+    pass "HYPR-01 (S7): ~/.config/hypr/custom is a real directory (universal --no-folding preserved)"
+  else
+    fail "HYPR-01 (S7): ~/.config/hypr/custom is missing or folded into a symlink"
+  fi
+
+  # 2. Assert each of the 6 files is a symlink with matching inode identity
+  overlay_files=(
+    env.lua
+    execs.lua
+    general.lua
+    keybinds.lua
+    rules.lua
+    variables.lua
+  )
+
+  all_overlay_ok=1
+  for f in "${overlay_files[@]}"; do
+    live_path="$CUSTOM_DIR/$f"
+    repo_path="$REPO_ROOT/stow/hypr/.config/hypr/custom/$f"
+
+    if [[ ! -L "$live_path" ]]; then
+      all_overlay_ok=0
+      fail "HYPR-01 (S7): live path is not a symlink: $live_path"
+    elif [[ ! -e "$live_path" ]]; then
+      all_overlay_ok=0
+      fail "HYPR-01 (S7): live symlink is broken: $live_path"
+    elif [[ ! "$repo_path" -ef "$live_path" ]]; then
+      all_overlay_ok=0
+      fail "HYPR-01 (S7): inode mismatch between repo ($repo_path) and live ($live_path)"
+    else
+      pass "HYPR-01 (S7): verified link identity: $live_path -> $repo_path"
+    fi
+  done
+
+  if [[ "$all_overlay_ok" -eq 1 ]]; then
+    pass "HYPR-01 (S7): all 6 overlay files have confirmed link inode identity with repository source"
+  fi
+
+  # 3. dots-hyprland.sh verify --strict gate
+  VERIFY_OUT="$(mktemp /tmp/p20-s7-verify-XXXXXX)"
+  TMP_FILES+=("$VERIFY_OUT")
+  if "$REPO_ROOT/arch/dots-hyprland.sh" verify --strict >"$VERIFY_OUT" 2>&1; then
+    pass "HYPR-01 (S7): arch/dots-hyprland.sh verify --strict passed cleanly (FAIL=0 FINDINGS=0)"
+  else
+    fail "HYPR-01 (S7): arch/dots-hyprland.sh verify --strict failed"
+    sed 's/^/  [VERIFY-FAIL] /' "$VERIFY_OUT" >&2 || true
+  fi
+fi
+
+# ===========================================================================
 # Terminal Summary
 # ===========================================================================
 echo "=== done: FAIL=${FAIL} FINDINGS=${FINDINGS} ==="
