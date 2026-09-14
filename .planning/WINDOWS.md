@@ -1,10 +1,10 @@
 ---
 schema_version: 1
-open_count: 7
+open_count: 8
 waived_count: 0
 fixed_count: 1
-total_count: 8
-last_updated: 2026-09-14T04:28:00.227Z
+total_count: 9
+last_updated: 2026-09-14T07:01:18.513Z
 ---
 
 # Broken Windows Ledger
@@ -23,6 +23,7 @@ last_updated: 2026-09-14T04:28:00.227Z
 | 6 | 17 | deviation | scripts/phase13-d19-assert.sh |  | Script hard-coded .planning/phases/ paths that the v0.3 milestone archival moved; repaired with an archive-aware phase_artifact() resolver plus an in-the-open path rewrite on the extracted D-19 fence | open |  | 2026-09-12T14:27:01.776Z |  |
 | 7 | 19 | deviation | scripts/phase17-unblock-assert.sh |  | 19-01 acceptance criterion requires phase17-unblock-assert.sh to exit 0; it is pre-existing FAIL=8 since Phase 18 removed repo-root .config/ (dispositioned in 18-VERIFICATION.md). Not fixed here — scope boundary. | open |  | 2026-09-14T04:28:00.122Z |  |
 | 8 | 19 | unrun-verify | scripts/phase19-link-aware-verify-assert.sh |  | 19-01 Task 3 <human-check>: read the real-tree 'verify --quiet' output and confirm it is one-screen scannable. Deferred by workflow.human_verify_mode=end-of-phase. | open |  | 2026-09-14T04:28:00.227Z |  |
+| 9 | 19 | unmet-truth | scripts/phase14-verify.sh | 407 | check_untouched() probes with stat -c %s (no deref) but sha256sum (deref): since feat(18-06) the live hyprlock.conf/hypridle.conf are symlinks into restow/, so the size reads 66 (link target length) against the fixture's 554/359 while the sha matches exactly. D-37 reports FAIL for two files whose content is byte-identical. Fix is one -L on the stat; owned by the phase14 assert, not repaired in 19-05. | open |  | 2026-09-14T07:01:18.513Z |  |
 
 ````json
 [
@@ -120,6 +121,18 @@ last_updated: 2026-09-14T04:28:00.227Z
     "status": "open",
     "reason": "",
     "recorded_at": "2026-09-14T04:28:00.227Z",
+    "resolved_at": null
+  },
+  {
+    "id": 9,
+    "kind": "unmet-truth",
+    "phase": "19",
+    "file": "scripts/phase14-verify.sh",
+    "line": 407,
+    "description": "check_untouched() probes with stat -c %s (no deref) but sha256sum (deref): since feat(18-06) the live hyprlock.conf/hypridle.conf are symlinks into restow/, so the size reads 66 (link target length) against the fixture's 554/359 while the sha matches exactly. D-37 reports FAIL for two files whose content is byte-identical. Fix is one -L on the stat; owned by the phase14 assert, not repaired in 19-05.",
+    "status": "open",
+    "reason": "",
+    "recorded_at": "2026-09-14T07:01:18.513Z",
     "resolved_at": null
   }
 ]
