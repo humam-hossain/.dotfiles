@@ -810,7 +810,11 @@ run_verify() {
 
   # Declared as a local array so plan 19-02 can add `git` to it under D-23
   # without restructuring this block.
-  local -a required_bins=(find readlink cmp dirname basename)
+  # `realpath` is declared here because the folded-ancestor and dangling arms
+  # below canonicalise with it (T-19-02); an undeclared dependency that only
+  # matters on a pathological tree is a verdict that degrades silently in
+  # exactly the case it exists for.
+  local -a required_bins=(find readlink cmp dirname basename realpath)
   local required_bin
   for required_bin in "${required_bins[@]}"; do
     if ! command -v "$required_bin" >/dev/null 2>&1; then
@@ -827,6 +831,15 @@ run_verify() {
     echo "[FAIL] precondition: main repo root unresolvable or not a directory: ${main_root:-<empty>}" >&2
     exit 2
   fi
+
+  # T-19-02: every repo-prefix test the new arms make compares CANONICALISED
+  # strings, never a literal prefix on an unresolved argument. STATE.md records
+  # a live instance where ~/.config/systemd/user/hyprland-session.service
+  # resolves into stow/systemd/ and is accepted by a literal test and refused by
+  # the resolved one. Same `realpath -m --` idiom safe_rm_path already uses.
+  local main_root_real
+  main_root_real="$(realpath -m -- "$main_root" || true)"
+  [[ -n "$main_root_real" ]] || main_root_real="$main_root"
 
   local fail_count=0
   local finding_count=0
@@ -847,6 +860,17 @@ run_verify() {
   # D-53: Always walks all three trees.
   # Walks repo side only (RESEARCH P-8). Live sidecars are never visited.
   local tree pkg_dir pkg file_path rel live canonical_repo
+  local live_dir folded_hit cur ancestor_target raw_target abs_target
+  # D-04: the folded-ancestor check is keyed PER DIRECTORY, not per file. Two
+  # memos are needed and they answer different questions: folded_verdict caches
+  # whether a given live directory sits under a folded ancestor (so the walk is
+  # done once per directory rather than once per file), and folded_reported
+  # caches which ancestor COMPONENTS have already been named (so two managed
+  # directories under one folded component still produce exactly one [FAIL]).
+  # "One failure, not N" is the whole point of D-04 and is the same principle
+  # scripts/phase14-verify.sh states about a wall of derived failures.
+  local -A folded_verdict=()
+  local -A folded_reported=()
   for tree in stow restow; do
     local tree_dir="$REPO_ROOT/$tree"
     [[ -d "$tree_dir" ]] || continue
@@ -858,6 +882,35 @@ run_verify() {
         live="$HOME/$rel"
         canonical_repo="$main_root/$tree/$pkg/$rel"
 
+        # D-04: folded-ancestor pre-check, BEFORE the per-file link tests. A
+        # managed file whose ancestor directory is itself a symlink into the
+        # repo must be reported as a folded directory, not as N misplaced
+        # links. Only a symlink INTO the repo is the pathology criterion 1
+        # names: a component that symlinks somewhere outside the repo is
+        # allowed and is resolved through silently (D-10).
+        live_dir="$(dirname -- "$live")"
+        if [[ -z "${folded_verdict[$live_dir]:-}" ]]; then
+          folded_hit=0
+          cur="$live_dir"
+          while [[ "$cur" != "$HOME" && "$cur" != "/" && "$cur" != "." ]]; do
+            if [[ -L "$cur" ]]; then
+              ancestor_target="$(readlink -f -- "$cur" || true)"
+              if [[ -n "$ancestor_target" && "$ancestor_target" == "$main_root_real"/* ]]; then
+                folded_hit=1
+                if [[ -z "${folded_reported[$cur]:-}" ]]; then
+                  folded_reported["$cur"]=1
+                  fail "folded ancestor directory: $cur -> $ancestor_target — unfold with: cd $tree && stow -D --no-folding -t ~ $pkg && stow --no-folding -t ~ $pkg"
+                fi
+              fi
+            fi
+            cur="$(dirname -- "$cur")"
+          done
+          folded_verdict["$live_dir"]="$folded_hit"
+        fi
+        if [[ "${folded_verdict[$live_dir]:-0}" != 0 ]]; then
+          continue
+        fi
+
         # D-46 / D-54: Link-ness BEFORE content comparison.
         # Single-machine repo assumption: every package is expected to be installed.
         if [[ ! -e "$live" && ! -L "$live" ]]; then
@@ -866,6 +919,46 @@ run_verify() {
         fi
         if [[ ! -L "$live" ]]; then
           fail "not a symlink: $live — recover with: cd $tree && stow -t ~ $pkg"
+          continue
+        fi
+
+        # D-06 / PITFALLS.md A-6: the link exists but its target does not.
+        # `readlink -f` is useless here — it returns the EMPTY string for a
+        # dangling link, which both discards where the link pointed and
+        # compares equal to the equally-empty resolution of a missing repo-side
+        # target, so the equality test just below would report a broken pair as
+        # [PASS] (RESEARCH Pitfall 3). Read the raw target instead and resolve a
+        # relative one against the link's own directory. A target under the repo
+        # is exactly the A-6 condition — repo unavailable at login — that this
+        # phase exists to make loud; anything else is informational.
+        #
+        # Measured: today's tree has ZERO folded ancestors and ZERO dangling
+        # links into the repo (Phase 17's audit found two folded directories and
+        # Phase 18's redistribution resolved both). Neither this arm nor the
+        # folded-ancestor check above has a live positive to validate against —
+        # the composite fixture in plan 19-03 is the only proof either works.
+        if [[ ! -e "$live" ]]; then
+          raw_target="$(readlink -- "$live" || true)"
+          case "$raw_target" in
+            /*) abs_target="$raw_target" ;;
+            *)  abs_target="$live_dir/$raw_target" ;;
+          esac
+          # Canonicalise the JOINED path before the prefix test. Stow writes
+          # RELATIVE targets, so the live shape of A-6 is
+          # `../../github_repo/.dotfiles/stow/…`; a literal prefix test on that
+          # string never matches the repo root and would misreport the one
+          # condition this arm exists to catch as [INFO]. `-m` is what allows
+          # canonicalising a path whose final component does not exist, which is
+          # the definition of the dangling case.
+          abs_target="$(realpath -m -- "$abs_target" || true)"
+          case "$abs_target" in
+            "$main_root_real"/*)
+              fail "dangling symlink into repo: $live -> $raw_target"
+              ;;
+            *)
+              info "dangling symlink (outside repo): $live -> $raw_target"
+              ;;
+          esac
           continue
         fi
 
