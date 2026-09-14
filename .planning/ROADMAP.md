@@ -65,7 +65,7 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 - [x] **Phase 18: Capture model — three trees and the collision map** — A file's location determines its mechanism, and the installer map is checked-in, machine-asserted data (completed 2026-09-14)
 - [x] **Phase 19: Link-aware `verify`** — A destroyed symlink becomes a loud failure instead of a clean `git status`, proven adversarially (completed 2026-09-14)
 - [x] **Phase 20: hypr/custom overlays and startup restore** — Six `*.lua` files stow-managed; personal keybinds, launcher variables, and the `exec-once` entries lost at adopt (completed 2026-09-14)
-- [ ] **Phase 21: ii bar config capture** — `config.json` through the `capture/` path plus the unattended timer
+- [x] **Phase 21: ii bar config capture** — `config.json` through the `capture/` path plus the unattended timer (completed 2026-09-15)
 - [ ] **Phase 22: KDE and GTK capture** — Per-file `stow/kde` and `stow/gtk`, cp-through `restow/`, generated theme output guarded out
 - [ ] **Phase 23: One-command bootstrap** — Clone, one command, and `verify --strict` as the exit code
 
@@ -268,17 +268,20 @@ Plans:
   3. `dotfiles-capture.timer` is enabled and active, its unit is stow-managed, its journal shows a successful run, and a hand-edited live `config.json` shows up in `git status` within one interval with nothing staged and nothing committed (CAP-06)
   4. Bar position, style, auto-hide, utility buttons, workspaces and weather are set deliberately, and restoring `capture/ii/config.json` over a defaults-reset live file and restarting `qs -c ii` reproduces every one of them (BAR-02)
 
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
 **Wave 1**
-- [ ] 21-01-PLAN.md — tracer: CLI ingest validation, atomic replace, and assert harness Section 1 & 2
+
+- [x] 21-01-PLAN.md — tracer: CLI ingest validation, atomic replace, and assert harness Section 1 & 2
 
 **Wave 2** *(blocked on Wave 1 completion)*
-- [ ] 21-02-PLAN.md — stow-managed systemd user capture service and timer, arch/hyprland.sh wiring, and Section 4 & 5 asserts
+
+- [x] 21-02-PLAN.md — stow-managed systemd user capture service and timer, arch/hyprland.sh wiring, and Section 4 & 5 asserts
 
 **Wave 3** *(blocked on Wave 2 completion)*
-- [ ] 21-03-PLAN.md — adopt personal bar baseline in capture/ii/, live wallpaper and defaults-reset drills, Section 3, 6, 7 asserts, and strict verify
+
+- [x] 21-03-PLAN.md — adopt personal bar baseline in capture/ii/, live wallpaper and defaults-reset drills, Section 3, 6, 7 asserts, and strict verify
 
 ### Phase 22: KDE and GTK capture
 
@@ -337,7 +340,7 @@ Plans:
 | 18. Capture model — three trees and the collision map | v0.4 | 11/11 | Complete    | 2026-09-14 |
 | 19. Link-aware `verify` | v0.4 | 5/5 | Complete    | 2026-09-14 |
 | 20. hypr/custom overlays and startup restore | v0.4 | 5/5 | Complete    | 2026-09-14 |
-| 21. ii bar config capture | v0.4 | 0/3 | Not started | - |
+| 21. ii bar config capture | v0.4 | 3/3 | Complete    | 2026-09-15 |
 | 22. KDE and GTK capture | v0.4 | 0/? | Not started | - |
 | 23. One-command bootstrap | v0.4 | 0/? | Not started | - |
 

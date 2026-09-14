@@ -26,7 +26,7 @@ Currently-live defects. Nothing else in the milestone works until these land.
 - [x] **CAP-03**: An assert script fails when a path's declared mechanism contradicts the collision map, so the map cannot silently rot against a submodule bump
 - [x] **CAP-04**: Every stow invocation in the repo uses `--no-folding`, so no destination directory ever becomes a symlink into the working tree
 - [x] **CAP-05**: `capture` copies live to repo for `capture/` paths only, never stages or commits, and skips any path whose repo mirror is already dirty against HEAD
-- [ ] **CAP-06**: `capture` runs unattended on a systemd user timer, so `capture/` paths need no manual sync
+- [x] **CAP-06**: `capture` runs unattended on a systemd user timer, so `capture/` paths need no manual sync
 - [x] **CAP-07**: `stow --adopt` appears in no script — it silently replaces repo content with live content at exit 0
 - [x] **CAP-08**: The wrapper refuses `--exp-files` rather than forwarding it — that flag routes installation through `3.files-exp.sh`, which the collision map does not cover, so every row of the map would be void
 
@@ -44,8 +44,8 @@ Currently-live defects. Nothing else in the milestone works until these land.
 
 ### Quickshell ii Bar Config
 
-- [ ] **BAR-01**: `~/.config/illogical-impulse/config.json` is captured through `capture/`, and capture survives a wallpaper change (`switchwall.sh` renames over the path)
-- [ ] **BAR-02**: Personal bar settings reachable through `config.json` — position, style, auto-hide, utility buttons, workspaces, weather — are set deliberately and reproduce from the repo
+- [x] **BAR-01**: `~/.config/illogical-impulse/config.json` is captured through `capture/`, and capture survives a wallpaper change (`switchwall.sh` renames over the path)
+- [x] **BAR-02**: Personal bar settings reachable through `config.json` — position, style, auto-hide, utility buttons, workspaces, weather — are set deliberately and reproduce from the repo
 
 ### Dolphin, KDE and GTK
 
@@ -134,9 +134,9 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 | HYPR-03 | Phase 20 | hypr/custom overlays and startup restore | Pending |
 | START-01 | Phase 20 | hypr/custom overlays and startup restore | Pending |
 | SAFE-01 | Phase 20 | hypr/custom overlays and startup restore | Pending |
-| BAR-01 | Phase 21 | ii bar config capture | Pending |
-| BAR-02 | Phase 21 | ii bar config capture | Pending |
-| CAP-06 | Phase 21 | ii bar config capture | Pending |
+| BAR-01 | Phase 21 | ii bar config capture | Complete |
+| BAR-02 | Phase 21 | ii bar config capture | Complete |
+| CAP-06 | Phase 21 | ii bar config capture | Complete |
 | KDE-01 | Phase 22 | KDE and GTK capture | Pending |
 | KDE-02 | Phase 22 | KDE and GTK capture | Pending |
 | KDE-03 | Phase 22 | KDE and GTK capture | Pending |

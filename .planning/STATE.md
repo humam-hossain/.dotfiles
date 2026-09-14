@@ -2,20 +2,20 @@
 gsd_state_version: "1.0"
 milestone: v0.4
 milestone_name: Personal config layer
-current_phase: 21
-current_phase_name: ii bar config capture
-status: executing
-stopped_at: Phase 21 context gathered
-last_updated: "2026-09-14T23:33:15.403Z"
+current_phase: 22
+current_phase_name: KDE and GTK capture
+status: planning
+stopped_at: Phase 21 complete, ready to plan Phase 22
+last_updated: "2026-09-14T23:42:25.358Z"
 last_activity: 2026-09-15
-last_activity_desc: Plan 21-02 complete (systemd capture units, hyprland wiring, assert harness S4 & S5)
-state_head: 9ffbea7
+last_activity_desc: Phase 21 complete, transitioned to Phase 22
+state_head: 66da82447304e8669941424c639126590a00b548
 progress:
   total_phases: 7
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 31
-  completed_plans: 30
-  percent: 63
+  completed_plans: 31
+  percent: 71
 ---
 
 Total Phases: 7 (Phases 17-23)
@@ -24,24 +24,24 @@ Total Phases: 7 (Phases 17-23)
 
 ## Current Position
 
-Phase: 21 (ii bar config capture) — EXECUTING
-Plan: 3 of 3 (Plan 21-02 complete)
-Status: Executing Phase 21
-Last activity: 2026-09-15 — Plan 21-02 complete (systemd capture units, hyprland wiring, assert harness S4 & S5)
+Phase: 22 — KDE and GTK capture
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-15 — Phase 21 complete, transitioned to Phase 22
 
 ## Session
 
-**Last session:** 2026-09-14T23:09:56.692Z
-**Stopped at:** Phase 21 context gathered
-**Resume file:** .planning/phases/21-ii-bar-config-capture/21-CONTEXT.md
-**Next command:** `/gsd-plan-phase 20`
+**Last session:** 2026-09-15T05:42:00+06:00
+**Stopped at:** Phase 21 complete, ready for Phase 22
+**Resume file:** .planning/phases/21-ii-bar-config-capture/21-VERIFICATION.md
+**Next command:** `/gsd-plan-phase 22`
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-14)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 21 — ii bar config capture
+**Current focus:** Phase 22 — KDE and GTK capture
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
@@ -213,3 +213,11 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 19]: Phase 19: unknown verify flags exit 2, not 1 (D-15) — an unknown flag means the tree was never examined; the refusal lands on fd 2 and prints no summary line
 - [Phase 19]: Phase 19: --quiet gates pass() as an if block, never a trailing conjunction — that form leaves the function return status at 1 when quiet is 0 and aborts the set -euo pipefail caller at the first passing check
 - [Phase 19]: Phase 19: the destructive harness guard is one callable fail-closed function whose refusal branch is proven by a three-case subshell probe against two real out-of-scratch paths, never inferred from its source text
+- [Phase 20]: Six personal Hyprland custom overlays (env, execs, general, rules, keybinds, variables) managed as stow symlinks under stow/hypr/.config/hypr/custom/ with universal --no-folding
+- [Phase 20]: Personal keybindings authored with 16 explicit hl.unbind calls for upstream collisions and "Category: Label" taxonomy for Quickshell cheatsheet integration
+- [Phase 20]: Single-fire startup hook (hl.on("hyprland.start", ...)) restores polkit agent, Chrome, kitty, and special workspace autostarts; cursor unified to Bibata-Modern-Classic 24
+- [Phase 21]: Change detection (cmp -s) evaluates before mirror_is_capturable in run_capture, skipping byte-identical files as unchanged no-ops without false dirty-mirror warnings
+- [Phase 21]: JSON format validation enforces non-zero size ([[ -s "$live" ]]) and syntactic validity (jq empty), failing closed on empty or corrupt files without modifying the repository mirror
+- [Phase 21]: Temporary file rename on the same filesystem (${repo_file}.tmp.$$ to $repo_file) provides atomic replacement during capture
+- [Phase 21]: Systemd user units (dotfiles-capture.service oneshot and dotfiles-capture.timer 2m startup / 15m active) stowed under stow/systemd/ and enabled via arch/hyprland.sh
+- [Phase 21]: Quickshell ii bar settings baseline adopted into capture/ii/.config/illogical-impulse/config.json with top bar orientation, spark icon, Dhaka weather, and 5 workspaces
