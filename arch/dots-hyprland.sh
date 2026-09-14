@@ -1092,6 +1092,144 @@ run_verify() {
     done
   fi
 
+  # ---------------------------------------------------------------------------
+  # The live-side sweep (D-01, D-02, D-07 through D-11).
+  #
+  # D-07: a SEPARATE labelled pass, running after the repo-side walk and after
+  # the capture/ block, appending to the same two counters. The Phase 18 loop
+  # above is deliberately NOT modified — that separation is the whole point of
+  # the decision, and the reason this code lives down here instead of inside it.
+  #
+  # Why the pass exists at all: the repo-side walk starts from the repo and
+  # resolves outward, so it can only ever look at paths the repo already names.
+  # Two of the conditions ROADMAP criterion 1 requires are invisible to it BY
+  # CONSTRUCTION — a stale or dangling link at a path the repo never declared,
+  # and a folded ancestor directory. This pass starts from the live filesystem
+  # instead, bounded to the directories the repo trees imply, and classifies
+  # every entry it finds there.
+  #
+  # Nothing below writes, creates, renames or removes anything (T-19-08).
+  # `verify` is read-only by contract: it reports and exits, and fixing is the
+  # operator's move. A verifier that repairs what it finds can no longer tell
+  # you what it found.
+  # ---------------------------------------------------------------------------
+  echo "--- live-side sweep: managed directories ---"
+
+  # D-01: the root set is the deduplicated dirname of every repo-side relative
+  # path under stow/*/ and restow/*/, and the declared set is every such path
+  # resolved live. Both are built in ONE traversal, reusing the repo-side walk's
+  # loop skeleton and its `find … -print0 | LC_ALL=C sort -z` idiom. capture/ is
+  # deliberately excluded from both — the sweep never visits it (D-01).
+  #
+  # Every root resolves as "$HOME/<rel>" and NEVER through the XDG config-home
+  # variable. `stow -t ~` ignores XDG entirely and the repo-side loop above
+  # already resolves this way; the XDG defaulting near the top of this file is a
+  # READING constraint on this code, not a variable to honour here. That
+  # variable is in scope and it looks tempting — it is wrong, and honouring it
+  # would point the sweep at directories stow never wrote to. It is named
+  # obliquely here on purpose: scripts/phase17-unblock-assert.sh's sibling
+  # convention counts literal tokens in this file, and a comment is not a use.
+  local -A managed_roots=()
+  local -A declared_live=()
+  local sweep_tree sweep_tree_dir sweep_pkg_dir sweep_file sweep_rel sweep_rel_dir
+  for sweep_tree in stow restow; do
+    sweep_tree_dir="$REPO_ROOT/$sweep_tree"
+    [[ -d "$sweep_tree_dir" ]] || continue
+    for sweep_pkg_dir in "$sweep_tree_dir"/*; do
+      [[ -d "$sweep_pkg_dir" ]] || continue
+      while IFS= read -r -d '' sweep_file; do
+        sweep_rel="${sweep_file#"$sweep_pkg_dir"/}"
+        declared_live["$HOME/$sweep_rel"]=1
+        sweep_rel_dir="$(dirname -- "$sweep_rel")"
+        # The `dirname`-returns-dot case, handled explicitly. Six stow/ files
+        # live directly at $HOME and `dirname` returns a single dot for each of
+        # them; naive concatenation yields a "$HOME/." key, which is equal in
+        # EFFECT to the "$HOME" key but unequal as a STRING — a thirtieth root
+        # and a duplicate directory-level line. $HOME is one of the 29 roots and
+        # must be spelled the same way both times.
+        if [[ "$sweep_rel_dir" == "." ]]; then
+          managed_roots["$HOME"]=1
+        else
+          managed_roots["$HOME/$sweep_rel_dir"]=1
+        fi
+      done < <(find "$sweep_pkg_dir" -type f -print0 | LC_ALL=C sort -z)
+    done
+  done
+
+  # PLACEHOLDER — replaced by the real entry classifier in plan 19-03 Task 2,
+  # together with the per-directory [INFO] emitted below. It is deliberately NOT
+  # a silently-passing no-op: a sweep that enumerated every entry and said
+  # nothing about any of them would be indistinguishable from a clean sweep,
+  # which is the one thing `verify` must never let a reader conclude
+  # (scripts/phase14-verify.sh:10-14).
+  classify_sweep_entry() {
+    : "${1:-}" "${2:-}"
+    return 0
+  }
+
+  # Per-directory verdicts. Exactly one directory-level line per root, whatever
+  # the tree holds, so the directory-level line count is invariant at the size
+  # of the root set on every run (D-08, D-09).
+  #
+  # Roots are emitted through `LC_ALL=C sort`. Bash associative-array iteration
+  # is HASH order — not insertion order and not lexical order — so without this
+  # the pass reorders itself between runs on an unchanged tree, which would
+  # break the byte-identical comparisons the --strict and --quiet sections of
+  # the phase assert already make.
+  local sweep_root sweep_entry
+  if ((${#managed_roots[@]} > 0)); then
+    while IFS= read -r sweep_root; do
+      [[ -n "$sweep_root" ]] || continue
+
+      # D-08: absent is a named [INFO], never silence. Silence was the exact
+      # ambiguity the per-directory line exists to remove. The repo-side pass
+      # above still owns the per-file [FAIL] and its recovery stow command, so
+      # this line adds a statement about the directory without duplicating one.
+      if [[ ! -d "$sweep_root" ]]; then
+        info "managed directory absent: $sweep_root"
+        continue
+      fi
+
+      # D-11: `verify` never reports [PASS] for a condition it could not
+      # observe, and a directory it cannot read is exactly that.
+      #
+      # D-12's exit rule is POSITIONAL, not semantic, and this is the one place
+      # that pairing is counter-intuitive: an unreadable directory looks like a
+      # precondition — "this run cannot make a verdict here" — but it is
+      # discovered DURING the walk, so it routes through fail() and moves the
+      # exit code to 1, never to 2. Exit 2 is decided before the walk starts and
+      # nowhere else.
+      if [[ ! -r "$sweep_root" || ! -x "$sweep_root" ]]; then
+        fail "unreadable managed directory: $sweep_root (not readable and searchable by the current user)"
+        continue
+      fi
+
+      pass "managed directory: $sweep_root"
+
+      # PLACEHOLDER — removed by plan 19-03 Task 2 along with the stub
+      # classifier above. Until the classifier lands, say so once per directory
+      # rather than enumerating in silence.
+      info "entry classification not yet implemented for: $sweep_root"
+
+      # D-02: non-recursive by construction. This lists the directory's own
+      # entries and never descends into an unmanaged subtree.
+      #
+      # `find -mindepth 1 -maxdepth 1 -print0` into a `while IFS= read -r -d ''`
+      # loop, never bash globbing (T-19-05): globbing needs `nullglob` and
+      # `dotglob` plus an explicit dot-entry filter, it still breaks on a name
+      # containing a newline, and setting a shell option inside a function leaks
+      # it to the caller.
+      #
+      # D-10: a managed directory reached through a component that symlinks
+      # OUTSIDE the repo is resolved through and checked as normal. Only a
+      # symlink INTO the repo is the pathology criterion 1 names, and the
+      # folded-ancestor check in the repo-side walk above already catches that.
+      while IFS= read -r -d '' sweep_entry; do
+        classify_sweep_entry "$sweep_entry" "$sweep_root"
+      done < <(find "$sweep_root" -mindepth 1 -maxdepth 1 -print0 | LC_ALL=C sort -z)
+    done < <(printf '%s\n' "${!managed_roots[@]}" | LC_ALL=C sort)
+  fi
+
   echo "=== done: FAIL=$fail_count FINDINGS=$finding_count ==="
   # D-13: --strict promotes findings to a failing exit code. The second half is
   # a braced group inside the `if` condition so `set -e` cannot fire on the
