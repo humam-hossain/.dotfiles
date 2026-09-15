@@ -2,8 +2,8 @@
 
 ## Current State
 
-**Shipped:** v0.3 Full ii install (2026-09-09)  
-**Next milestone:** v0.4 Personal config layer — started 2026-09-12
+**Shipped:** v0.4 Personal config layer (2026-09-15)  
+**Status:** All 7 phases of v0.4 (Phases 17–23) complete and verified
 
 Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, operator playbook for install and pin-bump updates. As of Phase 14 the session runs the full ii model — the Lua entry is authoritative and Waybar/rofi/swaync no longer dual-run.
 
@@ -159,8 +159,8 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - [x] Quickshell ii bar config (`illogical-impulse/config.json`) copy-captured against `switchwall.sh`'s rename-over-link — Phase 21 / BAR-01, BAR-02, CAP-06
 - [x] Startup applications restored, including the `graphical-session.target` autostart lost at adopt (D-38) — Phase 20 / START-01, START-02
 - [x] Dolphin and KDE/Qt/GTK app configs captured in the repo — Phase 22 / KDE-01, KDE-02, KDE-03
-- [ ] Capture mechanism operational — stow-symlink default, copy-capture exception, `verify` drift check (POLISH-01) **[verify proven Phase 19: link identity before content, adversarial rsync test, 3-exit-code contract, live-side sweep, capture/ drift class; first real-tree exercise deferred to Phases 20-22]**
-- [ ] Fresh machine reproduces the exact setup from clone with one command
+- [x] Capture mechanism operational — stow-symlink default, copy-capture exception, `verify` drift check (POLISH-01) — Phase 18, 19, 21, 22
+- [x] Fresh machine reproduces the exact setup from clone with one command — Phase 23 / BOOT-01..05
 
 ### Carry-forward candidates (not yet committed requirements)
 
