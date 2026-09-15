@@ -365,7 +365,7 @@ Plans:
 | 22. KDE and GTK capture | v0.4 | 4/4 | Complete    | 2026-09-15 |
 | 23. One-command bootstrap | v0.4 | 3/3 | Complete    | 2026-09-15 |
 
-**Coverage:** v0.1 shipped · v0.2 shipped · v0.3 shipped · v0.4 in progress — 35/35 requirements mapped across Phases 17-23, 0 unmapped
+**Coverage:** v0.1 shipped · v0.2 shipped · v0.3 shipped · v0.4 shipped — 35/35 requirements mapped across Phases 17-23, 0 unmapped
 
 ---
-*Last updated: 2026-09-12 — v0.4 Personal config layer roadmapped (Phases 17-23)*
+*Last updated: 2026-09-15 — v0.4 Personal config layer shipped (all 7 phases complete)*
