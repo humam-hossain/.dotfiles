@@ -14,7 +14,7 @@ II_ROOT="$REPO_ROOT/vendor/dots-hyprland"
 SETUP="$II_ROOT/setup"
 # D-04: full is the only install behavior; no residual flag injection.
 # install* → upstream ./setup; uninstall, verify, capture → wrapper-owned paths (D-07, D-48, D-61)
-ALLOWLIST=(install install-deps install-setups install-files uninstall verify capture)
+ALLOWLIST=(install install-deps install-setups install-files uninstall verify capture bootstrap)
 
 # XDG defaults (match upstream environment-variables.sh)
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
@@ -31,6 +31,7 @@ Usage:
   arch/dots-hyprland.sh uninstall [flags…]
   arch/dots-hyprland.sh verify [--strict] [--quiet]
   arch/dots-hyprland.sh capture [--dry-run] [--quiet] [--notify]
+  arch/dots-hyprland.sh bootstrap [flags…]
   arch/dots-hyprland.sh help|-h|--help
 
 What this wrapper does:
@@ -50,6 +51,7 @@ Allowlisted subcommands:
   uninstall        Wrapper-owned removal: gates on its own exact-token confirmation,
                    drops the illogical-impulse-* meta packages with no dependency
                    cascade, and removes ii-owned configs and state (see below)
+  bootstrap        Root orchestrator: runs the full reproduction pipeline via ./bootstrap.sh
   help|-h|--help   This text
 
 Install behavior (D-04, D-06, D-09):
@@ -1724,6 +1726,9 @@ main() {
   shift
 
   case "$subcmd" in
+    bootstrap)
+      exec "$REPO_ROOT/bootstrap.sh" "$@"
+      ;;
     uninstall)
       run_uninstall "$@"
       ;;
