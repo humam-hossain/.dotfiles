@@ -128,6 +128,34 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
   else
     fail "Section 1: PAIR_COUNT in arch/*.sh drifted (expected 18, counted $PAIR_COUNT)"
   fi
+
+  # 6. Stage transition check: without --no-pause, Stage 1 terminates with exit 0 and sets stage 2 (D-08, D-09)
+  S1_STATE_DIR="$(mktemp -d /tmp/p23-assert-s1-XXXXXX)"
+  SCRATCH_ROOTS+=("$S1_STATE_DIR")
+  STAGE1_RC=0
+  STAGE1_OUT="$(XDG_STATE_HOME="$S1_STATE_DIR" DOTFILES_MOCK_STEPS=1 "$REPO_ROOT/bootstrap.sh" 2>&1)" || STAGE1_RC=$?
+  if [[ "$STAGE1_RC" -eq 0 ]] && grep -q "BOOTSTRAP: STAGE 1 COMPLETE" <<<"$STAGE1_OUT"; then
+    pass "Section 1: Stage 1 renders relogin banner and exits 0"
+    S1_STAGE="$(jq -r '.stage // 0' "$S1_STATE_DIR/dotfiles/bootstrap-state" 2>/dev/null || echo 0)"
+    if [[ "$S1_STAGE" -eq 2 ]]; then
+      pass "Section 1: Stage 1 transition set stage to 2 in persistent state"
+    else
+      fail "Section 1: persistent state stage is $S1_STAGE (expected 2)"
+    fi
+  else
+    fail "Section 1: Stage 1 execution did not exit 0 with banner (rc=$STAGE1_RC)"
+  fi
+
+  # 7. --no-pause bypasses Stage 1 pause and proceeds through Stage 2 (D-04)
+  NOPR_STATE_DIR="$(mktemp -d /tmp/p23-assert-s1-nopr-XXXXXX)"
+  SCRATCH_ROOTS+=("$NOPR_STATE_DIR")
+  NOPR_RC=0
+  NOPR_OUT="$(XDG_STATE_HOME="$NOPR_STATE_DIR" DOTFILES_MOCK_STEPS=1 "$REPO_ROOT/bootstrap.sh" --no-pause 2>&1)" || NOPR_RC=$?
+  if [[ "$NOPR_RC" -eq 0 ]] && grep -q "Bootstrap pipeline execution complete" <<<"$NOPR_OUT"; then
+    pass "Section 1: --no-pause bypasses relogin pause and completes full pipeline"
+  else
+    fail "Section 1: --no-pause execution failed (rc=$NOPR_RC)"
+  fi
 fi
 
 # ===========================================================================
@@ -353,7 +381,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
   fi
 
   # 6. Test idempotence: execute pipeline in completed state without flags; assert exit 0 and zero redundant operations
-  jq '.steps |= map_values(.status = "complete")' "$STATE_FILE" > "$STATE_FILE.tmp.$$" && mv "$STATE_FILE.tmp.$$" "$STATE_FILE"
+  jq '.stage = 2 | .steps |= map_values(.status = "complete")' "$STATE_FILE" > "$STATE_FILE.tmp.$$" && mv "$STATE_FILE.tmp.$$" "$STATE_FILE"
   IDEM_RC=0
   IDEM_OUT="$(XDG_STATE_HOME="$S3_STATE_DIR" "$REPO_ROOT/bootstrap.sh" 2>&1)" || IDEM_RC=$?
   if [[ "$IDEM_RC" -eq 0 ]]; then
@@ -369,19 +397,79 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
 fi
 
 # ===========================================================================
-# Section 4: Package snapshot validation and zero git drift (Plan 23-03)
+# Section 4: Package snapshot validation and zero git drift (BOOT-05)
 # ===========================================================================
-if [[ "$RUN_SECTION" -eq 4 ]]; then
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
   info "--- Section 4: Package snapshot validation and zero git drift ---"
-  info "Section 4 scheduled for Plan 23-03 implementation"
+
+  # 1. Check arch/pkglist-native.txt and arch/pkglist-aur.txt format
+  for f in "arch/pkglist-native.txt" "arch/pkglist-aur.txt"; do
+    if [[ -f "$REPO_ROOT/$f" ]]; then
+      pass "Section 4: $f exists"
+      if grep -q "^# Hostname:" "$REPO_ROOT/$f" && \
+         grep -q "^# Timestamp:" "$REPO_ROOT/$f" && \
+         grep -q "^# Kernel:" "$REPO_ROOT/$f" && \
+         grep -q "^# Pacman:" "$REPO_ROOT/$f" && \
+         grep -q "^# Count:" "$REPO_ROOT/$f"; then
+        pass "Section 4: $f carries all 5 required metadata headers"
+      else
+        fail "Section 4: $f missing one or more metadata headers"
+      fi
+
+      non_comments="$(grep -v '^#' "$REPO_ROOT/$f")"
+      if LC_ALL=C sort -C <<<"$non_comments"; then
+        pass "Section 4: $f entries are deterministically sorted (LC_ALL=C sort -C)"
+      else
+        fail "Section 4: $f entries are not sorted"
+      fi
+    else
+      fail "Section 4: $f does not exist"
+    fi
+  done
+
+  # 2. Normal bootstrap dry-run must NOT mutate snapshots or working tree
+  PORCELAIN_SNAP="$(porcelain_snapshot)"
+  "$REPO_ROOT/bootstrap.sh" --dry-run >/dev/null 2>&1 || true
+  if [[ "$PORCELAIN_SNAP" == "$(porcelain_snapshot)" ]]; then
+    pass "Section 4: standard bootstrap invocation causes zero git working-tree drift"
+  else
+    fail "Section 4: standard bootstrap invocation mutated git working tree"
+  fi
 fi
 
 # ===========================================================================
-# Section 5: Live host dry-run, PAIR_COUNT == 18, and verify --strict (Plan 23-03)
+# Section 5: Live host dry-run, PAIR_COUNT == 18, and verify --strict (BOOT-04)
 # ===========================================================================
-if [[ "$RUN_SECTION" -eq 5 ]]; then
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
   info "--- Section 5: Live host dry-run, PAIR_COUNT == 18, and verify --strict ---"
-  info "Section 5 scheduled for Plan 23-03 implementation"
+
+  # 1. Live dry-run executes cleanly
+  DRY_RC=0
+  DRY_OUT="$("$REPO_ROOT/bootstrap.sh" --dry-run 2>&1)" || DRY_RC=$?
+  if [[ "$DRY_RC" -eq 0 ]]; then
+    pass "Section 5: ./bootstrap.sh --dry-run exited 0 on live host"
+  else
+    fail "Section 5: ./bootstrap.sh --dry-run failed (rc=$DRY_RC)"
+    printf '%s\n' "$DRY_OUT" | sed 's/^/       /' >&2
+  fi
+
+  # 2. Invariant: PAIR_COUNT in arch/*.sh MUST remain 18
+  PAIR_COUNT="$(grep -ho -- '--verbose=5 --no-folding' arch/*.sh | wc -l || true)"
+  if [[ "$PAIR_COUNT" -eq 18 ]]; then
+    pass "Section 5: PAIR_COUNT invariant in arch/*.sh is strictly 18"
+  else
+    fail "Section 5: PAIR_COUNT in arch/*.sh drifted (expected 18, counted $PAIR_COUNT)"
+  fi
+
+  # 3. Live verification exit code gate
+  VERIFY_RC=0
+  VERIFY_OUT="$("$REPO_ROOT/arch/dots-hyprland.sh" verify --strict 2>&1)" || VERIFY_RC=$?
+  if [[ "$VERIFY_RC" -eq 0 ]]; then
+    pass "Section 5: live arch/dots-hyprland.sh verify --strict passed with zero findings"
+  else
+    fail "Section 5: live arch/dots-hyprland.sh verify --strict failed (rc=$VERIFY_RC)"
+    printf '%s\n' "$VERIFY_OUT" | sed 's/^/       /' >&2
+  fi
 fi
 
 # ---------------------------------------------------------------------------

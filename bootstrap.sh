@@ -571,15 +571,79 @@ step_capture_seed() {
 }
 
 # ---------------------------------------------------------------------------
-# Step 7: Systemd & Strict Verification (Wave 3)
+# Stage 1 Relogin Banner & Stage 2 Runtime Session Probe (D-08, D-09, D-10)
+# ---------------------------------------------------------------------------
+show_relogin_banner() {
+  local reset="\033[0m" bold="\033[1m" green="\033[32m" cyan="\033[36m"
+  if [[ ! -t 1 ]]; then
+    reset="" bold="" green="" cyan=""
+  fi
+
+  cat <<EOF
+
+${bold}${cyan}┌────────────────────────────────────────────────────────────────────────┐${reset}
+${bold}${cyan}│${reset}                        ${bold}${green}BOOTSTRAP: STAGE 1 COMPLETE${reset}                     ${bold}${cyan}│${reset}
+${bold}${cyan}├────────────────────────────────────────────────────────────────────────┤${reset}
+${bold}${cyan}│${reset} All dotfiles, overlays, and session configs have been placed on disk.  ${bold}${cyan}│${reset}
+${bold}${cyan}│${reset}                                                                        ${bold}${cyan}│${reset}
+${bold}${cyan}│${reset} The session entry point has changed to upstream ${bold}hyprland.lua${reset}.          ${bold}${cyan}│${reset}
+${bold}${cyan}│${reset} A session relogin is mandatory to load the new desktop environment:    ${bold}${cyan}│${reset}
+${bold}${cyan}│${reset}                                                                        ${bold}${cyan}│${reset}
+${bold}${cyan}│${reset}   1. Exit current session:  ${bold}hyprctl dispatch exit${reset}                      ${bold}${cyan}│${reset}
+${bold}${cyan}│${reset}   2. Log back in via display manager / SDDM                             ${bold}${cyan}│${reset}
+${bold}${cyan}│${reset}   3. Complete bootstrap by running:                                     ${bold}${cyan}│${reset}
+${bold}${cyan}│${reset}        ${bold}./bootstrap.sh${reset}                                                   ${bold}${cyan}│${reset}
+${bold}${cyan}└────────────────────────────────────────────────────────────────────────┘${reset}
+
+EOF
+}
+
+probe_session_environment() {
+  if [[ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
+    echo "[WARN] HYPRLAND_INSTANCE_SIGNATURE is not set. Graphical session may not be active." >&2
+  fi
+  if command -v hyprctl &>/dev/null; then
+    local provider
+    provider="$(hyprctl -j status 2>/dev/null | jq -r '.configProvider // "unknown"')"
+    if [[ "$provider" != "lua" ]]; then
+      echo "[WARN] Active configProvider is '$provider' (expected 'lua'). Did you relogin?" >&2
+    fi
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# Step 7: Systemd & Strict Verification (D-11, D-23, BOOT-04)
 # ---------------------------------------------------------------------------
 step_verify() {
-  echo "[STEP 7/7] Verifying desktop environment..."
+  echo "[STEP 7/7] Activating systemd capture timer and running strict verification..."
   if [[ "$DRY_RUN" -eq 1 ]]; then
-    echo "[DRY-RUN] Would verify desktop environment via arch/dots-hyprland.sh verify --strict"
+    echo "[DRY-RUN] systemctl --user daemon-reload"
+    echo "[DRY-RUN] systemctl --user --now enable dotfiles-capture.timer"
+    echo "[DRY-RUN] $REPO_ROOT/arch/dots-hyprland.sh verify --strict"
     return 0
   fi
-  "$REPO_ROOT/arch/dots-hyprland.sh" verify --strict
+
+  if command -v systemctl &>/dev/null; then
+    echo "[SYSTEMD] Reloading user systemd daemon..."
+    systemctl --user daemon-reload 2>/dev/null || true
+    echo "[SYSTEMD] Enabling and starting dotfiles-capture.timer..."
+    systemctl --user --now enable dotfiles-capture.timer 2>/dev/null || true
+    if ! systemctl --user is-active --quiet dotfiles-capture.timer 2>/dev/null; then
+      echo "[WARN] dotfiles-capture.timer is not active (user D-Bus session may be unavailable)." >&2
+    else
+      echo "[PASS] dotfiles-capture.timer is active."
+    fi
+  fi
+
+  echo "[VERIFY] Running strict repository verification..."
+  local verify_rc=0
+  "$REPO_ROOT/arch/dots-hyprland.sh" verify --strict || verify_rc=$?
+  if [[ "$verify_rc" -ne 0 ]]; then
+    echo "[FAIL] Strict verification failed with exit code $verify_rc." >&2
+  else
+    echo "[PASS] Strict verification passed with 0 findings."
+  fi
+  return "$verify_rc"
 }
 
 # ---------------------------------------------------------------------------
@@ -638,6 +702,18 @@ main() {
   execute_step "destub" step_destub
   execute_step "stow" step_stow
   execute_step "capture_seed" step_capture_seed
+
+  # Two-Stage Execution Boundary across Relogin (D-08, D-09)
+  if [[ -z "$ONLY_STEP" && "$(get_stage)" -eq 1 ]]; then
+    set_stage 2
+    show_relogin_banner
+    if [[ "$NO_PAUSE" -eq 0 && "$DRY_RUN" -eq 0 ]]; then
+      echo "[INFO] Pausing for session relogin. Run ./bootstrap.sh after logging back in."
+      exit 0
+    fi
+  fi
+
+  probe_session_environment
   execute_step "verify" step_verify
 
   echo "[DONE] Bootstrap pipeline execution complete."

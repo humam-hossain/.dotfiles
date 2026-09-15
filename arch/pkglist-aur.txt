@@ -1,0 +1,62 @@
+# arch/pkglist-aur.txt — explicitly installed foreign/AUR packages
+# Hostname: arch
+# Timestamp: 2026-09-15T06:12:28Z
+# Kernel: 7.2.4-arch1-2
+# Pacman: Pacman v7.1.0 - libalpm v16.0.1
+# Count: 56
+affine-bin
+anydesk-bin
+brave-bin
+catppuccin-cursors-mocha
+catppuccin-gtk-theme-mocha
+cbonsai
+coolercontrol
+durdraw
+freedownloadmanager
+gnome-network-displays
+google-chrome
+hide-client
+illogical-impulse-audio
+illogical-impulse-backlight
+illogical-impulse-basic
+illogical-impulse-bibata-modern-classic-bin
+illogical-impulse-fonts-themes
+illogical-impulse-hyprland
+illogical-impulse-kde
+illogical-impulse-microtex-git
+illogical-impulse-microtex-git-debug
+illogical-impulse-portal
+illogical-impulse-python
+illogical-impulse-quickshell-git
+illogical-impulse-screencapture
+illogical-impulse-toolkit
+illogical-impulse-widgets
+librewolf-bin
+lmstudio-bin
+localsend
+nautilus-open-any-terminal
+opera
+oxker
+pacfinder
+pacgraph
+pacvis-git
+papirus-folders-catppuccin-git
+posting
+qview
+realesrgan-ncnn-vulkan
+reversal-icon-theme-git
+rustdesk-bin
+sc-im
+smem
+teams-for-linux
+teamspeak
+ttf-material-symbols-variable-git
+ttf-ms-fonts
+webcamize
+wezterm-git
+whitesur-icon-theme
+windscribe-cli-v2-bin
+yay-bin
+zafiro-icon-theme
+zoom
+zotero
