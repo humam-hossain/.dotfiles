@@ -331,10 +331,10 @@ Plans:
   5. `pacman -Qqen` and `pacman -Qqem` snapshots are committed as data with their date and host recorded, and re-running bootstrap regenerates them idempotently rather than appending (BOOT-05)
 
 **Verification risk — this phase genuinely wants a second machine.** No fresh Arch host is available, and the fresh-machine claim cannot be fully proven in place. Fallback, in descending strength: (a) a VM or container if one can be stood up — the only thing that exercises the relogin hop and the empty-`$HOME` folding case together; (b) a throwaway `XDG_CONFIG_HOME` / `XDG_DATA_HOME` run of `./setup install-files` plus `stow -n --no-folding` for every package, which validates ordering, the collision map and the de-stub rule but not the session hop; (c) resumability and idempotence drills by killing the real run at each step boundary. If only (b) and (c) are achievable, BOOT-01's claim must be stated at the scratch-XDG level and labelled as such — not as a verified fresh-machine reproduction.
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 - [x] 23-01-PLAN.md
-- [ ] 23-02-PLAN.md
+- [x] 23-02-PLAN.md
 - [ ] 23-03-PLAN.md
 
 ## Progress
@@ -363,7 +363,7 @@ Plans:
 | 20. hypr/custom overlays and startup restore | v0.4 | 5/5 | Complete    | 2026-09-14 |
 | 21. ii bar config capture | v0.4 | 3/3 | Complete    | 2026-09-15 |
 | 22. KDE and GTK capture | v0.4 | 4/4 | Complete    | 2026-09-15 |
-| 23. One-command bootstrap | v0.4 | 1/3 | In Progress|  |
+| 23. One-command bootstrap | v0.4 | 2/3 | In Progress|  |
 
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 shipped · v0.4 in progress — 35/35 requirements mapped across Phases 17-23, 0 unmapped
 
