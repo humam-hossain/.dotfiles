@@ -1,14 +1,15 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: v0.4
 milestone_name: Personal config layer
 current_phase: 22
 current_phase_name: KDE and GTK capture
 status: planning
-stopped_at: Phase 21 complete, ready for Phase 22
-last_updated: "2026-09-15T00:24:56.194Z"
+stopped_at: Phase 22 context gathered
+last_updated: "2026-09-15T02:42:48.186Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 21 complete, transitioned to Phase 22
+state_head: f934bb9dbb0cbe110901d7e41d1060e93b9e2558
 progress:
   total_phases: 7
   completed_phases: 5
@@ -30,9 +31,9 @@ Last activity: 2026-09-15 — Phase 21 complete, transitioned to Phase 22
 
 ## Session
 
-**Last session:** 2026-09-15T05:42:00+06:00
-**Stopped at:** Phase 21 complete, ready for Phase 22
-**Resume file:** .planning/phases/21-ii-bar-config-capture/21-VERIFICATION.md
+**Last session:** 2026-09-15T02:42:48.042Z
+**Stopped at:** Phase 22 context gathered
+**Resume file:** .planning/phases/22-kde-and-gtk-capture/22-CONTEXT.md
 **Next command:** `/gsd-plan-phase 22`
 
 ## Project Reference
