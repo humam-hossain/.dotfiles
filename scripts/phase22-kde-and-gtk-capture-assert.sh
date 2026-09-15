@@ -332,6 +332,107 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
 fi
 
 # ===========================================================================
+# Section 6: KDE-02: GUARD list data integrity, Q7/Q8 documentation check, kdeglobals unlinking, and verify --strict pass
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
+  info "--- Section 6: KDE-02: GUARD list data integrity, Q7/Q8 documentation check, kdeglobals unlinking, and verify --strict pass ---"
+
+  GUARD_TSV="$REPO_ROOT/guard-paths.tsv"
+
+  # 1. guard-paths.tsv data integrity and presence of all 7 tracked paths
+  if [[ -f "$GUARD_TSV" ]]; then
+    pass "Section 6: guard-paths.tsv exists at repository root"
+
+    EXPECTED_PATHS=(
+      '$XDG_CONFIG_HOME/kdeglobals'
+      '$XDG_CONFIG_HOME/Kvantum'
+      '$XDG_CONFIG_HOME/gtk-3.0/gtk.css'
+      '$XDG_CONFIG_HOME/gtk-4.0/gtk.css'
+      '$XDG_CONFIG_HOME/fuzzel/fuzzel_theme.ini'
+      '$XDG_CONFIG_HOME/hypr/hyprland/colors.lua'
+      '$XDG_CONFIG_HOME/hypr/hyprlock/colors.conf'
+    )
+
+    ALL_FOUND=true
+    for p in "${EXPECTED_PATHS[@]}"; do
+      if grep -qF "$p" "$GUARD_TSV"; then
+        pass "Section 6: guard-paths.tsv contains $p"
+      else
+        ALL_FOUND=false
+        fail "Section 6: guard-paths.tsv missing $p"
+      fi
+    done
+    if [[ "$ALL_FOUND" == "true" ]]; then
+      pass "Section 6: all 7 required GUARD paths verified in guard-paths.tsv"
+    fi
+  else
+    fail "Section 6: guard-paths.tsv missing from repository root"
+  fi
+
+  # 2. Q7 and Q8 empirical resolutions documented in header
+  if grep -q "Q7:" "$GUARD_TSV" && grep -q "kde-material-you-colors" "$GUARD_TSV"; then
+    pass "Section 6: guard-paths.tsv header documents empirical Q7 resolution (kde-material-you-colors churn)"
+  else
+    fail "Section 6: guard-paths.tsv header missing Q7 documentation"
+  fi
+
+  if grep -q "Q8:" "$GUARD_TSV" && grep -q "gtk-4.0/gtk.css" "$GUARD_TSV"; then
+    pass "Section 6: guard-paths.tsv header documents empirical Q8 resolution (root-owned theme symlink)"
+  else
+    fail "Section 6: guard-paths.tsv header missing Q8 documentation"
+  fi
+
+  # 3. kdeglobals retirement and live unlinking
+  if [[ -f "$REPO_ROOT/docs/archive/kdeglobals" && ! -e "$REPO_ROOT/restow/kdeglobals" ]]; then
+    pass "Section 6: kdeglobals retired to docs/archive/kdeglobals and restow/kdeglobals removed"
+  else
+    fail "Section 6: kdeglobals archive placement or restow/kdeglobals removal incomplete"
+  fi
+
+  if [[ -f "$HOME/.config/kdeglobals" && ! -L "$HOME/.config/kdeglobals" ]]; then
+    pass "Section 6: live ~/.config/kdeglobals is an unmanaged regular file, not a symlink"
+  else
+    fail "Section 6: live ~/.config/kdeglobals is still a symlink or missing"
+  fi
+
+  # 4. Scratch fixture test: mock repo with forbidden GUARD file fails closed
+  S6_ROOT="$(mktemp -d /tmp/p22-assert-s6-XXXXXX)"
+  SCRATCH_ROOTS+=("$S6_ROOT")
+
+  mkdir -p "$S6_ROOT/repo/arch" "$S6_ROOT/repo/stow/badpkg/.config" "$S6_ROOT/home"
+  cp "$REPO_ROOT/arch/dots-hyprland.sh" "$S6_ROOT/repo/arch/dots-hyprland.sh"
+  cp "$REPO_ROOT/guard-paths.tsv" "$S6_ROOT/repo/guard-paths.tsv"
+  chmod +x "$S6_ROOT/repo/arch/dots-hyprland.sh"
+  touch "$S6_ROOT/repo/stow/badpkg/.config/kdeglobals"
+
+  git -C "$S6_ROOT/repo" init -q
+  git -C "$S6_ROOT/repo" config user.email "assert@example.com"
+  git -C "$S6_ROOT/repo" config user.name "Assert Runner"
+  git -C "$S6_ROOT/repo" add -A
+  git -C "$S6_ROOT/repo" commit -q -m "initial bad fixture"
+
+  S6_RC=0
+  S6_OUT="$(cd "$S6_ROOT/repo" && HOME="$S6_ROOT/home" ./arch/dots-hyprland.sh verify 2>&1)" || S6_RC=$?
+
+  if [[ "$S6_RC" -ne 0 ]] && grep -q "guard path tracked in stow: stow/badpkg/.config/kdeglobals" <<<"$S6_OUT"; then
+    pass "Section 6: verification engine fails closed on tracked guard path in scratch fixture"
+  else
+    fail "Section 6: verification engine did not fail closed on tracked guard path (rc=$S6_RC)"
+    printf '%s\n' "$S6_OUT" | sed 's/^/       /' >&2
+  fi
+
+  # 5. Run verify against real repository
+  REAL_VERIFY_RC=0
+  REAL_VERIFY_OUT="$("$REPO_ROOT/arch/dots-hyprland.sh" verify 2>&1)" || REAL_VERIFY_RC=$?
+  if [[ "$REAL_VERIFY_RC" -eq 0 ]] && grep -q "guard path excluded: \$XDG_CONFIG_HOME/kdeglobals" <<<"$REAL_VERIFY_OUT"; then
+    pass "Section 6: arch/dots-hyprland.sh verify passed on real repository with all GUARD checks green"
+  else
+    fail "Section 6: arch/dots-hyprland.sh verify failed on real repository (rc=$REAL_VERIFY_RC)"
+    printf '%s\n' "$REAL_VERIFY_OUT" | sed 's/^/       /' >&2
+  fi
+fi
+
+# ===========================================================================
 # Terminal summary block
 # ===========================================================================
 echo "=== done: FAIL=${FAIL} FINDINGS=${FINDINGS} ==="

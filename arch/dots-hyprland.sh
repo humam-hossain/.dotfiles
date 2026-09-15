@@ -932,6 +932,7 @@ run_verify() {
   # scripts/phase14-verify.sh states about a wall of derived failures.
   local -A folded_verdict=()
   local -A folded_reported=()
+  local -A guarded_entries=()
 
   # RESEARCH Pitfall 5, and Open Question 3 decided IN SCOPE as [INFO]. This is
   # an EXTENSION of D-21, not a new decision: the walk enumerates repo-side
@@ -1129,6 +1130,40 @@ run_verify() {
     done
   fi
 
+  # GUARD path validation gate (D-18, D-23)
+  local guard_file="$main_root/guard-paths.tsv"
+  if [[ -f "$guard_file" ]]; then
+    local g_path g_cat g_gen g_reason expanded live_target rel_sub
+    while IFS=$'\t' read -r g_path g_cat g_gen g_reason || [[ -n "$g_path" ]]; do
+      [[ -n "$g_path" && "$g_path" != \#* ]] || continue
+      expanded="${g_path//\$XDG_CONFIG_HOME/$HOME\/.config}"
+      expanded="${expanded//\$HOME/$HOME}"
+      guarded_entries["$expanded"]=1
+
+      # Assert not tracked in stow/, restow/, or capture/
+      rel_sub="${expanded#"$HOME"/}"
+      for tree in stow restow capture; do
+        if [[ -d "$main_root/$tree" ]]; then
+          for pkg_dir in "$main_root/$tree"/*; do
+            [[ -d "$pkg_dir" ]] || continue
+            if [[ -e "$pkg_dir/$rel_sub" ]]; then
+              fail "guard path tracked in $tree: ${pkg_dir#"$main_root"/}/$rel_sub"
+            fi
+          done
+        fi
+      done
+
+      # Assert live path is not a symlink into repo
+      if [[ -L "$expanded" ]]; then
+        live_target="$(readlink -f -- "$expanded" 2>/dev/null || true)"
+        if [[ "$live_target" == "$main_root_real"/* || "$live_target" == "$main_root"/* ]]; then
+          fail "guard path live counterpart symlinks into repo: $expanded -> $live_target"
+        fi
+      fi
+      pass "guard path excluded: $g_path"
+    done < "$guard_file"
+  fi
+
   # ---------------------------------------------------------------------------
   # The live-side sweep (D-01, D-02, D-07 through D-11).
   #
@@ -1297,6 +1332,12 @@ run_verify() {
       # directories every application writes into by convention. Measured: 44
       # unrelated regular files in the first and 27 in the second. Silent.
       if [[ "$entry_dir" == "$HOME" || "$entry_dir" == "$HOME/.config" ]]; then
+        return 0
+      fi
+
+      # Guarded theme output check (D-24)
+      if [[ -n "${guarded_entries[$entry]:-}" ]]; then
+        info "guarded theme output: $entry"
         return 0
       fi
 
