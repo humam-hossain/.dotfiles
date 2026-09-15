@@ -1,14 +1,15 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: v0.4
 milestone_name: Personal config layer
 current_phase: 23
 current_phase_name: One-command bootstrap
 status: executing
-stopped_at: Phase 22 context gathered
-last_updated: "2026-09-15T04:06:40.883Z"
+stopped_at: Phase 23 context gathered
+last_updated: "2026-09-15T05:16:44.934Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 22 complete, transitioned to Phase 23
+state_head: 9b022f6c92f63f0ae1d4aabab4c10fa8efa98083
 progress:
   total_phases: 7
   completed_phases: 6
@@ -30,9 +31,9 @@ Last activity: 2026-09-15 — Phase 22 complete, transitioned to Phase 23
 
 ## Session
 
-**Last session:** 2026-09-15T10:07:00+06:00
-**Stopped at:** Phase 22 complete, ready to plan Phase 23
-**Resume file:** None
+**Last session:** 2026-09-15T05:16:44.646Z
+**Stopped at:** Phase 23 context gathered
+**Resume file:** .planning/phases/23-one-command-bootstrap/23-CONTEXT.md
 **Next command:** `/gsd-plan-phase 23`
 
 ## Project Reference
