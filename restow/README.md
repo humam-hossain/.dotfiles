@@ -55,9 +55,9 @@ The table below lists each package in `restow/`, its outcome tag, and its exact 
 <!-- BEGIN generated: gen-collision-map.sh --restow-table -->
 | Package | Tag | Recovery Command |
 |---|---|---|
+| `chrome-flags` | `cp-through` | `git checkout -- restow/chrome-flags/.config/chrome-flags.conf && cd restow && stow --verbose=5 --no-folding -t ~ chrome-flags` |
 | `dolphinrc` | `cp-through` | `git checkout -- restow/dolphinrc/.config/dolphinrc && cd restow && stow --verbose=5 --no-folding -t ~ dolphinrc` |
 | `hypr` | `rsync-replace` | `cd restow && stow --verbose=5 --no-folding -t ~ hypr` |
-| `kdeglobals` | `cp-through` | `git checkout -- restow/kdeglobals/.config/kdeglobals && cd restow && stow --verbose=5 --no-folding -t ~ kdeglobals` |
 | `starship` | `cp-through` | `git checkout -- restow/starship/.config/starship.toml && cd restow && stow --verbose=5 --no-folding -t ~ starship` |
 <!-- END generated: gen-collision-map.sh --restow-table -->
 

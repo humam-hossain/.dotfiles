@@ -332,6 +332,62 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
 fi
 
 # ===========================================================================
+# Section 4: KDE-03: Restow chrome-flags packaging and restow/README.md generated table match
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
+  info "--- Section 4: KDE-03: Restow chrome-flags packaging and restow/README.md generated table match ---"
+
+  REPO_CF="$REPO_ROOT/restow/chrome-flags/.config/chrome-flags.conf"
+  LIVE_CF="$HOME/.config/chrome-flags.conf"
+
+  # 1. Repo file presence
+  if [[ -f "$REPO_CF" ]]; then
+    pass "Section 4: restow/chrome-flags/.config/chrome-flags.conf exists in repository"
+  else
+    fail "Section 4: restow/chrome-flags/.config/chrome-flags.conf missing from repository"
+  fi
+
+  # 2. Live counterpart is a symlink
+  if [[ -L "$LIVE_CF" ]]; then
+    pass "Section 4: ~/.config/chrome-flags.conf is a symbolic link"
+  else
+    fail "Section 4: ~/.config/chrome-flags.conf is not a symbolic link"
+  fi
+
+  # 3. Inode identity check
+  if [[ -e "$LIVE_CF" && -e "$REPO_CF" && "$LIVE_CF" -ef "$REPO_CF" ]]; then
+    LIVE_CF_INODE="$(stat -L -c %i "$LIVE_CF")"
+    REPO_CF_INODE="$(stat -c %i "$REPO_CF")"
+    if [[ "$LIVE_CF_INODE" -eq "$REPO_CF_INODE" ]]; then
+      pass "Section 4: ~/.config/chrome-flags.conf inode ($LIVE_CF_INODE) matches restow repo file ($REPO_CF_INODE)"
+    else
+      fail "Section 4: ~/.config/chrome-flags.conf inode ($LIVE_CF_INODE) does not match repo ($REPO_CF_INODE)"
+    fi
+  else
+    fail "Section 4: ~/.config/chrome-flags.conf does not resolve to $REPO_CF"
+  fi
+
+  # 4. Collision map mapping check
+  MAP_ROW="$(grep -F '$XDG_CONFIG_HOME/chrome-flags.conf' "$REPO_ROOT/collision-map.tsv" || true)"
+  if [[ -n "$MAP_ROW" ]] && grep -q "OVERWRITTEN" <<<"$MAP_ROW" && grep -q "restow" <<<"$MAP_ROW"; then
+    pass "Section 4: collision-map.tsv maps chrome-flags.conf to restow tree with OVERWRITTEN repo outcome"
+  else
+    fail "Section 4: collision-map.tsv does not correctly map chrome-flags.conf: $MAP_ROW"
+  fi
+
+  # 5. restow/README.md generated table matches generator output exactly
+  EXPECTED_TABLE="$("$REPO_ROOT/scripts/gen-collision-map.sh" --restow-table)"
+  ACTUAL_TABLE="$(awk '/<!-- BEGIN generated: gen-collision-map.sh --restow-table -->/{flag=1; next} /<!-- END generated: gen-collision-map.sh --restow-table -->/{flag=0} flag' "$REPO_ROOT/restow/README.md" | sed -e '1{/^$/d}' -e '${/^$/d}')"
+  EXPECTED_TRIMMED="$(echo "$EXPECTED_TABLE" | sed -e '1{/^$/d}' -e '${/^$/d}')"
+
+  if [[ "$ACTUAL_TABLE" == "$EXPECTED_TRIMMED" ]] && grep -q 'chrome-flags' <<<"$ACTUAL_TABLE" && ! grep -q 'kdeglobals' <<<"$ACTUAL_TABLE"; then
+    pass "Section 4: restow/README.md Section 3 matches gen-collision-map.sh --restow-table (chrome-flags included, kdeglobals absent)"
+  else
+    fail "Section 4: restow/README.md generated table does not match gen-collision-map.sh --restow-table"
+  fi
+fi
+
+# ===========================================================================
 # Section 6: KDE-02: GUARD list data integrity, Q7/Q8 documentation check, kdeglobals unlinking, and verify --strict pass
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
