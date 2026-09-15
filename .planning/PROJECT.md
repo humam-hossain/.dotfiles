@@ -158,7 +158,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - [x] Live `~/.config/hypr/custom/` tree fully under repo SoT (all six `*.lua`; `scripts/` excluded as generated and unsourced) — Phase 20 / HYPR-01, HYPR-02, HYPR-03, SAFE-01
 - [x] Quickshell ii bar config (`illogical-impulse/config.json`) copy-captured against `switchwall.sh`'s rename-over-link — Phase 21 / BAR-01, BAR-02, CAP-06
 - [x] Startup applications restored, including the `graphical-session.target` autostart lost at adopt (D-38) — Phase 20 / START-01, START-02
-- [ ] Dolphin and KDE/Qt/GTK app configs captured in the repo
+- [x] Dolphin and KDE/Qt/GTK app configs captured in the repo — Phase 22 / KDE-01, KDE-02, KDE-03
 - [ ] Capture mechanism operational — stow-symlink default, copy-capture exception, `verify` drift check (POLISH-01) **[verify proven Phase 19: link identity before content, adversarial rsync test, 3-exit-code contract, live-side sweep, capture/ drift class; first real-tree exercise deferred to Phases 20-22]**
 - [ ] Fresh machine reproduces the exact setup from clone with one command
 
@@ -251,6 +251,9 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 16: Retire safe profile entirely — one install path, no profile choice | Full adopt is reality since Phase 14; safe machinery is dead code that blocks the playbook from describing bare commands | ✓ `SAFE_DEFAULTS` removed, `--full` is no-op alias, playbook full-only, all assertion suites green |
 | Phase 21: Format-generic JSON validation and atomic copy-capture | `switchwall.sh` destroys symlinks on wallpaper switch; validate with `[[ -s ]]` and `jq empty`, replace atomically via temp-file rename, skip clean if `cmp -s` identical | ✓ Proven in scratch fixture and live desktop session (BAR-01, BAR-02) |
 | Phase 21: Unattended drift capture via systemd user timer | 15-minute interval timer triggering oneshot service with `arch/dots-hyprland.sh capture --quiet --notify` | ✓ Stowed, enabled, active, zero UI frame drop (`Nice=19`), desktop notifications (CAP-06) |
+| Phase 22: Dolphin, KIO, and GTK per-file capture with unfolded parent dirs | Capture `kiorc`, `ktrashrc`, `kservicemenurc` under `stow/kde/` and GTK-3/4 under `stow/gtk/` with parent dirs unfolded; gitignore `gtk-dark.css` and prove KConfig write-through | ✓ Proven in scratch fixtures and live desktop session (KDE-01, KDE-02) |
+| Phase 22: GUARD contract and kdeglobals retirement | Retire `kdeglobals` to `docs/archive/` to stop wallpaper churn; check in `guard-paths.tsv` data contract tracking 7 theme outputs and integrate fail-closed verify gate | ✓ `guard-paths.tsv` active, `docs/archive/kdeglobals` archived, live unlinked to regular file (KDE-02) |
+| Phase 22: Colliding desktop flags capture with live cp-through drill and recovery | Package `chrome-flags.conf` in `restow/chrome-flags/` tagged `cp-through`; regenerate `restow/README.md` table; verify `install-files` overwrite and git checkout recovery | ✓ Live drill passed end-to-end; strict verify gate 0 findings (KDE-03) |
 
 ## Evolution
 
@@ -270,4 +273,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-15 after Phase 21 — ii-bar-config-capture complete (BAR-01, BAR-02, CAP-06)*
+*Last updated: 2026-09-15 after Phase 22 — kde-and-gtk-capture complete (KDE-01, KDE-02, KDE-03)*
