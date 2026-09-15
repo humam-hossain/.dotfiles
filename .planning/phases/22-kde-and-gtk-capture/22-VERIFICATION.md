@@ -3,7 +3,7 @@ status: passed
 phase: 22-kde-and-gtk-capture
 requirements_verified: [KDE-01, KDE-02, KDE-03]
 started: 2026-09-15T09:00:00+06:00
-completed: 2026-09-15T09:14:00+06:00
+completed: 2026-09-15T10:05:30+06:00
 ---
 
 # Phase 22 Verification Report
