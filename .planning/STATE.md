@@ -1,15 +1,14 @@
 ---
-gsd_state_version: "1.0"
+gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Personal config layer
 current_phase: 23
 current_phase_name: One-command bootstrap
 status: executing
 stopped_at: Phase 23 context gathered
-last_updated: "2026-09-15T05:37:02.980Z"
+last_updated: "2026-09-15T05:42:15.034Z"
 last_activity: 2026-09-15
-last_activity_desc: Phase 22 complete, transitioned to Phase 23
-state_head: 649aaf7bae49252e36df6330a6209261ac5ba489
+last_activity_desc: Phase 23 execution started
 progress:
   total_phases: 7
   completed_phases: 6
@@ -24,10 +23,10 @@ Total Phases: 7 (Phases 17-23)
 
 ## Current Position
 
-Phase: 23 (One-command bootstrap) — READY TO EXECUTE
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-15 — Phase 22 complete, transitioned to Phase 23
+Phase: 23 (One-command bootstrap) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 23
+Last activity: 2026-09-15 — Phase 23 execution started
 
 ## Session
 
@@ -41,7 +40,7 @@ Last activity: 2026-09-15 — Phase 22 complete, transitioned to Phase 23
 See: .planning/PROJECT.md (updated 2026-09-15)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 23 — one-command-bootstrap
+**Current focus:** Phase 23 — One-command bootstrap
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
