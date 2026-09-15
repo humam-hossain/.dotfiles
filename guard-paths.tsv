@@ -1,0 +1,20 @@
+# guard-paths v1
+#
+# Paths excluded from repository tracking and live repo-symlinking.
+# Enforced by arch/dots-hyprland.sh verify and scripts/phase22-kde-and-gtk-capture-assert.sh.
+#
+# Empirical resolutions:
+# Q7: kde-material-you-colors is actively invoked by switchwall.sh via .venv wrapper,
+#     rewriting kdeglobals on every wallpaper change. Excluded to eliminate git churn.
+# Q8: ~/.config/gtk-4.0/gtk.css symlinks to root-owned /usr/share/themes/... (0644).
+#     User writes cannot alter system theme. Both gtk.css files are guarded out.
+#
+# Columns (tab-separated):
+# path	category	generator	reason
+$XDG_CONFIG_HOME/kdeglobals	generated_theme	kde-material-you-colors	Active wallpaper churn (Q7)
+$XDG_CONFIG_HOME/Kvantum	vendor_theme	dots-hyprland	Upstream directory sync
+$XDG_CONFIG_HOME/gtk-3.0/gtk.css	generated_theme	matugen	Matugen template output
+$XDG_CONFIG_HOME/gtk-4.0/gtk.css	generated_theme	matugen	Root-owned theme symlink (Q8)
+$XDG_CONFIG_HOME/fuzzel/fuzzel_theme.ini	generated_theme	matugen	Matugen template output
+$XDG_CONFIG_HOME/hypr/hyprland/colors.lua	generated_theme	matugen	Matugen template output
+$XDG_CONFIG_HOME/hypr/hyprlock/colors.conf	generated_theme	matugen	Matugen template output

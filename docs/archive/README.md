@@ -22,5 +22,6 @@ All archived files are stored in this flat directory under their original basena
 |---|---|---|---|
 | `hyprland.conf` | Plan 18-04 (`9f1c5d3`) | No live counterpart; installer renamed it to `.old` in Phase 14 (`3.files-legacy.sh:51-54`) | `stow/hypr/.config/hypr/custom/` overlays + upstream `hyprland.lua` |
 | `hyprland.conf.bak` | Plan 18-04 (`9f1c5d3`) | Byte-identical to backup already existing live | Historical backup |
+| `kdeglobals` | Phase 22 (D-20) | Actively churned by `kde-material-you-colors` on wallpaper changes (Q7) | Standalone unmanaged live file + `guard-paths.tsv` |
 
 > **Note on live `.old` artifact:** `~/.config/hypr/hyprland.conf.old` is the live filesystem artifact of the Phase 14 rename and is deliberately untracked. It is preserved on the host for rollback/reference, not tracked in git.

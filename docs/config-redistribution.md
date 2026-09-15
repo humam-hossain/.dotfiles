@@ -33,7 +33,7 @@ The collision map includes `$XDG_CONFIG_HOME/hypr/hyprland.lua` (`3.files-legacy
 | Source Path | Disposition | Destination | Content Decision (D-22) | Justification / Map Row |
 |---|---|---|---|---|
 | `.config/dolphinrc` | Move | `restow/dolphinrc/.config/dolphinrc` | **Live wins** | MISC loop (`3.files-legacy.sh:15`, `install_file` → `cp-through`). Repo copy was stale; live has genuine KDE settings. |
-| `.config/kdeglobals` | Move | `restow/kdeglobals/.config/kdeglobals` | **Live wins** | MISC loop (`3.files-legacy.sh:15`, `install_file` → `cp-through`). Repo copy was stale; live has genuine KDE settings. |
+| `.config/kdeglobals` | Archive | `docs/archive/kdeglobals` | N/A (Archive) | Retired in Phase 22 (D-20) due to wallpaper churn (Q7). Live unlinked, guarded by `guard-paths.tsv`. |
 | `.config/hypr/custom/env.lua` | Move | `stow/hypr/.config/hypr/custom/env.lua` | **Repo wins** (identical) | `$XDG_CONFIG_HOME/hypr/custom` (`install_dir__ignore_existing`, preserved). Live and repo match. |
 | `.config/hypr/custom/execs.lua` | Move | `stow/hypr/.config/hypr/custom/execs.lua` | **Repo wins** (identical) | Mandated by Phase 17 D-18. `install_dir__ignore_existing`. Live and repo match. |
 | `.config/hypr/custom/general.lua` | Move | `stow/hypr/.config/hypr/custom/general.lua` | **Repo wins** (identical) | `$XDG_CONFIG_HOME/hypr/custom` (`install_dir__ignore_existing`, preserved). Live and repo match. |
