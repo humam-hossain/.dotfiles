@@ -231,6 +231,107 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
 fi
 
 # ===========================================================================
+# Section 3: KDE-02: GTK package layout, unfolded parent directory assertion, and scratch link severance test
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
+  info "--- Section 3: KDE-02: GTK package layout, unfolded parent directory assertion, and scratch link severance test ---"
+
+  # 1 & 2. Verify repository files exist and live counterparts are symlinks with matching inodes
+  GTK_FILES=(
+    "stow/gtk/.config/gtk-3.0/settings.ini:$HOME/.config/gtk-3.0/settings.ini"
+    "stow/gtk/.config/gtk-3.0/bookmarks:$HOME/.config/gtk-3.0/bookmarks"
+    "stow/gtk/.config/gtk-4.0/settings.ini:$HOME/.config/gtk-4.0/settings.ini"
+  )
+
+  for pair in "${GTK_FILES[@]}"; do
+    REPO_PATH="$REPO_ROOT/${pair%%:*}"
+    LIVE_PATH="${pair##*:}"
+    REL_PATH="${pair%%:*}"
+
+    if [[ -f "$REPO_PATH" ]]; then
+      pass "Section 3: $REL_PATH exists in repository"
+    else
+      fail "Section 3: $REL_PATH missing from repository"
+    fi
+
+    if [[ -L "$LIVE_PATH" ]]; then
+      pass "Section 3: $LIVE_PATH is a symbolic link"
+    else
+      fail "Section 3: $LIVE_PATH is not a symbolic link"
+    fi
+
+    if [[ -e "$LIVE_PATH" && -e "$REPO_PATH" && "$LIVE_PATH" -ef "$REPO_PATH" ]]; then
+      LIVE_INODE="$(stat -L -c %i "$LIVE_PATH")"
+      REPO_INODE="$(stat -c %i "$REPO_PATH")"
+      if [[ "$LIVE_INODE" -eq "$REPO_INODE" ]]; then
+        pass "Section 3: $LIVE_PATH inode ($LIVE_INODE) matches $REL_PATH ($REPO_INODE)"
+      else
+        fail "Section 3: $LIVE_PATH inode ($LIVE_INODE) does not match repo ($REPO_INODE)"
+      fi
+    else
+      fail "Section 3: $LIVE_PATH does not resolve to $REPO_PATH"
+    fi
+  done
+
+  # 3. Assert parent directory unfolding invariant (D-09)
+  if [[ -d "$HOME/.config/gtk-3.0" && ! -L "$HOME/.config/gtk-3.0" ]]; then
+    pass "Section 3: ~/.config/gtk-3.0 is a regular directory (unfolded parent invariant verified per D-09)"
+  else
+    fail "Section 3: ~/.config/gtk-3.0 is folded or not a directory"
+  fi
+
+  if [[ -d "$HOME/.config/gtk-4.0" && ! -L "$HOME/.config/gtk-4.0" ]]; then
+    pass "Section 3: ~/.config/gtk-4.0 is a regular directory (unfolded parent invariant verified per D-09)"
+  else
+    fail "Section 3: ~/.config/gtk-4.0 is folded or not a directory"
+  fi
+
+  # 4. Assert .gitignore contains gtk.css and gtk-dark.css (D-13)
+  if grep -q '^gtk\.css$' "$REPO_ROOT/.gitignore" && grep -q '^gtk-dark\.css$' "$REPO_ROOT/.gitignore"; then
+    pass "Section 3: root .gitignore contains gtk.css and gtk-dark.css under generated theme outputs (D-13)"
+  else
+    fail "Section 3: root .gitignore missing gtk.css or gtk-dark.css"
+  fi
+
+  # 5. Assert bookmarks path portability (D-11): verify file:///home/pera/ URI format
+  BOOKMARKS_FILE="$REPO_ROOT/stow/gtk/.config/gtk-3.0/bookmarks"
+  if [[ -f "$BOOKMARKS_FILE" ]] && grep -q '^file:///home/pera/' "$BOOKMARKS_FILE"; then
+    pass "Section 3: stow/gtk/.config/gtk-3.0/bookmarks preserves literal single-machine file:// URIs (D-11)"
+  else
+    fail "Section 3: stow/gtk/.config/gtk-3.0/bookmarks missing file:///home/pera/ URIs"
+  fi
+
+  # 6. Assert legacy GTK 2.0 exclusion (D-12)
+  if [[ ! -e "$REPO_ROOT/stow/gtk/.config/gtkrc" && ! -e "$REPO_ROOT/stow/gtk/.gtkrc-2.0" ]]; then
+    pass "Section 3: stow/gtk/ excludes legacy GTK 2.0 configuration files (D-12)"
+  else
+    fail "Section 3: legacy GTK 2.0 configuration file found in stow/gtk/"
+  fi
+
+  # 7. Scratch GLib link severance simulation drill (Q6, D-10)
+  S3_ROOT="$(mktemp -d /tmp/p22-assert-s3-XXXXXX)"
+  SCRATCH_ROOTS+=("$S3_ROOT")
+
+  mkdir -p "$S3_ROOT/repo" "$S3_ROOT/home/.config/gtk-3.0"
+  printf "file:///home/pera/Downloads Downloads\n" > "$S3_ROOT/repo/bookmarks"
+  ln -s "$S3_ROOT/repo/bookmarks" "$S3_ROOT/home/.config/gtk-3.0/bookmarks"
+
+  if [[ -L "$S3_ROOT/home/.config/gtk-3.0/bookmarks" ]]; then
+    pass "Section 3: scratch GTK bookmarks symlink successfully initialized"
+  else
+    fail "Section 3: failed to initialize scratch GTK bookmarks symlink"
+  fi
+
+  python3 -c "import gi; gi.require_version('GLib', '2.0'); from gi.repository import GLib; GLib.file_set_contents('$S3_ROOT/home/.config/gtk-3.0/bookmarks', b'file:///test Test\n')"
+
+  if [[ ! -L "$S3_ROOT/home/.config/gtk-3.0/bookmarks" && -f "$S3_ROOT/home/.config/gtk-3.0/bookmarks" ]]; then
+    pass "Section 3: scratch GLib file_set_contents severed symlink into regular file (Q6 demonstrated, watchdog protected per D-10)"
+  else
+    fail "Section 3: scratch GLib file_set_contents did not sever symlink as expected"
+  fi
+fi
+
+# ===========================================================================
 # Terminal summary block
 # ===========================================================================
 echo "=== done: FAIL=${FAIL} FINDINGS=${FINDINGS} ==="
