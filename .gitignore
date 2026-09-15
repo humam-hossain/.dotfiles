@@ -36,6 +36,7 @@ stow/qbittorrent/.config/qBittorrent/rss/articles/
 # Phase 18 redistribution decision under FIX-03 and is handed off, not taken here.
 kdeglobals
 gtk.css
+gtk-dark.css
 Kvantum/
 colors.lua
 colors.conf
