@@ -2,46 +2,46 @@
 gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Personal config layer
-current_phase: 23
-status: complete
-stopped_at: Phase 23 complete, milestone v0.4 complete
-last_updated: "2026-09-15T06:32:00.000Z"
+current_phase: 24
+status: planning
+stopped_at: Phase 24 context gathered
+last_updated: "2026-09-15T19:35:41.803Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 23 complete
+state_head: 732fb8328f7fb7554227a7dc08996c3ffba8f39e
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 7
   total_plans: 38
   completed_plans: 38
-  percent: 100
-current_phase_name: One-command bootstrap
+  percent: 88
 ---
 
-Total Phases: 7 (Phases 17-23)
-Progress: [████████████████████] 38/38 plans (100%)
+Total Phases: 8 (Phases 17-24)
+Progress: [█████████████████░░░] 38/38 plans (88%)
 
 # Project State
 
 ## Current Position
 
-Phase: 23
-Plan: Complete (3/3 plans complete)
-Status: Phase 23 complete — Milestone v0.4 complete (all 7 phases complete)
+Phase: 24
+Plan: None (0 plans)
+Status: Ready to plan
 Last activity: 2026-09-15 — Phase 23 complete
 
 ## Session
 
-**Last session:** 2026-09-15T12:30:00+06:00
-**Stopped at:** Phase 23 complete, milestone v0.4 complete
-**Resume file:** None
-**Next command:** `/gsd-complete-milestone v0.4`
+**Last session:** 2026-09-15T19:35:41.610Z
+**Stopped at:** Phase 24 context gathered
+**Resume file:** .planning/phases/24-address-tech-debt-bookkeeping-and-validation-cleanup/24-CONTEXT.md
+**Next command:** /gsd-plan-phase 24
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-15)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Milestone v0.4 Complete — Ready for /gsd-complete-milestone v0.4
+**Current focus:** Phase 24: Address tech debt: bookkeeping and validation cleanup
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
@@ -113,6 +113,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - v0.4 roadmapped 2026-09-12 — Phases **17-23**, continuing from v0.3's last phase 16. Seven phases, 33/33 requirements mapped, no orphans. Ordering is de-risk-first because the live desktop session is the production system: blockers (17) → capture model and collision map (18) → link-aware `verify` (19) → first bulk stow at `hypr/custom` (20) → `config.json` capture + timer (21) → KDE/GTK (22) → bootstrap (23).
 - v0.4 deviation from the research's six-phase proposal: its P18 (collision map **and** `verify`) is split into Phases 18 and 19, so the adversarial `verify` test (VER-04) is a phase gate in its own right rather than one criterion among ten — and so `verify` provably exists before the first bulk stow in Phase 20.
 - Phase 16 added as a DOC-03 gap closure, then retitled on 2026-09-07 and widened to the safe-profile retirement — full-only wrapper, full-only playbook, and the planning artifacts swept to match. Its original B-1 update-path / B-2 restore-path scope was replaced before execution began; both closed by retiring the destination rather than documenting a route to it.
+- Phase 24 added: Address tech debt: bookkeeping and validation cleanup
 
 ## Operator Next Steps
 
@@ -236,4 +237,3 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 23]: Two-stage relogin boundary across compositor relogin with operator instruction banner and runtime session probe (HYPRLAND_INSTANCE_SIGNATURE & Lua check)
 - [Phase 23]: Systemd user timer activation (dotfiles-capture.timer) and verification gate bound 1-to-1 to arch/dots-hyprland.sh verify --strict
 - [Phase 23]: Deterministic package snapshot data generation (--snapshot) for arch/pkglist-native.txt and arch/pkglist-aur.txt with zero working-tree drift on standard runs
-
