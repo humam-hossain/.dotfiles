@@ -297,12 +297,12 @@ Plans:
   4. The GUARD list (`kdeglobals`, `Kvantum/`, both `gtk.css`, `fuzzel_theme.ini`, `hypr/hyprland/colors.lua`, `hyprlock/colors.conf`) is checked in as data, and the Q7/Q8 findings are recorded next to it so the exclusions are justified by measurement rather than by assumption (KDE-02)
 
 **Verification risk — live app writes and a possible repo chmod.** Criterion 1 requires driving a real Dolphin against a scratch `kiorc` before `stow/kde/` is committed, and KConfig may chmod the repo file to `0600` on every write. Criterion 3 requires running the installer against the live session; run it with a clean working tree so the cp-through damage is the *evidence* and `git checkout` is the undo.
-**Plans:** 4 plans
+**Plans:** 1/4 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 22-01-PLAN.md — tracer: KDE package layout, SAFE-01 live adoption, 0600 mode documentation, and write-through verification (KDE-01)
+- [x] 22-01-PLAN.md — tracer: KDE package layout, SAFE-01 live adoption, 0600 mode documentation, and write-through verification (KDE-01)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -358,7 +358,7 @@ Plans:
 | 19. Link-aware `verify` | v0.4 | 5/5 | Complete    | 2026-09-14 |
 | 20. hypr/custom overlays and startup restore | v0.4 | 5/5 | Complete    | 2026-09-14 |
 | 21. ii bar config capture | v0.4 | 3/3 | Complete    | 2026-09-15 |
-| 22. KDE and GTK capture | v0.4 | 0/? | Not started | - |
+| 22. KDE and GTK capture | v0.4 | 1/4 | In Progress|  |
 | 23. One-command bootstrap | v0.4 | 0/? | Not started | - |
 
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 shipped · v0.4 in progress — 35/35 requirements mapped across Phases 17-23, 0 unmapped

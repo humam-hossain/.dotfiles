@@ -1,20 +1,19 @@
 ---
-gsd_state_version: "1.0"
+gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Personal config layer
 current_phase: 22
-current_phase_name: KDE and GTK capture
+current_phase_name: kde-and-gtk-capture
 status: executing
 stopped_at: Phase 22 context gathered
-last_updated: "2026-09-15T02:59:24.726Z"
+last_updated: "2026-09-15T03:04:12.177Z"
 last_activity: 2026-09-15
-last_activity_desc: Phase 21 complete, transitioned to Phase 22
-state_head: e7ffef6cb01c7902f0305a8a36a9f66bb445f754
+last_activity_desc: Phase 22 execution started
 progress:
   total_phases: 7
   completed_phases: 5
   total_plans: 35
-  completed_plans: 31
+  completed_plans: 32
   percent: 71
 ---
 
@@ -24,10 +23,10 @@ Total Phases: 7 (Phases 17-23)
 
 ## Current Position
 
-Phase: 22 (KDE and GTK capture) — READY TO EXECUTE
-Plan: Not started
+Phase: 22 (kde-and-gtk-capture) — EXECUTING
+Plan: 2 of 4
 Status: Ready to execute
-Last activity: 2026-09-15 — Phase 21 complete, transitioned to Phase 22
+Last activity: 2026-09-15 — Phase 22 execution started
 
 ## Session
 
@@ -41,7 +40,7 @@ Last activity: 2026-09-15 — Phase 21 complete, transitioned to Phase 22
 See: .planning/PROJECT.md (updated 2026-09-15)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 22 — KDE and GTK capture
+**Current focus:** Phase 22 — kde-and-gtk-capture
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
@@ -159,6 +158,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 | Phase 18 P03 | 7 min | 3 tasks | 3 files |
 | Phase 18 P04 | 8 min | 3 tasks | 7 files |
 | Phase 19 P01 | 3 min | 3 tasks | 2 files |
+| Phase 22 P01 | 3 min | 2 tasks | 4 files |
 
 ## Decisions
 
