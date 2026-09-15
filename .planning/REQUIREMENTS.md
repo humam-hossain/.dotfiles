@@ -66,11 +66,11 @@ Currently-live defects. Nothing else in the milestone works until these land.
 
 ### One-Command Bootstrap
 
-- [ ] **BOOT-01**: A single command bootstraps a fresh machine, is resumable after failure, and is idempotent on re-run
-- [ ] **BOOT-02**: Bootstrap ordering is submodule init, then ii `./setup`, then stow, then capture seed, then verify — stow must follow the installer
-- [ ] **BOOT-03**: Bootstrap reports where it stops and what the operator must do, since the session entry point changes mid-run and a relogin is unavoidable
-- [ ] **BOOT-04**: Bootstrap ends in a `verify` pass, so "reproduces the exact setup" is asserted rather than assumed
-- [ ] **BOOT-05**: Explicitly installed package lists (`pacman -Qqen`, `pacman -Qqem`) are snapshotted into the repo as data
+- [x] **BOOT-01**: A single command bootstraps a fresh machine, is resumable after failure, and is idempotent on re-run
+- [x] **BOOT-02**: Bootstrap ordering is submodule init, then ii `./setup`, then stow, then capture seed, then verify — stow must follow the installer
+- [x] **BOOT-03**: Bootstrap reports where it stops and what the operator must do, since the session entry point changes mid-run and a relogin is unavoidable
+- [x] **BOOT-04**: Bootstrap ends in a `verify` pass, so "reproduces the exact setup" is asserted rather than assumed
+- [x] **BOOT-05**: Explicitly installed package lists (`pacman -Qqen`, `pacman -Qqem`) are snapshotted into the repo as data
 
 ## v2 Requirements
 

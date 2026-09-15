@@ -363,7 +363,7 @@ Plans:
 | 20. hypr/custom overlays and startup restore | v0.4 | 5/5 | Complete    | 2026-09-14 |
 | 21. ii bar config capture | v0.4 | 3/3 | Complete    | 2026-09-15 |
 | 22. KDE and GTK capture | v0.4 | 4/4 | Complete    | 2026-09-15 |
-| 23. One-command bootstrap | v0.4 | 3/3 | Complete   | 2026-09-15 |
+| 23. One-command bootstrap | v0.4 | 3/3 | Complete    | 2026-09-15 |
 
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 shipped · v0.4 in progress — 35/35 requirements mapped across Phases 17-23, 0 unmapped
 
