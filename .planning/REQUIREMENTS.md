@@ -50,7 +50,7 @@ Currently-live defects. Nothing else in the milestone works until these land.
 ### Dolphin, KDE and GTK
 
 - [x] **KDE-01**: `kiorc`, `ktrashrc`, `kservicemenurc` are stow-managed — ii ships none of them, so there is no collision
-- [ ] **KDE-02**: `gtk-3.0/settings.ini`, `gtk-3.0/bookmarks`, `gtk-4.0/settings.ini` are captured per file, and the generated `gtk.css` siblings are gitignored rather than captured
+- [x] **KDE-02**: `gtk-3.0/settings.ini`, `gtk-3.0/bookmarks`, `gtk-4.0/settings.ini` are captured per file, and the generated `gtk.css` siblings are gitignored rather than captured
 - [ ] **KDE-03**: `dolphinrc` and `chrome-flags.conf` live in `restow/` with a documented recovery step, because the installer writes through the link and overwrites the repo copy
 
 ### Capture Safety
