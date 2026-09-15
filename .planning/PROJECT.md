@@ -156,7 +156,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 ### Active — v0.4
 
 - [x] Live `~/.config/hypr/custom/` tree fully under repo SoT (all six `*.lua`; `scripts/` excluded as generated and unsourced) — Phase 20 / HYPR-01, HYPR-02, HYPR-03, SAFE-01
-- [ ] Quickshell ii bar config (`illogical-impulse/config.json`) copy-captured against `switchwall.sh`'s rename-over-link
+- [x] Quickshell ii bar config (`illogical-impulse/config.json`) copy-captured against `switchwall.sh`'s rename-over-link — Phase 21 / BAR-01, BAR-02, CAP-06
 - [x] Startup applications restored, including the `graphical-session.target` autostart lost at adopt (D-38) — Phase 20 / START-01, START-02
 - [ ] Dolphin and KDE/Qt/GTK app configs captured in the repo
 - [ ] Capture mechanism operational — stow-symlink default, copy-capture exception, `verify` drift check (POLISH-01) **[verify proven Phase 19: link identity before content, adversarial rsync test, 3-exit-code contract, live-side sweep, capture/ drift class; first real-tree exercise deferred to Phases 20-22]**
@@ -249,6 +249,8 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 14: Hyprland conf-vs-Lua precedence left unresolved, and rollback written to be correct either way | The wiki and D-09 disagree on 0.56.2; the forward adopt is safe under both readings, the reverse is not | ✓ the runbook's first rollback step opened by moving `hyprland.lua` aside (CR-01) **[superseded by Phase 16]** — the safe profile and its machinery were retired. |
 | Replace waybar + rofi + swaync long-term | Consolidate tools; gain unified richer shell | ✓ Phase 14 — accept-removed from the session (D-11); configs archived in repo (D-12) |
 | Phase 16: Retire safe profile entirely — one install path, no profile choice | Full adopt is reality since Phase 14; safe machinery is dead code that blocks the playbook from describing bare commands | ✓ `SAFE_DEFAULTS` removed, `--full` is no-op alias, playbook full-only, all assertion suites green |
+| Phase 21: Format-generic JSON validation and atomic copy-capture | `switchwall.sh` destroys symlinks on wallpaper switch; validate with `[[ -s ]]` and `jq empty`, replace atomically via temp-file rename, skip clean if `cmp -s` identical | ✓ Proven in scratch fixture and live desktop session (BAR-01, BAR-02) |
+| Phase 21: Unattended drift capture via systemd user timer | 15-minute interval timer triggering oneshot service with `arch/dots-hyprland.sh capture --quiet --notify` | ✓ Stowed, enabled, active, zero UI frame drop (`Nice=19`), desktop notifications (CAP-06) |
 
 ## Evolution
 
@@ -268,4 +270,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-14 after Phase 20 — hypr/custom overlays and startup restore complete (HYPR-01..03, START-01, SAFE-01)*
+*Last updated: 2026-09-15 after Phase 21 — ii-bar-config-capture complete (BAR-01, BAR-02, CAP-06)*

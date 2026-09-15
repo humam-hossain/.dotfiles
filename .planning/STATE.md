@@ -1,15 +1,14 @@
 ---
-gsd_state_version: "1.0"
+gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Personal config layer
 current_phase: 22
 current_phase_name: KDE and GTK capture
 status: planning
-stopped_at: Phase 21 complete, ready to plan Phase 22
-last_updated: "2026-09-14T23:42:25.358Z"
+stopped_at: Phase 21 complete, ready for Phase 22
+last_updated: "2026-09-15T00:24:56.194Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 21 complete, transitioned to Phase 22
-state_head: 66da82447304e8669941424c639126590a00b548
 progress:
   total_phases: 7
   completed_phases: 5
@@ -38,7 +37,7 @@ Last activity: 2026-09-15 — Phase 21 complete, transitioned to Phase 22
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-14)
+See: .planning/PROJECT.md (updated 2026-09-15)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
 **Current focus:** Phase 22 — KDE and GTK capture
