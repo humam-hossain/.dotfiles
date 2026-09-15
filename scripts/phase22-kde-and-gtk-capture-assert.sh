@@ -428,6 +428,12 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
     git checkout -- restow/chrome-flags restow/dolphinrc
   fi
 
+  # Re-establish live symlinks severed by upstream rsync_dir__sync during install-files drill
+  rm -f "$HOME/.config/hypr/hyprland/scripts/launch_first_available.sh"
+  stow --no-folding -d "$REPO_ROOT/restow" -t "$HOME" hypr >/dev/null 2>&1 || true
+  rm -f "$HOME/.config/fish/auto-Hypr.fish" "$HOME/.config/fish/config.fish" "$HOME/.config/kitty/kitty.conf"
+  stow --no-folding -d "$REPO_ROOT/stow" -t "$HOME" fish kitty >/dev/null 2>&1 || true
+
   FINAL_STATUS="$(git status --porcelain)"
   if [[ -z "$FINAL_STATUS" ]]; then
     pass "Section 5: git checkout -- restow/chrome-flags restow/dolphinrc restored clean working tree"
