@@ -297,7 +297,24 @@ Plans:
   4. The GUARD list (`kdeglobals`, `Kvantum/`, both `gtk.css`, `fuzzel_theme.ini`, `hypr/hyprland/colors.lua`, `hyprlock/colors.conf`) is checked in as data, and the Q7/Q8 findings are recorded next to it so the exclusions are justified by measurement rather than by assumption (KDE-02)
 
 **Verification risk — live app writes and a possible repo chmod.** Criterion 1 requires driving a real Dolphin against a scratch `kiorc` before `stow/kde/` is committed, and KConfig may chmod the repo file to `0600` on every write. Criterion 3 requires running the installer against the live session; run it with a clean working tree so the cp-through damage is the *evidence* and `git checkout` is the undo.
-**Plans:** TBD
+**Plans:** 4 plans
+
+Plans:
+**Wave 1**
+
+- [ ] 22-01-PLAN.md — tracer: KDE package layout, SAFE-01 live adoption, 0600 mode documentation, and write-through verification (KDE-01)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 22-02-PLAN.md — GTK per-file capture under stow/gtk/, unfolded parent directory enforcement, and scratch link severance test (KDE-02)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 22-03-PLAN.md — GUARD list data contract (guard-paths.tsv), kdeglobals archive retirement, and verify GUARD enforcement (KDE-02)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [ ] 22-04-PLAN.md — Restow chrome-flags cp-through packaging, live installer overwrite drill, and strict verification gate (KDE-03)
 
 ### Phase 23: One-command bootstrap
 
