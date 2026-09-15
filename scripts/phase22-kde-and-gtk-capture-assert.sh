@@ -212,8 +212,15 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
     # Toggle back to original
     kwriteconfig6 --file kiorc --group Confirmations --key ConfirmTrash --type bool "$ORIG_VAL"
 
-    # Revert repo modification
-    git checkout -- "$REPO_KIORC"
+    # Revert repo modification (with retry for transient daemon index.lock contention)
+    retries=5
+    until git checkout -- "$REPO_KIORC" 2>/dev/null || [[ $retries -le 0 ]]; do
+      sleep 0.1
+      retries=$((retries - 1))
+    done
+    if [[ $retries -le 0 ]]; then
+      git checkout -- "$REPO_KIORC"
+    fi
 
     if [[ -z "$(git status --porcelain "$REPO_KIORC")" ]]; then
       pass "Section 2: live double-toggle cleanly reverted; repo working tree clean"
