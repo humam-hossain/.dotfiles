@@ -388,6 +388,55 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
 fi
 
 # ===========================================================================
+# Section 5: KDE-03: Live cp-through drill: clean-tree preflight, install-files execution, modified status check, and git checkout recovery
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
+  info "--- Section 5: KDE-03: Live cp-through drill: clean-tree preflight, install-files execution, modified status check, and git checkout recovery ---"
+
+  # 1. Clean working tree preflight check
+  INITIAL_STATUS="$(git status --porcelain)"
+  if [[ -z "$INITIAL_STATUS" ]]; then
+    pass "Section 5: git working tree is clean prior to live cp-through drill"
+  else
+    fail "Section 5: git working tree is dirty prior to drill: $INITIAL_STATUS"
+  fi
+
+  # 2. Invoke upstream installer files subcommand
+  INSTALL_RC=0
+  printf '\nyesforall\n' | "$REPO_ROOT/arch/dots-hyprland.sh" install-files >/dev/null 2>&1 || INSTALL_RC=$?
+  if [[ "$INSTALL_RC" -eq 0 ]]; then
+    pass "Section 5: ./arch/dots-hyprland.sh install-files executed successfully (exit code 0)"
+  else
+    fail "Section 5: ./arch/dots-hyprland.sh install-files failed with exit code $INSTALL_RC"
+  fi
+
+  # 3. Verify write-through modification occurred
+  DRILL_STATUS="$(git status --porcelain)"
+  if grep -q "M restow/dolphinrc/.config/dolphinrc" <<<"$DRILL_STATUS" && grep -q "M restow/chrome-flags/.config/chrome-flags.conf" <<<"$DRILL_STATUS"; then
+    pass "Section 5: live cp-through drill proved write-through modification on restow/dolphinrc and restow/chrome-flags"
+  else
+    fail "Section 5: expected write-through modifications missing from git status: $DRILL_STATUS"
+  fi
+
+  # 4. Execute recovery step per documented restow contract
+  retries=5
+  until git checkout -- restow/chrome-flags restow/dolphinrc 2>/dev/null || [[ $retries -le 0 ]]; do
+    sleep 0.1
+    retries=$((retries - 1))
+  done
+  if [[ $retries -le 0 ]]; then
+    git checkout -- restow/chrome-flags restow/dolphinrc
+  fi
+
+  FINAL_STATUS="$(git status --porcelain)"
+  if [[ -z "$FINAL_STATUS" ]]; then
+    pass "Section 5: git checkout -- restow/chrome-flags restow/dolphinrc restored clean working tree"
+  else
+    fail "Section 5: working tree remains dirty after recovery: $FINAL_STATUS"
+  fi
+fi
+
+# ===========================================================================
 # Section 6: KDE-02: GUARD list data integrity, Q7/Q8 documentation check, kdeglobals unlinking, and verify --strict pass
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
