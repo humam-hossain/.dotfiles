@@ -66,7 +66,7 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 - [x] **Phase 19: Link-aware `verify`** — A destroyed symlink becomes a loud failure instead of a clean `git status`, proven adversarially (completed 2026-09-14)
 - [x] **Phase 20: hypr/custom overlays and startup restore** — Six `*.lua` files stow-managed; personal keybinds, launcher variables, and the `exec-once` entries lost at adopt (completed 2026-09-14)
 - [x] **Phase 21: ii bar config capture** — `config.json` through the `capture/` path plus the unattended timer (completed 2026-09-15)
-- [ ] **Phase 22: KDE and GTK capture** — Per-file `stow/kde` and `stow/gtk`, cp-through `restow/`, generated theme output guarded out
+- [x] **Phase 22: KDE and GTK capture** — Per-file `stow/kde` and `stow/gtk`, cp-through `restow/`, generated theme output guarded out (completed 2026-09-15)
 - [ ] **Phase 23: One-command bootstrap** — Clone, one command, and `verify --strict` as the exit code
 
 ## Phase Details — v0.4 Personal config layer
@@ -297,7 +297,7 @@ Plans:
   4. The GUARD list (`kdeglobals`, `Kvantum/`, both `gtk.css`, `fuzzel_theme.ini`, `hypr/hyprland/colors.lua`, `hyprlock/colors.conf`) is checked in as data, and the Q7/Q8 findings are recorded next to it so the exclusions are justified by measurement rather than by assumption (KDE-02)
 
 **Verification risk — live app writes and a possible repo chmod.** Criterion 1 requires driving a real Dolphin against a scratch `kiorc` before `stow/kde/` is committed, and KConfig may chmod the repo file to `0600` on every write. Criterion 3 requires running the installer against the live session; run it with a clean working tree so the cp-through damage is the *evidence* and `git checkout` is the undo.
-**Plans:** 3/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
 **Wave 1**
@@ -314,7 +314,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 22-04-PLAN.md — Restow chrome-flags cp-through packaging, live installer overwrite drill, and strict verification gate (KDE-03)
+- [x] 22-04-PLAN.md — Restow chrome-flags cp-through packaging, live installer overwrite drill, and strict verification gate (KDE-03)
 
 ### Phase 23: One-command bootstrap
 
@@ -358,7 +358,7 @@ Plans:
 | 19. Link-aware `verify` | v0.4 | 5/5 | Complete    | 2026-09-14 |
 | 20. hypr/custom overlays and startup restore | v0.4 | 5/5 | Complete    | 2026-09-14 |
 | 21. ii bar config capture | v0.4 | 3/3 | Complete    | 2026-09-15 |
-| 22. KDE and GTK capture | v0.4 | 3/4 | In Progress|  |
+| 22. KDE and GTK capture | v0.4 | 4/4 | Complete    | 2026-09-15 |
 | 23. One-command bootstrap | v0.4 | 0/? | Not started | - |
 
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 shipped · v0.4 in progress — 35/35 requirements mapped across Phases 17-23, 0 unmapped

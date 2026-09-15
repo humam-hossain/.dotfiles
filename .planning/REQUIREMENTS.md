@@ -51,7 +51,7 @@ Currently-live defects. Nothing else in the milestone works until these land.
 
 - [x] **KDE-01**: `kiorc`, `ktrashrc`, `kservicemenurc` are stow-managed — ii ships none of them, so there is no collision
 - [x] **KDE-02**: `gtk-3.0/settings.ini`, `gtk-3.0/bookmarks`, `gtk-4.0/settings.ini` are captured per file, and the generated `gtk.css` siblings are gitignored rather than captured
-- [ ] **KDE-03**: `dolphinrc` and `chrome-flags.conf` live in `restow/` with a documented recovery step, because the installer writes through the link and overwrites the repo copy
+- [x] **KDE-03**: `dolphinrc` and `chrome-flags.conf` live in `restow/` with a documented recovery step, because the installer writes through the link and overwrites the repo copy
 
 ### Capture Safety
 
@@ -137,9 +137,9 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 | BAR-01 | Phase 21 | ii bar config capture | Complete |
 | BAR-02 | Phase 21 | ii bar config capture | Complete |
 | CAP-06 | Phase 21 | ii bar config capture | Complete |
-| KDE-01 | Phase 22 | KDE and GTK capture | Pending |
-| KDE-02 | Phase 22 | KDE and GTK capture | Pending |
-| KDE-03 | Phase 22 | KDE and GTK capture | Pending |
+| KDE-01 | Phase 22 | KDE and GTK capture | Complete |
+| KDE-02 | Phase 22 | KDE and GTK capture | Complete |
+| KDE-03 | Phase 22 | KDE and GTK capture | Complete |
 | BOOT-01 | Phase 23 | One-command bootstrap | Pending |
 | BOOT-02 | Phase 23 | One-command bootstrap | Pending |
 | BOOT-03 | Phase 23 | One-command bootstrap | Pending |

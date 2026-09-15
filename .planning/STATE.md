@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Personal config layer
-current_phase: 22
-current_phase_name: kde-and-gtk-capture
+current_phase: 23
+current_phase_name: One-command bootstrap
 status: executing
 stopped_at: Phase 22 context gathered
-last_updated: "2026-09-15T03:08:49.535Z"
+last_updated: "2026-09-15T03:14:49.961Z"
 last_activity: 2026-09-15
-last_activity_desc: Phase 22 execution started
+last_activity_desc: Phase 22 complete, transitioned to Phase 23
 progress:
   total_phases: 7
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 35
-  completed_plans: 34
-  percent: 71
+  completed_plans: 35
+  percent: 86
 ---
 
 Total Phases: 7 (Phases 17-23)
@@ -23,10 +23,10 @@ Total Phases: 7 (Phases 17-23)
 
 ## Current Position
 
-Phase: 22 (kde-and-gtk-capture) — EXECUTING
-Plan: 4 of 4
+Phase: 23 — One-command bootstrap
+Plan: Not started
 Status: Ready to execute
-Last activity: 2026-09-15 — Phase 22 execution started
+Last activity: 2026-09-15 — Phase 22 complete, transitioned to Phase 23
 
 ## Session
 
