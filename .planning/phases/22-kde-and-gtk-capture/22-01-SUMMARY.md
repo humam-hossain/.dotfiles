@@ -28,23 +28,29 @@ key-decisions:
   - "D-04: Proved KConfig symlink write-through (Q10) via scratch XDG drill and live kiorc double-toggle"
 requirements-completed: [KDE-01]
 coverage:
-  - deliverable: "Scaffold Phase 22 assertion harness with Section 1 and Section 2"
+  - id: D1
+    description: "KDE-01 Scaffold Phase 22 assertion harness with Section 1 and Section 2"
+    requirement: "KDE-01"
     verification:
-      kind: "command"
-      ref: "./scripts/phase22-kde-and-gtk-capture-assert.sh --section 1 && ./scripts/phase22-kde-and-gtk-capture-assert.sh --section 2"
-      status: "pass"
+      - kind: unit
+        ref: "./scripts/phase22-kde-and-gtk-capture-assert.sh --section 1 && ./scripts/phase22-kde-and-gtk-capture-assert.sh --section 2"
+        status: pass
     human_judgment: false
-  - deliverable: "Adopt Dolphin and KIO configurations into stow/kde/ via SAFE-01 protocol"
+  - id: D2
+    description: "KDE-01 Adopt Dolphin and KIO configurations into stow/kde/ via SAFE-01 protocol"
+    requirement: "KDE-01"
     verification:
-      kind: "command"
-      ref: "test -L ~/.config/kiorc && test -L ~/.config/ktrashrc && test -L ~/.config/kservicemenurc"
-      status: "pass"
+      - kind: unit
+        ref: "test -L ~/.config/kiorc && test -L ~/.config/ktrashrc && test -L ~/.config/kservicemenurc"
+        status: pass
     human_judgment: false
-  - deliverable: "Verify KConfig symlink write-through semantics and inode preservation"
+  - id: D3
+    description: "KDE-01 Verify KConfig symlink write-through semantics and inode preservation"
+    requirement: "KDE-01"
     verification:
-      kind: "command"
-      ref: "./scripts/phase22-kde-and-gtk-capture-assert.sh --section 2"
-      status: "pass"
+      - kind: unit
+        ref: "./scripts/phase22-kde-and-gtk-capture-assert.sh --section 2"
+        status: pass
     human_judgment: false
 duration: 3 min
 completed: 2026-09-15T09:04:00Z

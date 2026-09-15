@@ -36,29 +36,37 @@ key-decisions:
   - "D-13: Added gtk-dark.css to root .gitignore beside gtk.css under generated theme outputs"
 requirements-completed: [KDE-02]
 coverage:
-  - deliverable: "Adopt GTK-3.0 and GTK-4.0 configuration files per-file into stow/gtk/"
+  - id: D4
+    description: "KDE-02 Adopt GTK-3.0 and GTK-4.0 configuration files per-file into stow/gtk/"
+    requirement: "KDE-02"
     verification:
-      kind: "command"
-      ref: "test -L ~/.config/gtk-3.0/settings.ini && test -L ~/.config/gtk-3.0/bookmarks && test -L ~/.config/gtk-4.0/settings.ini"
-      status: "pass"
+      - kind: unit
+        ref: "test -L ~/.config/gtk-3.0/settings.ini && test -L ~/.config/gtk-3.0/bookmarks && test -L ~/.config/gtk-4.0/settings.ini"
+        status: pass
     human_judgment: false
-  - deliverable: "Enforce unfolded parent directories on live system"
+  - id: D5
+    description: "KDE-02 Enforce unfolded parent directories on live system"
+    requirement: "KDE-02"
     verification:
-      kind: "command"
-      ref: "test -d ~/.config/gtk-3.0 && test ! -L ~/.config/gtk-3.0 && test -d ~/.config/gtk-4.0 && test ! -L ~/.config/gtk-4.0"
-      status: "pass"
+      - kind: unit
+        ref: "test -d ~/.config/gtk-3.0 && test ! -L ~/.config/gtk-3.0 && test -d ~/.config/gtk-4.0 && test ! -L ~/.config/gtk-4.0"
+        status: pass
     human_judgment: false
-  - deliverable: "Add gtk-dark.css to .gitignore and verify ignored status"
+  - id: D6
+    description: "KDE-02 Add gtk-dark.css to .gitignore and verify ignored status"
+    requirement: "KDE-02"
     verification:
-      kind: "command"
-      ref: "grep -q '^gtk-dark\\.css$' .gitignore && git check-ignore -v stow/gtk/.config/gtk-4.0/gtk-dark.css"
-      status: "pass"
+      - kind: unit
+        ref: "grep -q '^gtk-dark\\.css$' .gitignore && git check-ignore -v stow/gtk/.config/gtk-4.0/gtk-dark.css"
+        status: pass
     human_judgment: false
-  - deliverable: "Implement Section 3 in assert harness with GLib link severance demonstration"
+  - id: D7
+    description: "KDE-02 Implement Section 3 in assert harness with GLib link severance demonstration"
+    requirement: "KDE-02"
     verification:
-      kind: "command"
-      ref: "./scripts/phase22-kde-and-gtk-capture-assert.sh --section 3"
-      status: "pass"
+      - kind: unit
+        ref: "./scripts/phase22-kde-and-gtk-capture-assert.sh --section 3"
+        status: pass
     human_judgment: false
 duration: 3 min
 completed: 2026-09-15T09:05:00Z

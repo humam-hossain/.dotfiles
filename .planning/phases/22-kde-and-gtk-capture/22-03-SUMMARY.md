@@ -40,29 +40,37 @@ key-decisions:
   - "D-24: Updated classify_sweep_entry to identify guarded theme outputs instead of unclaimed upstream stubs"
 requirements-completed: [KDE-02]
 coverage:
-  - deliverable: "Check in guard-paths.tsv data contract with 7 paths and Q7/Q8 resolutions"
+  - id: D8
+    description: "KDE-02 Check in guard-paths.tsv data contract with 7 paths and Q7/Q8 resolutions"
+    requirement: "KDE-02"
     verification:
-      kind: "command"
-      ref: "test -f guard-paths.tsv && grep -q 'kde-material-you-colors' guard-paths.tsv"
-      status: "pass"
+      - kind: unit
+        ref: "test -f guard-paths.tsv && grep -q 'kde-material-you-colors' guard-paths.tsv"
+        status: pass
     human_judgment: false
-  - deliverable: "Retire kdeglobals to docs/archive/ and convert live kdeglobals to regular file"
+  - id: D9
+    description: "KDE-02 Retire kdeglobals to docs/archive/ and convert live kdeglobals to regular file"
+    requirement: "KDE-02"
     verification:
-      kind: "command"
-      ref: "test -f docs/archive/kdeglobals && test ! -e restow/kdeglobals && test ! -L ~/.config/kdeglobals && test -f ~/.config/kdeglobals"
-      status: "pass"
+      - kind: unit
+        ref: "test -f docs/archive/kdeglobals && test ! -e restow/kdeglobals && test ! -L ~/.config/kdeglobals && test -f ~/.config/kdeglobals"
+        status: pass
     human_judgment: false
-  - deliverable: "Integrate GUARD check into run_verify() and classify_sweep_entry()"
+  - id: D10
+    description: "KDE-02 Integrate GUARD check into run_verify() and classify_sweep_entry()"
+    requirement: "KDE-02"
     verification:
-      kind: "command"
-      ref: "./arch/dots-hyprland.sh verify"
-      status: "pass"
+      - kind: unit
+        ref: "./arch/dots-hyprland.sh verify"
+        status: pass
     human_judgment: false
-  - deliverable: "Implement Section 6 in phase 22 assert harness"
+  - id: D11
+    description: "KDE-02 Implement Section 6 in phase 22 assert harness"
+    requirement: "KDE-02"
     verification:
-      kind: "command"
-      ref: "./scripts/phase22-kde-and-gtk-capture-assert.sh --section 6"
-      status: "pass"
+      - kind: unit
+        ref: "./scripts/phase22-kde-and-gtk-capture-assert.sh --section 6"
+        status: pass
     human_judgment: false
 duration: 3 min
 completed: 2026-09-15T09:08:00Z

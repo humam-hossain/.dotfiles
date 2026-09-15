@@ -35,29 +35,37 @@ key-decisions:
   - "D-26: Passed full 6-section phase22 assert suite and arch/dots-hyprland.sh verify --strict"
 requirements-completed: [KDE-03]
 coverage:
-  - deliverable: "Package chrome-flags.conf into restow/ and link live"
+  - id: D12
+    description: "KDE-03 Package chrome-flags.conf into restow/ and link live"
+    requirement: "KDE-03"
     verification:
-      kind: "command"
-      ref: "test -f restow/chrome-flags/.config/chrome-flags.conf && test -L ~/.config/chrome-flags.conf"
-      status: "pass"
+      - kind: unit
+        ref: "test -f restow/chrome-flags/.config/chrome-flags.conf && test -L ~/.config/chrome-flags.conf"
+        status: pass
     human_judgment: false
-  - deliverable: "Regenerate restow/README.md package recovery table"
+  - id: D13
+    description: "KDE-03 Regenerate restow/README.md package recovery table"
+    requirement: "KDE-03"
     verification:
-      kind: "command"
-      ref: "grep -q 'chrome-flags' restow/README.md && ! grep -q 'kdeglobals' restow/README.md"
-      status: "pass"
+      - kind: unit
+        ref: "grep -q 'chrome-flags' restow/README.md && ! grep -q 'kdeglobals' restow/README.md"
+        status: pass
     human_judgment: false
-  - deliverable: "Implement Section 4 and Section 5 in phase 22 assert harness"
+  - id: D14
+    description: "KDE-03 Implement Section 4 and Section 5 in phase 22 assert harness"
+    requirement: "KDE-03"
     verification:
-      kind: "command"
-      ref: "./scripts/phase22-kde-and-gtk-capture-assert.sh --section 4 && ./scripts/phase22-kde-and-gtk-capture-assert.sh --section 5"
-      status: "pass"
+      - kind: unit
+        ref: "./scripts/phase22-kde-and-gtk-capture-assert.sh --section 4 && ./scripts/phase22-kde-and-gtk-capture-assert.sh --section 5"
+        status: pass
     human_judgment: false
-  - deliverable: "Execute Phase 22 full test suite and strict verification gate"
+  - id: D15
+    description: "KDE-03 Execute Phase 22 full test suite and strict verification gate"
+    requirement: "KDE-03"
     verification:
-      kind: "command"
-      ref: "./scripts/phase22-kde-and-gtk-capture-assert.sh && ./arch/dots-hyprland.sh verify --strict"
-      status: "pass"
+      - kind: unit
+        ref: "./scripts/phase22-kde-and-gtk-capture-assert.sh && ./arch/dots-hyprland.sh verify --strict"
+        status: pass
     human_judgment: false
 duration: 6 min
 completed: 2026-09-15T09:14:00Z
