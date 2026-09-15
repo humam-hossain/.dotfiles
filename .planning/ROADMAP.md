@@ -67,7 +67,7 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 - [x] **Phase 20: hypr/custom overlays and startup restore** — Six `*.lua` files stow-managed; personal keybinds, launcher variables, and the `exec-once` entries lost at adopt (completed 2026-09-14)
 - [x] **Phase 21: ii bar config capture** — `config.json` through the `capture/` path plus the unattended timer (completed 2026-09-15)
 - [x] **Phase 22: KDE and GTK capture** — Per-file `stow/kde` and `stow/gtk`, cp-through `restow/`, generated theme output guarded out (completed 2026-09-15)
-- [ ] **Phase 23: One-command bootstrap** — Clone, one command, and `verify --strict` as the exit code
+- [x] **Phase 23: One-command bootstrap** — Clone, one command, and `verify --strict` as the exit code (completed 2026-09-15)
 
 ## Phase Details — v0.4 Personal config layer
 
@@ -331,11 +331,11 @@ Plans:
   5. `pacman -Qqen` and `pacman -Qqem` snapshots are committed as data with their date and host recorded, and re-running bootstrap regenerates them idempotently rather than appending (BOOT-05)
 
 **Verification risk — this phase genuinely wants a second machine.** No fresh Arch host is available, and the fresh-machine claim cannot be fully proven in place. Fallback, in descending strength: (a) a VM or container if one can be stood up — the only thing that exercises the relogin hop and the empty-`$HOME` folding case together; (b) a throwaway `XDG_CONFIG_HOME` / `XDG_DATA_HOME` run of `./setup install-files` plus `stow -n --no-folding` for every package, which validates ordering, the collision map and the de-stub rule but not the session hop; (c) resumability and idempotence drills by killing the real run at each step boundary. If only (b) and (c) are achievable, BOOT-01's claim must be stated at the scratch-XDG level and labelled as such — not as a verified fresh-machine reproduction.
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 - [x] 23-01-PLAN.md
 - [x] 23-02-PLAN.md
-- [ ] 23-03-PLAN.md
+- [x] 23-03-PLAN.md
 
 ## Progress
 
@@ -363,7 +363,7 @@ Plans:
 | 20. hypr/custom overlays and startup restore | v0.4 | 5/5 | Complete    | 2026-09-14 |
 | 21. ii bar config capture | v0.4 | 3/3 | Complete    | 2026-09-15 |
 | 22. KDE and GTK capture | v0.4 | 4/4 | Complete    | 2026-09-15 |
-| 23. One-command bootstrap | v0.4 | 2/3 | In Progress|  |
+| 23. One-command bootstrap | v0.4 | 3/3 | Complete   | 2026-09-15 |
 
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 shipped · v0.4 in progress — 35/35 requirements mapped across Phases 17-23, 0 unmapped
 
