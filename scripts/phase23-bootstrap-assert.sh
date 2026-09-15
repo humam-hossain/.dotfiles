@@ -131,11 +131,140 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
 fi
 
 # ===========================================================================
-# Section 2: Isolated scratch de-stubbing, backup manifest, and stow linking (Plan 23-02)
+# Section 2: Isolated scratch de-stubbing, backup manifest, stow linking, capture seeding (BOOT-02)
 # ===========================================================================
-if [[ "$RUN_SECTION" -eq 2 ]]; then
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
   info "--- Section 2: Isolated scratch de-stubbing, backup manifest, and stow linking ---"
-  info "Section 2 scheduled for Plan 23-02 implementation"
+
+  S2_ROOT="$(mktemp -d /tmp/p23-assert-s2-XXXXXX)"
+  SCRATCH_ROOTS+=("$S2_ROOT")
+
+  MOCK_REPO="$S2_ROOT/repo"
+  MOCK_HOME="$S2_ROOT/home"
+  mkdir -p "$MOCK_REPO/stow/testpkg/.config/testpkg"
+  mkdir -p "$MOCK_REPO/capture/mockpkg/.config/mock"
+  mkdir -p "$MOCK_HOME/.config/testpkg"
+  mkdir -p "$MOCK_HOME/.config"
+
+  # Populate mock repository and live targets
+  echo "managed personal config" > "$MOCK_REPO/stow/testpkg/.config/testpkg/config.ini"
+  echo "upstream stub content" > "$MOCK_HOME/.config/testpkg/config.ini"
+  cp "$REPO_ROOT/guard-paths.tsv" "$MOCK_REPO/guard-paths.tsv"
+
+  # Set up guarded live file that must NOT be pruned or deleted
+  echo "guarded theme content" > "$MOCK_HOME/.config/kdeglobals"
+
+  # Set up valid and invalid capture seeds
+  echo '{"theme":"dark"}' > "$MOCK_REPO/capture/mockpkg/.config/mock/settings.json"
+  echo '{"theme":' > "$MOCK_REPO/capture/mockpkg/.config/mock/broken.json"
+
+  # Source bootstrap library functions for isolated testing
+  # shellcheck source=/dev/null
+  source "$REPO_ROOT/bootstrap.sh"
+
+  # 1. Run de-stubbing
+  run_destub "$MOCK_HOME" "$MOCK_REPO" >/dev/null 2>&1
+
+  # Assert guarded file was not touched (D-17)
+  if [[ -f "$MOCK_HOME/.config/kdeglobals" ]] && [[ "$(<"$MOCK_HOME/.config/kdeglobals")" == "guarded theme content" ]]; then
+    pass "Section 2: guard-paths.tsv entry ($MOCK_HOME/.config/kdeglobals) was preserved untouched"
+  else
+    fail "Section 2: guarded file was modified or deleted during de-stubbing"
+  fi
+
+  # Assert conflicting stub was removed from live location
+  if [[ ! -e "$MOCK_HOME/.config/testpkg/config.ini" ]]; then
+    pass "Section 2: conflicting stub was unlinked from live location"
+  else
+    fail "Section 2: conflicting stub was not unlinked from live location"
+  fi
+
+  # Assert stub was archived to backup directory
+  BACKUP_DIR="$(find "$MOCK_HOME" -maxdepth 1 -name '.dotfiles-backup.*' | head -1)"
+  if [[ -n "$BACKUP_DIR" && -d "$BACKUP_DIR" ]]; then
+    pass "Section 2: created timestamped backup directory ($BACKUP_DIR)"
+    ARCHIVED_FILE="$BACKUP_DIR/.config/testpkg/config.ini"
+    if [[ -f "$ARCHIVED_FILE" ]] && [[ "$(<"$ARCHIVED_FILE")" == "upstream stub content" ]]; then
+      pass "Section 2: conflicting stub safely archived in backup hierarchy"
+    else
+      fail "Section 2: conflicting stub missing or corrupted in backup directory"
+    fi
+
+    # Assert MANIFEST.txt existence and verify checksum integrity via sha256sum -c
+    if [[ -f "$BACKUP_DIR/MANIFEST.txt" ]]; then
+      pass "Section 2: backup archive contains MANIFEST.txt"
+      if (cd "$BACKUP_DIR" && sha256sum -c MANIFEST.txt >/dev/null 2>&1); then
+        pass "Section 2: sha256sum -c verified archived stub checksum integrity"
+      else
+        fail "Section 2: sha256sum -c failed against MANIFEST.txt"
+      fi
+    else
+      fail "Section 2: MANIFEST.txt missing from backup archive"
+    fi
+  else
+    fail "Section 2: backup directory was not created"
+  fi
+
+  # 2. Run GNU Stow step
+  run_stow_step "$MOCK_HOME" "$MOCK_REPO" >/dev/null 2>&1
+
+  # Assert sensitive parent directories pre-created and are not symlinks (D-14)
+  PARENT_DIRS_OK=true
+  for pdir in "$MOCK_HOME/.config/gtk-3.0" "$MOCK_HOME/.config/gtk-4.0" "$MOCK_HOME/.config/hypr/custom" "$MOCK_HOME/.config/systemd/user"; do
+    if [[ ! -d "$pdir" || -L "$pdir" ]]; then
+      PARENT_DIRS_OK=false
+      fail "Section 2: parent dir $pdir missing or folded into a symlink"
+    fi
+  done
+  if [[ "$PARENT_DIRS_OK" == "true" ]]; then
+    pass "Section 2: sensitive parent directories pre-created as real directories (no directory folding)"
+  fi
+
+  # Assert live config is a symlink pointing to repository source with matching inode
+  LIVE_STOWED="$MOCK_HOME/.config/testpkg/config.ini"
+  REPO_STOWED="$MOCK_REPO/stow/testpkg/.config/testpkg/config.ini"
+  if [[ -L "$LIVE_STOWED" ]]; then
+    pass "Section 2: stowed file is a symbolic link"
+    if [[ "$LIVE_STOWED" -ef "$REPO_STOWED" ]]; then
+      pass "Section 2: stowed symlink shares inode identity (-ef) with repository source"
+    else
+      fail "Section 2: stowed symlink does not resolve to repository source (-ef failed)"
+    fi
+  else
+    fail "Section 2: stowed file is not a symbolic link"
+  fi
+
+  # Assert package parent directory in home was not folded into a symlink
+  if [[ -d "$MOCK_HOME/.config/testpkg" && ! -L "$MOCK_HOME/.config/testpkg" ]]; then
+    pass "Section 2: package parent directory is a regular directory (no stow directory folding)"
+  else
+    fail "Section 2: package parent directory was folded into a symlink"
+  fi
+
+  # 3. Run capture seed deployment
+  # First test with broken JSON: must fail closed and return non-zero
+  SEED_FAIL_RC=0
+  deploy_capture_seeds "$MOCK_HOME" "$MOCK_REPO" >/dev/null 2>&1 || SEED_FAIL_RC=$?
+  if [[ "$SEED_FAIL_RC" -ne 0 ]]; then
+    pass "Section 2: deploy_capture_seeds failed closed on broken JSON syntax"
+  else
+    fail "Section 2: deploy_capture_seeds did not fail on invalid JSON syntax"
+  fi
+
+  # Remove broken JSON and deploy valid seed
+  rm -f "$MOCK_REPO/capture/mockpkg/.config/mock/broken.json"
+  SEED_PASS_RC=0
+  deploy_capture_seeds "$MOCK_HOME" "$MOCK_REPO" >/dev/null 2>&1 || SEED_PASS_RC=$?
+  if [[ "$SEED_PASS_RC" -eq 0 ]]; then
+    DEPLOYED_SEED="$MOCK_HOME/.config/mock/settings.json"
+    if [[ -f "$DEPLOYED_SEED" ]] && jq empty "$DEPLOYED_SEED" >/dev/null 2>&1; then
+      pass "Section 2: valid capture seed deployed atomically with package prefix stripped"
+    else
+      fail "Section 2: deployed capture seed missing or invalid JSON"
+    fi
+  else
+    fail "Section 2: deploy_capture_seeds failed on valid capture package"
+  fi
 fi
 
 # ===========================================================================
@@ -148,6 +277,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
   SCRATCH_ROOTS+=("$S3_ROOT")
   S3_STATE_DIR="$S3_ROOT/state"
   STATE_FILE="$S3_STATE_DIR/dotfiles/bootstrap-state"
+  export DOTFILES_MOCK_STEPS=1
 
   # 1. State initialization check (valid JSON schema adhering to D-02)
   INIT_RC=0

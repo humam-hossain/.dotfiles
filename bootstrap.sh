@@ -24,7 +24,6 @@ fi
 # ---------------------------------------------------------------------------
 XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 LOG_DIR="$XDG_STATE_HOME/dotfiles/logs"
-mkdir -p "$LOG_DIR"
 
 cleanup_old_logs() {
   local count
@@ -34,19 +33,22 @@ cleanup_old_logs() {
       | sort -n | head -n -5 | awk '{print $2}' | xargs -r rm -f 2>/dev/null || true
   fi
 }
-cleanup_old_logs
-
-LOG_FILE="$LOG_DIR/bootstrap-$(date +"%Y%m%d_%H%M%S_$$").log"
-
-# Duplicate standard descriptors to preserve clean exit flushing
-exec 3>&1 4>&2
-exec > >(tee -a "$LOG_FILE") 2>&1
 
 cleanup_logging() {
   exec 1>&3 2>&4 3>&- 4>&-
   wait 2>/dev/null || true
 }
-trap cleanup_logging EXIT
+
+# Only attach transcript logging and trap when executed directly, not sourced as a library
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  mkdir -p "$LOG_DIR"
+  cleanup_old_logs
+  LOG_FILE="$LOG_DIR/bootstrap-$(date +"%Y%m%d_%H%M%S_$$").log"
+
+  exec 3>&1 4>&2
+  exec > >(tee -a "$LOG_FILE") 2>&1
+  trap cleanup_logging EXIT
+fi
 
 # ---------------------------------------------------------------------------
 # CLI Argument Parsing & Closed Flag Surface (D-04)
@@ -99,64 +101,66 @@ SNAPSHOT_MODE=0
 NO_PAUSE=0
 declare -a UNKNOWN_FLAGS=()
 
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    -h|--help)
-      usage
-      exit 0
-      ;;
-    --dry-run)
-      DRY_RUN=1
-      shift
-      ;;
-    --from)
-      if [[ -z "${2:-}" ]]; then
-        echo "[FAIL] --from requires a step argument." >&2
-        exit 2
-      fi
-      if ! is_valid_step "$2"; then
-        echo "[FAIL] Invalid step '$2' for --from. Valid steps: ${STEPS[*]}" >&2
-        exit 2
-      fi
-      FROM_STEP="$2"
-      shift 2
-      ;;
-    --only)
-      if [[ -z "${2:-}" ]]; then
-        echo "[FAIL] --only requires a step argument." >&2
-        exit 2
-      fi
-      if ! is_valid_step "$2"; then
-        echo "[FAIL] Invalid step '$2' for --only. Valid steps: ${STEPS[*]}" >&2
-        exit 2
-      fi
-      ONLY_STEP="$2"
-      shift 2
-      ;;
-    --reset)
-      RESET_STATE=1
-      shift
-      ;;
-    --snapshot)
-      SNAPSHOT_MODE=1
-      shift
-      ;;
-    --no-pause)
-      NO_PAUSE=1
-      shift
-      ;;
-    *)
-      UNKNOWN_FLAGS+=("$1")
-      shift
-      ;;
-  esac
-done
+parse_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h|--help)
+        usage
+        exit 0
+        ;;
+      --dry-run)
+        DRY_RUN=1
+        shift
+        ;;
+      --from)
+        if [[ -z "${2:-}" ]]; then
+          echo "[FAIL] --from requires a step argument." >&2
+          exit 2
+        fi
+        if ! is_valid_step "$2"; then
+          echo "[FAIL] Invalid step '$2' for --from. Valid steps: ${STEPS[*]}" >&2
+          exit 2
+        fi
+        FROM_STEP="$2"
+        shift 2
+        ;;
+      --only)
+        if [[ -z "${2:-}" ]]; then
+          echo "[FAIL] --only requires a step argument." >&2
+          exit 2
+        fi
+        if ! is_valid_step "$2"; then
+          echo "[FAIL] Invalid step '$2' for --only. Valid steps: ${STEPS[*]}" >&2
+          exit 2
+        fi
+        ONLY_STEP="$2"
+        shift 2
+        ;;
+      --reset)
+        RESET_STATE=1
+        shift
+        ;;
+      --snapshot)
+        SNAPSHOT_MODE=1
+        shift
+        ;;
+      --no-pause)
+        NO_PAUSE=1
+        shift
+        ;;
+      *)
+        UNKNOWN_FLAGS+=("$1")
+        shift
+        ;;
+    esac
+  done
 
-if ((${#UNKNOWN_FLAGS[@]} > 0)); then
-  echo "[FAIL] Unknown bootstrap flag(s): ${UNKNOWN_FLAGS[*]}" >&2
-  echo "[FAIL] Run ./bootstrap.sh --help for accepted flags." >&2
-  exit 2
-fi
+  if ((${#UNKNOWN_FLAGS[@]} > 0)); then
+    echo "[FAIL] Unknown bootstrap flag(s): ${UNKNOWN_FLAGS[*]}" >&2
+    echo "[FAIL] Run ./bootstrap.sh --help for accepted flags." >&2
+    exit 2
+  fi
+}
 
 # ---------------------------------------------------------------------------
 # Resumable JSON State Engine via jq (D-02, D-03, D-05)
@@ -164,6 +168,7 @@ fi
 STATE_FILE="$XDG_STATE_HOME/dotfiles/bootstrap-state"
 
 init_state() {
+  STATE_FILE="$XDG_STATE_HOME/dotfiles/bootstrap-state"
   if [[ "$RESET_STATE" -eq 1 && -f "$STATE_FILE" ]]; then
     rm -f "$STATE_FILE"
   fi
@@ -275,6 +280,9 @@ execute_step() {
   if [[ -n "${DOTFILES_MOCK_FAIL_STEP:-}" && "${DOTFILES_MOCK_FAIL_STEP}" == "$step_name" ]]; then
     echo "[MOCK] Triggering simulated failure for step '$step_name'" >&2
     rc="${DOTFILES_MOCK_FAIL_RC:-42}"
+  elif [[ "${DOTFILES_MOCK_STEPS:-0}" -eq 1 ]]; then
+    echo "[MOCK] Fast step execution: $step_name"
+    rc=0
   else
     "$step_command_func" || rc=$?
   fi
@@ -292,34 +300,286 @@ execute_step() {
 }
 
 # ---------------------------------------------------------------------------
-# Pipeline Step Implementations (Stubs for Wave 1; detailed in Wave 2 & 3)
+# Guard Paths Handling (D-17)
+# ---------------------------------------------------------------------------
+declare -A GUARDED_PATHS=()
+
+load_guard_paths() {
+  local base_repo="${1:-$REPO_ROOT}"
+  local base_home="${2:-$HOME}"
+  local guard_file="$base_repo/guard-paths.tsv"
+  GUARDED_PATHS=()
+  [[ -f "$guard_file" ]] || return 0
+  local g_path g_cat g_gen g_reason expanded
+  while IFS=$'\t' read -r g_path g_cat g_gen g_reason || [[ -n "$g_path" ]]; do
+    [[ -n "$g_path" && "$g_path" != \#* ]] || continue
+    expanded="${g_path//\$XDG_CONFIG_HOME/$base_home\/.config}"
+    expanded="${expanded//\$HOME/$base_home}"
+    GUARDED_PATHS["$expanded"]=1
+  done < "$guard_file"
+}
+
+is_guarded_path() {
+  local check_path="$1"
+  [[ -n "${GUARDED_PATHS["$check_path"]:-}" ]]
+}
+
+# ---------------------------------------------------------------------------
+# Step 1: Submodule Recursion (D-03)
 # ---------------------------------------------------------------------------
 step_submodules() {
-  echo "[STEP 1/7] Updating submodules..."
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[DRY-RUN] git submodule update --init --recursive"
+    return 0
+  fi
+  echo "[STEP 1/7] Updating git submodules recursively..."
+  git submodule update --init --recursive
 }
 
+# ---------------------------------------------------------------------------
+# Step 2: Prerequisite Packages Check & AUR Helper (D-03, D-22)
+# ---------------------------------------------------------------------------
 step_packages() {
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[DRY-RUN] Checking base prerequisites (git, stow, jq, yay)..."
+    return 0
+  fi
   echo "[STEP 2/7] Checking base prerequisites..."
+  local missing=()
+  for pkg in git stow jq; do
+    if ! command -v "$pkg" &>/dev/null; then
+      missing+=("$pkg")
+    fi
+  done
+  if ((${#missing[@]} > 0)); then
+    echo "[FAIL] Missing required base prerequisite(s): ${missing[*]}" >&2
+    return 1
+  fi
+  if ! command -v yay &>/dev/null; then
+    if [[ -x "$REPO_ROOT/arch/aur.sh" ]]; then
+      echo "[INFO] yay not found; installing via arch/aur.sh..."
+      "$REPO_ROOT/arch/aur.sh"
+    else
+      echo "[FAIL] yay not found and arch/aur.sh is missing or not executable." >&2
+      return 1
+    fi
+  fi
 }
 
+# ---------------------------------------------------------------------------
+# Step 3: Upstream Installer Wrapper Invocation (D-03, D-22)
+# ---------------------------------------------------------------------------
 step_installer() {
-  echo "[STEP 3/7] Invoking dots-hyprland installer..."
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[DRY-RUN] Would dispatch upstream dots-hyprland installer"
+    return 0
+  fi
+  echo "[STEP 3/7] Invoking dots-hyprland installer via wrapper..."
+  local subcmd="install"
+  if [[ "${DOTFILES_BOOTSTRAP_FILES_ONLY:-0}" -eq 1 ]]; then
+    subcmd="install-files"
+  fi
+  "$REPO_ROOT/arch/dots-hyprland.sh" "$subcmd"
+}
+
+# ---------------------------------------------------------------------------
+# Step 4: De-stubbing & Safe Hierarchical Backup (D-15, D-16, D-17, D-18)
+# ---------------------------------------------------------------------------
+run_destub() {
+  local target="${1:-$HOME}"
+  local base_repo="${2:-$REPO_ROOT}"
+  local epoch
+  epoch="$(date +%s)"
+  local backup_dir="$target/.dotfiles-backup.$epoch"
+  local manifest="$backup_dir/MANIFEST.txt"
+  local destub_count=0
+
+  load_guard_paths "$base_repo" "$target"
+
+  local trees=("$base_repo/stow" "$base_repo/restow")
+  for tree_dir in "${trees[@]}"; do
+    [[ -d "$tree_dir" ]] || continue
+    for pkg_dir in "$tree_dir"/*; do
+      [[ -d "$pkg_dir" ]] || continue
+      local pkg
+      pkg="$(basename "$pkg_dir")"
+      [[ "$pkg" != "README.md" && "$pkg" != .* ]] || continue
+
+      # Dry-run conflict simulation via GNU Stow
+      local stow_out
+      stow_out="$(stow -n --no-folding -d "$tree_dir" -t "$target" "$pkg" 2>&1 || true)"
+
+      local conflict_targets=()
+      while IFS= read -r line; do
+        if [[ "$line" =~ \*[[:space:]]+cannot[[:space:]]+stow[[:space:]]+.*[[:space:]]+over[[:space:]]+existing[[:space:]]+target[[:space:]]+([^[:space:]]+)[[:space:]]+since ]]; then
+          conflict_targets+=("${BASH_REMATCH[1]}")
+        elif [[ "$line" =~ \*[[:space:]]+existing[[:space:]]+target[[:space:]]+is[[:space:]]+not[[:space:]]+owned[[:space:]]+by[[:space:]]+stow:[[:space:]]+(.*) ]]; then
+          conflict_targets+=("${BASH_REMATCH[1]}")
+        elif [[ "$line" =~ \*[[:space:]]+existing[[:space:]]+target[[:space:]]+is[[:space:]]+neither[[:space:]]+a[[:space:]]+link[[:space:]]+nor[[:space:]]+a[[:space:]]+directory:[[:space:]]+(.*) ]]; then
+          conflict_targets+=("${BASH_REMATCH[1]}")
+        elif [[ "$line" =~ \*[[:space:]]+cannot[[:space:]]+stow[[:space:]]+.*[[:space:]]+as[[:space:]]+existing[[:space:]]+target[[:space:]]+([^[:space:]]+) ]]; then
+          conflict_targets+=("${BASH_REMATCH[1]}")
+        elif [[ "$line" =~ \*[[:space:]]+existing[[:space:]]+target[[:space:]]+is[[:space:]]+a[[:space:]]+link:[[:space:]]+(.*) ]]; then
+          conflict_targets+=("${BASH_REMATCH[1]}")
+        fi
+      done <<< "$stow_out"
+
+      for raw_path in "${conflict_targets[@]+"${conflict_targets[@]}"}"; do
+        local rel_path
+        rel_path="$(echo "$raw_path" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+        [[ -n "$rel_path" ]] || continue
+
+        local live_path
+        if [[ "$rel_path" = /* ]]; then
+          live_path="$rel_path"
+          rel_path="${rel_path#"$target"/}"
+        else
+          live_path="$target/$rel_path"
+        fi
+
+        # D-17: Strictly skip all guarded theme outputs
+        if is_guarded_path "$live_path"; then
+          echo "[GUARD] Preserving guarded theme path: $rel_path"
+          continue
+        fi
+
+        if [[ -f "$live_path" && ! -L "$live_path" ]]; then
+          # Conflicting regular file: back up with manifest then unlink
+          if [[ "$DRY_RUN" -eq 1 ]]; then
+            echo "[DRY-RUN] Would backup and remove stub: $rel_path"
+          else
+            mkdir -p "$backup_dir/$(dirname "$rel_path")"
+            local sha now
+            sha="$(sha256sum "$live_path" | awk '{print $1}')"
+            now="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+            printf '# Timestamp: %s\n%s  %s\n' "$now" "$sha" "$rel_path" >> "$manifest"
+            cp -p "$live_path" "$backup_dir/$rel_path"
+            rm -f "$live_path"
+            echo "[DESTUB] Archived and removed stub: $rel_path"
+            destub_count=$((destub_count + 1))
+          fi
+        elif [[ -L "$live_path" ]]; then
+          # Stale or foreign symlink
+          if [[ "$DRY_RUN" -eq 1 ]]; then
+            echo "[DRY-RUN] Would remove stale symlink: $rel_path"
+          else
+            rm -f "$live_path"
+            echo "[PRUNE] Removed stale/foreign symlink: $rel_path"
+          fi
+        fi
+      done
+    done
+  done
 }
 
 step_destub() {
-  echo "[STEP 4/7] De-stubbing conflicts..."
+  echo "[STEP 4/7] De-stubbing conflicts and creating backup archive..."
+  run_destub "$HOME" "$REPO_ROOT"
+}
+
+# ---------------------------------------------------------------------------
+# Step 5: Stow Package Orchestration & Parent Dir Protection (D-12, D-13, D-14)
+# ---------------------------------------------------------------------------
+run_stow_step() {
+  local target="${1:-$HOME}"
+  local base_repo="${2:-$REPO_ROOT}"
+
+  # D-14: Pre-create sensitive parent directories before stowing
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[DRY-RUN] Would pre-create sensitive parent directories"
+  else
+    mkdir -p "$target/.config/gtk-3.0" \
+             "$target/.config/gtk-4.0" \
+             "$target/.config/hypr/custom" \
+             "$target/.config/systemd/user"
+  fi
+
+  # Link stow/ packages first (D-12, D-13)
+  if [[ -d "$base_repo/stow" ]]; then
+    for pkg_dir in "$base_repo/stow"/*; do
+      [[ -d "$pkg_dir" ]] || continue
+      local pkg
+      pkg="$(basename "$pkg_dir")"
+      [[ "$pkg" != "README.md" && "$pkg" != .* ]] || continue
+      if [[ "$DRY_RUN" -eq 1 ]]; then
+        echo "[DRY-RUN] stow --verbose=5 --no-folding -d $base_repo/stow -t $target $pkg"
+      else
+        stow --verbose=5 --no-folding -d "$base_repo/stow" -t "$target" "$pkg"
+      fi
+    done
+  fi
+
+  # Link restow/ packages next (D-12, D-13)
+  if [[ -d "$base_repo/restow" ]]; then
+    for pkg_dir in "$base_repo/restow"/*; do
+      [[ -d "$pkg_dir" ]] || continue
+      local pkg
+      pkg="$(basename "$pkg_dir")"
+      [[ "$pkg" != "README.md" && "$pkg" != .* ]] || continue
+      if [[ "$DRY_RUN" -eq 1 ]]; then
+        echo "[DRY-RUN] stow --verbose=5 --no-folding -d $base_repo/restow -t $target $pkg"
+      else
+        stow --verbose=5 --no-folding -d "$base_repo/restow" -t "$target" "$pkg"
+      fi
+    done
+  fi
 }
 
 step_stow() {
   echo "[STEP 5/7] Linking dotfiles via GNU Stow..."
+  run_stow_step "$HOME" "$REPO_ROOT"
+}
+
+# ---------------------------------------------------------------------------
+# Step 6: Atomic Capture Seed Deployment with Validation (D-19)
+# ---------------------------------------------------------------------------
+deploy_capture_seeds() {
+  local target="${1:-$HOME}"
+  local base_repo="${2:-$REPO_ROOT}"
+  local capture_root="$base_repo/capture"
+  [[ -d "$capture_root" ]] || return 0
+
+  while IFS= read -r -d '' src_file; do
+    local rel_path="${src_file#"$capture_root"/}"
+    # Strip the package-level directory component (e.g. ii/.config/... -> .config/...)
+    local dest_sub="${rel_path#*/}"
+    local dest_file="$target/$dest_sub"
+
+    # JSON syntax validation before deployment (D-19)
+    if [[ "$src_file" == *.json ]]; then
+      if ! jq empty "$src_file" 2>/dev/null; then
+        echo "[FAIL] Invalid JSON syntax in capture seed: $rel_path" >&2
+        return 1
+      fi
+    fi
+
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      echo "[DRY-RUN] Would deploy capture seed: $dest_sub"
+    else
+      mkdir -p "$(dirname "$dest_file")"
+      local tmp_file="${dest_file}.tmp.$$"
+      cp -p "$src_file" "$tmp_file"
+      mv "$tmp_file" "$dest_file"
+      echo "[SEED] Deployed baseline capture config: $dest_sub"
+    fi
+  done < <(find "$capture_root" -type f -print0)
 }
 
 step_capture_seed() {
   echo "[STEP 6/7] Seeding capture baseline..."
+  deploy_capture_seeds "$HOME" "$REPO_ROOT"
 }
 
+# ---------------------------------------------------------------------------
+# Step 7: Systemd & Strict Verification (Wave 3)
+# ---------------------------------------------------------------------------
 step_verify() {
   echo "[STEP 7/7] Verifying desktop environment..."
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[DRY-RUN] Would verify desktop environment via arch/dots-hyprland.sh verify --strict"
+    return 0
+  fi
+  "$REPO_ROOT/arch/dots-hyprland.sh" verify --strict
 }
 
 # ---------------------------------------------------------------------------
@@ -364,6 +624,7 @@ generate_package_snapshots() {
 # Main Orchestrator Dispatcher
 # ---------------------------------------------------------------------------
 main() {
+  parse_args "$@"
   init_state
 
   if [[ "$SNAPSHOT_MODE" -eq 1 ]]; then
