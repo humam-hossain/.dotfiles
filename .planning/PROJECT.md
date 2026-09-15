@@ -153,14 +153,18 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 - ✓ Playbook: single full-only install path with no profile to choose — DOC-03 / DOC-04 (Phase 15 authored it; Phase 16 made it full-only)
 
+### Validated — v0.4 (shipped)
+
+- ✓ Live `~/.config/hypr/custom/` tree fully under repo SoT (all six `*.lua`; `scripts/` excluded as generated and unsourced) — Phase 20 / HYPR-01, HYPR-02, HYPR-03, SAFE-01
+- ✓ Quickshell ii bar config (`illogical-impulse/config.json`) copy-captured against `switchwall.sh`'s rename-over-link — Phase 21 / BAR-01, BAR-02, CAP-06
+- ✓ Startup applications restored, including the `graphical-session.target` autostart lost at adopt (D-38) — Phase 20 / START-01, START-02
+- ✓ Dolphin and KDE/Qt/GTK app configs captured in the repo — Phase 22 / KDE-01, KDE-02, KDE-03
+- ✓ Capture mechanism operational — stow-symlink default, copy-capture exception, `verify` drift check (POLISH-01) — Phase 18, 19, 21, 22
+- ✓ Fresh machine reproduces the exact setup from clone with one command — Phase 23 / BOOT-01..05
+
 ### Active — v0.4
 
-- [x] Live `~/.config/hypr/custom/` tree fully under repo SoT (all six `*.lua`; `scripts/` excluded as generated and unsourced) — Phase 20 / HYPR-01, HYPR-02, HYPR-03, SAFE-01
-- [x] Quickshell ii bar config (`illogical-impulse/config.json`) copy-captured against `switchwall.sh`'s rename-over-link — Phase 21 / BAR-01, BAR-02, CAP-06
-- [x] Startup applications restored, including the `graphical-session.target` autostart lost at adopt (D-38) — Phase 20 / START-01, START-02
-- [x] Dolphin and KDE/Qt/GTK app configs captured in the repo — Phase 22 / KDE-01, KDE-02, KDE-03
-- [x] Capture mechanism operational — stow-symlink default, copy-capture exception, `verify` drift check (POLISH-01) — Phase 18, 19, 21, 22
-- [x] Fresh machine reproduces the exact setup from clone with one command — Phase 23 / BOOT-01..05
+- [x] All v0.4 requirements validated and shipped across Phases 17–23
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -254,6 +258,9 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 22: Dolphin, KIO, and GTK per-file capture with unfolded parent dirs | Capture `kiorc`, `ktrashrc`, `kservicemenurc` under `stow/kde/` and GTK-3/4 under `stow/gtk/` with parent dirs unfolded; gitignore `gtk-dark.css` and prove KConfig write-through | ✓ Proven in scratch fixtures and live desktop session (KDE-01, KDE-02) |
 | Phase 22: GUARD contract and kdeglobals retirement | Retire `kdeglobals` to `docs/archive/` to stop wallpaper churn; check in `guard-paths.tsv` data contract tracking 7 theme outputs and integrate fail-closed verify gate | ✓ `guard-paths.tsv` active, `docs/archive/kdeglobals` archived, live unlinked to regular file (KDE-02) |
 | Phase 22: Colliding desktop flags capture with live cp-through drill and recovery | Package `chrome-flags.conf` in `restow/chrome-flags/` tagged `cp-through`; regenerate `restow/README.md` table; verify `install-files` overwrite and git checkout recovery | ✓ Live drill passed end-to-end; strict verify gate 0 findings (KDE-03) |
+| Phase 23: Root orchestrator with resumable JSON state and strict verification | `./bootstrap.sh` entry point with non-root/Arch gates, atomic JSON state machine at `$XDG_STATE_HOME/dotfiles/bootstrap-state`, `--from`/`--only` resume, and exit code bound 1-to-1 to `arch/dots-hyprland.sh verify --strict` | ✓ 5/5 assert sections passed, live verify 0 findings (BOOT-01, BOOT-04) |
+| Phase 23: De-stubbing with guard protection and SHA-256 backup manifests | Resolve stow conflicts, preserve guarded theme outputs, archive stubs to `~/.dotfiles-backup.<epoch>/` with SHA-256 cryptographic `MANIFEST.txt`, unlink safely without `--adopt` | ✓ Verified in isolated scratch fixture and live host (BOOT-02) |
+| Phase 23: Two-stage relogin boundary and deterministic package snapshots | Display formatted relogin instruction banner across compositor hop with session runtime probe (`HYPRLAND_INSTANCE_SIGNATURE` & Lua check); generate deterministic `arch/pkglist-{native,aur}.txt` via `--snapshot` with zero drift on standard runs | ✓ Verified across all test fixtures and assert harness (BOOT-03, BOOT-05) |
 
 ## Evolution
 
@@ -273,4 +280,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-15 after Phase 22 — kde-and-gtk-capture complete (KDE-01, KDE-02, KDE-03)*
+*Last updated: 2026-09-15 after Phase 23 — one-command-bootstrap complete (BOOT-01..05)*

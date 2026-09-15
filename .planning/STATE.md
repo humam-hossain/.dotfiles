@@ -3,9 +3,9 @@ gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Personal config layer
 current_phase: 23
-status: executing
-stopped_at: Phase 23 context gathered
-last_updated: "2026-09-15T06:18:13.301Z"
+status: complete
+stopped_at: Phase 23 complete, milestone v0.4 complete
+last_updated: "2026-09-15T06:32:00.000Z"
 last_activity: 2026-09-15
 last_activity_desc: Phase 23 complete
 progress:
@@ -18,29 +18,30 @@ current_phase_name: One-command bootstrap
 ---
 
 Total Phases: 7 (Phases 17-23)
+Progress: [████████████████████] 38/38 plans (100%)
 
 # Project State
 
 ## Current Position
 
 Phase: 23
-Plan: Not started
-Status: Executing Phase 23
+Plan: Complete (3/3 plans complete)
+Status: Phase 23 complete — Milestone v0.4 complete (all 7 phases complete)
 Last activity: 2026-09-15 — Phase 23 complete
 
 ## Session
 
-**Last session:** 2026-09-15T05:16:44.646Z
-**Stopped at:** Phase 23 context gathered
-**Resume file:** .planning/phases/23-one-command-bootstrap/23-CONTEXT.md
-**Next command:** `/gsd-plan-phase 23`
+**Last session:** 2026-09-15T12:30:00+06:00
+**Stopped at:** Phase 23 complete, milestone v0.4 complete
+**Resume file:** None
+**Next command:** `/gsd-complete-milestone v0.4`
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-15)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 23 — One-command bootstrap
+**Current focus:** Milestone v0.4 Complete — Ready for /gsd-complete-milestone v0.4
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
@@ -227,3 +228,12 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 22]: Dolphin, KIO, and GTK per-file capture with unfolded parent dirs under stow/kde/ and stow/gtk/; gitignore gtk-dark.css and verify KConfig write-through
 - [Phase 22]: guard-paths.tsv data contract established for 7 generated theme outputs; kdeglobals retired to docs/archive/ to eliminate wallpaper churn
 - [Phase 22]: restow/chrome-flags package established with live cp-through drill and recovery verified end-to-end; strict verify passed with zero findings
+- [Phase 23]: Root orchestrator ./bootstrap.sh implemented with non-root (CURRENT_EUID != 0) and Arch platform checks, transcript logging ($XDG_STATE_HOME/dotfiles/logs/), and closed CLI flag parsing
+- [Phase 23]: Resumable atomic JSON state machine ($XDG_STATE_HOME/dotfiles/bootstrap-state) supporting --from, --only, --reset, and failure recovery
+- [Phase 23]: Subcommand delegation arch/dots-hyprland.sh bootstrap preserving strictly 18 stow sites across arch/*.sh
+- [Phase 23]: De-stubbing with guard-paths.tsv protection preserving theme outputs and archiving stubs to ~/.dotfiles-backup.<epoch>/ with SHA-256 MANIFEST.txt
+- [Phase 23]: Sensitive parent directory pre-creation preventing GNU Stow folding, and atomic capture seed deployment with jq empty validation
+- [Phase 23]: Two-stage relogin boundary across compositor relogin with operator instruction banner and runtime session probe (HYPRLAND_INSTANCE_SIGNATURE & Lua check)
+- [Phase 23]: Systemd user timer activation (dotfiles-capture.timer) and verification gate bound 1-to-1 to arch/dots-hyprland.sh verify --strict
+- [Phase 23]: Deterministic package snapshot data generation (--snapshot) for arch/pkglist-native.txt and arch/pkglist-aur.txt with zero working-tree drift on standard runs
+
