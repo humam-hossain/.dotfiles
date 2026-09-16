@@ -3,13 +3,13 @@ gsd_state_version: "1.0"
 milestone: v0.4
 milestone_name: Personal config layer
 current_phase: 24
-current_phase_name: address-tech-debt-bookkeeping-and-validation-cleanup
+current_phase_name: "Address tech debt: bookkeeping and validation cleanup"
 status: executing
 stopped_at: Phase 24 context gathered
-last_updated: "2026-09-16T11:59:25.391Z"
-last_activity: 2026-09-15
-last_activity_desc: Phase 23 complete
-state_head: 64bf956bd44adccd5204fe6989d8e9e9e84b0cf8
+last_updated: "2026-09-16T12:06:29.908Z"
+last_activity: 2026-09-16
+last_activity_desc: Phase 24 execution started
+state_head: 967dd6b9f906450557d450fbfa8981c241f5f907
 progress:
   total_phases: 8
   completed_phases: 7
@@ -25,10 +25,10 @@ Progress: [█████████████████░░░] 38/38 p
 
 ## Current Position
 
-Phase: 24 (address-tech-debt-bookkeeping-and-validation-cleanup) — READY TO EXECUTE
-Plan: None (0 plans)
-Status: Ready to execute
-Last activity: 2026-09-15 — Phase 23 complete
+Phase: 24 (Address tech debt: bookkeeping and validation cleanup) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 24
+Last activity: 2026-09-16 — Phase 24 execution started
 
 ## Session
 
@@ -42,7 +42,7 @@ Last activity: 2026-09-15 — Phase 23 complete
 See: .planning/PROJECT.md (updated 2026-09-15)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 24: Address tech debt: bookkeeping and validation cleanup
+**Current focus:** Phase 24 — Address tech debt: bookkeeping and validation cleanup
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
@@ -238,3 +238,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 23]: Two-stage relogin boundary across compositor relogin with operator instruction banner and runtime session probe (HYPRLAND_INSTANCE_SIGNATURE & Lua check)
 - [Phase 23]: Systemd user timer activation (dotfiles-capture.timer) and verification gate bound 1-to-1 to arch/dots-hyprland.sh verify --strict
 - [Phase 23]: Deterministic package snapshot data generation (--snapshot) for arch/pkglist-native.txt and arch/pkglist-aur.txt with zero working-tree drift on standard runs
+- [Phase 24]: Triaged tracked stow/system_monitor/.config/system_monitor/ping/.env configuration: verified to contain strictly non-credential local loopback daemon parameters (BIND_HOST=127.0.0.1, PORT=8765, COLLECTION_INTERVAL=5, STALE_AFTER_SECONDS=15) with zero secrets; affirmed as intentionally tracked configuration.
+- [Phase 24]: Formally recorded the 12 allowlist entries in .gitleaks.toml as accepted historical risk for dead credentials in published pre-v0.3 commits.
+- [Phase 24]: Scoped .gitignore *.socket pattern with !stow/systemd/** to prevent silent exclusion of systemd socket activation units (D-10).
+- [Phase 24]: Realigned desktop session keybindings in custom/keybinds.lua: unbound upstream SUPER + SHIFT + L, bound SUPER + Scroll_Lock to sleep (locked=true), SUPER + SHIFT + Scroll_Lock to logout, retaining Scroll_Lock for lock screen with 100% Quickshell cheatsheet accuracy (D-12, D-13, D-14).
