@@ -23,14 +23,16 @@ Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery mo
 - Inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`
 - Collision Map: `collision-map.tsv` (machine-asserted)
 
-## Next Milestone Goals
+## Current Milestone: v0.5 System-wide Material You theming
 
-- Define milestone v0.5 scope via `/gsd-new-milestone`
-- Priority candidates:
-  - Port Waybar custom modules into ii (ping monitor, weather, earthquake) (CUST-01..03)
-  - Evaluate machine-specific overlays or multi-host profile layer (CUST-04)
-  - FWK-02 / IPC-02 session polish under upstream model (POLISH-02)
-  - Evaluate / resolve remaining v0.1 legacy debug items on stock ii (POLISH-03)
+**Goal:** Unify system-wide theming under upstream dots-hyprland Material You / Matugen dynamic colors generated from wallpaper, eliminating old Catppuccin conflicts and ensuring consistent styling across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools.
+
+**Target features:**
+- GTK 3 & GTK 4 / libadwaita integration (de-link old Catppuccin symlinks, align `settings.ini`, restore Matugen/adw-gtk3 dynamic theming)
+- Qt 5/6 & KDE apps integration (reconcile Kvantum theme, `kdeglobals`, Dolphin styling, and `kde-material-you-colors` dynamic updates)
+- Hyprland decorations & Quickshell ii widgets styling (align window borders, shadows, active accents, and Quickshell widgets with Matugen outputs)
+- Terminal & Launcher theming (configure Matugen templates for Fuzzel, Foot/Alacritty/Kitty, and CLI utilities for wallpaper-reactive colors)
+- Data Contract & Capture Integrity (update `guard-paths.tsv`, `collision-map.tsv`, and `./bootstrap.sh` verification to correctly guard generated theme files while managing source templates under repo SoT)
 
 ## Prior Milestones
 
@@ -168,7 +170,11 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 ### Active
 
-(None currently active — run `/gsd-new-milestone` to define requirements for next milestone cycle)
+- [ ] Unify GTK 3 & GTK 4 under Matugen dynamic theming and retire conflicting Catppuccin assets
+- [ ] Align Qt 5/6, Kvantum, and KDE apps with Material You colors
+- [ ] Harmonize Hyprland borders, shadows, and Quickshell ii widget accents with dynamic palette
+- [ ] Configure Matugen templates for terminal emulators (Foot, Alacritty, Kitty) and Fuzzel
+- [ ] Reconcile `guard-paths.tsv`, `collision-map.tsv`, and `./bootstrap.sh` verification for theme outputs
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -297,4 +303,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-16 after v0.4 milestone*
+*Last updated: 2026-09-16 for v0.5 milestone*
