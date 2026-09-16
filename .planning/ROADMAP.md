@@ -95,7 +95,7 @@ Milestone audit: [milestones/v0.4-MILESTONE-AUDIT.md](milestones/v0.4-MILESTONE-
   2. `stow/gtk/.config/gtk-3.0/settings.ini` and `gtk-4.0/settings.ini` specify `adw-gtk3` / dark theme without Catppuccin references.
   3. Running Matugen generates valid `~/.config/gtk-3.0/gtk.css` with colors derived from the active wallpaper.
   4. GNOME gsettings interface keys (`gtk-theme`, `color-scheme`) are aligned to dark Material You theme.
-- **Plans:** 2/3 plans executed
+- **Plans:** 3/3 plans executed
 
 Plans:
 
@@ -109,7 +109,7 @@ Plans:
 
 **Wave 3**
 
-- [ ] 25-03-PLAN.md — dynamic Matugen GTK CSS generation, strict repository verification, and validation sign-off
+- [x] 25-03-PLAN.md — dynamic Matugen GTK CSS generation, strict repository verification, and validation sign-off
 
 ### Phase 26: Qt & KDE Apps Material You Harmonization
 
@@ -174,7 +174,7 @@ Plans:
 | 22. KDE and GTK capture | v0.4 | 4/4 | Complete | 2026-09-15 |
 | 23. One-command bootstrap | v0.4 | 3/3 | Complete | 2026-09-15 |
 | 24. Address tech debt: bookkeeping and validation cleanup | v0.4 | 3/3 | Complete | 2026-09-16 |
-| 25. GTK Material You Theming & Catppuccin De-linking | v0.5 | 2/3 | In Progress|  |
+| 25. GTK Material You Theming & Catppuccin De-linking | v0.5 | 3/3 | In Progress|  |
 | 26. Qt & KDE Apps Material You Harmonization | v0.5 | 0/0 | Planned | — |
 | 27. Hyprland & Quickshell ii Accent Coordination | v0.5 | 0/0 | Planned | — |
 | 28. Terminal & Fuzzel Launcher Dynamic Palette | v0.5 | 0/0 | Planned | — |
