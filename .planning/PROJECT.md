@@ -2,8 +2,8 @@
 
 ## Current State
 
-**Shipped:** v0.4 Personal config layer (2026-09-15)  
-**Status:** All 7 phases of v0.4 (Phases 17–23) complete and verified
+**Shipped:** v0.4 Personal config layer (2026-09-16)  
+**Status:** All 8 phases of v0.4 (Phases 17–24) complete and verified
 
 Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, operator playbook for install and pin-bump updates. As of Phase 14 the session runs the full ii model — the Lua entry is authoritative and Waybar/rofi/swaync no longer dual-run.
 
@@ -18,6 +18,8 @@ Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery mo
 **Phase 14 delivered:** The live full adopt. `install --full` ran on 2026-09-04 behind the preflight gate; upstream renamed `hyprland.conf` to `.old` and the session now loads through `hyprland.lua` (`hyprctl -j status` reports `configProvider: lua`, where the pre-adopt baseline recorded `hyprlang`), surviving a re-login. The Phase 13 overlay is applied — `general.lua`/`env.lua`/`execs.lua` byte-identical to the repo SoT, dual-head DP-1 + HDMI-A-2 and eleven workspace rules live, `qs -c ii` running. Waybar/rofi/swaync are stopped per D-11 accept-remove with their trees still archived under `stow/` per D-12. Rollback is `docs/phase14-adopt-runbook.md` §14 (three tiers, never upstream `./setup uninstall`). Evidence: `14-LIVE-VERIFY.md`, the committed `script(1)` transcript, and `14-VERIFICATION.md` (passed 4/4). **[superseded by Phase 16]** — the safe profile and its machinery were retired.
 
 **Phase 16 delivered:** Retired the safe profile entirely. `arch/dots-hyprland.sh` no longer injects `SAFE_DEFAULTS` — bare `install`/`install-files` runs the full behavior with no profile to choose. `--full` survives as an announced no-op alias. Backup gate, protect machinery, ii-hook conditional injection, and `SAFE_DEFAULTS` array all removed. `uninstall` survives stripped. `docs/dots-hyprland-workflow.md` rewritten full-only end-to-end with bare commands; `docs/phase14-adopt-runbook.md` swept to match. Planning artifacts amended for the same falsehoods. v0.3 coverage dropped from 22 to 19. Closes v0.3 audit leftovers IN-11, W-1, W-2, W-3. Evidence: `scripts/phase16-retire-assert.sh` FAIL=0; all prior-phase assert suites green; `16-VERIFICATION.md` (passed 13/13).
+ 
+**Phase 24 delivered:** Technical debt bookkeeping reconciliation, Nyquist validation contract cleanup across all v0.4 phases, `.gitignore` socket un-ignore scoping (`!stow/systemd/**`), repository hygiene triage documentation in `STATE.md`, desktop session keybinding realignment in `custom/keybinds.lua` (`SUPER + Scroll_Lock` for sleep, `SUPER + SHIFT + Scroll_Lock` for logout, unbinding upstream `SUPER + SHIFT + L` sleep chord), and the comprehensive automated 5-section assertion harness `scripts/phase24-tech-debt-assert.sh`. Strict system verification passed with zero findings and zero drift across milestone v0.4 (`FAIL=0 FINDINGS=0`).
 
 **Stats at v0.2 ship:** 5 phases · 15 plans · ~38 tasks · 106 commits since v0.1 · 1025 files changed (+17.6k / −78k, mostly retired local QS tree)
 
@@ -161,10 +163,11 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Dolphin and KDE/Qt/GTK app configs captured in the repo — Phase 22 / KDE-01, KDE-02, KDE-03
 - ✓ Capture mechanism operational — stow-symlink default, copy-capture exception, `verify` drift check (POLISH-01) — Phase 18, 19, 21, 22
 - ✓ Fresh machine reproduces the exact setup from clone with one command — Phase 23 / BOOT-01..05
+- ✓ Technical debt, bookkeeping normalization, Nyquist validation compliance, and session keybindings realigned — Phase 24 / DEBT-01..04
 
 ### Active — v0.4
 
-- [x] All v0.4 requirements validated and shipped across Phases 17–23
+- [x] All v0.4 requirements validated and shipped across Phases 17–24
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -261,6 +264,11 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 23: Root orchestrator with resumable JSON state and strict verification | `./bootstrap.sh` entry point with non-root/Arch gates, atomic JSON state machine at `$XDG_STATE_HOME/dotfiles/bootstrap-state`, `--from`/`--only` resume, and exit code bound 1-to-1 to `arch/dots-hyprland.sh verify --strict` | ✓ 5/5 assert sections passed, live verify 0 findings (BOOT-01, BOOT-04) |
 | Phase 23: De-stubbing with guard protection and SHA-256 backup manifests | Resolve stow conflicts, preserve guarded theme outputs, archive stubs to `~/.dotfiles-backup.<epoch>/` with SHA-256 cryptographic `MANIFEST.txt`, unlink safely without `--adopt` | ✓ Verified in isolated scratch fixture and live host (BOOT-02) |
 | Phase 23: Two-stage relogin boundary and deterministic package snapshots | Display formatted relogin instruction banner across compositor hop with session runtime probe (`HYPRLAND_INSTANCE_SIGNATURE` & Lua check); generate deterministic `arch/pkglist-{native,aur}.txt` via `--snapshot` with zero drift on standard runs | ✓ Verified across all test fixtures and assert harness (BOOT-03, BOOT-05) |
+| Phase 24: Normalized summary frontmatter and reconciled REQUIREMENTS.md | Registered DEBT-01..04, reconciled 10 stale Pending markers, normalized 5 plan summaries for summary-extract | ✓ Phase 24 (DEBT-01) |
+| Phase 24: Brought all v0.4 VALIDATION.md files to full Nyquist compliance | All 7 validation contracts closed as validated and nyquist_compliant true | ✓ Phase 24 (DEBT-02) |
+| Phase 24: Scoped .gitignore and documented repository hygiene | Un-ignored systemd sockets (!stow/systemd/**); documented ping/.env and 12 gitleaks entries in STATE.md | ✓ Phase 24 (DEBT-03) |
+| Phase 24: Realigned desktop session keybindings in custom/keybinds.lua | Unbound upstream SUPER + SHIFT + L, mapped Scroll_Lock combos, verified 36 binds taxonomy | ✓ Phase 24 (DEBT-04) |
+| Phase 24: Automated 5-section assert harness scripts/phase24-tech-debt-assert.sh | Automated regression gating covering Sections 1–5 with FAIL=0 FINDINGS=0 | ✓ Phase 24 (DEBT-01..04) |
 
 ## Evolution
 
@@ -280,4 +288,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-15 after Phase 23 — one-command-bootstrap complete (BOOT-01..05)*
+*Last updated: 2026-09-16 after Phase 24 — address-tech-debt-bookkeeping-and-validation-cleanup complete (DEBT-01..04)*
