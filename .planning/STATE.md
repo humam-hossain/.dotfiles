@@ -4,12 +4,12 @@ milestone: v0.5
 milestone_name: System-wide Material You theming (Phases 25-29)
 current_phase: 25
 current_phase_name: GTK Material You Theming & Catppuccin De-linking
-status: ready_to_execute
+status: executing
 stopped_at: Phase 25 planned (3 plans)
-last_updated: "2026-09-16T14:19:55.418Z"
+last_updated: "2026-09-16T14:27:42.202Z"
 last_activity: 2026-09-16
-last_activity_desc: Phase 25 planned (3 plans)
-state_head: 8473bfbf039617bca8e192bc7d15664f25518011
+last_activity_desc: Phase 25 execution started
+state_head: 2423e4b4d92099c0dffdf778303909126b6f7a3a
 progress:
   total_phases: 5
   completed_phases: 0
@@ -25,10 +25,10 @@ Progress: [                    ] 0/3 plans ([░░░░░░░░░░] 0%)
 
 ## Current Position
 
-Phase: 25 (GTK Material You Theming & Catppuccin De-linking) — READY TO EXECUTE
-Plan: 25-01
-Status: Ready to execute
-Last activity: 2026-09-16 — Phase 25 planned (3 plans)
+Phase: 25 (GTK Material You Theming & Catppuccin De-linking) — EXECUTING
+Plan: 1 of 3
+Status: Executing Phase 25
+Last activity: 2026-09-16 — Phase 25 execution started
 
 ## Session
 
@@ -42,7 +42,7 @@ Last activity: 2026-09-16 — Phase 25 planned (3 plans)
 See: .planning/PROJECT.md (updated 2026-09-16)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Planning next milestone
+**Current focus:** Phase 25 — GTK Material You Theming & Catppuccin De-linking
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items

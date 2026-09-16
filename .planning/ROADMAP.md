@@ -87,6 +87,7 @@ Milestone audit: [milestones/v0.4-MILESTONE-AUDIT.md](milestones/v0.4-MILESTONE-
 ## Phase Details
 
 ### Phase 25: GTK Material You Theming & Catppuccin De-linking
+
 - **Goal:** Retire legacy Catppuccin assets/symlinks from `~/.config/gtk-4.0/` and `stow/gtk/`, configure `adw-gtk3` base theme, and wire Matugen dynamic GTK-3/4 CSS generation from wallpaper.
 - **Requirements:** GTK-01, GTK-02, GTK-03, GTK-04
 - **Success Criteria:**
@@ -94,20 +95,24 @@ Milestone audit: [milestones/v0.4-MILESTONE-AUDIT.md](milestones/v0.4-MILESTONE-
   2. `stow/gtk/.config/gtk-3.0/settings.ini` and `gtk-4.0/settings.ini` specify `adw-gtk3` / dark theme without Catppuccin references.
   3. Running Matugen generates valid `~/.config/gtk-3.0/gtk.css` with colors derived from the active wallpaper.
   4. GNOME gsettings interface keys (`gtk-theme`, `color-scheme`) are aligned to dark Material You theme.
-- **Plans:** 0/3 plans complete
+- **Plans:** 1/3 plans executed
 
 Plans:
 
 **Wave 1**
-- [ ] 25-01-PLAN.md — tracer: Phase 25 assertion harness scaffolding and safe Catppuccin symlink de-linking in `~/.config/gtk-4.0/`
+
+- [x] 25-01-PLAN.md — tracer: Phase 25 assertion harness scaffolding and safe Catppuccin symlink de-linking in `~/.config/gtk-4.0/`
 
 **Wave 2**
+
 - [ ] 25-02-PLAN.md — repository GTK 3/4 settings alignment in `stow/gtk/` and GNOME desktop interface GSettings synchronization
 
 **Wave 3**
+
 - [ ] 25-03-PLAN.md — dynamic Matugen GTK CSS generation, strict repository verification, and validation sign-off
 
 ### Phase 26: Qt & KDE Apps Material You Harmonization
+
 - **Goal:** Align Qt 5/6, Kvantum, and KDE applications (Dolphin, Kate) with Material You color palette and dynamic wallpaper updates.
 - **Requirements:** QT-01, QT-02, QT-03
 - **Success Criteria:**
@@ -116,6 +121,7 @@ Plans:
   3. Dolphin and KDE file dialogs render consistently with the dark dynamic Material palette.
 
 ### Phase 27: Hyprland & Quickshell ii Accent Coordination
+
 - **Goal:** Coordinate Hyprland window decorations, active/inactive borders, and Quickshell ii widget accents with Matugen generated colors and wallpaper reload.
 - **Requirements:** SHELL-01, SHELL-02, SHELL-03
 - **Success Criteria:**
@@ -124,6 +130,7 @@ Plans:
   3. Invoking `switchwall.sh` triggers wallpaper transition and propagates palette updates to Hyprland borders, Quickshell, GTK, and Qt in one coordinated flow.
 
 ### Phase 28: Terminal & Fuzzel Launcher Dynamic Palette
+
 - **Goal:** Extend dynamic Material You styling to Fuzzel app launcher and terminal emulators.
 - **Requirements:** TERM-01, TERM-02
 - **Success Criteria:**
@@ -131,6 +138,7 @@ Plans:
   2. Primary terminal emulator (Foot, Kitty, or Alacritty) dynamically reloads colors to match the active wallpaper palette.
 
 ### Phase 29: Theme Data Contracts, Verification & Bootstrap Integration
+
 - **Goal:** Reconcile `guard-paths.tsv`, update `collision-map.tsv`, verify zero git churn on theme generation, and validate `./bootstrap.sh`.
 - **Requirements:** INTG-01, INTG-02, INTG-03
 - **Success Criteria:**
@@ -166,7 +174,7 @@ Plans:
 | 22. KDE and GTK capture | v0.4 | 4/4 | Complete | 2026-09-15 |
 | 23. One-command bootstrap | v0.4 | 3/3 | Complete | 2026-09-15 |
 | 24. Address tech debt: bookkeeping and validation cleanup | v0.4 | 3/3 | Complete | 2026-09-16 |
-| 25. GTK Material You Theming & Catppuccin De-linking | v0.5 | 0/0 | Planned | — |
+| 25. GTK Material You Theming & Catppuccin De-linking | v0.5 | 1/3 | In Progress|  |
 | 26. Qt & KDE Apps Material You Harmonization | v0.5 | 0/0 | Planned | — |
 | 27. Hyprland & Quickshell ii Accent Coordination | v0.5 | 0/0 | Planned | — |
 | 28. Terminal & Fuzzel Launcher Dynamic Palette | v0.5 | 0/0 | Planned | — |
