@@ -7,10 +7,10 @@
 
 ### GTK (GTK 3 & GTK 4 / libadwaita)
 
-- [ ] **GTK-01**: User can run Matugen to dynamically generate GTK 3 theme (`~/.config/gtk-3.0/gtk.css`) from the current wallpaper.
-- [ ] **GTK-02**: System unlinks old hardcoded Catppuccin assets and symlinks from `~/.config/gtk-4.0/` (`gtk.css`, `assets`) so libadwaita/GTK-4 applications inherit Matugen generated colors.
-- [ ] **GTK-03**: `~/.config/gtk-3.0/settings.ini` and `~/.config/gtk-4.0/settings.ini` in repo `stow/gtk` are updated to remove legacy Catppuccin theme references (`catppuccin-mocha-teal-standard+default`) and use upstream standard (`adw-gtk3` / `adw-gtk3-dark` with dark preference).
-- [ ] **GTK-04**: GNOME desktop interface gsettings (`gtk-theme`, `color-scheme`, `icon-theme`) reflect dark Material You defaults consistently.
+- [x] **GTK-01**: User can run Matugen to dynamically generate GTK 3 theme (`~/.config/gtk-3.0/gtk.css`) from the current wallpaper.
+- [x] **GTK-02**: System unlinks old hardcoded Catppuccin assets and symlinks from `~/.config/gtk-4.0/` (`gtk.css`, `assets`) so libadwaita/GTK-4 applications inherit Matugen generated colors.
+- [x] **GTK-03**: `~/.config/gtk-3.0/settings.ini` and `~/.config/gtk-4.0/settings.ini` in repo `stow/gtk` are updated to remove legacy Catppuccin theme references (`catppuccin-mocha-teal-standard+default`) and use upstream standard (`adw-gtk3` / `adw-gtk3-dark` with dark preference).
+- [x] **GTK-04**: GNOME desktop interface gsettings (`gtk-theme`, `color-scheme`, `icon-theme`) reflect dark Material You defaults consistently.
 
 ### QT (Qt 5/6 & KDE Applications)
 
@@ -38,12 +38,14 @@
 ## v2 Requirements
 
 ### Waybar Custom Ports
+
 - **CUST-01**: Port self-hosted ping monitor widget into Quickshell ii bar.
 - **CUST-02**: Port weather (+ forecast) widget into Quickshell ii bar.
 - **CUST-03**: Port earthquake monitoring widget into Quickshell ii bar.
 - **CUST-04**: Machine-specific overlay profile layer.
 
 ### Session Polish
+
 - **POLISH-02**: Upstream FWK-02 / IPC-02 bar toggle keybinding and session integration.
 - **POLISH-03**: Review and retire outstanding v0.1 legacy debug items on stock ii.
 
@@ -60,10 +62,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GTK-01 | Phase 25 | Pending |
-| GTK-02 | Phase 25 | Pending |
-| GTK-03 | Phase 25 | Pending |
-| GTK-04 | Phase 25 | Pending |
+| GTK-01 | Phase 25 | Complete |
+| GTK-02 | Phase 25 | Complete |
+| GTK-03 | Phase 25 | Complete |
+| GTK-04 | Phase 25 | Complete |
 | QT-01 | Phase 26 | Pending |
 | QT-02 | Phase 26 | Pending |
 | QT-03 | Phase 26 | Pending |
@@ -77,6 +79,7 @@
 | INTG-03 | Phase 29 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 15 total
 - Mapped to phases: 15
 - Unmapped: 0 ✓
