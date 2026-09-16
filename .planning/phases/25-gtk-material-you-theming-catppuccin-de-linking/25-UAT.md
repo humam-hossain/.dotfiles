@@ -1,12 +1,12 @@
 ---
-status: complete
+status: diagnosed
 phase: 25-gtk-material-you-theming-catppuccin-de-linking
 source:
   - .planning/phases/25-gtk-material-you-theming-catppuccin-de-linking/25-01-SUMMARY.md
   - .planning/phases/25-gtk-material-you-theming-catppuccin-de-linking/25-02-SUMMARY.md
   - .planning/phases/25-gtk-material-you-theming-catppuccin-de-linking/25-03-SUMMARY.md
 started: 2026-09-16T22:30:00+06:00
-updated: 2026-09-16T22:50:00+06:00
+updated: 2026-09-16T23:34:00+06:00
 ---
 
 ## Current Test
@@ -54,5 +54,15 @@ blocked: 0
   reason: "User reported: no i don't think so. still catppuccin color pink"
   severity: cosmetic
   test: 5
-  artifacts: []
-  missing: []
+  root_cause: "Observed pink accents are from two sources: (1) Default shortcuts launch Dolphin and Pavucontrol-Qt, which are Qt 6/KDE applications reading ~/.config/kdeglobals (LastUsedCustomAccentColor=184,117,220 and DecorationFocus=#cdb9fb - mauve/pink); Qt harmonization is scoped to Phase 26 (QT-01..QT-03). (2) In GTK apps like Nautilus, UI widgets render cyan (#82d3e1), but the active Tela-circle-dracula-dark icon theme hardcodes Dracula pink/purple (#bd93f9) on folder icon tabs. Additionally, ~/.config/matugen/templates/gtk-4.0/gtk.css uses :insensitive instead of :disabled on line 312."
+  artifacts:
+    - path: "~/.config/kdeglobals"
+      issue: "Qt/KDE apps read unharmonized pink/mauve accent (Phase 26 scope)"
+    - path: "~/.config/matugen/templates/gtk-4.0/gtk.css"
+      issue: "Line 312 uses GTK 3 :insensitive instead of GTK 4 :disabled"
+    - path: "stow/gtk/.config/gtk-3.0/settings.ini"
+      issue: "Uses Tela-circle-dracula-dark icon theme with pink folder accents"
+  missing:
+    - "Fix GTK 4 matugen template line 312 :insensitive -> :disabled pseudo-class"
+    - "Differentiate GTK 3/4 app testing (nautilus UI controls) from Qt apps (dolphin in Phase 26)"
+  debug_session: ".planning/debug/DEBUG-gtk-visual-theming-pink-accent.md"
