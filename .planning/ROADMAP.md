@@ -350,12 +350,12 @@ Plans:
   3. .gitignore scopes *.socket with !stow/systemd/**; STATE.md affirms non-credential status of system_monitor .env and records 12 gitleaks allowlist entries; non-interactive --notify test passes (DEBT-03)
   4. stow/hypr/.config/hypr/custom/keybinds.lua unbinds SUPER + SHIFT + L, binds SUPER + Scroll_Lock to sleep, SUPER + SHIFT + Scroll_Lock to logout, retains Scroll_Lock for lock screen; passes luac -p, zero duplicate chords, valid Category: Label taxonomy; live hyprctl binds -j confirms compositor binds (DEBT-04)
 
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Plans:
 
 - [x] 24-01-PLAN.md — Desktop session keybind realignment and repository hygiene
-- [ ] 24-02-PLAN.md — Traceability bookkeeping, plan summary backfill, and Nyquist validation reconciliation
+- [x] 24-02-PLAN.md — Traceability bookkeeping, plan summary backfill, and Nyquist validation reconciliation
 - [ ] 24-03-PLAN.md — Dedicated assert harness, strict system verification, and milestone audit clean status
 
 ## Progress
@@ -385,7 +385,7 @@ Plans:
 | 21. ii bar config capture | v0.4 | 3/3 | Complete    | 2026-09-15 |
 | 22. KDE and GTK capture | v0.4 | 4/4 | Complete    | 2026-09-15 |
 | 23. One-command bootstrap | v0.4 | 3/3 | Complete    | 2026-09-15 |
-| 24. Address tech debt: bookkeeping and validation cleanup | v0.4 | 1/3 | In Progress|  |
+| 24. Address tech debt: bookkeeping and validation cleanup | v0.4 | 2/3 | In Progress|  |
 
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 shipped · v0.4 in progress — 39/39 requirements mapped across Phases 17-24, 0 unmapped
 
