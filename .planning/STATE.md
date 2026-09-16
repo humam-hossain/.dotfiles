@@ -2,33 +2,33 @@
 gsd_state_version: "1.0"
 milestone: v0.5
 milestone_name: System-wide Material You theming (Phases 25-29)
-current_phase: 26
-current_phase_name: Qt & KDE Apps Material You Harmonization
-status: planning
+current_phase: 25
+current_phase_name: GTK Material You Theming & Catppuccin De-linking
+status: executing
 stopped_at: Phase 25 complete, ready to plan Phase 26
-last_updated: "2026-09-16T15:42:47.453Z"
-last_activity: 2026-09-16
-last_activity_desc: Phase 25 complete, transitioned to Phase 26
-state_head: 50955e62746b29b10a346d6420b769258f4effc7
+last_updated: "2026-09-16T18:30:16.648Z"
+last_activity: 2026-09-17
+state_head: d5be2dbed4b2cb0bd84f95f102d376fdaf14f5bf
 progress:
   total_phases: 5
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 3
-  percent: 20
+  completed_phases: 0
+  total_plans: 4
+  completed_plans: 4
+  percent: 0
+last_activity_desc: Phase 25 execution started
 ---
 
 Total Phases: 5 (Phases 25-29)
-Progress: [                    ] 0/3 plans ([██░░░░░░░░] 20%)
+Progress: [                    ] 0/3 plans ([░░░░░░░░░░] 0%)
 
 # Project State
 
 ## Current Position
 
-Phase: 26 — Qt & KDE Apps Material You Harmonization
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-16 — Phase 25 complete, transitioned to Phase 26
+Phase: 25 (GTK Material You Theming & Catppuccin De-linking) — EXECUTING
+Plan: 1 of 4
+Status: Executing Phase 25
+Last activity: 2026-09-17
 
 ## Session
 
@@ -42,7 +42,7 @@ Last activity: 2026-09-16 — Phase 25 complete, transitioned to Phase 26
 See: .planning/PROJECT.md (updated 2026-09-16)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 26 — Qt & KDE Apps Material You Harmonization
+**Current focus:** Phase 25 — GTK Material You Theming & Catppuccin De-linking
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
