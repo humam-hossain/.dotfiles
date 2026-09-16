@@ -59,4 +59,6 @@ fuzzel_theme.ini
 .DS_Store
 *.sock
 *.socket
+!stow/systemd/**
 *.lock
+
