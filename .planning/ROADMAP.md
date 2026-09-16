@@ -5,7 +5,7 @@
 - ✅ **v0.1 Core Framework & Basic Bar** — Phases 1–4 (shipped 2026-07-25)
 - ✅ **v0.2 Adopt dots-hyprland** — Phases 5–9 (shipped 2026-08-02)
 - ✅ **v0.3 Full ii install** — Phases 10–16 (shipped 2026-09-09)
-- 🚧 **v0.4 Personal config layer** — Phases 17–23 (in progress, started 2026-09-12)
+- 🚧 **v0.4 Personal config layer** — Phases 17–24 (in progress, started 2026-09-12)
 
 ## Phases
 
@@ -55,7 +55,7 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 
 </details>
 
-### 🚧 v0.4 Personal config layer (Phases 17-23) — IN PROGRESS
+### 🚧 v0.4 Personal config layer (Phases 17-24) — IN PROGRESS
 
 **Phase numbering:** Continues after v0.3 (last phase **16**). v0.4 starts at **Phase 17**.
 
@@ -68,6 +68,7 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 - [x] **Phase 21: ii bar config capture** — `config.json` through the `capture/` path plus the unattended timer (completed 2026-09-15)
 - [x] **Phase 22: KDE and GTK capture** — Per-file `stow/kde` and `stow/gtk`, cp-through `restow/`, generated theme output guarded out (completed 2026-09-15)
 - [x] **Phase 23: One-command bootstrap** — Clone, one command, and `verify --strict` as the exit code (completed 2026-09-15)
+- [ ] **Phase 24: Address tech debt: bookkeeping and validation cleanup** — Address tech debt: bookkeeping and validation cleanup
 
 ## Phase Details — v0.4 Personal config layer
 
@@ -337,6 +338,17 @@ Plans:
 - [x] 23-02-PLAN.md
 - [x] 23-03-PLAN.md
 
+### Phase 24: Address tech debt: bookkeeping and validation cleanup
+
+**Goal:** Address tech debt: bookkeeping and validation cleanup
+**Depends on:** Phase 23
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 24 to break down)
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -364,8 +376,9 @@ Plans:
 | 21. ii bar config capture | v0.4 | 3/3 | Complete    | 2026-09-15 |
 | 22. KDE and GTK capture | v0.4 | 4/4 | Complete    | 2026-09-15 |
 | 23. One-command bootstrap | v0.4 | 3/3 | Complete    | 2026-09-15 |
+| 24. Address tech debt: bookkeeping and validation cleanup | v0.4 | 0/0 | Not started | - |
 
-**Coverage:** v0.1 shipped · v0.2 shipped · v0.3 shipped · v0.4 shipped — 35/35 requirements mapped across Phases 17-23, 0 unmapped
+**Coverage:** v0.1 shipped · v0.2 shipped · v0.3 shipped · v0.4 in progress — 35/35 requirements mapped across Phases 17-23, 0 unmapped
 
 ---
-*Last updated: 2026-09-15 — v0.4 Personal config layer shipped (all 7 phases complete)*
+*Last updated: 2026-09-15 — Phase 24 added to v0.4*
