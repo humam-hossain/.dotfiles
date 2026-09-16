@@ -68,7 +68,7 @@ Phase artifacts: [milestones/v0.3-phases/](milestones/v0.3-phases/)
 - [x] **Phase 21: ii bar config capture** — `config.json` through the `capture/` path plus the unattended timer (completed 2026-09-15)
 - [x] **Phase 22: KDE and GTK capture** — Per-file `stow/kde` and `stow/gtk`, cp-through `restow/`, generated theme output guarded out (completed 2026-09-15)
 - [x] **Phase 23: One-command bootstrap** — Clone, one command, and `verify --strict` as the exit code (completed 2026-09-15)
-- [ ] **Phase 24: Address tech debt: bookkeeping and validation cleanup** — Address tech debt: bookkeeping and validation cleanup
+- [x] **Phase 24: Address tech debt: bookkeeping and validation cleanup** — Address tech debt: bookkeeping and validation cleanup (completed 2026-09-16)
 
 ## Phase Details — v0.4 Personal config layer
 
@@ -350,7 +350,7 @@ Plans:
   3. .gitignore scopes *.socket with !stow/systemd/**; STATE.md affirms non-credential status of system_monitor .env and records 12 gitleaks allowlist entries; non-interactive --notify test passes (DEBT-03)
   4. stow/hypr/.config/hypr/custom/keybinds.lua unbinds SUPER + SHIFT + L, binds SUPER + Scroll_Lock to sleep, SUPER + SHIFT + Scroll_Lock to logout, retains Scroll_Lock for lock screen; passes luac -p, zero duplicate chords, valid Category: Label taxonomy; live hyprctl binds -j confirms compositor binds (DEBT-04)
 
-**Plans:** 3/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 
@@ -385,7 +385,7 @@ Plans:
 | 21. ii bar config capture | v0.4 | 3/3 | Complete    | 2026-09-15 |
 | 22. KDE and GTK capture | v0.4 | 4/4 | Complete    | 2026-09-15 |
 | 23. One-command bootstrap | v0.4 | 3/3 | Complete    | 2026-09-15 |
-| 24. Address tech debt: bookkeeping and validation cleanup | v0.4 | 3/3 | In Progress|  |
+| 24. Address tech debt: bookkeeping and validation cleanup | v0.4 | 3/3 | Complete    | 2026-09-16 |
 
 **Coverage:** v0.1 shipped · v0.2 shipped · v0.3 shipped · v0.4 in progress — 39/39 requirements mapped across Phases 17-24, 0 unmapped
 
