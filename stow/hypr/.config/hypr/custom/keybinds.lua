@@ -22,6 +22,7 @@ hl.unbind("SUPER + SUPER_L")   -- upstream bare super search trigger
 hl.unbind("SUPER + SUPER_R")   -- upstream bare super search trigger
 hl.unbind("Print")             -- upstream fullscreen screenshot
 hl.unbind("SUPER + SHIFT + S") -- upstream screen snip (reassigned to SHIFT + Print)
+hl.unbind("SUPER + SHIFT + L") -- upstream sleep (reassigned to SUPER + Scroll_Lock)
 
 -- Window management (D-07, D-08, D-10)
 hl.bind("SUPER + C", hl.dsp.window.close(), { description = "Window: Close" })
@@ -59,9 +60,10 @@ hl.bind("SUPER + Space", hl.dsp.global("quickshell:searchToggle"), { description
 hl.bind("Print", hl.dsp.exec_cmd("hyprshot -m window --freeze -o $HOME/Pictures/Screenshots"), { locked = true, description = "Utilities: Screenshot window" })
 hl.bind("SHIFT + Print", hl.dsp.global("quickshell:regionScreenshot"), { description = "Utilities: Screen snip" })
 
--- Session controls (D-13)
+-- Session controls (D-12, D-13)
 hl.bind("Scroll_Lock", hl.dsp.exec_cmd("hyprlock"), { description = "Session: Lock screen" })
-hl.bind("SUPER + Scroll_Lock", hl.dsp.exit(), { description = "Session: Logout" })
+hl.bind("SUPER + Scroll_Lock", hl.dsp.exec_cmd("systemctl suspend || loginctl suspend"), { locked = true, description = "Session: Sleep" })
+hl.bind("SUPER + SHIFT + Scroll_Lock", hl.dsp.exit(), { description = "Session: Logout" })
 
 -- Special workspaces (D-14)
 hl.bind("SUPER + grave", hl.dsp.workspace.toggle_special("social"), { description = "Workspace: Toggle social" })
