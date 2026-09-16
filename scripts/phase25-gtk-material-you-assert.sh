@@ -267,6 +267,26 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
   else
     info "GTK-01 (S4): active wallpaper path not accessible; dry-run skipped"
   fi
+
+  # 5. Assert GTK 4 CSS parser compliance (no Gtk-WARNING on load)
+  if grep -q ':insensitive' "$CSS4"; then
+    fail "GTK-01 (S4): ~/.config/gtk-4.0/gtk.css contains invalid :insensitive pseudo-class"
+  else
+    pass "GTK-01 (S4): ~/.config/gtk-4.0/gtk.css free of invalid :insensitive pseudo-class"
+  fi
+
+  if grep -q '\.boxed-list row:disabled' "$CSS4"; then
+    pass "GTK-01 (S4): ~/.config/gtk-4.0/gtk.css specifies valid GTK 4 .boxed-list row:disabled selector"
+  else
+    fail "GTK-01 (S4): ~/.config/gtk-4.0/gtk.css missing .boxed-list row:disabled selector"
+  fi
+
+  GTK4_WARN="$(python3 -c "import gi; gi.require_version('Gtk', '4.0'); from gi.repository import Gtk; Gtk.init(); p = Gtk.CssProvider(); p.load_from_path('$CSS4')" 2>&1 || true)"
+  if [[ -z "$GTK4_WARN" ]]; then
+    pass "GTK-01 (S4): GTK 4 CssProvider loaded ~/.config/gtk-4.0/gtk.css with zero parser warnings"
+  else
+    fail "GTK-01 (S4): GTK 4 CssProvider emitted parser warnings: $GTK4_WARN"
+  fi
 fi
 
 # ===========================================================================
