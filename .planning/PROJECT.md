@@ -138,6 +138,14 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Operator playbook: clone → recursive submodule → wrapper install → hypr hooks → dual-run — Phase 9 / DOC-01 **[superseded by Phase 16]** — the dual-run session ended at the Phase 14 adopt.
 - ✓ Operator playbook: pin-bump update; exp-merge / online cache non-primary — Phase 9 / DOC-02
 
+### Validated — v0.5
+
+- ✓ Dynamic Matugen GTK 3 & 4 CSS generation from active wallpaper without git working-tree churn — Phase 25 / GTK-01
+- ✓ Legacy Catppuccin assets and symlinks unlinked from `~/.config/gtk-4.0/` to establish unfolded unprivileged user directory — Phase 25 / GTK-02
+- ✓ GTK 3 and GTK 4 `settings.ini` aligned to `adw-gtk3-dark` and upstream dots-hyprland defaults with zero Catppuccin references — Phase 25 / GTK-03
+- ✓ GNOME desktop interface GSettings keys aligned to dark Material You defaults — Phase 25 / GTK-04
+- ✓ Dynamic theme outputs guarded by `guard-paths.tsv` and root `.gitignore` with strict verification engine pass — Phase 25 / INTG-01, INTG-02
+
 ### Validated — v0.3 (shipped)
 
 - ✓ Full-install impact inventory: filesystem + package/sysupdate effects without `--skip-hyprland`, and separately for dropping `--core` / `--skip-sysupdate` — Phase 10 / INV-01
@@ -284,6 +292,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 24: Scoped .gitignore and documented repository hygiene | Un-ignored systemd sockets (!stow/systemd/**); documented ping/.env and 12 gitleaks entries in STATE.md | ✓ Phase 24 (DEBT-03) |
 | Phase 24: Realigned desktop session keybindings in custom/keybinds.lua | Unbound upstream SUPER + SHIFT + L, mapped Scroll_Lock combos, verified 36 binds taxonomy | ✓ Phase 24 (DEBT-04) |
 | Phase 24: Automated 5-section assert harness scripts/phase24-tech-debt-assert.sh | Automated regression gating covering Sections 1–5 with FAIL=0 FINDINGS=0 | ✓ Phase 24 (DEBT-01..04) |
+| Phase 25: Unlink ~/.config/gtk-4.0/ Catppuccin symlinks directly without backup | Target files are static system packages in /usr/share/themes/; eliminates root write-locks (D-07, D-09) | ✓ Clean unfolded user dir, Section 1 FAIL=0 |
+| Phase 25: Align GTK-3/4 settings.ini to adw-gtk3-dark and dots-hyprland defaults | Upstream end-4 defaults (Google Sans Flex 11, Bibata cursor 24) ensure consistent base before Matugen (D-01..D-04) | ✓ Repo clean of Catppuccin, Section 2 FAIL=0 |
+| Phase 25: Non-interactive Matugen CLI invocation with source-color-index 0 | Prevents interactive stdin hangs; generates valid @define-color Material You palettes (D-12) | ✓ Section 4 FAIL=0, verify --strict 0 findings |
+| Phase 25: Automated 5-section assert harness scripts/phase25-gtk-material-you-assert.sh | Fail-closed porcelain snapshot checks gating GTK-01..04 and INTG-01..02 (D-14) | ✓ 43 checks passed, FAIL=0 FINDINGS=0 |
 
 ## Evolution
 
@@ -303,4 +315,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-16 for v0.5 milestone*
+*Last updated: 2026-09-16 after Phase 25*

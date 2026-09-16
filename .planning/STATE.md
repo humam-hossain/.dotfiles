@@ -32,17 +32,17 @@ Last activity: 2026-09-16 — Phase 25 complete, transitioned to Phase 26
 
 ## Session
 
-**Last session:** 2026-09-16T14:17:00.000Z
+**Last session:** 2026-09-16T15:42:00.000Z
 **Stopped at:** Phase 25 complete, ready to plan Phase 26
-**Resume file:** .planning/phases/25-gtk-material-you-theming-catppuccin-de-linking/25-01-PLAN.md
-**Next command:** /gsd-execute-phase 25
+**Resume file:** None
+**Next command:** /gsd-plan-phase 26
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-16)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 25 — GTK Material You Theming & Catppuccin De-linking
+**Current focus:** Phase 26 — Qt & KDE Apps Material You Harmonization
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
@@ -93,6 +93,11 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 14: 14-VERIFICATION.md status passed 4/4; 3 warnings raised, 2 closed in 859e434, D-38 left open
 - Phase 14 UAT: 15/15 pass (11 automated coverage + 4 human checkpoints) on 2026-09-05; zero gaps, zero deferred follow-ups
 - Phase 14: 14-VALIDATION.md status validated — 15 map rows, 0 MISSING, 5 manual-only, so `nyquist_compliant` stays false by design; 14-SECURITY.md status verified — 16 threats, `threats_open: 0` at ASVS L1
+- Phase 25: Legacy Catppuccin symlinks in ~/.config/gtk-4.0/ permanently unlinked to establish unfolded user directory for Matugen (D-07, D-09)
+- Phase 25: GTK 3 and GTK 4 settings.ini aligned to adw-gtk3-dark and dots-hyprland defaults with zero Catppuccin references (D-01..D-04)
+- Phase 25: GSettings keys in org.gnome.desktop.interface aligned to dark Material You defaults (D-11)
+- Phase 25: Matugen dynamic generation verified non-interactive with zero git churn via guard-paths.tsv and root .gitignore (D-12, D-13)
+- Phase 25: Automated 5-section assert harness scripts/phase25-gtk-material-you-assert.sh passed 43 checks with FAIL=0 (D-14)
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.  
