@@ -296,6 +296,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 25: Align GTK-3/4 settings.ini to adw-gtk3-dark and dots-hyprland defaults | Upstream end-4 defaults (Google Sans Flex 11, Bibata cursor 24) ensure consistent base before Matugen (D-01..D-04) | ✓ Repo clean of Catppuccin, Section 2 FAIL=0 |
 | Phase 25: Non-interactive Matugen CLI invocation with source-color-index 0 | Prevents interactive stdin hangs; generates valid @define-color Material You palettes (D-12) | ✓ Section 4 FAIL=0, verify --strict 0 findings |
 | Phase 25: Automated 5-section assert harness scripts/phase25-gtk-material-you-assert.sh | Fail-closed porcelain snapshot checks gating GTK-01..04 and INTG-01..02 (D-14) | ✓ 43 checks passed, FAIL=0 FINDINGS=0 |
+| Phase 25: Replace :insensitive with :disabled in GTK 4 Matugen template | GTK 4 CssProvider rejects :insensitive with parser warnings; :disabled loads cleanly (D-15..D-18) | ✓ Section 4 parser check PASS, UAT G-25-5 resolved |
 
 ## Evolution
 
@@ -315,4 +316,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-16 after Phase 25*
+*Last updated: 2026-09-17 after Phase 25 gap closure*
