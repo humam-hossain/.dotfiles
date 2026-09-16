@@ -1,9 +1,9 @@
 ---
 phase: "25"
 slug: "gtk-material-you-theming-catppuccin-de-linking"
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: "2026-09-16"
 ---
 
@@ -38,12 +38,12 @@ created: "2026-09-16"
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 25-01-01 | 01 | 0 | INTG-01 | — | Fail-closed test harness scaffold | harness | `bash scripts/phase25-gtk-material-you-assert.sh || [ $? -ne 0 ]` | ❌ W0 | ⬜ pending |
-| 25-01-02 | 01 | 1 | GTK-02 | T-25-01 | Safe unprivileged inode conversion | unit | `bash scripts/phase25-gtk-material-you-assert.sh --section 1` | ❌ W0 | ⬜ pending |
-| 25-02-01 | 02 | 1 | GTK-03 | T-25-03 | Settings files clean with dark defaults | unit | `bash scripts/phase25-gtk-material-you-assert.sh --section 2` | ❌ W0 | ⬜ pending |
-| 25-02-02 | 02 | 1 | GTK-04 | — | GSettings align with dark defaults | unit | `bash scripts/phase25-gtk-material-you-assert.sh --section 3` | ❌ W0 | ⬜ pending |
-| 25-03-01 | 03 | 2 | GTK-01 | T-25-02 | Non-interactive Matugen CSS generation | integration | `bash scripts/phase25-gtk-material-you-assert.sh --section 4` | ❌ W0 | ⬜ pending |
-| 25-03-02 | 03 | 2 | INTG-02 | T-25-03 | Zero git churn & strict guard compliance | integration | `bash scripts/phase25-gtk-material-you-assert.sh --section 5 && ./arch/dots-hyprland.sh verify --strict` | ❌ W0 | ⬜ pending |
+| 25-01-01 | 01 | 0 | INTG-01 | — | Fail-closed test harness scaffold | harness | `bash scripts/phase25-gtk-material-you-assert.sh || [ $? -ne 0 ]` | ✅ yes | ✅ green |
+| 25-01-02 | 01 | 1 | GTK-02 | T-25-01 | Safe unprivileged inode conversion | unit | `bash scripts/phase25-gtk-material-you-assert.sh --section 1` | ✅ yes | ✅ green |
+| 25-02-01 | 02 | 1 | GTK-03 | T-25-03 | Settings files clean with dark defaults | unit | `bash scripts/phase25-gtk-material-you-assert.sh --section 2` | ✅ yes | ✅ green |
+| 25-02-02 | 02 | 1 | GTK-04 | — | GSettings align with dark defaults | unit | `bash scripts/phase25-gtk-material-you-assert.sh --section 3` | ✅ yes | ✅ green |
+| 25-03-01 | 03 | 2 | GTK-01 | T-25-02 | Non-interactive Matugen CSS generation | integration | `bash scripts/phase25-gtk-material-you-assert.sh --section 4` | ✅ yes | ✅ green |
+| 25-03-02 | 03 | 2 | INTG-02 | T-25-03 | Zero git churn & strict guard compliance | integration | `bash scripts/phase25-gtk-material-you-assert.sh --section 5 && ./arch/dots-hyprland.sh verify --strict` | ✅ yes | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -51,7 +51,7 @@ created: "2026-09-16"
 
 ## Wave 0 Requirements
 
-- [ ] `scripts/phase25-gtk-material-you-assert.sh` — automated assertion suite covering sections 1–5 for GTK-01, GTK-02, GTK-03, GTK-04, INTG-01, INTG-02
+- [x] `scripts/phase25-gtk-material-you-assert.sh` — automated assertion suite covering sections 1–5 for GTK-01, GTK-02, GTK-03, GTK-04, INTG-01, INTG-02
 
 ---
 
@@ -65,11 +65,11 @@ created: "2026-09-16"
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 5s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 5s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** validated
