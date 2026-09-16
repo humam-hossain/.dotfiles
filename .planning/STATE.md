@@ -4,38 +4,38 @@ milestone: v0.5
 milestone_name: System-wide Material You theming (Phases 25-29)
 current_phase: 25
 current_phase_name: GTK Material You Theming & Catppuccin De-linking
-status: planning
-stopped_at: Phase 25 context gathered
-last_updated: "2026-09-16T14:01:07.293Z"
+status: ready_to_execute
+stopped_at: Phase 25 planned (3 plans)
+last_updated: "2026-09-16T14:17:00.000Z"
 last_activity: 2026-09-16
-last_activity_desc: Milestone v0.5 roadmap created (5 phases)
+last_activity_desc: Phase 25 planned (3 plans)
 state_head: 2e0c9a2bd27230735d3d53263738e308df57a937
 progress:
   total_phases: 5
   completed_phases: 0
-  total_plans: 0
+  total_plans: 3
   completed_plans: 0
   percent: 0
 ---
 
 Total Phases: 5 (Phases 25-29)
-Progress: [                    ] 0/0 plans ([░░░░░░░░░░] 0%)
+Progress: [                    ] 0/3 plans ([░░░░░░░░░░] 0%)
 
 # Project State
 
 ## Current Position
 
 Phase: Phase 25 (GTK Material You Theming & Catppuccin De-linking)
-Plan: —
-Status: Ready to plan
-Last activity: 2026-09-16 — Milestone v0.5 roadmap created (5 phases)
+Plan: 25-01
+Status: Ready to execute
+Last activity: 2026-09-16 — Phase 25 planned (3 plans)
 
 ## Session
 
-**Last session:** 2026-09-16T14:01:07.277Z
-**Stopped at:** Phase 25 context gathered
-**Resume file:** .planning/phases/25-gtk-material-you-theming-catppuccin-de-linking/25-CONTEXT.md
-**Next command:** /gsd-plan-phase 25
+**Last session:** 2026-09-16T14:17:00.000Z
+**Stopped at:** Phase 25 planned (3 plans)
+**Resume file:** .planning/phases/25-gtk-material-you-theming-catppuccin-de-linking/25-01-PLAN.md
+**Next command:** /gsd-execute-phase 25
 
 ## Project Reference
 

@@ -78,7 +78,7 @@ Milestone audit: [milestones/v0.4-MILESTONE-AUDIT.md](milestones/v0.4-MILESTONE-
 
 ### v0.5 System-wide Material You theming (Phases 25-29)
 
-- [ ] **Phase 25: GTK Material You Theming & Catppuccin De-linking** — Retire legacy Catppuccin assets/symlinks from `~/.config/gtk-4.0/` and `stow/gtk/`, configure `adw-gtk3` base theme, and wire Matugen dynamic GTK-3/4 CSS generation from wallpaper.
+- [ ] **Phase 25: GTK Material You Theming & Catppuccin De-linking** (0/3 plans) — Retire legacy Catppuccin assets/symlinks from `~/.config/gtk-4.0/` and `stow/gtk/`, configure `adw-gtk3` base theme, and wire Matugen dynamic GTK-3/4 CSS generation from wallpaper.
 - [ ] **Phase 26: Qt & KDE Apps Material You Harmonization** — Align Qt 5/6, Kvantum, and KDE applications (Dolphin, Kate) with Material You color palette and dynamic wallpaper updates.
 - [ ] **Phase 27: Hyprland & Quickshell ii Accent Coordination** — Coordinate Hyprland window decorations, active/inactive borders, and Quickshell ii widget accents with Matugen generated colors and wallpaper reload.
 - [ ] **Phase 28: Terminal & Fuzzel Launcher Dynamic Palette** — Extend dynamic Material You styling to Fuzzel app launcher and terminal emulators.
@@ -94,6 +94,18 @@ Milestone audit: [milestones/v0.4-MILESTONE-AUDIT.md](milestones/v0.4-MILESTONE-
   2. `stow/gtk/.config/gtk-3.0/settings.ini` and `gtk-4.0/settings.ini` specify `adw-gtk3` / dark theme without Catppuccin references.
   3. Running Matugen generates valid `~/.config/gtk-3.0/gtk.css` with colors derived from the active wallpaper.
   4. GNOME gsettings interface keys (`gtk-theme`, `color-scheme`) are aligned to dark Material You theme.
+- **Plans:** 0/3 plans complete
+
+Plans:
+
+**Wave 1**
+- [ ] 25-01-PLAN.md — tracer: Phase 25 assertion harness scaffolding and safe Catppuccin symlink de-linking in `~/.config/gtk-4.0/`
+
+**Wave 2**
+- [ ] 25-02-PLAN.md — repository GTK 3/4 settings alignment in `stow/gtk/` and GNOME desktop interface GSettings synchronization
+
+**Wave 3**
+- [ ] 25-03-PLAN.md — dynamic Matugen GTK CSS generation, strict repository verification, and validation sign-off
 
 ### Phase 26: Qt & KDE Apps Material You Harmonization
 - **Goal:** Align Qt 5/6, Kvantum, and KDE applications (Dolphin, Kate) with Material You color palette and dynamic wallpaper updates.
