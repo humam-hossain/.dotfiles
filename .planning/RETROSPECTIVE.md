@@ -107,6 +107,60 @@
 
 ---
 
+## Milestone: v0.4 — Personal config layer
+
+**Shipped:** 2026-09-16  
+**Phases:** 8 | **Plans:** 41 | **Tasks:** 91  
+**Closeout:** override_closeout (4 v0.1 debug sessions on retired local bar re-acknowledged as deferred; milestone audit passed with zero gaps)
+
+### What Was Built
+
+- Universal stow flag correction (`--verbose=5 --no-folding`) across all install scripts and `safe_rm_path` repo containment clause
+- Three-tree capture model (`stow/`, `restow/`, `capture/`), machine-checked `collision-map.tsv`, and wrapper `verify`/`capture` subcommands
+- Link-aware `verify` suite checking symlink identity before content, with strict exit codes (0/1/2) proven adversarially against `rsync -a --delete`
+- Personal `hypr/custom` Lua overlays (6 files), personal keybindings (`hl.unbind`), and startup autostart restoration (`graphical-session.target`)
+- Quickshell ii bar `config.json` copy-capture surviving `switchwall.sh`, with unattended 15-minute systemd user timer
+- Dolphin, KDE, and GTK per-file capture with unfolded parent directories, `guard-paths.tsv` data contract, and cp-through live recovery
+- One-command idempotent bootstrap (`./bootstrap.sh`) with resumable JSON state, relogin boundary guidance, and deterministic package snapshots
+- Complete technical debt reconciliation with 100% Nyquist validation across all 8 phases
+
+### What Worked
+
+- **Adversarial verification before bulk capture** — building link-aware `verify` (Phase 19) before mass stowing made filesystem drift immediately detectable and falsifiable.
+- **Three-tree taxonomy by installer collision primitive** — separating clean stow from colliding restow and atomic-copy capture prevented silent overwrite bugs.
+- **Machine-asserted data contracts** — `collision-map.tsv` and `guard-paths.tsv` generated and asserted mechanically eliminated manual guesswork and theme churn.
+- **Resumable bootstrap state machine** — `./bootstrap.sh` with persistent step state allowed non-destructive testing and clean boundary handling across the relogin hop.
+- **Strict exit code binding** — binding the bootstrap orchestrator's exit status directly to `verify --strict` guaranteed that a successful bootstrap leaves zero drift.
+
+### What Was Inefficient
+
+- Summary frontmatter metadata discrepancies (omitted `requirements_completed`) required a dedicated Phase 24 cleanup.
+- Four legacy debug sessions from the retired v0.1 local bar still linger in `.planning/debug/`, triggering override closeouts across milestones.
+- Stale verification flags in tooling triggered by metadata backfills required re-verifying and documenting test timestamps.
+
+### Patterns Established
+
+- Capture tree routing: clean files in `stow/`, colliding files in `restow/`, atomically overwritten files in `capture/`.
+- Universal stow invocation: `stow --verbose=5 --no-folding` across all scripts.
+- Link-first verification: always assert source inode == target inode before inspecting file content.
+- Guard list exclusion: theme generation outputs must be guarded at the boundary, never captured in version control.
+- Deterministic bootstrap: submodule init → setup → stow → capture seed → verify, with idempotent re-execution.
+
+### Key Lessons
+
+1. **Verify link identity, not just content** — tools like `rsync -a --delete` or cp-through overwrites can destroy symlink architecture while leaving contents identical to git.
+2. **Never stow files rewritten by rename(2)** — applications that rename temporary files over target paths destroy symlinks; use periodic copy-capture instead.
+3. **Decouple generated theme outputs from static configs** — capturing dynamic theme files results in git churn on every wallpaper change; guard them explicitly.
+4. **Clean up legacy artifacts early** — debug artifacts from retired subsystems will continue to flag audits unless officially resolved or deleted.
+
+### Cost Observations
+
+- Model mix: adaptive profile
+- Timeline: 5 calendar days (2026-09-12 definition → 2026-09-16 ship)
+- Notable: 41 plans across 8 phases executed smoothly with zero production desktop outages.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -115,6 +169,7 @@
 |-----------|--------|-------|------------|
 | v0.1 | 4 | 31 | Established wholesale-foundation + dual-write + Wave 0 gates |
 | v0.2 | 5 | 15 | Pivoted to managed upstream dependency; retired local product |
+| v0.4 | 8 | 41 | Shipped three-tree capture model, link-aware verify, and one-command bootstrap |
 
 ### Cumulative Quality
 
@@ -122,6 +177,7 @@
 |-----------|--------------|--------------------|----------|
 | v0.1 | All 4 phases passed | 2 reqs + 4 debug | override_closeout |
 | v0.2 | All 5 phases passed | no formal audit + 4 debug (retired surface) | override_closeout |
+| v0.4 | All 8 phases passed | 4 legacy debug (retired surface) | override_closeout |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -129,3 +185,4 @@
 2. Package deferred work explicitly so incomplete requirements remain visible
 3. Open debug sessions and skipped milestone audits force override_closeout — close or reclassify before ship
 4. When product vehicle changes, retire the old path only after the new path is live-verified and documented
+5. Verify link identity before file content — symlink-destroying primitives leave file contents matching git while corrupting live-sync architecture

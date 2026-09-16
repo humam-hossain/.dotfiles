@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v0.4
 milestone_name: Personal config layer
-current_phase: 24
-status: completed
+current_phase: 4
+status: Awaiting next milestone
 stopped_at: Phase 24 complete — all phases complete
-last_updated: "2026-09-16T12:18:58.667Z"
+last_updated: "2026-09-16T12:30:58.687Z"
 last_activity: 2026-09-16
-last_activity_desc: Phase 24 complete
+last_activity_desc: Milestone v0.4 completed and archived
 progress:
   total_phases: 8
   completed_phases: 8
@@ -23,42 +23,42 @@ Progress: [████████████████████] 41/41 p
 
 ## Current Position
 
-Phase: 24
-Plan: Not started
-Status: All phases in milestone v0.4 complete
-Last activity: 2026-09-16 — Phase 24 complete
+Phase: Milestone v0.4 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-09-16 — Milestone v0.4 completed and archived
 
 ## Session
 
 **Last session:** 2026-09-16T18:18:20+06:00
-**Stopped at:** Phase 24 complete — all phases complete
+**Stopped at:** Milestone v0.4 complete and archived
 **Resume file:** None
-**Next command:** /gsd-audit-milestone
+**Next command:** /gsd-new-milestone
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-16)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 24 — Address tech debt: bookkeeping and validation cleanup
+**Current focus:** Planning next milestone
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
 
-Items acknowledged and deferred at milestone close on 2026-07-25 (v0.1) and re-acknowledged 2026-08-02 (v0.2 override_closeout):
+Items acknowledged and deferred at milestone close on 2026-07-25 (v0.1), re-acknowledged 2026-08-02 (v0.2), and re-acknowledged 2026-09-16 (v0.4 override_closeout):
 
 | Category | Item | Status |
 |----------|------|--------|
-| debug | cpu-warning-color-missing | unknown (re-acknowledged v0.2; local bar retired) |
-| debug | keyboard-volume-ceiling | unknown (re-acknowledged v0.2; local bar retired) |
-| debug | pavucontrol-launch-broken | unknown (re-acknowledged v0.2; local bar retired) |
-| debug | ram-label-spacing | unknown (re-acknowledged v0.2; local bar retired) |
+| debug | cpu-warning-color-missing | unknown (re-acknowledged v0.4; local bar retired) |
+| debug | keyboard-volume-ceiling | unknown (re-acknowledged v0.4; local bar retired) |
+| debug | pavucontrol-launch-broken | unknown (re-acknowledged v0.4; local bar retired) |
+| debug | ram-label-spacing | unknown (re-acknowledged v0.4; local bar retired) |
 | requirement | FWK-02 (exec-once auto-start) | deferred finishing touch — revisit under upstream model |
 | requirement | IPC-02 (bar toggle keybind) | deferred finishing touch — revisit under upstream model |
 | backlog | Waybar cutover (CUT-01) | deferred until parity accepted; DISP-03 defaults keep dual-run **[superseded by Phase 16]** — the dual-run session ended at the Phase 14 adopt. |
 | backlog | Waybar customs (CUST-01..04) | deferred past v0.3 full hypr adopt |
 | process | v0.2 formal milestone audit | skipped at close; per-phase verification passed |
-| requirement | D-38 `graphical-session.target` autostart (post-adopt) | **owned — Phase 17 / START-02** (v0.4 roadmap 2026-09-12); ships as one line in `custom/execs.lua` |
+| requirement | D-38 `graphical-session.target` autostart (post-adopt) | **shipped** — Phase 17 (START-02) & Phase 20 (START-01) in `custom/execs.lua` |
 
 See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 
@@ -116,9 +116,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 
 ## Operator Next Steps
 
-1. `/gsd-plan-phase 17` — plan the unblock phase (no research needed; every defect is located to a line) ← recommended  
-2. `/gsd-map-codebase` re-run — the six `.planning/codebase/` snapshots are all stamped 2026-08-21 and describe the retired wrapper  
-3. Decide before Phase 23 whether a VM or container can be stood up — it is the only way to exercise the fresh-machine relogin hop; otherwise BOOT-01 is verified at the scratch-`XDG_CONFIG_HOME` level and must be labelled as such
+- Start the next milestone with /gsd-new-milestone
 
 ## Performance Metrics
 

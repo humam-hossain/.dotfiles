@@ -1,5 +1,47 @@
 # Milestones
 
+## v0.4 Personal config layer (Shipped: 2026-09-16)
+
+**Closeout type:** `override_closeout`  
+**Phases completed:** 8 phases, 41 plans, 91 tasks (Phases 17–24)  
+**Git range:** `v0.3` → `v0.4` (2026-09-12 → 2026-09-16) · 263 commits  
+**Diffstat:** 241 files changed, +54,309 / −692
+
+**Delivered:** Personal config layer — three-tree capture model (`stow/`, `restow/`, `capture/`), machine-asserted installer collision map (`collision-map.tsv`), link-aware `verify` suite with strict exit codes (0/1/2), personal `hypr/custom` Lua overlays and startup autostart restoration (`graphical-session.target`), Quickshell ii bar `config.json` copy-capture with unattended systemd user timer, KDE/GTK per-file capture with guarded theme outputs (`guard-paths.tsv`), one-command idempotent bootstrap (`./bootstrap.sh`), and comprehensive technical debt reconciliation with 100% Nyquist validation.
+
+### Key accomplishments
+
+1. Universal stow flag correction (`--verbose=5 --no-folding`), `safe_rm_path` repository containment clause, secret scan, and `graphical-session.target` restoration via `custom/execs.lua` — FIX-01..06, CAP-04, START-02..03
+2. Three-tree capture model (`stow/`, `restow/`, `capture/`), checked-in installer collision map with anti-rot assertions, and first-class `verify` and `capture` wrapper CLI subcommands — CAP-01..08, FIX-03, FIX-05
+3. Link-aware `verify` asserting symlink identity before content, diffing capture paths, with strict exit codes (0/1/2) proven adversarially against `rsync -a --delete` — VER-01..04
+4. Personal Hyprland overlays under repo SoT (all six `custom/*.lua`), personal keybinds via `hl.unbind`, launcher variables, and autostart `exec-once` application restoration — HYPR-01..03, START-01, SAFE-01
+5. Quickshell ii bar `config.json` atomic copy-capture surviving `switchwall.sh`, and unattended synchronization on a 15-minute systemd user timer (`dotfiles-capture.timer`) — BAR-01..02, CAP-06
+6. Dolphin, KDE, and GTK per-file capture with unfolded parent directories, `guard-paths.tsv` data contract excluding theme artifacts, and cp-through live recovery — KDE-01..03
+7. One-command idempotent bootstrap (`./bootstrap.sh`) with resumable JSON state, guarded stub de-linking with SHA-256 backup manifests, relogin boundary guidance, and package snapshots — BOOT-01..05
+8. Technical debt reconciliation: 100% Nyquist compliance across all phases, 39/39 requirements traceability sync, repo hygiene (.gitignore, non-credential .env affirmation), and session keybinding cheatsheet alignment — DEBT-01..04
+
+### Known Gaps / Deferred Items
+
+| ID / Item | Description | Disposition |
+|-----------|-------------|-------------|
+| debug: cpu-warning-color-missing | Open debug session (v0.1 local bar) | Re-acknowledged; product tree retired in Phase 8 |
+| debug: keyboard-volume-ceiling | Open debug session (v0.1 local bar) | Re-acknowledged; product tree retired in Phase 8 |
+| debug: pavucontrol-launch-broken | Open debug session (v0.1 local bar) | Re-acknowledged; product tree retired in Phase 8 |
+| debug: ram-label-spacing | Open debug session (v0.1 local bar) | Re-acknowledged; product tree retired in Phase 8 |
+| CUST-01..04 | Waybar custom ports (ping, weather, earthquake) | Future milestone |
+| POLISH-02..03 | FWK-02 / IPC-02 style session integration; v0.1 debug re-eval | Future milestone |
+
+**Known verification overrides:** 4 (open debug sessions on retired local bar; see STATE.md Deferred Items)
+
+**Archives:**
+
+- [milestones/v0.4-ROADMAP.md](milestones/v0.4-ROADMAP.md)
+- [milestones/v0.4-REQUIREMENTS.md](milestones/v0.4-REQUIREMENTS.md)
+- [milestones/v0.4-phases/](milestones/v0.4-phases/)
+- [milestones/v0.4-MILESTONE-AUDIT.md](milestones/v0.4-MILESTONE-AUDIT.md)
+
+---
+
 ## v0.3 Full ii install (Shipped: 2026-09-09)
 
 **Closeout type:** `standard`  

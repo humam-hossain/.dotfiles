@@ -3,53 +3,54 @@
 ## Current State
 
 **Shipped:** v0.4 Personal config layer (2026-09-16)  
-**Status:** All 8 phases of v0.4 (Phases 17–24) complete and verified
+**Status:** All 8 phases of v0.4 (Phases 17–24) complete, 39/39 requirements satisfied, verified, and archived
 
 Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, operator playbook for install and pin-bump updates. As of Phase 14 the session runs the full ii model — the Lua entry is authoritative and Waybar/rofi/swaync no longer dual-run.
 
-**Phase 10 delivered:** Neutral full-install impact inventory (`10-INVENTORY.md`) covering SAFE_DEFAULTS residual, drop-`--skip-hyprland` hypr effects, drop-`--core` misc collisions, and package/sysupdate blast radius — with Wave 0 assert harness. No live full install; SAFE_DEFAULTS still default. **[superseded by Phase 16]** — the safe profile and its machinery were retired.
+**v0.4 delivered:** The personal config layer on top of dots-hyprland: three-tree capture model (`stow/`, `restow/`, `capture/`), machine-checked collision map (`collision-map.tsv`), link-aware `verify` suite with strict exit code binding, `hypr/custom` Lua overlays, startup autostart restoration (`graphical-session.target`), ii bar `config.json` copy-capture surviving wallpaper changes, unattended 15-minute systemd capture timer, KDE/GTK per-file capture with guarded theme outputs, one-command idempotent bootstrap (`./bootstrap.sh`), and complete technical debt reconciliation with 100% Nyquist validation across all 8 phases.
 
-**Phase 11 delivered:** Per-surface dispositions (`11-DISPOSITIONS.md`) — first full-adopt drops all three SAFE_DEFAULTS residuals; default install still injects them. **[superseded by Phase 16]** — the safe profile and its machinery were retired.
-
-**Phase 12 delivered:** Wrapper-owned `--full` on `install` / `install-files` only. Full dry-run omits the triple residual and still hits the backup gate; default install still injects SAFE_DEFAULTS. Evidence: `./scripts/phase12-full-smoke.sh` exit 0 on 2026-08-18 (FAIL=0). No live full install this phase. **[superseded by Phase 16]** — the safe profile and its machinery were retired.
-
-**Phase 13 delivered:** Parent-repo `.config/hypr/custom/` overlays — `general.lua` dual-head + eleven workspace pins, empty `env.lua`/`execs.lua` require slots, `13-SOT-APPLY.md` authoring SoT + D-18 `cp -a` (documented, not run) + D-19 fence (exit 0). Live `$HOME/.config/hypr/custom/` still absent. Apply is Phase 14.
-
-**Phase 14 delivered:** The live full adopt. `install --full` ran on 2026-09-04 behind the preflight gate; upstream renamed `hyprland.conf` to `.old` and the session now loads through `hyprland.lua` (`hyprctl -j status` reports `configProvider: lua`, where the pre-adopt baseline recorded `hyprlang`), surviving a re-login. The Phase 13 overlay is applied — `general.lua`/`env.lua`/`execs.lua` byte-identical to the repo SoT, dual-head DP-1 + HDMI-A-2 and eleven workspace rules live, `qs -c ii` running. Waybar/rofi/swaync are stopped per D-11 accept-remove with their trees still archived under `stow/` per D-12. Rollback is `docs/phase14-adopt-runbook.md` §14 (three tiers, never upstream `./setup uninstall`). Evidence: `14-LIVE-VERIFY.md`, the committed `script(1)` transcript, and `14-VERIFICATION.md` (passed 4/4). **[superseded by Phase 16]** — the safe profile and its machinery were retired.
-
-**Phase 16 delivered:** Retired the safe profile entirely. `arch/dots-hyprland.sh` no longer injects `SAFE_DEFAULTS` — bare `install`/`install-files` runs the full behavior with no profile to choose. `--full` survives as an announced no-op alias. Backup gate, protect machinery, ii-hook conditional injection, and `SAFE_DEFAULTS` array all removed. `uninstall` survives stripped. `docs/dots-hyprland-workflow.md` rewritten full-only end-to-end with bare commands; `docs/phase14-adopt-runbook.md` swept to match. Planning artifacts amended for the same falsehoods. v0.3 coverage dropped from 22 to 19. Closes v0.3 audit leftovers IN-11, W-1, W-2, W-3. Evidence: `scripts/phase16-retire-assert.sh` FAIL=0; all prior-phase assert suites green; `16-VERIFICATION.md` (passed 13/13).
- 
-**Phase 24 delivered:** Technical debt bookkeeping reconciliation, Nyquist validation contract cleanup across all v0.4 phases, `.gitignore` socket un-ignore scoping (`!stow/systemd/**`), repository hygiene triage documentation in `STATE.md`, desktop session keybinding realignment in `custom/keybinds.lua` (`SUPER + Scroll_Lock` for sleep, `SUPER + SHIFT + Scroll_Lock` for logout, unbinding upstream `SUPER + SHIFT + L` sleep chord), and the comprehensive automated 5-section assertion harness `scripts/phase24-tech-debt-assert.sh`. Strict system verification passed with zero findings and zero drift across milestone v0.4 (`FAIL=0 FINDINGS=0`).
-
-**Stats at v0.2 ship:** 5 phases · 15 plans · ~38 tasks · 106 commits since v0.1 · 1025 files changed (+17.6k / −78k, mostly retired local QS tree)
+**Stats at v0.4 ship:** 8 phases · 41 plans · 91 tasks · 263 commits since v0.3 · 241 files changed (+54.3k / −692)
 
 **Product surface:**
 - Fork: `humam-hossain/dots-hyprland` (upstream = end-4)
 - Submodule: `vendor/dots-hyprland` @ `1a9ffb78`
 - Install entry: `arch/dots-hyprland.sh` → vendored `./setup`; one install path (full) — no profile to choose, no wrapper backup gate, no package re-marking
+- Bootstrap entry: `./bootstrap.sh` — one-command fresh-machine orchestrator with resumable JSON state and strict verification gate
 - Live path: real `~/.config/quickshell` (not symlink into git)
-- Session: ii Lua entry `~/.config/hypr/hyprland.lua` is authoritative (Phase 14) and owns the venv env plus `exec-once = qs -c ii`; personal must-keeps ride in `~/.config/hypr/custom/`; Waybar, rofi and swaync are retired from the session
+- Session: ii Lua entry `~/.config/hypr/hyprland.lua` is authoritative (Phase 14) and owns the venv env plus `exec-once = qs -c ii`; personal overrides ride in `~/.config/hypr/custom/`; Waybar, rofi and swaync are retired from the session
 - Rollback: clean reinstall from the pinned `vendor/dots-hyprland` submodule; runbook `docs/phase14-adopt-runbook.md` §14
 - Playbook: `docs/dots-hyprland-workflow.md`
 - Inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`
+- Collision Map: `collision-map.tsv` (machine-asserted)
 
-## Current Milestone: v0.4 Personal config layer
+## Next Milestone Goals
+
+- Define milestone v0.5 scope via `/gsd-new-milestone`
+- Priority candidates:
+  - Port Waybar custom modules into ii (ping monitor, weather, earthquake) (CUST-01..03)
+  - Evaluate machine-specific overlays or multi-host profile layer (CUST-04)
+  - FWK-02 / IPC-02 session polish under upstream model (POLISH-02)
+  - Evaluate / resolve remaining v0.1 legacy debug items on stock ii (POLISH-03)
+
+## Prior Milestones
+
+<details>
+<summary>v0.4 Personal config layer (shipped 2026-09-16)</summary>
 
 **Goal:** Own every personal config on top of the installed ii shell, captured in this repo automatically, reproducible on a fresh machine with one command.
 
-**Target features:** (revised 2026-09-12 after research — see `.planning/research/SUMMARY.md`)
-- Hypr custom overlays under repo SoT — all six of `custom/{env,execs,general,rules,keybinds,variables}.lua` stow-managed. `custom/scripts/` is dropped: it holds generated output, and `hyprland.lua` never sources it.
-- Quickshell ii bar config owned — `~/.config/illogical-impulse/config.json` copy-captured, because `switchwall.sh` renames over the path on every wallpaper change. Bar *widget composition* is out of scope; it requires editing QML the installer replaces wholesale.
-- Startup applications restored — seven `exec-once` entries in `custom/execs.lua`, closing D-38 by starting `hyprland-session.service`. XDG `~/.config/autostart` is dropped: nothing in this session reads it.
-- Dolphin and KDE/GTK configs captured — `dolphinrc`, `chrome-flags.conf`, `kiorc`, `ktrashrc`, `kservicemenurc`, and `gtk-{3,4}.0/settings.ini` per file. `kdeglobals`, `Kvantum/` and both `gtk.css` files are dropped: they are generated theme output, and capturing them means a diff on every wallpaper change.
-- Capture mechanism live — three trees (`stow/`, `restow/`, `capture/`) keyed to installer collision class, a checked-in collision map, and a link-aware `verify` drift check (folds in POLISH-01)
-- One-command fresh-machine bootstrap — clone then one command yields the exact setup, verified
+**Shipped features:**
+- Universal stow flag correction (`--verbose=5 --no-folding`) and `safe_rm_path` repo containment clause
+- Three-tree capture model (`stow/`, `restow/`, `capture/`) and checked-in collision map (`collision-map.tsv`)
+- Link-aware `verify` asserting symlink identity before content, diffing capture paths, with strict exit codes (0/1/2) proven adversarially against `rsync -a --delete`
+- Hypr custom overlays under repo SoT — all six of `custom/{env,execs,general,rules,keybinds,variables}.lua` stow-managed
+- Quickshell ii bar config owned — `~/.config/illogical-impulse/config.json` copy-captured, surviving `switchwall.sh` wallpaper changes, with unattended 15-minute systemd timer sync
+- Startup applications restored — `exec-once` entries in `custom/execs.lua`, closing D-38 by starting `hyprland-session.service` (`graphical-session.target`)
+- Dolphin and KDE/GTK configs captured per file, with generated theme output guarded out via `guard-paths.tsv`
+- One-command fresh-machine bootstrap — clone then `./bootstrap.sh` yields the exact setup, verified with strict exit code binding
+- Technical debt reconciliation: 100% Nyquist compliance across all phases, 39/39 requirements traceability sync, repo hygiene (.gitignore, non-credential .env affirmation), and session keybinding cheatsheet alignment
 
-**Capture decision (D-41, corrected 2026-09-12):** Stow symlinks (`--no-folding`, always) are the default capture path — live *is* the repo, no manual sync. The original exception was stated as "any file an app rewrites atomically". That premise is disproven: Qt's `QSaveFile`, which backs both Quickshell's `FileView` and every KDE `KConfig` write, resolves the symlink chain before renaming onto the resolved target, so the symlink survives and the repo file is correctly updated. Atomic writing is the *best* case for symlink capture. The real exceptions are two, both reproduced empirically on this host: a writer performing a bare `rename(2)`/`mv` onto the link path (`switchwall.sh` on `config.json`), and the ii installer, whose `rsync -a --delete` destroys the symlink outright and whose `cp -f` writes through it and overwrites the repo copy. Capture is therefore organised by installer collision class and write primitive, not by atomicity. A link-aware `verify` backstops all three trees — asserting link identity *before* content, because both destroying primitives leave the repo file untouched and a content-only check reports green in exactly the case that matters.
-
-**Scope note:** No upfront inventory of every config dots-hyprland installs. Capture as touched — and a full `diff -rq vendor/dots-hyprland/dots/.config ~/.config` against the pin returns five drifted files, so the pin itself is the inventory, computed on demand.
-
-## Prior Milestones
+</details>
 
 <details>
 <summary>v0.3 Full ii install (shipped 2026-09-09)</summary>
@@ -165,9 +166,9 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Fresh machine reproduces the exact setup from clone with one command — Phase 23 / BOOT-01..05
 - ✓ Technical debt, bookkeeping normalization, Nyquist validation compliance, and session keybindings realigned — Phase 24 / DEBT-01..04
 
-### Active — v0.4
+### Active
 
-- [x] All v0.4 requirements validated and shipped across Phases 17–24
+(None currently active — run `/gsd-new-milestone` to define requirements for next milestone cycle)
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -190,6 +191,14 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - `exp-merge` / `exp-update` as primary update — experimental; document only.
 
 ## Context
+
+**Post-v0.4 reality:**
+- Delivery model is fully captured and reproducible: all personal configurations reside in the three-tree capture taxonomy (`stow/`, `restow/`, `capture/`).
+- Checked-in `collision-map.tsv` maps installer destinations to repo sources and is machine-asserted against silent rot.
+- Link-aware `arch/dots-hyprland.sh verify --strict` checks link identity first, content second, and guards against folded directories and cp-through overwrites.
+- `./bootstrap.sh` provides a single idempotent entry point to bootstrap a fresh machine end-to-end, with state persistence and strict verification exit-code binding.
+- Unattended drift capture runs every 15 minutes via `dotfiles-capture.timer` and `.service`.
+- Live session runs authoritative ii Lua entry (`~/.config/hypr/hyprland.lua`), with custom overlays in `custom/*.lua` matching repo inodes.
 
 **Post-v0.2 reality:**
 - Upstream [end-4/dots-hyprland](https://github.com/end-4/dots-hyprland) is the product vehicle; personal fork owns custom commits; parent pins SHA in `vendor/dots-hyprland`.
@@ -288,4 +297,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-16 after Phase 24 — address-tech-debt-bookkeeping-and-validation-cleanup complete (DEBT-01..04)*
+*Last updated: 2026-09-16 after v0.4 milestone*
