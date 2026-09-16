@@ -1,11 +1,11 @@
 ---
 phase: 25
 status: passed
-automated_checks: 43
+automated_checks: 46
 human_verification:
-  - "Visual GTK app rendering: Open a GTK 3 app (pavucontrol or nwg-look) and GTK 4 app (gnome-calculator or nautilus) and confirm dark Material You color accents apply properly."
+  - "Visual GTK app rendering: Completed and signed off in 25-UAT.md (5/5 tests passed, gap G-25-5 resolved)."
 requirements_verified: [GTK-01, GTK-02, GTK-03, GTK-04]
-verified: "2026-09-16"
+verified: "2026-09-17"
 ---
 
 # Phase 25 — Verification Report
@@ -93,10 +93,22 @@ Both `gtk-3.0/gtk.css` and `gtk-4.0/gtk.css` correctly classified as `[INFO] gua
 | Full assert harness passes all 5 sections | ✅ |
 | `25-VALIDATION.md` signed off | ✅ |
 
+### Plan 25-04 Must-Haves (Gap Closure G-25-5)
+
+| Truth | Status |
+|-------|--------|
+| `~/.config/matugen/templates/gtk-4.0/gtk.css` line 312 defines `.boxed-list row:disabled` with zero occurrences of `:insensitive` | ✅ |
+| Regenerated `~/.config/gtk-4.0/gtk.css` contains `.boxed-list row:disabled` and zero occurrences of `:insensitive` | ✅ |
+| GTK 4 `CssProvider` initializes and loads `~/.config/gtk-4.0/gtk.css` with zero `Gtk-WARNING` parser errors | ✅ |
+| Section 4 of `scripts/phase25-gtk-material-you-assert.sh` asserts CSS validity, `:disabled` presence, and clean GTK 4 stylesheet loading without warnings | ✅ |
+| Toolkit boundaries between GTK 3/4 and Qt 6/KDE (`kdeglobals`) and icon theme accents (`Tela-circle-dracula-dark`) are explicitly documented in `25-UAT.md` | ✅ |
+| UAT gap `G-25-5` resolved; `25-UAT.md` passes 5/5 tests with 0 issues | ✅ |
+| `arch/dots-hyprland.sh verify --strict` passes with FAIL=0 FINDINGS=0 and git status remains completely clean | ✅ |
+
 ## Human Verification
 
-1. **Visual GTK app rendering** — Open a GTK 3 app (e.g. `pavucontrol` or `nwg-look`) and GTK 4 app (`gnome-calculator` or `nautilus`) and confirm dark Material You color accents apply properly.
+1. **Visual GTK app rendering** — Completed and signed off in `25-UAT.md`. Tested across GTK 3/4 applications with dark Adwaita styling and dynamic wallpaper accents. Toolkit boundary between GTK and Qt 6/KDE applications documented.
 
 ## Verdict
 
-**PASSED** — All automated checks green, all must-haves verified, all 4 requirements (GTK-01, GTK-02, GTK-03, GTK-04) satisfied. One manual visual inspection item remains for `/gsd-verify-work`.
+**PASSED** — All automated checks green (46 checks across 5 sections), all must-haves across all 4 plans verified, all requirements (GTK-01..GTK-04, INTG-01, INTG-02) satisfied, code review clean, and all 5/5 UAT tests passed with gap G-25-5 resolved. Phase 25 goal is fully achieved.
