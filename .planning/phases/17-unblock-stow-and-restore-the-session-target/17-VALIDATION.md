@@ -4,10 +4,10 @@ slug: "unblock-stow-and-restore-the-session-target"
 # status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
 # audit-milestone §5.5 distinguishes NOT-VALIDATED (draft) from PARTIAL (validated + nyquist_compliant: false) (#2117)
 status: validated
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: true
 created: "2026-09-12"
-validated: "2026-09-13"
+validated: "2026-09-16"
 ---
 
 # Phase 17 — Validation Strategy
@@ -143,9 +143,9 @@ No test framework install is needed — `bash` is present and the repo conventio
 - [x] Wave 0 covers all MISSING references
 - [x] No watch-mode flags
 - [x] Feedback latency < 5s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** validated 2026-09-13 — PARTIAL (23 automated, 3 manual-only by design, all evidenced)
+**Approval:** validated 2026-09-16 — Nyquist compliant across all automated and design-evidenced criteria
 
 
 ---

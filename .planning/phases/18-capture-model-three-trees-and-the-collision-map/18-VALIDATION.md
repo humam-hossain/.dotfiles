@@ -1,12 +1,11 @@
 ---
 phase: "18"
 slug: "capture-model-three-trees-and-the-collision-map"
-# status lifecycle: draft (seeded by plan-phase) → validated (set by validate-phase §6)
-# audit-milestone §5.5 distinguishes NOT-VALIDATED (draft) from PARTIAL (validated + nyquist_compliant: false) (#2117)
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: validated
+nyquist_compliant: true
+wave_0_complete: true
 created: "2026-09-13"
+validated: "2026-09-16"
 ---
 
 # Phase 18 — Validation Strategy
@@ -44,25 +43,24 @@ Existing assert inventory (verified against `ls scripts/`): `phase02-config-asse
 
 ## Per-Task Verification Map
 
-Task IDs are assigned when `18-*-PLAN.md` is written; `validate-phase` fills the Task ID / Plan / Wave
-columns. The requirement-to-command mapping below is fixed by research and must not change.
+Task IDs are mapped to Phase 18 execution plans; all requirements are verified by `./scripts/phase18-capture-model-assert.sh`.
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| TBD | TBD | TBD | CAP-01 | — | N/A | integration | `./scripts/phase18-capture-model-assert.sh` §1 | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | CAP-02 | — | N/A | integration | `./scripts/phase18-capture-model-assert.sh` §2 | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | CAP-03 | — | N/A | integration | `./scripts/phase18-capture-model-assert.sh` §3 | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | CAP-03 (determinism, F-3) | — | N/A | unit | `./scripts/phase18-capture-model-assert.sh` §3 | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | CAP-08 | T-18-flag-smuggling | `--exp-files` refused before dispatch; never forwarded to `./setup` | e2e | `./scripts/phase18-capture-model-assert.sh` §4 | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | CAP-07 | — | `--adopt` absent under `arch/` and `scripts/` | unit | `./scripts/phase18-capture-model-assert.sh` §5 | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | FIX-03 | — | N/A | integration | `./scripts/phase18-capture-model-assert.sh` §6 | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | FIX-05 | — | `verify` returns a real exit code with the submodule de-initialised | e2e | `./scripts/phase18-capture-model-assert.sh` §7 | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | CAP-05 | T-18-path-traversal | write confined under `capture/` by resolved-path comparison (D-39) | integration | `./scripts/phase18-capture-model-assert.sh` §7 | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | CAP-05 (untracked mirror, F-8) | T-18-dirty-check | untracked and absent mirrors are refused, not silently accepted | integration | `./scripts/phase18-capture-model-assert.sh` §7 | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | CAP-05 (D-42 dry run) | — | `--dry-run` leaves repo and `git status` unchanged | integration | `./scripts/phase18-capture-model-assert.sh` §7 | ❌ W0 | ⬜ pending |
-| TBD | TBD | TBD | CAP-05 (D-41 empty tree) | — | empty `capture/` exits 0 with an explicit message | integration | `./scripts/phase18-capture-model-assert.sh` §7 | ❌ W0 | ⬜ pending |
-| — | — | — | Phase 17 regression | — | N/A | regression | `./scripts/phase17-unblock-assert.sh` | ✅ exists (constant bumped per D-20) | ⬜ pending |
-| — | — | — | Phase 13/14 regression after the D-21 fixture repoint | — | N/A | regression | `./scripts/phase13-d19-assert.sh`, `./scripts/phase14-verify.sh` | ✅ exist (paths repointed) | ⬜ pending |
+| 18-02-01 | 18-02 | 1 | CAP-01 | — | N/A | integration | `./scripts/phase18-capture-model-assert.sh` §1 | ✅ exists | ✅ green |
+| 18-01-01 | 18-01 | 1 | CAP-02 | — | N/A | integration | `./scripts/phase18-capture-model-assert.sh` §2 | ✅ exists | ✅ green |
+| 18-01-02 | 18-01 | 1 | CAP-03 | — | N/A | integration | `./scripts/phase18-capture-model-assert.sh` §3 | ✅ exists | ✅ green |
+| 18-01-02 | 18-01 | 1 | CAP-03 (determinism, F-3) | — | N/A | unit | `./scripts/phase18-capture-model-assert.sh` §3 | ✅ exists | ✅ green |
+| 18-03-01 | 18-03 | 2 | CAP-08 | T-18-flag-smuggling | `--exp-files` refused before dispatch; never forwarded to `./setup` | e2e | `./scripts/phase18-capture-model-assert.sh` §4 | ✅ exists | ✅ green |
+| 18-02-02 | 18-02 | 1 | CAP-07 | — | `--adopt` absent under `arch/` and `scripts/` | unit | `./scripts/phase18-capture-model-assert.sh` §5 | ✅ exists | ✅ green |
+| 18-04-01 | 18-04 | 3 | FIX-03 | — | N/A | integration | `./scripts/phase18-capture-model-assert.sh` §6 | ✅ exists | ✅ green |
+| 18-04-02 | 18-04 | 3 | FIX-05 | — | `verify` returns a real exit code with the submodule de-initialised | e2e | `./scripts/phase18-capture-model-assert.sh` §7 | ✅ exists | ✅ green |
+| 18-04-03 | 18-04 | 3 | CAP-05 | T-18-path-traversal | write confined under `capture/` by resolved-path comparison (D-39) | integration | `./scripts/phase18-capture-model-assert.sh` §7 | ✅ exists | ✅ green |
+| 18-04-03 | 18-04 | 3 | CAP-05 (untracked mirror, F-8) | T-18-dirty-check | untracked and absent mirrors are refused, not silently accepted | integration | `./scripts/phase18-capture-model-assert.sh` §7 | ✅ exists | ✅ green |
+| 18-04-03 | 18-04 | 3 | CAP-05 (D-42 dry run) | — | `--dry-run` leaves repo and `git status` unchanged | integration | `./scripts/phase18-capture-model-assert.sh` §7 | ✅ exists | ✅ green |
+| 18-04-03 | 18-04 | 3 | CAP-05 (D-41 empty tree) | — | empty `capture/` exits 0 with an explicit message | integration | `./scripts/phase18-capture-model-assert.sh` §7 | ✅ exists | ✅ green |
+| — | — | — | Phase 17 regression | — | N/A | regression | `./scripts/phase17-unblock-assert.sh` | ✅ exists | ✅ green |
+| — | — | — | Phase 13/14 regression after the D-21 fixture repoint | — | N/A | regression | `./scripts/phase13-d19-assert.sh`, `./scripts/phase14-verify.sh` | ✅ exists | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -70,12 +68,12 @@ columns. The requirement-to-command mapping below is fixed by research and must 
 
 ## Wave 0 Requirements
 
-- [ ] `scripts/gen-collision-map.sh` — the generator; CAP-02, CAP-03. Must sort its `find` output (F-3) or regenerate-and-diff fires spuriously
-- [ ] `scripts/phase18-capture-model-assert.sh` — seven sections, one per ROADMAP success criterion; covers every phase requirement
-- [ ] `collision-map.tsv` — generated artifact, committed **before** any file move (D-26)
-- [ ] `stow/README.md`, `restow/README.md`, `capture/README.md` — CAP-01
-- [ ] `docs/archive/README.md` — D-27; the directory does not exist yet (`docs/` holds only `dots-hyprland-workflow.md` and `phase14-adopt-runbook.md`)
-- [ ] Framework install: **none** — the repo's assert-script model is the framework
+- [x] `scripts/gen-collision-map.sh` — the generator; CAP-02, CAP-03. Must sort its `find` output (F-3) or regenerate-and-diff fires spuriously
+- [x] `scripts/phase18-capture-model-assert.sh` — seven sections, one per ROADMAP success criterion; covers every phase requirement
+- [x] `collision-map.tsv` — generated artifact, committed **before** any file move (D-26)
+- [x] `stow/README.md`, `restow/README.md`, `capture/README.md` — CAP-01
+- [x] `docs/archive/README.md` — D-27; the directory does not exist yet (`docs/` holds only `dots-hyprland-workflow.md` and `phase14-adopt-runbook.md`)
+- [x] Framework install: **none** — the repo's assert-script model is the framework
 
 ---
 
@@ -93,11 +91,11 @@ into `stow/`. That end state is automatable and is exactly what D-17 specifies.
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** validated 2026-09-16
