@@ -49,7 +49,7 @@ coverage:
     description: "Author dedicated assert harness scripts/phase24-tech-debt-assert.sh covering Sections 1 to 5"
     requirement: DEBT-01..04
     verification:
-      - kind: harness
+      - kind: integration
         ref: "./scripts/phase24-tech-debt-assert.sh"
         status: pass
     human_judgment: false
@@ -57,7 +57,7 @@ coverage:
     description: "Update 24-VALIDATION.md, verify strict system integrity, and confirm milestone audit readiness"
     requirement: DEBT-01..04
     verification:
-      - kind: system
+      - kind: integration
         ref: "./arch/dots-hyprland.sh verify --strict && git status --porcelain"
         status: pass
     human_judgment: false
