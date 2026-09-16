@@ -49,7 +49,8 @@ patterns-established:
   - "Vacuity guard before ban-grep asserts target directories exist and contain files"
   - "Assert excludes itself by name when checking for forbidden flags"
 
-requirements-completed: [CAP-01, CAP-07]
+requirements-completed: [CAP-01, CAP-05, CAP-07]
+requirements_completed: [CAP-01, CAP-05, CAP-07]
 
 coverage:
   - id: D1

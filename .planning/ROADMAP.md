@@ -340,18 +340,23 @@ Plans:
 
 ### Phase 24: Address tech debt: bookkeeping and validation cleanup
 
-**Goal:** Address tech debt: bookkeeping and validation cleanup
+**Goal:** Address accumulated technical debt, metadata inconsistencies, and validation coverage gaps from Milestone v0.4 audit, and realign session keybindings for 100% cheatsheet accuracy
 **Depends on:** Phase 23
-**Requirements:** TBD
+**Requirements:** DEBT-01, DEBT-02, DEBT-03, DEBT-04
+**Success Criteria** (what must be TRUE):
+
+  1. REQUIREMENTS.md has 0 Pending markers for verified phases, DEBT-01..04 defined, and plan summaries 18-02, 18-03, 23-01, 23-02, 23-03 contain valid requirements_completed frontmatter (DEBT-01)
+  2. VALIDATION.md files for Phases 17, 18, 20, 21, 22, 23 updated with status: validated, wave_0_complete: true, and nyquist_compliant: true, documenting manual items and scratch boundary (DEBT-02)
+  3. .gitignore scopes *.socket with !stow/systemd/**; STATE.md affirms non-credential status of system_monitor .env and records 12 gitleaks allowlist entries; non-interactive --notify test passes (DEBT-03)
+  4. stow/hypr/.config/hypr/custom/keybinds.lua unbinds SUPER + SHIFT + L, binds SUPER + Scroll_Lock to sleep, SUPER + SHIFT + Scroll_Lock to logout, retains Scroll_Lock for lock screen; passes luac -p, zero duplicate chords, valid Category: Label taxonomy; live hyprctl binds -j confirms compositor binds (DEBT-04)
+
 **Plans:** 1/3 plans executed
 
 Plans:
 
-- [x] 24-01-PLAN.md
-- [ ] 24-02-PLAN.md
-- [ ] 24-03-PLAN.md
-
-- [ ] TBD (run /gsd-plan-phase 24 to break down)
+- [x] 24-01-PLAN.md — Desktop session keybind realignment and repository hygiene
+- [ ] 24-02-PLAN.md — Traceability bookkeeping, plan summary backfill, and Nyquist validation reconciliation
+- [ ] 24-03-PLAN.md — Dedicated assert harness, strict system verification, and milestone audit clean status
 
 ## Progress
 
@@ -382,7 +387,7 @@ Plans:
 | 23. One-command bootstrap | v0.4 | 3/3 | Complete    | 2026-09-15 |
 | 24. Address tech debt: bookkeeping and validation cleanup | v0.4 | 1/3 | In Progress|  |
 
-**Coverage:** v0.1 shipped · v0.2 shipped · v0.3 shipped · v0.4 in progress — 35/35 requirements mapped across Phases 17-23, 0 unmapped
+**Coverage:** v0.1 shipped · v0.2 shipped · v0.3 shipped · v0.4 in progress — 39/39 requirements mapped across Phases 17-24, 0 unmapped
 
 ---
 *Last updated: 2026-09-15 — Phase 24 added to v0.4*

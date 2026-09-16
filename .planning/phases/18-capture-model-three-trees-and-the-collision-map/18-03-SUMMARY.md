@@ -45,6 +45,7 @@ patterns-established:
   - "Dry-run flag pairing in behavioural asserts to safeguard against gate regressions"
 
 requirements-completed: [CAP-08]
+requirements_completed: [CAP-08]
 
 coverage:
   - id: D1
@@ -61,7 +62,7 @@ coverage:
       - kind: integration
         ref: "git diff HEAD~1 -- .planning/research/PITFALLS.md"
         status: pass
-      human_judgment: false
+    human_judgment: false
 
 # Metrics
 duration: 7 min

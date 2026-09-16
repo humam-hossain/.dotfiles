@@ -72,6 +72,13 @@ Currently-live defects. Nothing else in the milestone works until these land.
 - [x] **BOOT-04**: Bootstrap ends in a `verify` pass, so "reproduces the exact setup" is asserted rather than assumed
 - [x] **BOOT-05**: Explicitly installed package lists (`pacman -Qqen`, `pacman -Qqem`) are snapshotted into the repo as data
 
+### Tech Debt & Validation Cleanup
+
+- [x] **DEBT-01**: Traceability and plan summary bookkeeping complete with zero stale status markers
+- [x] **DEBT-02**: Nyquist validation compliance achieved across all v0.4 phases (17-23)
+- [x] **DEBT-03**: Repository hygiene items triaged and resolved (.gitignore scoping, .env documentation, gitleaks accepted risk, notify test coverage)
+- [x] **DEBT-04**: Session keybindings realigned (sleep on SUPER + Scroll_Lock, logout on SUPER + SHIFT + Scroll_Lock) with 100% Quickshell cheatsheet accuracy
+
 ## v2 Requirements
 
 Deferred. Tracked, not in this roadmap.
@@ -129,30 +136,34 @@ Mapped during roadmap creation (2026-09-12). Every v0.4 requirement maps to exac
 | VER-02 | Phase 19 | Link-aware `verify` | Complete |
 | VER-03 | Phase 19 | Link-aware `verify` | Complete |
 | VER-04 | Phase 19 | Link-aware `verify` | Complete |
-| HYPR-01 | Phase 20 | hypr/custom overlays and startup restore | Pending |
-| HYPR-02 | Phase 20 | hypr/custom overlays and startup restore | Pending |
-| HYPR-03 | Phase 20 | hypr/custom overlays and startup restore | Pending |
-| START-01 | Phase 20 | hypr/custom overlays and startup restore | Pending |
-| SAFE-01 | Phase 20 | hypr/custom overlays and startup restore | Pending |
+| HYPR-01 | Phase 20 | hypr/custom overlays and startup restore | Complete |
+| HYPR-02 | Phase 20 | hypr/custom overlays and startup restore | Complete |
+| HYPR-03 | Phase 20 | hypr/custom overlays and startup restore | Complete |
+| START-01 | Phase 20 | hypr/custom overlays and startup restore | Complete |
+| SAFE-01 | Phase 20 | hypr/custom overlays and startup restore | Complete |
 | BAR-01 | Phase 21 | ii bar config capture | Complete |
 | BAR-02 | Phase 21 | ii bar config capture | Complete |
 | CAP-06 | Phase 21 | ii bar config capture | Complete |
 | KDE-01 | Phase 22 | KDE and GTK capture | Complete |
 | KDE-02 | Phase 22 | KDE and GTK capture | Complete |
 | KDE-03 | Phase 22 | KDE and GTK capture | Complete |
-| BOOT-01 | Phase 23 | One-command bootstrap | Pending |
-| BOOT-02 | Phase 23 | One-command bootstrap | Pending |
-| BOOT-03 | Phase 23 | One-command bootstrap | Pending |
-| BOOT-04 | Phase 23 | One-command bootstrap | Pending |
-| BOOT-05 | Phase 23 | One-command bootstrap | Pending |
+| BOOT-01 | Phase 23 | One-command bootstrap | Complete |
+| BOOT-02 | Phase 23 | One-command bootstrap | Complete |
+| BOOT-03 | Phase 23 | One-command bootstrap | Complete |
+| BOOT-04 | Phase 23 | One-command bootstrap | Complete |
+| BOOT-05 | Phase 23 | One-command bootstrap | Complete |
+| DEBT-01 | Phase 24 | Address tech debt: bookkeeping and validation cleanup | Complete |
+| DEBT-02 | Phase 24 | Address tech debt: bookkeeping and validation cleanup | Complete |
+| DEBT-03 | Phase 24 | Address tech debt: bookkeeping and validation cleanup | Complete |
+| DEBT-04 | Phase 24 | Address tech debt: bookkeeping and validation cleanup | Complete |
 
 **Coverage:**
 
-- v0.4 requirements: 35 total
-- Mapped: 35
+- v0.4 requirements: 39 total
+- Mapped: 39
 - Unmapped: 0 ✓
 
-**Per-phase counts:** Phase 17 — 7 · Phase 18 — 8 · Phase 19 — 4 · Phase 20 — 5 · Phase 21 — 3 · Phase 22 — 3 · Phase 23 — 5 — 35 total
+**Per-phase counts:** Phase 17 — 7 · Phase 18 — 8 · Phase 19 — 4 · Phase 20 — 5 · Phase 21 — 3 · Phase 22 — 3 · Phase 23 — 5 · Phase 24 — 4 — 39 total
 
 **Mapping notes:**
 

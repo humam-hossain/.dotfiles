@@ -9,7 +9,8 @@ key-files:
     - scripts/phase23-bootstrap-assert.sh
   modified:
     - arch/dots-hyprland.sh
-requirements: [BOOT-01]
+requirements: [BOOT-01, BOOT-02]
+requirements_completed: [BOOT-01, BOOT-02]
 status: complete
 completed_at: 2026-09-15T11:45:00Z
 ---

@@ -7,7 +7,8 @@ key-files:
   modified:
     - bootstrap.sh
     - scripts/phase23-bootstrap-assert.sh
-requirements: [BOOT-02]
+requirements: [BOOT-03, BOOT-05]
+requirements_completed: [BOOT-03, BOOT-05]
 status: complete
 completed_at: 2026-09-15T12:12:00Z
 ---
