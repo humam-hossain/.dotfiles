@@ -121,7 +121,7 @@ Plans:
   1. Qt applications load Kvantum engine configured with dots-hyprland Material theme.
   2. `kde-material-you-colors` script executes on wallpaper update, refreshing `~/.config/kdeglobals` color tokens without manual file edits.
   3. Dolphin and KDE file dialogs render consistently with the dark dynamic Material palette.
-- **Plans:** 1/3 plans executed
+- **Plans:** 2/3 plans executed
 
 Plans:
 **Wave 1**
@@ -130,7 +130,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 26-02-PLAN.md — Qt style engine alignment and dynamic Material You color generation pipeline verification (Sections 3 & 4)
+- [x] 26-02-PLAN.md — Qt style engine alignment and dynamic Material You color generation pipeline verification (Sections 3 & 4)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -191,7 +191,7 @@ Plans:
 | 23. One-command bootstrap | v0.4 | 3/3 | Complete | 2026-09-15 |
 | 24. Address tech debt: bookkeeping and validation cleanup | v0.4 | 3/3 | Complete | 2026-09-16 |
 | 25. GTK Material You Theming & Catppuccin De-linking | v0.5 | 4/4 | Complete    | 2026-09-17 |
-| 26. Qt & KDE Apps Material You Harmonization | v0.5 | 1/3 | In Progress|  |
+| 26. Qt & KDE Apps Material You Harmonization | v0.5 | 2/3 | In Progress|  |
 | 27. Hyprland & Quickshell ii Accent Coordination | v0.5 | 0/0 | Planned | — |
 | 28. Terminal & Fuzzel Launcher Dynamic Palette | v0.5 | 0/0 | Planned | — |
 | 29. Theme Data Contracts, Verification & Bootstrap Integration | v0.5 | 0/0 | Planned | — |
