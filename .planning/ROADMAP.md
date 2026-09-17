@@ -80,7 +80,7 @@ Milestone audit: [milestones/v0.4-MILESTONE-AUDIT.md](milestones/v0.4-MILESTONE-
 
 - [x] **Phase 25: GTK Material You Theming & Catppuccin De-linking** (0/3 plans) — Retire legacy Catppuccin assets/symlinks from `~/.config/gtk-4.0/` and `stow/gtk/`, configure `adw-gtk3` base theme, and wire Matugen dynamic GTK-3/4 CSS generation from wallpaper. (completed 2026-09-16)
 - [x] **Phase 26: Qt & KDE Apps Material You Harmonization** — Align Qt 5/6, Kvantum, and KDE applications (Dolphin, Kate) with Material You color palette and dynamic wallpaper updates. (completed 2026-09-17)
-- [ ] **Phase 27: Hyprland & Quickshell ii Accent Coordination** — Coordinate Hyprland window decorations, active/inactive borders, and Quickshell ii widget accents with Matugen generated colors and wallpaper reload.
+- [x] **Phase 27: Hyprland & Quickshell ii Accent Coordination** — Coordinate Hyprland window decorations, active/inactive borders, and Quickshell ii widget accents with Matugen generated colors and wallpaper reload. (completed 2026-09-17)
 - [ ] **Phase 28: Terminal & Fuzzel Launcher Dynamic Palette** — Extend dynamic Material You styling to Fuzzel app launcher and terminal emulators.
 - [ ] **Phase 29: Theme Data Contracts, Verification & Bootstrap Integration** — Reconcile `guard-paths.tsv`, update `collision-map.tsv`, verify zero git churn on theme generation, and validate `./bootstrap.sh`.
 
@@ -144,20 +144,20 @@ Plans:
   1. Hyprland active border colors bind directly to Matugen `colors.lua` palette values.
   2. Quickshell ii top bar icons, metric rings, and active states reflect Material You palette tokens.
   3. Invoking `switchwall.sh` triggers wallpaper transition and propagates palette updates to Hyprland borders, Quickshell, GTK, and Qt in one coordinated flow.
-- **Plans:** 0/3 plans complete
+- **Plans:** 3/3 plans complete
 
 Plans:
 **Wave 1**
 
-- [ ] 27-01-PLAN.md — tracer: Phase 27 assertion harness scaffolding, template & config readiness, and upstream overlay purity (Section 1)
+- [x] 27-01-PLAN.md — tracer: Phase 27 assertion harness scaffolding, template & config readiness, and upstream overlay purity (Section 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 27-02-PLAN.md — Hyprland window borders & compositor token match and Quickshell ii token schema & appearance integrity (Sections 2 & 3)
+- [x] 27-02-PLAN.md — Hyprland window borders & compositor token match and Quickshell ii token schema & appearance integrity (Sections 2 & 3)
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 27-03-PLAN.md — Live coordinated wallpaper reload probe, strict repository verification, zero git drift, and validation sign-off (Sections 4 & 5)
+- [x] 27-03-PLAN.md — Live coordinated wallpaper reload probe, strict repository verification, zero git drift, and validation sign-off (Sections 4 & 5)
 
 ### Phase 28: Terminal & Fuzzel Launcher Dynamic Palette
 
@@ -206,7 +206,7 @@ Plans:
 | 24. Address tech debt: bookkeeping and validation cleanup | v0.4 | 3/3 | Complete | 2026-09-16 |
 | 25. GTK Material You Theming & Catppuccin De-linking | v0.5 | 4/4 | Complete    | 2026-09-17 |
 | 26. Qt & KDE Apps Material You Harmonization | v0.5 | 3/3 | Complete    | 2026-09-17 |
-| 27. Hyprland & Quickshell ii Accent Coordination | v0.5 | 0/3 | Planned | — |
+| 27. Hyprland & Quickshell ii Accent Coordination | v0.5 | 3/3 | Complete   | 2026-09-17 |
 | 28. Terminal & Fuzzel Launcher Dynamic Palette | v0.5 | 0/0 | Planned | — |
 | 29. Theme Data Contracts, Verification & Bootstrap Integration | v0.5 | 0/0 | Planned | — |
 
