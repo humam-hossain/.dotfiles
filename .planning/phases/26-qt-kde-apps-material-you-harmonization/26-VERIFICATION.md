@@ -1,10 +1,12 @@
 ---
 phase: 26
-status: human_needed
+status: passed
 automated_checks: 23
 human_verification:
+
   - "Visual inspection of Dolphin and Gwenview active UI render: Open Dolphin and Gwenview; confirm window background, view areas, and navigation sidebars inherit dark Material You palette accents from wallpaper without style collisions."
   - "Desktop FileChooser portal dialog: Open a file picker dialog from an application and verify it renders the KDE portal file dialog with dark Material You styling."
+
 requirements_verified: [QT-01, QT-02, QT-03, INTG-01, INTG-02]
 verified: "2026-09-17"
 ---

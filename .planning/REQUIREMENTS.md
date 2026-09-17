@@ -14,9 +14,9 @@
 
 ### QT (Qt 5/6 & KDE Applications)
 
-- [ ] **QT-01**: Qt applications use Kvantum theme with dots-hyprland / Material You configuration.
-- [ ] **QT-02**: `kde-material-you-colors` dynamically updates `kdeglobals` color scheme upon wallpaper change without manual intervention.
-- [ ] **QT-03**: KDE applications (Dolphin, Kate, Gwenview) render with consistent Material You color scheme and dark palette.
+- [x] **QT-01**: Qt applications use Kvantum theme with dots-hyprland / Material You configuration.
+- [x] **QT-02**: `kde-material-you-colors` dynamically updates `kdeglobals` color scheme upon wallpaper change without manual intervention.
+- [x] **QT-03**: KDE applications (Dolphin, Kate, Gwenview) render with consistent Material You color scheme and dark palette.
 
 ### SHELL (Hyprland & Quickshell ii)
 
@@ -66,9 +66,9 @@
 | GTK-02 | Phase 25 | Complete |
 | GTK-03 | Phase 25 | Complete |
 | GTK-04 | Phase 25 | Complete |
-| QT-01 | Phase 26 | Pending |
-| QT-02 | Phase 26 | Pending |
-| QT-03 | Phase 26 | Pending |
+| QT-01 | Phase 26 | Complete |
+| QT-02 | Phase 26 | Complete |
+| QT-03 | Phase 26 | Complete |
 | SHELL-01 | Phase 27 | Pending |
 | SHELL-02 | Phase 27 | Pending |
 | SHELL-03 | Phase 27 | Pending |
