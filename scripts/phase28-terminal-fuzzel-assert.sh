@@ -320,7 +320,70 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
   info "--- Section 4: Live Reload Drill & Process Signaling (TERM-01, TERM-02, D-05, D-18) ---"
-  # Stub: implemented in Plan 28-03
+
+  SWITCHWALL="$XDG_CONFIG_HOME/quickshell/ii/scripts/colors/switchwall.sh"
+  if [[ -x "$SWITCHWALL" ]]; then
+    pass "S4: switchwall.sh orchestrator exists and is executable ($SWITCHWALL)"
+  else
+    fail "S4: switchwall.sh missing or not executable ($SWITCHWALL)"
+  fi
+
+  LIVE_FUZZEL_THEME="$XDG_CONFIG_HOME/fuzzel/fuzzel_theme.ini"
+  LIVE_KITTY_THEME="$XDG_STATE_HOME/quickshell/user/generated/terminal/kitty-theme.conf"
+  LIVE_SEQUENCES="$XDG_STATE_HOME/quickshell/user/generated/terminal/sequences.txt"
+
+  BEFORE_FUZZEL_MTIME="$(stat -c %Y "$LIVE_FUZZEL_THEME" 2>/dev/null || echo 0)"
+  BEFORE_KITTY_MTIME="$(stat -c %Y "$LIVE_KITTY_THEME" 2>/dev/null || echo 0)"
+  BEFORE_SEQ_MTIME="$(stat -c %Y "$LIVE_SEQUENCES" 2>/dev/null || echo 0)"
+
+  # Guarantee filesystem clock-tick before triggering reload
+  sleep 1
+
+  # Execute wallpaper reload pipeline without changing wallpaper
+  SW_RC=0
+  "$SWITCHWALL" --noswitch >/dev/null 2>&1 || SW_RC=$?
+  if [[ "$SW_RC" -eq 0 ]]; then
+    pass "S4: switchwall.sh --noswitch completed successfully with exit 0"
+  else
+    fail "S4: switchwall.sh --noswitch failed with exit code $SW_RC"
+  fi
+
+  # Record post-run mtimes
+  AFTER_FUZZEL_MTIME="$(stat -c %Y "$LIVE_FUZZEL_THEME" 2>/dev/null || echo 0)"
+  AFTER_KITTY_MTIME="$(stat -c %Y "$LIVE_KITTY_THEME" 2>/dev/null || echo 0)"
+  AFTER_SEQ_MTIME="$(stat -c %Y "$LIVE_SEQUENCES" 2>/dev/null || echo 0)"
+
+  if [[ "$AFTER_FUZZEL_MTIME" -gt "$BEFORE_FUZZEL_MTIME" ]]; then
+    pass "S4: fuzzel_theme.ini mtime advanced ($BEFORE_FUZZEL_MTIME -> $AFTER_FUZZEL_MTIME) (D-12)"
+  else
+    fail "S4: fuzzel_theme.ini mtime was not updated by switchwall.sh"
+  fi
+
+  if [[ "$AFTER_KITTY_MTIME" -gt "$BEFORE_KITTY_MTIME" ]]; then
+    pass "S4: kitty-theme.conf mtime advanced ($BEFORE_KITTY_MTIME -> $AFTER_KITTY_MTIME) (D-05)"
+  else
+    fail "S4: kitty-theme.conf mtime was not updated by switchwall.sh"
+  fi
+
+  if [[ "$AFTER_SEQ_MTIME" -gt "$BEFORE_SEQ_MTIME" ]]; then
+    pass "S4: sequences.txt mtime advanced ($BEFORE_SEQ_MTIME -> $AFTER_SEQ_MTIME) (D-06)"
+  else
+    fail "S4: sequences.txt mtime was not updated by switchwall.sh"
+  fi
+
+  # Dual-mode Kitty process probe
+  if pgrep -f kitty >/dev/null; then
+    KITTY_PID="$(pidof kitty 2>/dev/null | awk '{print $1}' || pgrep -f kitty | head -1)"
+    kill -SIGUSR1 "$KITTY_PID" 2>/dev/null || true
+    sleep 0.2
+    if kill -0 "$KITTY_PID" 2>/dev/null; then
+      pass "S4: Running Kitty (PID $KITTY_PID) handled SIGUSR1 reload live without terminating (D-05, D-18)"
+    else
+      fail "S4: Kitty process died after SIGUSR1 reload"
+    fi
+  else
+    info "S4: Kitty not currently running; headless syntax check satisfied by Section 3 probe (D-18)"
+  fi
 fi
 
 # ===========================================================================
@@ -328,7 +391,39 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
   info "--- Section 5: Strict Verification Engine & Zero Git Drift (INTG-01, INTG-02, D-17, D-19) ---"
-  # Stub: implemented in Plan 28-03
+
+  # 1. Cleanliness of packaging trees
+  DIRTY_PACKAGES="$(git status --porcelain stow/ restow/ capture/ || true)"
+  if [[ -z "$DIRTY_PACKAGES" ]]; then
+    pass "S5: Packaging directories (stow/, restow/, capture/) are 100% clean (INTG-02)"
+  else
+    fail "S5: Packaging directories dirty: $DIRTY_PACKAGES (INTG-02)"
+  fi
+
+  # 2. Strict verification engine run
+  VERIFY_RC=0
+  VERIFY_OUT="$("$REPO_ROOT/arch/dots-hyprland.sh" verify --strict 2>&1)" || VERIFY_RC=$?
+  if [[ "$VERIFY_RC" -eq 0 ]]; then
+    pass "S5: arch/dots-hyprland.sh verify --strict passed with 0 findings (INTG-02)"
+  else
+    fail "S5: arch/dots-hyprland.sh verify --strict failed (rc=$VERIFY_RC) (INTG-02)"
+    printf '%s\n' "$VERIFY_OUT" | sed 's/^/       /' >&2
+  fi
+
+  # 3. Assert search.py and scroll_mark.py claimed as verified
+  if echo "$VERIFY_OUT" | grep -q 'verified: .*/\.config/kitty/search\.py' && \
+     echo "$VERIFY_OUT" | grep -q 'verified: .*/\.config/kitty/scroll_mark\.py'; then
+    pass "S5: Helper kittens claimed as verified links rather than unclaimed stubs (D-03)"
+  else
+    fail "S5: Helper kittens not classified as verified links by verify engine"
+  fi
+
+  # 4. Assert fuzzel_theme.ini claimed as guarded theme output
+  if echo "$VERIFY_OUT" | grep -q 'guarded theme output: .*/\.config/fuzzel/fuzzel_theme\.ini'; then
+    pass "S5: fuzzel_theme.ini classified as guarded theme output (D-16, INTG-01)"
+  else
+    fail "S5: fuzzel_theme.ini not classified as guarded theme output by verify engine"
+  fi
 fi
 
 # ===========================================================================
