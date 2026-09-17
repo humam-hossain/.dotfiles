@@ -11,6 +11,8 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+
 ASSERT_SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename -- "${BASH_SOURCE[0]}")"
 
 FAIL=0
@@ -161,23 +163,24 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
   # 4. guard-paths.tsv contracts (Kvantum & kde-material-you-colors) (D-02, D-04, INTG-01)
   GUARD_TSV="$REPO_ROOT/guard-paths.tsv"
   if grep -qF '$XDG_CONFIG_HOME/Kvantum' "$GUARD_TSV"; then
-    pass "S3: guard-paths.tsv guards $XDG_CONFIG_HOME/Kvantum (D-02)"
+    pass "S3: guard-paths.tsv guards \$XDG_CONFIG_HOME/Kvantum (D-02)"
   else
-    fail "S3: guard-paths.tsv missing $XDG_CONFIG_HOME/Kvantum guard (D-02)"
+    fail "S3: guard-paths.tsv missing \$XDG_CONFIG_HOME/Kvantum guard (D-02)"
   fi
 
   if grep -qF '$XDG_CONFIG_HOME/kde-material-you-colors' "$GUARD_TSV"; then
-    pass "S3: guard-paths.tsv guards $XDG_CONFIG_HOME/kde-material-you-colors (D-04, INTG-01)"
+    pass "S3: guard-paths.tsv guards \$XDG_CONFIG_HOME/kde-material-you-colors (D-04, INTG-01)"
   else
-    fail "S3: guard-paths.tsv missing $XDG_CONFIG_HOME/kde-material-you-colors guard (D-04, INTG-01)"
+    fail "S3: guard-paths.tsv missing \$XDG_CONFIG_HOME/kde-material-you-colors guard (D-04, INTG-01)"
   fi
 
-  # Tab separation validation
-  BAD_SPACES="$(grep -F '$XDG_CONFIG_HOME/kde-material-you-colors' "$GUARD_TSV" | grep ' ' || true)"
-  if [[ -z "$BAD_SPACES" ]]; then
+  # Tab separation validation (INTG-01): ensure columns are delimited by tabs
+  ROW="$(grep -F '$XDG_CONFIG_HOME/kde-material-you-colors' "$GUARD_TSV" || true)"
+  IFS=$'\t' read -r c1 c2 c3 c4 <<< "$ROW"
+  if [[ "$c1" == '$XDG_CONFIG_HOME/kde-material-you-colors' && "$c2" == "generated_theme" && "$c3" == "kde-material-you-colors" && -n "$c4" && ! "$c1" =~ [[:space:]] && ! "$c2" =~ [[:space:]] && ! "$c3" =~ [[:space:]] ]]; then
     pass "S3: kde-material-you-colors guard entry strictly tab-separated (INTG-01)"
   else
-    fail "S3: kde-material-you-colors guard entry contains spaces instead of tabs (INTG-01)"
+    fail "S3: kde-material-you-colors guard entry not properly tab-separated (INTG-01)"
   fi
 fi
 
