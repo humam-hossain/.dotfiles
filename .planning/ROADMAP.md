@@ -121,6 +121,13 @@ Plans:
   1. Qt applications load Kvantum engine configured with dots-hyprland Material theme.
   2. `kde-material-you-colors` script executes on wallpaper update, refreshing `~/.config/kdeglobals` color tokens without manual file edits.
   3. Dolphin and KDE file dialogs render consistently with the dark dynamic Material palette.
+- **Plans:** 3 plans
+
+Plans:
+- [ ] 26-01-PLAN.md — tracer: Guard path registration and Phase 26 assertion harness scaffolding with virtualenv & environment assertions (Sections 1 & 2)
+- [ ] 26-02-PLAN.md — Qt style engine alignment and dynamic Material You color generation pipeline verification (Sections 3 & 4)
+- [ ] 26-03-PLAN.md — Desktop file picker portal integration, KDE applications verification, strict repository verification, and validation sign-off (Section 5)
+
 
 ### Phase 27: Hyprland & Quickshell ii Accent Coordination
 
