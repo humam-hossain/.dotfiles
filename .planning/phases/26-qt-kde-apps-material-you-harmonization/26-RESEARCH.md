@@ -329,12 +329,12 @@ grep -q "^\[Colors:View\]" "$HOME/.config/kdeglobals"
 | A1 | Gwenview and Dolphin do not require customized font configs beyond `kdeglobals` | User Constraints D-10 | Low. Font settings in `kdeglobals` (`Google Sans Flex`) are applied globally to all KDE applications. |
 | A2 | User desktop runs under standard Wayland session with `XDG_CURRENT_DESKTOP=Hyprland` | Common Pitfalls | Low. Upstream session script sets these environment variables consistently. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Wallpaper test fixture choice in Section 4 of assert harness:**
+1. **Wallpaper test fixture choice in Section 4 of assert harness:** — **RESOLVED**
    - What we know: `switchwall.sh` writes the current wallpaper path to `~/.local/state/quickshell/user/generated/wallpaper/path.txt` and primary color to `color.txt`.
    - What's unclear: If `color.txt` is missing on a fresh machine prior to first wallpaper selection.
-   - Recommendation: Follow Phase 25 pattern: use the path/color from `~/.local/state/quickshell/...` if present, with fallback to active wallpaper query or default seed `#82d3e1`.
+   - RESOLVED: Use `~/.local/state/quickshell/...` if present with fallback to active wallpaper or default seed `#82d3e1` per CONTEXT.md discretion and Plan 26-02 Task 2 action.
 
 ## Environment Availability
 
