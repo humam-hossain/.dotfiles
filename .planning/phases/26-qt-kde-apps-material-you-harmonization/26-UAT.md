@@ -1,36 +1,34 @@
 ---
-status: testing
+status: complete
 phase: 26-qt-kde-apps-material-you-harmonization
 source: [26-VERIFICATION.md]
 started: "2026-09-17T03:56:50Z"
-updated: "2026-09-17T03:56:50Z"
+updated: "2026-09-17T10:16:22+06:00"
 ---
 
 ## Current Test
 
-number: 1
-name: Visual inspection of Dolphin and Gwenview active UI render
-expected: |
-  Open Dolphin and Gwenview; confirm window background, view areas, and navigation sidebars inherit dark Material You palette accents from wallpaper without style collisions.
-awaiting: user response
+[testing complete]
 
 ## Tests
 
 ### 1. Visual inspection of Dolphin and Gwenview active UI render
 expected: Open Dolphin and Gwenview; confirm window background, view areas, and navigation sidebars inherit dark Material You palette accents from wallpaper without style collisions.
-result: [pending]
+result: pass
 
 ### 2. Desktop FileChooser portal dialog
 expected: Open a file picker dialog from an application and verify it renders the KDE portal file dialog with dark Material You styling.
-result: [pending]
+result: pass
 
 ## Summary
 
 total: 2
-passed: 0
+passed: 2
 issues: 0
-pending: 2
+pending: 0
 skipped: 0
 blocked: 0
 
 ## Gaps
+
+[none yet]
