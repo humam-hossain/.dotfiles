@@ -149,6 +149,14 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Dynamic Material You palette generation via `kde-material-you-colors` updating `kdeglobals` color tokens with dark luminance invariant (< 0.25) — Phase 26 / QT-02
 - ✓ Desktop FileChooser portal mapped to KDE and target KDE applications (Dolphin, Gwenview) harmonized with unmanaged live configs — Phase 26 / QT-03
 - ✓ Guard path registration for `$XDG_CONFIG_HOME/kde-material-you-colors` in `guard-paths.tsv` with zero upstream git churn — Phase 26 / INTG-01, INTG-02
+- ✓ Active/inactive Hyprland borders and pinned accents bound to Material You palette via `colors.lua` — Phase 27 / SHELL-01
+- ✓ Quickshell ii widget accents and token schema harmonized with `colors.json` — Phase 27 / SHELL-02
+- ✓ Live wallpaper reload pipeline via `switchwall.sh` coordinates Matugen, compositor, and shell with zero session restarts — Phase 27 / SHELL-03
+- ✓ Guard path registration for `$XDG_CONFIG_HOME/hypr/hyprland/colors.lua` with strict verification engine pass — Phase 27 / INTG-01, INTG-02
+- ✓ Fuzzel launcher styled with dynamic Material You palette tokens via Matugen template with 8-digit hex and solid/border alpha — Phase 28 / TERM-01
+- ✓ Kitty terminal emulator themes dynamically via included `kitty-theme.conf` and reloads via SIGUSR1 with 0.85 background opacity — Phase 28 / TERM-02
+- ✓ Guard path registration for `$XDG_CONFIG_HOME/fuzzel/fuzzel_theme.ini` in `guard-paths.tsv` — Phase 28 / INTG-01
+- ✓ Strict verification engine & zero git drift compliance — Phase 28 / INTG-02
 
 ### Validated — v0.3 (shipped)
 
@@ -182,8 +190,6 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 ### Active
 
-- [ ] Harmonize Hyprland borders, shadows, and Quickshell ii widget accents with dynamic palette
-- [ ] Configure Matugen templates for terminal emulators (Foot, Alacritty, Kitty) and Fuzzel
 - [ ] Reconcile `guard-paths.tsv`, `collision-map.tsv`, and `./bootstrap.sh` verification for theme outputs
 
 ### Carry-forward candidates (not yet committed requirements)
@@ -307,6 +313,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 27: Quickshell ii token schema and palette alignment | Consumes `colors.json` providing 8 Material 3 palette tokens, opaque container background, and warning thresholds (SHELL-02, D-13..D-15, D-18..D-20) | ✓ Section 3 FAIL=0, SHELL-02 |
 | Phase 27: Live coordinated wallpaper reload pipeline via `switchwall.sh` | Runs Matugen synchronously, monotonically updating `colors.lua` and `colors.json` with inotify live reload without restarting compositor or shell (SHELL-03, D-21..D-27, D-32) | ✓ Section 4 FAIL=0, SHELL-03 |
 | Phase 27: Strict guard path registration for `colors.lua` | Strictly guards `$XDG_CONFIG_HOME/hypr/hyprland/colors.lua` in `guard-paths.tsv`, maintaining 0 drift across `arch/dots-hyprland.sh verify --strict` (INTG-01, INTG-02) | ✓ Section 5 FAIL=0, INTG-01, INTG-02 |
+| Phase 28: Fuzzel launcher single-instance terminal runner and M3 colors | Configured terminal=kitty -1, radius 17, and dynamic theme include; Matugen template binds 7 color tokens with 8-digit hex (D-12..D-16) | ✓ Section 2 FAIL=0, TERM-01 |
+| Phase 28: Kitty upstream configuration layout with dynamic theme inclusion | Dynamic kitty-theme.conf inclusion, 0.85 opacity, shell zsh, claimed search.py and scroll_mark.py into stow/kitty/ (D-01..D-03, D-08, D-09) | ✓ Section 3 FAIL=0, TERM-02 |
+| Phase 28: Seamless live dynamic reload via SIGUSR1 on switchwall.sh | Synchronous Matugen generation updates fuzzel_theme.ini, kitty-theme.conf, and sequences.txt with strictly monotonic timestamps and SIGUSR1 signal without session drop (D-05, D-18) | ✓ Section 4 FAIL=0, TERM-01, TERM-02 |
+| Phase 28: Strict tab-separated guard path for fuzzel_theme.ini | Strictly guards $XDG_CONFIG_HOME/fuzzel/fuzzel_theme.ini in guard-paths.tsv, passing arch/dots-hyprland.sh verify --strict with 0 findings (INTG-01, INTG-02) | ✓ Section 5 FAIL=0, INTG-01, INTG-02 |
 
 ## Evolution
 
@@ -326,4 +336,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-17 after Phase 27*
+*Last updated: 2026-09-17 after Phase 28*

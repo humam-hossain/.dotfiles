@@ -26,8 +26,8 @@
 
 ### TERM (Terminals & Launchers)
 
-- [ ] **TERM-01**: Fuzzel launcher is configured with Matugen theme template (`~/.config/fuzzel/fuzzel_theme.ini`) matching wallpaper colors.
-- [ ] **TERM-02**: Terminal emulator (Foot / Kitty / Alacritty) dynamically reloads or adopts Matugen generated palette.
+- [x] **TERM-01**: Fuzzel launcher is configured with Matugen theme template (`~/.config/fuzzel/fuzzel_theme.ini`) matching wallpaper colors.
+- [x] **TERM-02**: Terminal emulator (Foot / Kitty / Alacritty) dynamically reloads or adopts Matugen generated palette.
 
 ### INTG (Data Contracts & Verification)
 
@@ -72,8 +72,8 @@
 | SHELL-01 | Phase 27 | Complete |
 | SHELL-02 | Phase 27 | Complete |
 | SHELL-03 | Phase 27 | Complete |
-| TERM-01 | Phase 28 | Pending |
-| TERM-02 | Phase 28 | Pending |
+| TERM-01 | Phase 28 | Complete |
+| TERM-02 | Phase 28 | Complete |
 | INTG-01 | Phase 29 | Pending |
 | INTG-02 | Phase 29 | Pending |
 | INTG-03 | Phase 29 | Pending |

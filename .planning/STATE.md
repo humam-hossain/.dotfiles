@@ -2,47 +2,47 @@
 gsd_state_version: "1.0"
 milestone: v0.5
 milestone_name: System-wide Material You theming (Phases 25-29)
-current_phase: 28
-current_phase_name: Terminal & Fuzzel Launcher Dynamic Palette
-status: executing
-stopped_at: Phase 28 context gathered
-last_updated: "2026-09-17T12:25:33.298Z"
+current_phase: 29
+current_phase_name: Theme Data Contracts, Verification & Bootstrap Integration
+status: planning
+stopped_at: Phase 28 complete, ready to plan Phase 29
+last_updated: "2026-09-17T13:41:38.161Z"
 last_activity: 2026-09-17
-last_activity_desc: Phase 28 execution started
-state_head: f4536c2893539d6bc52c608028606f3d25c8686f
+last_activity_desc: Phase 28 complete, transitioned to Phase 29
+state_head: 712d4484beea28c94d7fdf4f2fd45ba03e491172
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 13
-  completed_plans: 10
-  percent: 60
+  completed_plans: 13
+  percent: 80
 ---
 
 Total Phases: 5 (Phases 25-29)
-Progress: [████████████████████] 10/10 plans ([██████░░░░] 60%)
+Progress: [████████████████████] 13/13 plans ([████████░░] 80%)
 
 # Project State
 
 ## Current Position
 
-Phase: 28 (Terminal & Fuzzel Launcher Dynamic Palette) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 28
-Last activity: 2026-09-17 — Phase 28 execution started
+Phase: 29 — Theme Data Contracts, Verification & Bootstrap Integration
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-17 — Phase 28 complete, transitioned to Phase 29
 
 ## Session
 
-**Last session:** 2026-09-17T12:01:58.171Z
-**Stopped at:** Phase 28 context gathered
-**Resume file:** .planning/phases/28-terminal-fuzzel-launcher-dynamic-palette/28-CONTEXT.md
-**Next command:** /gsd-discuss-phase 28
+**Last session:** 2026-09-17T13:43:00.000Z
+**Stopped at:** Phase 28 complete, ready to plan Phase 29
+**Resume file:** None
+**Next command:** /gsd-plan-phase 29
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-17)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 28 — Terminal & Fuzzel Launcher Dynamic Palette
+**Current focus:** Phase 29 — Theme Data Contracts, Verification & Bootstrap Integration
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
@@ -108,6 +108,11 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 27: Live coordinated wallpaper reload pipeline via switchwall.sh synchronously updating colors.lua and colors.json (SHELL-03, D-21..D-27)
 - Phase 27: Strict guard path registration for colors.lua in guard-paths.tsv maintaining 0 drift across arch/dots-hyprland.sh verify --strict (INTG-01, INTG-02)
 - Phase 27: Automated 5-section assert harness scripts/phase27-accent-coordination-assert.sh passed 29 checks with FAIL=0 (D-28, D-29)
+- Phase 28: Fuzzel launcher single-instance terminal runner and M3 colors configured with terminal=kitty -1, radius 17, and dynamic theme include; Matugen template binds 7 color tokens with 8-digit hex (TERM-01, D-12..D-16)
+- Phase 28: Kitty upstream configuration layout with dynamic theme inclusion, 0.85 opacity, shell zsh, claimed search.py and scroll_mark.py into stow/kitty/ (TERM-02, D-01..D-03, D-08, D-09)
+- Phase 28: Seamless live dynamic reload via SIGUSR1 on switchwall.sh synchronously updating fuzzel_theme.ini, kitty-theme.conf, and sequences.txt with monotonic timestamps (TERM-01, TERM-02, D-05, D-18)
+- Phase 28: Strict tab-separated guard path for fuzzel_theme.ini in guard-paths.tsv passing arch/dots-hyprland.sh verify --strict with 0 findings (INTG-01, INTG-02)
+- Phase 28: Automated 5-section assert harness scripts/phase28-terminal-fuzzel-assert.sh passed 26 checks with FAIL=0 FINDINGS=0 (D-19)
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.  

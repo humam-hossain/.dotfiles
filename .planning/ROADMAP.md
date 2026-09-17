@@ -81,7 +81,7 @@ Milestone audit: [milestones/v0.4-MILESTONE-AUDIT.md](milestones/v0.4-MILESTONE-
 - [x] **Phase 25: GTK Material You Theming & Catppuccin De-linking** (0/3 plans) — Retire legacy Catppuccin assets/symlinks from `~/.config/gtk-4.0/` and `stow/gtk/`, configure `adw-gtk3` base theme, and wire Matugen dynamic GTK-3/4 CSS generation from wallpaper. (completed 2026-09-16)
 - [x] **Phase 26: Qt & KDE Apps Material You Harmonization** — Align Qt 5/6, Kvantum, and KDE applications (Dolphin, Kate) with Material You color palette and dynamic wallpaper updates. (completed 2026-09-17)
 - [x] **Phase 27: Hyprland & Quickshell ii Accent Coordination** — Coordinate Hyprland window decorations, active/inactive borders, and Quickshell ii widget accents with Matugen generated colors and wallpaper reload. (completed 2026-09-17)
-- [ ] **Phase 28: Terminal & Fuzzel Launcher Dynamic Palette** — Extend dynamic Material You styling to Fuzzel app launcher and terminal emulators.
+- [x] **Phase 28: Terminal & Fuzzel Launcher Dynamic Palette** — Extend dynamic Material You styling to Fuzzel app launcher and terminal emulators. (completed 2026-09-17)
 - [ ] **Phase 29: Theme Data Contracts, Verification & Bootstrap Integration** — Reconcile `guard-paths.tsv`, update `collision-map.tsv`, verify zero git churn on theme generation, and validate `./bootstrap.sh`.
 
 ## Phase Details
@@ -207,7 +207,7 @@ Plans:
 | 25. GTK Material You Theming & Catppuccin De-linking | v0.5 | 4/4 | Complete    | 2026-09-17 |
 | 26. Qt & KDE Apps Material You Harmonization | v0.5 | 3/3 | Complete    | 2026-09-17 |
 | 27. Hyprland & Quickshell ii Accent Coordination | v0.5 | 3/3 | Complete    | 2026-09-17 |
-| 28. Terminal & Fuzzel Launcher Dynamic Palette | v0.5 | 3/3 | In Progress|  |
+| 28. Terminal & Fuzzel Launcher Dynamic Palette | v0.5 | 3/3 | Complete    | 2026-09-17 |
 | 29. Theme Data Contracts, Verification & Bootstrap Integration | v0.5 | 0/0 | Planned | — |
 
 **Coverage:** v0.1–v0.4 shipped · v0.5 in progress — 15/15 requirements mapped across Phases 25–29, 0 unmapped
