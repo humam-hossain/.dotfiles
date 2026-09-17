@@ -316,17 +316,92 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
 fi
 
 # ===========================================================================
-# Section 4: Live Coordinated Reload Probe (SHELL-03, D-21, D-22, D-24, D-28, D-32) (stub)
+# Section 4: Live Coordinated Reload Probe (SHELL-03, D-21, D-22, D-24, D-28, D-32)
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
-  info "--- Section 4: Live Coordinated Reload Probe (stub) ---"
+  info "--- Section 4: Live Coordinated Reload Probe (SHELL-03, D-21, D-22, D-24, D-28, D-32) ---"
+
+  SWITCHWALL="$HOME/.config/quickshell/ii/scripts/colors/switchwall.sh"
+  LIVE_COLORS_LUA="$XDG_CONFIG_HOME/hypr/hyprland/colors.lua"
+  COLORS_JSON="$XDG_STATE_HOME/quickshell/user/generated/colors.json"
+
+  if [[ -x "$SWITCHWALL" ]]; then
+    pass "S4: switchwall.sh exists and is executable ($SWITCHWALL) (D-26)"
+  else
+    fail "S4: switchwall.sh missing or not executable ($SWITCHWALL) (D-26)"
+  fi
+
+  # Record pre-run mtimes
+  BEFORE_LUA_MTIME="$(stat -c %Y "$LIVE_COLORS_LUA" 2>/dev/null || echo 0)"
+  BEFORE_JSON_MTIME="$(stat -c %Y "$COLORS_JSON" 2>/dev/null || echo 0)"
+
+  # Allow filesystem timestamp clock tick
+  sleep 1
+
+  # Execute coordinated reload drill via --noswitch
+  SW_RC=0
+  "$SWITCHWALL" --noswitch >/dev/null 2>&1 || SW_RC=$?
+  if [[ "$SW_RC" -eq 0 ]]; then
+    pass "S4: switchwall.sh --noswitch executed successfully with exit 0 (SHELL-03, D-23)"
+  else
+    fail "S4: switchwall.sh --noswitch failed with exit code $SW_RC (SHELL-03, D-23)"
+  fi
+
+  # Record post-run mtimes
+  AFTER_LUA_MTIME="$(stat -c %Y "$LIVE_COLORS_LUA" 2>/dev/null || echo 0)"
+  AFTER_JSON_MTIME="$(stat -c %Y "$COLORS_JSON" 2>/dev/null || echo 0)"
+
+  if [[ "$AFTER_LUA_MTIME" -gt "$BEFORE_LUA_MTIME" ]]; then
+    pass "S4: colors.lua mtime advanced ($BEFORE_LUA_MTIME -> $AFTER_LUA_MTIME) (D-32)"
+  else
+    fail "S4: colors.lua mtime was not updated by switchwall.sh (D-32)"
+  fi
+
+  if [[ "$AFTER_JSON_MTIME" -gt "$BEFORE_JSON_MTIME" ]]; then
+    pass "S4: colors.json mtime advanced ($BEFORE_JSON_MTIME -> $AFTER_JSON_MTIME) (D-32)"
+  else
+    fail "S4: colors.json mtime was not updated by switchwall.sh (D-32)"
+  fi
+
+  # Inotify live border sync probe (when compositor active)
+  if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]] && command -v hyprctl &>/dev/null; then
+    sleep 0.2
+    new_active_raw="$(grep -oP '\bactive_border\s*=\s*"rgba\(\K[0-9a-fA-F]{8}' "$LIVE_COLORS_LUA" || true)"
+    if [[ -n "$new_active_raw" && ${#new_active_raw} -eq 8 ]]; then
+      exp_new="${new_active_raw:6:2}${new_active_raw:0:6}"
+      live_new="$(hyprctl -j getoption general:col.active_border 2>/dev/null | jq -r '.gradient // empty' | awk '{print $1}')"
+      if [[ -n "$live_new" && "${exp_new,,}" == "${live_new,,}" ]]; then
+        pass "S4: Hyprland inotify re-evaluated active_border live without restart ($live_new) (D-21)"
+      else
+        fail "S4: Hyprland inotify border mismatch: expected $exp_new, got $live_new (D-21)"
+      fi
+    fi
+  fi
 fi
 
 # ===========================================================================
-# Section 5: Strict Verification Engine & Zero Git Drift (INTG-01, INTG-02, D-28, D-29) (stub)
+# Section 5: Strict Verification Engine & Zero Git Drift (INTG-01, INTG-02, D-28, D-29)
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
-  info "--- Section 5: Strict Verification Engine & Zero Git Drift (stub) ---"
+  info "--- Section 5: Strict Verification Engine & Zero Git Drift (INTG-01, INTG-02, D-28, D-29) ---"
+
+  # 1. Cleanliness of packaging trees
+  DIRTY_PACKAGES="$(git status --porcelain stow/ restow/ capture/ || true)"
+  if [[ -z "$DIRTY_PACKAGES" ]]; then
+    pass "S5: Packaging directories (stow/, restow/, capture/) are 100% clean (INTG-02)"
+  else
+    fail "S5: Packaging directories dirty: $DIRTY_PACKAGES (INTG-02)"
+  fi
+
+  # 2. Strict verification engine run
+  VERIFY_RC=0
+  VERIFY_OUT="$("$REPO_ROOT/arch/dots-hyprland.sh" verify --strict 2>&1)" || VERIFY_RC=$?
+  if [[ "$VERIFY_RC" -eq 0 ]]; then
+    pass "S5: arch/dots-hyprland.sh verify --strict passed with 0 findings (INTG-02)"
+  else
+    fail "S5: arch/dots-hyprland.sh verify --strict failed (rc=$VERIFY_RC) (INTG-02)"
+    printf '%s\n' "$VERIFY_OUT" | sed 's/^/       /' >&2
+  fi
 fi
 
 # ===========================================================================
