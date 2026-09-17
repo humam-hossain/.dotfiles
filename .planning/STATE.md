@@ -2,47 +2,47 @@
 gsd_state_version: "1.0"
 milestone: v0.5
 milestone_name: System-wide Material You theming (Phases 25-29)
-current_phase: 26
-current_phase_name: Qt & KDE Apps Material You Harmonization
-status: executing
-stopped_at: Phase 26 context gathered
-last_updated: "2026-09-17T03:52:23.942Z"
+current_phase: 27
+current_phase_name: Hyprland & Quickshell ii Accent Coordination
+status: planning
+stopped_at: Phase 26 complete, ready to plan Phase 27
+last_updated: "2026-09-17T04:17:32.226Z"
 last_activity: 2026-09-17
-last_activity_desc: Phase 26 execution started
-state_head: efffb5d934273a8b4a073fad347d6c4e68557232
+last_activity_desc: Phase 26 complete, transitioned to Phase 27
+state_head: 5b3ef68e070990fd788043a67239cc7b47a631b5
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 4
-  percent: 20
+  completed_plans: 7
+  percent: 40
 ---
 
 Total Phases: 5 (Phases 25-29)
-Progress: [                    ] 0/3 plans ([██░░░░░░░░] 20%)
+Progress: [                    ] 0/3 plans ([████░░░░░░] 40%)
 
 # Project State
 
 ## Current Position
 
-Phase: 26 (Qt & KDE Apps Material You Harmonization) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 26
-Last activity: 2026-09-17 — Phase 26 execution started
+Phase: 27 — Hyprland & Quickshell ii Accent Coordination
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-17 — Phase 26 complete, transitioned to Phase 27
 
 ## Session
 
-**Last session:** 2026-09-17T03:30:45.498Z
-**Stopped at:** Phase 26 context gathered
-**Resume file:** /home/pera/github_repo/.dotfiles/.planning/phases/26-qt-kde-apps-material-you-harmonization/26-CONTEXT.md
-**Next command:** /gsd-plan-phase 26
+**Last session:** 2026-09-17T04:18:00.000Z
+**Stopped at:** Phase 26 complete, ready to plan Phase 27
+**Resume file:** None
+**Next command:** /gsd-plan-phase 27
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-16)
+See: .planning/PROJECT.md (updated 2026-09-17)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 26 — Qt & KDE Apps Material You Harmonization
+**Current focus:** Phase 27 — Hyprland & Quickshell ii Accent Coordination
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
@@ -98,6 +98,11 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 25: GSettings keys in org.gnome.desktop.interface aligned to dark Material You defaults (D-11)
 - Phase 25: Matugen dynamic generation verified non-interactive with zero git churn via guard-paths.tsv and root .gitignore (D-12, D-13)
 - Phase 25: Automated 5-section assert harness scripts/phase25-gtk-material-you-assert.sh passed 43 checks with FAIL=0 (D-14)
+- Phase 26: Qt style engine Darkly plugin loaded and widgetStyle=Darkly configured in ~/.config/kdeglobals without Kvantum package dependency (D-01..D-04, QT-01)
+- Phase 26: Dynamic Material You palette generation via kde-material-you-colors updating kdeglobals color tokens with dark luminance invariant (< 0.25) (D-05..D-09, QT-02)
+- Phase 26: Desktop FileChooser portal mapped to KDE and target KDE applications (Dolphin, Gwenview) harmonized with unmanaged live configs (D-10..D-12, QT-03)
+- Phase 26: Strict tab-separated guard path for kde-material-you-colors in guard-paths.tsv with zero upstream git churn (D-04, INTG-01, INTG-02)
+- Phase 26: Automated 5-section assert harness scripts/phase26-qt-kde-material-you-assert.sh passed 23 checks with FAIL=0 (D-16)
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.  
@@ -245,3 +250,4 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 24]: Formally recorded the 12 allowlist entries in .gitleaks.toml as accepted historical risk for dead credentials in published pre-v0.3 commits.
 - [Phase 24]: Scoped .gitignore *.socket pattern with !stow/systemd/** to prevent silent exclusion of systemd socket activation units (D-10).
 - [Phase 24]: Realigned desktop session keybindings in custom/keybinds.lua: unbound upstream SUPER + SHIFT + L, bound SUPER + Scroll_Lock to sleep (locked=true), SUPER + SHIFT + Scroll_Lock to logout, retaining Scroll_Lock for lock screen with 100% Quickshell cheatsheet accuracy (D-12, D-13, D-14).
+- [Phase 26]: Reconciled Qt/KDE theming with Darkly style engine, virtualenv kde-material-you-colors dynamic generator, FileChooser portal mapping to KDE, and guard-paths.tsv exclusion; full 5-section assertion suite passed with 23 checks and 0 findings (D-01..D-16).

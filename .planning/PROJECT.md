@@ -145,6 +145,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ GTK 3 and GTK 4 `settings.ini` aligned to `adw-gtk3-dark` and upstream dots-hyprland defaults with zero Catppuccin references — Phase 25 / GTK-03
 - ✓ GNOME desktop interface GSettings keys aligned to dark Material You defaults — Phase 25 / GTK-04
 - ✓ Dynamic theme outputs guarded by `guard-paths.tsv` and root `.gitignore` with strict verification engine pass — Phase 25 / INTG-01, INTG-02
+- ✓ Qt style engine Darkly plugin loaded and `widgetStyle=Darkly` configured in `~/.config/kdeglobals` without Kvantum package dependency — Phase 26 / QT-01
+- ✓ Dynamic Material You palette generation via `kde-material-you-colors` updating `kdeglobals` color tokens with dark luminance invariant (< 0.25) — Phase 26 / QT-02
+- ✓ Desktop FileChooser portal mapped to KDE and target KDE applications (Dolphin, Gwenview) harmonized with unmanaged live configs — Phase 26 / QT-03
+- ✓ Guard path registration for `$XDG_CONFIG_HOME/kde-material-you-colors` in `guard-paths.tsv` with zero upstream git churn — Phase 26 / INTG-01, INTG-02
 
 ### Validated — v0.3 (shipped)
 
@@ -178,8 +182,6 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 ### Active
 
-- [ ] Unify GTK 3 & GTK 4 under Matugen dynamic theming and retire conflicting Catppuccin assets
-- [ ] Align Qt 5/6, Kvantum, and KDE apps with Material You colors
 - [ ] Harmonize Hyprland borders, shadows, and Quickshell ii widget accents with dynamic palette
 - [ ] Configure Matugen templates for terminal emulators (Foot, Alacritty, Kitty) and Fuzzel
 - [ ] Reconcile `guard-paths.tsv`, `collision-map.tsv`, and `./bootstrap.sh` verification for theme outputs
@@ -297,6 +299,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 25: Non-interactive Matugen CLI invocation with source-color-index 0 | Prevents interactive stdin hangs; generates valid @define-color Material You palettes (D-12) | ✓ Section 4 FAIL=0, verify --strict 0 findings |
 | Phase 25: Automated 5-section assert harness scripts/phase25-gtk-material-you-assert.sh | Fail-closed porcelain snapshot checks gating GTK-01..04 and INTG-01..02 (D-14) | ✓ 43 checks passed, FAIL=0 FINDINGS=0 |
 | Phase 25: Replace :insensitive with :disabled in GTK 4 Matugen template | GTK 4 CssProvider rejects :insensitive with parser warnings; :disabled loads cleanly (D-15..D-18) | ✓ Section 4 parser check PASS, UAT G-25-5 resolved |
+| Phase 26: Darkly style engine over Kvantum for Qt/KDE styling | Upstream dots-hyprland ships Darkly plugin (`darkly6.so`); eliminates Kvantum package dependency while matching upstream architecture (D-01..D-04) | ✓ Section 3 FAIL=0, QT-01 |
+| Phase 26: Execute `kde-material-you-colors` from quickshell virtualenv | Standalone binary in `$XDG_STATE_HOME/quickshell/.venv/bin` updates `kdeglobals` dynamically on wallpaper switch without manual config editing (D-05..D-09) | ✓ Section 4 FAIL=0, QT-02 |
+| Phase 26: Map desktop FileChooser portal to KDE | Ensures file picker dialogs use native KDE portal with Material You styling under Hyprland (D-10..D-12) | ✓ Section 5 FAIL=0, QT-03 |
+| Phase 26: Strict tab-separated guard path for `kde-material-you-colors` | Excludes dynamic generator state directory from git tracking in `guard-paths.tsv` (D-04, INTG-01) | ✓ `arch/dots-hyprland.sh verify --strict` 0 findings |
 
 ## Evolution
 
@@ -316,4 +322,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-17 after Phase 25 gap closure*
+*Last updated: 2026-09-17 after Phase 26*
