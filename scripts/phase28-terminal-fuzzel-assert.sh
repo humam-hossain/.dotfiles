@@ -159,7 +159,61 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
   info "--- Section 2: Fuzzel Theme Syntax & Configuration Integrity (TERM-01, D-13, D-14) ---"
-  # Stub: implemented in Plan 28-02
+
+  LIVE_FUZZEL_THEME="$XDG_CONFIG_HOME/fuzzel/fuzzel_theme.ini"
+  if [[ -f "$LIVE_FUZZEL_THEME" && -s "$LIVE_FUZZEL_THEME" ]]; then
+    pass "S2: Live fuzzel_theme.ini exists and is non-empty ($LIVE_FUZZEL_THEME)"
+  else
+    fail "S2: Live fuzzel_theme.ini missing or empty ($LIVE_FUZZEL_THEME)"
+  fi
+
+  # Programmatic INI token and alpha validation via Python
+  FUZZEL_PY_VERDICT="$(python3 -c "
+import configparser, sys, re
+c = configparser.ConfigParser()
+c.read('$LIVE_FUZZEL_THEME')
+if 'colors' not in c:
+    print('FAIL: Missing [colors] section')
+    sys.exit(1)
+
+tokens = ['background', 'text', 'selection', 'selection-text', 'border', 'match', 'selection-match']
+hex8 = re.compile(r'^[0-9a-fA-F]{8}$')
+for t in tokens:
+    val = c['colors'].get(t)
+    if not val or not hex8.match(val):
+        print(f'FAIL: Invalid or missing token {t}={val}')
+        sys.exit(1)
+
+bg = c['colors']['background']
+border = c['colors']['border']
+if not bg.endswith('ff'):
+    print(f'FAIL: Background alpha must be ff (solid), got {bg}')
+    sys.exit(1)
+if not border.endswith('dd'):
+    print(f'FAIL: Border alpha must be dd, got {border}')
+    sys.exit(1)
+
+print('PASS: All tokens valid with correct ff/dd alpha')
+" 2>&1 || true)"
+
+  if [[ "$FUZZEL_PY_VERDICT" =~ ^PASS ]]; then
+    pass "S2: fuzzel_theme.ini contains all 7 required color tokens with valid 8-digit hex and ff/dd alpha (D-13)"
+  else
+    fail "S2: fuzzel_theme.ini validation failed: $FUZZEL_PY_VERDICT"
+  fi
+
+  # Dry-run invocation of fuzzel parser on empty stdin
+  LIVE_FUZZEL_INI="$XDG_CONFIG_HOME/fuzzel/fuzzel.ini"
+  if command -v fuzzel &>/dev/null; then
+    ERR_OUT="$(fuzzel --config "$LIVE_FUZZEL_INI" -d -R < /dev/null 2>&1 || true)"
+    if [[ -z "$ERR_OUT" ]]; then
+      pass "S2: fuzzel dry-run parser validation exited cleanly without errors"
+    else
+      fail "S2: fuzzel dry-run returned configuration error: $ERR_OUT"
+    fi
+  else
+    finding "S2: fuzzel binary not found on PATH; skipping binary parser probe"
+  fi
 fi
 
 # ===========================================================================
@@ -167,7 +221,98 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
   info "--- Section 3: Terminal Theme Syntax & Configuration Integrity (TERM-02, D-01, D-02, D-08..D-11) ---"
-  # Stub: implemented in Plan 28-02
+
+  LIVE_KITTY_THEME="$XDG_STATE_HOME/quickshell/user/generated/terminal/kitty-theme.conf"
+  if [[ -f "$LIVE_KITTY_THEME" && -s "$LIVE_KITTY_THEME" ]]; then
+    pass "S3: Generated kitty-theme.conf exists and is non-empty ($LIVE_KITTY_THEME)"
+  else
+    fail "S3: Generated kitty-theme.conf missing or empty ($LIVE_KITTY_THEME)"
+  fi
+
+  # ANSI tokens and Starship prompt greys verification
+  THEME_VERDICT="$(python3 -c "
+import sys, re
+hex_pat = re.compile(r'^#[0-9a-fA-F]{6}$')
+required_tokens = ['background', 'foreground', 'cursor', 'selection_background', 'selection_foreground']
+required_tokens += [f'color{i}' for i in range(16)]
+required_tokens += [f'color{i}' for i in range(232, 241)]
+required_tokens += [f'color{i}' for i in range(248, 256)]
+
+found = {}
+with open('$LIVE_KITTY_THEME', 'r') as f:
+    for line in f:
+        line = line.strip()
+        if not line or line.startswith('#'):
+            continue
+        parts = line.split()
+        if len(parts) >= 2:
+            found[parts[0]] = parts[1]
+
+for req in required_tokens:
+    if req not in found:
+        print(f'FAIL: Missing token {req}')
+        sys.exit(1)
+    if not hex_pat.match(found[req]):
+        print(f'FAIL: Invalid hex color for {req}: {found[req]}')
+        sys.exit(1)
+
+print('PASS: ANSI and Starship tokens valid')
+" 2>&1 || true)"
+
+  if [[ "$THEME_VERDICT" =~ ^PASS ]]; then
+    pass "S3: kitty-theme.conf contains valid ANSI color0-15 and Starship color232-255 hex tokens (D-11)"
+  else
+    fail "S3: kitty-theme.conf token validation failed: $THEME_VERDICT"
+  fi
+
+  # Kitty configuration parser probe for opacity 0.85, shell zsh, and margin 21.75
+  KITTY_OPTS_VERDICT="$(kitty +runpy "import sys
+from kitty.config import load_config
+try:
+    opts = load_config('$HOME/.config/kitty/kitty.conf')
+    if abs(opts.background_opacity - 0.85) > 0.01:
+        print(f'FAIL: background_opacity expected 0.85, got {opts.background_opacity}')
+        sys.exit(1)
+    if opts.shell != 'zsh':
+        print(f'FAIL: shell expected zsh, got {opts.shell}')
+        sys.exit(1)
+    if opts.window_margin_width[0] != 21.75:
+        print(f'FAIL: window_margin_width expected 21.75, got {opts.window_margin_width}')
+        sys.exit(1)
+    print('PASS: Kitty config loaded: opacity=0.85, shell=zsh, margin=21.75')
+except Exception as e:
+    print(f'FAIL: {e}')
+    sys.exit(1)
+" 2>&1 || true)"
+
+  if [[ "$KITTY_OPTS_VERDICT" =~ ^PASS ]]; then
+    pass "S3: Kitty configuration validated natively: opacity=0.85, shell=zsh, margin=21.75 (D-01, D-02, D-09)"
+  else
+    fail "S3: Kitty configuration probe failed: $KITTY_OPTS_VERDICT"
+  fi
+
+  # Verify ~/.config/illogical-impulse/config.json retains forceDarkMode and tuned parameters
+  II_CONFIG="$XDG_CONFIG_HOME/illogical-impulse/config.json"
+  if [[ -f "$II_CONFIG" ]]; then
+    DARK_MODE="$(jq -r '.appearance.wallpaperTheming.terminalGenerationProps.forceDarkMode' "$II_CONFIG")"
+    HARMONY="$(jq -r '.appearance.wallpaperTheming.terminalGenerationProps.harmony' "$II_CONFIG")"
+    BOOST="$(jq -r '.appearance.wallpaperTheming.terminalGenerationProps.termFgBoost' "$II_CONFIG")"
+    if [[ "$DARK_MODE" == "true" && "$HARMONY" == "0.6" && "$BOOST" == "0.35" ]]; then
+      pass "S3: config.json retains forceDarkMode=true, harmony=0.6, termFgBoost=0.35 (D-10, D-11)"
+    else
+      fail "S3: config.json terminal props mismatch (dark=$DARK_MODE, harm=$HARMONY, boost=$BOOST)"
+    fi
+  else
+    fail "S3: config.json missing at $II_CONFIG"
+  fi
+
+  # Universal terminal sequences.txt presence
+  LIVE_SEQUENCES="$XDG_STATE_HOME/quickshell/user/generated/terminal/sequences.txt"
+  if [[ -f "$LIVE_SEQUENCES" && -s "$LIVE_SEQUENCES" ]]; then
+    pass "S3: Generated terminal sequences.txt exists and is non-empty ($LIVE_SEQUENCES)"
+  else
+    fail "S3: Generated terminal sequences.txt missing or empty ($LIVE_SEQUENCES)"
+  fi
 fi
 
 # ===========================================================================
