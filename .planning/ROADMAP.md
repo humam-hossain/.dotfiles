@@ -207,7 +207,7 @@ Plans:
 | 25. GTK Material You Theming & Catppuccin De-linking | v0.5 | 4/4 | Complete    | 2026-09-17 |
 | 26. Qt & KDE Apps Material You Harmonization | v0.5 | 3/3 | Complete    | 2026-09-17 |
 | 27. Hyprland & Quickshell ii Accent Coordination | v0.5 | 3/3 | Complete    | 2026-09-17 |
-| 28. Terminal & Fuzzel Launcher Dynamic Palette | v0.5 | 0/0 | Planned | — |
+| 28. Terminal & Fuzzel Launcher Dynamic Palette | v0.5 | 1/3 | In Progress|  |
 | 29. Theme Data Contracts, Verification & Bootstrap Integration | v0.5 | 0/0 | Planned | — |
 
 **Coverage:** v0.1–v0.4 shipped · v0.5 in progress — 15/15 requirements mapped across Phases 25–29, 0 unmapped
