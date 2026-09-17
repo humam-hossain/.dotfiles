@@ -303,6 +303,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 26: Execute `kde-material-you-colors` from quickshell virtualenv | Standalone binary in `$XDG_STATE_HOME/quickshell/.venv/bin` updates `kdeglobals` dynamically on wallpaper switch without manual config editing (D-05..D-09) | ✓ Section 4 FAIL=0, QT-02 |
 | Phase 26: Map desktop FileChooser portal to KDE | Ensures file picker dialogs use native KDE portal with Material You styling under Hyprland (D-10..D-12) | ✓ Section 5 FAIL=0, QT-03 |
 | Phase 26: Strict tab-separated guard path for `kde-material-you-colors` | Excludes dynamic generator state directory from git tracking in `guard-paths.tsv` (D-04, INTG-01) | ✓ `arch/dots-hyprland.sh verify --strict` 0 findings |
+| Phase 27: Active/inactive Hyprland window borders bound to Material You accent colors | Active: `outline_variant` @ 77% alpha, inactive: `surface_container_low` @ 33% alpha, pinned: primary accent gradient via `colors.lua` (SHELL-01, D-01..D-03, D-08) | ✓ Section 2 FAIL=0, SHELL-01 |
+| Phase 27: Quickshell ii token schema and palette alignment | Consumes `colors.json` providing 8 Material 3 palette tokens, opaque container background, and warning thresholds (SHELL-02, D-13..D-15, D-18..D-20) | ✓ Section 3 FAIL=0, SHELL-02 |
+| Phase 27: Live coordinated wallpaper reload pipeline via `switchwall.sh` | Runs Matugen synchronously, monotonically updating `colors.lua` and `colors.json` with inotify live reload without restarting compositor or shell (SHELL-03, D-21..D-27, D-32) | ✓ Section 4 FAIL=0, SHELL-03 |
+| Phase 27: Strict guard path registration for `colors.lua` | Strictly guards `$XDG_CONFIG_HOME/hypr/hyprland/colors.lua` in `guard-paths.tsv`, maintaining 0 drift across `arch/dots-hyprland.sh verify --strict` (INTG-01, INTG-02) | ✓ Section 5 FAIL=0, INTG-01, INTG-02 |
 
 ## Evolution
 
@@ -322,4 +326,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-17 after Phase 26*
+*Last updated: 2026-09-17 after Phase 27*

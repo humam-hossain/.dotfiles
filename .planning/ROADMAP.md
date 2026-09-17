@@ -206,7 +206,7 @@ Plans:
 | 24. Address tech debt: bookkeeping and validation cleanup | v0.4 | 3/3 | Complete | 2026-09-16 |
 | 25. GTK Material You Theming & Catppuccin De-linking | v0.5 | 4/4 | Complete    | 2026-09-17 |
 | 26. Qt & KDE Apps Material You Harmonization | v0.5 | 3/3 | Complete    | 2026-09-17 |
-| 27. Hyprland & Quickshell ii Accent Coordination | v0.5 | 3/3 | Complete   | 2026-09-17 |
+| 27. Hyprland & Quickshell ii Accent Coordination | v0.5 | 3/3 | Complete    | 2026-09-17 |
 | 28. Terminal & Fuzzel Launcher Dynamic Palette | v0.5 | 0/0 | Planned | — |
 | 29. Theme Data Contracts, Verification & Bootstrap Integration | v0.5 | 0/0 | Planned | — |
 

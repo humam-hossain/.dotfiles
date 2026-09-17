@@ -1,48 +1,47 @@
 ---
-gsd_state_version: "1.0"
+gsd_state_version: 1.0
 milestone: v0.5
-milestone_name: System-wide Material You theming (Phases 25-29)
-current_phase: 27
-current_phase_name: Hyprland & Quickshell ii Accent Coordination
-status: pending_verification
-stopped_at: Phase 27 plans executed and verified
-last_updated: "2026-09-17T14:39:20+06:00"
+milestone_name: System-wide Material You theming
+current_phase: 28
+current_phase_name: Terminal & Fuzzel Launcher Dynamic Palette
+status: ready_to_plan
+stopped_at: Phase 27 complete, ready to plan Phase 28
+last_updated: "2026-09-17T15:08:45+06:00"
 last_activity: 2026-09-17
-last_activity_desc: Phase 27 execution complete, ready for verification
-state_head: 24982b3
+last_activity_desc: Phase 27 complete, transitioned to Phase 28
 progress:
   total_phases: 5
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 10
   completed_plans: 10
   percent: 60
 ---
 
 Total Phases: 5 (Phases 25-29)
-Progress: [████████████████████] 3/3 plans ([██████░░░░] 60%)
+Progress: [████████████████████] 10/10 plans ([██████░░░░] 60%)
 
 # Project State
 
 ## Current Position
 
-Phase: 27 (Hyprland & Quickshell ii Accent Coordination) — READY FOR VERIFICATION
-Plan: 3 of 3 complete
-Status: Pending verification
-Last activity: 2026-09-17 — Phase 27 execution complete, ready for verification
+Phase: 28 — Terminal & Fuzzel Launcher Dynamic Palette
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-17 — Phase 27 complete, transitioned to Phase 28
 
 ## Session
 
-**Last session:** 2026-09-17T14:39:20+06:00
-**Stopped at:** Phase 27 plans executed and verified
-**Resume file:** .planning/phases/27-hyprland-quickshell-ii-accent-coordination/27-VERIFICATION.md
-**Next command:** /gsd-verify-work 27
+**Last session:** 2026-09-17T15:08:45+06:00
+**Stopped at:** Phase 27 complete, ready to plan Phase 28
+**Resume file:** None
+**Next command:** /gsd-discuss-phase 28
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-17)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 27 — Hyprland & Quickshell ii Accent Coordination
+**Current focus:** Phase 28 — Terminal & Fuzzel Launcher Dynamic Palette
 **v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
 
 ## Deferred Items
@@ -103,6 +102,11 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 26: Desktop FileChooser portal mapped to KDE and target KDE applications (Dolphin, Gwenview) harmonized with unmanaged live configs (D-10..D-12, QT-03)
 - Phase 26: Strict tab-separated guard path for kde-material-you-colors in guard-paths.tsv with zero upstream git churn (D-04, INTG-01, INTG-02)
 - Phase 26: Automated 5-section assert harness scripts/phase26-qt-kde-material-you-assert.sh passed 23 checks with FAIL=0 (D-16)
+- Phase 27: Active/inactive Hyprland window borders bound to Material You accent colors via colors.lua (SHELL-01, D-01..D-03, D-08)
+- Phase 27: Quickshell ii consumes colors.json providing 8 M3 tokens, opaque container background, and warning thresholds (SHELL-02, D-13..D-15, D-18..D-20)
+- Phase 27: Live coordinated wallpaper reload pipeline via switchwall.sh synchronously updating colors.lua and colors.json (SHELL-03, D-21..D-27)
+- Phase 27: Strict guard path registration for colors.lua in guard-paths.tsv maintaining 0 drift across arch/dots-hyprland.sh verify --strict (INTG-01, INTG-02)
+- Phase 27: Automated 5-section assert harness scripts/phase27-accent-coordination-assert.sh passed 29 checks with FAIL=0 (D-28, D-29)
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.  

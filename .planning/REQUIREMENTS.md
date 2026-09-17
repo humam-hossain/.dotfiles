@@ -20,9 +20,9 @@
 
 ### SHELL (Hyprland & Quickshell ii)
 
-- [ ] **SHELL-01**: Hyprland active and inactive window borders, shadows, and group borders read color values from Matugen-generated `~/.config/hypr/hyprland/colors.lua`.
-- [ ] **SHELL-02**: Quickshell ii top bar and widgets dynamically consume Material You palette tokens (primary, secondary, surface, error).
-- [ ] **SHELL-03**: `switchwall.sh` wallpaper switcher triggers a coordinated reload across Hyprland, Quickshell, GTK, and Qt seamlessly.
+- [x] **SHELL-01**: Hyprland active and inactive window borders, shadows, and group borders read color values from Matugen-generated `~/.config/hypr/hyprland/colors.lua`.
+- [x] **SHELL-02**: Quickshell ii top bar and widgets dynamically consume Material You palette tokens (primary, secondary, surface, error).
+- [x] **SHELL-03**: `switchwall.sh` wallpaper switcher triggers a coordinated reload across Hyprland, Quickshell, GTK, and Qt seamlessly.
 
 ### TERM (Terminals & Launchers)
 
@@ -69,9 +69,9 @@
 | QT-01 | Phase 26 | Complete |
 | QT-02 | Phase 26 | Complete |
 | QT-03 | Phase 26 | Complete |
-| SHELL-01 | Phase 27 | Pending |
-| SHELL-02 | Phase 27 | Pending |
-| SHELL-03 | Phase 27 | Pending |
+| SHELL-01 | Phase 27 | Complete |
+| SHELL-02 | Phase 27 | Complete |
+| SHELL-03 | Phase 27 | Complete |
 | TERM-01 | Phase 28 | Pending |
 | TERM-02 | Phase 28 | Pending |
 | INTG-01 | Phase 29 | Pending |
