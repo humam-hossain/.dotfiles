@@ -320,8 +320,15 @@ load_guard_paths() {
 }
 
 is_guarded_path() {
-  local check_path="$1"
-  [[ -n "${GUARDED_PATHS["$check_path"]:-}" ]]
+  local check_path="${1%/}"
+  local cur="$check_path"
+  while [[ -n "$cur" && "$cur" != "/" && "$cur" != "." ]]; do
+    if [[ -n "${GUARDED_PATHS["$cur"]:-}" ]]; then
+      return 0
+    fi
+    cur="$(dirname -- "$cur")"
+  done
+  return 1
 }
 
 # ---------------------------------------------------------------------------
@@ -470,6 +477,26 @@ run_destub() {
       done
     done
   done
+
+  # D-11: Explicit legacy Catppuccin symlink pruning in GTK config directories
+  for gtk_ver in gtk-3.0 gtk-4.0; do
+    local gtk_dir="$target/.config/$gtk_ver"
+    [[ -d "$gtk_dir" ]] || continue
+    for f in "$gtk_dir"/*; do
+      [[ -L "$f" ]] || continue
+      local link_target
+      link_target="$(readlink "$f" 2>/dev/null || true)"
+      if [[ "$link_target" == */Catppuccin* || "$link_target" == */catppuccin* || "$link_target" == /usr/share/themes/Catppuccin* ]]; then
+        if [[ "$DRY_RUN" -eq 1 ]]; then
+          echo "[DRY-RUN] Would remove legacy Catppuccin symlink: ${f#"$target"/}"
+        else
+          rm -f "$f"
+          echo "[PRUNE] Removed legacy Catppuccin symlink: ${f#"$target"/}"
+          destub_count=$((destub_count + 1))
+        fi
+      fi
+    done
+  done
 }
 
 step_destub() {
@@ -488,9 +515,11 @@ run_stow_step() {
   if [[ "$DRY_RUN" -eq 1 ]]; then
     echo "[DRY-RUN] Would pre-create sensitive parent directories"
   else
-    mkdir -p "$target/.config/gtk-3.0" \
+    mkdir -p "$target/.config/fuzzel" \
+             "$target/.config/gtk-3.0" \
              "$target/.config/gtk-4.0" \
              "$target/.config/hypr/custom" \
+             "$target/.config/kitty" \
              "$target/.config/systemd/user"
   fi
 
@@ -565,9 +594,56 @@ deploy_capture_seeds() {
   done < <(find "$capture_root" -type f -print0)
 }
 
+generate_initial_theme() {
+  local target="${1:-$HOME}"
+  local switchwall="$target/.config/quickshell/ii/scripts/colors/switchwall.sh"
+  local config_file="$target/.config/illogical-impulse/config.json"
+  local matugen_gtk4_tpl="$target/.config/matugen/templates/gtk-4.0/gtk.css"
+
+  # Sanitize GTK 4 template pseudo-class if present (Pitfall 4)
+  if [[ -f "$matugen_gtk4_tpl" ]] && grep -q ':insensitive' "$matugen_gtk4_tpl"; then
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      echo "[DRY-RUN] Would align GTK 4 template :insensitive -> :disabled"
+    else
+      sed -i 's/\.boxed-list row:insensitive/\.boxed-list row:disabled/g' "$matugen_gtk4_tpl"
+      echo "[FIX] Aligned GTK 4 Matugen template pseudo-class (:disabled)"
+    fi
+  fi
+
+  if [[ ! -f "$switchwall" ]]; then
+    echo "[WARN] switchwall.sh not found at $switchwall; skipping initial theming"
+    return 0
+  fi
+
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[DRY-RUN] Would trigger initial Material You theme generation"
+    return 0
+  fi
+
+  local wp_path=""
+  if [[ -f "$config_file" ]]; then
+    wp_path="$(jq -r '.background.wallpaperPath // empty' "$config_file" 2>/dev/null || true)"
+  fi
+
+  echo "[THEME] Triggering initial theme generation..."
+  if [[ -n "$wp_path" && -f "$wp_path" ]]; then
+    echo "[THEME] Generating theme from configured wallpaper: $wp_path"
+    if ! "$switchwall" --noswitch; then
+      echo "[WARN] switchwall.sh --noswitch failed; falling back to color seed #3f51b5"
+      "$switchwall" --color "#3f51b5" || echo "[WARN] Fallback theme generation failed"
+    fi
+  else
+    echo "[THEME] Configured wallpaper absent or inaccessible; falling back to color seed #3f51b5"
+    if ! "$switchwall" --color "#3f51b5"; then
+      echo "[WARN] Fallback color seed theme generation failed"
+    fi
+  fi
+}
+
 step_capture_seed() {
-  echo "[STEP 6/7] Seeding capture baseline..."
+  echo "[STEP 6/7] Seeding capture baseline and generating initial theme..."
   deploy_capture_seeds "$HOME" "$REPO_ROOT"
+  generate_initial_theme "$HOME"
 }
 
 # ---------------------------------------------------------------------------

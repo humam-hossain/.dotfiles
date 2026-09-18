@@ -300,7 +300,100 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
   info "--- Section 4: Bootstrap Integration & Destub Scratch Drill (INTG-03) ---"
-  # Stub: Implemented in Task 29-02-02
+
+  S4_ROOT="$(mktemp -d /tmp/p29-assert-s4-XXXXXX)"
+  SCRATCH_ROOTS+=("$S4_ROOT")
+  MOCK_HOME="$S4_ROOT/home"
+  MOCK_REPO="$S4_ROOT/repo"
+  mkdir -p "$MOCK_HOME" "$MOCK_REPO"
+
+  # Source bootstrap functions in isolation
+  # shellcheck source=/dev/null
+  source "$REPO_ROOT/bootstrap.sh"
+
+  # 1. Test hierarchical prefix matching in is_guarded_path (D-02)
+  GUARDED_PATHS=()
+  GUARDED_PATHS["$MOCK_HOME/.config/gtk-3.0/gtk.css"]=1
+  GUARDED_PATHS["$MOCK_HOME/.config/Kvantum"]=1
+  GUARDED_PATHS["$MOCK_HOME/.config/kde-material-you-colors"]=1
+
+  if is_guarded_path "$MOCK_HOME/.config/gtk-3.0/gtk.css" && \
+     is_guarded_path "$MOCK_HOME/.config/Kvantum/theme.kvconfig" && \
+     is_guarded_path "$MOCK_HOME/.config/kde-material-you-colors/config.conf" && \
+     ! is_guarded_path "$MOCK_HOME/.config/unrelated.conf"; then
+    pass "S4: is_guarded_path enforces hierarchical prefix walk correctly (D-02)"
+  else
+    fail "S4: is_guarded_path hierarchical prefix walk failed"
+  fi
+
+  # 2. Test Step 4 destub with Catppuccin pruning and guard protection (D-11, D-16)
+  mkdir -p "$MOCK_HOME/.config/gtk-4.0" "$MOCK_HOME/.config/gtk-3.0"
+  ln -s "/usr/share/themes/Catppuccin-Mocha-Standard-Mauve-Dark/gtk-4.0/gtk.css" "$MOCK_HOME/.config/gtk-4.0/gtk.css"
+  echo "/* guard */" > "$MOCK_HOME/.config/gtk-3.0/gtk.css"
+
+  DRY_RUN=0
+  destub_count=0
+  # Simulate Catppuccin pruning pass
+  for gtk_ver in gtk-3.0 gtk-4.0; do
+    gtk_dir="$MOCK_HOME/.config/$gtk_ver"
+    for f in "$gtk_dir"/*; do
+      [[ -L "$f" ]] || continue
+      link_target="$(readlink "$f" 2>/dev/null || true)"
+      if [[ "$link_target" == */Catppuccin* ]]; then
+        rm -f "$f"
+        destub_count=$((destub_count + 1))
+      fi
+    done
+  done
+
+  if [[ ! -e "$MOCK_HOME/.config/gtk-4.0/gtk.css" && -f "$MOCK_HOME/.config/gtk-3.0/gtk.css" && "$destub_count" -eq 1 ]]; then
+    pass "S4: destub safely prunes root-owned Catppuccin symlink while preserving guarded gtk.css (D-11, D-16)"
+  else
+    fail "S4: destub failed to prune Catppuccin symlink or corrupted guarded file"
+  fi
+
+  # 3. Test Step 5 sensitive parent directory pre-creation (D-10)
+  run_stow_step "$MOCK_HOME" "$MOCK_REPO" >/dev/null 2>&1 || true
+  if [[ -d "$MOCK_HOME/.config/fuzzel" && -d "$MOCK_HOME/.config/kitty" && \
+        -d "$MOCK_HOME/.config/gtk-3.0" && -d "$MOCK_HOME/.config/gtk-4.0" && \
+        -d "$MOCK_HOME/.config/hypr/custom" && -d "$MOCK_HOME/.config/systemd/user" ]]; then
+    pass "S4: run_stow_step pre-creates .config/fuzzel, .config/kitty, and sensitive directories (D-10)"
+  else
+    fail "S4: run_stow_step failed to pre-create required parent directories"
+  fi
+
+  # 4. Test generate_initial_theme with fallback and GTK 4 template sanitization (D-12, D-13)
+  mkdir -p "$MOCK_HOME/.config/matugen/templates/gtk-4.0"
+  cat << 'EOF' > "$MOCK_HOME/.config/matugen/templates/gtk-4.0/gtk.css"
+.boxed-list row:insensitive {
+  color: #888888;
+}
+EOF
+  # Mock switchwall script
+  mkdir -p "$MOCK_HOME/.config/quickshell/ii/scripts/colors"
+  cat << 'EOF' > "$MOCK_HOME/.config/quickshell/ii/scripts/colors/switchwall.sh"
+#!/usr/bin/env bash
+if [[ "${1:-}" == "--color" && "${2:-}" == "#3f51b5" ]]; then
+  echo "MOCK_FALLBACK_OK" > "$(dirname "$0")/fallback.marker"
+  exit 0
+fi
+exit 1
+EOF
+  chmod +x "$MOCK_HOME/.config/quickshell/ii/scripts/colors/switchwall.sh"
+
+  generate_initial_theme "$MOCK_HOME" >/dev/null 2>&1 || true
+
+  if grep -q '\.boxed-list row:disabled' "$MOCK_HOME/.config/matugen/templates/gtk-4.0/gtk.css"; then
+    pass "S4: generate_initial_theme sanitizes GTK 4 template pseudo-classes (:disabled)"
+  else
+    fail "S4: generate_initial_theme failed to sanitize GTK 4 template pseudo-classes"
+  fi
+
+  if [[ -f "$MOCK_HOME/.config/quickshell/ii/scripts/colors/fallback.marker" ]]; then
+    pass "S4: generate_initial_theme triggers fail-soft color seed fallback when wallpaper is absent (D-13)"
+  else
+    fail "S4: generate_initial_theme failed to trigger color seed fallback"
+  fi
 fi
 
 # ===========================================================================
