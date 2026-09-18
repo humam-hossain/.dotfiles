@@ -1,40 +1,40 @@
 ---
 gsd_state_version: "1.0"
 milestone: v0.5
-milestone_name: System-wide Material You theming (Phases 25-29)
-current_phase: 29
-status: completed
-stopped_at: Phase 29 complete — all phases complete
-last_updated: "2026-09-18T03:56:42.239Z"
+milestone_name: System-wide Material You theming (Phases 25-30)
+current_phase: 30
+status: in_progress
+stopped_at: Phase 30 context gathered
+last_updated: "2026-09-18T14:42:28.641Z"
 last_activity: 2026-09-18
-last_activity_desc: Phase 29 complete
-state_head: dc1fce7c28681a0bc68e2feb4856d5be163a024d
+last_activity_desc: "Phase 30 added: Address tech debt: v0.5 cleanup and validation sign-off"
+state_head: 16a00dfcc05b93c37e74ff6eaab427d93bf34bb5
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 5
   total_plans: 15
   completed_plans: 15
-  percent: 100
+  percent: 83
 ---
 
-Total Phases: 5 (Phases 25-29)
-Progress: [████████████████████] 15/15 plans ([██████████] 100%)
+Total Phases: 6 (Phases 25-30)
+Progress: [████████████████░░░░] 15/15+ plans ([████████░░] 83%)
 
 # Project State
 
 ## Current Position
 
-Phase: 29
-Plan: Complete
-Status: All phases complete
-Last activity: 2026-09-18 — Phase 29 complete
+Phase: 30
+Plan: Not planned yet
+Status: Ready to plan Phase 30
+Last activity: 2026-09-18 — Phase 30 added
 
 ## Session
 
-**Last session:** 2026-09-18T09:58:00Z
-**Stopped at:** Phase 29 complete — Milestone v0.5 is 100% complete
-**Resume file:** None
-**Next command:** /gsd-complete-milestone v0.5
+**Last session:** 2026-09-18T14:42:28.409Z
+**Stopped at:** Phase 30 context gathered
+**Resume file:** /home/pera/github_repo/.dotfiles/.planning/phases/30-address-tech-debt-v0-5-cleanup-and-validation-sign-off/30-CONTEXT.md
+**Next command:** /gsd-plan-phase 30
 
 ## Project Reference
 
@@ -139,10 +139,11 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - v0.4 deviation from the research's six-phase proposal: its P18 (collision map **and** `verify`) is split into Phases 18 and 19, so the adversarial `verify` test (VER-04) is a phase gate in its own right rather than one criterion among ten — and so `verify` provably exists before the first bulk stow in Phase 20.
 - Phase 16 added as a DOC-03 gap closure, then retitled on 2026-09-07 and widened to the safe-profile retirement — full-only wrapper, full-only playbook, and the planning artifacts swept to match. Its original B-1 update-path / B-2 restore-path scope was replaced before execution began; both closed by retiring the destination rather than documenting a route to it.
 - Phase 24 added: Address tech debt: bookkeeping and validation cleanup
+- Phase 30 added: Address tech debt: v0.5 cleanup and validation sign-off
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Plan Phase 30 with /gsd-plan-phase 30
 
 ## Performance Metrics
 
