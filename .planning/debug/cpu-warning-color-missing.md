@@ -1,3 +1,10 @@
+---
+audit_acknowledged:
+  milestone: v0.5
+  at: 2026-09-18
+  status: unknown
+---
+
 # DEBUG: CPU warning color missing (G-03-1)
 
 **Status:** root_cause_found  

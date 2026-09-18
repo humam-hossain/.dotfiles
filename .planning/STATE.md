@@ -2,19 +2,19 @@
 gsd_state_version: "1.0"
 milestone: v0.5
 milestone_name: System-wide Material You theming (Phases 25-30)
-current_phase: 30
-status: completed
+status: Awaiting next milestone
 stopped_at: Phase 30 complete — all phases complete
-last_updated: "2026-09-18T15:12:18.356Z"
+last_updated: "2026-09-18T16:05:59.848Z"
 last_activity: 2026-09-18
-last_activity_desc: Phase 30 complete
-state_head: 29e9d01308a90a5ee1689c5c6517f4b2436325b3
+last_activity_desc: Milestone v0.5 completed and archived
+state_head: 02f9650b85c162cb293b0bcb597996796b30ea9b
 progress:
   total_phases: 6
   completed_phases: 6
   total_plans: 17
   completed_plans: 17
   percent: 100
+current_phase: 30
 ---
 
 Total Phases: 6 (Phases 25-30)
@@ -24,42 +24,46 @@ Progress: [████████████████░░░░] 15/15+ 
 
 ## Current Position
 
-Phase: 30
-Plan: Not started
-Status: All phases complete
-Last activity: 2026-09-18 — Phase 30 complete
+Phase: Milestone v0.5 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-09-18 — Milestone v0.5 completed and archived
 
 ## Session
 
-**Last session:** 2026-09-18T14:42:28.409Z
-**Stopped at:** Phase 30 complete — all phases complete
-**Resume file:** /home/pera/github_repo/.dotfiles/.planning/phases/30-address-tech-debt-v0-5-cleanup-and-validation-sign-off/30-CONTEXT.md
-**Next command:** /gsd-plan-phase 30
+**Last session:** 2026-09-18T16:05:59.848Z
+**Stopped at:** Milestone v0.5 complete — archived
+**Resume file:** .planning/milestones/v0.5-ROADMAP.md
+**Next command:** /gsd-new-milestone
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-18)
+See: .planning/PROJECT.md (updated 2026-09-18 after v0.5)
 
-**Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 30 — Address tech debt: v0.5 cleanup and validation sign-off
-**v0.5 core value:** Unified system-wide Material You dynamic theming generated from wallpaper across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.
+**Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
+**Current focus:** Planning next milestone (v0.6)
 
 ## Deferred Items
 
 Items acknowledged and deferred at milestone close on 2026-07-25 (v0.1), re-acknowledged 2026-08-02 (v0.2), and re-acknowledged 2026-09-16 (v0.4 override_closeout):
 
-| Category | Item | Status |
-|----------|------|--------|
-| debug | cpu-warning-color-missing | unknown (re-acknowledged v0.4; local bar retired) |
-| debug | keyboard-volume-ceiling | unknown (re-acknowledged v0.4; local bar retired) |
-| debug | pavucontrol-launch-broken | unknown (re-acknowledged v0.4; local bar retired) |
-| debug | ram-label-spacing | unknown (re-acknowledged v0.4; local bar retired) |
-| requirement | FWK-02 (exec-once auto-start) | deferred finishing touch — revisit under upstream model |
-| requirement | IPC-02 (bar toggle keybind) | deferred finishing touch — revisit under upstream model |
-| backlog | Waybar cutover (CUT-01) | deferred until parity accepted; DISP-03 defaults keep dual-run **[superseded by Phase 16]** — the dual-run session ended at the Phase 14 adopt. |
-| backlog | Waybar customs (CUST-01..04) | deferred past v0.3 full hypr adopt |
-| process | v0.2 formal milestone audit | skipped at close; per-phase verification passed |
-| requirement | D-38 `graphical-session.target` autostart (post-adopt) | **shipped** — Phase 17 (START-02) & Phase 20 (START-01) in `custom/execs.lua` |
+| Category | Item | Status | Deferred At | Milestone |
+|----------|------|--------|-------------|-----------|
+| debug | cpu-warning-color-missing | unknown (re-acknowledged v0.4; local bar retired) | 2026-09-16 | v0.4 |
+| debug | keyboard-volume-ceiling | unknown (re-acknowledged v0.4; local bar retired) | 2026-09-16 | v0.4 |
+| debug | pavucontrol-launch-broken | unknown (re-acknowledged v0.4; local bar retired) | 2026-09-16 | v0.4 |
+| debug | ram-label-spacing | unknown (re-acknowledged v0.4; local bar retired) | 2026-09-16 | v0.4 |
+| requirement | FWK-02 (exec-once auto-start) | deferred finishing touch — revisit under upstream model | 2026-09-16 | v0.4 |
+| requirement | IPC-02 (bar toggle keybind) | deferred finishing touch — revisit under upstream model | 2026-09-16 | v0.4 |
+| backlog | Waybar cutover (CUT-01) | deferred until parity accepted; DISP-03 defaults keep dual-run **[superseded by Phase 16]** — the dual-run session ended at the Phase 14 adopt. | 2026-09-16 | v0.4 |
+| backlog | Waybar customs (CUST-01..04) | deferred past v0.3 full hypr adopt | 2026-09-16 | v0.4 |
+| process | v0.2 formal milestone audit | skipped at close; per-phase verification passed | 2026-09-16 | v0.4 |
+| requirement | D-38 `graphical-session.target` autostart (post-adopt) | **shipped** — Phase 17 (START-02) & Phase 20 (START-01) in `custom/execs.lua` | 2026-09-16 | v0.4 |
+| debug_sessions | DEBUG-gtk-visual-theming-pink-accent | unknown | 2026-09-18 | v0.5 |
+| debug_sessions | cpu-warning-color-missing | unknown | 2026-09-18 | v0.5 |
+| debug_sessions | keyboard-volume-ceiling | unknown | 2026-09-18 | v0.5 |
+| debug_sessions | pavucontrol-launch-broken | unknown | 2026-09-18 | v0.5 |
+| debug_sessions | ram-label-spacing | unknown | 2026-09-18 | v0.5 |
 
 See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 
@@ -143,7 +147,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 
 ## Operator Next Steps
 
-- Plan Phase 30 with /gsd-plan-phase 30
+- Start the next milestone with /gsd-new-milestone
 
 ## Performance Metrics
 

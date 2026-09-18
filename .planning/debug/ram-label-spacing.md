@@ -1,3 +1,10 @@
+---
+audit_acknowledged:
+  milestone: v0.5
+  at: 2026-09-18
+  status: unknown
+---
+
 # DEBUG: RAM label format + resource spacing (G-03-2)
 
 **Status:** root_cause_found  

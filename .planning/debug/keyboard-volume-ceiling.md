@@ -1,3 +1,10 @@
+---
+audit_acknowledged:
+  milestone: v0.5
+  at: 2026-09-18
+  status: unknown
+---
+
 # DEBUG: Keyboard volume cannot exceed 100% (G-03-4)
 
 **Status:** root_cause_found  
@@ -21,13 +28,17 @@ Bar scroll uses `Audio.incrementVolume()` → `maxVolume: 1.30`, which works —
 ## Evidence
 
 ```
+
 # repo
+
 bindel = ,XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.3 @DEFAULT_AUDIO_SINK@ 5%+
 
 # live (~/.config/hypr/hyprland.conf)
+
 bindel = ,XF86AudioRaiseVolume, exec, wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+
 
 # different inodes
+
 stat: live 15997905 vs repo 9043975
 ```
 

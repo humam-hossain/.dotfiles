@@ -1,3 +1,10 @@
+---
+audit_acknowledged:
+  milestone: v0.5
+  at: 2026-09-18
+  status: unknown
+---
+
 # DEBUG: pavucontrol / volumeMixer never opens (G-03-8)
 
 **Status:** root_cause_found  
@@ -50,6 +57,7 @@ $ which pavucontrol
 ## Suggested Fix Direction
 
 Either:
+
 1. Ship `launch_first_available.sh` under the path Config expects and dual-write, or
 2. Change `volumeMixer` default + live config to a working command, e.g.  
    `command -v pavucontrol-qt >/dev/null && pavucontrol-qt || pavucontrol`  

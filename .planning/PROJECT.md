@@ -2,14 +2,14 @@
 
 ## Current State
 
-**Shipped:** v0.4 Personal config layer (2026-09-16)  
-**Status:** All 8 phases of v0.4 (Phases 17–24) complete, 39/39 requirements satisfied, verified, and archived
+**Shipped:** v0.5 System-wide Material You theming (2026-09-18)  
+**Status:** All 6 phases of v0.5 (Phases 25–30) complete, 19/19 requirements satisfied, verified, and archived
 
-Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, operator playbook for install and pin-bump updates. As of Phase 14 the session runs the full ii model — the Lua entry is authoritative and Waybar/rofi/swaync no longer dual-run.
+Desktop shell is fully unified under upstream dots-hyprland Material You / Matugen dynamic theming generated from wallpaper. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, personal overlays under three-tree capture (`stow/`, `restow/`, `capture/`), guarded theme contracts (`guard-paths.tsv`), and one-command idempotent bootstrap (`./bootstrap.sh`).
 
-**v0.4 delivered:** The personal config layer on top of dots-hyprland: three-tree capture model (`stow/`, `restow/`, `capture/`), machine-checked collision map (`collision-map.tsv`), link-aware `verify` suite with strict exit code binding, `hypr/custom` Lua overlays, startup autostart restoration (`graphical-session.target`), ii bar `config.json` copy-capture surviving wallpaper changes, unattended 15-minute systemd capture timer, KDE/GTK per-file capture with guarded theme outputs, one-command idempotent bootstrap (`./bootstrap.sh`), and complete technical debt reconciliation with 100% Nyquist validation across all 8 phases.
+**v0.5 delivered:** System-wide Material You dynamic theming across GTK 3/4 (libadwaita and adw-gtk3-dark), Qt 6 / KDE applications (Darkly style engine, FileChooser portal, kdeglobals), Hyprland window decorations and borders (`colors.lua`), Quickshell ii widgets (`colors.json`), Fuzzel app launcher (`fuzzel_theme.ini`), and Kitty terminal emulator (`kitty-theme.conf` / `sequences.txt`) with live reload (`switchwall.sh`), zero git churn, and 100% Nyquist compliance.
 
-**Stats at v0.4 ship:** 8 phases · 41 plans · 91 tasks · 263 commits since v0.3 · 241 files changed (+54.3k / −692)
+**Stats at v0.5 ship:** 6 phases · 17 plans · 32 tasks · 125 commits since v0.4 · 111 files changed (+19.4k / −75)
 
 **Product surface:**
 - Fork: `humam-hossain/dots-hyprland` (upstream = end-4)
@@ -18,23 +18,36 @@ Desktop shell is no longer a hand-rolled in-repo Quickshell product. Delivery mo
 - Bootstrap entry: `./bootstrap.sh` — one-command fresh-machine orchestrator with resumable JSON state and strict verification gate
 - Live path: real `~/.config/quickshell` (not symlink into git)
 - Session: ii Lua entry `~/.config/hypr/hyprland.lua` is authoritative (Phase 14) and owns the venv env plus `exec-once = qs -c ii`; personal overrides ride in `~/.config/hypr/custom/`; Waybar, rofi and swaync are retired from the session
+- Theming pipeline: `switchwall.sh` triggers Matugen synchronously for GTK CSS, Hyprland `colors.lua`, Quickshell `colors.json`, Fuzzel `fuzzel_theme.ini`, and Kitty `kitty-theme.conf` (SIGUSR1), plus background `kde-material-you-colors` for Qt/KDE `kdeglobals`. All outputs guarded via `guard-paths.tsv` with zero working tree drift.
 - Rollback: clean reinstall from the pinned `vendor/dots-hyprland` submodule; runbook `docs/phase14-adopt-runbook.md` §14
 - Playbook: `docs/dots-hyprland-workflow.md`
 - Inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`
 - Collision Map: `collision-map.tsv` (machine-asserted)
+- Guard Paths: `guard-paths.tsv` (machine-asserted)
 
-## Current Milestone: v0.5 System-wide Material You theming
+## Next Milestone Goals
+
+**Candidates for future milestones:**
+- Waybar custom module ports into Quickshell ii: ping monitor (`127.0.0.1:8765`), weather (+ forecast), earthquake widget (CUST-01..03)
+- Machine-specific overlay profile layer (CUST-04)
+- Upstream FWK-02 / IPC-02 bar toggle keybinding and session integration (POLISH-02)
+- Review and retire outstanding v0.1 legacy debug items on stock ii (POLISH-03)
+
+## Prior Milestones
+
+<details>
+<summary>v0.5 System-wide Material You theming (shipped 2026-09-18)</summary>
 
 **Goal:** Unify system-wide theming under upstream dots-hyprland Material You / Matugen dynamic colors generated from wallpaper, eliminating old Catppuccin conflicts and ensuring consistent styling across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools.
 
-**Target features:**
-- GTK 3 & GTK 4 / libadwaita integration (de-link old Catppuccin symlinks, align `settings.ini`, restore Matugen/adw-gtk3 dynamic theming)
-- Qt 5/6 & KDE apps integration (reconcile Kvantum theme, `kdeglobals`, Dolphin styling, and `kde-material-you-colors` dynamic updates)
-- Hyprland decorations & Quickshell ii widgets styling (align window borders, shadows, active accents, and Quickshell widgets with Matugen outputs)
-- Terminal & Launcher theming (configure Matugen templates for Fuzzel, Foot/Alacritty/Kitty, and CLI utilities for wallpaper-reactive colors)
-- Data Contract & Capture Integrity (update `guard-paths.tsv`, `collision-map.tsv`, and `./bootstrap.sh` verification to correctly guard generated theme files while managing source templates under repo SoT)
+**Shipped features:**
+- GTK 3 & 4 libadwaita integration: Catppuccin unlinking, `adw-gtk3-dark` base alignment, GNOME dark GSettings synchronization, and dynamic Matugen CSS generation
+- Qt 6 & KDE application harmonization: Darkly style engine, native FileChooser portal, and dynamic `kdeglobals` generation via `kde-material-you-colors`
+- Hyprland window decorations & Quickshell ii widget coordination: window borders bound to `colors.lua`, widget accents bound to `colors.json`, and live coordinated `switchwall.sh` pipeline
+- Terminal & Launcher styling: Fuzzel launcher with M3 palette template and Kitty terminal emulator with dynamic theme include, 0.90 opacity, and SIGUSR1 signaling
+- Data contracts & verification: `guard-paths.tsv` data contract protecting 8 theme outputs, `restow/` taxonomy relocation for colliding packages, hardened `./bootstrap.sh` fallback theming, and 100% Nyquist validation compliance across all 6 phases (25–30)
 
-## Prior Milestones
+</details>
 
 <details>
 <summary>v0.4 Personal config layer (shipped 2026-09-16)</summary>
@@ -160,6 +173,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Reconciled `guard-paths.tsv` documenting all 8 dynamic theme outputs with 1:1 `.gitignore` parity and zero git churn on live reload — Phase 29 / INTG-01
 - ✓ Relocated `fuzzel` and `kitty` to `restow/` to honor `collision-map.tsv` derivation, regenerated recovery table, preserved `PAIR_COUNT == 18`, and hardened verifier with hierarchical guard matching — Phase 29 / INTG-02
 - ✓ Hardened `./bootstrap.sh` orchestrator with hierarchical prefix matching, Catppuccin pruning, parent pre-creation, fail-soft theming with color fallback, and multi-phase regression sweep — Phase 29 / INTG-03
+- ✓ Kitty background opacity aligned to 0.90 per Phase 28 UAT preference with native parser assert and live process signaling — Phase 30 / DEBT-05
+- ✓ Bootstrap virtualenv fallback export and idempotent template sanitization hooks for headless and dynamic reload robustness — Phase 30 / DEBT-06
+- ✓ Phase 29 validation sign-off and 100% Nyquist compliance across all Milestone v0.5 phases (25–30) — Phase 30 / DEBT-07
+- ✓ Phase 30 assert harness with strict verifier gate and multi-phase regression sweep across Phases 25–29 with zero git drift — Phase 30 / DEBT-08
 
 ### Validated — v0.3 (shipped)
 
@@ -193,7 +210,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 ### Active
 
-- None (Milestone v0.5 complete — all 17 requirements validated)
+- None (Milestone v0.5 complete — all 19 requirements validated)
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -324,6 +341,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 29: Hierarchical ancestor traversal in guard matching | Flat path lookup failed for nested dynamic outputs inside guarded directories (Kvantum/, kde-material-you-colors/) | ✓ Enforced in arch/dots-hyprland.sh and bootstrap.sh is_guarded_path() (INTG-01, INTG-03) |
 | Phase 29: Asynchronous kdeglobals polling in live reload drill | switchwall.sh dispatches handle_kde_material_you_colors & in background | ✓ Polled kdeglobals mtime with 3s timeout, eliminating race conditions and working-tree churn (INTG-01) |
 | Phase 29: Fail-soft initial theme generation and sensitive parent pre-creation | Defeated GNU Stow directory folding and handled offline/headless fresh installs | ✓ bootstrap.sh Step 5 pre-creates directories; Step 6 falls back to #3f51b5 color seed on missing wallpaper (INTG-03) |
+| Phase 30: Kitty background opacity aligned to 0.90 per Phase 28 UAT preference | Respects operator preference with native parser assertion in phase28 harness | ✓ Kitty config aligned, test suite green (DEBT-05) |
+| Phase 30: Virtualenv fallback export and template sanitization hooks | Robustness for headless/TTY environments and GTK 4 `:disabled` syntax preservation | ✓ bootstrap.sh and applycolor.sh hardened (DEBT-06) |
+| Phase 30: Reconciled 29-VALIDATION.md and signed off 100% Nyquist compliance | All 6 milestone phases (25–30) validated and Nyquist-compliant with zero gaps | ✓ 100% Nyquist compliance across v0.5 (DEBT-07) |
+| Phase 30: Phase 30 assert harness and multi-phase regression sweep | Verified Sections 1–5 and full v0.5 regression suite with zero git drift | ✓ scripts/phase30-tech-debt-assert.sh passed, FAIL=0 (DEBT-08) |
 
 ## Evolution
 
@@ -343,4 +364,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-18 after Phase 29*
+*Last updated: 2026-09-18 after v0.5 milestone*

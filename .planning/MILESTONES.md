@@ -1,5 +1,46 @@
 # Milestones
 
+## v0.5 System-wide Material You theming (Shipped: 2026-09-18)
+
+**Closeout type:** `override_closeout`  
+**Phases completed:** 6 phases, 17 plans, 32 tasks (Phases 25–30)  
+**Git range:** `v0.4` → `v0.5` (2026-09-16 → 2026-09-18) · 125 commits  
+**Diffstat:** 111 files changed, +19,398 / −75
+
+**Delivered:** Unified system-wide Material You dynamic theming generated from wallpaper across GTK 3/4 (libadwaita and adw-gtk3-dark), Qt 6 / KDE applications (Darkly style engine, FileChooser portal, kdeglobals), Hyprland window borders (`colors.lua`), Quickshell ii widgets (`colors.json`), Fuzzel launcher (`fuzzel_theme.ini`), and Kitty terminal emulator (`kitty-theme.conf` / `sequences.txt`), backed by strict data contracts (`guard-paths.tsv`), three-tree taxonomy reconciliation (`restow/`), hardened `./bootstrap.sh`, and 100% Nyquist validation compliance with zero git churn.
+
+### Key accomplishments
+
+1. Retired legacy root-pointing Catppuccin symlinks in `~/.config/gtk-4.0/`, aligned GTK 3 & 4 `settings.ini` to `adw-gtk3-dark`, synchronized GNOME GSettings keys, and verified dynamic Matugen GTK CSS generation with GTK 4 `:disabled` syntax — GTK-01..04, INTG-01..02
+2. Qt 6 Darkly style engine integration, KDE applications (Dolphin, Kate, Gwenview) harmonized, native desktop FileChooser portal mapped to KDE, and dynamic `kdeglobals` generation via `kde-material-you-colors` with dark luminance invariant (<0.25) — QT-01..03, INTG-01
+3. Bound Hyprland active, inactive, and group window borders to Matugen `colors.lua`, coordinated Quickshell ii widget tokens and appearance with `colors.json`, and established live coordinated wallpaper reload via `switchwall.sh` — SHELL-01..03, INTG-01..02
+4. Fuzzel launcher styled with dynamic Material You palette tokens via Matugen template with 8-digit hex, and Kitty terminal emulator dynamic theming via included `kitty-theme.conf` with SIGUSR1 live signaling and 0.90 background opacity — TERM-01..02, DEBT-05
+5. Relocated `fuzzel` and `kitty` to `restow/` honoring collision map derivation, reconciled `guard-paths.tsv` documenting all 8 dynamic theme outputs with 1:1 `.gitignore` parity, and hardened `./bootstrap.sh` with sensitive directory pre-creation, Catppuccin pruning, and fail-soft fallback theming — INTG-01..03
+6. Technical debt resolution and validation sign-off: 100% Nyquist validation compliance across all 6 milestone phases (25–30), virtualenv fallback exports, idempotent template sanitization hooks, and multi-phase regression stability across Phases 25–29 with zero git drift — DEBT-05..08
+
+### Known Gaps / Deferred Items
+
+| ID / Item | Description | Disposition |
+|-----------|-------------|-------------|
+| debug: DEBUG-gtk-visual-theming-pink-accent | GTK visual theming pink accent investigation | Acknowledged; root causes (Qt app launch and Dracula icon theme) resolved in Phase 26 |
+| debug: cpu-warning-color-missing | Open debug session (v0.1 local bar) | Re-acknowledged; product tree retired in Phase 8 |
+| debug: keyboard-volume-ceiling | Open debug session (v0.1 local bar) | Re-acknowledged; product tree retired in Phase 8 |
+| debug: pavucontrol-launch-broken | Open debug session (v0.1 local bar) | Re-acknowledged; product tree retired in Phase 8 |
+| debug: ram-label-spacing | Open debug session (v0.1 local bar) | Re-acknowledged; product tree retired in Phase 8 |
+| CUST-01..04 | Waybar custom ports (ping, weather, earthquake) | Future milestone |
+| POLISH-02..03 | FWK-02 / IPC-02 style session integration; v0.1 debug re-eval | Future milestone |
+
+**Known verification overrides:** 5 newly acknowledged, 0 carried forward from a prior close (see STATE.md Deferred Items)
+
+**Archives:**
+
+- [milestones/v0.5-ROADMAP.md](milestones/v0.5-ROADMAP.md)
+- [milestones/v0.5-REQUIREMENTS.md](milestones/v0.5-REQUIREMENTS.md)
+- [milestones/v0.5-phases/](milestones/v0.5-phases/)
+- [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-AUDIT.md)
+
+---
+
 ## v0.4 Personal config layer (Shipped: 2026-09-16)
 
 **Closeout type:** `override_closeout`  
