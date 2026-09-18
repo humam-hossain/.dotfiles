@@ -599,6 +599,8 @@ generate_initial_theme() {
   local switchwall="$target/.config/quickshell/ii/scripts/colors/switchwall.sh"
   local config_file="$target/.config/illogical-impulse/config.json"
   local matugen_gtk4_tpl="$target/.config/matugen/templates/gtk-4.0/gtk.css"
+  local kde_wrapper="$target/.config/matugen/templates/kde/kde-material-you-colors-wrapper.sh"
+  local applycolor="$target/.config/quickshell/ii/scripts/colors/applycolor.sh"
 
   # Sanitize GTK 4 template pseudo-class if present (Pitfall 4)
   if [[ -f "$matugen_gtk4_tpl" ]] && grep -q ':insensitive' "$matugen_gtk4_tpl"; then
@@ -607,6 +609,26 @@ generate_initial_theme() {
     else
       sed -i 's/\.boxed-list row:insensitive/\.boxed-list row:disabled/g' "$matugen_gtk4_tpl"
       echo "[FIX] Aligned GTK 4 Matugen template pseudo-class (:disabled)"
+    fi
+  fi
+
+  # Idempotent alignment for kde-material-you-colors-wrapper.sh virtualenv fallback (D-06)
+  if [[ -f "$kde_wrapper" ]] && ! grep -Fq '${ILLOGICAL_IMPULSE_VIRTUAL_ENV:-' "$kde_wrapper"; then
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      echo "[DRY-RUN] Would add virtualenv fallback to kde-material-you-colors-wrapper.sh"
+    else
+      sed -i 's|source "$(eval echo \$ILLOGICAL_IMPULSE_VIRTUAL_ENV)/bin/activate"|source "$(eval echo ${ILLOGICAL_IMPULSE_VIRTUAL_ENV:-$XDG_STATE_HOME/quickshell/.venv})/bin/activate"|g' "$kde_wrapper"
+      echo "[FIX] Aligned kde-material-you-colors-wrapper.sh virtualenv fallback"
+    fi
+  fi
+
+  # Idempotent alignment for applycolor.sh Kitty process signaling (D-07)
+  if [[ -f "$applycolor" ]] && grep -q 'kill -SIGUSR1 \$(pidof kitty)' "$applycolor"; then
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      echo "[DRY-RUN] Would align applycolor.sh Kitty process signaling"
+    else
+      sed -i '/if ! pgrep -f kitty >\/dev\/null; then/,/kill -SIGUSR1 \$(pidof kitty)/c\  killall -SIGUSR1 kitty 2>/dev/null || true' "$applycolor"
+      echo "[FIX] Aligned applycolor.sh Kitty process signaling"
     fi
   fi
 
@@ -619,6 +641,8 @@ generate_initial_theme() {
     echo "[DRY-RUN] Would trigger initial Material You theme generation"
     return 0
   fi
+
+  export ILLOGICAL_IMPULSE_VIRTUAL_ENV="${ILLOGICAL_IMPULSE_VIRTUAL_ENV:-${XDG_STATE_HOME:-$HOME/.local/state}/quickshell/.venv}"
 
   local wp_path=""
   if [[ -f "$config_file" ]]; then
