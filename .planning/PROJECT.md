@@ -157,6 +157,9 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Kitty terminal emulator themes dynamically via included `kitty-theme.conf` and reloads via SIGUSR1 with 0.85 background opacity — Phase 28 / TERM-02
 - ✓ Guard path registration for `$XDG_CONFIG_HOME/fuzzel/fuzzel_theme.ini` in `guard-paths.tsv` — Phase 28 / INTG-01
 - ✓ Strict verification engine & zero git drift compliance — Phase 28 / INTG-02
+- ✓ Reconciled `guard-paths.tsv` documenting all 8 dynamic theme outputs with 1:1 `.gitignore` parity and zero git churn on live reload — Phase 29 / INTG-01
+- ✓ Relocated `fuzzel` and `kitty` to `restow/` to honor `collision-map.tsv` derivation, regenerated recovery table, preserved `PAIR_COUNT == 18`, and hardened verifier with hierarchical guard matching — Phase 29 / INTG-02
+- ✓ Hardened `./bootstrap.sh` orchestrator with hierarchical prefix matching, Catppuccin pruning, parent pre-creation, fail-soft theming with color fallback, and multi-phase regression sweep — Phase 29 / INTG-03
 
 ### Validated — v0.3 (shipped)
 
@@ -190,7 +193,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 ### Active
 
-- [ ] Reconcile `guard-paths.tsv`, `collision-map.tsv`, and `./bootstrap.sh` verification for theme outputs
+- None (Milestone v0.5 complete — all 17 requirements validated)
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -317,6 +320,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 28: Kitty upstream configuration layout with dynamic theme inclusion | Dynamic kitty-theme.conf inclusion, 0.85 opacity, shell zsh, claimed search.py and scroll_mark.py into stow/kitty/ (D-01..D-03, D-08, D-09) | ✓ Section 3 FAIL=0, TERM-02 |
 | Phase 28: Seamless live dynamic reload via SIGUSR1 on switchwall.sh | Synchronous Matugen generation updates fuzzel_theme.ini, kitty-theme.conf, and sequences.txt with strictly monotonic timestamps and SIGUSR1 signal without session drop (D-05, D-18) | ✓ Section 4 FAIL=0, TERM-01, TERM-02 |
 | Phase 28: Strict tab-separated guard path for fuzzel_theme.ini | Strictly guards $XDG_CONFIG_HOME/fuzzel/fuzzel_theme.ini in guard-paths.tsv, passing arch/dots-hyprland.sh verify --strict with 0 findings (INTG-01, INTG-02) | ✓ Section 5 FAIL=0, INTG-01, INTG-02 |
+| Phase 29: Relocate fuzzel and kitty to restow/ | Honor collision-map.tsv derivation (DESTROYED symlink status from upstream directory sync) | ✓ restow/README.md Section 3 table regenerated, arch/kitty.sh stows from ../restow, PAIR_COUNT == 18 preserved (INTG-02) |
+| Phase 29: Hierarchical ancestor traversal in guard matching | Flat path lookup failed for nested dynamic outputs inside guarded directories (Kvantum/, kde-material-you-colors/) | ✓ Enforced in arch/dots-hyprland.sh and bootstrap.sh is_guarded_path() (INTG-01, INTG-03) |
+| Phase 29: Asynchronous kdeglobals polling in live reload drill | switchwall.sh dispatches handle_kde_material_you_colors & in background | ✓ Polled kdeglobals mtime with 3s timeout, eliminating race conditions and working-tree churn (INTG-01) |
+| Phase 29: Fail-soft initial theme generation and sensitive parent pre-creation | Defeated GNU Stow directory folding and handled offline/headless fresh installs | ✓ bootstrap.sh Step 5 pre-creates directories; Step 6 falls back to #3f51b5 color seed on missing wallpaper (INTG-03) |
 
 ## Evolution
 
@@ -336,4 +343,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-17 after Phase 28*
+*Last updated: 2026-09-18 after Phase 29*

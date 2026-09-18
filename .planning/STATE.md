@@ -18,31 +18,31 @@ progress:
 ---
 
 Total Phases: 5 (Phases 25-29)
-Progress: [████████████████████] 13/13 plans ([██████████] 100%)
+Progress: [████████████████████] 15/15 plans ([██████████] 100%)
 
 # Project State
 
 ## Current Position
 
 Phase: 29
-Plan: Not started
+Plan: Complete
 Status: All phases complete
 Last activity: 2026-09-18 — Phase 29 complete
 
 ## Session
 
-**Last session:** 2026-09-18T03:55:20.218Z
-**Stopped at:** Phase 29 complete — all phases complete
+**Last session:** 2026-09-18T09:58:00Z
+**Stopped at:** Phase 29 complete — Milestone v0.5 is 100% complete
 **Resume file:** None
-**Next command:** /gsd-plan-phase 29
+**Next command:** /gsd-complete-milestone v0.5
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-17)
+See: .planning/PROJECT.md (updated 2026-09-18)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Phase 29 — Theme Data Contracts, Verification & Bootstrap Integration
-**v0.4 core value:** A fresh machine reproduces this exact desktop from a clone and one command, and everything configured afterward is captured without a manual sync step.
+**Current focus:** Milestone v0.5 Complete — System-wide Material You theming
+**v0.5 core value:** Unified system-wide Material You dynamic theming generated from wallpaper across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.
 
 ## Deferred Items
 
@@ -112,6 +112,11 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 28: Seamless live dynamic reload via SIGUSR1 on switchwall.sh synchronously updating fuzzel_theme.ini, kitty-theme.conf, and sequences.txt with monotonic timestamps (TERM-01, TERM-02, D-05, D-18)
 - Phase 28: Strict tab-separated guard path for fuzzel_theme.ini in guard-paths.tsv passing arch/dots-hyprland.sh verify --strict with 0 findings (INTG-01, INTG-02)
 - Phase 28: Automated 5-section assert harness scripts/phase28-terminal-fuzzel-assert.sh passed 26 checks with FAIL=0 FINDINGS=0 (D-19)
+- Phase 29: Relocated fuzzel and kitty packages to restow/ to honor collision-map.tsv derivation (symlink DESTROYED status from upstream directory sync); regenerated restow/README.md Section 3 table, updated arch/kitty.sh, and preserved PAIR_COUNT == 18 across arch/*.sh (INTG-02)
+- Phase 29: Reconciled guard-paths.tsv documenting all 8 dynamic theme outputs with 1:1 .gitignore parity, preserving Q7 and Q8 backward compatibility tokens (INTG-01)
+- Phase 29: Verified live zero git churn drill in switchwall.sh reload with asynchronous kdeglobals polling, proving monotonic mtime advancement across all 5 dynamic components and byte-identical porcelain state (INTG-01)
+- Phase 29: Hardened bootstrap.sh with hierarchical prefix matching in is_guarded_path, explicit Catppuccin symlink pruning in run_destub, parent directory pre-creation in run_stow_step, and fail-soft initial theme generation with #3f51b5 color seed fallback (INTG-03)
+- Phase 29: Automated 5-section assert harness scripts/phase29-theme-data-contracts-assert.sh passed 30 checks with FAIL=0 FINDINGS=0 across isolated scratch drill and full v0.5 regression sweep (Phases 25–28) (INTG-01..03)
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.  
