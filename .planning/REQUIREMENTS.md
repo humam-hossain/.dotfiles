@@ -31,9 +31,9 @@
 
 ### INTG (Data Contracts & Verification)
 
-- [ ] **INTG-01**: `guard-paths.tsv` is updated and validated to ensure all dynamically generated Matugen/KDE theme outputs are guarded against repository churn.
-- [ ] **INTG-02**: `arch/dots-hyprland.sh verify --strict` passes with 0 violations after Catppuccin de-linking and GTK stow update.
-- [ ] **INTG-03**: `./bootstrap.sh` cleanly sets up the Material You theming environment on a fresh run without conflicting Catppuccin stubs.
+- [x] **INTG-01**: `guard-paths.tsv` is updated and validated to ensure all dynamically generated Matugen/KDE theme outputs are guarded against repository churn.
+- [x] **INTG-02**: `arch/dots-hyprland.sh verify --strict` passes with 0 violations after Catppuccin de-linking and GTK stow update.
+- [x] **INTG-03**: `./bootstrap.sh` cleanly sets up the Material You theming environment on a fresh run without conflicting Catppuccin stubs.
 
 ## v2 Requirements
 
@@ -74,9 +74,9 @@
 | SHELL-03 | Phase 27 | Complete |
 | TERM-01 | Phase 28 | Complete |
 | TERM-02 | Phase 28 | Complete |
-| INTG-01 | Phase 29 | Pending |
-| INTG-02 | Phase 29 | Pending |
-| INTG-03 | Phase 29 | Pending |
+| INTG-01 | Phase 29 | Complete |
+| INTG-02 | Phase 29 | Complete |
+| INTG-03 | Phase 29 | Complete |
 
 **Coverage:**
 
