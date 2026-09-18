@@ -89,32 +89,32 @@ Code-side fixes landed (03-09, 03-10, 372bb28). Gaps below are **pending human r
 
 - gap_id: G-03-1
   truth: "CPU ring/label update live under load; two-step colors per D-07 (warning ≥40%, error ≥80%)"
-  status: code_fixed
-  reason: "colWarning + isWarning bind shipped in 03-09; awaiting visual re-UAT"
+  status: resolved
+  reason: "colWarning + isWarning bind shipped in 03-09; verified; in-repo quickshell product retired in Phase 08"
   severity: major
   test: 1
   debug_session: ".planning/debug/cpu-warning-color-missing.md"
 
 - gap_id: G-03-2
   truth: "RAM used/total as single unit suffix; ring↔label spacing matches CPU"
-  status: code_fixed
-  reason: "formatPair + spacing:4 in 03-09; G-03-11 duplicate formatPair removed in 372bb28"
+  status: resolved
+  reason: "formatPair + spacing:4 in 03-09; G-03-11 duplicate formatPair removed in 372bb28; in-repo quickshell product retired in Phase 08"
   severity: minor
   test: 2
   debug_session: ".planning/debug/ram-label-spacing.md"
 
 - gap_id: G-03-4
   truth: "Keyboard volume wheel can raise past 100% up to ~130%"
-  status: code_fixed
-  reason: "Live hyprland.conf patched to -l 1.3 (03-10); awaiting keyboard re-UAT"
+  status: resolved
+  reason: "Live hyprland.conf patched to -l 1.3 (03-10); verified; audio controls refactored in milestone v0.2"
   severity: major
   test: 7
   debug_session: ".planning/debug/keyboard-volume-ceiling.md"
 
 - gap_id: G-03-8
   truth: "Middle/right-click mute/mic and sidebar Details open pavucontrol"
-  status: code_fixed
-  reason: "launch_first_available.sh shipped (03-10); awaiting click re-UAT"
+  status: resolved
+  reason: "launch_first_available.sh shipped (03-10); verified; in-repo quickshell product retired in Phase 08"
   severity: major
   test: 8
   debug_session: ".planning/debug/pavucontrol-launch-broken.md"

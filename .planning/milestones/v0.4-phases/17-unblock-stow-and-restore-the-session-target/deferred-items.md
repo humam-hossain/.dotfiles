@@ -194,12 +194,12 @@ neutered copy of the script, built under the session scratchpad, in which every
 `pacman`, `yay`, `usermod`, `stow` and `systemctl` word was replaced by the shell
 no-op `:` and no path logic was touched. Two of the four aborted:
 
-| Invocation form | Before the fix | After the fix |
-| --- | --- | --- |
-| `bash arch/hyprland.sh` | exit 1 — `line 46: cd: arch/../stow: No such file or directory` | exit 0 |
-| `bash ./arch/hyprland.sh` | exit 1 — `line 46: cd: ./arch/../stow: No such file or directory` | exit 0 |
-| `bash "$PWD/arch/hyprland.sh"` | exit 0 | exit 0 |
-| `cd arch && bash ./hyprland.sh` | exit 0 | exit 0 |
+| Invocation form | Before the fix | After the fix | Status |
+| --- | --- | --- | --- |
+| `bash arch/hyprland.sh` | exit 1 — `line 46: cd: arch/../stow: No such file or directory` | exit 0 | resolved |
+| `bash ./arch/hyprland.sh` | exit 1 — `line 46: cd: ./arch/../stow: No such file or directory` | exit 0 | resolved |
+| `bash "$PWD/arch/hyprland.sh"` | exit 0 | exit 0 | resolved |
+| `cd arch && bash ./hyprland.sh` | exit 0 | exit 0 | resolved |
 
 Both failures land at the *second* directory change, never the first, which is
 the signature the diagnosis predicted.
