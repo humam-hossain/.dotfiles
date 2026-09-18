@@ -401,7 +401,24 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
   info "--- Section 5: Full v0.5 Regression Sweep (Phases 25, 26, 27, 28) ---"
-  # Stub: Implemented in Task 29-02-03
+
+  for p_script in "scripts/phase25-gtk-material-you-assert.sh" \
+                  "scripts/phase26-qt-kde-material-you-assert.sh" \
+                  "scripts/phase27-accent-coordination-assert.sh" \
+                  "scripts/phase28-terminal-fuzzel-assert.sh"; do
+    if [[ -x "$REPO_ROOT/$p_script" ]]; then
+      p_rc=0
+      p_out="$("$REPO_ROOT/$p_script" 2>&1)" || p_rc=$?
+      if [[ "$p_rc" -eq 0 ]]; then
+        pass "S5: $p_script passed with 0 failures"
+      else
+        fail "S5: $p_script failed with exit code $p_rc"
+        printf '%s\n' "$p_out" | tail -n 20 | sed 's/^/       /' >&2
+      fi
+    else
+      fail "S5: $p_script missing or not executable"
+    fi
+  done
 fi
 
 # ===========================================================================
