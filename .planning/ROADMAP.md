@@ -6,7 +6,7 @@
 - ✅ **v0.2 Adopt dots-hyprland** — Phases 5–9 (shipped 2026-08-02)
 - ✅ **v0.3 Full ii install** — Phases 10–16 (shipped 2026-09-09)
 - ✅ **v0.4 Personal config layer** — Phases 17–24 (shipped 2026-09-16)
-- 🟡 **v0.5 System-wide Material You theming** — Phases 25–29 (in progress)
+- 🟡 **v0.5 System-wide Material You theming** — Phases 25–30 (in progress)
 
 ## Phases
 
@@ -76,13 +76,14 @@ Milestone audit: [milestones/v0.4-MILESTONE-AUDIT.md](milestones/v0.4-MILESTONE-
 
 </details>
 
-### v0.5 System-wide Material You theming (Phases 25-29)
+### v0.5 System-wide Material You theming (Phases 25-30)
 
 - [x] **Phase 25: GTK Material You Theming & Catppuccin De-linking** (0/3 plans) — Retire legacy Catppuccin assets/symlinks from `~/.config/gtk-4.0/` and `stow/gtk/`, configure `adw-gtk3` base theme, and wire Matugen dynamic GTK-3/4 CSS generation from wallpaper. (completed 2026-09-16)
 - [x] **Phase 26: Qt & KDE Apps Material You Harmonization** — Align Qt 5/6, Kvantum, and KDE applications (Dolphin, Kate) with Material You color palette and dynamic wallpaper updates. (completed 2026-09-17)
 - [x] **Phase 27: Hyprland & Quickshell ii Accent Coordination** — Coordinate Hyprland window decorations, active/inactive borders, and Quickshell ii widget accents with Matugen generated colors and wallpaper reload. (completed 2026-09-17)
 - [x] **Phase 28: Terminal & Fuzzel Launcher Dynamic Palette** — Extend dynamic Material You styling to Fuzzel app launcher and terminal emulators. (completed 2026-09-17)
 - [x] **Phase 29: Theme Data Contracts, Verification & Bootstrap Integration** (0/2 plans) — Reconcile `guard-paths.tsv`, update `collision-map.tsv`, verify zero git churn on theme generation, and validate `./bootstrap.sh`. (completed 2026-09-18)
+- [ ] **Phase 30: Address tech debt: v0.5 cleanup and validation sign-off** — Address tech debt, reconcile validation gaps, and complete validation sign-off for milestone v0.5.
 
 ## Phase Details
 
@@ -220,8 +221,20 @@ Plans:
 | 27. Hyprland & Quickshell ii Accent Coordination | v0.5 | 3/3 | Complete    | 2026-09-17 |
 | 28. Terminal & Fuzzel Launcher Dynamic Palette | v0.5 | 3/3 | Complete    | 2026-09-17 |
 | 29. Theme Data Contracts, Verification & Bootstrap Integration | v0.5 | 2/2 | Complete    | 2026-09-18 |
+| 30. Address tech debt: v0.5 cleanup and validation sign-off | v0.5 | 0/0 | Not started | - |
 
 **Coverage:** v0.1–v0.4 shipped · v0.5 in progress — 15/15 requirements mapped across Phases 25–29, 0 unmapped
+
+### Phase 30: Address tech debt: v0.5 cleanup and validation sign-off
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 29
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 30 to break down)
 
 ---
 *Last updated: 2026-09-16 for milestone v0.5 roadmap initialization*
