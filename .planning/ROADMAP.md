@@ -221,7 +221,7 @@ Plans:
 | 27. Hyprland & Quickshell ii Accent Coordination | v0.5 | 3/3 | Complete    | 2026-09-17 |
 | 28. Terminal & Fuzzel Launcher Dynamic Palette | v0.5 | 3/3 | Complete    | 2026-09-17 |
 | 29. Theme Data Contracts, Verification & Bootstrap Integration | v0.5 | 2/2 | Complete    | 2026-09-18 |
-| 30. Address tech debt: v0.5 cleanup and validation sign-off | v0.5 | 1/2 | In Progress|  |
+| 30. Address tech debt: v0.5 cleanup and validation sign-off | v0.5 | 2/2 | In Progress|  |
 
 **Coverage:** v0.1–v0.4 shipped · v0.5 in progress — 19/19 requirements mapped across Phases 25–30, 0 unmapped
 
@@ -235,7 +235,7 @@ Plans:
   2. Bootstrap exports virtualenv fallback and applies idempotent sanitization for template wrapper and applycolor signaling.
   3. Phase 29 validation sign-off is completed with 100% Nyquist compliance across all Milestone v0.5 phases (25–30).
   4. Phase 30 assert harness passes all 5 sections, strict repository verification passes with 0 findings, and git working tree remains byte-identical clean.
-- **Plans:** 2/2 plans (1 executed, 1 executing)
+- **Plans:** 2/2 plans executed (1 executed, 1 executing)
 
 Plans:
 
@@ -245,7 +245,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 30-02-PLAN.md — Validation sign-off, Phase 30 assert harness, full regression sweep, and milestone closeout readiness (DEBT-07, DEBT-08)
+- [x] 30-02-PLAN.md — Validation sign-off, Phase 30 assert harness, full regression sweep, and milestone closeout readiness (DEBT-07, DEBT-08)
 
 ---
 *Last updated: 2026-09-18 during Phase 30 tech debt execution*
