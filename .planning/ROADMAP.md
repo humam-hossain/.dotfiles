@@ -175,13 +175,13 @@ Plans:
   1. `guard-paths.tsv` accurately includes all dynamic outputs (`kdeglobals`, `gtk-3.0/gtk.css`, `hyprland/colors.lua`, `fuzzel_theme.ini`, etc.) and prevents repository churn.
   2. `arch/dots-hyprland.sh verify --strict` exits 0 with 0 findings.
   3. `./bootstrap.sh` runs cleanly without manual interventions or conflicting legacy stubs.
-- **Plans:** 0/2 plans complete
+- **Plans:** 1/2 plans executed
 
 Plans:
 
 **Wave 1**
 
-- [ ] 29-01-PLAN.md — tracer: Data contracts, .gitignore parity, three-tree taxonomy reconciliation (relocate fuzzel & kitty to restow/), arch/kitty.sh update, live symlink re-pointing, and verifier hierarchical prefix matching (INTG-01, INTG-02)
+- [x] 29-01-PLAN.md — tracer: Data contracts, .gitignore parity, three-tree taxonomy reconciliation (relocate fuzzel & kitty to restow/), arch/kitty.sh update, live symlink re-pointing, and verifier hierarchical prefix matching (INTG-01, INTG-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -219,7 +219,7 @@ Plans:
 | 26. Qt & KDE Apps Material You Harmonization | v0.5 | 3/3 | Complete    | 2026-09-17 |
 | 27. Hyprland & Quickshell ii Accent Coordination | v0.5 | 3/3 | Complete    | 2026-09-17 |
 | 28. Terminal & Fuzzel Launcher Dynamic Palette | v0.5 | 3/3 | Complete    | 2026-09-17 |
-| 29. Theme Data Contracts, Verification & Bootstrap Integration | v0.5 | 0/2 | Planned | — |
+| 29. Theme Data Contracts, Verification & Bootstrap Integration | v0.5 | 1/2 | In Progress|  |
 
 **Coverage:** v0.1–v0.4 shipped · v0.5 in progress — 15/15 requirements mapped across Phases 25–29, 0 unmapped
 
