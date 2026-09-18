@@ -195,7 +195,43 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
   info "--- Section 3: Strict Repository Verification Engine (INTG-02, D-04, D-08) ---"
-  # Stub: Implemented in Task 29-01-03
+
+  # 1. Clean packaging trees
+  DIRTY_TREES="$(git status --porcelain stow/ restow/ capture/ || true)"
+  if [[ -z "$DIRTY_TREES" ]]; then
+    pass "S3: Packaging trees (stow/, restow/, capture/) are 100% clean"
+  else
+    fail "S3: Packaging trees dirty: $DIRTY_TREES"
+  fi
+
+  # 2. Strict verification engine execution
+  VERIFY_RC=0
+  VERIFY_OUT="$("$REPO_ROOT/arch/dots-hyprland.sh" verify --strict 2>&1)" || VERIFY_RC=$?
+  if [[ "$VERIFY_RC" -eq 0 ]]; then
+    pass "S3: arch/dots-hyprland.sh verify --strict passed with exit 0 (INTG-02)"
+  else
+    fail "S3: arch/dots-hyprland.sh verify --strict failed with rc=$VERIFY_RC"
+    printf '%s\n' "$VERIFY_OUT" | sed 's/^/       /' >&2
+  fi
+
+  # 3. Live symlink target verification: fuzzel.ini and kitty.conf resolve to restow/
+  LIVE_FUZZEL_CONF="$HOME/.config/fuzzel/fuzzel.ini"
+  LIVE_KITTY_CONF="$HOME/.config/kitty/kitty.conf"
+
+  TARGET_FUZZEL="$(readlink -f "$LIVE_FUZZEL_CONF" 2>/dev/null || true)"
+  TARGET_KITTY="$(readlink -f "$LIVE_KITTY_CONF" 2>/dev/null || true)"
+
+  if [[ "$TARGET_FUZZEL" == "$REPO_ROOT/restow/fuzzel/.config/fuzzel/fuzzel.ini" ]]; then
+    pass "S3: live fuzzel.ini resolves to restow/fuzzel package (D-08)"
+  else
+    fail "S3: live fuzzel.ini target mismatch: $TARGET_FUZZEL"
+  fi
+
+  if [[ "$TARGET_KITTY" == "$REPO_ROOT/restow/kitty/.config/kitty/kitty.conf" ]]; then
+    pass "S3: live kitty.conf resolves to restow/kitty package (D-08)"
+  else
+    fail "S3: live kitty.conf target mismatch: $TARGET_KITTY"
+  fi
 fi
 
 # ===========================================================================

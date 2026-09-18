@@ -1155,12 +1155,19 @@ run_verify() {
         fi
       done
 
-      # Assert live path is not a symlink into repo
+      # Assert live path is not a symlink into repo (recursive check for directories)
       if [[ -L "$expanded" ]]; then
         live_target="$(readlink -f -- "$expanded" 2>/dev/null || true)"
         if [[ "$live_target" == "$main_root_real"/* || "$live_target" == "$main_root"/* ]]; then
           fail "guard path live counterpart symlinks into repo: $expanded -> $live_target"
         fi
+      elif [[ -d "$expanded" ]]; then
+        while IFS= read -r -d '' sub_link; do
+          live_target="$(readlink -f -- "$sub_link" 2>/dev/null || true)"
+          if [[ "$live_target" == "$main_root_real"/* || "$live_target" == "$main_root"/* ]]; then
+            fail "guard path live counterpart symlinks into repo: $sub_link -> $live_target"
+          fi
+        done < <(find "$expanded" -type l -print0 2>/dev/null || true)
       fi
       pass "guard path excluded: $g_path"
     done < "$guard_file"
@@ -1337,8 +1344,18 @@ run_verify() {
         return 0
       fi
 
-      # Guarded theme output check (D-24)
-      if [[ -n "${guarded_entries[$entry]:-}" ]]; then
+      # Guarded theme output check (D-24) with hierarchical prefix matching (D-02)
+      local check_entry="$entry"
+      local is_guarded=0
+      while [[ -n "$check_entry" && "$check_entry" != "$HOME" && "$check_entry" != "/" && "$check_entry" != "." ]]; do
+        if [[ -n "${guarded_entries["$check_entry"]:-}" ]]; then
+          is_guarded=1
+          break
+        fi
+        check_entry="$(dirname -- "$check_entry")"
+      done
+
+      if [[ "$is_guarded" -eq 1 ]]; then
         info "guarded theme output: $entry"
         return 0
       fi
