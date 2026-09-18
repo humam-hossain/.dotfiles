@@ -41,6 +41,7 @@ Kvantum/
 colors.lua
 colors.conf
 fuzzel_theme.ini
+kde-material-you-colors/
 
 # Machine-written state (D-14) — caches, virtualenvs, editor droppings, runtime
 # sockets and lockfiles. Same anchoring rule as the block above: slash-free

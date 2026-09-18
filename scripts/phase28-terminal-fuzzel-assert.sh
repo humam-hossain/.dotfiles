@@ -104,13 +104,13 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
     fail "S1: ~/.config/matugen/config.toml missing [templates.fuzzel] configuration"
   fi
 
-  # 3. stow/kitty kitty.conf include statement and cold-start seed target
-  REPO_KITTY_CONF="$REPO_ROOT/stow/kitty/.config/kitty/kitty.conf"
+  # 3. restow/kitty kitty.conf include statement and cold-start seed target
+  REPO_KITTY_CONF="$REPO_ROOT/restow/kitty/.config/kitty/kitty.conf"
   SEED_KITTY_THEME="$XDG_STATE_HOME/quickshell/user/generated/terminal/kitty-theme.conf"
   if [[ -f "$REPO_KITTY_CONF" ]] && grep -q '^include ~/.local/state/quickshell/user/generated/terminal/kitty-theme.conf' "$REPO_KITTY_CONF"; then
-    pass "S1: stow/kitty kitty.conf includes generated kitty-theme.conf (D-01)"
+    pass "S1: restow/kitty kitty.conf includes generated kitty-theme.conf (D-01)"
   else
-    fail "S1: stow/kitty kitty.conf missing required theme include statement"
+    fail "S1: restow/kitty kitty.conf missing required theme include statement"
   fi
   if [[ -f "$SEED_KITTY_THEME" ]]; then
     pass "S1: cold-start seed kitty-theme.conf exists on disk (D-07)"
@@ -118,17 +118,17 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
     fail "S1: cold-start seed kitty-theme.conf missing ($SEED_KITTY_THEME)"
   fi
 
-  # 4. stow/fuzzel fuzzel.ini include statement & defaults
-  REPO_FUZZEL_INI="$REPO_ROOT/stow/fuzzel/.config/fuzzel/fuzzel.ini"
+  # 4. restow/fuzzel fuzzel.ini include statement & defaults
+  REPO_FUZZEL_INI="$REPO_ROOT/restow/fuzzel/.config/fuzzel/fuzzel.ini"
   if [[ -f "$REPO_FUZZEL_INI" ]] && \
      grep -q '^include="~/.config/fuzzel/fuzzel_theme.ini"' "$REPO_FUZZEL_INI" && \
      grep -q '^terminal=kitty -1' "$REPO_FUZZEL_INI" && \
      grep -q '^radius=17' "$REPO_FUZZEL_INI" && \
      grep -q '^prompt=">>  "' "$REPO_FUZZEL_INI" && \
      grep -q '^exit-immediately-if-empty=yes' "$REPO_FUZZEL_INI"; then
-    pass "S1: stow/fuzzel fuzzel.ini declares theme include, terminal=kitty -1, and squircle radius 17 (D-14..D-16)"
+    pass "S1: restow/fuzzel fuzzel.ini declares theme include, terminal=kitty -1, and squircle radius 17 (D-14..D-16)"
   else
-    fail "S1: stow/fuzzel fuzzel.ini missing required options ($REPO_FUZZEL_INI)"
+    fail "S1: restow/fuzzel fuzzel.ini missing required options ($REPO_FUZZEL_INI)"
   fi
 
   # 5. guard-paths.tsv contract for fuzzel_theme.ini
@@ -146,11 +146,11 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
     fail "S1: fuzzel_theme.ini guard entry not properly tab-separated (INTG-01, D-16)"
   fi
 
-  # 6. Claimed helper kittens in stow/kitty
-  if [[ -f "$REPO_ROOT/stow/kitty/.config/kitty/search.py" && -f "$REPO_ROOT/stow/kitty/.config/kitty/scroll_mark.py" ]]; then
-    pass "S1: Helper kittens search.py and scroll_mark.py present in stow/kitty package (D-03)"
+  # 6. Claimed helper kittens in restow/kitty
+  if [[ -f "$REPO_ROOT/restow/kitty/.config/kitty/search.py" && -f "$REPO_ROOT/restow/kitty/.config/kitty/scroll_mark.py" ]]; then
+    pass "S1: Helper kittens search.py and scroll_mark.py present in restow/kitty package (D-03)"
   else
-    fail "S1: Helper kittens missing from stow/kitty package (D-03)"
+    fail "S1: Helper kittens missing from restow/kitty package (D-03)"
   fi
 fi
 
