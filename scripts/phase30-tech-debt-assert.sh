@@ -303,7 +303,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
   if [[ -x "$VERIFY_SCRIPT" ]]; then
     v_rc=0
     v_out="$("$VERIFY_SCRIPT" verify --strict 2>&1)" || v_rc=$?
-    if [[ "$v_rc" -eq 0 ]] && printf '%s\n' "$v_out" | grep -q '0 findings'; then
+    if [[ "$v_rc" -eq 0 ]] && printf '%s\n' "$v_out" | grep -q 'FINDINGS=0'; then
       pass "S4: ./arch/dots-hyprland.sh verify --strict passed with 0 findings (D-14)"
     else
       fail "S4: ./arch/dots-hyprland.sh verify --strict failed (exit code $v_rc)"
