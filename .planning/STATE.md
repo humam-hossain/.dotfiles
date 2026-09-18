@@ -3,13 +3,13 @@ gsd_state_version: "1.0"
 milestone: v0.5
 milestone_name: System-wide Material You theming (Phases 25-30)
 current_phase: 30
-current_phase_name: address-tech-debt-v0-5-cleanup-and-validation-sign-off
-status: in_progress
+current_phase_name: "Address tech debt: v0.5 cleanup and validation sign-off"
+status: executing
 stopped_at: Phase 30 context gathered
-last_updated: "2026-09-18T15:00:46.300Z"
+last_updated: "2026-09-18T15:02:24.710Z"
 last_activity: 2026-09-18
-last_activity_desc: "Phase 30 added: Address tech debt: v0.5 cleanup and validation sign-off"
-state_head: 0fd351d750efc85d161b6eaf7fcbaf6b160f16dc
+last_activity_desc: Phase 30 execution started
+state_head: dc13ca8716eacd7d8e75a67ddfe7885df5bc4897
 progress:
   total_phases: 6
   completed_phases: 5
@@ -25,10 +25,10 @@ Progress: [████████████████░░░░] 15/15+ 
 
 ## Current Position
 
-Phase: 30 (address-tech-debt-v0-5-cleanup-and-validation-sign-off) — READY TO EXECUTE
-Plan: Not planned yet
-Status: Ready to plan Phase 30
-Last activity: 2026-09-18 — Phase 30 added
+Phase: 30 (Address tech debt: v0.5 cleanup and validation sign-off) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 30
+Last activity: 2026-09-18 — Phase 30 execution started
 
 ## Session
 
@@ -42,7 +42,7 @@ Last activity: 2026-09-18 — Phase 30 added
 See: .planning/PROJECT.md (updated 2026-09-18)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays — full session install only after known dispositions. Full adopt done (Phase 14); Phase 16 then retired the safe profile from the wrapper, the assert scripts and the operator documents, so there is one install path and nothing left to choose.  
-**Current focus:** Milestone v0.5 Complete — System-wide Material You theming
+**Current focus:** Phase 30 — Address tech debt: v0.5 cleanup and validation sign-off
 **v0.5 core value:** Unified system-wide Material You dynamic theming generated from wallpaper across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.
 
 ## Deferred Items

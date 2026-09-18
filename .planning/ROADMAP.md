@@ -221,7 +221,7 @@ Plans:
 | 27. Hyprland & Quickshell ii Accent Coordination | v0.5 | 3/3 | Complete    | 2026-09-17 |
 | 28. Terminal & Fuzzel Launcher Dynamic Palette | v0.5 | 3/3 | Complete    | 2026-09-17 |
 | 29. Theme Data Contracts, Verification & Bootstrap Integration | v0.5 | 2/2 | Complete    | 2026-09-18 |
-| 30. Address tech debt: v0.5 cleanup and validation sign-off | v0.5 | 0/0 | Not started | - |
+| 30. Address tech debt: v0.5 cleanup and validation sign-off | v0.5 | 1/2 | In Progress|  |
 
 **Coverage:** v0.1–v0.4 shipped · v0.5 in progress — 15/15 requirements mapped across Phases 25–29, 0 unmapped
 
@@ -230,9 +230,12 @@ Plans:
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 29
-**Plans:** 0 plans
+**Plans:** 1/2 plans executed
 
 Plans:
+
+- [x] 30-01-PLAN.md
+- [ ] 30-02-PLAN.md
 
 - [ ] TBD (run /gsd-plan-phase 30 to break down)
 
