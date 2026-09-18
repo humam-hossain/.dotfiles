@@ -223,21 +223,29 @@ Plans:
 | 29. Theme Data Contracts, Verification & Bootstrap Integration | v0.5 | 2/2 | Complete    | 2026-09-18 |
 | 30. Address tech debt: v0.5 cleanup and validation sign-off | v0.5 | 1/2 | In Progress|  |
 
-**Coverage:** v0.1–v0.4 shipped · v0.5 in progress — 15/15 requirements mapped across Phases 25–29, 0 unmapped
+**Coverage:** v0.1–v0.4 shipped · v0.5 in progress — 19/19 requirements mapped across Phases 25–30, 0 unmapped
 
 ### Phase 30: Address tech debt: v0.5 cleanup and validation sign-off
 
-**Goal:** [To be planned]
-**Requirements**: TBD
-**Depends on:** Phase 29
-**Plans:** 1/2 plans executed
+- **Goal:** Address accumulated technical debt, visual polish preferences, environment fallback robustness, and validation coverage gaps from Milestone v0.5 audit, establishing 100% Nyquist compliance and multi-phase regression coverage.
+- **Requirements:** DEBT-05, DEBT-06, DEBT-07, DEBT-08
+- **Depends on:** Phase 29
+- **Success Criteria:**
+  1. Kitty background opacity is set to 0.90 in restow and asserted with tolerance in phase28 test harness.
+  2. Bootstrap exports virtualenv fallback and applies idempotent sanitization for template wrapper and applycolor signaling.
+  3. Phase 29 validation sign-off is completed with 100% Nyquist compliance across all Milestone v0.5 phases (25–30).
+  4. Phase 30 assert harness passes all 5 sections, strict repository verification passes with 0 findings, and git working tree remains byte-identical clean.
+- **Plans:** 2/2 plans (1 executed, 1 executing)
 
 Plans:
 
-- [x] 30-01-PLAN.md
-- [ ] 30-02-PLAN.md
+**Wave 1**
 
-- [ ] TBD (run /gsd-plan-phase 30 to break down)
+- [x] 30-01-PLAN.md — Visual polish, environment fallback, and script signaling robustness (DEBT-05, DEBT-06)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 30-02-PLAN.md — Validation sign-off, Phase 30 assert harness, full regression sweep, and milestone closeout readiness (DEBT-07, DEBT-08)
 
 ---
-*Last updated: 2026-09-16 for milestone v0.5 roadmap initialization*
+*Last updated: 2026-09-18 during Phase 30 tech debt execution*

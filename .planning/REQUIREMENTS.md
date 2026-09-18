@@ -35,6 +35,13 @@
 - [x] **INTG-02**: `arch/dots-hyprland.sh verify --strict` passes with 0 violations after Catppuccin de-linking and GTK stow update.
 - [x] **INTG-03**: `./bootstrap.sh` cleanly sets up the Material You theming environment on a fresh run without conflicting Catppuccin stubs.
 
+### DEBT (Technical Debt & Validation Cleanup)
+
+- [x] **DEBT-05**: Kitty background opacity aligned to 0.90 per Phase 28 UAT preference with native parser assert and live process signaling.
+- [x] **DEBT-06**: Bootstrap virtualenv fallback export and idempotent template sanitization hooks for headless and dynamic reload robustness.
+- [x] **DEBT-07**: Phase 29 validation sign-off and 100% Nyquist compliance across all Milestone v0.5 phases (25–30).
+- [x] **DEBT-08**: Phase 30 assert harness with strict verifier gate and multi-phase regression sweep across Phases 25–29 with zero git drift.
+
 ## v2 Requirements
 
 ### Waybar Custom Ports
@@ -77,13 +84,17 @@
 | INTG-01 | Phase 29 | Complete |
 | INTG-02 | Phase 29 | Complete |
 | INTG-03 | Phase 29 | Complete |
+| DEBT-05 | Phase 30 | Complete |
+| DEBT-06 | Phase 30 | Complete |
+| DEBT-07 | Phase 30 | Complete |
+| DEBT-08 | Phase 30 | Complete |
 
 **Coverage:**
 
-- v1 requirements: 15 total
-- Mapped to phases: 15
+- v1 requirements: 19 total
+- Mapped to phases: 19
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-09-16*
-*Last updated: 2026-09-16 after initial definition*
+*Last updated: 2026-09-18 during Phase 30 tech debt reconciliation*
