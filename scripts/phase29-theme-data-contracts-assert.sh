@@ -187,7 +187,68 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
   info "--- Section 2: Live Zero Git Churn Drill (INTG-01, D-14, D-15) ---"
-  # Stub: Implemented in Task 29-02-01
+
+  SWITCHWALL="$XDG_CONFIG_HOME/quickshell/ii/scripts/colors/switchwall.sh"
+  if [[ ! -x "$SWITCHWALL" ]]; then
+    fail "S2: switchwall.sh not executable at $SWITCHWALL"
+  else
+    # 5 Dynamic Themed Components
+    F_FUZZEL="$XDG_CONFIG_HOME/fuzzel/fuzzel_theme.ini"
+    F_KITTY="$XDG_STATE_HOME/quickshell/user/generated/terminal/kitty-theme.conf"
+    F_GTK="$XDG_CONFIG_HOME/gtk-3.0/gtk.css"
+    F_HYPR="$XDG_CONFIG_HOME/hypr/hyprland/colors.lua"
+    F_KDE="$XDG_CONFIG_HOME/kdeglobals"
+
+    B_FUZZEL="$(stat -c %Y "$F_FUZZEL" 2>/dev/null || echo 0)"
+    B_KITTY="$(stat -c %Y "$F_KITTY" 2>/dev/null || echo 0)"
+    B_GTK="$(stat -c %Y "$F_GTK" 2>/dev/null || echo 0)"
+    B_HYPR="$(stat -c %Y "$F_HYPR" 2>/dev/null || echo 0)"
+    B_KDE="$(stat -c %Y "$F_KDE" 2>/dev/null || echo 0)"
+
+    DRILL_BEFORE="$(mktemp /tmp/p29-drill-before-XXXXXX)"
+    DRILL_AFTER="$(mktemp /tmp/p29-drill-after-XXXXXX)"
+    TMP_FILES+=("$DRILL_BEFORE" "$DRILL_AFTER")
+    porcelain_snapshot > "$DRILL_BEFORE"
+
+    sleep 1
+
+    SW_RC=0
+    "$SWITCHWALL" --noswitch >/dev/null 2>&1 || SW_RC=$?
+    if [[ "$SW_RC" -eq 0 ]]; then
+      pass "S2: switchwall.sh --noswitch completed successfully"
+    else
+      fail "S2: switchwall.sh --noswitch failed with rc=$SW_RC"
+    fi
+
+    # Poll for asynchronous background KDE theming completion (handle_kde_material_you_colors &)
+    for ((i = 0; i < 15; i++)); do
+      cur_kde="$(stat -c %Y "$F_KDE" 2>/dev/null || echo 0)"
+      if [[ "$cur_kde" -gt "$B_KDE" ]]; then
+        break
+      fi
+      sleep 0.2
+    done
+
+    A_FUZZEL="$(stat -c %Y "$F_FUZZEL" 2>/dev/null || echo 0)"
+    A_KITTY="$(stat -c %Y "$F_KITTY" 2>/dev/null || echo 0)"
+    A_GTK="$(stat -c %Y "$F_GTK" 2>/dev/null || echo 0)"
+    A_HYPR="$(stat -c %Y "$F_HYPR" 2>/dev/null || echo 0)"
+    A_KDE="$(stat -c %Y "$F_KDE" 2>/dev/null || echo 0)"
+
+    [[ "$A_FUZZEL" -gt "$B_FUZZEL" ]] && pass "S2: Fuzzel mtime advanced monotonically" || fail "S2: Fuzzel mtime did not advance"
+    [[ "$A_KITTY" -gt "$B_KITTY" ]] && pass "S2: Kitty theme mtime advanced monotonically" || fail "S2: Kitty theme mtime did not advance"
+    [[ "$A_GTK" -gt "$B_GTK" ]] && pass "S2: GTK CSS mtime advanced monotonically" || fail "S2: GTK CSS mtime did not advance"
+    [[ "$A_HYPR" -gt "$B_HYPR" ]] && pass "S2: Hyprland colors.lua mtime advanced monotonically" || fail "S2: Hyprland colors.lua mtime did not advance"
+    [[ "$A_KDE" -gt "$B_KDE" ]] && pass "S2: KDE kdeglobals mtime advanced monotonically" || fail "S2: KDE kdeglobals mtime did not advance"
+
+    porcelain_snapshot > "$DRILL_AFTER"
+    if cmp -s "$DRILL_BEFORE" "$DRILL_AFTER"; then
+      pass "S2: Zero git churn: porcelain snapshot byte-identical before and after switchwall drill"
+    else
+      fail "S2: switchwall drill caused working-tree churn"
+      diff -u "$DRILL_BEFORE" "$DRILL_AFTER" || true
+    fi
+  fi
 fi
 
 # ===========================================================================
