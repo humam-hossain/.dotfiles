@@ -265,13 +265,13 @@ print('PASS: ANSI and Starship tokens valid')
     fail "S3: kitty-theme.conf token validation failed: $THEME_VERDICT"
   fi
 
-  # Kitty configuration parser probe for opacity 0.85, shell zsh, and margin 21.75
+  # Kitty configuration parser probe for opacity 0.90 per Phase 28 UAT preference (28-UAT.md) and Phase 30 alignment (DEBT-05, D-02)
   KITTY_OPTS_VERDICT="$(kitty +runpy "import sys
 from kitty.config import load_config
 try:
     opts = load_config('$HOME/.config/kitty/kitty.conf')
-    if abs(opts.background_opacity - 0.85) > 0.01:
-        print(f'FAIL: background_opacity expected 0.85, got {opts.background_opacity}')
+    if abs(opts.background_opacity - 0.90) > 0.01:
+        print(f'FAIL: background_opacity expected 0.90, got {opts.background_opacity}')
         sys.exit(1)
     if opts.shell != 'zsh':
         print(f'FAIL: shell expected zsh, got {opts.shell}')
@@ -279,14 +279,14 @@ try:
     if opts.window_margin_width[0] != 21.75:
         print(f'FAIL: window_margin_width expected 21.75, got {opts.window_margin_width}')
         sys.exit(1)
-    print('PASS: Kitty config loaded: opacity=0.85, shell=zsh, margin=21.75')
+    print('PASS: Kitty config loaded: opacity=0.90, shell=zsh, margin=21.75')
 except Exception as e:
     print(f'FAIL: {e}')
     sys.exit(1)
 " 2>&1 || true)"
 
   if [[ "$KITTY_OPTS_VERDICT" =~ ^PASS ]]; then
-    pass "S3: Kitty configuration validated natively: opacity=0.85, shell=zsh, margin=21.75 (D-01, D-02, D-09)"
+    pass "S3: Kitty configuration validated natively: opacity=0.90, shell=zsh, margin=21.75 (D-01, D-02, D-09)"
   else
     fail "S3: Kitty configuration probe failed: $KITTY_OPTS_VERDICT"
   fi
