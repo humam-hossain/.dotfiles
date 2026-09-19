@@ -43,6 +43,39 @@ hl.bind("SUPER + SHIFT + 8", function() hl.dispatch(hl.dsp.window.move({ workspa
 hl.bind("SUPER + SHIFT + 9", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(9), follow = true  })) end, { description = "Window: Move to workspace 9" })
 hl.bind("SUPER + SHIFT + 0", function() hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(10), follow = true  })) end, { description = "Window: Move to workspace 10" })
 
+-- Numpad workspace navigation and window movement (1-10)
+-- Handles both NumLock ON (KP_1..0) and NumLock OFF / Shift-inverted (KP_End..Insert)
+local numpad_workspaces = {
+    { num = "KP_1", nav = "KP_End",    ws = 1 },
+    { num = "KP_2", nav = "KP_Down",   ws = 2 },
+    { num = "KP_3", nav = "KP_Next",   ws = 3 },
+    { num = "KP_4", nav = "KP_Left",   ws = 4 },
+    { num = "KP_5", nav = "KP_Begin",  ws = 5 },
+    { num = "KP_6", nav = "KP_Right",  ws = 6 },
+    { num = "KP_7", nav = "KP_Home",   ws = 7 },
+    { num = "KP_8", nav = "KP_Up",     ws = 8 },
+    { num = "KP_9", nav = "KP_Prior",  ws = 9 },
+    { num = "KP_0", nav = "KP_Insert", ws = 10 },
+}
+
+for _, k in ipairs(numpad_workspaces) do
+    -- Switch workspace (SUPER + numpad)
+    hl.bind("SUPER + " .. k.num, function()
+        hl.dispatch(hl.dsp.focus({ workspace = workspace_in_group(k.ws) }))
+    end)
+    hl.bind("SUPER + " .. k.nav, function()
+        hl.dispatch(hl.dsp.focus({ workspace = workspace_in_group(k.ws) }))
+    end)
+
+    -- Move window to workspace and follow (SUPER + SHIFT + numpad)
+    hl.bind("SUPER + SHIFT + " .. k.num, function()
+        hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(k.ws), follow = true }))
+    end)
+    hl.bind("SUPER + SHIFT + " .. k.nav, function()
+        hl.dispatch(hl.dsp.window.move({ workspace = workspace_in_group(k.ws), follow = true }))
+    end)
+end
+
 -- Vim-style window focus navigation (D-09)
 hl.bind("SUPER + H", hl.dsp.focus({ direction = "l" }), { description = "Window: Focus left" })
 hl.bind("SUPER + L", hl.dsp.focus({ direction = "r" }), { description = "Window: Focus right" })
@@ -79,3 +112,9 @@ hl.bind("CTRL + SHIFT + SUPER + L", hl.dsp.window.move({ workspace = "e+1" }), {
 
 -- Helper for quick user editing
 hl.bind("CTRL + SUPER + ALT + Slash", hl.dsp.exec_cmd("xdg-open ~/.config/hypr/custom/keybinds.lua"), { description = "System: Edit user keybinds" })
+
+-- voicemode start
+hl.unbind("SUPER + T")
+hl.bind("SUPER + SHIFT + M", hl.dsp.exec_cmd(HOME .. "/.local/bin/voice --toggle"), { description = "Voice STT: Push-to-talk toggle" })
+hl.bind("SUPER + T", hl.dsp.exec_cmd(HOME .. "/.local/bin/voice --speak-selection"), { description = "Voice TTS: Speak selection" })
+-- voicemode end
