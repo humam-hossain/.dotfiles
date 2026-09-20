@@ -166,7 +166,7 @@
       "showColorPicker": true,
       "showDarkModeToggle": false,
       "showKeyboardToggle": true,
-      "showMicToggle": false,
+      "showMicToggle": true,
       "showPerformanceProfileToggle": true,
       "showScreenRecord": true,
       "showScreenSnip": true
