@@ -94,64 +94,70 @@ Item { // Bar content region
         }
     }
 
-    Row { // Middle section
+    Item { // Middle section wrapper
         id: middleSection
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        anchors.horizontalCenter: parent.horizontalCenter
-        spacing: 4
+        anchors.left: weatherGroup.active ? weatherGroup.left : middleCenterGroup.left
+        anchors.right: rightCenterGroup.right
+        property int spacing: 4
+    }
 
-        Loader {
-            id: weatherGroup
-            anchors.verticalCenter: parent.verticalCenter
-            active: Config.options.bar.weather.enable
+    Loader {
+        id: weatherGroup
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.right: middleCenterGroup.left
+        anchors.rightMargin: 4
+        active: Config.options.bar.weather.enable
 
-            sourceComponent: BarGroup {
-                WeatherBar {}
-            }
+        sourceComponent: BarGroup {
+            WeatherBar {}
         }
+    }
 
-        BarGroup {
-            id: middleCenterGroup
-            anchors.verticalCenter: parent.verticalCenter
-            padding: workspacesWidget?.widgetPadding ?? 0
+    BarGroup {
+        id: middleCenterGroup
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+        padding: workspacesWidget?.widgetPadding ?? 0
 
-            Workspaces {
-                id: workspacesWidget
-                Layout.fillHeight: true
-                MouseArea {
-                    // Right-click to toggle overview
-                    anchors.fill: parent
-                    acceptedButtons: Qt.RightButton
+        Workspaces {
+            id: workspacesWidget
+            Layout.fillHeight: true
+            MouseArea {
+                // Right-click to toggle overview
+                anchors.fill: parent
+                acceptedButtons: Qt.RightButton
 
-                    onPressed: event => {
-                        if (event.button === Qt.RightButton) {
-                            GlobalStates.overviewOpen = !GlobalStates.overviewOpen;
-                        }
+                onPressed: event => {
+                    if (event.button === Qt.RightButton) {
+                        GlobalStates.overviewOpen = !GlobalStates.overviewOpen;
                     }
                 }
             }
         }
+    }
 
-        MouseArea {
-            id: rightCenterGroup
-            anchors.verticalCenter: parent.verticalCenter
-            implicitWidth: rightCenterGroupContent.implicitWidth
-            implicitHeight: rightCenterGroupContent.implicitHeight
+    MouseArea {
+        id: rightCenterGroup
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.left: middleCenterGroup.right
+        anchors.leftMargin: 4
+        implicitWidth: rightCenterGroupContent.implicitWidth
+        implicitHeight: rightCenterGroupContent.implicitHeight
 
-            onPressed: {
-                GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
-            }
+        onPressed: {
+            GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
+        }
 
-            BarGroup {
-                id: rightCenterGroupContent
-                anchors.fill: parent
+        BarGroup {
+            id: rightCenterGroupContent
+            anchors.fill: parent
 
-                ClockWidget {
-                    showDate: (Config.options.bar.verbose && root.useShortenedForm < 2)
-                    Layout.alignment: Qt.AlignVCenter
-                    Layout.fillWidth: true
-                }
+            ClockWidget {
+                showDate: (Config.options.bar.verbose && root.useShortenedForm < 2)
+                Layout.alignment: Qt.AlignVCenter
+                Layout.fillWidth: true
             }
         }
     }
