@@ -11,10 +11,10 @@ requires:
   - phase: 33-02
     provides: Modular 3-zone layout in BarContent.qml
 provides:
-  - Human-approved modular status bar layout with Workspaces anchored strictly to dead center (50% monitor width)
-  - Flanking center layout: [ Weather ] on left of workspaces, [ Clock & Date ] on right of workspaces
-  - Verified dual-monitor scaling on DP-1 (3440x1440) and HDMI-A-1/HDMI-A-2 (1920x1080)
-  - 100% green verification across scripts/phase33-layout-assert.sh, scripts/phase32-component-formatting-assert.sh, and ./arch/dots-hyprland.sh verify --strict
+  - "Human-approved modular status bar layout with Workspaces anchored strictly to dead center (50% monitor width)"
+  - "Flanking center layout: [ Weather ] on left of workspaces, [ Clock & Date ] on right of workspaces"
+  - "Verified dual-monitor scaling on DP-1 (3440x1440) and HDMI-A-1/HDMI-A-2 (1920x1080)"
+  - "100% green verification across scripts/phase33-layout-assert.sh, scripts/phase32-component-formatting-assert.sh, and ./arch/dots-hyprland.sh verify --strict"
 affects: [phase-33, phase-34]
 
 # Actuals
