@@ -18,8 +18,8 @@
 - [ ] **COMP-02**: User can view CPU usage with custom formatting, warning thresholds, and clean visual indicators.
 - [ ] **COMP-03**: User can configure Clock & Date widget representation, date pattern, and 12h/24h formats via native configuration.
 - [ ] **COMP-04**: User can view Media Player pill with track title, playback controls, and volume/seek scroll actions.
-- [ ] **COMP-05**: User can view Weather pill displaying temperature, conditions glyph, and interactive weather forecast popup.
-- [ ] **COMP-06**: User can access Utility buttons pill providing shortcuts for Screen Snip, Color Picker, and Power menu.
+- [x] **COMP-05**: User can view Weather pill displaying temperature, conditions glyph, and interactive weather forecast popup.
+- [x] **COMP-06**: User can access Utility buttons pill providing shortcuts for Screen Snip, Color Picker, and Power menu.
 - [ ] **COMP-07**: User can view pending Pacman and AUR package updates count via a dedicated status pill.
 - [ ] **COMP-08**: User can view Privacy in-use alerts whenever the microphone, camera, or screen recording is actively capturing.
 - [ ] **COMP-09**: User can interact with System Tray icons and context menus with balanced icon spacing and padding.
@@ -67,8 +67,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COMP-02 | Phase 32 | Pending |
 | COMP-03 | Phase 32 | Pending |
 | COMP-04 | Phase 32 | Pending |
-| COMP-05 | Phase 32 | Pending |
-| COMP-06 | Phase 32 | Pending |
+| COMP-05 | Phase 32 | Complete |
+| COMP-06 | Phase 32 | Complete |
 | COMP-07 | Phase 32 | Pending |
 | COMP-08 | Phase 32 | Pending |
 | COMP-09 | Phase 32 | Pending |
