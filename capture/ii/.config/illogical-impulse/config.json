@@ -168,7 +168,7 @@
             "showDarkModeToggle": false,
             "showKeyboardToggle": true,
             "showMicToggle": true,
-            "showPerformanceProfileToggle": true,
+            "showPerformanceProfileToggle": false,
             "showScreenRecord": true,
             "showScreenSnip": true
         },
