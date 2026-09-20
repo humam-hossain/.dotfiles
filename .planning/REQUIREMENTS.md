@@ -27,9 +27,9 @@
 
 ### Modular Layout & Live Trial-and-Error
 
-- [ ] **LAYOUT-01**: User can modularly place, reorder, or swap components across Left, Center, and Right bar sections in `BarContent.qml`.
-- [ ] **LAYOUT-02**: User can evaluate candidate arrangements live (e.g. Workspaces & Weather in center, Clock & Utilities on left, Media & Resources & Tray on right) on active monitors (`DP-1` and `HDMI-A-1`).
-- [ ] **LAYOUT-03**: User can view responsive scaling across dual monitors with no component clipping or awkward line wrapping.
+- [x] **LAYOUT-01**: User can modularly place, reorder, or swap components across Left, Center, and Right bar sections in `BarContent.qml`.
+- [x] **LAYOUT-02**: User can evaluate candidate arrangements live (e.g. Workspaces & Weather in center, Clock & Utilities on left, Media & Resources & Tray on right) on active monitors (`DP-1` and `HDMI-A-1`).
+- [x] **LAYOUT-03**: User can view responsive scaling across dual monitors with no component clipping or awkward line wrapping.
 
 ### Integration & Verification
 
@@ -73,9 +73,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | COMP-08 | Phase 32 | Complete |
 | COMP-09 | Phase 32 | Complete |
 | COMP-10 | Phase 32 | Complete |
-| LAYOUT-01 | Phase 33 | Pending |
-| LAYOUT-02 | Phase 33 | Pending |
-| LAYOUT-03 | Phase 33 | Pending |
+| LAYOUT-01 | Phase 33 | Complete |
+| LAYOUT-02 | Phase 33 | Complete |
+| LAYOUT-03 | Phase 33 | Complete |
 | INTG-01 | Phase 34 | Pending |
 | INTG-02 | Phase 34 | Pending |
 | INTG-03 | Phase 34 | Pending |

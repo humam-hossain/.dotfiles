@@ -98,7 +98,7 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
 
 - [x] **Phase 31: Overlay Infrastructure & Pill Geometry Foundation** — Establish repo overlay structure (`restow/quickshell/`), base pill structure matching dots-hyprland's `BarGroup`, 12–16px rounded rect geometry, 4–6px padding, and live hot-reload sync. (completed 2026-09-20)
 - [x] **Phase 32: Component Representation & Formatting Customization** — Systematic tier-1/tier-2 audit of all 17 bar components, reformatting RAM to definite gigabytes (`X.X GB / Y.Y GB`), tuning CPU metrics, Clock/Date, Weather, Media, Utilities, Updates, Privacy, and Tray. (completed 2026-09-20)
-- [ ] **Phase 33: Modular Layout & Live Trial-and-Error Rearrangement** — Reorganize `BarContent.qml` into modular Left, Center, and Right sections; conduct live interactive trial-and-error visual testing with the user across dual monitors (`DP-1` and `HDMI-A-1`).
+- [x] **Phase 33: Modular Layout & Live Trial-and-Error Rearrangement** — Reorganize `BarContent.qml` into modular Left, Center, and Right sections; conduct live interactive trial-and-error visual testing with the user across dual monitors (`DP-1` and `HDMI-A-1`). (completed 2026-09-20)
 - [ ] **Phase 34: Verification, Zero Drift & Bootstrap Integration** — Verify Material You dynamic color adaptation across all pills with zero defects, validate repository integrity with `arch/dots-hyprland.sh verify --strict` (0 findings), and verify `./bootstrap.sh` fresh-machine deployment.
 
 ## Phase Details
@@ -157,7 +157,7 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
   1. Candidate layout deployed (e.g. Workspaces & Weather in center, Clock & Utilities on left, Media & Resources & Tray on right).
   2. Interactive visual evaluation performed with user, repositioning/swapping components based on live feedback.
   3. Responsive layout verified across dual monitors (`DP-1` and `HDMI-A-1`) without clipping or text overflow.
-- **Plans:** 2/3 plans executed
+- **Plans:** 3/3 plans complete
 
 **Wave 1**
 
@@ -169,7 +169,7 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
 
 **Wave 3** *(blocked on Wave 2)*
 
-- [ ] 33-03-PLAN.md — Dual-Monitor Trial-and-Error Visual Evaluation & Strict Compliance (DP-1 and HDMI-A-1/HDMI-A-2 live verification)
+- [x] 33-03-PLAN.md — Dual-Monitor Trial-and-Error Visual Evaluation & Strict Compliance (DP-1 and HDMI-A-1/HDMI-A-2 live verification)
 
 ### Phase 34: Verification, Zero Drift & Bootstrap Integration
 

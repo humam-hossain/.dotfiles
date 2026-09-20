@@ -99,8 +99,8 @@ status: complete
 - Deployed changes via `stow --no-folding quickshell` and validated live Quickshell rendering.
 - Enhanced `scripts/phase33-layout-assert.sh` Section 4 with dynamic Hyprland instance signature detection so IPC queries remain resilient across daemon restarts.
 - Executed the full automated verification suite with 100% green results:
-  - `bash scripts/phase33-layout-assert.sh`: All 4 sections passed (`FAIL=0 FINDINGS=0`).
-  - `bash scripts/phase32-component-formatting-assert.sh`: All 4 sections passed (`FAIL=0 FINDINGS=0`).
+  - Scripts harness `scripts/phase33-layout-assert.sh`: All 4 sections passed (`FAIL=0 FINDINGS=0`).
+  - Regression harness `scripts/phase32-component-formatting-assert.sh`: All 4 sections passed (`FAIL=0 FINDINGS=0`).
   - `./arch/dots-hyprland.sh verify --strict`: Passed with `FAIL=0 FINDINGS=0`.
   - Zero working tree drift on tracked files outside existing pre-phase modifications.
 
