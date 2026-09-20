@@ -520,6 +520,9 @@ run_stow_step() {
              "$target/.config/gtk-4.0" \
              "$target/.config/hypr/custom" \
              "$target/.config/kitty" \
+             "$target/.config/quickshell/ii/modules/ii/bar" \
+             "$target/.config/quickshell/ii/services" \
+             "$target/.config/quickshell/ii/scripts/videos" \
              "$target/.config/systemd/user"
   fi
 
@@ -662,6 +665,16 @@ generate_initial_theme() {
       echo "[WARN] Fallback color seed theme generation failed"
     fi
   fi
+
+  local generated_colors="$target/.local/state/quickshell/user/generated/colors.json"
+  if [[ -n "${XDG_STATE_HOME:-}" && "$target" == "$HOME" ]]; then
+    generated_colors="$XDG_STATE_HOME/quickshell/user/generated/colors.json"
+  fi
+  if [[ ! -s "$generated_colors" ]]; then
+    echo "[FAIL] Initial theme generation did not produce primed colors.json at $generated_colors" >&2
+    return 1
+  fi
+  echo "[THEME] Verified primed colors.json palette state ($generated_colors)"
 }
 
 step_capture_seed() {
@@ -699,6 +712,15 @@ EOF
 }
 
 probe_session_environment() {
+  if command -v hyprctl &>/dev/null; then
+    if [[ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]] || ! hyprctl -j status &>/dev/null; then
+      local candidate_sig
+      candidate_sig="$(ls -td "/run/user/$(id -u)/hypr/"* 2>/dev/null | head -1 | xargs -r basename || true)"
+      if [[ -n "$candidate_sig" ]]; then
+        export HYPRLAND_INSTANCE_SIGNATURE="$candidate_sig"
+      fi
+    fi
+  fi
   if [[ -z "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
     echo "[WARN] HYPRLAND_INSTANCE_SIGNATURE is not set. Graphical session may not be active." >&2
   fi
