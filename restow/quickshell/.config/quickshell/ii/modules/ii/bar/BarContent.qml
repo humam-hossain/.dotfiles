@@ -67,13 +67,38 @@ Item { // Bar content region
         RowLayout {
             id: leftSectionRowLayout
             anchors.fill: parent
-            spacing: 0
+            spacing: 4
 
             LeftSidebarButton { // Left sidebar button
                 id: leftSidebarButton
                 Layout.alignment: Qt.AlignVCenter
                 Layout.leftMargin: Appearance.rounding.screenRounding
                 colBackground: barLeftSideMouseArea.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
+            }
+
+            BarGroup {
+                id: resourcesGroup
+                Layout.alignment: Qt.AlignVCenter
+
+                Resources {
+                    alwaysShowAllResources: root.useShortenedForm === 2
+                    Layout.fillWidth: root.useShortenedForm === 2
+                }
+            }
+
+            BarGroup {
+                id: utilButtonsGroup
+                Layout.alignment: Qt.AlignVCenter
+                visible: (Config.options.bar.verbose && root.useShortenedForm === 0)
+
+                UtilButtons {
+                    Layout.alignment: Qt.AlignVCenter
+                }
+            }
+
+            Item {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
             }
         }
     }
