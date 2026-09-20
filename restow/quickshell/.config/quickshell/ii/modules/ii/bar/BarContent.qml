@@ -100,6 +100,7 @@ Item { // Bar content region
                 // Media widget retained with upstream dots-hyprland visibility (COMP-04)
                 visible: root.useShortenedForm < 2
                 Layout.fillWidth: true
+                Layout.maximumWidth: (root.useShortenedForm === 1) ? 140 : 200
             }
         }
 

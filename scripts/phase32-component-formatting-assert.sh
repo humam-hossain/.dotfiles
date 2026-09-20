@@ -131,6 +131,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
     rec_btn="$(jq -r '.bar.utilButtons.showScreenRecord // empty' "$REPO_CFG" 2>/dev/null || true)"
     snip_btn="$(jq -r '.bar.utilButtons.showScreenSnip // empty' "$REPO_CFG" 2>/dev/null || true)"
     cp_btn="$(jq -r '.bar.utilButtons.showColorPicker // empty' "$REPO_CFG" 2>/dev/null || true)"
+    mic_btn="$(jq -r '.bar.utilButtons.showMicToggle // empty' "$REPO_CFG" 2>/dev/null || true)"
 
     if [[ "$rec_btn" == "true" ]]; then
       pass "S1: bar.utilButtons.showScreenRecord is true (D-17, COMP-06)"
@@ -142,6 +143,12 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
       pass "S1: bar.utilButtons.showScreenSnip and showColorPicker are true (COMP-06)"
     else
       fail "S1: utility buttons suite missing showScreenSnip or showColorPicker"
+    fi
+
+    if [[ "$mic_btn" == "true" ]]; then
+      pass "S1: bar.utilButtons.showMicToggle is true (COMP-06)"
+    else
+      fail "S1: bar.utilButtons.showMicToggle is '$mic_btn', expected true"
     fi
   fi
 
@@ -261,6 +268,12 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
       pass "S2: Resource.qml calculates dynamic implicitWidth preventing text truncation (D-01)"
     else
       fail "S2: Resource.qml missing dynamic implicitWidth calculation"
+    fi
+
+    if grep -q 'spacing: 6' "$RES_QML"; then
+      pass "S2: Resource.qml sets 6px icon-to-text spacing (COMP-01, COMP-02)"
+    else
+      fail "S2: Resource.qml missing spacing: 6"
     fi
   else
     fail "S2: $RES_QML does not exist"
@@ -425,8 +438,26 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
     else
       fail "S3: system-update.sh missing yay -Syu command"
     fi
+
+    if grep -q -- '--noconfirm' "$UPD_SCRIPT" && grep -q 'pacman -Sc' "$UPD_SCRIPT"; then
+      pass "S3: system-update.sh includes --noconfirm and pacman cache cleanups (COMP-07)"
+    else
+      fail "S3: system-update.sh missing --noconfirm or pacman -Sc cleanup"
+    fi
   else
     fail "S3: system-update.sh is missing or not executable"
+  fi
+
+  # 9. BarContent.qml mic_off revealer absence assert (COMP-06)
+  BC_QML="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml"
+  if [[ -f "$BC_QML" ]]; then
+    if grep -q 'mic_off' "$BC_QML"; then
+      fail "S3: BarContent.qml still contains mic_off revealer"
+    else
+      pass "S3: BarContent.qml removed redundant mic_off revealer (COMP-06)"
+    fi
+  else
+    fail "S3: $BC_QML does not exist"
   fi
 fi
 
@@ -474,6 +505,12 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
       pass "S4: BarContent.qml retains upstream Media visibility on pause (COMP-04)"
     else
       fail "S4: BarContent.qml missing upstream Media visibility"
+    fi
+
+    if grep -q 'Layout.maximumWidth' "$CONTENT_QML"; then
+      pass "S4: BarContent.qml clamps Media width with Layout.maximumWidth for title truncation (COMP-04)"
+    else
+      fail "S4: BarContent.qml missing Layout.maximumWidth on Media"
     fi
 
     # Privacy revealers (Amber mic & Red screen share)
