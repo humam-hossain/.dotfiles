@@ -464,6 +464,12 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
 
   # 1. Multi-monitor configuration & display checks (LAYOUT-02, LAYOUT-03, D-09, D-10, D-11)
   if command -v hyprctl >/dev/null 2>&1; then
+    if ! hyprctl monitors -j >/dev/null 2>&1; then
+      local_sig="$(ls -td "/run/user/$(id -u)/hypr/"* 2>/dev/null | head -1 | xargs -r basename || true)"
+      if [[ -n "$local_sig" ]]; then
+        export HYPRLAND_INSTANCE_SIGNATURE="$local_sig"
+      fi
+    fi
     monitors_json="$(hyprctl monitors -j 2>/dev/null || echo "[]")"
     dp1_found=0
     sec_found=0
