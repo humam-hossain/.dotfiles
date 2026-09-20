@@ -1,14 +1,15 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: v0.6
-milestone_name: Top Status Bar Layout, Pill Styling & Component Customization
+milestone_name: Top Status Bar Layout, Pill Styling & Component Customization (Phases 31-34)
 current_phase: 32
 current_phase_name: Component Representation & Formatting Customization
-status: verifying
-stopped_at: Phase 31 context gathered
-last_updated: "2026-09-20T01:06:10.909Z"
+status: planning
+stopped_at: Phase 31 complete, ready to plan Phase 32
+last_updated: "2026-09-20T01:11:33.825Z"
 last_activity: 2026-09-20
 last_activity_desc: Phase 31 complete, transitioned to Phase 32
+state_head: 42e2288763b001ef0bb180f4e34967712dce98b6
 progress:
   total_phases: 4
   completed_phases: 1
@@ -18,7 +19,7 @@ progress:
 ---
 
 Total Phases: 4 (Phases 31-34)
-Progress: [░░░░░░░░░░░░░░░░░░░░] 0/0 plans ([░░░░░░░░░░] 0%)
+Progress: [░░░░░░░░░░░░░░░░░░░░] 0/0 plans ([███░░░░░░░] 25%)
 
 # Project State
 
@@ -26,22 +27,21 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0/0 pla
 
 Phase: 32 — Component Representation & Formatting Customization
 Plan: Not started
-Status: Phase complete — ready for verification
+Status: Ready to plan
 Last activity: 2026-09-20 — Phase 31 complete, transitioned to Phase 32
 
 ## Session
 
-**Last session:** 2026-09-20T00:51:01.463Z
-**Stopped at:** Phase 31 context gathered
-**Resume file:** .planning/phases/31-overlay-infrastructure-pill-geometry-foundation/31-CONTEXT.md
-**Next command:** /gsd-new-milestone
+**Last session:** 2026-09-20
+**Stopped at:** Phase 31 complete, ready to plan Phase 32
+**Resume file:** None
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-18 after v0.5)
+See: .planning/PROJECT.md (updated 2026-09-20 after Phase 31)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 31 — Overlay Infrastructure & Pill Geometry Foundation
+**Current focus:** Phase 32 — Component Representation & Formatting Customization
 
 ## Deferred Items
 
@@ -272,7 +272,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 24]: Scoped .gitignore *.socket pattern with !stow/systemd/** to prevent silent exclusion of systemd socket activation units (D-10).
 - [Phase 24]: Realigned desktop session keybindings in custom/keybinds.lua: unbound upstream SUPER + SHIFT + L, bound SUPER + Scroll_Lock to sleep (locked=true), SUPER + SHIFT + Scroll_Lock to logout, retaining Scroll_Lock for lock screen with 100% Quickshell cheatsheet accuracy (D-12, D-13, D-14).
 - [Phase 26]: Reconciled Qt/KDE theming with Darkly style engine, virtualenv kde-material-you-colors dynamic generator, FileChooser portal mapping to KDE, and guard-paths.tsv exclusion; full 5-section assertion suite passed with 23 checks and 0 findings (D-01..D-16).
-- [Phase ?]: D-05: Established personal Quickshell overlay in restow/quickshell/ leaving vendor/dots-hyprland pristine — Preserves upstream submodule cleanliness
-- [Phase ?]: D-01: Removed artificial width clamps on center groups in BarContent.qml — Allows content-driven dynamic pill widths
-- [Phase ?]: D-02: Added Behavior on implicitWidth with Material 3 emphasizedDecel in BarGroup.qml — Ensures fluid pill resizing animations
-- [Phase ?]: D-03: Preserved 100% upstream visual fidelity tokens — Maintains visual consistency with dots-hyprland
+- [Phase 31]: D-05: Established personal Quickshell overlay in restow/quickshell/ leaving vendor/dots-hyprland pristine — Preserves upstream submodule cleanliness
+- [Phase 31]: D-01: Removed artificial width clamps on center groups in BarContent.qml — Allows content-driven dynamic pill widths
+- [Phase 31]: D-02: Added Behavior on implicitWidth with Material 3 emphasizedDecel in BarGroup.qml — Ensures fluid pill resizing animations
+- [Phase 31]: D-03: Preserved 100% upstream visual fidelity tokens — Maintains visual consistency with dots-hyprland

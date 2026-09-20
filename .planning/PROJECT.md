@@ -212,9 +212,16 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Fresh machine reproduces the exact setup from clone with one command — Phase 23 / BOOT-01..05
 - ✓ Technical debt, bookkeeping normalization, Nyquist validation compliance, and session keybindings realigned — Phase 24 / DEBT-01..04
 
+### Validated — v0.6
+
+- ✓ Personal Quickshell overlay under `restow/quickshell/` hot-reloads live on save without modifying `vendor/dots-hyprland` — Phase 31 / PILL-01
+- ✓ Bar groups/pills rendered with modern rounded rectangle geometry (12–16px corner radius) — Phase 31 / PILL-02
+- ✓ Consistent, balanced internal padding (4–6px) and fluid expansion/contraction animation across pill containers — Phase 31 / PILL-03
+- ✓ Subtle pill borders and transparent/borderless container backgrounds preserved and verified — Phase 31 / PILL-04
+
 ### Active
 
-- None (Milestone v0.5 complete — all 19 requirements validated)
+- None
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -372,4 +379,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-20 for milestone v0.6*
+*Last updated: 2026-09-20 after Phase 31*
