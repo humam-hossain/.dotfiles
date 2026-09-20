@@ -130,7 +130,7 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
   2. Clock & Date widget formatted according to user pattern preference with functioning calendar popup.
   3. Media Player, Weather, Utility buttons (Screen snip, color picker, power), Updates counter, Privacy alerts, System Tray, and Status indicators audited, styled, and verified.
   4. Every component tested and reviewed inside the new modern pill geometry.
-- **Plans:** 3/4 plans complete
+- **Plans:** 4/4 plans executed
 
 **Wave 1**
 
@@ -146,7 +146,7 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
 
 **Wave 4** *(gap closure)*
 
-- [ ] 32-04-PLAN.md — Close UAT gap G-32-2 by retaining utility mic toggle, removing tray mic_off indicator, updating system updates flags/cache cleanup, and clamping media title truncation
+- [x] 32-04-PLAN.md — Close UAT gap G-32-2 by retaining utility mic toggle, removing tray mic_off indicator, updating system updates flags/cache cleanup, and clamping media title truncation
 
 ### Phase 33: Modular Layout & Live Trial-and-Error Rearrangement
 
