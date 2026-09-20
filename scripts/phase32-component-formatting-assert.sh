@@ -457,11 +457,11 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
       pass "S4: BarContent.qml is free of background scroll handlers and ScrollHint (D-16)"
     fi
 
-    # Media player auto-collapse bound to isPlaying
-    if grep -q 'MprisController.activePlayer?.isPlaying' "$CONTENT_QML"; then
-      pass "S4: BarContent.qml binds Media visible to isPlaying auto-collapse (D-12, COMP-04)"
+    # Media player retained with upstream dots-hyprland visibility (COMP-04)
+    if grep -q 'visible: root.useShortenedForm < 2' "$CONTENT_QML"; then
+      pass "S4: BarContent.qml retains upstream Media visibility on pause (COMP-04)"
     else
-      fail "S4: BarContent.qml missing Media isPlaying auto-collapse binding"
+      fail "S4: BarContent.qml missing upstream Media visibility"
     fi
 
     # Privacy revealers (Amber mic & Red screen share)

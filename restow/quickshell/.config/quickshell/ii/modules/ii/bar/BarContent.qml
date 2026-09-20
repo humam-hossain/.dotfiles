@@ -97,8 +97,8 @@ Item { // Bar content region
             }
 
             Media {
-                // Dynamically collapse media pill when no track is actively playing (D-12, COMP-04)
-                visible: (root.useShortenedForm < 2) && (MprisController.activePlayer?.isPlaying ?? false)
+                // Media widget retained with upstream dots-hyprland visibility (COMP-04)
+                visible: root.useShortenedForm < 2
                 Layout.fillWidth: true
             }
         }
