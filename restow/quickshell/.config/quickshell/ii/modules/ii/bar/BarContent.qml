@@ -17,13 +17,6 @@ Item { // Bar content region
     property real useShortenedForm: (Appearance.sizes.barHellaShortenScreenWidthThreshold >= screen?.width) ? 2 : (Appearance.sizes.barShortenScreenWidthThreshold >= screen?.width) ? 1 : 0
     readonly property int centerSideModuleWidth: (useShortenedForm == 2) ? Appearance.sizes.barCenterSideModuleWidthHellaShortened : (useShortenedForm == 1) ? Appearance.sizes.barCenterSideModuleWidthShortened : Appearance.sizes.barCenterSideModuleWidth
 
-    component VerticalBarSeparator: Rectangle {
-        Layout.topMargin: Appearance.sizes.baseBarHeight / 3
-        Layout.bottomMargin: Appearance.sizes.baseBarHeight / 3
-        Layout.fillHeight: true
-        implicitWidth: 1
-        color: Appearance.colors.colOutlineVariant
-    }
 
     // Background shadow
     Loader {
@@ -105,32 +98,19 @@ Item { // Bar content region
 
     Row { // Middle section
         id: middleSection
-        anchors {
-            top: parent.top
-            bottom: parent.bottom
-            horizontalCenter: parent.horizontalCenter
-        }
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
         spacing: 4
 
-        BarGroup {
-            id: leftCenterGroup
+        Loader {
+            id: weatherGroup
             anchors.verticalCenter: parent.verticalCenter
+            active: Config.options.bar.weather.enable
 
-            Resources {
-                alwaysShowAllResources: root.useShortenedForm === 2
-                Layout.fillWidth: root.useShortenedForm === 2
+            sourceComponent: BarGroup {
+                WeatherBar {}
             }
-
-            Media {
-                // Media widget retained with upstream dots-hyprland visibility (COMP-04)
-                visible: root.useShortenedForm < 2
-                Layout.fillWidth: true
-                Layout.maximumWidth: (root.useShortenedForm === 1) ? 140 : 200
-            }
-        }
-
-        VerticalBarSeparator {
-            visible: Config.options?.bar.borderless
         }
 
         BarGroup {
@@ -155,10 +135,6 @@ Item { // Bar content region
             }
         }
 
-        VerticalBarSeparator {
-            visible: Config.options?.bar.borderless
-        }
-
         MouseArea {
             id: rightCenterGroup
             anchors.verticalCenter: parent.verticalCenter
@@ -177,16 +153,6 @@ Item { // Bar content region
                     showDate: (Config.options.bar.verbose && root.useShortenedForm < 2)
                     Layout.alignment: Qt.AlignVCenter
                     Layout.fillWidth: true
-                }
-
-                UtilButtons {
-                    visible: (Config.options.bar.verbose && root.useShortenedForm === 0)
-                    Layout.alignment: Qt.AlignVCenter
-                }
-
-                BatteryIndicator {
-                    visible: (root.useShortenedForm < 2 && Battery.available)
-                    Layout.alignment: Qt.AlignVCenter
                 }
             }
         }
