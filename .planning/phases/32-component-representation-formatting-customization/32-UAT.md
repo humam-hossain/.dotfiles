@@ -178,7 +178,7 @@ blocked: 0
     - "Add Layout.maximumWidth: Math.round(root.centerSideModuleWidth * 0.6) to Media in BarContent.qml"
     - "Update system-update.sh with yay -Syu --noconfirm && yay -Sc --noconfirm"
     - "Update phase32-component-formatting-assert.sh sections 1, 3, and 4"
-  debug_session: ".planning/debug/tray-mic-updates-media-truncation.md"
+  debug_session: ".planning/debug/resolved/tray-mic-updates-media-truncation.md"
   resolved_by: "32-04-PLAN.md"
   resolved_at: "2026-09-20"
 
@@ -201,6 +201,6 @@ blocked: 0
     - "Add reactive screen recording telemetry in Privacy.qml checking wf-recorder process/state so screenSharing reveals red indicator during recording"
     - "Document or configure power-profiles-daemon installation and service enablement for native power profile switching"
     - "Update phase32-component-formatting-assert.sh to verify record.sh overlay and Privacy screen recording telemetry"
-  debug_session: ".planning/debug/screen-recording-power-profiles-notification.md"
+  debug_session: ".planning/debug/resolved/screen-recording-power-profiles-notification.md"
   resolved_by: "32-05-PLAN.md"
   resolved_at: "2026-09-20"

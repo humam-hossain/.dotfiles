@@ -1,6 +1,12 @@
+---
+status: resolved
+started: "2026-09-20T14:18:00+06:00"
+updated: "2026-09-20T14:49:00+06:00"
+---
+
 # Debug Session: Screen Recording Privacy Indicator, Power Profiles Toggle, & Recording Stop Notification
 
-**Status:** ROOT CAUSE FOUND
+**Status:** RESOLVED
 **Phase:** 32
 **Gap ID:** G-32-3
 **Discovered During:** UAT (Test 1)
