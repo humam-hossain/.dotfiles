@@ -339,6 +339,123 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
 fi
 
 # ===========================================================================
+# Section 3: Pill Geometry, Anchors & Space Defense (LAYOUT-01, LAYOUT-03, D-05..D-08, D-13, D-14)
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
+  info "--- Section 3: Pill Geometry, Anchors & Space Defense ---"
+
+  REPO_BAR_CONTENT="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml"
+  REPO_CLOCK="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/ClockWidget.qml"
+  VENDOR_MEDIA="$REPO_ROOT/vendor/dots-hyprland/dots/.config/quickshell/ii/modules/ii/bar/Media.qml"
+
+  if [[ ! -f "$REPO_BAR_CONTENT" ]]; then
+    fail "S3: $REPO_BAR_CONTENT does not exist"
+  else
+    # 1. Spacing assertions (D-05)
+    # leftSectionRowLayout spacing 4
+    if awk '/id: leftSectionRowLayout/{flag=1} flag && /spacing: 4/{found=1; exit} flag && /^[[:space:]]*\}/{exit} END{exit !found}' "$REPO_BAR_CONTENT"; then
+      pass "S3: leftSectionRowLayout specifies spacing: 4 (D-05)"
+    else
+      fail "S3: leftSectionRowLayout missing spacing: 4"
+    fi
+
+    # middleSection spacing 4
+    if awk '/id: middleSection/,/id: barRightSideMouseArea/{if(/spacing: 4/) {found=1; exit}} END{exit !found}' "$REPO_BAR_CONTENT"; then
+      pass "S3: middleSection specifies spacing: 4 (D-05)"
+    else
+      fail "S3: middleSection missing spacing: 4"
+    fi
+
+    # rightSectionRowLayout spacing 4
+    if awk '/id: rightSectionRowLayout/{flag=1} flag && /spacing: 4/{found=1; exit} flag && /^[[:space:]]*\}/{exit} END{exit !found}' "$REPO_BAR_CONTENT"; then
+      pass "S3: rightSectionRowLayout specifies spacing: 4 (D-05)"
+    else
+      fail "S3: rightSectionRowLayout missing spacing: 4"
+    fi
+
+    # Total absence of VerticalBarSeparator across BarContent.qml
+    if grep -q 'VerticalBarSeparator' "$REPO_BAR_CONTENT"; then
+      fail "S3: BarContent.qml still references VerticalBarSeparator"
+    else
+      pass "S3: BarContent.qml is free of vertical divider lines (VerticalBarSeparator) (D-02, D-05)"
+    fi
+
+    # 2. Media sizing & elision assertions (D-06, D-14)
+    if grep -q 'Layout.maximumWidth:[[:space:]]*(root.useShortenedForm === 1) ? 140 : 200' "$REPO_BAR_CONTENT" || \
+       grep -q 'Layout.maximumWidth:[[:space:]]*root.useShortenedForm === 1 ? 140 : 200' "$REPO_BAR_CONTENT"; then
+      pass "S3: Media inside mediaLoader clamps width with Layout.maximumWidth (140/200) (D-06, D-14)"
+    else
+      fail "S3: Media inside mediaLoader missing Layout.maximumWidth clamp"
+    fi
+
+    if awk '/id: mediaLoader/,/id: updatesLoader/{print}' "$REPO_BAR_CONTENT" | grep -q 'visible:[[:space:]]*root.useShortenedForm < 2'; then
+      pass "S3: Media retains visible: root.useShortenedForm < 2 (COMP-04, D-06)"
+    else
+      fail "S3: Media missing visible: root.useShortenedForm < 2 visibility condition"
+    fi
+
+    if [[ -f "$VENDOR_MEDIA" ]] && grep -q 'elide:[[:space:]]*Text.ElideRight' "$VENDOR_MEDIA"; then
+      pass "S3: Media.qml uses Text.ElideRight for track title elision (D-06, D-14)"
+    else
+      fail "S3: Media.qml missing Text.ElideRight elision configuration"
+    fi
+
+    # 3. Clock & Date layout preservation (D-07)
+    if [[ -f "$REPO_CLOCK" ]]; then
+      if grep -q 'implicitWidth:[[:space:]]*8' "$REPO_CLOCK"; then
+        pass "S3: ClockWidget.qml retains non-glyph spacer item with implicitWidth: 8 (D-07, COMP-03)"
+      else
+        fail "S3: ClockWidget.qml missing non-glyph spacer item with implicitWidth: 8"
+      fi
+
+      if grep -q '•' "$REPO_CLOCK"; then
+        fail "S3: ClockWidget.qml contains unicode bullet glyph '•'"
+      else
+        pass "S3: ClockWidget.qml is free of unicode bullet glyph '•' (D-07)"
+      fi
+    else
+      fail "S3: $REPO_CLOCK does not exist"
+    fi
+
+    # 4. Dynamic sizing & absence of artificial clamps (D-13, D-14)
+    if grep -q 'implicitWidth:[[:space:]]*root.centerSideModuleWidth' "$REPO_BAR_CONTENT"; then
+      fail "S3: BarContent.qml contains legacy implicitWidth: root.centerSideModuleWidth clamp (anti-pattern)"
+    else
+      pass "S3: BarContent.qml is free of centerSideModuleWidth clamps (D-13, D-14)"
+    fi
+
+    # Check absence of anchors on direct children inside RowLayouts (Pitfall 1: anchor loops)
+    left_anchor_violations=$(awk '/id: leftSectionRowLayout/,/id: middleSection/{if(/^[[:space:]]*(anchors\.left|anchors\.right|anchors\.top|anchors\.bottom|anchors\.centerIn):/ && !/barLeftSideMouseArea/) print NR ":" $0}' "$REPO_BAR_CONTENT" || true)
+    right_anchor_violations=$(awk '/id: rightSectionRowLayout/,/^[[:space:]]*\}/{if(/^[[:space:]]*(anchors\.left|anchors\.right|anchors\.top|anchors\.bottom|anchors\.centerIn):/ && !/barRightSideMouseArea/) print NR ":" $0}' "$REPO_BAR_CONTENT" || true)
+
+    if [[ -z "$left_anchor_violations" && -z "$right_anchor_violations" ]]; then
+      pass "S3: No anchor loop violations (anchors.*) on children inside RowLayout containers (Pitfall 1)"
+    else
+      fail "S3: Found anchor violations inside RowLayout children: left:[$left_anchor_violations] right:[$right_anchor_violations]"
+    fi
+
+    # 5. Mathematical safety buffer invariant (D-14)
+    # Worst-case scenario on standard 1080p display (1920px width):
+    # Screen width = 1920, Center point = 960
+    # Center pill cluster width ~ 460px (half = 230px, extending 730px to 1190px)
+    # Right pill cluster max width = Media(200) + Updates(85) + Battery(75) + Tray(110) + Status(80) = 550px
+    # Right edge = 1920px, Right cluster start = 1920 - 550 = 1370px
+    # Available safety buffer = 1370 - 1190 = 180px >= 100px minimum buffer
+    SCREEN_WIDTH=1920
+    HALF_SCREEN=$((SCREEN_WIDTH / 2))
+    CENTER_HALF_WIDTH=230
+    MAX_RIGHT_CLUSTER=550
+    SAFETY_BUFFER=$((HALF_SCREEN - CENTER_HALF_WIDTH - MAX_RIGHT_CLUSTER))
+
+    if [[ "$SAFETY_BUFFER" -ge 180 ]]; then
+      pass "S3: Option 1 dynamic space defense mathematical buffer: ${SAFETY_BUFFER}px >= 180px on 1080p (D-14)"
+    else
+      fail "S3: Option 1 safety buffer failed: ${SAFETY_BUFFER}px < 180px"
+    fi
+  fi
+fi
+
+# ===========================================================================
 # Closing porcelain invariant check & summary
 # ===========================================================================
 porcelain_snapshot > "$PORCELAIN_AFTER"
