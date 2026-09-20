@@ -157,11 +157,11 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
   1. Candidate layout deployed (e.g. Workspaces & Weather in center, Clock & Utilities on left, Media & Resources & Tray on right).
   2. Interactive visual evaluation performed with user, repositioning/swapping components based on live feedback.
   3. Responsive layout verified across dual monitors (`DP-1` and `HDMI-A-1`) without clipping or text overflow.
-- **Plans:** 3 plans
+- **Plans:** 1/3 plans executed
 
 **Wave 1**
 
-- [ ] 33-01-PLAN.md — Automated Validation Harness & Syntax Baseline (scripts/phase33-layout-assert.sh Sections 1-4)
+- [x] 33-01-PLAN.md — Automated Validation Harness & Syntax Baseline (scripts/phase33-layout-assert.sh Sections 1-4)
 
 **Wave 2** *(blocked on Wave 1)*
 
