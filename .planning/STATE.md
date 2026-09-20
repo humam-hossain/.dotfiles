@@ -1,20 +1,16 @@
 ---
 gsd_state_version: "1.0"
-milestone: v0.5
-milestone_name: System-wide Material You theming (Phases 25-30)
-status: Awaiting next milestone
-stopped_at: Phase 30 complete — all phases complete
-last_updated: "2026-09-18T16:05:59.848Z"
-last_activity: 2026-09-18
-last_activity_desc: Milestone v0.5 completed and archived
-state_head: 02f9650b85c162cb293b0bcb597996796b30ea9b
+milestone: v0.6
+milestone_name: Top Status Bar Layout, Pill Styling & Component Customization
+status: planning
+last_updated: "2026-09-20T00:25:18.930Z"
+last_activity: 2026-09-20
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 17
-  completed_plans: 17
-  percent: 100
-current_phase: 30
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 Total Phases: 6 (Phases 25-30)
@@ -24,10 +20,10 @@ Progress: [████████████████░░░░] 15/15+ 
 
 ## Current Position
 
-Phase: Milestone v0.5 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-09-18 — Milestone v0.5 completed and archived
+Status: Defining requirements
+Last activity: 2026-09-20 — Milestone v0.6 started
 
 ## Session
 

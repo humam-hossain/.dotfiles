@@ -25,13 +25,17 @@ Desktop shell is fully unified under upstream dots-hyprland Material You / Matug
 - Collision Map: `collision-map.tsv` (machine-asserted)
 - Guard Paths: `guard-paths.tsv` (machine-asserted)
 
-## Next Milestone Goals
+## Current Milestone: v0.6 Top Status Bar Layout, Pill Styling & Component Customization
 
-**Candidates for future milestones:**
-- Waybar custom module ports into Quickshell ii: ping monitor (`127.0.0.1:8765`), weather (+ forecast), earthquake widget (CUST-01..03)
-- Machine-specific overlay profile layer (CUST-04)
-- Upstream FWK-02 / IPC-02 bar toggle keybinding and session integration (POLISH-02)
-- Review and retire outstanding v0.1 legacy debug items on stock ii (POLISH-03)
+**Goal:** Create a modular, customizable top status bar with modern rounded rectangle pill styling (12–16px radius, 4–6px padding), systematic tier-1/tier-2 component audit and formatting enhancements (e.g. detailed RAM usage in GB), and live trial-and-error component rearrangement.
+
+**Target features:**
+- Personal Quickshell bar overlay (`restow/quickshell/`) with live hot-reload
+- Standardized pill styling (12–16px rounded rectangle radius, 4–6px internal padding, configurable margins)
+- Systematic component-by-component audit (check dots-hyprland native options first, author custom QML overrides where needed)
+- Component formatting enhancements (detailed GB RAM display, custom clock formatting, utility buttons, updates badge, privacy alerts)
+- Interactive live trial-and-error layout rearrangement across Left, Center, and Right sections
+- Strict contract verification and zero-drift bootstrap integration
 
 ## Prior Milestones
 
@@ -364,4 +368,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-18 after v0.5 milestone*
+*Last updated: 2026-09-20 for milestone v0.6*
