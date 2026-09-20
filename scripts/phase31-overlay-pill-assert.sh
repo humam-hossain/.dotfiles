@@ -81,8 +81,50 @@ porcelain_snapshot > "$PORCELAIN_BEFORE"
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
   info "--- Section 1: Symlink & Packaging Integrity (PILL-01, D-05, D-06) ---"
-  # Stub: implemented in Task 31-01-02
-  pass "S1: Section 1 scaffolded"
+
+  # 1. Target files in ~/.config/quickshell/ii/modules/ii/bar/ must be symlinks
+  #    resolving to $REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/<file>
+  for qml_file in BarContent.qml BarGroup.qml; do
+    live_path="$HOME/.config/quickshell/ii/modules/ii/bar/$qml_file"
+    target_repo="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/$qml_file"
+    if [[ -L "$live_path" ]]; then
+      actual_target="$(readlink -f "$live_path")"
+      expected_target="$(readlink -f "$target_repo")"
+      if [[ "$actual_target" == "$expected_target" ]]; then
+        pass "S1: $live_path is symlink to $target_repo (D-05, PILL-01)"
+      else
+        fail "S1: $live_path points to $actual_target, expected $expected_target"
+      fi
+    else
+      fail "S1: $live_path is not a symlink"
+    fi
+  done
+
+  # 2. Assert no ancestor directory is folded (directory symlink into repo)
+  for check_dir in "$HOME/.config" "$HOME/.config/quickshell" "$HOME/.config/quickshell/ii" "$HOME/.config/quickshell/ii/modules" "$HOME/.config/quickshell/ii/modules/ii" "$HOME/.config/quickshell/ii/modules/ii/bar"; do
+    if [[ -L "$check_dir" ]]; then
+      fail "S1: ancestor directory $check_dir is a symlink (folded directory violation)"
+    else
+      pass "S1: ancestor directory $check_dir is a real directory (PILL-01)"
+    fi
+  done
+
+  # 3. Assert sibling files in ~/.config/quickshell/ii/modules/ii/bar/ remain regular files
+  for sibling in Bar.qml ActiveWindow.qml ClockWidget.qml Workspaces.qml; do
+    sib_path="$HOME/.config/quickshell/ii/modules/ii/bar/$sibling"
+    if [[ -f "$sib_path" && ! -L "$sib_path" ]]; then
+      pass "S1: sibling module $sibling remains an intact regular file (D-05)"
+    else
+      fail "S1: sibling module $sibling missing or turned into a symlink"
+    fi
+  done
+
+  # 4. Assert vendor/dots-hyprland submodule remains completely clean
+  if [[ -z "$(git -C "$REPO_ROOT/vendor/dots-hyprland" status --porcelain)" ]]; then
+    pass "S1: vendor/dots-hyprland working tree is 100% clean (PILL-01)"
+  else
+    fail "S1: vendor/dots-hyprland working tree has uncommitted modifications"
+  fi
 fi
 
 # ===========================================================================

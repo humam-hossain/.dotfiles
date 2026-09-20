@@ -60,6 +60,7 @@ The table below lists each package in `restow/`, its outcome tag, and its exact 
 | `fuzzel` | `rsync-replace` | `cd restow && stow --verbose=5 --no-folding -t ~ fuzzel` |
 | `hypr` | `rsync-replace` | `cd restow && stow --verbose=5 --no-folding -t ~ hypr` |
 | `kitty` | `rsync-replace` | `cd restow && stow --verbose=5 --no-folding -t ~ kitty` |
+| `quickshell` | `rsync-replace` | `cd restow && stow --verbose=5 --no-folding -t ~ quickshell` |
 | `starship` | `cp-through` | `git checkout -- restow/starship/.config/starship.toml && cd restow && stow --verbose=5 --no-folding -t ~ starship` |
 <!-- END generated: gen-collision-map.sh --restow-table -->
 
