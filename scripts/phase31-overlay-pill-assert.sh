@@ -132,8 +132,36 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
   info "--- Section 2: QML Property & Unclamped Sizing Integrity (PILL-02, PILL-03, D-01, D-04) ---"
-  # Stub: implemented in Plan 31-02
-  pass "S2: Section 2 scaffolded"
+
+  CONTENT_QML="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml"
+
+  # 1. Assert absence of centerSideModuleWidth clamps in leftCenterGroup and rightCenterGroup
+  # Check leftCenterGroup block does NOT contain implicitWidth: root.centerSideModuleWidth
+  if awk '/id: leftCenterGroup/,/id: middleCenterGroup/' "$CONTENT_QML" | grep -q 'implicitWidth: root.centerSideModuleWidth'; then
+    fail "S2: leftCenterGroup still contains implicitWidth: root.centerSideModuleWidth clamp"
+  else
+    pass "S2: leftCenterGroup is free of artificial width clamp (D-01, D-04)"
+  fi
+
+  # Check rightCenterGroup block does NOT contain implicitWidth: root.centerSideModuleWidth
+  if awk '/id: rightCenterGroup/,/BarGroup {/' "$CONTENT_QML" | grep -q 'implicitWidth: root.centerSideModuleWidth'; then
+    fail "S2: rightCenterGroup still contains implicitWidth: root.centerSideModuleWidth clamp"
+  else
+    pass "S2: rightCenterGroup is free of artificial width clamp (D-01, D-04)"
+  fi
+
+  # 2. Assert dynamic implicitWidth and implicitHeight propagation in rightCenterGroup
+  if awk '/id: rightCenterGroup/,/BarGroup {/' "$CONTENT_QML" | grep -q 'implicitWidth: rightCenterGroupContent.implicitWidth'; then
+    pass "S2: rightCenterGroup propagates rightCenterGroupContent.implicitWidth (D-01, PILL-03)"
+  else
+    fail "S2: rightCenterGroup missing dynamic implicitWidth propagation"
+  fi
+
+  if awk '/id: rightCenterGroup/,/BarGroup {/' "$CONTENT_QML" | grep -q 'implicitHeight: rightCenterGroupContent.implicitHeight'; then
+    pass "S2: rightCenterGroup propagates rightCenterGroupContent.implicitHeight (D-01, PILL-03)"
+  else
+    fail "S2: rightCenterGroup missing dynamic implicitHeight propagation"
+  fi
 fi
 
 # ===========================================================================
