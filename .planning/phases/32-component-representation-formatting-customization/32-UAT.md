@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: resolved
 phase: 32-component-representation-formatting-customization
-source: [32-01-SUMMARY.md, 32-02-SUMMARY.md]
+source: [32-01-SUMMARY.md, 32-02-SUMMARY.md, 32-03-SUMMARY.md]
 started: "2026-09-20T08:40:00+06:00"
-updated: "2026-09-20T10:18:00+06:00"
+updated: "2026-09-20T10:27:00+06:00"
 ---
 
 ## Current Test
@@ -25,7 +25,7 @@ expected: |
   - Updates.qml Arch + AUR aggregation and UpdatesButton dedicated pill (scripts/phase32-component-formatting-assert.sh --section 3)
   - BarContent.qml integration without ActiveWindow or scroll jitter, and auto-collapsing idle Media (scripts/phase32-component-formatting-assert.sh --section 4)
   - Status indicators retained and full repository verification pass (arch/dots-hyprland.sh verify --strict)
-result: issue
+result: pass
 reported: "ok couple of issues I think first one is the mic a triple mic situation is actually bad so triple mic situation is actually bad so let's I think what you have suggested before recommended before is the one we need to do to fix that another thing is media so like when pause when I pause a video it just goes away so that's not the thing I want so let's not complicated stuff just keep the default dot hyperlink media stuff set up that was fine for me so yeah let's do that. okay the next thing that I want to talk about is the updates button currently showing 58 total updates that I have to do and when I click on it so this I click on it and I think there's a it's not I don't think it is kitting the time you know and nothing is happening literally or maybe something is happening but I'm not seeing any result so make sure that is the default terminal opening in default terminal like kitty right now it should be in my dotcyperlane or somewhere that says that my default terminal is kitty and I can change the terminal on terminal itself to kitty to alacrity or whatever but use the default terminal when I click on it and updates it so use that okay"
 severity: major
 
@@ -92,8 +92,8 @@ coverage_id: 32-02-D8
 ## Summary
 
 total: 11
-passed: 10
-issues: 1
+passed: 11
+issues: 0
 pending: 0
 skipped: 0
 blocked: 0
@@ -102,7 +102,7 @@ blocked: 0
 
 - gap_id: G-32-1
   truth: "Bar components behave cleanly without redundant controls, media remains stable on pause per dots-hyprland defaults, and updates button launches system update in configured default terminal"
-  status: failed
+  status: resolved
   reason: "User reported: ok couple of issues I think first one is the mic a triple mic situation is actually bad so triple mic situation is actually bad so let's I think what you have suggested before recommended before is the one we need to do to fix that another thing is media so like when pause when I pause a video it just goes away so that's not the thing I want so let's not complicated stuff just keep the default dot hyperlink media stuff set up that was fine for me so yeah let's do that. okay the next thing that I want to talk about is the updates button currently showing 58 total updates that I have to do and when I click on it so this I click on it and I think there's a it's not I don't think it is kitting the time you know and nothing is happening literally or maybe something is happening but I'm not seeing any result so make sure that is the default terminal opening in default terminal like kitty right now it should be in my dotcyperlane or somewhere that says that my default terminal is kitty and I can change the terminal on terminal itself to kitty to alacrity or whatever but use the default terminal when I click on it and updates it so use that okay"
   severity: major
   test: 1
@@ -122,4 +122,4 @@ blocked: 0
     - "Update phase32-component-formatting-assert.sh Section 4 Media assert"
     - "Create restow/quickshell/.config/quickshell/ii/scripts/system-update.sh resolving configured terminal"
     - "Refactor UpdatesButton.qml to root MouseArea invoking system-update.sh"
-  debug_session: ".planning/debug/bar-controls-media-updates.md"
+  debug_session: ".planning/debug/resolved/bar-controls-media-updates.md"

@@ -1,3 +1,8 @@
+---
+status: resolved
+updated: "2026-09-20T10:27:00+06:00"
+---
+
 # Debug Session: Bar Controls, Media Auto-Collapse & Updates Terminal
 
 **Gap:** Bar components behave cleanly without redundant controls, media remains stable on pause per dots-hyprland defaults, and updates button launches system update in configured default terminal
