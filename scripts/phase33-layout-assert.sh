@@ -456,6 +456,100 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
 fi
 
 # ===========================================================================
+# Section 4: Dual-Monitor Runtime Parity & Verification Engine (LAYOUT-02, LAYOUT-03, INTG-02)
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
+  info "--- Section 4: Dual-Monitor Runtime Parity & Verification Engine ---"
+
+  # 1. Multi-monitor configuration & display checks (LAYOUT-02, LAYOUT-03, D-09, D-10, D-11)
+  if command -v hyprctl >/dev/null 2>&1; then
+    monitors_json="$(hyprctl monitors -j 2>/dev/null || echo "[]")"
+    dp1_found=0
+    sec_found=0
+
+    # Primary ultrawide display DP-1
+    if printf '%s' "$monitors_json" | jq -e '.[] | select(.name == "DP-1")' >/dev/null 2>&1; then
+      dp1_w="$(printf '%s' "$monitors_json" | jq -r '.[] | select(.name == "DP-1") | .width' | head -1)"
+      dp1_h="$(printf '%s' "$monitors_json" | jq -r '.[] | select(.name == "DP-1") | .height' | head -1)"
+      if [[ "$dp1_w" -ge 1200 ]]; then
+        pass "S4: DP-1 active (${dp1_w}x${dp1_h}) satisfies useShortenedForm === 0 (width >= 1200px) (D-09, D-11)"
+      else
+        fail "S4: DP-1 width ${dp1_w}px is less than 1200px threshold"
+      fi
+      dp1_found=1
+    else
+      finding "S4: Primary output DP-1 not currently connected in Hyprland"
+    fi
+
+    # Secondary output HDMI-A-1 or HDMI-A-2
+    if printf '%s' "$monitors_json" | jq -e '.[] | select(.name == "HDMI-A-1" or .name == "HDMI-A-2")' >/dev/null 2>&1; then
+      sec_name="$(printf '%s' "$monitors_json" | jq -r '.[] | select(.name == "HDMI-A-1" or .name == "HDMI-A-2") | .name' | head -1)"
+      sec_w="$(printf '%s' "$monitors_json" | jq -r '.[] | select(.name == "HDMI-A-1" or .name == "HDMI-A-2") | .width' | head -1)"
+      sec_h="$(printf '%s' "$monitors_json" | jq -r '.[] | select(.name == "HDMI-A-1" or .name == "HDMI-A-2") | .height' | head -1)"
+      if [[ "$sec_w" -ge 1200 || "$sec_h" -ge 1200 ]]; then
+        pass "S4: Secondary display $sec_name active (${sec_w}x${sec_h}) satisfies full bar rendering (D-10, D-11)"
+      else
+        fail "S4: Secondary display $sec_name dimension ($sec_w x $sec_h) below full bar threshold"
+      fi
+      sec_found=1
+    else
+      # Check if defined in Hyprland configs
+      if grep -rq 'HDMI-A-2' "$HOME/.config/hypr" 2>/dev/null || grep -rq 'HDMI-A-1' "$HOME/.config/hypr" 2>/dev/null; then
+        pass "S4: Secondary display HDMI-A-1/HDMI-A-2 defined in Hyprland configuration (LAYOUT-02, D-10)"
+      else
+        finding "S4: Secondary display HDMI-A-1/HDMI-A-2 not connected or defined"
+      fi
+    fi
+  else
+    finding "S4: hyprctl command not available (headless/container environment)"
+  fi
+
+  # 2. Quickshell running process check
+  if pgrep -f "qs -c ii" >/dev/null 2>&1 || pgrep -x quickshell >/dev/null 2>&1 || pgrep -x qs >/dev/null 2>&1; then
+    pass "S4: Quickshell daemon process is active"
+  else
+    finding "S4: Quickshell process is not running"
+  fi
+
+  # 3. vendor/dots-hyprland submodule cleanliness check
+  if [[ -z "$(git -C "$REPO_ROOT/vendor/dots-hyprland" status --porcelain)" ]]; then
+    pass "S4: vendor/dots-hyprland submodule remains 100% clean"
+  else
+    fail "S4: vendor/dots-hyprland submodule has uncommitted modifications"
+  fi
+
+  # 4. Phase 32 regression check
+  P32_ASSERT="$REPO_ROOT/scripts/phase32-component-formatting-assert.sh"
+  if [[ -x "$P32_ASSERT" ]]; then
+    p32_rc=0
+    p32_out="$(bash "$P32_ASSERT" 2>&1)" || p32_rc=$?
+    if [[ "$p32_rc" -eq 0 ]]; then
+      pass "S4: scripts/phase32-component-formatting-assert.sh passed with 0 failures"
+    else
+      fail "S4: scripts/phase32-component-formatting-assert.sh failed (exit $p32_rc)"
+      printf '%s\n' "$p32_out" | tail -n 15 | sed 's/^/       /' >&2
+    fi
+  else
+    fail "S4: $P32_ASSERT missing or not executable"
+  fi
+
+  # 5. Strict repository verifier gate
+  VERIFY_SCRIPT="$REPO_ROOT/arch/dots-hyprland.sh"
+  if [[ -x "$VERIFY_SCRIPT" ]]; then
+    v_rc=0
+    v_out="$("$VERIFY_SCRIPT" verify --strict 2>&1)" || v_rc=$?
+    if [[ "$v_rc" -eq 0 ]] && printf '%s\n' "$v_out" | grep -q 'FINDINGS=0'; then
+      pass "S4: ./arch/dots-hyprland.sh verify --strict passed with 0 findings (INTG-02)"
+    else
+      fail "S4: ./arch/dots-hyprland.sh verify --strict failed (exit code $v_rc)"
+      printf '%s\n' "$v_out" | tail -n 20 | sed 's/^/       /' >&2
+    fi
+  else
+    fail "S4: arch/dots-hyprland.sh missing or not executable"
+  fi
+fi
+
+# ===========================================================================
 # Closing porcelain invariant check & summary
 # ===========================================================================
 porcelain_snapshot > "$PORCELAIN_AFTER"
