@@ -47,7 +47,7 @@ Item { // Bar content region
         border.color: Appearance.colors.colLayer0Border
     }
 
-    FocusedScrollMouseArea { // Left side | scroll to change brightness
+    MouseArea { // Left side (D-16: scroll handlers and hints removed)
         id: barLeftSideMouseArea
 
         anchors {
@@ -59,22 +59,9 @@ Item { // Bar content region
         implicitWidth: leftSectionRowLayout.implicitWidth
         implicitHeight: Appearance.sizes.baseBarHeight
 
-        onScrollDown: Brightness.decreaseBrightness()
-        onScrollUp: Brightness.increaseBrightness()
-        onMovedAway: GlobalStates.osdBrightnessOpen = false
         onPressed: event => {
             if (event.button === Qt.LeftButton)
                 GlobalStates.sidebarLeftOpen = !GlobalStates.sidebarLeftOpen;
-        }
-
-        // Visual content
-        ScrollHint {
-            reveal: barLeftSideMouseArea.hovered
-            icon: Hyprsunset.gamma === 100 ? "light_mode" : "wb_twilight"
-            tooltipText: Translation.tr("Scroll to change brightness")
-            side: "left"
-            anchors.left: parent.left
-            anchors.verticalCenter: parent.verticalCenter
         }
 
         RowLayout {
@@ -87,14 +74,6 @@ Item { // Bar content region
                 Layout.alignment: Qt.AlignVCenter
                 Layout.leftMargin: Appearance.rounding.screenRounding
                 colBackground: barLeftSideMouseArea.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
-            }
-
-            ActiveWindow {
-                Layout.leftMargin: 10 + (leftSidebarButton.visible ? 0 : Appearance.rounding.screenRounding)
-                Layout.rightMargin: Appearance.rounding.screenRounding
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                visible: root.useShortenedForm === 0
             }
         }
     }
@@ -118,7 +97,8 @@ Item { // Bar content region
             }
 
             Media {
-                visible: root.useShortenedForm < 2
+                // Dynamically collapse media pill when no track is actively playing (D-12, COMP-04)
+                visible: (root.useShortenedForm < 2) && (MprisController.activePlayer?.isPlaying ?? false)
                 Layout.fillWidth: true
             }
         }
@@ -186,7 +166,7 @@ Item { // Bar content region
         }
     }
 
-    FocusedScrollMouseArea { // Right side | scroll to change volume
+    MouseArea { // Right side (D-16: scroll handlers and hints removed)
         id: barRightSideMouseArea
 
         anchors {
@@ -198,23 +178,10 @@ Item { // Bar content region
         implicitWidth: rightSectionRowLayout.implicitWidth
         implicitHeight: Appearance.sizes.baseBarHeight
 
-        onScrollDown: Audio.decrementVolume();
-        onScrollUp: Audio.incrementVolume();
-        onMovedAway: GlobalStates.osdVolumeOpen = false;
         onPressed: event => {
             if (event.button === Qt.LeftButton) {
                 GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
             }
-        }
-
-        // Visual content
-        ScrollHint {
-            reveal: barRightSideMouseArea.hovered
-            icon: "volume_up"
-            tooltipText: Translation.tr("Scroll to change volume")
-            side: "right"
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
         }
 
         RowLayout {
@@ -257,6 +224,48 @@ Item { // Bar content region
                     property real realSpacing: 15
                     spacing: 0
 
+                    // Privacy in-use alerts (D-13, COMP-08)
+                    Revealer {
+                        reveal: Privacy.micActive
+                        Layout.fillHeight: true
+                        Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
+                        Behavior on Layout.rightMargin {
+                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                        }
+                        RippleButton {
+                            implicitWidth: 24
+                            implicitHeight: 24
+                            downAction: () => Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_SOURCE@", "1"])
+                            contentItem: MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "mic"
+                                iconSize: Appearance.font.pixelSize.larger
+                                color: "#FFA000"
+                            }
+                        }
+                    }
+
+                    Revealer {
+                        reveal: Privacy.screenSharing
+                        Layout.fillHeight: true
+                        Layout.rightMargin: reveal ? indicatorsRowLayout.realSpacing : 0
+                        Behavior on Layout.rightMargin {
+                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                        }
+                        RippleButton {
+                            implicitWidth: 24
+                            implicitHeight: 24
+                            downAction: () => Quickshell.execDetached([Directories.recordScriptPath])
+                            contentItem: MaterialSymbol {
+                                anchors.centerIn: parent
+                                text: "screen_share"
+                                iconSize: Appearance.font.pixelSize.larger
+                                color: Appearance.colors.colError
+                            }
+                        }
+                    }
+
+                    // Standard status indicators (D-14, COMP-10)
                     Revealer {
                         reveal: Audio.sink?.audio?.muted ?? false
                         Layout.fillHeight: true
@@ -326,6 +335,16 @@ Item { // Bar content region
             Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+            }
+
+            // Dedicated Updates Status Pill (D-18, COMP-07)
+            Loader {
+                Layout.leftMargin: 4
+                active: Updates.available && Updates.count > 0
+
+                sourceComponent: BarGroup {
+                    UpdatesButton {}
+                }
             }
 
             // Weather
