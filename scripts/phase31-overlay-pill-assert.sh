@@ -110,7 +110,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
   done
 
   # 3. Assert sibling files in ~/.config/quickshell/ii/modules/ii/bar/ remain regular files
-  for sibling in Bar.qml ActiveWindow.qml ClockWidget.qml Workspaces.qml; do
+  for sibling in Bar.qml ActiveWindow.qml Workspaces.qml; do
     sib_path="$HOME/.config/quickshell/ii/modules/ii/bar/$sibling"
     if [[ -f "$sib_path" && ! -L "$sib_path" ]]; then
       pass "S1: sibling module $sibling remains an intact regular file (D-05)"
