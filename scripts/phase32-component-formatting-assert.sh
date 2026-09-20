@@ -405,16 +405,28 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
 
   # 7. UpdatesButton.qml dedicated pill assert (D-18, COMP-07)
   UPDBTN_QML="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/UpdatesButton.qml"
+  UPD_SCRIPT="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/scripts/system-update.sh"
   if [[ -f "$UPDBTN_QML" ]]; then
     if grep -q 'text: "system_update_alt"' "$UPDBTN_QML" && \
-       grep -q 'yay -Syu' "$UPDBTN_QML" && \
+       grep -q -E '(yay -Syu|system-update\.sh)' "$UPDBTN_QML" && \
        grep -q 'Updates.count > 0' "$UPDBTN_QML"; then
       pass "S3: UpdatesButton.qml renders system_update_alt pill launching yay -Syu (D-18, COMP-07)"
     else
-      fail "S3: UpdatesButton.qml missing system_update_alt glyph, count condition, or yay -Syu execution"
+      fail "S3: UpdatesButton.qml missing system_update_alt glyph, count condition, or update execution"
     fi
   else
     fail "S3: $UPDBTN_QML does not exist"
+  fi
+
+  # 8. system-update.sh launcher assert (COMP-07)
+  if [[ -x "$UPD_SCRIPT" ]]; then
+    if grep -q 'yay -Syu' "$UPD_SCRIPT"; then
+      pass "S3: system-update.sh is executable and runs yay -Syu with terminal hold (COMP-07)"
+    else
+      fail "S3: system-update.sh missing yay -Syu command"
+    fi
+  else
+    fail "S3: system-update.sh is missing or not executable"
   fi
 fi
 
