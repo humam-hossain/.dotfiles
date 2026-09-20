@@ -349,6 +349,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 30: Virtualenv fallback export and template sanitization hooks | Robustness for headless/TTY environments and GTK 4 `:disabled` syntax preservation | ✓ bootstrap.sh and applycolor.sh hardened (DEBT-06) |
 | Phase 30: Reconciled 29-VALIDATION.md and signed off 100% Nyquist compliance | All 6 milestone phases (25–30) validated and Nyquist-compliant with zero gaps | ✓ 100% Nyquist compliance across v0.5 (DEBT-07) |
 | Phase 30: Phase 30 assert harness and multi-phase regression sweep | Verified Sections 1–5 and full v0.5 regression suite with zero git drift | ✓ scripts/phase30-tech-debt-assert.sh passed, FAIL=0 (DEBT-08) |
+| Phase 31: Personal Quickshell status bar overlay in restow/quickshell/ | Modifies BarContent.qml and BarGroup.qml while keeping vendor/dots-hyprland pristine (D-05, PILL-01) | ✓ Deployed via stow --no-folding as leaf symlinks, Section 1 FAIL=0 |
+| Phase 31: Dynamic content-driven status bar pill widths in BarContent.qml | Removes artificial implicitWidth clamp from leftCenterGroup and rightCenterGroup, propagates dimensions to outer MouseArea (D-01, D-04, PILL-02, PILL-03) | ✓ Section 2 FAIL=0 |
+| Phase 31: Fluid width resizing animation via Material 3 emphasized deceleration | Adds Behavior on implicitWidth with duration 250 and emphasizedDecel curve in BarGroup.qml while preserving 100% upstream visual tokens (D-02, D-03, PILL-03, PILL-04) | ✓ Section 3 FAIL=0 |
+| Phase 31: Phase 31 assert harness and strict system verification | scripts/phase31-overlay-pill-assert.sh validates Sections 1–4, restow/README.md table sync, live shell reload, and arch/dots-hyprland.sh verify --strict with 0 findings (D-06, D-07, D-08, INTG-02) | ✓ 4/4 sections passed, FAIL=0 FINDINGS=0 |
 
 ## Evolution
 
