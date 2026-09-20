@@ -187,17 +187,17 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
     fi
 
     # resourcesGroup wraps Resources in BarGroup
-    if awk '/id: resourcesGroup/,/^[[:space:]]*\}/{print}' "$REPO_BAR_CONTENT" | grep -q 'Resources {' && \
-       awk '/id: resourcesGroup/,/^[[:space:]]*\}/{print}' "$REPO_BAR_CONTENT" | grep -q 'BarGroup'; then
+    if grep -B2 -A10 'id: resourcesGroup' "$REPO_BAR_CONTENT" | grep -q 'BarGroup' && \
+       grep -A10 'id: resourcesGroup' "$REPO_BAR_CONTENT" | grep -q 'Resources'; then
       pass "S2: resourcesGroup wraps Resources in a BarGroup pill (D-03)"
     else
       fail "S2: resourcesGroup does not wrap Resources in a BarGroup pill"
     fi
 
     # utilButtonsGroup wraps UtilButtons in BarGroup with verbose & shortForm visibility guard
-    if awk '/id: utilButtonsGroup/,/^[[:space:]]*\}/{print}' "$REPO_BAR_CONTENT" | grep -q 'UtilButtons {' && \
-       awk '/id: utilButtonsGroup/,/^[[:space:]]*\}/{print}' "$REPO_BAR_CONTENT" | grep -q 'BarGroup' && \
-       awk '/id: utilButtonsGroup/,/^[[:space:]]*\}/{print}' "$REPO_BAR_CONTENT" | grep -q 'Config.options.bar.verbose'; then
+    if grep -B2 -A10 'id: utilButtonsGroup' "$REPO_BAR_CONTENT" | grep -q 'BarGroup' && \
+       grep -A10 'id: utilButtonsGroup' "$REPO_BAR_CONTENT" | grep -q 'UtilButtons' && \
+       grep -A10 'id: utilButtonsGroup' "$REPO_BAR_CONTENT" | grep -q 'Config.options.bar.verbose'; then
       pass "S2: utilButtonsGroup wraps UtilButtons in BarGroup guarded by Config.options.bar.verbose (D-03, D-08)"
     else
       fail "S2: utilButtonsGroup does not properly wrap UtilButtons in guarded BarGroup"
@@ -251,8 +251,8 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
     fi
 
     # middleCenterGroup wraps Workspaces in BarGroup
-    if awk '/id: middleCenterGroup/,/id: rightCenterGroup/{print}' "$REPO_BAR_CONTENT" | grep -q 'Workspaces' && \
-       awk '/id: middleCenterGroup/,/id: rightCenterGroup/{print}' "$REPO_BAR_CONTENT" | grep -q 'BarGroup'; then
+    if grep -B2 -A10 'id: middleCenterGroup' "$REPO_BAR_CONTENT" | grep -q 'BarGroup' && \
+       grep -A10 'id: middleCenterGroup' "$REPO_BAR_CONTENT" | grep -q 'Workspaces'; then
       pass "S2: middleCenterGroup wraps Workspaces in BarGroup (D-02)"
     else
       fail "S2: middleCenterGroup does not wrap Workspaces in BarGroup"
@@ -321,8 +321,9 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
     done
 
     # sysTrayGroup is standalone BarGroup with SysTray { showSeparator: false }
-    if awk '/id: sysTrayGroup/,/id: rightSidebarButton/{print}' "$REPO_BAR_CONTENT" | grep -q 'showSeparator: false' && \
-       awk '/id: sysTrayGroup/,/id: rightSidebarButton/{print}' "$REPO_BAR_CONTENT" | grep -q 'BarGroup'; then
+    if grep -B2 -A10 'id: sysTrayGroup' "$REPO_BAR_CONTENT" | grep -q 'BarGroup' && \
+       grep -A10 'id: sysTrayGroup' "$REPO_BAR_CONTENT" | grep -q 'SysTray' && \
+       grep -A10 'id: sysTrayGroup' "$REPO_BAR_CONTENT" | grep -q 'showSeparator: false'; then
       pass "S2: sysTrayGroup is standalone BarGroup with SysTray showSeparator: false (D-04)"
     else
       fail "S2: sysTrayGroup missing BarGroup or SysTray showSeparator: false"

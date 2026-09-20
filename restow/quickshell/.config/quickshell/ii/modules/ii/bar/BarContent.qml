@@ -43,12 +43,10 @@ Item { // Bar content region
     MouseArea { // Left side (D-16: scroll handlers and hints removed)
         id: barLeftSideMouseArea
 
-        anchors {
-            top: parent.top
-            bottom: parent.bottom
-            left: parent.left
-            right: middleSection.left
-        }
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: middleSection.left
         implicitWidth: leftSectionRowLayout.implicitWidth
         implicitHeight: Appearance.sizes.baseBarHeight
 
@@ -161,12 +159,10 @@ Item { // Bar content region
     MouseArea { // Right side (D-16: scroll handlers and hints removed)
         id: barRightSideMouseArea
 
-        anchors {
-            top: parent.top
-            bottom: parent.bottom
-            left: middleSection.right
-            right: parent.right
-        }
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        anchors.left: middleSection.right
+        anchors.right: parent.right
         implicitWidth: rightSectionRowLayout.implicitWidth
         implicitHeight: Appearance.sizes.baseBarHeight
 
@@ -179,8 +175,62 @@ Item { // Bar content region
         RowLayout {
             id: rightSectionRowLayout
             anchors.fill: parent
-            spacing: 5
-            layoutDirection: Qt.RightToLeft
+            spacing: 4
+
+            Item {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+            }
+
+            Loader {
+                id: mediaLoader
+                Layout.alignment: Qt.AlignVCenter
+                active: (root.useShortenedForm < 2) && (MprisController.activePlayer != null && (MprisController.activePlayer.trackTitle?.length > 0))
+                visible: active
+
+                sourceComponent: BarGroup {
+                    Media {
+                        visible: root.useShortenedForm < 2
+                        Layout.fillWidth: true
+                        Layout.maximumWidth: (root.useShortenedForm === 1) ? 140 : 200
+                    }
+                }
+            }
+
+            Loader {
+                id: updatesLoader
+                Layout.alignment: Qt.AlignVCenter
+                active: Updates.available && Updates.count > 0
+                visible: active
+
+                sourceComponent: BarGroup {
+                    UpdatesButton {}
+                }
+            }
+
+            Loader {
+                id: batteryLoader
+                Layout.alignment: Qt.AlignVCenter
+                active: (root.useShortenedForm < 2 && Battery.available)
+                visible: active
+
+                sourceComponent: BarGroup {
+                    BatteryIndicator {}
+                }
+            }
+
+            BarGroup {
+                id: sysTrayGroup
+                Layout.alignment: Qt.AlignVCenter
+                visible: root.useShortenedForm === 0
+
+                SysTray {
+                    showSeparator: false
+                    Layout.fillWidth: false
+                    Layout.fillHeight: true
+                    invertSide: Config?.options.bar.bottom
+                }
+            }
 
             RippleButton { // Right sidebar button
                 id: rightSidebarButton
@@ -301,38 +351,6 @@ Item { // Bar content region
                         iconSize: Appearance.font.pixelSize.larger
                         color: rightSidebarButton.colText
                     }
-                }
-            }
-
-            SysTray {
-                visible: root.useShortenedForm === 0
-                Layout.fillWidth: false
-                Layout.fillHeight: true
-                invertSide: Config?.options.bar.bottom
-            }
-
-            Item {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-            }
-
-            // Dedicated Updates Status Pill (D-18, COMP-07)
-            Loader {
-                Layout.leftMargin: 4
-                active: Updates.available && Updates.count > 0
-
-                sourceComponent: BarGroup {
-                    UpdatesButton {}
-                }
-            }
-
-            // Weather
-            Loader {
-                Layout.leftMargin: 4
-                active: Config.options.bar.weather.enable
-
-                sourceComponent: BarGroup {
-                    WeatherBar {}
                 }
             }
         }
