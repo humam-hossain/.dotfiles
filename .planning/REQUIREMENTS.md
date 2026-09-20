@@ -14,16 +14,16 @@
 
 ### Component Representation & Formatting Customization
 
-- [ ] **COMP-01**: User can view memory usage formatted as definite gigabytes used out of total gigabytes (`X.X GB / Y.Y GB`) instead of a simple percentage.
-- [ ] **COMP-02**: User can view CPU usage with custom formatting, warning thresholds, and clean visual indicators.
-- [ ] **COMP-03**: User can configure Clock & Date widget representation, date pattern, and 12h/24h formats via native configuration.
-- [ ] **COMP-04**: User can view Media Player pill with track title, playback controls, and volume/seek scroll actions.
+- [x] **COMP-01**: User can view memory usage formatted as definite gigabytes used out of total gigabytes (`X.X GB / Y.Y GB`) instead of a simple percentage.
+- [x] **COMP-02**: User can view CPU usage with custom formatting, warning thresholds, and clean visual indicators.
+- [x] **COMP-03**: User can configure Clock & Date widget representation, date pattern, and 12h/24h formats via native configuration.
+- [x] **COMP-04**: User can view Media Player pill with track title, playback controls, and volume/seek scroll actions.
 - [x] **COMP-05**: User can view Weather pill displaying temperature, conditions glyph, and interactive weather forecast popup.
 - [x] **COMP-06**: User can access Utility buttons pill providing shortcuts for Screen Snip, Color Picker, and Power menu.
-- [ ] **COMP-07**: User can view pending Pacman and AUR package updates count via a dedicated status pill.
-- [ ] **COMP-08**: User can view Privacy in-use alerts whenever the microphone, camera, or screen recording is actively capturing.
-- [ ] **COMP-09**: User can interact with System Tray icons and context menus with balanced icon spacing and padding.
-- [ ] **COMP-10**: User can view audio/mic mute states, network connectivity, bluetooth status, and unread notification counter.
+- [x] **COMP-07**: User can view pending Pacman and AUR package updates count via a dedicated status pill.
+- [x] **COMP-08**: User can view Privacy in-use alerts whenever the microphone, camera, or screen recording is actively capturing.
+- [x] **COMP-09**: User can interact with System Tray icons and context menus with balanced icon spacing and padding.
+- [x] **COMP-10**: User can view audio/mic mute states, network connectivity, bluetooth status, and unread notification counter.
 
 ### Modular Layout & Live Trial-and-Error
 
@@ -63,16 +63,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PILL-02 | Phase 31 | Complete |
 | PILL-03 | Phase 31 | Complete |
 | PILL-04 | Phase 31 | Complete |
-| COMP-01 | Phase 32 | Pending |
-| COMP-02 | Phase 32 | Pending |
-| COMP-03 | Phase 32 | Pending |
-| COMP-04 | Phase 32 | Pending |
+| COMP-01 | Phase 32 | Complete |
+| COMP-02 | Phase 32 | Complete |
+| COMP-03 | Phase 32 | Complete |
+| COMP-04 | Phase 32 | Complete |
 | COMP-05 | Phase 32 | Complete |
 | COMP-06 | Phase 32 | Complete |
-| COMP-07 | Phase 32 | Pending |
-| COMP-08 | Phase 32 | Pending |
-| COMP-09 | Phase 32 | Pending |
-| COMP-10 | Phase 32 | Pending |
+| COMP-07 | Phase 32 | Complete |
+| COMP-08 | Phase 32 | Complete |
+| COMP-09 | Phase 32 | Complete |
+| COMP-10 | Phase 32 | Complete |
 | LAYOUT-01 | Phase 33 | Pending |
 | LAYOUT-02 | Phase 33 | Pending |
 | LAYOUT-03 | Phase 33 | Pending |

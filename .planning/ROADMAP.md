@@ -130,7 +130,7 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
   2. Clock & Date widget formatted according to user pattern preference with functioning calendar popup.
   3. Media Player, Weather, Utility buttons (Screen snip, color picker, power), Updates counter, Privacy alerts, System Tray, and Status indicators audited, styled, and verified.
   4. Every component tested and reviewed inside the new modern pill geometry.
-- **Plans:** 1/2 plans executed
+- **Plans:** 2/2 plans executed
 
 **Wave 1**
 
@@ -138,7 +138,7 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 32-02-PLAN.md — Tier 2 personal QML overlays (System Resources in GB, 2-tier alert, Clock, Media, Privacy, Updates, Tray), BarContent integration, and full verification suite
+- [x] 32-02-PLAN.md — Tier 2 personal QML overlays (System Resources in GB, 2-tier alert, Clock, Media, Privacy, Updates, Tray), BarContent integration, and full verification suite
 
 ### Phase 33: Modular Layout & Live Trial-and-Error Rearrangement
 
