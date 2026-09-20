@@ -111,7 +111,15 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
   1. Dedicated overlay tree established under `restow/quickshell/` and mapped to `~/.config/quickshell/ii/modules/ii/bar/`.
   2. All bar pill containers render with modern rounded rectangle geometry (12–16px radius) and balanced internal padding (4–6px).
   3. Live hot-reload confirmed: editing `BarGroup.qml` or pill parameters immediately reflects in Quickshell without restarting the desktop session.
-- **Plans:** 0 plans
+- **Plans:** 2 plans
+
+**Wave 1**
+
+- [ ] 31-01-PLAN.md — tracer: Phase 31 assertion harness scaffolding, restow/quickshell package establishment, and Section 1 symlink verification
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 31-02-PLAN.md — dynamic content-driven pill width in BarContent.qml, smooth resizing animation in BarGroup.qml, and full verification suite
 
 ### Phase 32: Component Representation & Formatting Customization
 
