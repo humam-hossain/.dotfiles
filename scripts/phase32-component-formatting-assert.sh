@@ -148,7 +148,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
   # 4. Weather representation asserts (D-19, COMP-05)
   if [[ -f "$REPO_CFG" ]]; then
     w_city="$(jq -r '.bar.weather.city // empty' "$REPO_CFG" 2>/dev/null || true)"
-    w_uscs="$(jq -r '.bar.weather.useUSCS // empty' "$REPO_CFG" 2>/dev/null || true)"
+    w_uscs="$(jq -r '.bar.weather.useUSCS' "$REPO_CFG" 2>/dev/null || true)"
 
     if [[ "$w_city" == "Dhaka" ]]; then
       pass "S1: bar.weather.city is 'Dhaka' (D-19, COMP-05)"

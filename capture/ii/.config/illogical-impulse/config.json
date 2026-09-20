@@ -37,7 +37,7 @@
       "automatic": true,
       "backgroundTransparency": 0.11,
       "contentTransparency": 0.57,
-      "enable": false
+      "enable": true
     },
     "wallpaperTheming": {
       "enableAppsAndShell": true,
@@ -142,7 +142,7 @@
     },
     "borderless": false,
     "bottom": false,
-    "cornerStyle": 0,
+    "cornerStyle": 2,
     "floatStyleShadow": true,
     "indicators": {
       "notifications": {
@@ -152,9 +152,9 @@
     "resources": {
       "alwaysShowCpu": true,
       "alwaysShowSwap": true,
-      "cpuWarningThreshold": 90,
-      "memoryWarningThreshold": 95,
-      "swapWarningThreshold": 85
+      "cpuWarningThreshold": 60,
+      "memoryWarningThreshold": 80,
+      "swapWarningThreshold": 70
     },
     "screenList": [],
     "showBackground": true,
@@ -168,7 +168,7 @@
       "showKeyboardToggle": true,
       "showMicToggle": true,
       "showPerformanceProfileToggle": true,
-      "showScreenRecord": false,
+      "showScreenRecord": true,
       "showScreenSnip": true
     },
     "verbose": true,
@@ -185,7 +185,7 @@
       "monochromeIcons": true,
       "numberMap": [],
       "showAppIcons": true,
-      "showNumberDelay": 300,
+      "showNumberDelay": 200,
       "shown": 5,
       "useNerdFont": false
     }
@@ -414,7 +414,7 @@
     "keepRightSidebarLoaded": true,
     "quickSliders": {
       "enable": true,
-      "showBrightness": false,
+      "showBrightness": true,
       "showMic": true,
       "showVolume": true
     },
@@ -445,6 +445,38 @@
           {
             "size": 2,
             "type": "nightLight"
+          },
+          {
+            "size": 1,
+            "type": "easyEffects"
+          },
+          {
+            "size": 1,
+            "type": "cloudflareWarp"
+          },
+          {
+            "size": 1,
+            "type": "screenSnip"
+          },
+          {
+            "size": 1,
+            "type": "colorPicker"
+          },
+          {
+            "size": 1,
+            "type": "onScreenKeyboard"
+          },
+          {
+            "size": 1,
+            "type": "powerProfile"
+          },
+          {
+            "size": 1,
+            "type": "antiFlashbang"
+          },
+          {
+            "size": 1,
+            "type": "musicRecognition"
           }
         ]
       },
@@ -461,9 +493,9 @@
     "theme": "freedesktop"
   },
   "time": {
-    "dateFormat": "ddd, dd/MM",
+    "dateFormat": "ddd, dd-MM-yyyy",
     "dateWithYearFormat": "dd/MM/yyyy",
-    "format": "h:mm AP",
+    "format": "hh:mm:ss AP",
     "pomodoro": {
       "breakTime": 300,
       "cyclesBeforeLongBreak": 4,
