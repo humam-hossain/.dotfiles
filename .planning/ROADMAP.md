@@ -7,6 +7,7 @@
 - ✅ **v0.3 Full ii install** — Phases 10–16 (shipped 2026-09-09)
 - ✅ **v0.4 Personal config layer** — Phases 17–24 (shipped 2026-09-16)
 - ✅ **v0.5 System-wide Material You theming** — Phases 25–30 (shipped 2026-09-18)
+- 🟡 **v0.6 Top Status Bar Layout, Pill Styling & Component Customization** — Phases 31–34 (in progress)
 
 ## Phases
 
@@ -92,3 +93,54 @@ Phase artifacts: [milestones/v0.5-phases/](milestones/v0.5-phases/)
 Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-AUDIT.md)
 
 </details>
+
+### v0.6 Top Status Bar Layout, Pill Styling & Component Customization (Phases 31-34)
+
+- [ ] **Phase 31: Overlay Infrastructure & Pill Geometry Foundation** — Establish repo overlay structure (`restow/quickshell/`), base pill structure matching dots-hyprland's `BarGroup`, 12–16px rounded rect geometry, 4–6px padding, and live hot-reload sync.
+- [ ] **Phase 32: Component Representation & Formatting Customization** — Systematic tier-1/tier-2 audit of all 17 bar components, reformatting RAM to definite gigabytes (`X.X GB / Y.Y GB`), tuning CPU metrics, Clock/Date, Weather, Media, Utilities, Updates, Privacy, and Tray.
+- [ ] **Phase 33: Modular Layout & Live Trial-and-Error Rearrangement** — Reorganize `BarContent.qml` into modular Left, Center, and Right sections; conduct live interactive trial-and-error visual testing with the user across dual monitors (`DP-1` and `HDMI-A-1`).
+- [ ] **Phase 34: Verification, Zero Drift & Bootstrap Integration** — Verify Material You dynamic color adaptation across all pills with zero defects, validate repository integrity with `arch/dots-hyprland.sh verify --strict` (0 findings), and verify `./bootstrap.sh` fresh-machine deployment.
+
+## Phase Details
+
+### Phase 31: Overlay Infrastructure & Pill Geometry Foundation
+
+- **Goal:** Establish the `.dotfiles` repo overlay structure for custom Quickshell modules (`restow/quickshell/`), live linking/sync, and create foundational pill structures adhering to dots-hyprland's `BarGroup` with modern 12–16px rounded rectangle geometry and 4–6px padding.
+- **Requirements:** PILL-01, PILL-02, PILL-03, PILL-04
+- **Success Criteria:**
+  1. Dedicated overlay tree established under `restow/quickshell/` and mapped to `~/.config/quickshell/ii/modules/ii/bar/`.
+  2. All bar pill containers render with modern rounded rectangle geometry (12–16px radius) and balanced internal padding (4–6px).
+  3. Live hot-reload confirmed: editing `BarGroup.qml` or pill parameters immediately reflects in Quickshell without restarting the desktop session.
+- **Plans:** 0 plans
+
+### Phase 32: Component Representation & Formatting Customization
+
+- **Goal:** Systematically audit and customize all 17 bar components across 5 batches, evaluating native dots-hyprland options first (Tier 1) and implementing clean personal QML overrides (Tier 2) where needed—especially detailed RAM usage in GB.
+- **Requirements:** COMP-01, COMP-02, COMP-03, COMP-04, COMP-05, COMP-06, COMP-07, COMP-08, COMP-09, COMP-10
+- **Success Criteria:**
+  1. System Resources updated to format memory as definite gigabytes (`X.X GB / Y.Y GB` used/total) alongside CPU usage and warning thresholds.
+  2. Clock & Date widget formatted according to user pattern preference with functioning calendar popup.
+  3. Media Player, Weather, Utility buttons (Screen snip, color picker, power), Updates counter, Privacy alerts, System Tray, and Status indicators audited, styled, and verified.
+  4. Every component tested and reviewed inside the new modern pill geometry.
+- **Plans:** 0 plans
+
+### Phase 33: Modular Layout & Live Trial-and-Error Rearrangement
+
+- **Goal:** Reorganize `BarContent.qml` into modular, easily swappable Left, Center, and Right sections; conduct live interactive trial-and-error visual testing with the user to lock in the preferred layout across `DP-1` and `HDMI-A-1`.
+- **Requirements:** LAYOUT-01, LAYOUT-02, LAYOUT-03
+- **Success Criteria:**
+  1. Candidate layout deployed (e.g. Workspaces & Weather in center, Clock & Utilities on left, Media & Resources & Tray on right).
+  2. Interactive visual evaluation performed with user, repositioning/swapping components based on live feedback.
+  3. Responsive layout verified across dual monitors (`DP-1` and `HDMI-A-1`) without clipping or text overflow.
+- **Plans:** 0 plans
+
+### Phase 34: Verification, Zero Drift & Bootstrap Integration
+
+- **Goal:** Verify Material You dynamic color adaptation across all pills with zero defects, validate repository integrity with `arch/dots-hyprland.sh verify --strict` (0 findings), and verify `./bootstrap.sh` fresh-machine deployment.
+- **Requirements:** INTG-01, INTG-02, INTG-03
+- **Success Criteria:**
+  1. Dynamic wallpaper switches (`switchwall.sh`) adapt all pill backgrounds, icons, and text colors seamlessly with zero visual drift.
+  2. `arch/dots-hyprland.sh verify --strict` exits 0 with 0 findings across all tracked and stowed paths.
+  3. Fresh-machine `./bootstrap.sh` dry-run and execution accurately link the customized bar components.
+- **Plans:** 0 plans
+
