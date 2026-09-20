@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 32-component-representation-formatting-customization
 source: [32-01-SUMMARY.md, 32-02-SUMMARY.md]
 started: "2026-09-20T08:40:00+06:00"
@@ -106,5 +106,20 @@ blocked: 0
   reason: "User reported: ok couple of issues I think first one is the mic a triple mic situation is actually bad so triple mic situation is actually bad so let's I think what you have suggested before recommended before is the one we need to do to fix that another thing is media so like when pause when I pause a video it just goes away so that's not the thing I want so let's not complicated stuff just keep the default dot hyperlink media stuff set up that was fine for me so yeah let's do that. okay the next thing that I want to talk about is the updates button currently showing 58 total updates that I have to do and when I click on it so this I click on it and I think there's a it's not I don't think it is kitting the time you know and nothing is happening literally or maybe something is happening but I'm not seeing any result so make sure that is the default terminal opening in default terminal like kitty right now it should be in my dotcyperlane or somewhere that says that my default terminal is kitty and I can change the terminal on terminal itself to kitty to alacrity or whatever but use the default terminal when I click on it and updates it so use that okay"
   severity: major
   test: 1
-  artifacts: []
-  missing: []
+  root_cause: "showMicToggle: true creates 3rd mic icon; BarContent.qml binds Media visible to isPlaying hiding on pause; UpdatesButton.qml has zero-width child MouseArea and hardcoded kitty command"
+  artifacts:
+    - path: "capture/ii/.config/illogical-impulse/config.json"
+      issue: "showMicToggle: true creates redundant mic button in util buttons"
+    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml"
+      issue: "Media visibility bound to isPlaying collapses on pause"
+    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/bar/UpdatesButton.qml"
+      issue: "Child MouseArea hit testing failure and hardcoded terminal command"
+    - path: "scripts/phase32-component-formatting-assert.sh"
+      issue: "Section 4 asserts Media isPlaying binding"
+  missing:
+    - "Set showMicToggle: false in config.json (capture/ii/ and live)"
+    - "Revert Media visible to root.useShortenedForm < 2 in BarContent.qml"
+    - "Update phase32-component-formatting-assert.sh Section 4 Media assert"
+    - "Create restow/quickshell/.config/quickshell/ii/scripts/system-update.sh resolving configured terminal"
+    - "Refactor UpdatesButton.qml to root MouseArea invoking system-update.sh"
+  debug_session: ".planning/debug/bar-controls-media-updates.md"
