@@ -355,11 +355,17 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
     fi
   done
 
-  # 2. Assert services directory is real
+  # 2. Assert services and scripts/videos directories are real
   if [[ -L "$QS_ROOT/services" ]]; then
     fail "S3: $QS_ROOT/services is a folded symlink"
   else
     pass "S3: $QS_ROOT/services is a real directory"
+  fi
+
+  if [[ -L "$QS_ROOT/scripts/videos" ]]; then
+    fail "S3: $QS_ROOT/scripts/videos is a folded symlink"
+  else
+    pass "S3: $QS_ROOT/scripts/videos is a real directory"
   fi
 
   # 3. ClockWidget.qml non-glyph spacer assert (D-08, COMP-03)
@@ -399,6 +405,14 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
       pass "S3: Privacy.qml uses Array.some returning primitive booleans (D-13, COMP-08)"
     else
       fail "S3: Privacy.qml missing Array.some primitive boolean evaluation"
+    fi
+
+    if grep -q 'property bool screenRecording' "$PRIV_QML" && \
+       grep -q 'wf-recorder' "$PRIV_QML" && \
+       grep -q 'screenRecording ||' "$PRIV_QML"; then
+      pass "S3: Privacy.qml incorporates reactive wf-recorder screenRecording telemetry (COMP-08)"
+    else
+      fail "S3: Privacy.qml missing screenRecording or wf-recorder telemetry"
     fi
   else
     fail "S3: $PRIV_QML does not exist"
@@ -458,6 +472,37 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
     fi
   else
     fail "S3: $BC_QML does not exist"
+  fi
+
+  # 10. record.sh overlay and notification assert (COMP-06)
+  REC_SCRIPT="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/scripts/videos/record.sh"
+  LIVE_REC="$QS_ROOT/scripts/videos/record.sh"
+  if [[ -f "$REC_SCRIPT" ]]; then
+    if [[ -x "$REC_SCRIPT" ]]; then
+      pass "S3: record.sh is executable (COMP-06)"
+    else
+      fail "S3: record.sh is not executable"
+    fi
+
+    if [[ -L "$LIVE_REC" ]]; then
+      actual_target="$(readlink -f "$LIVE_REC")"
+      expected_target="$(readlink -f "$REC_SCRIPT")"
+      if [[ "$actual_target" == "$expected_target" ]]; then
+        pass "S3: $LIVE_REC is leaf symlink to $REC_SCRIPT (COMP-06)"
+      else
+        fail "S3: $LIVE_REC points to $actual_target, expected $expected_target"
+      fi
+    else
+      fail "S3: $LIVE_REC is not a symlink"
+    fi
+
+    if grep -q 'Saved to:' "$REC_SCRIPT" && grep -q 'quickshell-current-recording.txt' "$REC_SCRIPT"; then
+      pass "S3: record.sh tracks active recording in state file and emits Saved to notification (COMP-06)"
+    else
+      fail "S3: record.sh missing Saved to notification or state file tracking"
+    fi
+  else
+    fail "S3: $REC_SCRIPT does not exist"
   fi
 fi
 
