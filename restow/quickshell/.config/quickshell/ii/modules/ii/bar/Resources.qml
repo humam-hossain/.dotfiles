@@ -32,7 +32,7 @@ MouseArea {
             iconName: "swap_horiz"
             percentage: ResourceUsage.swapUsedPercentage
             shown: ResourceUsage.swapUsed > 0
-            Layout.leftMargin: shown ? 6 : 0
+            Layout.leftMargin: shown ? 8 : 0
             customText: `${(ResourceUsage.swapUsed / (1024 * 1024)).toFixed(1)}/${(ResourceUsage.swapTotal / (1024 * 1024)).toFixed(1)} GB (${Math.round(ResourceUsage.swapUsedPercentage * 100)}%)`
             warningThreshold: 70
             criticalThreshold: 85
@@ -43,7 +43,7 @@ MouseArea {
             iconName: "planner_review"
             percentage: ResourceUsage.cpuUsage
             shown: Config.options.bar.resources.alwaysShowCpu || root.alwaysShowAllResources
-            Layout.leftMargin: shown ? 6 : 0
+            Layout.leftMargin: shown ? 8 : 0
             warningThreshold: 60
             criticalThreshold: 90
         }
