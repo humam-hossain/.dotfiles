@@ -10,6 +10,16 @@ Item {
     implicitHeight: vertical ? (gridLayout.implicitHeight + padding * 2) : Appearance.sizes.baseBarHeight
     default property alias items: gridLayout.children
 
+    // Smooth pill expansion/contraction animation (D-02, PILL-03)
+    Behavior on implicitWidth {
+        enabled: !root.vertical
+        NumberAnimation {
+            duration: 250
+            easing.type: Easing.BezierSpline
+            easing.bezierCurve: Appearance.animationCurves.emphasizedDecel
+        }
+    }
+
     Rectangle {
         id: background
         anchors {

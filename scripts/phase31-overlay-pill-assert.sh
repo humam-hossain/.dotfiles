@@ -169,8 +169,51 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
   info "--- Section 3: Dynamic Animation & Visual Defaults (PILL-02, PILL-03, PILL-04, D-02, D-03) ---"
-  # Stub: implemented in Plan 31-02
-  pass "S3: Section 3 scaffolded"
+
+  GROUP_QML="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarGroup.qml"
+  CONTENT_QML="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml"
+
+  # 1. Assert Behavior on implicitWidth with emphasizedDecel curve and 250ms duration in BarGroup.qml
+  if grep -q 'Behavior on implicitWidth' "$GROUP_QML" && \
+     grep -q 'easing.bezierCurve: Appearance.animationCurves.emphasizedDecel' "$GROUP_QML" && \
+     grep -q 'duration: 250' "$GROUP_QML" && \
+     grep -q 'enabled: !root.vertical' "$GROUP_QML"; then
+    pass "S3: BarGroup.qml declares animated Behavior on implicitWidth with emphasizedDecel (250ms) (D-02, PILL-03)"
+  else
+    fail "S3: BarGroup.qml missing correct Behavior on implicitWidth definition"
+  fi
+
+  # 2. Assert upstream visual styling fidelity tokens in BarGroup.qml (D-03)
+  if grep -q 'radius: Appearance.rounding.small' "$GROUP_QML"; then
+    pass "S3: BarGroup.qml uses Appearance.rounding.small (12px) (PILL-02, D-03)"
+  else
+    fail "S3: BarGroup.qml missing Appearance.rounding.small"
+  fi
+
+  if grep -q 'property real padding: 5' "$GROUP_QML"; then
+    pass "S3: BarGroup.qml preserves padding: 5 (PILL-03, D-03)"
+  else
+    fail "S3: BarGroup.qml missing padding: 5"
+  fi
+
+  if grep -q 'color: Config.options?.bar.borderless ? "transparent" : Appearance.colors.colLayer1' "$GROUP_QML"; then
+    pass "S3: BarGroup.qml preserves borderless background toggling and colLayer1 (PILL-04, D-03)"
+  else
+    fail "S3: BarGroup.qml missing standard borderless color condition"
+  fi
+
+  # 3. Assert middleSection spacing: 4 and VerticalBarSeparator borderless binding in BarContent.qml
+  if grep -q 'spacing: 4' "$CONTENT_QML"; then
+    pass "S3: BarContent.qml preserves inter-pill spacing: 4 (D-03)"
+  else
+    fail "S3: BarContent.qml missing spacing: 4"
+  fi
+
+  if grep -q 'visible: Config.options?.bar.borderless' "$CONTENT_QML"; then
+    pass "S3: BarContent.qml preserves VerticalBarSeparator borderless binding (PILL-04)"
+  else
+    fail "S3: BarContent.qml missing VerticalBarSeparator borderless binding"
+  fi
 fi
 
 # ===========================================================================
