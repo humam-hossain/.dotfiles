@@ -221,8 +221,44 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
   info "--- Section 4: Repository Hygiene & Verification Engine (PILL-01, D-06, D-08, INTG-02) ---"
-  # Stub: implemented in Plan 31-02
-  pass "S4: Section 4 scaffolded"
+
+  # 1. Assert restow/README.md matches fresh ./scripts/gen-collision-map.sh --restow-table
+  GEN_TABLE="$(mktemp /tmp/p31-gen-table-XXXXXX)"
+  TMP_FILES+=("$GEN_TABLE")
+  "$REPO_ROOT/scripts/gen-collision-map.sh" --restow-table > "$GEN_TABLE"
+
+  README_TABLE="$(mktemp /tmp/p31-readme-table-XXXXXX)"
+  TMP_FILES+=("$README_TABLE")
+  awk '/<!-- BEGIN generated: gen-collision-map.sh --restow-table -->/{flag=1; next} /<!-- END generated: gen-collision-map.sh --restow-table -->/{flag=0} flag' "$REPO_ROOT/restow/README.md" > "$README_TABLE"
+
+  if cmp -s "$GEN_TABLE" "$README_TABLE"; then
+    pass "S4: restow/README.md generated table matches ./scripts/gen-collision-map.sh --restow-table (D-06)"
+  else
+    fail "S4: restow/README.md generated table is out of sync with collision-map generator"
+    diff -u "$GEN_TABLE" "$README_TABLE" || true
+  fi
+
+  # Assert quickshell entry is present in generated table with rsync-replace tag
+  if grep -q '| `quickshell` | `rsync-replace` | `cd restow && stow --verbose=5 --no-folding -t ~ quickshell` |' "$README_TABLE"; then
+    pass "S4: restow/README.md contains quickshell package with rsync-replace tag (D-06, PILL-01)"
+  else
+    fail "S4: restow/README.md missing quickshell rsync-replace entry"
+  fi
+
+  # 2. Strict system verifier gate
+  VERIFY_SCRIPT="$REPO_ROOT/arch/dots-hyprland.sh"
+  if [[ -x "$VERIFY_SCRIPT" ]]; then
+    v_rc=0
+    v_out="$("$VERIFY_SCRIPT" verify --strict 2>&1)" || v_rc=$?
+    if [[ "$v_rc" -eq 0 ]] && printf '%s\n' "$v_out" | grep -q 'FINDINGS=0'; then
+      pass "S4: ./arch/dots-hyprland.sh verify --strict passed with 0 findings (D-08, INTG-02)"
+    else
+      fail "S4: ./arch/dots-hyprland.sh verify --strict failed (exit code $v_rc)"
+      printf '%s\n' "$v_out" | tail -n 20 | sed 's/^/       /' >&2
+    fi
+  else
+    fail "S4: arch/dots-hyprland.sh missing or not executable"
+  fi
 fi
 
 # ===========================================================================
