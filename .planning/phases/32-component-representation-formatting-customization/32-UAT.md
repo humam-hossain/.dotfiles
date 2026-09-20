@@ -1,9 +1,9 @@
 ---
-status: resolved
+status: diagnosed
 phase: 32-component-representation-formatting-customization
 source: [32-01-SUMMARY.md, 32-02-SUMMARY.md, 32-03-SUMMARY.md]
 started: "2026-09-20T08:40:00+06:00"
-updated: "2026-09-20T10:27:00+06:00"
+updated: "2026-09-20T12:44:00+06:00"
 ---
 
 ## Current Test
@@ -25,8 +25,8 @@ expected: |
   - Updates.qml Arch + AUR aggregation and UpdatesButton dedicated pill (scripts/phase32-component-formatting-assert.sh --section 3)
   - BarContent.qml integration without ActiveWindow or scroll jitter, and auto-collapsing idle Media (scripts/phase32-component-formatting-assert.sh --section 4)
   - Status indicators retained and full repository verification pass (arch/dots-hyprland.sh verify --strict)
-result: pass
-reported: "ok couple of issues I think first one is the mic a triple mic situation is actually bad so triple mic situation is actually bad so let's I think what you have suggested before recommended before is the one we need to do to fix that another thing is media so like when pause when I pause a video it just goes away so that's not the thing I want so let's not complicated stuff just keep the default dot hyperlink media stuff set up that was fine for me so yeah let's do that. okay the next thing that I want to talk about is the updates button currently showing 58 total updates that I have to do and when I click on it so this I click on it and I think there's a it's not I don't think it is kitting the time you know and nothing is happening literally or maybe something is happening but I'm not seeing any result so make sure that is the default terminal opening in default terminal like kitty right now it should be in my dotcyperlane or somewhere that says that my default terminal is kitty and I can change the terminal on terminal itself to kitty to alacrity or whatever but use the default terminal when I click on it and updates it so use that okay"
+result: issue
+reported: "Okay, you have removed the wrong mic. I think you need to remove that from the system tray one In system tray you have two one is amber color Another is just normal white white color mic It shows up when I mute the mic so The one one shows up when I mute the mic that need to be removed I think I don't need that because well in the in the center In the picker utility I already have the Mic, so I don't need the system tray one. So remove that. For updates button there should be --noconfirm tag, and after installing pacman and yay packages, chaches and old updates/installation files need to be removed. The media i showing i think full title of an audio, i don't remember this being default in dots-hyprland, as far as i know there was truncation in title text, maybe as we allowed to expand this is happening where before there was explicit clamping. So investigate this part"
 severity: major
 
 ### 2. Phase 32 4-section Nyquist assertion test harness scaffolded with non-root check and fail-closed CLI argument handling
@@ -92,8 +92,8 @@ coverage_id: 32-02-D8
 ## Summary
 
 total: 11
-passed: 11
-issues: 0
+passed: 10
+issues: 1
 pending: 0
 skipped: 0
 blocked: 0
@@ -123,3 +123,27 @@ blocked: 0
     - "Create restow/quickshell/.config/quickshell/ii/scripts/system-update.sh resolving configured terminal"
     - "Refactor UpdatesButton.qml to root MouseArea invoking system-update.sh"
   debug_session: ".planning/debug/resolved/bar-controls-media-updates.md"
+
+- gap_id: G-32-2
+  truth: "Center utility buttons mic toggle retained, right sidebar white mic_off indicator removed, system update runs with --noconfirm and cleans caches, and media title truncates with ellipsis per upstream dots-hyprland"
+  status: failed
+  reason: "User reported: Okay, you have removed the wrong mic. I think you need to remove that from the system tray one In system tray you have two one is amber color Another is just normal white white color mic It shows up when I mute the mic so The one one shows up when I mute the mic that need to be removed I think I don't need that because well in the in the center In the picker utility I already have the Mic, so I don't need the system tray one. So remove that. For updates button there should be --noconfirm tag, and after installing pacman and yay packages, chaches and old updates/installation files need to be removed. The media i showing i think full title of an audio, i don't remember this being default in dots-hyprland, as far as i know there was truncation in title text, maybe as we allowed to expand this is happening where before there was explicit clamping. So investigate this part"
+  severity: major
+  test: 1
+  root_cause: "showMicToggle: false disabled the center utility toggle; BarContent.qml indicatorsRowLayout has an Audio.source.muted white mic_off Revealer; system-update.sh lacks --noconfirm and post-install cache cleanup; BarContent.qml has no width clamp on Media causing StyledText to expand without triggering elide: Text.ElideRight"
+  artifacts:
+    - path: "capture/ii/.config/illogical-impulse/config.json"
+      issue: "showMicToggle set to false under .bar.utilButtons; apps.update lacks flags and cache cleanup"
+    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml"
+      issue: "Audio.source.muted white mic_off Revealer present in indicatorsRowLayout; Media unconstrained without maximum width clamp"
+    - path: "restow/quickshell/.config/quickshell/ii/scripts/system-update.sh"
+      issue: "yay -Syu lacks --noconfirm and subsequent cache cleaning"
+    - path: "scripts/phase32-component-formatting-assert.sh"
+      issue: "Section 1 asserts showMicToggle: false, Section 3 allows mic_off Revealer, Section 4 lacks Media width/truncation check"
+  missing:
+    - "Set showMicToggle: true under .bar.utilButtons in config.json (capture and live)"
+    - "Remove Audio.source?.audio?.muted mic_off Revealer from indicatorsRowLayout in BarContent.qml"
+    - "Add Layout.maximumWidth: Math.round(root.centerSideModuleWidth * 0.6) to Media in BarContent.qml"
+    - "Update system-update.sh with yay -Syu --noconfirm && yay -Sc --noconfirm"
+    - "Update phase32-component-formatting-assert.sh sections 1, 3, and 4"
+  debug_session: ".planning/debug/tray-mic-updates-media-truncation.md"
