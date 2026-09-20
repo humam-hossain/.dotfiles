@@ -99,7 +99,7 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
 - [x] **Phase 31: Overlay Infrastructure & Pill Geometry Foundation** — Establish repo overlay structure (`restow/quickshell/`), base pill structure matching dots-hyprland's `BarGroup`, 12–16px rounded rect geometry, 4–6px padding, and live hot-reload sync. (completed 2026-09-20)
 - [x] **Phase 32: Component Representation & Formatting Customization** — Systematic tier-1/tier-2 audit of all 17 bar components, reformatting RAM to definite gigabytes (`X.X GB / Y.Y GB`), tuning CPU metrics, Clock/Date, Weather, Media, Utilities, Updates, Privacy, and Tray. (completed 2026-09-20)
 - [x] **Phase 33: Modular Layout & Live Trial-and-Error Rearrangement** — Reorganize `BarContent.qml` into modular Left, Center, and Right sections; conduct live interactive trial-and-error visual testing with the user across dual monitors (`DP-1` and `HDMI-A-1`). (completed 2026-09-20)
-- [ ] **Phase 34: Verification, Zero Drift & Bootstrap Integration** — Verify Material You dynamic color adaptation across all pills with zero defects, validate repository integrity with `arch/dots-hyprland.sh verify --strict` (0 findings), and verify `./bootstrap.sh` fresh-machine deployment.
+- [x] **Phase 34: Verification, Zero Drift & Bootstrap Integration** — Verify Material You dynamic color adaptation across all pills with zero defects, validate repository integrity with `arch/dots-hyprland.sh verify --strict` (0 findings), and verify `./bootstrap.sh` fresh-machine deployment. (completed 2026-09-20)
 
 ## Phase Details
 
@@ -179,4 +179,4 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
   1. Dynamic wallpaper switches (`switchwall.sh`) adapt all pill backgrounds, icons, and text colors seamlessly with zero visual drift.
   2. `arch/dots-hyprland.sh verify --strict` exits 0 with 0 findings across all tracked and stowed paths.
   3. Fresh-machine `./bootstrap.sh` dry-run and execution accurately link the customized bar components.
-- **Plans:** 0 plans
+- **Plans:** 2/2 plans complete

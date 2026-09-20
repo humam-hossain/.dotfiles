@@ -33,9 +33,9 @@
 
 ### Integration & Verification
 
-- [ ] **INTG-01**: Dynamic Material You palette changes via wallpaper switch (`switchwall.sh`) cleanly tint all customized pills and components with zero visual defects.
-- [ ] **INTG-02**: Repository state passes `arch/dots-hyprland.sh verify --strict` with 0 findings and zero working tree drift.
-- [ ] **INTG-03**: Fresh-machine bootstrap (`./bootstrap.sh`) deploys the customized bar and pill configurations cleanly.
+- [x] **INTG-01**: Dynamic Material You palette changes via wallpaper switch (`switchwall.sh`) cleanly tint all customized pills and components with zero visual defects.
+- [x] **INTG-02**: Repository state passes `arch/dots-hyprland.sh verify --strict` with 0 findings and zero working tree drift.
+- [x] **INTG-03**: Fresh-machine bootstrap (`./bootstrap.sh`) deploys the customized bar and pill configurations cleanly.
 
 ## v2 Requirements
 
@@ -76,9 +76,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | LAYOUT-01 | Phase 33 | Complete |
 | LAYOUT-02 | Phase 33 | Complete |
 | LAYOUT-03 | Phase 33 | Complete |
-| INTG-01 | Phase 34 | Pending |
-| INTG-02 | Phase 34 | Pending |
-| INTG-03 | Phase 34 | Pending |
+| INTG-01 | Phase 34 | Complete |
+| INTG-02 | Phase 34 | Complete |
+| INTG-03 | Phase 34 | Complete |
 
 **Coverage:**
 

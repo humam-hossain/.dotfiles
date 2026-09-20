@@ -1,8 +1,8 @@
 ---
 phase: "34"
 slug: "verification-zero-drift-bootstrap-integration"
-status: draft
-nyquist_compliant: false
+status: ready
+nyquist_compliant: true
 wave_0_complete: false
 created: "2026-09-20"
 ---
@@ -38,11 +38,11 @@ created: "2026-09-20"
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 34-01-01 | 01 | 1 | INTG-02 | — | Baseline tracked files committed cleanly | integration | `git status --porcelain capture stow | wc -l | grep -q '^0$'` | ✅ | ⬜ pending |
-| 34-01-02 | 01 | 1 | INTG-03 | — | Stow pre-creation and color priming verified | unit | `bash -n bootstrap.sh && grep -q 'modules/ii/bar' bootstrap.sh` | ✅ | ⬜ pending |
+| 34-01-01 | 01 | 1 | INTG-02 | T-34-01 | Baseline tracked files committed cleanly | integration | `git status --porcelain capture stow \| wc -l \| grep -q '^0$' && ./arch/dots-hyprland.sh verify --strict \| grep -q 'FINDINGS=0'` | ✅ | ⬜ pending |
+| 34-01-02 | 01 | 1 | INTG-03 | T-34-02 | Stow pre-creation and color priming verified | unit | `bash -n bootstrap.sh && grep -q '\.config/quickshell/ii/modules/ii/bar' bootstrap.sh && grep -q 'colors.json' bootstrap.sh` | ✅ | ⬜ pending |
 | 34-01-03 | 01 | 1 | INTG-01 | — | Phase 31 borderless check aligned for Phase 33 layout | regression | `bash scripts/phase31-overlay-pill-assert.sh && bash scripts/phase32-component-formatting-assert.sh && bash scripts/phase33-layout-assert.sh` | ✅ | ⬜ pending |
-| 34-02-01 | 02 | 2 | INTG-01, INTG-02, INTG-03 | — | 5-section verification assert script authored | unit | `test -x scripts/phase34-verification-assert.sh && bash scripts/phase34-verification-assert.sh --section 1` | ❌ W0 | ⬜ pending |
-| 34-02-02 | 02 | 2 | INTG-01, INTG-02, INTG-03 | — | Full test harness execution & zero working tree drift | integration | `bash scripts/phase34-verification-assert.sh && ./arch/dots-hyprland.sh verify --strict` | ❌ W0 | ⬜ pending |
+| 34-02-01 | 02 | 2 | INTG-01, INTG-02, INTG-03 | T-34-07 | 5-section verification assert script authored | unit | `test -x scripts/phase34-verification-assert.sh && bash scripts/phase34-verification-assert.sh --help \| grep -q -- '--section <1-5>' && bash scripts/phase34-verification-assert.sh --section 1` | ❌ W0 | ⬜ pending |
+| 34-02-02 | 02 | 2 | INTG-01, INTG-02, INTG-03 | T-34-05, T-34-06 | Full test harness execution & zero working tree drift | integration | `bash scripts/phase34-verification-assert.sh && ./arch/dots-hyprland.sh verify --strict \| grep -q 'FINDINGS=0'` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -64,11 +64,11 @@ created: "2026-09-20"
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending 2026-09-20
+**Approval:** verified 2026-09-20
