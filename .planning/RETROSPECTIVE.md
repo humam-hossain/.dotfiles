@@ -212,6 +212,59 @@
 
 ---
 
+## Milestone: v0.6 — Top Status Bar Layout, Pill Styling & Component Customization
+
+**Shipped:** 2026-09-20  
+**Phases:** 4 | **Plans:** 12 | **Tasks:** 37  
+**Closeout:** verified_closeout (formal milestone audit passed: 20/20 requirements satisfied, 4/4 phases verified, 13/13 integrations verified, 5/5 flows verified, 0 critical blockers, 0 tech debt)
+
+### What Was Built
+
+- Established personal Quickshell overlay infrastructure in `restow/quickshell/` deployed via GNU Stow leaf symlinks (`--no-folding`) without touching upstream `vendor/dots-hyprland`, hot-reloading on save.
+- Modern rounded-rectangle pill geometry (12–16px corner radius, 4–6px internal padding, configurable margins, borderless backgrounds) with fluid 250ms Material 3 emphasized deceleration width resizing animation in `BarGroup.qml`.
+- Systematic Tier 1 and Tier 2 component audit and formatting enhancements: definite GB RAM format (`X.X GB / Y.Y GB`), dynamic swap reveal, two-tier Amber/Red resource alerts, non-glyph clock spacer, balanced 4px tray spacing, unattended system updates (`yay -Syu --noconfirm && yay -Sc --noconfirm`), media title width clamping with ellipsis, and reactive screen recording indicators (`wf-recorder`).
+- Modular 3-zone status bar layout in `BarContent.qml` (Left, Center, Right) with clean 4px inter-pill gaps, zero vertical dividers, and Option 1 Dynamic Spacing Defense (200px Media clamp and >= 180px collision buffer).
+- Live interactive trial-and-error visual testing with the user across dual monitors (`DP-1` ultrawide and `HDMI-A-1`), locking in dead-center Workspaces flanked symmetrically by Weather on the left and Clock & Date on the right.
+- Verified dynamic Material You palette adaptability across wallpaper switches with zero git working tree churn, hardened `./bootstrap.sh` cold machine deployment with directory pre-creation and color priming, and verified repository integrity with `arch/dots-hyprland.sh verify --strict` (0 findings).
+- Comprehensive automated Nyquist test suite across four standalone multi-section test harnesses (`phase31-overlay-pill-assert.sh`, `phase32-component-formatting-assert.sh`, `phase33-layout-assert.sh`, `phase34-verification-assert.sh`).
+
+### What Worked
+
+- **Leaf symlink overlays under restow/** — Deploying custom QML files as discrete leaf symlinks (`stow --verbose=5 --no-folding`) inside `~/.config/quickshell/ii/` allowed live hot-reload on file save without touching vendored submodule files or breaking `git status`.
+- **Zoned modularity with Option 1 Dynamic Spacing Defense** — Decoupling `BarContent.qml` into Left, Center, and Right zones while capping Media to 200px prevented component collision on narrower displays while allowing fluid expansion on ultrawide.
+- **Dead-center mathematical anchoring** — Anchoring Workspaces strictly to `parent.horizontalCenter` (50% monitor width) and flanking it with Weather and Clock & Date gave the bar immediate visual symmetry and balance.
+- **Continuous gap-closure plans** — Turning live UAT findings (mic duplicate, updates launcher, media truncation, screen recording telemetry) into tight gap-closure plans (32-03, 32-04, 32-05) closed all issues before milestone completion.
+- **Fail-closed assertion harnesses** — Testing every plan with two-phase git porcelain invariance and explicit assertion sections guaranteed that zero working tree drift or broken symlinks escaped detection.
+
+### What Was Inefficient
+
+- Initial gap in Plan 32-03 disabled the wrong microphone control (disabled center toggle instead of tray mute indicator), requiring a second gap-closure plan (32-04) after user clarification.
+- Screen recording via `wf-recorder` bypassed PipeWire VideoSource links, meaning Quickshell's upstream `Privacy.qml` failed to detect active recordings until process polling was introduced in 32-05.
+- Milestone audit YAML parser tripped on unquoted strings in summary frontmatter, requiring a pre-audit syntax normalization commit.
+
+### Patterns Established
+
+- Quickshell overlay architecture: personal overrides ride in `restow/quickshell/` mapped directly to `~/.config/quickshell/ii/modules/ii/bar/` as leaf symlinks.
+- Fluid pill animation: `Behavior on implicitWidth { NumberAnimation { duration: 250; easing.type: Easing.OutCubic } }` inside `BarGroup.qml` provides smooth width transitions across expanding/collapsing contents.
+- Dynamic Space Defense: long text fields in status bar pills must clamp maximum width and set `elide: Text.ElideRight` to prevent displacing center-anchored modules.
+- Non-PipeWire process telemetry: external CLI tools (like `wf-recorder`) should be monitored via lightweight periodic polling (`pgrep -x`) in background singletons to feed UI alert indicators.
+- Verified milestone closeout: closing all debug sessions and achieving 100% audit pass enables formal `verified_closeout` without override debt.
+
+### Key Lessons
+
+1. **Verify user intent with visual options before removing controls** — when users report "redundant icons", pinpoint the exact visual component (e.g. system tray mute indicator vs center utility toggle).
+2. **Process-level tools need process-level monitoring** — Wayland tools interacting via compositor protocols (like `wlr-screencopy`) do not appear on PipeWire graphs; combine PipeWire node watches with process status polling.
+3. **Dead-center anchoring requires explicit width guards** — centering elements by anchoring to `parent.horizontalCenter` requires flanking components and side modules to have bounded widths so they never overlap.
+4. **Clean up debug sessions continuously** — resolving and moving debug sessions to `resolved/` as plans complete keeps `audit-open` clean and allows a true `verified_closeout`.
+
+### Cost Observations
+
+- Model mix: Gemini 3.8 Flash (High) / Claude Code
+- Timeline: 1 calendar day (2026-09-20 definition → 2026-09-20 ship)
+- Notable: 4 phases, 12 plans, and 37 tasks completed in a single intensive session with zero desktop session interruptions and 100% automated test pass.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -222,6 +275,7 @@
 | v0.2 | 5 | 15 | Pivoted to managed upstream dependency; retired local product |
 | v0.4 | 8 | 41 | Shipped three-tree capture model, link-aware verify, and one-command bootstrap |
 | v0.5 | 6 | 17 | Unified Material You theming across GTK/Qt/Hyprland/Kitty/Fuzzel with zero git churn |
+| v0.6 | 4 | 12 | Shipped modular 3-zone status bar with rounded pill geometry and verified closeout |
 
 ### Cumulative Quality
 
@@ -231,6 +285,7 @@
 | v0.2 | All 5 phases passed | no formal audit + 4 debug (retired surface) | override_closeout |
 | v0.4 | All 8 phases passed | 4 legacy debug (retired surface) | override_closeout |
 | v0.5 | All 6 phases passed (100% Nyquist) | 5 debug (4 retired bar + 1 Phase 25 resolved) | override_closeout |
+| v0.6 | All 4 phases passed (audit passed) | 0 gaps (5 legacy debug carried forward) | verified_closeout |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -240,3 +295,6 @@
 4. When product vehicle changes, retire the old path only after the new path is live-verified and documented
 5. Verify link identity before file content — symlink-destroying primitives leave file contents matching git while corrupting live-sync architecture
 6. Dynamic theme outputs must be decoupled from repository tracking via explicit data contracts (`guard-paths.tsv`)
+7. Reorganize layouts using modular zoning and dynamic space defense before live human visual trial-and-error
+8. Use restow with leaf symlinks (`--no-folding`) for third-party QML shell modifications to maintain live hot-reload without submodule forks
+

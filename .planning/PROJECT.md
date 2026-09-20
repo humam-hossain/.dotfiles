@@ -2,14 +2,14 @@
 
 ## Current State
 
-**Shipped:** v0.5 System-wide Material You theming (2026-09-18)  
-**Status:** All 6 phases of v0.5 (Phases 25–30) complete, 19/19 requirements satisfied, verified, and archived
+**Shipped:** v0.6 Top Status Bar Layout, Pill Styling & Component Customization (2026-09-20)  
+**Status:** All 4 phases of v0.6 (Phases 31–34) complete, 20/20 requirements satisfied, verified, and archived
 
-Desktop shell is fully unified under upstream dots-hyprland Material You / Matugen dynamic theming generated from wallpaper. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, personal overlays under three-tree capture (`stow/`, `restow/`, `capture/`), guarded theme contracts (`guard-paths.tsv`), and one-command idempotent bootstrap (`./bootstrap.sh`).
+Desktop shell is fully unified under upstream dots-hyprland Material You / Matugen dynamic theming generated from wallpaper with modular 3-zone rounded-rectangle pill geometry. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, personal overlays under three-tree capture (`stow/`, `restow/`, `capture/`), guarded theme contracts (`guard-paths.tsv`), and one-command idempotent bootstrap (`./bootstrap.sh`).
 
-**v0.5 delivered:** System-wide Material You dynamic theming across GTK 3/4 (libadwaita and adw-gtk3-dark), Qt 6 / KDE applications (Darkly style engine, FileChooser portal, kdeglobals), Hyprland window decorations and borders (`colors.lua`), Quickshell ii widgets (`colors.json`), Fuzzel app launcher (`fuzzel_theme.ini`), and Kitty terminal emulator (`kitty-theme.conf` / `sequences.txt`) with live reload (`switchwall.sh`), zero git churn, and 100% Nyquist compliance.
+**v0.6 delivered:** Modern rounded-rectangle pill geometry (12–16px radius, 4–6px internal padding) with fluid 250ms Material 3 emphasized deceleration width resizing animation across all bar containers, definite gigabyte memory reporting (`X.X GB / Y.Y GB`), custom CPU indicators, non-glyph Clock spacer, balanced System Tray spacing (4px), unattended package updates with cache cleaning (`yay -Syu --noconfirm && yay -Sc --noconfirm`), media title clamping with text ellipsis, reactive screen recording alerts (`wf-recorder`), modular 3-zone status bar layout with dead-center Workspaces flanked symmetrically by Weather and Clock & Date, full dynamic Material You palette adaptability across wallpaper switches with zero git working tree churn, and strict repository cleanliness (`arch/dots-hyprland.sh verify --strict` 0 findings).
 
-**Stats at v0.5 ship:** 6 phases · 17 plans · 32 tasks · 125 commits since v0.4 · 111 files changed (+19.4k / −75)
+**Stats at v0.6 ship:** 4 phases · 12 plans · 37 tasks · 79 files changed (+15.8k / −45) · 14.9k LOC shell scripts and QML
 
 **Product surface:**
 - Fork: `humam-hossain/dots-hyprland` (upstream = end-4)
@@ -19,25 +19,36 @@ Desktop shell is fully unified under upstream dots-hyprland Material You / Matug
 - Live path: real `~/.config/quickshell` (not symlink into git)
 - Session: ii Lua entry `~/.config/hypr/hyprland.lua` is authoritative (Phase 14) and owns the venv env plus `exec-once = qs -c ii`; personal overrides ride in `~/.config/hypr/custom/`; Waybar, rofi and swaync are retired from the session
 - Theming pipeline: `switchwall.sh` triggers Matugen synchronously for GTK CSS, Hyprland `colors.lua`, Quickshell `colors.json`, Fuzzel `fuzzel_theme.ini`, and Kitty `kitty-theme.conf` (SIGUSR1), plus background `kde-material-you-colors` for Qt/KDE `kdeglobals`. All outputs guarded via `guard-paths.tsv` with zero working tree drift.
+- Personal bar overlays: `restow/quickshell/` deployed via GNU Stow leaf symlinks to `~/.config/quickshell/ii/` without touching `vendor/dots-hyprland`.
 - Rollback: clean reinstall from the pinned `vendor/dots-hyprland` submodule; runbook `docs/phase14-adopt-runbook.md` §14
 - Playbook: `docs/dots-hyprland-workflow.md`
 - Inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`
 - Collision Map: `collision-map.tsv` (machine-asserted)
 - Guard Paths: `guard-paths.tsv` (machine-asserted)
 
-## Current Milestone: v0.6 Top Status Bar Layout, Pill Styling & Component Customization
+## Next Milestone Goals (v0.7)
+
+**Current focus:** Planning next milestone via `/gsd-new-milestone`. Potential areas:
+- Porting remaining Waybar custom features (e.g. disk usage pill with partition popup, ping telemetry, multi-day forecast popup)
+- Notification system polish and OSD integration
+- Application launcher styling and workflow optimization
+
+## Prior Milestones
+
+<details>
+<summary>v0.6 Top Status Bar Layout, Pill Styling & Component Customization (shipped 2026-09-20)</summary>
 
 **Goal:** Create a modular, customizable top status bar with modern rounded rectangle pill styling (12–16px radius, 4–6px padding), systematic tier-1/tier-2 component audit and formatting enhancements (e.g. detailed RAM usage in GB), and live trial-and-error component rearrangement.
 
-**Target features:**
-- Personal Quickshell bar overlay (`restow/quickshell/`) with live hot-reload
-- Standardized pill styling (12–16px rounded rectangle radius, 4–6px internal padding, configurable margins)
-- Systematic component-by-component audit (check dots-hyprland native options first, author custom QML overrides where needed)
-- Component formatting enhancements (detailed GB RAM display, custom clock formatting, utility buttons, updates badge, privacy alerts)
-- Interactive live trial-and-error layout rearrangement across Left, Center, and Right sections
-- Strict contract verification and zero-drift bootstrap integration
+**Shipped features:**
+- Personal Quickshell bar overlay (`restow/quickshell/`) deployed via GNU Stow leaf symlinks with live hot-reload without touching upstream `vendor/dots-hyprland`
+- Standardized pill styling: modern rounded rectangle geometry (12–16px corner radius, 4–6px internal padding, dynamic width expansion with 250ms M3 emphasized deceleration animation)
+- Detailed component formatting: definite gigabyte memory reporting (`X.X GB / Y.Y GB`), dynamic swap reveal, two-tier Amber/Red alerts, non-glyph clock spacer, balanced 4px tray spacing, unattended system updates (`yay -Syu --noconfirm && yay -Sc --noconfirm`), and reactive screen recording telemetry
+- Modular 3-zone layout: decoupled Left, Center, and Right sections in `BarContent.qml` with clean 4px inter-pill gaps and zero vertical dividers, locking in dead-center Workspaces flanked symmetrically by Weather and Clock & Date
+- Dynamic theming & zero drift: verified dynamic Material You palette adaptation across wallpaper switches, hardened `./bootstrap.sh` cold machine deployment, and verified strict repository integrity with zero working tree drift
+- 100% automated test coverage: fail-closed multi-section assertion harnesses across all 4 phases (`scripts/phase31-overlay-pill-assert.sh`, `scripts/phase32-component-formatting-assert.sh`, `scripts/phase33-layout-assert.sh`, `scripts/phase34-verification-assert.sh`)
 
-## Prior Milestones
+</details>
 
 <details>
 <summary>v0.5 System-wide Material You theming (shipped 2026-09-18)</summary>
@@ -228,10 +239,16 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Privacy in-use alerts for active microphone (Amber) and screen recording (Red) — Phase 32 / COMP-08
 - ✓ System Tray icons with balanced 4px spacing, monochrome tinting, and overflow menu — Phase 32 / COMP-09
 - ✓ Audio/mic mute states, network connectivity, bluetooth status, and unread notification counter — Phase 32 / COMP-10
+- ✓ Modular Left, Center, and Right sections in `BarContent.qml` with standalone pills and auto-collapsing Loaders — Phase 33 / LAYOUT-01
+- ✓ Live interactive evaluation and trial-and-error layout locking on active monitors — Phase 33 / LAYOUT-02
+- ✓ Responsive scaling across dual monitors (`DP-1` ultrawide and `HDMI-A-1`) with dynamic space defense and media width clamping — Phase 33 / LAYOUT-03
+- ✓ Dynamic Material You palette adaptation across wallpaper switches with zero visual drift — Phase 34 / INTG-01
+- ✓ Repository integrity verified with `arch/dots-hyprland.sh verify --strict` (0 findings, zero git drift) — Phase 34 / INTG-02
+- ✓ Fresh-machine bootstrap (`./bootstrap.sh`) deploys customized bar and pill configurations cleanly — Phase 34 / INTG-03
 
 ### Active
 
-- None
+(None currently active — milestone v0.6 complete. Use `/gsd-new-milestone` to plan next milestone.)
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -376,6 +393,11 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 32: Dynamic Privacy in-use telemetry alerts | Connects PipeWire audio/video activity to animated Amber mic and Red screen share revealers in status cluster (D-13, COMP-08) | ✓ Section 3 FAIL=0, COMP-08 |
 | Phase 32: Dedicated dynamic package updates pill | Aggregates official Arch and AUR updates non-blocking, revealing update count badge and launching Kitty yay update (D-18, COMP-07) | ✓ Section 3 FAIL=0, COMP-07 |
 | Phase 32: BarContent uncluttering and scroll jitter removal | Omits ActiveWindow title and removes background scroll handlers from side mouse areas to eliminate accidental volume/brightness jitter (D-15, D-16) | ✓ Section 3 FAIL=0 |
+| Phase 33: Modular 3-zone layout in BarContent.qml | Decouple Left, Center, Right into standalone pills with clean 4px gaps and zero vertical dividers | ✓ 33-02 (LAYOUT-01) |
+| Phase 33: Option 1 Dynamic Spacing Defense | Clamp Media layout width to 200px with Text.ElideRight to guarantee >= 180px collision buffer on 1080p | ✓ 33-02 (LAYOUT-03) |
+| Phase 33: Dead-center Workspaces with flanking Weather and Clock | Anchor Workspaces strictly to monitor horizontalCenter (50%), flanked by Weather on left and Clock on right | ✓ 33-03 User checkpoint sign-off (LAYOUT-02) |
+| Phase 34: Bootstrap pre-creation and socket robustness | Pre-create ~/.config/quickshell/ii/modules/ii/bar to prevent stow directory folding; dynamic Hyprland socket detection | ✓ 34-01 (INTG-02, INTG-03) |
+| Phase 34: Fail-soft color priming and 5-section test harness | Fall back to default color seed #3f51b5 on missing wallpaper; scaffold scripts/phase34-verification-assert.sh | ✓ 34-01, 34-02 (INTG-01..03) |
 
 ## Evolution
 
@@ -395,4 +417,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-20 after Phase 32*
+*Last updated: 2026-09-20 after v0.6 milestone*

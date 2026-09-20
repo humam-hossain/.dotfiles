@@ -1,5 +1,34 @@
 # Milestones
 
+## v0.6 Top Status Bar Layout, Pill Styling & Component Customization (Shipped: 2026-09-20)
+
+**Closeout type:** `verified_closeout`  
+**Phases completed:** 4 phases, 12 plans, 37 tasks (Phases 31–34)  
+**Git range:** `997e895` → `28303b7` (2026-09-20) · 80 commits  
+**Diffstat:** 79 files changed, +15,822 / −45 · 14.9k LOC shell scripts and QML  
+
+**Delivered:** Modern modular 3-zone top status bar layout under Quickshell with rounded rectangle pill geometry (12–16px radius, 4–6px internal padding), fluid 250ms Material 3 emphasized deceleration width resizing animation across all bar containers, definite gigabyte memory reporting (`X.X GB / Y.Y GB`), custom CPU indicators, non-glyph Clock spacer, balanced System Tray spacing (4px), unattended package updates with cache cleaning (`yay -Syu --noconfirm && yay -Sc --noconfirm`), media title clamping with text ellipsis, reactive screen recording alerts (`wf-recorder`), dead-center Workspaces flanked symmetrically by Weather and Clock & Date, full dynamic Material You palette adaptability across wallpaper switches with zero git working tree churn, and strict repository cleanliness (`arch/dots-hyprland.sh verify --strict` 0 findings).
+
+### Key accomplishments
+
+1. Personal Quickshell overlay infrastructure established under `restow/quickshell/` deployed via GNU Stow leaf symlinks without folding ancestor directories, updating `restow/README.md`, with hot-reloading on save and zero modifications to `vendor/dots-hyprland` (Phase 31 / PILL-01).
+2. Unlocked dynamic content-driven status bar pill widths in `BarContent.qml`, with modern rounded-rectangle geometry (12–16px radius, 4–6px padding) and fluid 250ms Material 3 emphasized deceleration width resizing animation in `BarGroup.qml` (Phase 31 / PILL-02..04).
+3. Systematic Tier 1 and Tier 2 component audit and formatting enhancements: definite GB RAM format (`X.X GB / Y.Y GB`), dynamic swap reveal, two-tier Amber/Red resource alerts, non-glyph clock spacer, balanced 4px tray spacing, unattended system updates (`yay -Syu --noconfirm && yay -Sc --noconfirm`), media title width clamping with ellipsis, and reactive screen recording indicators (`wf-recorder`) (Phase 32 / COMP-01..10).
+4. Decoupled `BarContent.qml` into modular Left, Center, and Right zones with clean 4px inter-pill gaps and zero vertical dividers, locking in dead-center Workspaces flanked symmetrically by Weather on the left and Clock & Date on the right, verified across dual monitors (`DP-1` ultrawide and `HDMI-A-1`) (Phase 33 / LAYOUT-01..03).
+5. Dynamic Material You palette adaptation across wallpaper switches verified with zero visual defects, `./bootstrap.sh` hardened with sensitive directory pre-creation and color priming, and repository integrity verified with `arch/dots-hyprland.sh verify --strict` (0 findings, zero working tree drift) (Phase 34 / INTG-01..03).
+6. 100% automated test coverage across four fail-closed multi-section assertion harnesses (`phase31-overlay-pill-assert.sh`, `phase32-component-formatting-assert.sh`, `phase33-layout-assert.sh`, `phase34-verification-assert.sh`).
+
+**Known verification overrides:** 0 newly acknowledged, 5 carried forward from a prior close (see STATE.md Deferred Items)
+
+**Archives:**
+
+- [milestones/v0.6-ROADMAP.md](milestones/v0.6-ROADMAP.md)
+- [milestones/v0.6-REQUIREMENTS.md](milestones/v0.6-REQUIREMENTS.md)
+- [milestones/v0.6-phases/](milestones/v0.6-phases/)
+- [milestones/v0.6-MILESTONE-AUDIT.md](milestones/v0.6-MILESTONE-AUDIT.md)
+
+---
+
 ## v0.5 System-wide Material You theming (Shipped: 2026-09-18)
 
 **Closeout type:** `override_closeout`  

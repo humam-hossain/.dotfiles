@@ -2,19 +2,19 @@
 gsd_state_version: "1.0"
 milestone: v0.6
 milestone_name: Top Status Bar Layout, Pill Styling & Component Customization (Phases 31-34)
-current_phase: 34
-status: completed
+status: Awaiting next milestone
 stopped_at: Phase 34 complete — all phases complete
-last_updated: "2026-09-20T12:08:19.860Z"
+last_updated: "2026-09-20T12:40:50.376Z"
 last_activity: 2026-09-20
-last_activity_desc: Phase 34 complete
-state_head: e3bdafe45f3e3a8e0c59f36841840362f2f6cf79
+last_activity_desc: Milestone v0.6 completed and archived
+state_head: 28303b797d44a896c78ac9ffbc638e1c939c4673
 progress:
   total_phases: 4
   completed_phases: 4
   total_plans: 12
   completed_plans: 12
   percent: 100
+current_phase: 34
 ---
 
 Total Phases: 4 (Phases 31-34)
@@ -24,23 +24,23 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 5/6 pla
 
 ## Current Position
 
-Phase: 34
-Plan: Not started
-Status: All phases complete
-Last activity: 2026-09-20 — Phase 34 complete
+Phase: Milestone v0.6 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-09-20 — Milestone v0.6 completed and archived
 
 ## Session
 
 **Last session:** 2026-09-20T11:30:11.689Z
-**Stopped at:** Phase 34 complete — all phases complete
-**Resume file:** .planning/phases/34-verification-zero-drift-bootstrap-integration/34-CONTEXT.md
+**Stopped at:** Milestone v0.6 complete — all phases complete
+**Resume file:** .planning/PROJECT.md
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-20 after Phase 31)
+See: .planning/PROJECT.md (updated 2026-09-20 after v0.6 milestone)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 34 — Verification, Zero Drift & Bootstrap Integration
+**Current focus:** Planning next milestone (v0.7)
 
 ## Deferred Items
 
