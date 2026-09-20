@@ -209,10 +209,12 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
     fail "S3: BarContent.qml missing spacing: 4"
   fi
 
-  if grep -q 'visible: Config.options?.bar.borderless' "$CONTENT_QML"; then
+  if grep -q 'color: Config.options?.bar.borderless ? "transparent"' "$GROUP_QML"; then
+    pass "S3: BarGroup.qml preserves borderless background toggling (aligned with Phase 33 layout reorganization, D-14)"
+  elif grep -q 'visible: Config.options?.bar.borderless' "$CONTENT_QML"; then
     pass "S3: BarContent.qml preserves VerticalBarSeparator borderless binding (PILL-04)"
   else
-    fail "S3: BarContent.qml missing VerticalBarSeparator borderless binding"
+    fail "S3: Missing borderless background toggling in BarGroup.qml or BarContent.qml"
   fi
 fi
 
