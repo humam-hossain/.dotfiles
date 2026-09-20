@@ -25,28 +25,30 @@ if [[ -z "$TERM_OVERRIDE" ]]; then
 fi
 
 # Launch yay -Syu with terminal-specific hold flags
+UPDATE_CMD="yay -Syu --noconfirm && sudo pacman -Sc --noconfirm && yay -Sc --noconfirm"
+
 if [[ "$TERM_OVERRIDE" =~ ^kitty ]]; then
     if [[ "$TERM_OVERRIDE" =~ --hold ]]; then
-        exec $TERM_OVERRIDE sh -c 'yay -Syu'
+        exec $TERM_OVERRIDE sh -c "$UPDATE_CMD"
     else
-        exec $TERM_OVERRIDE --hold sh -c 'yay -Syu'
+        exec $TERM_OVERRIDE --hold sh -c "$UPDATE_CMD"
     fi
 elif [[ "$TERM_OVERRIDE" =~ ^alacritty ]]; then
     if [[ "$TERM_OVERRIDE" =~ --hold ]]; then
-        exec $TERM_OVERRIDE -e sh -c 'yay -Syu'
+        exec $TERM_OVERRIDE -e sh -c "$UPDATE_CMD"
     else
-        exec $TERM_OVERRIDE --hold -e sh -c 'yay -Syu'
+        exec $TERM_OVERRIDE --hold -e sh -c "$UPDATE_CMD"
     fi
 elif [[ "$TERM_OVERRIDE" =~ ^foot ]]; then
     if [[ "$TERM_OVERRIDE" =~ (-H|--hold) ]]; then
-        exec $TERM_OVERRIDE sh -c 'yay -Syu'
+        exec $TERM_OVERRIDE sh -c "$UPDATE_CMD"
     else
-        exec $TERM_OVERRIDE -H sh -c 'yay -Syu'
+        exec $TERM_OVERRIDE -H sh -c "$UPDATE_CMD"
     fi
 elif [[ "$TERM_OVERRIDE" =~ ^wezterm ]]; then
-    exec $TERM_OVERRIDE start -- sh -c 'yay -Syu; echo -e "\nUpdate process finished. Press enter to exit..."; read -r _'
+    exec $TERM_OVERRIDE start -- sh -c "$UPDATE_CMD; echo -e \"\nUpdate process finished. Press enter to exit...\"; read -r _"
 elif [[ -n "$TERM_OVERRIDE" ]]; then
-    exec $TERM_OVERRIDE -e sh -c 'yay -Syu; echo -e "\nUpdate process finished. Press enter to exit..."; read -r _'
+    exec $TERM_OVERRIDE -e sh -c "$UPDATE_CMD; echo -e \"\nUpdate process finished. Press enter to exit...\"; read -r _"
 else
-    x-terminal-emulator -e sh -c 'yay -Syu; echo -e "\nUpdate process finished. Press enter to exit..."; read -r _'
+    x-terminal-emulator -e sh -c "$UPDATE_CMD; echo -e \"\nUpdate process finished. Press enter to exit...\"; read -r _"
 fi
