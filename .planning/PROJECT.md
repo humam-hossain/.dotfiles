@@ -218,6 +218,16 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Bar groups/pills rendered with modern rounded rectangle geometry (12–16px corner radius) — Phase 31 / PILL-02
 - ✓ Consistent, balanced internal padding (4–6px) and fluid expansion/contraction animation across pill containers — Phase 31 / PILL-03
 - ✓ Subtle pill borders and transparent/borderless container backgrounds preserved and verified — Phase 31 / PILL-04
+- ✓ Memory usage formatted as definite gigabytes (`X.X/Y.Y GB (ZZ%)`) with dynamic swap reveal — Phase 32 / COMP-01
+- ✓ CPU usage with custom formatting, warning thresholds, and clean visual indicators — Phase 32 / COMP-02
+- ✓ Clock & Date widget representation, date pattern, 12h format with seconds, and non-glyph spacer — Phase 32 / COMP-03
+- ✓ Media Player pill with track title, playback controls, and dynamic idle auto-collapse — Phase 32 / COMP-04
+- ✓ Weather pill displaying temperature, conditions glyph, and interactive forecast popup — Phase 32 / COMP-05
+- ✓ Utility buttons pill providing shortcuts for Screen Snip, Color Picker, and Screen Record — Phase 32 / COMP-06
+- ✓ Pending Pacman and AUR package updates count via dedicated status pill — Phase 32 / COMP-07
+- ✓ Privacy in-use alerts for active microphone (Amber) and screen recording (Red) — Phase 32 / COMP-08
+- ✓ System Tray icons with balanced 4px spacing, monochrome tinting, and overflow menu — Phase 32 / COMP-09
+- ✓ Audio/mic mute states, network connectivity, bluetooth status, and unread notification counter — Phase 32 / COMP-10
 
 ### Active
 
@@ -360,6 +370,12 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 31: Dynamic content-driven status bar pill widths in BarContent.qml | Removes artificial implicitWidth clamp from leftCenterGroup and rightCenterGroup, propagates dimensions to outer MouseArea (D-01, D-04, PILL-02, PILL-03) | ✓ Section 2 FAIL=0 |
 | Phase 31: Fluid width resizing animation via Material 3 emphasized deceleration | Adds Behavior on implicitWidth with duration 250 and emphasizedDecel curve in BarGroup.qml while preserving 100% upstream visual tokens (D-02, D-03, PILL-03, PILL-04) | ✓ Section 3 FAIL=0 |
 | Phase 31: Phase 31 assert harness and strict system verification | scripts/phase31-overlay-pill-assert.sh validates Sections 1–4, restow/README.md table sync, live shell reload, and arch/dots-hyprland.sh verify --strict with 0 findings (D-06, D-07, D-08, INTG-02) | ✓ 4/4 sections passed, FAIL=0 FINDINGS=0 |
+| Phase 32: Format RAM as definite gigabytes and dynamic Swap reveal | Resource.qml / Resources.qml format memory as `X.X/Y.Y GB (ZZ%)` and reveal Swap only when usage > 0% (D-01, D-03, COMP-01) | ✓ Section 2 FAIL=0, COMP-01 |
+| Phase 32: Synchronized two-tier visual alerting | Synchronous Amber warning / Red critical color change across circular progress ring, MaterialSymbol icon, and text label (D-04, D-05) | ✓ Section 2 FAIL=0, COMP-01, COMP-02 |
+| Phase 32: ClockWidget non-glyph spacer item | Replaces unicode bullet dot glyph with clean 8px spacer item while preserving calendar popup and sidebar toggle (D-08, D-09, COMP-03) | ✓ Section 3 FAIL=0, COMP-03 |
+| Phase 32: Dynamic Privacy in-use telemetry alerts | Connects PipeWire audio/video activity to animated Amber mic and Red screen share revealers in status cluster (D-13, COMP-08) | ✓ Section 3 FAIL=0, COMP-08 |
+| Phase 32: Dedicated dynamic package updates pill | Aggregates official Arch and AUR updates non-blocking, revealing update count badge and launching Kitty yay update (D-18, COMP-07) | ✓ Section 3 FAIL=0, COMP-07 |
+| Phase 32: BarContent uncluttering and scroll jitter removal | Omits ActiveWindow title and removes background scroll handlers from side mouse areas to eliminate accidental volume/brightness jitter (D-15, D-16) | ✓ Section 3 FAIL=0 |
 
 ## Evolution
 
@@ -379,4 +395,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-20 after Phase 31*
+*Last updated: 2026-09-20 after Phase 32*
