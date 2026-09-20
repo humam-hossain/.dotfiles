@@ -12,6 +12,7 @@ reviewed_files:
   - restow/quickshell/.config/quickshell/ii/services/Privacy.qml
   - restow/quickshell/.config/quickshell/ii/services/Updates.qml
   - restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml
+  - restow/quickshell/.config/quickshell/ii/scripts/videos/record.sh
 findings: []
 completed: 2026-09-20
 ---

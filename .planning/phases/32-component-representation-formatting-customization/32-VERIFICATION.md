@@ -1,15 +1,15 @@
 ---
 phase: 32-component-representation-formatting-customization
-verified: "2026-09-20T10:30:00+06:00"
+verified: "2026-09-20T14:50:00+06:00"
 status: passed
-score: 16/16 must-haves verified
+score: 17/17 must-haves verified
 behavior_unverified: 0
 ---
 
 # Phase 32: Component Representation & Formatting Customization Verification Report
 
-**Phase Goal:** Systematically audit and customize 17 status bar components across Tier 1 (`config.json`) and Tier 2 (`restow/quickshell/` QML overlays), implementing definite RAM GB metrics, dynamic swap reveal, two-tier synchronized warning/critical alerting, clock spacer cleanup, privacy in-use telemetry, dynamic package updates pill, and clean bar content uncluttering while preserving 100% upstream visual fidelity, zero vendor submodule churn, and zero directory folding.
-**Verified:** 2026-09-20T10:30:00+06:00
+**Phase Goal:** Systematically audit and customize 17 status bar components across Tier 1 (`config.json`) and Tier 2 (`restow/quickshell/` QML overlays), implementing definite RAM GB metrics, dynamic swap reveal, two-tier synchronized warning/critical alerting, clock spacer cleanup, privacy in-use telemetry (including reactive wf-recorder screen recording), dynamic package updates pill, and clean bar content uncluttering while preserving 100% upstream visual fidelity, zero vendor submodule churn, and zero directory folding.
+**Verified:** 2026-09-20T14:50:00+06:00
 **Status:** passed
 
 ## Goal Achievement
@@ -24,36 +24,38 @@ behavior_unverified: 0
 | 4 | CPU indicator renders `planner_review` MaterialSymbol and percentage badge alongside RAM (D-02, COMP-02) | ✓ VERIFIED | Section 2 passes; `useIcon: true`, `iconSymbol: "planner_review"`, percentage badge verified |
 | 5 | Two-tier visual alerting applies synchronized Amber/Red colors across progress ring, symbol icon, and text label (D-04, D-05, COMP-01, COMP-02) | ✓ VERIFIED | Section 2 passes; `Appearance.colors.colWarning` and `Appearance.colors.colError` synchronized on ring, icon, and text across thresholds |
 | 6 | `ClockWidget.qml` replaces unicode bullet dot with clean non-glyph 8px spacer item while preserving calendar popup and sidebar toggle (D-08, D-09, COMP-03) | ✓ VERIFIED | Section 3 passes; `Item { width: 8 }` replaces bullet dot; `GlobalFocusGrab` and sidebar click actions preserved |
-| 7 | MPRIS Media Player widget retains upstream dots-hyprland visibility without auto-collapse on pause (COMP-04) | ✓ VERIFIED | Section 4 passes; Media visibility set to `root.useShortenedForm < 2` matching upstream defaults |
-| 8 | `services/Privacy.qml` PipeWire telemetry connects to `BarContent.qml` status cluster with animated Amber mic and Red screen share revealers (D-13, COMP-08) | ✓ VERIFIED | Section 3 passes; array `.some()` boolean logic wired to `Privacy.micActive` (Amber) and `Privacy.screenSharing` (Red) with mute/record click actions |
+| 7 | MPRIS Media Player widget retains upstream dots-hyprland visibility without auto-collapse on pause (COMP-04) and clamps layout width | ✓ VERIFIED | Section 4 passes; Media visibility set to `root.useShortenedForm < 2` matching upstream defaults; `Layout.maximumWidth` clamps width |
+| 8 | `services/Privacy.qml` PipeWire and wf-recorder telemetry connects to `BarContent.qml` status cluster with animated Amber mic and Red screen share revealers (D-13, COMP-08) | ✓ VERIFIED | Section 3 passes; array `.some()` boolean logic wired to `Privacy.micActive` (Amber) and `Privacy.screenSharing` (Red) with wf-recorder reactive process polling |
 | 9 | Status indicators (Audio mute, Mic mute, Keyboard layout, Notifications unread badge, Network, Bluetooth) preserved with upstream visual defaults (D-14, COMP-10) | ✓ VERIFIED | Section 3 passes; all status items present in `indicatorsRowLayout` |
 | 10 | `BarContent.qml` eliminates `ActiveWindow` from left section and removes background scroll handlers from left/right side mouse areas (D-15, D-16) | ✓ VERIFIED | Section 3 passes; `ActiveWindow` omitted, scroll handlers removed from side mouse areas, hover hints removed |
 | 11 | `services/Updates.qml` non-blocking aggregator poller tallies Arch and AUR packages (`checkupdates` + `yay -Qua`) (D-18, COMP-07) | ✓ VERIFIED | Section 3 passes; non-blocking timer + CLI process aggregator script pattern with count extraction |
-| 12 | `UpdatesButton.qml` root MouseArea conditionally displays pending update badge and triggers terminal update via system-update.sh (COMP-07) | ✓ VERIFIED | Section 3 passes; root MouseArea, explicit bounds, `system_update_alt` icon + count badge, executes `system-update.sh` in configured terminal |
+| 12 | `UpdatesButton.qml` root MouseArea conditionally displays pending update badge and triggers terminal update via system-update.sh (COMP-07) | ✓ VERIFIED | Section 3 passes; root MouseArea, explicit bounds, `system_update_alt` icon + count badge, executes `system-update.sh` in configured terminal with `--noconfirm` and pacman cache cleanups |
 | 13 | Weather widget displays static city Dhaka in metric Celsius with forecast popup (D-19, COMP-05) | ✓ VERIFIED | Section 1 passes; `city: "Dhaka"`, `useUSCS: false` in native config; `WeatherBar` mounted in `BarContent.qml` |
-| 14 | Utility buttons suite enables Screen Snip, Color Picker, and Screen Record shortcuts while disabling redundant mic toggle (COMP-06) | ✓ VERIFIED | Section 1 passes; `showMicToggle: false` (Option A) and `showScreenRecord: true` in native config |
+| 14 | Utility buttons suite enables Screen Snip, Color Picker, and Screen Record shortcuts while retaining mic toggle and power profile toggle (COMP-06) | ✓ VERIFIED | Section 1 passes; `showMicToggle: true` and `showScreenRecord: true` in native config |
 | 15 | System Tray maintains monochrome Material You icon tinting, 4px spacing, and expandable overflow drawer (D-20, COMP-09) | ✓ VERIFIED | Section 3 passes; 4px spacing, `ColorOverlay` with `Appearance.colors.colOnSurfaceVariant`, expandable drawer preserved |
-| 16 | All overlay target files deployed as discrete leaf symlinks via GNU Stow `--no-folding`, full test suite passes, and `dots-hyprland.sh verify --strict` exits 0 (INTG-02) | ✓ VERIFIED | Section 4 passes; leaf symlinks verified; `phase32 assert` + `phase31 assert` + `dots-hyprland.sh verify --strict` exit 0 with `FAIL=0 FINDINGS=0` |
+| 16 | `restow/.../record.sh` tracks active recording target in runtime state file and notifies `Saved to: <path>` upon stop (COMP-06) | ✓ VERIFIED | Section 3 passes; state file `/tmp/quickshell-current-recording.txt` tracked across invocations, `notify-send` includes saved file path |
+| 17 | All overlay target files deployed as discrete leaf symlinks via GNU Stow `--no-folding`, full test suite passes, and `dots-hyprland.sh verify --strict` exits 0 (INTG-02) | ✓ VERIFIED | Section 4 passes; leaf symlinks verified; `phase32 assert` + `phase31 assert` + `dots-hyprland.sh verify --strict` exit 0 with `FAIL=0 FINDINGS=0` |
 
-**Score:** 16/16 truths verified (0 present, behavior-unverified)
+**Score:** 17/17 truths verified (0 present, behavior-unverified)
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 |----------|----------|--------|---------|
-| `scripts/phase32-component-formatting-assert.sh` | 4-section automated assertion test harness | ✓ EXISTS + SUBSTANTIVE | Executable (0755), comprehensive assertions covering Tier 1 JSON, Resources, Overlays, and strict verification |
-| `capture/ii/.config/illogical-impulse/config.json` | Native JSON configuration source | ✓ EXISTS + SUBSTANTIVE | Time, date, weather, utilButtons (`showMicToggle: false`), apps.update, and resource thresholds configured |
-| `restow/quickshell/.config/quickshell/ii/modules/ii/bar/Resource.qml` | Overlay single resource metric | ✓ EXISTS + SUBSTANTIVE | Definite GB calculation, two-tier alert colors across ring, icon, and text |
-| `restow/quickshell/.config/quickshell/ii/modules/ii/bar/Resources.qml` | Overlay bar resources container | ✓ EXISTS + SUBSTANTIVE | Dynamic swap reveal (`usedPercent > 0`), planner_review CPU indicator |
+| `scripts/phase32-component-formatting-assert.sh` | 4-section automated assertion test harness | ✓ EXISTS + SUBSTANTIVE | Executable (0755), comprehensive assertions covering Tier 1 JSON, Resources, Overlays, record.sh, and strict verification |
+| `capture/ii/.config/illogical-impulse/config.json` | Native JSON configuration source | ✓ EXISTS + SUBSTANTIVE | Time, date, weather, utilButtons (`showMicToggle: true`, `showScreenRecord: true`), apps.update, and resource thresholds configured |
+| `restow/quickshell/.config/quickshell/ii/modules/ii/bar/Resource.qml` | Overlay single resource metric | ✓ EXISTS + SUBSTANTIVE | Definite GB calculation, two-tier alert colors across ring, icon, and text, 6px icon spacing |
+| `restow/quickshell/.config/quickshell/ii/modules/ii/bar/Resources.qml` | Overlay bar resources container | ✓ EXISTS + SUBSTANTIVE | Dynamic swap reveal (`usedPercent > 0`), planner_review CPU indicator, 8px margins |
 | `restow/quickshell/.config/quickshell/ii/modules/ii/bar/ClockWidget.qml` | Overlay clock & date component | ✓ EXISTS + SUBSTANTIVE | 8px non-glyph spacer item replacing bullet dot |
 | `restow/quickshell/.config/quickshell/ii/modules/ii/bar/SysTray.qml` | Overlay system tray component | ✓ EXISTS + SUBSTANTIVE | 4px icon spacing, monochrome tinting, and overflow drawer |
 | `restow/quickshell/.config/quickshell/ii/modules/ii/bar/UpdatesButton.qml` | Overlay dedicated updates pill | ✓ EXISTS + SUBSTANTIVE | Root MouseArea updates counter pill launching system-update.sh |
-| `restow/quickshell/.config/quickshell/ii/scripts/system-update.sh` | Terminal update launcher script | ✓ EXISTS + SUBSTANTIVE | Executable (0755), resolves configured dots-hyprland terminal, and launches yay -Syu with hold flags |
-| `restow/quickshell/.config/quickshell/ii/services/Privacy.qml` | Overlay privacy telemetry service | ✓ EXISTS + SUBSTANTIVE | Array `.some()` PipeWire audio/video in-use detection |
+| `restow/quickshell/.config/quickshell/ii/scripts/system-update.sh` | Terminal update launcher script | ✓ EXISTS + SUBSTANTIVE | Executable (0755), resolves configured dots-hyprland terminal, launches yay -Syu with --noconfirm and cache cleanups |
+| `restow/quickshell/.config/quickshell/ii/scripts/videos/record.sh` | Recording script overlay | ✓ EXISTS + SUBSTANTIVE | Executable (0755), tracks active recording path and emits Saved to notification |
+| `restow/quickshell/.config/quickshell/ii/services/Privacy.qml` | Overlay privacy telemetry service | ✓ EXISTS + SUBSTANTIVE | Array `.some()` PipeWire audio/video in-use detection + wf-recorder reactive process polling |
 | `restow/quickshell/.config/quickshell/ii/services/Updates.qml` | Overlay update checking service | ✓ EXISTS + SUBSTANTIVE | Non-blocking pacman + AUR aggregation |
-| `restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml` | Overlay bar layout and mounting | ✓ EXISTS + SUBSTANTIVE | ActiveWindow omitted, scroll jitter removed, Media visibility aligned with upstream |
+| `restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml` | Overlay bar layout and mounting | ✓ EXISTS + SUBSTANTIVE | ActiveWindow omitted, scroll jitter removed, Media visibility aligned with upstream, layout maximum width clamped |
 
-**Artifacts:** 11/11 verified
+**Artifacts:** 12/12 verified
 
 ### Key Link Verification
 
@@ -65,15 +67,16 @@ behavior_unverified: 0
 | `~/.config/.../SysTray.qml` | `restow/.../SysTray.qml` | GNU Stow symlink | ✓ WIRED | Resolves to repo overlay target cleanly |
 | `~/.config/.../UpdatesButton.qml` | `restow/.../UpdatesButton.qml` | GNU Stow symlink | ✓ WIRED | Resolves to repo overlay target cleanly |
 | `~/.config/.../scripts/system-update.sh` | `restow/.../scripts/system-update.sh` | GNU Stow symlink | ✓ WIRED | Resolves to executable script cleanly |
+| `~/.config/.../scripts/videos/record.sh` | `restow/.../scripts/videos/record.sh` | GNU Stow symlink | ✓ WIRED | Resolves to executable script cleanly |
 | `~/.config/.../services/Privacy.qml` | `restow/.../services/Privacy.qml` | GNU Stow symlink | ✓ WIRED | Resolves to repo overlay target cleanly |
 | `~/.config/.../services/Updates.qml` | `restow/.../services/Updates.qml` | GNU Stow symlink | ✓ WIRED | Resolves to repo overlay target cleanly |
 | `~/.config/.../BarContent.qml` | `restow/.../BarContent.qml` | GNU Stow symlink | ✓ WIRED | Resolves to repo overlay target cleanly |
-| `BarContent.qml` | `Privacy.qml` | `services.Privacy` singleton | ✓ WIRED | Mic and screen sharing indicators bound to active telemetry |
+| `BarContent.qml` | `Privacy.qml` | `services.Privacy` singleton | ✓ WIRED | Mic and screen sharing indicators bound to active telemetry (PipeWire + wf-recorder) |
 | `BarContent.qml` | `UpdatesButton.qml` | Overlay component import | ✓ WIRED | UpdatesButton mounted conditionally on updates presence |
 | `UpdatesButton.qml` | `system-update.sh` | `Directories.scriptPath` execution | ✓ WIRED | Dispatches update script with configured terminal parameter |
 | `scripts/phase32-component-formatting-assert.sh` | `arch/dots-hyprland.sh` | Section 4 strict execution | ✓ WIRED | Passes with `FAIL=0 FINDINGS=0` |
 
-**Wiring:** 13/13 connections verified
+**Wiring:** 14/14 connections verified
 
 ## Requirements Coverage
 
@@ -99,4 +102,4 @@ None. No stubs, placeholders, banned `stow --adopt`, directory folding, or modif
 None — all verifiable items checked programmatically and through live process state checks.
 
 ## Gaps Summary
-**No gaps found.** Gap G-32-1 resolved. Phase goal achieved. Ready to proceed to Phase 33.
+**No gaps found.** Gaps G-32-1, G-32-2, and G-32-3 resolved. Phase goal achieved. Ready to proceed to Phase 33.

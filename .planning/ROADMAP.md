@@ -130,7 +130,7 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
   2. Clock & Date widget formatted according to user pattern preference with functioning calendar popup.
   3. Media Player, Weather, Utility buttons (Screen snip, color picker, power), Updates counter, Privacy alerts, System Tray, and Status indicators audited, styled, and verified.
   4. Every component tested and reviewed inside the new modern pill geometry.
-- **Plans:** 5/5 plans executed
+- **Plans:** 5/5 plans complete
 - [x] 32-05-PLAN.md
 
 **Wave 1**

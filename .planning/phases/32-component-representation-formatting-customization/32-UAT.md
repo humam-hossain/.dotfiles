@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: complete
 phase: 32-component-representation-formatting-customization
-source: [32-01-SUMMARY.md, 32-02-SUMMARY.md, 32-03-SUMMARY.md, 32-04-SUMMARY.md]
+source: [32-01-SUMMARY.md, 32-02-SUMMARY.md, 32-03-SUMMARY.md, 32-04-SUMMARY.md, 32-05-SUMMARY.md]
 started: "2026-09-20T08:40:00+06:00"
-updated: "2026-09-20T14:18:00+06:00"
+updated: "2026-09-20T14:50:00+06:00"
 ---
 
 ## Current Test
@@ -20,9 +20,8 @@ expected: |
   - System Resources (RAM, Swap, CPU) have 6px icon-to-text spacing and 8px inter-resource margins.
   - Media widget clamps maximum width (Layout.maximumWidth), enabling text truncation (...) on long audio/video titles matching upstream dots-hyprland.
   - All Nyquist assertions (scripts/phase32-component-formatting-assert.sh) and repository verification (arch/dots-hyprland.sh verify --strict) pass cleanly.
-result: issue
-reported: "using SUPER + R to screen recording starts but privacy stuff that supposed to show icon in the system tray does not show up. But when i screen share that icon shows up in the system tray though. power profiles - clicking on it does nothing, is it broken or not i don't know. Also after screen recording is done the notification should include the path of the record"
-severity: blocker
+result: pass
+resolved_by: "32-05-PLAN.md"
 
 ### 2. Phase 32 4-section Nyquist assertion test harness scaffolded with non-root check and fail-closed CLI argument handling
 expected: scripts/phase32-component-formatting-assert.sh --help
@@ -123,8 +122,8 @@ coverage_id: 32-04-D4
 ## Summary
 
 total: 17
-passed: 16
-issues: 1
+passed: 17
+issues: 0
 pending: 0
 skipped: 0
 blocked: 0
@@ -185,7 +184,7 @@ blocked: 0
 
 - gap_id: G-32-3
   truth: "Screen recording via SUPER+R triggers privacy in-use indicator, power profiles feedback indicates daemon status/installs power-profiles-daemon, and completion notification includes the saved recording file path"
-  status: failed
+  status: resolved
   reason: "User reported: using SUPER + R to screen recording starts but privacy stuff that supposed to show icon in the system tray does not show up. But when i screen share that icon shows up in the system tray though. power profiles - clicking on it does nothing, is it broken or not i don't know. Also after screen recording is done the notification should include the path of the record"
   severity: blocker
   test: 1
@@ -203,3 +202,5 @@ blocked: 0
     - "Document or configure power-profiles-daemon installation and service enablement for native power profile switching"
     - "Update phase32-component-formatting-assert.sh to verify record.sh overlay and Privacy screen recording telemetry"
   debug_session: ".planning/debug/screen-recording-power-profiles-notification.md"
+  resolved_by: "32-05-PLAN.md"
+  resolved_at: "2026-09-20"
