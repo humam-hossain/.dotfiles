@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 32-component-representation-formatting-customization
 source: [32-01-SUMMARY.md, 32-02-SUMMARY.md, 32-03-SUMMARY.md, 32-04-SUMMARY.md]
 started: "2026-09-20T08:40:00+06:00"
@@ -189,5 +189,17 @@ blocked: 0
   reason: "User reported: using SUPER + R to screen recording starts but privacy stuff that supposed to show icon in the system tray does not show up. But when i screen share that icon shows up in the system tray though. power profiles - clicking on it does nothing, is it broken or not i don't know. Also after screen recording is done the notification should include the path of the record"
   severity: blocker
   test: 1
-  artifacts: []
-  missing: []
+  root_cause: "wf-recorder uses wlr-screencopy instead of PipeWire VideoSource so Privacy.qml does not react; record.sh discards recorded file path on stop notification; power-profiles-daemon is not installed on Arch Linux so PowerProfiles DBus calls do nothing"
+  artifacts:
+    - path: "restow/quickshell/.config/quickshell/ii/services/Privacy.qml"
+      issue: "screenSharing binds only to Pipewire VideoSource link groups and ignores wf-recorder"
+    - path: "vendor/dots-hyprland/dots/.config/quickshell/ii/scripts/videos/record.sh"
+      issue: "Lacks restow overlay, does not store recording path across invocations, emits generic 'Stopped' notification"
+    - path: "capture/ii/.config/illogical-impulse/config.json"
+      issue: "showPerformanceProfileToggle is true but power-profiles-daemon is not installed on system"
+  missing:
+    - "Overlay record.sh in restow/quickshell/.../scripts/videos/record.sh tracking active video path in runtime state and reporting 'Saved to: <path>' on stop"
+    - "Add reactive screen recording telemetry in Privacy.qml checking wf-recorder process/state so screenSharing reveals red indicator during recording"
+    - "Document or configure power-profiles-daemon installation and service enablement for native power profile switching"
+    - "Update phase32-component-formatting-assert.sh to verify record.sh overlay and Privacy screen recording telemetry"
+  debug_session: ".planning/debug/screen-recording-power-profiles-notification.md"
