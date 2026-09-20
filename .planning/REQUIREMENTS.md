@@ -7,10 +7,10 @@
 
 ### Overlay & Pill Foundation
 
-- [ ] **PILL-01**: User has a dedicated personal Quickshell overlay under `restow/quickshell/` that hot-reloads live on save without modifying `vendor/dots-hyprland`.
-- [ ] **PILL-02**: User sees all bar groups/pills rendered with modern rounded rectangle geometry (12–16px corner radius).
-- [ ] **PILL-03**: User sees consistent, balanced internal padding (4–6px) and configurable vertical/horizontal margins across all pill containers.
-- [ ] **PILL-04**: User can toggle subtle pill borders or transparent/borderless container backgrounds via bar configuration.
+- [x] **PILL-01**: User has a dedicated personal Quickshell overlay under `restow/quickshell/` that hot-reloads live on save without modifying `vendor/dots-hyprland`.
+- [x] **PILL-02**: User sees all bar groups/pills rendered with modern rounded rectangle geometry (12–16px corner radius).
+- [x] **PILL-03**: User sees consistent, balanced internal padding (4–6px) and configurable vertical/horizontal margins across all pill containers.
+- [x] **PILL-04**: User can toggle subtle pill borders or transparent/borderless container backgrounds via bar configuration.
 
 ### Component Representation & Formatting Customization
 
@@ -59,10 +59,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PILL-01 | Phase 31 | Pending |
-| PILL-02 | Phase 31 | Pending |
-| PILL-03 | Phase 31 | Pending |
-| PILL-04 | Phase 31 | Pending |
+| PILL-01 | Phase 31 | Complete |
+| PILL-02 | Phase 31 | Complete |
+| PILL-03 | Phase 31 | Complete |
+| PILL-04 | Phase 31 | Complete |
 | COMP-01 | Phase 32 | Pending |
 | COMP-02 | Phase 32 | Pending |
 | COMP-03 | Phase 32 | Pending |
@@ -81,6 +81,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INTG-03 | Phase 34 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 20 total
 - Mapped to phases: 20
 - Unmapped: 0 ✓

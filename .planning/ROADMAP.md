@@ -96,7 +96,7 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
 
 ### v0.6 Top Status Bar Layout, Pill Styling & Component Customization (Phases 31-34)
 
-- [ ] **Phase 31: Overlay Infrastructure & Pill Geometry Foundation** — Establish repo overlay structure (`restow/quickshell/`), base pill structure matching dots-hyprland's `BarGroup`, 12–16px rounded rect geometry, 4–6px padding, and live hot-reload sync.
+- [x] **Phase 31: Overlay Infrastructure & Pill Geometry Foundation** — Establish repo overlay structure (`restow/quickshell/`), base pill structure matching dots-hyprland's `BarGroup`, 12–16px rounded rect geometry, 4–6px padding, and live hot-reload sync. (completed 2026-09-20)
 - [ ] **Phase 32: Component Representation & Formatting Customization** — Systematic tier-1/tier-2 audit of all 17 bar components, reformatting RAM to definite gigabytes (`X.X GB / Y.Y GB`), tuning CPU metrics, Clock/Date, Weather, Media, Utilities, Updates, Privacy, and Tray.
 - [ ] **Phase 33: Modular Layout & Live Trial-and-Error Rearrangement** — Reorganize `BarContent.qml` into modular Left, Center, and Right sections; conduct live interactive trial-and-error visual testing with the user across dual monitors (`DP-1` and `HDMI-A-1`).
 - [ ] **Phase 34: Verification, Zero Drift & Bootstrap Integration** — Verify Material You dynamic color adaptation across all pills with zero defects, validate repository integrity with `arch/dots-hyprland.sh verify --strict` (0 findings), and verify `./bootstrap.sh` fresh-machine deployment.
@@ -111,15 +111,15 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
   1. Dedicated overlay tree established under `restow/quickshell/` and mapped to `~/.config/quickshell/ii/modules/ii/bar/`.
   2. All bar pill containers render with modern rounded rectangle geometry (12–16px radius) and balanced internal padding (4–6px).
   3. Live hot-reload confirmed: editing `BarGroup.qml` or pill parameters immediately reflects in Quickshell without restarting the desktop session.
-- **Plans:** 2 plans
+- **Plans:** 2/2 plans complete
 
 **Wave 1**
 
-- [ ] 31-01-PLAN.md — tracer: Phase 31 assertion harness scaffolding, restow/quickshell package establishment, and Section 1 symlink verification
+- [x] 31-01-PLAN.md — tracer: Phase 31 assertion harness scaffolding, restow/quickshell package establishment, and Section 1 symlink verification
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 31-02-PLAN.md — dynamic content-driven pill width in BarContent.qml, smooth resizing animation in BarGroup.qml, and full verification suite
+- [x] 31-02-PLAN.md — dynamic content-driven pill width in BarContent.qml, smooth resizing animation in BarGroup.qml, and full verification suite
 
 ### Phase 32: Component Representation & Formatting Customization
 
@@ -151,4 +151,3 @@ Milestone audit: [milestones/v0.5-MILESTONE-AUDIT.md](milestones/v0.5-MILESTONE-
   2. `arch/dots-hyprland.sh verify --strict` exits 0 with 0 findings across all tracked and stowed paths.
   3. Fresh-machine `./bootstrap.sh` dry-run and execution accurately link the customized bar components.
 - **Plans:** 0 plans
-
