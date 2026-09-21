@@ -9,11 +9,11 @@ Requirements for Milestone v0.7: Voice Status Bar Component & Audio Telemetry. E
 
 ### Telemetry & State Service
 
-- [ ] **TELEM-01**: User has a dedicated Quickshell Singleton service (`Voice.qml`) that observes `$XDG_RUNTIME_DIR/voice-stt/` state files asynchronously without blocking the UI thread.
-- [ ] **TELEM-02**: Service detects and parses full speech lifecycle states (`idle`, `starting`, `recording`, `transcribing`, `typing`, and `speaking`).
-- [ ] **TELEM-03**: Service implements process liveness verification against `/proc/<pid>` to prevent stale PID locks from persisting on abnormal process termination.
-- [ ] **TELEM-04**: Service provides a live elapsed duration counter (`elapsedSeconds` and `formattedDuration` as `M:SS`) tracking active recording and TTS playback time.
-- [ ] **TELEM-05**: Service extracts and exposes active TTS voice metadata (e.g. Kokoro `af_heart`) during speech synthesis.
+- [x] **TELEM-01**: User has a dedicated Quickshell Singleton service (`Voice.qml`) that observes `$XDG_RUNTIME_DIR/voice-stt/` state files asynchronously without blocking the UI thread.
+- [x] **TELEM-02**: Service detects and parses full speech lifecycle states (`idle`, `starting`, `recording`, `transcribing`, `typing`, and `speaking`).
+- [x] **TELEM-03**: Service implements process liveness verification against `/proc/<pid>` to prevent stale PID locks from persisting on abnormal process termination.
+- [x] **TELEM-04**: Service provides a live elapsed duration counter (`elapsedSeconds` and `formattedDuration` as `M:SS`) tracking active recording and TTS playback time.
+- [x] **TELEM-05**: Service extracts and exposes active TTS voice metadata (e.g. Kokoro `af_heart`) during speech synthesis.
 
 ### Voice Component & Animations
 
@@ -60,11 +60,11 @@ Which phases cover which requirements. Populated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| TELEM-01 | Phase 35 | Pending |
-| TELEM-02 | Phase 35 | Pending |
-| TELEM-03 | Phase 35 | Pending |
-| TELEM-04 | Phase 35 | Pending |
-| TELEM-05 | Phase 35 | Pending |
+| TELEM-01 | Phase 35 | Complete |
+| TELEM-02 | Phase 35 | Complete |
+| TELEM-03 | Phase 35 | Complete |
+| TELEM-04 | Phase 35 | Complete |
+| TELEM-05 | Phase 35 | Complete |
 | VOICE-01 | Phase 36 | Pending |
 | VOICE-02 | Phase 36 | Pending |
 | VOICE-03 | Phase 36 | Pending |
@@ -77,6 +77,7 @@ Which phases cover which requirements. Populated during roadmap creation.
 | INTG-04 | Phase 37 | Pending |
 
 **Coverage:**
+
 - v0.7 requirements: 15 total
 - Mapped to phases: 15
 - Unmapped: 0 ✓
