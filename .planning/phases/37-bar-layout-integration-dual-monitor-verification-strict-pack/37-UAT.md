@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 37-bar-layout-integration-dual-monitor-verification-strict-pack
 source: [37-01-SUMMARY.md]
 started: 2026-09-21T13:41:00+06:00
-updated: 2026-09-21T14:09:18+06:00
+updated: 2026-09-21T14:27:00+06:00
 ---
 
 ## Current Test
@@ -56,8 +56,16 @@ skipped: 0
   reason: "User reported: so when bar is set to left or right it does not show up"
   severity: major
   test: 2
-  artifacts: []
-  missing: []
+  root_cause: "VoicePill was only mounted into horizontal BarContent.qml; VerticalBarContent.qml never imported or instantiated VoicePill in its layout hierarchy."
+  artifacts:
+    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/verticalBar/VerticalBarContent.qml"
+      issue: "Missing VoicePill component instantiation in bottomSectionColumnLayout"
+    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/bar/VoicePill.qml"
+      issue: "Ensure proper height and layout bindings when vertical is true"
+  missing:
+    - "Add VoicePill instantiation to VerticalBarContent.qml bottomSectionColumnLayout with vertical: true"
+    - "Restow quickshell dotfiles to deploy updated VerticalBarContent.qml"
+  debug_session: .planning/debug/voice-pill-vertical-bar-missing.md
 
 - gap_id: G-37-6
   truth: "When speaking (STT recording active), the duration timer increments and displays elapsed recording time instead of remaining at 0:00."
@@ -65,6 +73,14 @@ skipped: 0
   reason: "User reported: for sst specifically when i am speaking the timer doesnt start like its in 000 seconds so why is that i think this need to be fixed"
   severity: major
   test: 6
-  artifacts: []
-  missing: []
+  root_cause: "In Voice.qml, recoverStartTime calculates elapsedSec as uptimeSec - (startTicks / 100.0) without bounding. Reading /proc/uptime and /proc/<pid>/stat at slightly different times or clock discrepancies produces negative elapsedSec, setting startTime into the future and locking duration at 0:00."
+  artifacts:
+    - path: "restow/quickshell/.config/quickshell/ii/services/Voice.qml"
+      issue: "Unbounded recoverStartTime elapsedSec calculation and lack of fresh recording Date.now() initialization"
+  missing:
+    - "Clamp elapsedSec in recoverStartTime to Math.max(0, ...) and validate elapsedSec < maxDurationSeconds"
+    - "Initialize startTime = Date.now() when entering recording state directly during an active shell session"
+    - "Restow quickshell dotfiles to deploy updated Voice.qml"
+  debug_session: .planning/debug/stt-duration-timer-zero.md
+
 
