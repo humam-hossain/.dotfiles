@@ -440,11 +440,11 @@ EOF
 | A1 | `VoicePill` does not require explicit QML `import` statement in `BarContent.qml` because both reside in `modules/ii/bar/`. | Standard Stack & Architecture Patterns | If wrong, QML fails to resolve `VoicePill` component. Verified true: other sibling components in `modules/ii/bar` (`UpdatesButton`, `BatteryIndicator`) are instantiated directly without sub-imports [VERIFIED: restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml:213,224]. |
 | A2 | `quickshell` process is not guaranteed to be active during automated headless test runs. | Common Pitfalls & Decisions | If test harness unconditionally demanded a live `quickshell` PID, tests would fail in CLI environments. Mitigated by D-14 soft-detection (`[SOFT]`). |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Should `VoicePill` be clickable in future milestones?**
+1. **Should `VoicePill` be clickable in future milestones?** — RESOLVED: Strictly deferred to Milestone v0.8+ per CONTEXT.md and D-05; for v0.7 VoicePill remains an inert status indicator with an internal event-swallowing MouseArea.
    - What we know: Operator explicitly deferred all click actions, popups, and menus to Milestone v0.8+ (`VOICE-F01`–`VOICE-F04`).
-   - What's unclear: Specific future click interactions (e.g. toggle recording on left-click, open Kokoro TTS settings on right-click).
+   - What's unclear: None for v0.7; specific future click interactions (e.g. toggle recording on left-click, open Kokoro TTS settings on right-click) are out of scope for v0.7.
    - Recommendation: Preserve the inert `MouseArea` contract in v0.7 as locked by D-05. Revisit click interactions in v0.8.
 
 ## Environment Availability
