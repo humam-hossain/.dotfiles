@@ -116,13 +116,14 @@ BarGroup {
         id: contentContainer
         implicitWidth: voiceIcon.implicitWidth + (root.isExpanded ? (voiceLabel.implicitWidth + 4) : 0)
         implicitHeight: Appearance.font.pixelSize.normal
-        Layout.alignment: Qt.AlignVCenter
+        Layout.alignment: root.vertical ? Qt.AlignCenter : Qt.AlignVCenter
 
         // AI Identity Soundwave Icon (D-02, D-03)
         MaterialSymbol {
             id: voiceIcon
-            anchors.left: parent.left
-            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: root.vertical ? undefined : parent.left
+            anchors.centerIn: root.vertical ? parent : undefined
+            anchors.verticalCenter: root.vertical ? undefined : parent.verticalCenter
             text: "graphic_eq"
             iconSize: Appearance.font.pixelSize.normal
             color: root.currentColor
