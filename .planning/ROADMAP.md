@@ -73,7 +73,7 @@ Plans:
 
 Plans:
 
-- [ ] 37-01: Update `BarContent.qml`, deploy via Stow, verify wallpaper theme reactivity and multi-monitor balance, and execute validation test harness.
+- [ ] 37-01-PLAN.md — Integrate VoicePill into BarContent.qml, implement responsive multi-monitor adaptation, inert mouse isolation, and execute strict packaging verification.
 
 ## Progress
 
