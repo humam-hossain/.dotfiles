@@ -1,8 +1,8 @@
 ---
 phase: "37"
 slug: "bar-layout-integration-dual-monitor-verification-strict-pack"
-status: draft
-nyquist_compliant: false
+status: ready
+nyquist_compliant: true
 wave_0_complete: false
 created: "2026-09-21"
 ---
