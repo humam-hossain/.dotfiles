@@ -257,18 +257,18 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Process liveness verification against `/proc/<pid>/cmdline` & automated stale lock purge — Phase 35 / TELEM-03
 - ✓ Live elapsed duration counter, transcription freeze, idle reset, and reload recovery anchor — Phase 35 / TELEM-04
 - ✓ Active TTS voice metadata extraction from `/proc/<tts_pid>/cmdline` with fallback defaults — Phase 35 / TELEM-05
+- ✓ Dedicated `VoicePill.qml` status bar component extending BarGroup with compact idle resting state — Phase 36 / VOICE-01
+- ✓ `graphic_eq` glyph rendering via MaterialSymbol with zero hardcoded hex colors — Phase 36 / VOICE-02
+- ✓ Breathing pulse animation cycling 1.0 <-> 0.5 opacity over 1000ms strictly during recording with clean reset — Phase 36 / VOICE-03
+- ✓ Sequential Linear Flow state transitions across recording, transcribing, typing, speaking, and wrapup — Phase 36 / VOICE-04
+- ✓ Live duration (M:SS) display during recording/speaking and status badges with 1.5s wrap-up linger — Phase 36 / VOICE-05
+- ✓ Material 3 250ms emphasized deceleration width resizing between 26px and expanded active states — Phase 36 / VOICE-06
 
 ### Active
 
-- [ ] Dedicated `VoicePill.qml` status bar component with Material Symbols AI iconography — Phase 36 / VOICE-01
-- [ ] Speech state visual animations (recording pulse, speaking glow, transcribing shimmer) — Phase 36 / VOICE-02
-- [ ] Dynamic multi-bar animated audio waveform visualizer — Phase 36 / VOICE-03
-- [ ] Fluid Material 3 pill width expansion and collapse — Phase 36 / VOICE-04
-- [ ] Click actions: Left-click toggles recording, Right-click cancels, Middle-click toggles TTS playback — Phase 36 / VOICE-05
-- [ ] Interactive desktop hover tooltip with voice telemetry details — Phase 36 / VOICE-06
-- [ ] Bar layout integration in `BarContent.qml` Right zone — Phase 37 / BAR-01
-- [ ] Dual-monitor visual balance and Material You theme adaptation — Phase 37 / BAR-02
-- [ ] Automated validation test harness and strict zero-drift packaging — Phase 37 / BAR-03
+- [ ] Bar layout integration in `BarContent.qml` Right zone immediately after Media — Phase 37 / INTG-01
+- [ ] Dual-monitor visual balance and Material You theme adaptation across wallpaper switches — Phase 37 / INTG-02
+- [ ] Automated validation test harness and strict zero-drift packaging via GNU Stow — Phase 37 / INTG-03
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -423,6 +423,12 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 35: Procfs process liveness verification and stale lock purging | Validates /proc/<pid>/cmdline tokens ('voice'/'voicemode') and purges stale locks via Quickshell.execDetached (D-02, D-10, D-11) | ✓ Section 3 FAIL=0, TELEM-03 |
 | Phase 35: Drift-free wall-clock duration with procfs reload recovery | Live duration counts Date.now() diff, freezes on transcribing/typing, recovers start ticks from /proc/<pid>/stat across shell reload (D-07, D-08, D-09) | ✓ Section 4 FAIL=0, TELEM-04 |
 | Phase 35: TTS voice metadata extraction | Extracts --tts-voice and --tts-backend from null-delimited /proc/<tts_pid>/cmdline with fallback to kokoro af_heart (D-02) | ✓ Section 5 FAIL=0, TELEM-05 |
+| Phase 36: Compact resting pill in idle displaying graphic_eq icon | Idle state displays minimal 26px pill with graphic_eq in Appearance.colors.colOnLayer1 (D-01, D-02, D-03, VOICE-01, VOICE-02) | ✓ Section 1, 2 FAIL=0 |
+| Phase 36: Direct content-bound root implicitWidth | Bypasses Qt 6.11 GridLayout caching bug and drives BarGroup 250ms emphasized deceleration width resizing (D-04, VOICE-06) | ✓ Section 4 FAIL=0 |
+| Phase 36: Minimal graphic_eq icon over vertical wave bars | Clean status bar iconography avoiding visual clutter while matching desktop shell design language (D-05) | ✓ Section 2 FAIL=0 |
+| Phase 36: Sequential Linear Flow with 1500ms wrap-up linger | Smooth state progression with cached lastRecordedDuration during 1.5s wrap-up linger before collapsing to idle (D-06, D-07, VOICE-04, VOICE-05) | ✓ Section 3 FAIL=0 |
+| Phase 36: Breathing pulse animation with fail-safe reset | 1.0 <-> 0.5 opacity oscillation over 1000ms period with onRunningChanged reset to 1.0 on recording stop (D-08, VOICE-03) | ✓ Section 5 FAIL=0 |
+| Phase 36: Dynamic Material You palette tokens | colPrimary (recording), colTertiary (transcribing), colSecondary (typing/speaking/wrapup), colOnLayer1 (idle) with zero hardcoded colors (D-09) | ✓ Section 2 FAIL=0 |
 
 ## Evolution
 
@@ -442,4 +448,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-21 after Phase 35*
+*Last updated: 2026-09-21 after Phase 36*
