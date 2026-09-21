@@ -128,8 +128,10 @@ Singleton {
                 const startTicks = parseFloat(rest[19]); // Index 19 after comm is field 22
                 const uptimeSec = parseFloat(uptimeText.split(/\s+/)[0]);
                 if (!isNaN(startTicks) && !isNaN(uptimeSec)) {
-                    const elapsedSec = uptimeSec - (startTicks / 100.0);
-                    return Date.now() - (elapsedSec * 1000);
+                    const elapsedSec = Math.max(0, uptimeSec - (startTicks / 100.0));
+                    if (!isNaN(elapsedSec) && elapsedSec >= 0 && elapsedSec < maxDurationSeconds) {
+                        return Date.now() - (elapsedSec * 1000);
+                    }
                 }
             }
         }
@@ -140,7 +142,7 @@ Singleton {
         if (overallState === "recording" || overallState === "speaking") {
             if (startTime <= 0) {
                 const activePid = (overallState === "recording") ? sttPid : ttsPid;
-                startTime = recoverStartTime(activePid);
+                startTime = Math.min(Date.now(), recoverStartTime(activePid));
             }
             const diff = Math.max(0, Date.now() - startTime);
             elapsedMs = diff;
