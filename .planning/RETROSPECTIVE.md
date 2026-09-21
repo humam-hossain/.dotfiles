@@ -265,6 +265,57 @@
 
 ---
 
+## Milestone: v0.7 — Voice Status Bar Component & Audio Telemetry
+
+**Shipped:** 2026-09-21  
+**Phases:** 3 | **Plans:** 4 | **Tasks:** 6  
+**Closeout:** override_closeout (7 debug sessions acknowledged as deferred: 5 legacy on retired bar surface + 2 v0.7 sessions resolved by gap closure; milestone audit passed with zero gaps and 100% requirements satisfied)
+
+### What Was Built
+
+- Centralized non-blocking Quickshell Singleton service (`Voice.qml`) with 6 `FileView` instances polling `$XDG_RUNTIME_DIR/voice-stt/` tmpfs state files, procfs `/proc/<pid>/cmdline` liveness verification, automated stale PID lock purging, drift-free `Date.now()` wall-clock duration tracking with `/proc/<pid>/stat` start-tick reload recovery, and TTS voice/backend metadata extraction
+- Dedicated `VoicePill.qml` status bar pill extending `BarGroup` with `graphic_eq` Material Symbol, direct content-bound `implicitWidth` bypassing Qt 6.11 GridLayout caching, breathing 1.0↔0.5 pulse animation with fail-safe reset, Sequential Linear Flow state engine with 1500ms wrap-up linger, and dynamic `Appearance.colors.*` palette tokens
+- Horizontal and vertical bar integration in `BarContent.qml` Right zone and `VerticalBarContent.qml` bottom section with responsive `useShortenedForm` suppression and inert `MouseArea` event isolation
+- Hardened duration tracking against clock skew and procfs drift (G-37-6), and full vertical bar support (G-37-2)
+- Three automated assertion harnesses covering state observation, liveness, duration, animation, layout, and strict repository verification
+
+### What Worked
+
+- **Tmpfs IPC over custom socket daemon** — leveraging existing `voice.py` CLI's runtime state file writes (`$XDG_RUNTIME_DIR/voice-stt/`) eliminated the need for a custom background IPC socket daemon, reducing complexity and keeping the service fully reactive to filesystem state.
+- **Adaptive FileView polling** — switching from 500ms idle to 100ms active polling via a simple conditional expression provided responsive UI updates during speech activity without wasting CPU cycles during idle.
+- **Procfs-anchored reload recovery** — recovering `startTime` from `/proc/<pid>/stat` start ticks across Quickshell shell reloads maintained accurate duration display without losing timing context.
+- **Gap-closure plans from UAT** — turning the two UAT findings (vertical bar missing, duration timer stuck at 0:00) into a focused 37-02 gap closure plan fixed both issues cleanly without scope creep.
+- **Direct content-bound implicitWidth** — bypassing Qt 6.11's GridLayout caching bug by binding `implicitWidth` directly to content width delivered correct BarGroup 250ms emphasized deceleration width resizing.
+
+### What Was Inefficient
+
+- Initial VoicePill icon used `auto_awesome` per the spec but was switched to `graphic_eq` during implementation for better visual fit — the icon decision could have been finalized during discuss-phase.
+- Phase 37 `disk_status: executed` persisted as "stale verification" because a STATE.md commit (14:56:45) post-dated the verification timestamp (14:56:00) by 45 seconds, requiring a manual timestamp refresh.
+- Legacy debug sessions from the retired v0.1 local bar (4 sessions) continue to flag audits across every milestone — these should be formally resolved or deleted.
+
+### Patterns Established
+
+- Tmpfs IPC for desktop status bar components: speech engine writes state files to `$XDG_RUNTIME_DIR/voice-stt/`, Quickshell `FileView` instances poll them asynchronously.
+- Procfs liveness verification: validate `/proc/<pid>/cmdline` tokens before trusting PID state files; purge stale locks via `Quickshell.execDetached`.
+- Vertical bar support as first-class: any new status bar pill must be integrated into both `BarContent.qml` and `VerticalBarContent.qml` from the start.
+- Sequential Linear Flow for multi-state visual transitions: define strict state precedence hierarchy with explicit linger timers between transitions.
+- Direct `implicitWidth` binding on `BarGroup` root for accurate fluid width animation.
+
+### Key Lessons
+
+1. **Finalize visual icon decisions during discuss-phase** — switching from `auto_awesome` to `graphic_eq` mid-implementation was low-cost here but could cause rework in more complex components.
+2. **Commit verification after all other file changes** — the 45-second timestamp race between STATE.md and VERIFICATION.md commits caused unnecessary "stale" status; ensure verification is the final commit.
+3. **Test vertical bar integration alongside horizontal** — the G-37-2 gap (VoicePill missing in vertical bar) was caught by UAT; adding vertical bar checks to the initial plan avoids gap-closure overhead.
+4. **Clamp procfs-derived timestamps defensively** — clock skew between monotonic kernel ticks and wall-clock `Date.now()` can produce negative durations; always `Math.max(0, ...)`.
+
+### Cost Observations
+
+- Model mix: Gemini 3.8 Flash (High) / Claude Opus 4.6 (Thinking)
+- Timeline: 1 calendar day (2026-09-21 definition → 2026-09-21 ship)
+- Notable: 3 phases, 4 plans completed in a single intensive session with zero desktop session interruptions and all automated test suites passing.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -276,6 +327,7 @@
 | v0.4 | 8 | 41 | Shipped three-tree capture model, link-aware verify, and one-command bootstrap |
 | v0.5 | 6 | 17 | Unified Material You theming across GTK/Qt/Hyprland/Kitty/Fuzzel with zero git churn |
 | v0.6 | 4 | 12 | Shipped modular 3-zone status bar with rounded pill geometry and verified closeout |
+| v0.7 | 3 | 4 | Voice telemetry service + status bar pill with tmpfs IPC, procfs liveness, and dual-bar integration |
 
 ### Cumulative Quality
 
@@ -286,6 +338,7 @@
 | v0.4 | All 8 phases passed | 4 legacy debug (retired surface) | override_closeout |
 | v0.5 | All 6 phases passed (100% Nyquist) | 5 debug (4 retired bar + 1 Phase 25 resolved) | override_closeout |
 | v0.6 | All 4 phases passed (audit passed) | 0 gaps (5 legacy debug carried forward) | verified_closeout |
+| v0.7 | All 3 phases passed (audit passed) | 0 gaps (7 debug acknowledged: 5 legacy + 2 resolved) | override_closeout |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -297,4 +350,6 @@
 6. Dynamic theme outputs must be decoupled from repository tracking via explicit data contracts (`guard-paths.tsv`)
 7. Reorganize layouts using modular zoning and dynamic space defense before live human visual trial-and-error
 8. Use restow with leaf symlinks (`--no-folding`) for third-party QML shell modifications to maintain live hot-reload without submodule forks
+9. Tmpfs IPC + procfs liveness is a lightweight, daemon-free pattern for desktop service status integration
+
 

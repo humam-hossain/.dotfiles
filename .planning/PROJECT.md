@@ -2,14 +2,14 @@
 
 ## Current State
 
-**Shipped:** v0.6 Top Status Bar Layout, Pill Styling & Component Customization (2026-09-20)  
-**Status:** All 4 phases of v0.6 (Phases 31–34) complete, 20/20 requirements satisfied, verified, and archived
+**Shipped:** v0.7 Voice Status Bar Component & Audio Telemetry (2026-09-21)  
+**Status:** All 3 phases of v0.7 (Phases 35–37) complete, 15/15 requirements satisfied, verified, and archived
 
-Desktop shell is fully unified under upstream dots-hyprland Material You / Matugen dynamic theming generated from wallpaper with modular 3-zone rounded-rectangle pill geometry. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, personal overlays under three-tree capture (`stow/`, `restow/`, `capture/`), guarded theme contracts (`guard-paths.tsv`), and one-command idempotent bootstrap (`./bootstrap.sh`).
+Desktop shell is fully unified under upstream dots-hyprland Material You / Matugen dynamic theming generated from wallpaper with modular 3-zone rounded-rectangle pill geometry and real-time voice telemetry. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, personal overlays under three-tree capture (`stow/`, `restow/`, `capture/`), guarded theme contracts (`guard-paths.tsv`), and one-command idempotent bootstrap (`./bootstrap.sh`).
 
-**v0.6 delivered:** Modern rounded-rectangle pill geometry (12–16px radius, 4–6px internal padding) with fluid 250ms Material 3 emphasized deceleration width resizing animation across all bar containers, definite gigabyte memory reporting (`X.X GB / Y.Y GB`), custom CPU indicators, non-glyph Clock spacer, balanced System Tray spacing (4px), unattended package updates with cache cleaning (`yay -Syu --noconfirm && yay -Sc --noconfirm`), media title clamping with text ellipsis, reactive screen recording alerts (`wf-recorder`), modular 3-zone status bar layout with dead-center Workspaces flanked symmetrically by Weather and Clock & Date, full dynamic Material You palette adaptability across wallpaper switches with zero git working tree churn, and strict repository cleanliness (`arch/dots-hyprland.sh verify --strict` 0 findings).
+**v0.7 delivered:** Non-blocking voice status bar component and telemetry architecture connecting to the local `voice` speech engine (`faster-whisper` STT and `Kokoro` TTS) via tmpfs IPC state files. Centralized `Voice.qml` Singleton service with adaptive polling, procfs liveness verification, drift-free duration counting, and TTS voice metadata extraction. Dedicated `VoicePill.qml` pill with `graphic_eq` iconography, breathing pulse animation, Sequential Linear Flow state transitions with 1.5s wrap-up linger, fluid 250ms M3 emphasized deceleration width expansion, horizontal and vertical bar integration with responsive multi-monitor adaptation, inert mouse isolation, and dynamic Material You palette adaptation with zero hardcoded hex colors or git churn.
 
-**Stats at v0.6 ship:** 4 phases · 12 plans · 37 tasks · 79 files changed (+15.8k / −45) · 14.9k LOC shell scripts and QML
+**Stats at v0.7 ship:** 3 phases · 4 plans · 6 tasks · 47 files changed (+9.2k / −62) · 460 LOC QML + 1,767 LOC test harnesses
 
 **Product surface:**
 - Fork: `humam-hossain/dots-hyprland` (upstream = end-4)
@@ -20,24 +20,28 @@ Desktop shell is fully unified under upstream dots-hyprland Material You / Matug
 - Session: ii Lua entry `~/.config/hypr/hyprland.lua` is authoritative (Phase 14) and owns the venv env plus `exec-once = qs -c ii`; personal overrides ride in `~/.config/hypr/custom/`; Waybar, rofi and swaync are retired from the session
 - Theming pipeline: `switchwall.sh` triggers Matugen synchronously for GTK CSS, Hyprland `colors.lua`, Quickshell `colors.json`, Fuzzel `fuzzel_theme.ini`, and Kitty `kitty-theme.conf` (SIGUSR1), plus background `kde-material-you-colors` for Qt/KDE `kdeglobals`. All outputs guarded via `guard-paths.tsv` with zero working tree drift.
 - Personal bar overlays: `restow/quickshell/` deployed via GNU Stow leaf symlinks to `~/.config/quickshell/ii/` without touching `vendor/dots-hyprland`.
+- Voice telemetry: `Voice.qml` Singleton service observing `$XDG_RUNTIME_DIR/voice-stt/` tmpfs state files; `VoicePill.qml` in Right zone after Media with vertical bar support.
 - Rollback: clean reinstall from the pinned `vendor/dots-hyprland` submodule; runbook `docs/phase14-adopt-runbook.md` §14
 - Playbook: `docs/dots-hyprland-workflow.md`
 - Inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`
 - Collision Map: `collision-map.tsv` (machine-asserted)
 - Guard Paths: `guard-paths.tsv` (machine-asserted)
 
-## Current Milestone: v0.7 Voice Status Bar Component & Audio Telemetry
+## Prior Milestones
+
+<details>
+<summary>v0.7 Voice Status Bar Component & Audio Telemetry (shipped 2026-09-21)</summary>
 
 **Goal:** Build a dedicated custom Quickshell status bar pill in the Right zone (after Media) that dynamically tracks and reflects the lifecycle and telemetry of the local STT/TTS voice system with matching Material Symbols AI aesthetics.
 
-**Target features:**
-- AI Visual Identity: Use a matching Material Symbols AI icon (e.g. `auto_awesome` / sparkles / AI listening icon) adhering to the system design language, with reactive pulse and accent animations.
-- STT Lifecycle Tracking: Real-time visual tracking across Idle, Recording (with live seconds counter & audio wave), Transcribing, and Writing/Typing states.
-- TTS Lifecycle Tracking: Visual tracking for speech synthesis playback, active voice badge, and elapsed playback duration.
-- Placement & Zero Churn: Positioned in Right zone after Media, built under `restow/quickshell/` with zero git drift and seamless bootstrap reproducibility.
-- Pure Telemetry Pill: Clean status pill without unnecessary click handlers or intrusive popups.
+**Shipped features:**
+- Non-blocking `Voice.qml` Singleton service with 6 `FileView` instances polling tmpfs IPC state files, procfs liveness verification, automated stale PID lock purging, drift-free wall-clock duration counting with reload recovery, and TTS voice metadata extraction
+- Dedicated `VoicePill.qml` status bar pill with `graphic_eq` Material Symbol, breathing pulse animation (1.0↔0.5 @ 1000ms), Sequential Linear Flow state transitions with 1.5s wrap-up linger, and fluid 250ms M3 emphasized deceleration width expansion
+- Horizontal and vertical bar integration with responsive multi-monitor `useShortenedForm` suppression and inert `MouseArea` event isolation
+- Deployed via GNU Stow leaf symlinks under `restow/quickshell/` with dynamic Material You palette adaptation and zero git churn
+- Three automated assertion harnesses (`phase35-voice-telemetry-assert.sh`, `phase36-voice-pill-assert.sh`, `phase37-voice-pill-assert.sh`)
 
-## Prior Milestones
+</details>
 
 <details>
 <summary>v0.6 Top Status Bar Layout, Pill Styling & Component Customization (shipped 2026-09-20)</summary>
@@ -264,11 +268,13 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Live duration (M:SS) display during recording/speaking and status badges with 1.5s wrap-up linger — Phase 36 / VOICE-05
 - ✓ Material 3 250ms emphasized deceleration width resizing between 26px and expanded active states — Phase 36 / VOICE-06
 
+- ✓ Bar layout integration in `BarContent.qml` Right zone immediately after Media with vertical `VerticalBarContent.qml` support — Phase 37 / INTG-01
+- ✓ Deployed via GNU Stow leaf symlinks under `restow/quickshell/` without folding ancestor directories and zero git churn — Phase 37 / INTG-02
+- ✓ Dynamic Material You palette adaptation and automated assertion harness with strict repository verification — Phase 37 / INTG-03, INTG-04
+
 ### Active
 
-- [ ] Bar layout integration in `BarContent.qml` Right zone immediately after Media — Phase 37 / INTG-01
-- [ ] Dual-monitor visual balance and Material You theme adaptation across wallpaper switches — Phase 37 / INTG-02
-- [ ] Automated validation test harness and strict zero-drift packaging via GNU Stow — Phase 37 / INTG-03
+(No active requirements — next milestone not yet defined. Run `/gsd-new-milestone` to start.)
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -429,6 +435,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 36: Sequential Linear Flow with 1500ms wrap-up linger | Smooth state progression with cached lastRecordedDuration during 1.5s wrap-up linger before collapsing to idle (D-06, D-07, VOICE-04, VOICE-05) | ✓ Section 3 FAIL=0 |
 | Phase 36: Breathing pulse animation with fail-safe reset | 1.0 <-> 0.5 opacity oscillation over 1000ms period with onRunningChanged reset to 1.0 on recording stop (D-08, VOICE-03) | ✓ Section 5 FAIL=0 |
 | Phase 36: Dynamic Material You palette tokens | colPrimary (recording), colTertiary (transcribing), colSecondary (typing/speaking/wrapup), colOnLayer1 (idle) with zero hardcoded colors (D-09) | ✓ Section 2 FAIL=0 |
+| Phase 37: Horizontal and vertical bar integration | VoicePill mounted in BarContent.qml Right zone after mediaLoader and VerticalBarContent.qml bottomSectionColumnLayout with vertical: true (INTG-01, G-37-2) | ✓ Section 1 FAIL=0 |
+| Phase 37: Responsive useShortenedForm suppression | Suppresses text expansion on narrow/rotated screens (useShortenedForm == 2) and vertical bars to maintain compact 26px resting state (INTG-01) | ✓ Section 3 FAIL=0 |
+| Phase 37: Inert MouseArea event isolation | Qt.AllButtons MouseArea absorbs accidental clicks preventing sidebar toggle activation (INTG-01) | ✓ Section 2 FAIL=0 |
+| Phase 37: Duration tracking hardening against clock skew | Clamped elapsedSec to Math.max(0, ...) and validated non-future startTime with Math.min(Date.now(), ...) (G-37-6) | ✓ Section 3 live counter FAIL=0 |
 
 ## Evolution
 
@@ -448,4 +458,5 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-21 after Phase 36*
+*Last updated: 2026-09-21 after v0.7 milestone*
+

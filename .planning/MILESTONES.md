@@ -1,5 +1,33 @@
 # Milestones
 
+## v0.7 Voice Status Bar Component & Audio Telemetry (Shipped: 2026-09-21)
+
+**Closeout type:** `override_closeout`  
+**Phases completed:** 3 phases, 4 plans, 6 tasks (Phases 35–37)  
+**Git range:** `356e74a` → `505ff11` (2026-09-21) · 59 commits  
+**Diffstat:** 47 files changed, +9,206 / −62 · 460 LOC QML (Voice.qml + VoicePill.qml) + 1,767 LOC test harnesses  
+
+**Delivered:** Non-blocking voice status bar component and telemetry architecture for Quickshell on Arch Linux / Hyprland, connecting to the local `voice` speech engine (`faster-whisper` STT and `Kokoro` TTS) via tmpfs IPC state files. Centralized `Voice.qml` Singleton service observing `$XDG_RUNTIME_DIR/voice-stt/` with adaptive polling (100ms active / 500ms idle), procfs process liveness verification with automated stale lock purging, drift-free wall-clock duration counting with reload recovery, and TTS voice metadata extraction. Dedicated `VoicePill.qml` status bar pill with `graphic_eq` Material Symbol iconography, breathing pulse animation, Sequential Linear Flow state transitions with 1.5s wrap-up linger, and fluid 250ms Material 3 emphasized deceleration width expansion. Integrated into both horizontal `BarContent.qml` and vertical `VerticalBarContent.qml` layouts with responsive multi-monitor adaptation, inert mouse isolation, and dynamic Material You palette adaptation with zero hardcoded hex colors or git churn.
+
+### Key accomplishments
+
+1. Centralized non-blocking Quickshell Singleton service (`Voice.qml`) with 6 `FileView` instances polling tmpfs state files, procfs `/proc/<pid>/cmdline` liveness verification, automated stale PID lock purging via `Quickshell.execDetached`, drift-free `Date.now()` wall-clock duration tracking with `/proc/<pid>/stat` start-tick reload recovery, and TTS voice/backend metadata extraction (Phase 35 / TELEM-01..05).
+2. Dedicated `VoicePill.qml` status bar pill extending `BarGroup` with `graphic_eq` Material Symbol, direct content-bound `implicitWidth` bypassing Qt 6.11 GridLayout caching, breathing 1.0↔0.5 pulse animation with fail-safe reset, Sequential Linear Flow state engine with 1500ms wrap-up linger caching `lastRecordedDuration`, and dynamic `Appearance.colors.*` palette tokens with zero hardcoded hex (Phase 36 / VOICE-01..06).
+3. Horizontal and vertical bar integration — `VoicePill` mounted in `BarContent.qml` Right zone immediately after `mediaLoader` and in `VerticalBarContent.qml` `bottomSectionColumnLayout` with `vertical: true` and `AlignHCenter`, responsive `useShortenedForm` suppression, and inert `MouseArea` event isolation (Phase 37 / INTG-01, G-37-2).
+4. Hardened duration tracking against clock skew and procfs drift by clamping `elapsedSec` to `Math.max(0, ...)` and validating non-future `startTime` with `Math.min(Date.now(), ...)`, resolving live STT recording showing `0:00` (Phase 37 / G-37-6).
+5. Deployed all managed QML files via GNU Stow leaf symlinks under `restow/quickshell/` without folding ancestor directories, maintaining `vendor/dots-hyprland` pristine and passing `arch/dots-hyprland.sh verify --strict` with `FAIL=0 FINDINGS=0` (Phase 37 / INTG-02..04).
+6. Three automated assertion harnesses (`phase35-voice-telemetry-assert.sh`, `phase36-voice-pill-assert.sh`, `phase37-voice-pill-assert.sh`) covering state observation, liveness, duration, animation, layout, vertical integration, and strict repository verification.
+
+**Known verification overrides:** 7 newly acknowledged (5 legacy debug sessions on retired bar surface + 2 v0.7 debug sessions resolved by gap closure), 0 carried forward (see STATE.md Deferred Items)
+
+**Archives:**
+
+- [milestones/v0.7-ROADMAP.md](milestones/v0.7-ROADMAP.md)
+- [milestones/v0.7-REQUIREMENTS.md](milestones/v0.7-REQUIREMENTS.md)
+- [milestones/v0.7-MILESTONE-AUDIT.md](milestones/v0.7-MILESTONE-AUDIT.md)
+
+
+
 ## v0.6 Top Status Bar Layout, Pill Styling & Component Customization (Shipped: 2026-09-20)
 
 **Closeout type:** `verified_closeout`  

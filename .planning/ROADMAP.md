@@ -1,93 +1,78 @@
-# Roadmap: Quickshell Desktop Shell (Milestone v0.7)
+# Roadmap: Quickshell Desktop Shell
 
-## Overview
+## Milestones
 
-Milestone v0.7 builds and integrates a custom Voice status bar component for the Quickshell desktop shell on Arch Linux / Hyprland. The component connects to the local `voice` CLI and speech runtime (`faster-whisper` STT and `Kokoro` TTS) located in `/home/pera/github_repo/Voice`, providing real-time visual telemetry, lifecycle indicators, duration counters, and animated audio waveforms in the top status bar.
-
-The work is organized into 3 sequential phases: establishing the non-blocking state and telemetry service (`services/Voice.qml`), authoring the visual pill component with Material Symbols AI aesthetic and animated waveforms (`VoicePill.qml`), and integrating the component into the Right zone of `BarContent.qml` with dual-monitor verification and strict packaging.
+- ✅ **v0.1 Core Framework & Basic Bar** — Phases 1-4 (shipped 2026-07-25)
+- ✅ **v0.2 Adopt dots-hyprland** — Phases 5-9 (shipped 2026-08-02)
+- ✅ **v0.3 Full ii install** — Phases 10-16 (shipped 2026-09-09)
+- ✅ **v0.4 Personal config layer** — Phases 17-24 (shipped 2026-09-16)
+- ✅ **v0.5 System-wide Material You theming** — Phases 25-30 (shipped 2026-09-18)
+- ✅ **v0.6 Top Status Bar Layout, Pill Styling & Component Customization** — Phases 31-34 (shipped 2026-09-20)
+- ✅ **v0.7 Voice Status Bar Component & Audio Telemetry** — Phases 35-37 (shipped 2026-09-21)
 
 ## Phases
 
-**Phase Numbering:**
+<details>
+<summary>✅ v0.1 Core Framework & Basic Bar (Phases 1-4) — SHIPPED 2026-07-25</summary>
 
-- Integer phases (35, 36, 37): Planned milestone work continuing numbering from Milestone v0.6 (Phases 31–34).
-- Decimal phases (35.1, 35.2): Urgent insertions if required.
+See [milestones/v0.1-ROADMAP.md](milestones/v0.1-ROADMAP.md)
 
-- [x] **Phase 35: Voice Telemetry & State Service Architecture** - Implement `Voice.qml` Singleton service observing runtime state files with process liveness and duration tracking. (completed 2026-09-21)
-- [x] **Phase 36: Visual Voice Pill Component & Dynamic Animations** - Author `VoicePill.qml` with `auto_awesome` AI iconography, pulse animations, animated waveform, and M3 width transitions. (completed 2026-09-21)
-- [x] **Phase 37: Bar Layout Integration, Dual-Monitor Verification & Strict Packaging** - Place Voice pill in `BarContent.qml` Right zone after Media, deploy via `restow/quickshell/`, verify Material You palette adaptation, and sign off with automated assertion harness. (completed 2026-09-21)
+</details>
 
-## Phase Details
+<details>
+<summary>✅ v0.2 Adopt dots-hyprland (Phases 5-9) — SHIPPED 2026-08-02</summary>
 
-### Phase 35: Voice Telemetry & State Service Architecture
+See [milestones/v0.2-ROADMAP.md](milestones/v0.2-ROADMAP.md)
 
-**Goal**: Build a centralized, non-blocking Quickshell Singleton service (`Voice.qml`) that observes `$XDG_RUNTIME_DIR/voice-stt/` state files, tracks STT/TTS lifecycles, validates PID liveness, and counts live elapsed duration.
-**Depends on**: Milestone v0.6 overlay foundation
-**Requirements**: TELEM-01, TELEM-02, TELEM-03, TELEM-04, TELEM-05
-**Success Criteria** (what must be TRUE):
+</details>
 
-  1. Service detects and parses speech lifecycle states (`idle`, `starting`, `recording`, `transcribing`, `typing`, `speaking`) from `$XDG_RUNTIME_DIR/voice-stt/` asynchronously without blocking the UI thread.
-  2. Process liveness verification against `/proc/<pid>` reliably purges stale PID states, automatically returning state to `idle` upon abnormal speech process termination.
-  3. Active recording and TTS playback track live elapsed duration in seconds, exposing both raw seconds (`elapsedSeconds`) and formatted duration (`formattedDuration` as `M:SS`).
-  4. Active TTS voice metadata is parsed and exposed to QML bindings.
+<details>
+<summary>✅ v0.3 Full ii install (Phases 10-16) — SHIPPED 2026-09-09</summary>
 
-**Plans:** 1/1 plans complete
+See [milestones/v0.3-ROADMAP.md](milestones/v0.3-ROADMAP.md)
 
-Plans:
+</details>
 
-- [x] 35-01-PLAN.md — Implement Voice.qml Singleton service with state file observation, liveness check, duration timers, and TTS voice metadata extraction.
+<details>
+<summary>✅ v0.4 Personal config layer (Phases 17-24) — SHIPPED 2026-09-16</summary>
 
-### Phase 36: Visual Voice Pill Component & Dynamic Animations
+See [milestones/v0.4-ROADMAP.md](milestones/v0.4-ROADMAP.md)
 
-**Goal**: Author the dedicated `VoicePill.qml` status bar component styled with `BarGroup.qml` pill geometry, Material Symbols AI iconography, pulsing active states, animated audio waveform, and fluid Material 3 width expansion.
-**Depends on**: Phase 35
-**Requirements**: VOICE-01, VOICE-02, VOICE-03, VOICE-04, VOICE-05, VOICE-06
-**Success Criteria** (what must be TRUE):
+</details>
 
-  1. `VoicePill.qml` renders within `BarGroup.qml` with standard rounded rectangle geometry (12–16px radius, 4–6px internal padding).
-  2. Material Symbol `auto_awesome` (sparkles) icon displays with reactive color states matching the desktop shell's design language.
-  3. Recording state triggers a fluid pulse animation and accent color change.
-  4. Multi-bar animated audio waveform equalizer plays during active recording and speaking.
-  5. Component displays live duration counter (`0:05`) and transition state badges ("Transcribing...", "Typing...").
-  6. Component animates width expansion between compact resting state and expanded active telemetry state via 250ms Material 3 emphasized deceleration.
+<details>
+<summary>✅ v0.5 System-wide Material You theming (Phases 25-30) — SHIPPED 2026-09-18</summary>
 
-**Plans:** 1/1 plans complete
+See [milestones/v0.5-ROADMAP.md](milestones/v0.5-ROADMAP.md)
 
-Plans:
+</details>
 
-- [x] 36-01-PLAN.md — Author `VoicePill.qml` with `BarGroup` container, `graphic_eq` icon, breathing pulse animation, duration label, wrap-up linger, and reactive state bindings.
+<details>
+<summary>✅ v0.6 Top Status Bar Layout, Pill Styling & Component Customization (Phases 31-34) — SHIPPED 2026-09-20</summary>
 
-### Phase 37: Bar Layout Integration, Dual-Monitor Verification & Strict Packaging
+See [milestones/v0.6-ROADMAP.md](milestones/v0.6-ROADMAP.md)
 
-**Goal**: Integrate `VoicePill` into `BarContent.qml` Right zone immediately after Media (`mediaLoader`), deploy via `restow/quickshell/` leaf symlinks, verify Material You theming across wallpaper switches, and validate with an automated assertion test harness.
-**Depends on**: Phase 36
-**Requirements**: INTG-01, INTG-02, INTG-03, INTG-04
-**Success Criteria** (what must be TRUE):
+</details>
 
-  1. `VoicePill` is integrated into `BarContent.qml` Right zone positioned immediately after Media (`mediaLoader`) with clean 4px gaps.
-  2. QML files are packaged in `restow/quickshell/` and deployed via GNU Stow leaf symlinks without folding ancestor directories or touching `vendor/dots-hyprland`.
-  3. Voice pill colors adapt reactively to wallpaper switches via `switchwall.sh` Matugen tokens with zero working tree drift.
-  4. Automated test harness (`scripts/phase35-voice-pill-assert.sh`) verifies QML syntax, state binding, and strict repository integrity (`arch/dots-hyprland.sh verify --strict` 0 findings).
+<details>
+<summary>✅ v0.7 Voice Status Bar Component & Audio Telemetry (Phases 35-37) — SHIPPED 2026-09-21</summary>
 
-**Plans**: 2/2 plans executed (37-01)
+- [x] Phase 35: Voice Telemetry & State Service Architecture (1/1 plans) — completed 2026-09-21
+- [x] Phase 36: Visual Voice Pill Component & Dynamic Animations (1/1 plans) — completed 2026-09-21
+- [x] Phase 37: Bar Layout Integration, Dual-Monitor Verification & Strict Packaging (2/2 plans) — completed 2026-09-21
 
-Plans:
+See [milestones/v0.7-ROADMAP.md](milestones/v0.7-ROADMAP.md)
 
-- [x] 37-02-PLAN.md
-
-- [x] 37-01-PLAN.md — Integrate VoicePill into BarContent.qml, implement responsive multi-monitor adaptation, inert mouse isolation, and execute strict packaging verification.
+</details>
 
 ## Progress
 
-**Execution Order:**
-Phases execute in numeric order: 35 → 36 → 37
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 35. Voice Telemetry & State Service Architecture | 1/1 | Complete    | 2026-09-21 |
-| 36. Visual Voice Pill Component & Dynamic Animations | 1/1 | Complete    | 2026-09-21 |
-| 37. Bar Layout Integration, Dual-Monitor Verification & Strict Packaging | 2/2 | Complete    | 2026-09-21 |
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 35. Voice Telemetry & State Service Architecture | v0.7 | 1/1 | Complete | 2026-09-21 |
+| 36. Visual Voice Pill Component & Dynamic Animations | v0.7 | 1/1 | Complete | 2026-09-21 |
+| 37. Bar Layout Integration, Dual-Monitor Verification & Strict Packaging | v0.7 | 2/2 | Complete | 2026-09-21 |
 
 ---
 *Roadmap created: 2026-09-21*  
-*Milestone: v0.7 Voice Status Bar Component & Audio Telemetry*  
+*Last updated: 2026-09-21 — v0.7 milestone archived*  

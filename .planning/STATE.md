@@ -1,14 +1,13 @@
 ---
-gsd_state_version: "1.0"
+gsd_state_version: 1.0
 milestone: v0.7
 milestone_name: )
-current_phase: 37
-status: completed
+current_phase: 7
+status: Awaiting next milestone
 stopped_at: Phase 37 complete — all phases complete
-last_updated: "2026-09-21T08:56:17.591Z"
+last_updated: "2026-09-21T10:07:49.484Z"
 last_activity: 2026-09-21
-last_activity_desc: Phase 37 complete
-state_head: f91ae439081c25a5eb019705e66368525a7b288a
+last_activity_desc: Milestone v0.7 completed and archived
 progress:
   total_phases: 3
   completed_phases: 3
@@ -24,10 +23,10 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0/3 pla
 
 ## Current Position
 
-Phase: 37
-Plan: Not started
-Status: All phases complete
-Last activity: 2026-09-21 — Phase 37 complete
+Phase: Milestone v0.7 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-09-21 — Milestone v0.7 completed and archived
 
 ## Session
 
@@ -37,32 +36,30 @@ Last activity: 2026-09-21 — Phase 37 complete
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-21 for v0.7 milestone)
+See: .planning/PROJECT.md (updated 2026-09-21 after v0.7 milestone)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 37 — Bar Layout Integration, Dual-Monitor Verification & Strict Packaging
+**Current focus:** Planning next milestone
 
 ## Deferred Items
 
-Items acknowledged and deferred at milestone close on 2026-07-25 (v0.1), re-acknowledged 2026-08-02 (v0.2), and re-acknowledged 2026-09-16 (v0.4 override_closeout):
+Items acknowledged and deferred at milestone close on 2026-07-25 (v0.1), re-acknowledged 2026-08-02 (v0.2), re-acknowledged 2026-09-16 (v0.4 override_closeout), re-acknowledged 2026-09-18 (v0.5), re-acknowledged 2026-09-20 (v0.6), and re-acknowledged 2026-09-21 (v0.7 override_closeout):
 
 | Category | Item | Status | Deferred At | Milestone |
 |----------|------|--------|-------------|-----------|
-| debug | cpu-warning-color-missing | unknown (re-acknowledged v0.4; local bar retired) | 2026-09-16 | v0.4 |
-| debug | keyboard-volume-ceiling | unknown (re-acknowledged v0.4; local bar retired) | 2026-09-16 | v0.4 |
-| debug | pavucontrol-launch-broken | unknown (re-acknowledged v0.4; local bar retired) | 2026-09-16 | v0.4 |
-| debug | ram-label-spacing | unknown (re-acknowledged v0.4; local bar retired) | 2026-09-16 | v0.4 |
+| debug | cpu-warning-color-missing | unknown (re-acknowledged v0.7; local bar retired) | 2026-09-21 | v0.7 |
+| debug | keyboard-volume-ceiling | unknown (re-acknowledged v0.7; local bar retired) | 2026-09-21 | v0.7 |
+| debug | pavucontrol-launch-broken | unknown (re-acknowledged v0.7; local bar retired) | 2026-09-21 | v0.7 |
+| debug | ram-label-spacing | unknown (re-acknowledged v0.7; local bar retired) | 2026-09-21 | v0.7 |
+| debug | DEBUG-gtk-visual-theming-pink-accent | unknown (re-acknowledged v0.7) | 2026-09-21 | v0.7 |
+| debug | stt-duration-timer-zero | unknown (re-acknowledged v0.7; resolved by G-37-6 hardening) | 2026-09-21 | v0.7 |
+| debug | voice-pill-vertical-bar-missing | unknown (re-acknowledged v0.7; resolved by G-37-2 vertical integration) | 2026-09-21 | v0.7 |
 | requirement | FWK-02 (exec-once auto-start) | deferred finishing touch — revisit under upstream model | 2026-09-16 | v0.4 |
 | requirement | IPC-02 (bar toggle keybind) | deferred finishing touch — revisit under upstream model | 2026-09-16 | v0.4 |
 | backlog | Waybar cutover (CUT-01) | deferred until parity accepted; DISP-03 defaults keep dual-run **[superseded by Phase 16]** — the dual-run session ended at the Phase 14 adopt. | 2026-09-16 | v0.4 |
 | backlog | Waybar customs (CUST-01..04) | deferred past v0.3 full hypr adopt | 2026-09-16 | v0.4 |
 | process | v0.2 formal milestone audit | skipped at close; per-phase verification passed | 2026-09-16 | v0.4 |
 | requirement | D-38 `graphical-session.target` autostart (post-adopt) | **shipped** — Phase 17 (START-02) & Phase 20 (START-01) in `custom/execs.lua` | 2026-09-16 | v0.4 |
-| debug_sessions | DEBUG-gtk-visual-theming-pink-accent | unknown | 2026-09-18 | v0.5 |
-| debug_sessions | cpu-warning-color-missing | unknown | 2026-09-18 | v0.5 |
-| debug_sessions | keyboard-volume-ceiling | unknown | 2026-09-18 | v0.5 |
-| debug_sessions | pavucontrol-launch-broken | unknown | 2026-09-18 | v0.5 |
-| debug_sessions | ram-label-spacing | unknown | 2026-09-18 | v0.5 |
 
 See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 
