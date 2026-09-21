@@ -13,7 +13,7 @@ The work is organized into 3 sequential phases: establishing the non-blocking st
 - Integer phases (35, 36, 37): Planned milestone work continuing numbering from Milestone v0.6 (Phases 31–34).
 - Decimal phases (35.1, 35.2): Urgent insertions if required.
 
-- [ ] **Phase 35: Voice Telemetry & State Service Architecture** - Implement `Voice.qml` Singleton service observing runtime state files with process liveness and duration tracking.
+- [x] **Phase 35: Voice Telemetry & State Service Architecture** - Implement `Voice.qml` Singleton service observing runtime state files with process liveness and duration tracking. (completed 2026-09-21)
 - [ ] **Phase 36: Visual Voice Pill Component & Dynamic Animations** - Author `VoicePill.qml` with `auto_awesome` AI iconography, pulse animations, animated waveform, and M3 width transitions.
 - [ ] **Phase 37: Bar Layout Integration, Dual-Monitor Verification & Strict Packaging** - Place Voice pill in `BarContent.qml` Right zone after Media, deploy via `restow/quickshell/`, verify Material You palette adaptation, and sign off with automated assertion harness.
 
@@ -31,7 +31,7 @@ The work is organized into 3 sequential phases: establishing the non-blocking st
   3. Active recording and TTS playback track live elapsed duration in seconds, exposing both raw seconds (`elapsedSeconds`) and formatted duration (`formattedDuration` as `M:SS`).
   4. Active TTS voice metadata is parsed and exposed to QML bindings.
 
-**Plans:** 1/1 plans executed
+**Plans:** 1/1 plans complete
 
 Plans:
 
@@ -82,7 +82,7 @@ Phases execute in numeric order: 35 → 36 → 37
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 35. Voice Telemetry & State Service Architecture | 1/1 | In Progress|  |
+| 35. Voice Telemetry & State Service Architecture | 1/1 | Complete    | 2026-09-21 |
 | 36. Visual Voice Pill Component & Dynamic Animations | 0/1 | Not started | - |
 | 37. Bar Layout Integration, Dual-Monitor Verification & Strict Packaging | 0/1 | Not started | - |
 
