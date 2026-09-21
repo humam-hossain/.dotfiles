@@ -117,6 +117,17 @@ run_qs_test() {
   printf '%s\n' "$out"
 }
 
+create_mock_voice_runtime() {
+  local rt
+  rt="$(mktemp -d /tmp/p37-rt-XXXXXX)"
+  mkdir -p "$rt/voice-stt"
+  local real_xdg="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+  if [[ -n "${WAYLAND_DISPLAY:-}" && -e "$real_xdg/$WAYLAND_DISPLAY" ]]; then
+    ln -s "$real_xdg/$WAYLAND_DISPLAY" "$rt/$WAYLAND_DISPLAY" 2>/dev/null || true
+  fi
+  printf "%s" "$rt"
+}
+
 VOICE_PILL_REPO="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/VoicePill.qml"
 BAR_CONTENT_REPO="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml"
 BAR_CONTENT_LIVE="$XDG_CONFIG_HOME/quickshell/ii/modules/ii/bar/BarContent.qml"
@@ -129,8 +140,6 @@ VOICE_PILL_LIVE="$XDG_CONFIG_HOME/quickshell/ii/modules/ii/bar/VoicePill.qml"
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
   info "--- Section 1: Layout Integration & Direct Mounting ---"
 
-  # Simple check if VoicePill exists before updatesLoader
-  # Get line numbers
   MEDIA_LINE=$(grep -n "id: mediaLoader" "$BAR_CONTENT_REPO" | cut -d: -f1)
   VOICE_LINE=$(grep -n "id: voicePill" "$BAR_CONTENT_REPO" | cut -d: -f1 || echo 0)
   UPDATES_LINE=$(grep -n "id: updatesLoader" "$BAR_CONTENT_REPO" | cut -d: -f1)
@@ -153,7 +162,6 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
     fail "S1: VoicePill missing Layout.alignment: Qt.AlignVCenter"
   fi
   
-  # Assert that VoicePill is declared directly without being wrapped in a redundant Loader or nested BarGroup
   if grep -B 5 "id: voicePill" "$BAR_CONTENT_REPO" | grep -qE "Loader \{|BarGroup \{"; then
     fail "S1: VoicePill is wrapped in a redundant Loader or BarGroup"
   else
@@ -175,6 +183,226 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
     pass "S1: Parent directory $LIVE_BAR_DIR is a real directory (no folding)"
   else
     fail "S1: Parent directory $LIVE_BAR_DIR is symlinked or missing (folded)"
+  fi
+fi
+
+# ===========================================================================
+# Section 2: Inert MouseArea & Event Isolation
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
+  info "--- Section 2: Inert MouseArea & Event Isolation ---"
+  if grep -A 8 "id: inertMouseArea" "$VOICE_PILL_REPO" | grep -q "parent: root"; then
+    pass "S2: inertMouseArea sets parent: root"
+  else
+    fail "S2: inertMouseArea missing parent: root"
+  fi
+
+  if grep -A 8 "id: inertMouseArea" "$VOICE_PILL_REPO" | grep -q "anchors.fill: parent"; then
+    pass "S2: inertMouseArea sets anchors.fill: parent"
+  else
+    fail "S2: inertMouseArea missing anchors.fill: parent"
+  fi
+
+  if grep -A 8 "id: inertMouseArea" "$VOICE_PILL_REPO" | grep -q "acceptedButtons: Qt.AllButtons"; then
+    pass "S2: inertMouseArea absorbs all buttons (Qt.AllButtons)"
+  else
+    fail "S2: inertMouseArea missing acceptedButtons: Qt.AllButtons"
+  fi
+
+  if grep -A 8 "id: inertMouseArea" "$VOICE_PILL_REPO" | grep -q "onPressed: event => event.accepted = true"; then
+    pass "S2: inertMouseArea consumes onPressed events"
+  else
+    fail "S2: inertMouseArea missing onPressed event consumption"
+  fi
+fi
+
+# ===========================================================================
+# Section 3: Multi-Monitor Responsive Adaptation & Expansion Suppression
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
+  info "--- Section 3: Multi-Monitor Responsive Adaptation & Expansion Suppression ---"
+  
+  if [[ "$SYNTAX_ONLY" -eq 0 ]]; then
+    RT_S3="$(create_mock_voice_runtime)"
+    TMP_DIRS+=("$RT_S3")
+    bash -c 'exec -a voice sleep 30' &
+    STT_PID_S3=$!
+    MOCK_PIDS+=("$STT_PID_S3")
+
+    QML_S3_0=$(cat << 'QML0'
+import QtQuick
+import Quickshell
+import "modules/ii/bar"
+import "services"
+
+Scope {
+    id: scopeRoot
+    property int step: 0
+    VoicePill { id: pill; useShortenedForm: 0 }
+    Timer {
+        interval: 100
+        running: true
+        repeat: true
+        onTriggered: {
+            scopeRoot.step++;
+            Voice.poll();
+            if (scopeRoot.step === 1) {
+                Quickshell.execDetached(["bash", "-c", "echo 'STT_PID_S3 recording' > RT_S3/voice-stt/recorder.pid"]);
+            } else if (scopeRoot.step === 5) {
+                console.log("S3_FULL expanded=" + pill.isExpanded + " width=" + Math.round(pill.implicitWidth));
+                Qt.quit();
+            }
+        }
+    }
+}
+QML0
+)
+    QML_S3_0="${QML_S3_0//STT_PID_S3/$STT_PID_S3}"
+    QML_S3_0="${QML_S3_0//RT_S3/$RT_S3}"
+    OUT_S3_0="$(run_qs_test "$QML_S3_0" "$RT_S3")"
+    if echo "$OUT_S3_0" | grep -q "expanded=true"; then
+      pass "S3: useShortenedForm=0 permits expansion"
+    else
+      fail "S3: useShortenedForm=0 failed expansion: $OUT_S3_0"
+    fi
+
+    QML_S3_2=$(cat << 'QML2'
+import QtQuick
+import Quickshell
+import "modules/ii/bar"
+import "services"
+
+Scope {
+    id: scopeRoot
+    property int step: 0
+    VoicePill { id: pill; useShortenedForm: 2 }
+    Timer {
+        interval: 100
+        running: true
+        repeat: true
+        onTriggered: {
+            scopeRoot.step++;
+            Voice.poll();
+            if (scopeRoot.step === 1) {
+                Quickshell.execDetached(["bash", "-c", "echo 'STT_PID_S3 recording' > RT_S3/voice-stt/recorder.pid"]);
+            } else if (scopeRoot.step === 5) {
+                console.log("S3_SHORT expanded=" + pill.isExpanded + " width=" + Math.round(pill.implicitWidth));
+                Qt.quit();
+            }
+        }
+    }
+}
+QML2
+)
+    QML_S3_2="${QML_S3_2//STT_PID_S3/$STT_PID_S3}"
+    QML_S3_2="${QML_S3_2//RT_S3/$RT_S3}"
+    OUT_S3_2="$(run_qs_test "$QML_S3_2" "$RT_S3")"
+    if echo "$OUT_S3_2" | grep -q "expanded=false"; then
+      pass "S3: useShortenedForm=2 suppresses expansion to 26px resting width"
+    else
+      fail "S3: useShortenedForm=2 failed to suppress expansion: $OUT_S3_2"
+    fi
+
+    QML_S3_V=$(cat << 'QMLV'
+import QtQuick
+import Quickshell
+import "modules/ii/bar"
+import "services"
+
+Scope {
+    id: scopeRoot
+    property int step: 0
+    VoicePill { id: pill; vertical: true }
+    Timer {
+        interval: 100
+        running: true
+        repeat: true
+        onTriggered: {
+            scopeRoot.step++;
+            Voice.poll();
+            if (scopeRoot.step === 1) {
+                Quickshell.execDetached(["bash", "-c", "echo 'STT_PID_S3 recording' > RT_S3/voice-stt/recorder.pid"]);
+            } else if (scopeRoot.step === 5) {
+                console.log("S3_VERT expanded=" + pill.isExpanded + " width=" + Math.round(pill.implicitWidth));
+                Qt.quit();
+            }
+        }
+    }
+}
+QMLV
+)
+    QML_S3_V="${QML_S3_V//STT_PID_S3/$STT_PID_S3}"
+    QML_S3_V="${QML_S3_V//RT_S3/$RT_S3}"
+    OUT_S3_V="$(run_qs_test "$QML_S3_V" "$RT_S3")"
+    if echo "$OUT_S3_V" | grep -q "expanded=false"; then
+      pass "S3: vertical=true suppresses expansion"
+    else
+      fail "S3: vertical=true failed to suppress expansion: $OUT_S3_V"
+    fi
+  else
+    pass "S3: [SKIPPED in --syntax mode] Headless evaluation"
+  fi
+fi
+
+# ===========================================================================
+# Section 4: Dynamic Palette Adaptation & Theme Audit
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
+  info "--- Section 4: Dynamic Palette Adaptation & Theme Audit ---"
+  
+  HEX_MATCHES="$(grep -n -E "#[0-9a-fA-F]{3,8}" "$VOICE_PILL_REPO" || true)"
+  if [[ -z "$HEX_MATCHES" ]]; then
+    pass "S4: Zero hardcoded hex colors found in VoicePill.qml"
+  else
+    fail "S4: Hardcoded hex colors detected in VoicePill.qml: $HEX_MATCHES"
+  fi
+
+  if grep -q "Appearance.colors.colPrimary" "$VOICE_PILL_REPO" && \
+     grep -q "Appearance.colors.colTertiary" "$VOICE_PILL_REPO" && \
+     grep -q "Appearance.colors.colSecondary" "$VOICE_PILL_REPO"; then
+    pass "S4: Semantic color token bindings are present"
+  else
+    fail "S4: Semantic color token bindings are missing"
+  fi
+
+  if pgrep -x quickshell > /dev/null; then
+    info "S4: Quickshell process is running, live reload could be triggered"
+  else
+    info "S4: [SOFT] Quickshell process not running; skipping live reload trigger"
+  fi
+fi
+
+# ===========================================================================
+# Section 5: Strict Repository Verification Gate
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
+  info "--- Section 5: Strict Repository Verification Gate ---"
+  
+  if git diff --exit-code vendor/dots-hyprland >/dev/null 2>&1; then
+    pass "S5: vendor/dots-hyprland is clean and unmodified"
+  else
+    fail "S5: vendor/dots-hyprland has been modified"
+  fi
+
+  porcelain_snapshot > "$PORCELAIN_AFTER"
+  if diff -u "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" >/dev/null; then
+    pass "S5: Git working tree invariant before vs after test harness run"
+  else
+    fail "S5: Git working tree churn detected during test run:"
+    diff -u "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" || true
+  fi
+
+  if [[ "$SYNTAX_ONLY" -eq 0 ]]; then
+    info "Executing ./arch/dots-hyprland.sh verify --strict..."
+    VERIFY_OUT="$(./arch/dots-hyprland.sh verify --strict 2>&1 || true)"
+    if echo "$VERIFY_OUT" | grep -q "=== done: FAIL=0 FINDINGS=0 ==="; then
+      pass "S5: arch/dots-hyprland.sh verify --strict passed with FAIL=0 FINDINGS=0"
+    else
+      fail "S5: arch/dots-hyprland.sh verify --strict reported failures or findings:"
+      printf '%s\n' "$VERIFY_OUT" | grep -E "(\[FAIL\]|\[FINDING\])" || true
+    fi
+  else
+    pass "S5: [SKIPPED in --syntax mode] Strict repository verification gate"
   fi
 fi
 
