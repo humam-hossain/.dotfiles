@@ -1,20 +1,16 @@
 ---
 gsd_state_version: "1.0"
-milestone: v0.6
-milestone_name: Top Status Bar Layout, Pill Styling & Component Customization (Phases 31-34)
-status: Awaiting next milestone
-stopped_at: Phase 34 complete — all phases complete
-last_updated: "2026-09-20T12:40:50.376Z"
-last_activity: 2026-09-20
-last_activity_desc: Milestone v0.6 completed and archived
-state_head: 28303b797d44a896c78ac9ffbc638e1c939c4673
+milestone: v0.7
+milestone_name: Voice Status Bar Component & Audio Telemetry
+status: planning
+last_updated: "2026-09-21T00:41:41.689Z"
+last_activity: 2026-09-21
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 12
-  completed_plans: 12
-  percent: 100
-current_phase: 34
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 Total Phases: 4 (Phases 31-34)
@@ -24,10 +20,10 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 5/6 pla
 
 ## Current Position
 
-Phase: Milestone v0.6 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-09-20 — Milestone v0.6 completed and archived
+Status: Defining requirements
+Last activity: 2026-09-21 — Milestone v0.7 started
 
 ## Session
 

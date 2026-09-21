@@ -26,12 +26,16 @@ Desktop shell is fully unified under upstream dots-hyprland Material You / Matug
 - Collision Map: `collision-map.tsv` (machine-asserted)
 - Guard Paths: `guard-paths.tsv` (machine-asserted)
 
-## Next Milestone Goals (v0.7)
+## Current Milestone: v0.7 Voice Status Bar Component & Audio Telemetry
 
-**Current focus:** Planning next milestone via `/gsd-new-milestone`. Potential areas:
-- Porting remaining Waybar custom features (e.g. disk usage pill with partition popup, ping telemetry, multi-day forecast popup)
-- Notification system polish and OSD integration
-- Application launcher styling and workflow optimization
+**Goal:** Build a dedicated custom Quickshell status bar pill in the Right zone (after Media) that dynamically tracks and reflects the lifecycle and telemetry of the local STT/TTS voice system with matching Material Symbols AI aesthetics.
+
+**Target features:**
+- AI Visual Identity: Use a matching Material Symbols AI icon (e.g. `auto_awesome` / sparkles / AI listening icon) adhering to the system design language, with reactive pulse and accent animations.
+- STT Lifecycle Tracking: Real-time visual tracking across Idle, Recording (with live seconds counter & audio wave), Transcribing, and Writing/Typing states.
+- TTS Lifecycle Tracking: Visual tracking for speech synthesis playback, active voice badge, and elapsed playback duration.
+- Placement & Zero Churn: Positioned in Right zone after Media, built under `restow/quickshell/` with zero git drift and seamless bootstrap reproducibility.
+- Pure Telemetry Pill: Clean status pill without unnecessary click handlers or intrusive popups.
 
 ## Prior Milestones
 
@@ -417,4 +421,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-20 after v0.6 milestone*
+*Last updated: 2026-09-21 — Milestone v0.7 initialized*
