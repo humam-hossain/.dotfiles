@@ -41,7 +41,7 @@ Last activity: 2026-09-21 — Phase 35 complete, transitioned to Phase 36
 See: .planning/PROJECT.md (updated 2026-09-21 for v0.7 milestone)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 35 — Voice Telemetry & State Service Architecture
+**Current focus:** Phase 36 — Visual Voice Pill Component & Dynamic Animations
 
 ## Deferred Items
 
@@ -121,6 +121,7 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 29: Verified live zero git churn drill in switchwall.sh reload with asynchronous kdeglobals polling, proving monotonic mtime advancement across all 5 dynamic components and byte-identical porcelain state (INTG-01)
 - Phase 29: Hardened bootstrap.sh with hierarchical prefix matching in is_guarded_path, explicit Catppuccin symlink pruning in run_destub, parent directory pre-creation in run_stow_step, and fail-soft initial theme generation with #3f51b5 color seed fallback (INTG-03)
 - Phase 29: Automated 5-section assert harness scripts/phase29-theme-data-contracts-assert.sh passed 30 checks with FAIL=0 FINDINGS=0 across isolated scratch drill and full v0.5 regression sweep (Phases 25–28) (INTG-01..03)
+- Phase 35: Centralized Voice.qml Singleton service in restow/quickshell/ with native FileView adaptive polling over tmpfs, procfs liveness verification, automated stale PID purge, drift-free duration counter with reload anchor, and TTS metadata extraction (TELEM-01..05)
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.  
