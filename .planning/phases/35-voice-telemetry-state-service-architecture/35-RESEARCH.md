@@ -682,9 +682,9 @@ if text and args.paste:
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Does Quickshell need an explicit reload after stow?**
+1. **Does Quickshell need an explicit reload after stow?** — RESOLVED: `quickshell -p` validates service directly and stow deploys leaf symlinks cleanly without requiring an explicit desktop reload for new files.
    - What we know: Running Quickshell instances detect new files when stowed or can be cleanly reloaded via `Ctrl+Super+R` (or `pkill -HUP quickshell`).
    - What's unclear: None; verified that standalone `quickshell -p` validates the service directly.
    - Recommendation: The plan will include stowing `restow/quickshell` and running an automated test harness via `quickshell -p`.
