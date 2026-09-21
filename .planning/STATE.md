@@ -6,10 +6,10 @@ current_phase: 37
 current_phase_name: Bar Layout Integration, Dual-Monitor Verification & Strict Packaging
 status: planning
 stopped_at: Phase 36 complete, ready to plan Phase 37
-last_updated: "2026-09-21T06:13:41.170Z"
+last_updated: "2026-09-21T06:22:18.181Z"
 last_activity: 2026-09-21
 last_activity_desc: Phase 36 complete, transitioned to Phase 37
-state_head: 9b5e19422d29922f3652383d9ed4db84650196cc
+state_head: d61febfaa776565c11a09ab988e81bb944e3910c
 progress:
   total_phases: 3
   completed_phases: 2
@@ -32,16 +32,16 @@ Last activity: 2026-09-21 — Phase 36 complete, transitioned to Phase 37
 
 ## Session
 
-**Last session:** 2026-09-21T05:36:19.224Z
+**Last session:** 2026-09-21T06:22:18.181Z
 **Stopped at:** Phase 36 complete, ready to plan Phase 37
-**Resume file:** .planning/phases/36-visual-voice-pill-component-dynamic-animations/36-CONTEXT.md
+**Resume file:** None
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-21 for v0.7 milestone)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 36 — Visual Voice Pill Component & Dynamic Animations
+**Current focus:** Phase 37 — Bar Layout Integration, Dual-Monitor Verification & Strict Packaging
 
 ## Deferred Items
 
@@ -122,6 +122,7 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 29: Hardened bootstrap.sh with hierarchical prefix matching in is_guarded_path, explicit Catppuccin symlink pruning in run_destub, parent directory pre-creation in run_stow_step, and fail-soft initial theme generation with #3f51b5 color seed fallback (INTG-03)
 - Phase 29: Automated 5-section assert harness scripts/phase29-theme-data-contracts-assert.sh passed 30 checks with FAIL=0 FINDINGS=0 across isolated scratch drill and full v0.5 regression sweep (Phases 25–28) (INTG-01..03)
 - Phase 35: Centralized Voice.qml Singleton service in restow/quickshell/ with native FileView adaptive polling over tmpfs, procfs liveness verification, automated stale PID purge, drift-free duration counter with reload anchor, and TTS metadata extraction (TELEM-01..05)
+- Phase 36: Dedicated VoicePill.qml component extending BarGroup with compact idle state (26px), graphic_eq glyph, direct content-bound root implicitWidth driving 250ms M3 width animation, breathing pulse (1.0 <-> 0.5 over 1000ms with fail-safe reset), and Sequential Linear Flow with 1.5s wrap-up linger (VOICE-01..06, D-01..09)
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.  
