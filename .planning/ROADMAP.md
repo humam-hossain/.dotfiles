@@ -27,10 +27,10 @@ The work is organized into 3 sequential phases: establishing the non-blocking st
   2. Process liveness verification against `/proc/<pid>` reliably purges stale PID states, automatically returning state to `idle` upon abnormal speech process termination.
   3. Active recording and TTS playback track live elapsed duration in seconds, exposing both raw seconds (`elapsedSeconds`) and formatted duration (`formattedDuration` as `M:SS`).
   4. Active TTS voice metadata is parsed and exposed to QML bindings.
-**Plans**: 1 plan (35-01)
+**Plans:** 1 plan
 
 Plans:
-- [ ] 35-01: Implement `Voice.qml` Singleton service with state file observation, liveness check, and duration timers.
+- [ ] 35-01-PLAN.md — Implement Voice.qml Singleton service with state file observation, liveness check, duration timers, and TTS voice metadata extraction.
 
 ### Phase 36: Visual Voice Pill Component & Dynamic Animations
 **Goal**: Author the dedicated `VoicePill.qml` status bar component styled with `BarGroup.qml` pill geometry, Material Symbols AI iconography, pulsing active states, animated audio waveform, and fluid Material 3 width expansion.
