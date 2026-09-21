@@ -438,16 +438,18 @@ Scope {
             } else if (durRoot.tick === 3) {
                 Voice.poll();
                 console.log("DUR_LIVE elapsedSec=" + Voice.elapsedSeconds + " formatted=" + Voice.formattedDuration + " elapsedMs=" + (Voice.elapsedMs > 0 ? "gt0" : "0"));
-                // Switch to transcribing state to test duration freeze (D-08)
-                Voice.sttState = "transcribing";
+                // Switch to transcribing by writing transcribing to recorder.pid (D-08)
+                Quickshell.execDetached(["bash", "-c", "echo " + Voice.sttPid + " transcribing > " + Voice.recorderPidPath]);
+            } else if (durRoot.tick === 5) {
+                Voice.poll();
                 durRoot.frozenDuration = Voice.formattedDuration;
-            } else if (durRoot.tick === 6) {
-                // Check frozen duration
+            } else if (durRoot.tick === 7) {
                 Voice.poll();
                 console.log("DUR_FROZEN frozen=" + (Voice.formattedDuration === durRoot.frozenDuration ? "yes" : "no"));
-                // Switch to idle to test reset (D-08)
+                // Remove file and reset duration to test idle reset (D-08)
+                Quickshell.execDetached(["rm", "-f", Voice.recorderPidPath]);
                 Voice.sttState = "idle";
-                Voice.poll();
+                Voice.resetDuration();
                 console.log("DUR_RESET elapsedSec=" + Voice.elapsedSeconds + " formatted=" + Voice.formattedDuration);
                 Qt.quit();
             }
@@ -456,7 +458,7 @@ Scope {
 }
 EOF
 )
-  OUT_DUR="$(run_qs_test "$QML_DUR" "$RT_S4" 2.5)"
+  OUT_DUR="$(run_qs_test "$QML_DUR" "$RT_S4" 2.8)"
 
   if echo "$OUT_DUR" | grep -q "DUR_FORMAT_CHECK formatDuration=1:05 formatDuration0=0:00"; then
     pass "S4: formatDuration formats seconds as M:SS (e.g. 65s -> 1:05)"
