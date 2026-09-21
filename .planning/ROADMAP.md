@@ -14,7 +14,7 @@ The work is organized into 3 sequential phases: establishing the non-blocking st
 - Decimal phases (35.1, 35.2): Urgent insertions if required.
 
 - [x] **Phase 35: Voice Telemetry & State Service Architecture** - Implement `Voice.qml` Singleton service observing runtime state files with process liveness and duration tracking. (completed 2026-09-21)
-- [ ] **Phase 36: Visual Voice Pill Component & Dynamic Animations** - Author `VoicePill.qml` with `auto_awesome` AI iconography, pulse animations, animated waveform, and M3 width transitions.
+- [x] **Phase 36: Visual Voice Pill Component & Dynamic Animations** - Author `VoicePill.qml` with `auto_awesome` AI iconography, pulse animations, animated waveform, and M3 width transitions. (completed 2026-09-21)
 - [ ] **Phase 37: Bar Layout Integration, Dual-Monitor Verification & Strict Packaging** - Place Voice pill in `BarContent.qml` Right zone after Media, deploy via `restow/quickshell/`, verify Material You palette adaptation, and sign off with automated assertion harness.
 
 ## Phase Details
@@ -51,11 +51,11 @@ Plans:
   5. Component displays live duration counter (`0:05`) and transition state badges ("Transcribing...", "Typing...").
   6. Component animates width expansion between compact resting state and expanded active telemetry state via 250ms Material 3 emphasized deceleration.
 
-**Plans:** 0/1 plans complete
+**Plans:** 1/1 plans complete
 
 Plans:
 
-- [ ] 36-01-PLAN.md — Author `VoicePill.qml` with `BarGroup` container, `graphic_eq` icon, breathing pulse animation, duration label, wrap-up linger, and reactive state bindings.
+- [x] 36-01-PLAN.md — Author `VoicePill.qml` with `BarGroup` container, `graphic_eq` icon, breathing pulse animation, duration label, wrap-up linger, and reactive state bindings.
 
 ### Phase 37: Bar Layout Integration, Dual-Monitor Verification & Strict Packaging
 
@@ -83,7 +83,7 @@ Phases execute in numeric order: 35 → 36 → 37
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 35. Voice Telemetry & State Service Architecture | 1/1 | Complete    | 2026-09-21 |
-| 36. Visual Voice Pill Component & Dynamic Animations | 0/1 | Not started | - |
+| 36. Visual Voice Pill Component & Dynamic Animations | 1/1 | Complete    | 2026-09-21 |
 | 37. Bar Layout Integration, Dual-Monitor Verification & Strict Packaging | 0/1 | Not started | - |
 
 ---

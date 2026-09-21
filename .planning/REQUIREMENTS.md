@@ -17,12 +17,12 @@ Requirements for Milestone v0.7: Voice Status Bar Component & Audio Telemetry. E
 
 ### Voice Component & Animations
 
-- [ ] **VOICE-01**: User sees a dedicated `VoicePill.qml` status bar pill styled with `BarGroup.qml` rounded rectangle geometry (12–16px corner radius, 4–6px internal padding).
-- [ ] **VOICE-02**: Component displays an AI visual symbol (`auto_awesome` / sparkles) rendered via `MaterialSymbol.qml` that matches the desktop shell's design language.
-- [ ] **VOICE-03**: Component displays a reactive pulse animation and accent color change during active STT recording.
-- [ ] **VOICE-04**: Component displays dynamic animated audio wave bars during active recording and speaking states.
-- [ ] **VOICE-05**: Component displays live duration text (`0:05`) while recording/speaking and status badges ("Transcribing...", "Typing...") during state transitions.
-- [ ] **VOICE-06**: Component smoothly transitions width between a compact resting state and an expanded active telemetry state using Material 3 250ms emphasized deceleration.
+- [x] **VOICE-01**: User sees a dedicated `VoicePill.qml` status bar pill styled with `BarGroup.qml` rounded rectangle geometry (12–16px corner radius, 4–6px internal padding).
+- [x] **VOICE-02**: Component displays an AI visual symbol (`auto_awesome` / sparkles) rendered via `MaterialSymbol.qml` that matches the desktop shell's design language.
+- [x] **VOICE-03**: Component displays a reactive pulse animation and accent color change during active STT recording.
+- [x] **VOICE-04**: Component displays dynamic animated audio wave bars during active recording and speaking states.
+- [x] **VOICE-05**: Component displays live duration text (`0:05`) while recording/speaking and status badges ("Transcribing...", "Typing...") during state transitions.
+- [x] **VOICE-06**: Component smoothly transitions width between a compact resting state and an expanded active telemetry state using Material 3 250ms emphasized deceleration.
 
 ### Layout & System Integration
 
@@ -65,12 +65,12 @@ Which phases cover which requirements. Populated during roadmap creation.
 | TELEM-03 | Phase 35 | Complete |
 | TELEM-04 | Phase 35 | Complete |
 | TELEM-05 | Phase 35 | Complete |
-| VOICE-01 | Phase 36 | Pending |
-| VOICE-02 | Phase 36 | Pending |
-| VOICE-03 | Phase 36 | Pending |
-| VOICE-04 | Phase 36 | Pending |
-| VOICE-05 | Phase 36 | Pending |
-| VOICE-06 | Phase 36 | Pending |
+| VOICE-01 | Phase 36 | Complete |
+| VOICE-02 | Phase 36 | Complete |
+| VOICE-03 | Phase 36 | Complete |
+| VOICE-04 | Phase 36 | Complete |
+| VOICE-05 | Phase 36 | Complete |
+| VOICE-06 | Phase 36 | Complete |
 | INTG-01 | Phase 37 | Pending |
 | INTG-02 | Phase 37 | Pending |
 | INTG-03 | Phase 37 | Pending |

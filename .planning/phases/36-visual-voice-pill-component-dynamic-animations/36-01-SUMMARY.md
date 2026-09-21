@@ -117,7 +117,7 @@ status: complete
 
 ## Accomplishments
 
-- Authored `restow/quickshell/.config/quickshell/ii/modules/ii/bar/VoicePill.qml` inheriting `BarGroup.qml` pill geometry (12px radius, 5px padding, `colLayer1` container) and deployed as a leaf symlink to `~/.config/quickshell/ii/modules/ii/bar/VoicePill.qml` via GNU Stow without directory folding.
+- Authored `restow/quickshell/.config/quickshell/ii/modules/ii/bar/VoicePill.qml` inheriting `BarGroup.qml` pill geometry (12px radius, 5px padding, `colLayer1` container) and deployed as a leaf symlink to `/home/pera/.config/quickshell/ii/modules/ii/bar/VoicePill.qml` via GNU Stow without directory folding.
 - Rendered Google Material Symbols Rounded `graphic_eq` icon via `MaterialSymbol.qml` with dynamic Material You palette shifts across lifecycle states (`colPrimary`, `colTertiary`, `colSecondary`, `colOnLayer1`) with zero hardcoded hex colors.
 - Implemented gentle breathing pulse animation (`1.0 <-> 0.5` opacity over 1000ms using `Easing.InOutSine`) active strictly during active STT recording, featuring an unconditional `onRunningChanged` guard that immediately restores 1.0 opacity on stop.
 - Implemented Sequential Linear Flow state engine binding to `Voice.overallState` and `Voice.formattedDuration`, displaying live timers (`M:SS`) during recording/speaking, localized status badges (`"Transcribing..."`, `"Typing..."`) during transitions, and holding final talk duration for 1500ms via `wrapUpTimer` before returning to idle.
