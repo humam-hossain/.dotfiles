@@ -51,11 +51,11 @@ Plans:
   5. Component displays live duration counter (`0:05`) and transition state badges ("Transcribing...", "Typing...").
   6. Component animates width expansion between compact resting state and expanded active telemetry state via 250ms Material 3 emphasized deceleration.
 
-**Plans**: 1 plan (36-01)
+**Plans:** 0/1 plans complete
 
 Plans:
 
-- [ ] 36-01: Author `VoicePill.qml` with `BarGroup` container, `auto_awesome` icon, animated wave bars, duration label, and reactive state bindings.
+- [ ] 36-01-PLAN.md — Author `VoicePill.qml` with `BarGroup` container, `graphic_eq` icon, breathing pulse animation, duration label, wrap-up linger, and reactive state bindings.
 
 ### Phase 37: Bar Layout Integration, Dual-Monitor Verification & Strict Packaging
 
