@@ -184,6 +184,46 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
   else
     fail "S1: Parent directory $LIVE_BAR_DIR is symlinked or missing (folded)"
   fi
+
+  # Vertical Bar Layout Integration (G-37-2)
+  VERTICAL_BAR_CONTENT_REPO="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/verticalBar/VerticalBarContent.qml"
+  VERTICAL_BAR_CONTENT_LIVE="$XDG_CONFIG_HOME/quickshell/ii/modules/ii/verticalBar/VerticalBarContent.qml"
+  LIVE_VERTICAL_BAR_DIR="$XDG_CONFIG_HOME/quickshell/ii/modules/ii/verticalBar"
+
+  if [[ -f "$VERTICAL_BAR_CONTENT_REPO" ]]; then
+    pass "S1: VerticalBarContent.qml exists in restow"
+  else
+    fail "S1: VerticalBarContent.qml does not exist in restow"
+  fi
+
+  if grep -A 10 "VoicePill {" "$VERTICAL_BAR_CONTENT_REPO" | grep -q "vertical: true"; then
+    pass "S1: VerticalBarContent.qml explicitly instantiates VoicePill with vertical: true"
+  else
+    fail "S1: VerticalBarContent.qml missing VoicePill with vertical: true"
+  fi
+
+  if grep -A 10 "VoicePill {" "$VERTICAL_BAR_CONTENT_REPO" | grep -q "Layout.alignment: Qt.AlignHCenter"; then
+    pass "S1: VerticalBarContent.qml binds VoicePill Layout.alignment: Qt.AlignHCenter"
+  else
+    fail "S1: VerticalBarContent.qml missing VoicePill Layout.alignment: Qt.AlignHCenter"
+  fi
+
+  if [[ -L "$VERTICAL_BAR_CONTENT_LIVE" ]]; then
+    v_target="$(readlink "$VERTICAL_BAR_CONTENT_LIVE")"
+    if [[ "$v_target" == *"restow/quickshell/.config/quickshell/ii/modules/ii/verticalBar/VerticalBarContent.qml"* ]]; then
+      pass "S1: VerticalBarContent.qml is deployed as live symlink into restow: $v_target"
+    else
+      fail "S1: VerticalBarContent.qml symlink points elsewhere: $v_target"
+    fi
+  else
+    fail "S1: VerticalBarContent.qml is not a live symlink: $VERTICAL_BAR_CONTENT_LIVE"
+  fi
+
+  if [[ -d "$LIVE_VERTICAL_BAR_DIR" && ! -L "$LIVE_VERTICAL_BAR_DIR" ]]; then
+    pass "S1: Parent directory $LIVE_VERTICAL_BAR_DIR is a real directory (no folding)"
+  else
+    fail "S1: Parent directory $LIVE_VERTICAL_BAR_DIR is symlinked or missing (folded)"
+  fi
 fi
 
 # ===========================================================================
@@ -338,6 +378,55 @@ QMLV
       pass "S3: vertical=true suppresses expansion"
     else
       fail "S3: vertical=true failed to suppress expansion: $OUT_S3_V"
+    fi
+
+    # STT Recording Duration Counter Verification (G-37-6)
+    QML_S3_TIMER=$(cat << 'QMLT'
+import QtQuick
+import Quickshell
+import "modules/ii/bar"
+import "services"
+
+Scope {
+    id: scopeRoot
+    property int step: 0
+    property string initialDuration: ""
+    property string finalDuration: ""
+
+    Timer {
+        interval: 100
+        running: true
+        repeat: true
+        onTriggered: {
+            scopeRoot.step++;
+            Voice.poll();
+            if (scopeRoot.step === 1) {
+                Quickshell.execDetached(["bash", "-c", "echo 'STT_PID_S3 recording' > RT_S3/voice-stt/recorder.pid"]);
+            } else if (scopeRoot.step === 3) {
+                scopeRoot.initialDuration = Voice.formattedDuration;
+            } else if (scopeRoot.step === 14) {
+                scopeRoot.finalDuration = Voice.formattedDuration;
+                console.log("S3_TIMER init=" + scopeRoot.initialDuration + " final=" + scopeRoot.finalDuration + " elapsed=" + Voice.elapsedSeconds);
+                Qt.quit();
+            }
+        }
+    }
+}
+QMLT
+)
+    QML_S3_TIMER="${QML_S3_TIMER//STT_PID_S3/$STT_PID_S3}"
+    QML_S3_TIMER="${QML_S3_TIMER//RT_S3/$RT_S3}"
+    OUT_S3_TIMER="$(run_qs_test "$QML_S3_TIMER" "$RT_S3" 5)"
+    if echo "$OUT_S3_TIMER" | grep -q "final=0:0[1-9]"; then
+      pass "S3: STT recording duration counter increments continuously from 0:00 (G-37-6)"
+    else
+      fail "S3: STT recording duration counter remained stuck: $OUT_S3_TIMER"
+    fi
+
+    if grep -q "Math.max(0, uptimeSec" "$REPO_ROOT/restow/quickshell/.config/quickshell/ii/services/Voice.qml"; then
+      pass "S3: Voice.qml clamps elapsedSec with Math.max(0, uptimeSec - ...)"
+    else
+      fail "S3: Voice.qml missing Math.max(0, uptimeSec clamping"
     fi
   else
     pass "S3: [SKIPPED in --syntax mode] Headless evaluation"
