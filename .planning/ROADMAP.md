@@ -69,11 +69,11 @@ Plans:
   3. Voice pill colors adapt reactively to wallpaper switches via `switchwall.sh` Matugen tokens with zero working tree drift.
   4. Automated test harness (`scripts/phase35-voice-pill-assert.sh`) verifies QML syntax, state binding, and strict repository integrity (`arch/dots-hyprland.sh verify --strict` 0 findings).
 
-**Plans**: 1 plan (37-01)
+**Plans**: 1/1 plans executed (37-01)
 
 Plans:
 
-- [ ] 37-01-PLAN.md — Integrate VoicePill into BarContent.qml, implement responsive multi-monitor adaptation, inert mouse isolation, and execute strict packaging verification.
+- [x] 37-01-PLAN.md — Integrate VoicePill into BarContent.qml, implement responsive multi-monitor adaptation, inert mouse isolation, and execute strict packaging verification.
 
 ## Progress
 
@@ -84,7 +84,7 @@ Phases execute in numeric order: 35 → 36 → 37
 |-------|----------------|--------|-----------|
 | 35. Voice Telemetry & State Service Architecture | 1/1 | Complete    | 2026-09-21 |
 | 36. Visual Voice Pill Component & Dynamic Animations | 1/1 | Complete    | 2026-09-21 |
-| 37. Bar Layout Integration, Dual-Monitor Verification & Strict Packaging | 0/1 | Not started | - |
+| 37. Bar Layout Integration, Dual-Monitor Verification & Strict Packaging | 1/1 | In Progress|  |
 
 ---
 *Roadmap created: 2026-09-21*  

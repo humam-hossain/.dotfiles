@@ -3,13 +3,13 @@ gsd_state_version: "1.0"
 milestone: v0.7
 milestone_name: )
 current_phase: 37
-current_phase_name: bar-layout-integration-dual-monitor-verification-strict-pack
+current_phase_name: Bar Layout Integration, Dual-Monitor Verification & Strict Packaging
 status: executing
 stopped_at: Phase 37 context gathered
-last_updated: "2026-09-21T07:21:23.341Z"
+last_updated: "2026-09-21T07:25:25.496Z"
 last_activity: 2026-09-21
-last_activity_desc: Phase 36 complete, transitioned to Phase 37
-state_head: 05078453a9c9f55a5d96a5d77b706bebbb727b8d
+last_activity_desc: Phase 37 execution started
+state_head: af32973c0fa0c20635d4fc34ed34d083e8937b22
 progress:
   total_phases: 3
   completed_phases: 2
@@ -25,10 +25,10 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0/3 pla
 
 ## Current Position
 
-Phase: 37 (bar-layout-integration-dual-monitor-verification-strict-pack) — READY TO EXECUTE
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-21 — Phase 36 complete, transitioned to Phase 37
+Phase: 37 (Bar Layout Integration, Dual-Monitor Verification & Strict Packaging) — EXECUTING
+Plan: 1 of 1
+Status: Executing Phase 37
+Last activity: 2026-09-21 — Phase 37 execution started
 
 ## Session
 
@@ -280,3 +280,4 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 31]: D-01: Removed artificial width clamps on center groups in BarContent.qml — Allows content-driven dynamic pill widths
 - [Phase 31]: D-02: Added Behavior on implicitWidth with Material 3 emphasizedDecel in BarGroup.qml — Ensures fluid pill resizing animations
 - [Phase 31]: D-03: Preserved 100% upstream visual fidelity tokens — Maintains visual consistency with dots-hyprland
+- [Phase 37]: Integrated VoicePill into BarContent.qml right zone directly following mediaLoader, with full multi-monitor responsive suppression logic and an inert MouseArea preventing clicks from bleeding to the status bar toggles. Deployment completed exclusively through GNU Stow leaf symlinks, leaving the upstream dots-hyprland submodule untouched. Test harness executing perfectly across 5 sections with FAIL=0 FINDINGS=0.
