@@ -19,7 +19,6 @@ Closed UAT gaps G-37-2 (VoicePill missing when bar orientation is left or right)
 - `restow/quickshell/.config/quickshell/ii/modules/ii/bar/VoicePill.qml` (Modified)
 - `restow/quickshell/.config/quickshell/ii/services/Voice.qml` (Modified)
 - `scripts/phase37-voice-pill-assert.sh` (Modified)
-- `~/.config/quickshell/ii/modules/ii/verticalBar/VerticalBarContent.qml` (Leaf symlink deployed)
 
 ## Self-check results
 The test harness executed successfully across all sections:
