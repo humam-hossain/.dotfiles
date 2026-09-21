@@ -12,6 +12,8 @@ BarGroup {
 
     clip: true
 
+    property real useShortenedForm: 0
+
     // Internal State Tracking
     property string previousState: "idle"
     property string lastRecordedDuration: "0:00"
@@ -23,6 +25,7 @@ BarGroup {
     readonly property alias voiceIcon: voiceIcon
     readonly property alias voiceLabel: voiceLabel
     readonly property alias contentContainer: contentContainer
+    readonly property alias inertMouseArea: inertMouseArea
 
     // Effective Lifecycle State (Sequential Linear Flow)
     readonly property string effectiveState: {
@@ -56,7 +59,7 @@ BarGroup {
         }
     }
 
-    readonly property bool isExpanded: effectiveState !== "idle"
+    readonly property bool isExpanded: effectiveState !== "idle" && useShortenedForm < 2 && !vertical
 
     // Responsive Width Binding with M3 250ms Emphasized Deceleration (D-04, VOICE-06, Pitfall 1)
     implicitWidth: vertical ? Appearance.sizes.baseVerticalBarWidth : (
@@ -97,6 +100,16 @@ BarGroup {
             }
         }
     ]
+
+    MouseArea {
+        id: inertMouseArea
+        parent: root
+        anchors.fill: parent
+        acceptedButtons: Qt.AllButtons
+        cursorShape: Qt.ArrowCursor
+        hoverEnabled: false
+        onPressed: event => event.accepted = true
+    }
 
     // Content Layout Container (Pitfall 2)
     Item {
