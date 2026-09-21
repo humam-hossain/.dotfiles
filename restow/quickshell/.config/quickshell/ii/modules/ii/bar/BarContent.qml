@@ -203,6 +203,12 @@ Item { // Bar content region
                 }
             }
 
+            VoicePill {
+                id: voicePill
+                Layout.alignment: Qt.AlignVCenter
+                useShortenedForm: root.useShortenedForm
+            }
+
             Loader {
                 id: updatesLoader
                 Layout.alignment: Qt.AlignVCenter
