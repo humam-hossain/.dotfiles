@@ -250,9 +250,25 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Repository integrity verified with `arch/dots-hyprland.sh verify --strict` (0 findings, zero git drift) — Phase 34 / INTG-02
 - ✓ Fresh-machine bootstrap (`./bootstrap.sh`) deploys customized bar and pill configurations cleanly — Phase 34 / INTG-03
 
+### Validated — v0.7
+
+- ✓ Quickshell Singleton service (`Voice.qml`) observing runtime tmpfs state files asynchronously — Phase 35 / TELEM-01
+- ✓ Speech lifecycle state detection & strict priority hierarchy with 1000ms typing linger — Phase 35 / TELEM-02
+- ✓ Process liveness verification against `/proc/<pid>/cmdline` & automated stale lock purge — Phase 35 / TELEM-03
+- ✓ Live elapsed duration counter, transcription freeze, idle reset, and reload recovery anchor — Phase 35 / TELEM-04
+- ✓ Active TTS voice metadata extraction from `/proc/<tts_pid>/cmdline` with fallback defaults — Phase 35 / TELEM-05
+
 ### Active
 
-(None currently active — milestone v0.6 complete. Use `/gsd-new-milestone` to plan next milestone.)
+- [ ] Dedicated `VoicePill.qml` status bar component with Material Symbols AI iconography — Phase 36 / VOICE-01
+- [ ] Speech state visual animations (recording pulse, speaking glow, transcribing shimmer) — Phase 36 / VOICE-02
+- [ ] Dynamic multi-bar animated audio waveform visualizer — Phase 36 / VOICE-03
+- [ ] Fluid Material 3 pill width expansion and collapse — Phase 36 / VOICE-04
+- [ ] Click actions: Left-click toggles recording, Right-click cancels, Middle-click toggles TTS playback — Phase 36 / VOICE-05
+- [ ] Interactive desktop hover tooltip with voice telemetry details — Phase 36 / VOICE-06
+- [ ] Bar layout integration in `BarContent.qml` Right zone — Phase 37 / BAR-01
+- [ ] Dual-monitor visual balance and Material You theme adaptation — Phase 37 / BAR-02
+- [ ] Automated validation test harness and strict zero-drift packaging — Phase 37 / BAR-03
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -402,6 +418,11 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 33: Dead-center Workspaces with flanking Weather and Clock | Anchor Workspaces strictly to monitor horizontalCenter (50%), flanked by Weather on left and Clock on right | ✓ 33-03 User checkpoint sign-off (LAYOUT-02) |
 | Phase 34: Bootstrap pre-creation and socket robustness | Pre-create ~/.config/quickshell/ii/modules/ii/bar to prevent stow directory folding; dynamic Hyprland socket detection | ✓ 34-01 (INTG-02, INTG-03) |
 | Phase 34: Fail-soft color priming and 5-section test harness | Fall back to default color seed #3f51b5 on missing wallpaper; scaffold scripts/phase34-verification-assert.sh | ✓ 34-01, 34-02 (INTG-01..03) |
+| Phase 35: Adaptive polling via native FileView | 100ms when speech active / 500ms when idle over RAM tmpfs with blockLoading: true and printErrors: false (D-01, D-03) | ✓ Section 1 FAIL=0, TELEM-01 |
+| Phase 35: Speech lifecycle state precedence hierarchy and typing linger | Precedence: recording > transcribing > speaking > typing > starting > idle; 1000ms visual linger on typing (D-04, D-06) | ✓ Section 2 FAIL=0, TELEM-02 |
+| Phase 35: Procfs process liveness verification and stale lock purging | Validates /proc/<pid>/cmdline tokens ('voice'/'voicemode') and purges stale locks via Quickshell.execDetached (D-02, D-10, D-11) | ✓ Section 3 FAIL=0, TELEM-03 |
+| Phase 35: Drift-free wall-clock duration with procfs reload recovery | Live duration counts Date.now() diff, freezes on transcribing/typing, recovers start ticks from /proc/<pid>/stat across shell reload (D-07, D-08, D-09) | ✓ Section 4 FAIL=0, TELEM-04 |
+| Phase 35: TTS voice metadata extraction | Extracts --tts-voice and --tts-backend from null-delimited /proc/<tts_pid>/cmdline with fallback to kokoro af_heart (D-02) | ✓ Section 5 FAIL=0, TELEM-05 |
 
 ## Evolution
 
@@ -421,4 +442,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-21 — Milestone v0.7 initialized*
+*Last updated: 2026-09-21 after Phase 35*
