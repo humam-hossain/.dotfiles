@@ -26,10 +26,10 @@ Requirements for Milestone v0.7: Voice Status Bar Component & Audio Telemetry. E
 
 ### Layout & System Integration
 
-- [ ] **INTG-01**: Component is integrated into `BarContent.qml` Right zone positioned immediately after Media (`mediaLoader`).
-- [ ] **INTG-02**: Component and service are deployed under `restow/quickshell/` via GNU Stow leaf symlinks without folding ancestor directories or modifying `vendor/dots-hyprland`.
-- [ ] **INTG-03**: Component dynamically adapts to active wallpaper Material You palette tokens via Matugen without hardcoded hex colors or git working-tree churn.
-- [ ] **INTG-04**: Milestone deliverables pass an automated multi-section assertion test harness and strict repository verification (`arch/dots-hyprland.sh verify --strict` 0 findings).
+- [x] **INTG-01**: Component is integrated into `BarContent.qml` Right zone positioned immediately after Media (`mediaLoader`).
+- [x] **INTG-02**: Component and service are deployed under `restow/quickshell/` via GNU Stow leaf symlinks without folding ancestor directories or modifying `vendor/dots-hyprland`.
+- [x] **INTG-03**: Component dynamically adapts to active wallpaper Material You palette tokens via Matugen without hardcoded hex colors or git working-tree churn.
+- [x] **INTG-04**: Milestone deliverables pass an automated multi-section assertion test harness and strict repository verification (`arch/dots-hyprland.sh verify --strict` 0 findings).
 
 ## Future Requirements (v0.8+)
 
@@ -71,10 +71,10 @@ Which phases cover which requirements. Populated during roadmap creation.
 | VOICE-04 | Phase 36 | Complete |
 | VOICE-05 | Phase 36 | Complete |
 | VOICE-06 | Phase 36 | Complete |
-| INTG-01 | Phase 37 | Pending |
-| INTG-02 | Phase 37 | Pending |
-| INTG-03 | Phase 37 | Pending |
-| INTG-04 | Phase 37 | Pending |
+| INTG-01 | Phase 37 | Complete |
+| INTG-02 | Phase 37 | Complete |
+| INTG-03 | Phase 37 | Complete |
+| INTG-04 | Phase 37 | Complete |
 
 **Coverage:**
 

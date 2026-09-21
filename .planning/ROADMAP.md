@@ -15,7 +15,7 @@ The work is organized into 3 sequential phases: establishing the non-blocking st
 
 - [x] **Phase 35: Voice Telemetry & State Service Architecture** - Implement `Voice.qml` Singleton service observing runtime state files with process liveness and duration tracking. (completed 2026-09-21)
 - [x] **Phase 36: Visual Voice Pill Component & Dynamic Animations** - Author `VoicePill.qml` with `auto_awesome` AI iconography, pulse animations, animated waveform, and M3 width transitions. (completed 2026-09-21)
-- [ ] **Phase 37: Bar Layout Integration, Dual-Monitor Verification & Strict Packaging** - Place Voice pill in `BarContent.qml` Right zone after Media, deploy via `restow/quickshell/`, verify Material You palette adaptation, and sign off with automated assertion harness.
+- [x] **Phase 37: Bar Layout Integration, Dual-Monitor Verification & Strict Packaging** - Place Voice pill in `BarContent.qml` Right zone after Media, deploy via `restow/quickshell/`, verify Material You palette adaptation, and sign off with automated assertion harness. (completed 2026-09-21)
 
 ## Phase Details
 
@@ -84,7 +84,7 @@ Phases execute in numeric order: 35 → 36 → 37
 |-------|----------------|--------|-----------|
 | 35. Voice Telemetry & State Service Architecture | 1/1 | Complete    | 2026-09-21 |
 | 36. Visual Voice Pill Component & Dynamic Animations | 1/1 | Complete    | 2026-09-21 |
-| 37. Bar Layout Integration, Dual-Monitor Verification & Strict Packaging | 1/1 | In Progress|  |
+| 37. Bar Layout Integration, Dual-Monitor Verification & Strict Packaging | 1/1 | Complete    | 2026-09-21 |
 
 ---
 *Roadmap created: 2026-09-21*  
