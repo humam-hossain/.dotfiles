@@ -1,78 +1,71 @@
 # Roadmap: Quickshell Desktop Shell
 
-## Milestones
+**Milestone:** v0.8 Notification Experience & Shell Interaction Polish  
+**Phases:** 4 phases (Phases 38–41, continuing from v0.7 Phase 37)  
+**Requirements:** 14 requirements mapped (100% coverage)
 
-- ✅ **v0.1 Core Framework & Basic Bar** — Phases 1-4 (shipped 2026-07-25)
-- ✅ **v0.2 Adopt dots-hyprland** — Phases 5-9 (shipped 2026-08-02)
-- ✅ **v0.3 Full ii install** — Phases 10-16 (shipped 2026-09-09)
-- ✅ **v0.4 Personal config layer** — Phases 17-24 (shipped 2026-09-16)
-- ✅ **v0.5 System-wide Material You theming** — Phases 25-30 (shipped 2026-09-18)
-- ✅ **v0.6 Top Status Bar Layout, Pill Styling & Component Customization** — Phases 31-34 (shipped 2026-09-20)
-- ✅ **v0.7 Voice Status Bar Component & Audio Telemetry** — Phases 35-37 (shipped 2026-09-21)
+## Overview
+
+Milestone v0.8 refines core desktop shell interactions and ergonomics across media controls, system power switching, and notifications. Phase 38 integrates `power-profiles-daemon` into Arch Linux and connects it to the existing Quickshell toggle. Phase 39 implements dynamic coordinate anchoring and edge clamping for `MediaControls.qml` relative to the top bar's `Media` pill. Phase 40 delivers notification ergonomics in `restow/quickshell/`: an always-visible 'X' close button on sidebar cards, smart body click with app focus and URL launching, and regex OTP verification code extraction with a quick "Copy [Code]" action chip. Phase 41 unifies these features under an automated regression test harness and verifies strict repository integrity with zero upstream drift.
 
 ## Phases
 
-<details>
-<summary>✅ v0.1 Core Framework & Basic Bar (Phases 1-4) — SHIPPED 2026-07-25</summary>
+- [ ] **Phase 38: Power Profiles Daemon System Integration** - Install, enable, and wire `power-profiles-daemon` into systemd, package manifests, and Quickshell's quick-toggle.
+- [ ] **Phase 39: Dynamic Media Popup Anchoring** - Anchor `MediaControls.qml` dynamically beneath the top status bar's `Media` pill with screen boundary clamping.
+- [ ] **Phase 40: Notification Center Quick-Dismiss & Smart Interaction** - Add sidebar 'X' close button, smart body click app/link routing, and regex OTP code extraction with copy chip.
+- [ ] **Phase 41: End-to-End Verification & Repository Integrity** - Validate all features with automated test harnesses and assert strict zero-churn repository compliance.
 
-See [milestones/v0.1-ROADMAP.md](milestones/v0.1-ROADMAP.md)
+## Phase Details
 
-</details>
+### Phase 38: Power Profiles Daemon System Integration
+**Goal**: Establish system-level power profile switching support on Arch Linux and connect it to Quickshell's power profile quick-toggle.  
+**Depends on**: Nothing (first phase of v0.8)  
+**Requirements**: POWER-01, POWER-02, POWER-03  
+**Success Criteria** (what must be TRUE):
+  1. `power-profiles-daemon` is installed on Arch Linux and `power-profiles-daemon.service` is actively running.
+  2. Clicking the power profile toggle button in Quickshell (`PowerProfilesToggle.qml`) cycles through Power Saver, Balanced, and Performance modes, updating the button icon and status text live.
+  3. `arch/pkglist-native.txt`, `arch/dots-hyprland.sh`, and `./bootstrap.sh` are updated to ensure idempotent installation and service activation on fresh machines.
+**Plans**: TBD
 
-<details>
-<summary>✅ v0.2 Adopt dots-hyprland (Phases 5-9) — SHIPPED 2026-08-02</summary>
+### Phase 39: Dynamic Media Popup Anchoring
+**Goal**: Dynamically position `MediaControls.qml` directly beneath the top status bar's `Media` pill across active displays with boundary clamping.  
+**Depends on**: Nothing (independent QML component)  
+**Requirements**: MEDIA-01, MEDIA-02  
+**Success Criteria** (what must be TRUE):
+  1. `MediaControls.qml` computes its horizontal position dynamically based on the `Media` pill's position in `BarContent.qml` rather than a static center offset.
+  2. Horizontal coordinate clamping (`Math.min` / `Math.max`) prevents the popup from extending past monitor margins on narrow, scaled, or ultrawide displays.
+  3. Left-clicking the `Media` pill in the top status bar cleanly toggles the popup open directly underneath the pill.
+**Plans**: TBD
 
-See [milestones/v0.2-ROADMAP.md](milestones/v0.2-ROADMAP.md)
+### Phase 40: Notification Center Quick-Dismiss & Smart Interaction
+**Goal**: Enhance notification ergonomics with 1-click sidebar dismissal, smart body click routing, and automated OTP verification code detection.  
+**Depends on**: Nothing (notification overlay component)  
+**Requirements**: NOTIF-01, NOTIF-02, NAV-01, NAV-02, OTP-01, OTP-02  
+**Success Criteria** (what must be TRUE):
+  1. Notification cards in the Right Sidebar (`NotificationGroup.qml`) feature an always-visible 'X' close button that immediately dismisses the notification without expanding.
+  2. Toast notification popups (`NotificationPopup.qml`) strictly suppress the header 'X' close button (`visible: !root.popup`), preserving clean hover/timeout dismissal.
+  3. Clicking the notification card body invokes the sending application's `default` D-Bus action, or extracts and opens embedded/Chromium web links in the default browser.
+  4. Incoming notifications containing 4–8 digit verification codes display a prominent "Copy [123456]" action chip that copies the code to the clipboard with visual confirmation.
+**Plans**: TBD
 
-</details>
-
-<details>
-<summary>✅ v0.3 Full ii install (Phases 10-16) — SHIPPED 2026-09-09</summary>
-
-See [milestones/v0.3-ROADMAP.md](milestones/v0.3-ROADMAP.md)
-
-</details>
-
-<details>
-<summary>✅ v0.4 Personal config layer (Phases 17-24) — SHIPPED 2026-09-16</summary>
-
-See [milestones/v0.4-ROADMAP.md](milestones/v0.4-ROADMAP.md)
-
-</details>
-
-<details>
-<summary>✅ v0.5 System-wide Material You theming (Phases 25-30) — SHIPPED 2026-09-18</summary>
-
-See [milestones/v0.5-ROADMAP.md](milestones/v0.5-ROADMAP.md)
-
-</details>
-
-<details>
-<summary>✅ v0.6 Top Status Bar Layout, Pill Styling & Component Customization (Phases 31-34) — SHIPPED 2026-09-20</summary>
-
-See [milestones/v0.6-ROADMAP.md](milestones/v0.6-ROADMAP.md)
-
-</details>
-
-<details>
-<summary>✅ v0.7 Voice Status Bar Component & Audio Telemetry (Phases 35-37) — SHIPPED 2026-09-21</summary>
-
-- [x] Phase 35: Voice Telemetry & State Service Architecture (1/1 plans) — completed 2026-09-21
-- [x] Phase 36: Visual Voice Pill Component & Dynamic Animations (1/1 plans) — completed 2026-09-21
-- [x] Phase 37: Bar Layout Integration, Dual-Monitor Verification & Strict Packaging (2/2 plans) — completed 2026-09-21
-
-See [milestones/v0.7-ROADMAP.md](milestones/v0.7-ROADMAP.md)
-
-</details>
+### Phase 41: End-to-End Verification & Repository Integrity
+**Goal**: Execute comprehensive automated verification across all milestone features and assert repository cleanliness.  
+**Depends on**: Phases 38, 39, 40  
+**Requirements**: INTG-01, INTG-02, INTG-03  
+**Success Criteria** (what must be TRUE):
+  1. All QML modifications are deployed strictly via `restow/quickshell/` leaf symlinks without modifying `vendor/dots-hyprland`.
+  2. A dedicated automated test harness (`scripts/phase41-interactions-assert.sh`) verifies power profile transitions, media popup positioning, notification dismissal, link opening, and OTP parsing.
+  3. `arch/dots-hyprland.sh verify --strict` exits 0 with `0 findings` and zero git working-tree churn.
+**Plans**: TBD
 
 ## Progress
 
-| Phase | Milestone | Plans Complete | Status | Completed |
-|-------|-----------|----------------|--------|-----------|
-| 35. Voice Telemetry & State Service Architecture | v0.7 | 1/1 | Complete | 2026-09-21 |
-| 36. Visual Voice Pill Component & Dynamic Animations | v0.7 | 1/1 | Complete | 2026-09-21 |
-| 37. Bar Layout Integration, Dual-Monitor Verification & Strict Packaging | v0.7 | 2/2 | Complete | 2026-09-21 |
+**Execution Order:**
+Phases execute in numeric order: 38 → 39 → 40 → 41
 
----
-*Roadmap created: 2026-09-21*  
-*Last updated: 2026-09-21 — v0.7 milestone archived*  
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 38. Power Profiles Daemon System Integration | 0/TBD | Not started | - |
+| 39. Dynamic Media Popup Anchoring | 0/TBD | Not started | - |
+| 40. Notification Center Quick-Dismiss & Smart Interaction | 0/TBD | Not started | - |
+| 41. End-to-End Verification & Repository Integrity | 0/TBD | Not started | - |
