@@ -1,91 +1,92 @@
 # Project Research Summary
 
-**Project:** Quickshell Desktop Shell (Milestone v0.7)  
-**Domain:** Quickshell Status Bar Voice Component & Audio Telemetry  
-**Researched:** 2026-09-21  
-**Confidence:** HIGH  
+**Project:** Quickshell Desktop Shell (Milestone v0.8)
+**Domain:** Linux Desktop Shell (Quickshell / Qt 6 QML / Hyprland / D-Bus / Arch Linux)
+**Researched:** 2026-09-22
+**Confidence:** HIGH
 
 ## Executive Summary
 
-Milestone v0.7 delivers a dedicated custom Voice status bar component for the Quickshell desktop shell on Arch Linux / Hyprland. The component connects to the local `voice` STT/TTS engine (`faster-whisper` and `Kokoro` TTS) located in `/home/pera/github_repo/Voice`, providing real-time visual telemetry and lifecycle feedback in the top status bar.
+Milestone v0.8 focuses on ergonomic interactions and desktop polish across three primary surfaces: the status bar media popup, system power management toggling, and the notification subsystem. Investigation of the current implementation revealed clear root causes for each issue: the media popup currently relies on a legacy hardcoded horizontal offset from stock dots-hyprland that does not track the moved Right-Zone media pill; the power profile quick-toggle silently fails because the system-level `power-profiles-daemon` D-Bus service is missing on the host; and the notification subsystem lacks direct sidebar dismissal, clickable link routing, and OTP extraction.
 
-The architectural approach integrates a non-blocking Quickshell Singleton service (`services/Voice.qml`) that monitors runtime state files (`$XDG_RUNTIME_DIR/voice-stt/recorder.pid` and `tts.pid`) with an interactive status bar pill (`modules/ii/bar/VoicePill.qml`). The visual design adheres strictly to the system's Google Material Symbols visual language, utilizing an AI-centric icon (`auto_awesome` / sparkles) rather than a generic hardware microphone icon. During speech recording and synthesis, the component features reactive color pulsing, an animated audio waveform, live elapsed duration counters, and distinct status badges ("Transcribing...", "Typing...", "Speaking").
+The recommended engineering approach leverages Quickshell's modular architecture via personal overlays deployed under `restow/quickshell/`, ensuring that the upstream `vendor/dots-hyprland` submodule remains completely untouched and pristine. System-level requirements will be satisfied by installing `power-profiles-daemon`, activating its systemd unit, and persisting it into `arch/pkglist-native.txt` and `bootstrap.sh`. The notification pipeline will be refined by augmenting `NotificationGroup.qml` with an always-visible 'X' button strictly in the sidebar (`!popup`), enabling smart body clicks and link delegation in `NotificationItem.qml`, and adding microsecond-latency regex OTP/link parsing in `NotificationUtils.qml`.
 
-Key technical risks—such as QML thread blocking from CLI execution, CPU drain from high-frequency polling, and GNU Stow symlink folding—are mitigated by using asynchronous `FileView` state detection, adaptive timer intervals, GPU-driven QML animations, and strict repository verification (`arch/dots-hyprland.sh verify --strict`).
+Key operational risks—such as media popup off-screen clipping, event propagation stealing between nested MouseAreas, false-positive OTP matching, and accidental close button leakage onto on-screen toast popups—are addressed by deterministic coordinate clamping, clear click-zone boundaries, keyword-anchored regex patterns, and strict `!popup` visibility guards.
 
 ## Key Findings
 
 ### Recommended Stack
 
-Quickshell QML provides the entire UI and state presentation layer, binding natively into the existing dots-hyprland architecture. Telemetry is read asynchronously from the file-backed PID state created by `voicemode` (`voice.py`).
+All changes are implemented natively within the existing desktop stack without introducing heavy dependencies or background daemons.
 
 **Core technologies:**
-- **Quickshell QML (Qt 6.7+):** Declarative UI rendering, `BarGroup` pill geometry, and Material 3 transitions.
-- **Quickshell.Io (`FileView`):** Inotify-backed state file observation in `$XDG_RUNTIME_DIR/voice-stt/` with zero subprocess overhead.
-- **Material Symbols Font (`MaterialSymbol.qml`):** Consistent vector iconography rendering AI visual symbols (`auto_awesome`, `graphic_eq`).
-- **voicemode (`voice.py`):** Existing local speech engine providing STT (`SUPER + SHIFT + M`) and TTS (`SUPER + T`).
+- `power-profiles-daemon` (0.30+): Standard Freedesktop D-Bus daemon providing `net.hadess.PowerProfiles` for CPU performance profile switching across Power Saver, Balanced, and Performance.
+- `Quickshell` / `QtQuick 6.11`: Wayland layer-shell UI toolkit hosting `PanelWindow` popups, `BarGroup` pills, and reactive state bindings.
+- `Quickshell.Services.Notifications`: D-Bus notification server tracking and action invocation (`attemptInvokeAction()`, `discardNotification()`).
+- `Qt.openUrlExternally` / `xdg-open`: High-reliability URL dispatching to the system default browser.
+- JavaScript RegExp (Qt QML engine): In-process pattern matching for OTP verification codes and Chromium notification link extraction.
 
 ### Expected Features
 
 **Must have (table stakes):**
-- **AI Visual Identity:** Material Symbol `auto_awesome` (sparkles) icon matching the desktop shell's design language.
-- **STT Recording Telemetry:** Pulse animation, accent color change (primary/error), live duration counter (seconds elapsed), and animated audio wave.
-- **STT Transcribing State:** Distinct status indicator ("Transcribing...") while Whisper model processes audio.
-- **STT Typing/Writing State:** Visual feedback during synthetic keystroke injection into focused window.
-- **TTS Speaking Telemetry:** Speech synthesis state with audio wave animation, elapsed playback seconds, and active voice name badge.
-- **Return to Idle:** Clean, seamless reset to resting state once speech operations finish.
-- **Placement:** Positioned in Right zone immediately after Media (`mediaLoader`).
-- **Standardized Geometry:** 12–16px corner radius, 4–6px padding, and 250ms Material 3 emphasized deceleration width transition.
-- **Pure Telemetry Pill:** Clean status monitor without click popups or intrusive menus.
+- **Dynamic Media Popup Anchoring**: `MediaControls.qml` dynamically anchors beneath the top bar's `Media` pill across active monitors with safe screen boundary clamping.
+- **Power Profiles Daemon Integration**: `power-profiles-daemon` installed, enabled, and functioning with the Quickshell `PowerProfilesToggle.qml` UI component.
+- **Sidebar Quick-Close Button**: Direct, always-visible 'X' close button on notification cards strictly in the Right Sidebar (no dropdown required).
+- **Smart Notification Body Click**: Clicking notification body invokes the app's `default` action or opens extracted URLs in the default browser.
 
-### Architectural Structure
+**Should have (differentiators):**
+- **Smart OTP / 2FA Code Extraction**: Automated detection of 4–8 digit verification codes with a prominent "Copy [123456]" action chip on the notification card.
+- **Bootstrap & Package Reproducibility**: `power-profiles-daemon` registered in `arch/pkglist-native.txt` and `bootstrap.sh` to ensure fresh machine portability.
 
-1. **`services/Voice.qml`**: Centralized state Singleton reading `$XDG_RUNTIME_DIR/voice-stt/` state and exposing `state`, `elapsedSeconds`, `formattedDuration`, and `ttsVoice`.
-2. **`modules/ii/bar/VoicePill.qml`**: Visual component encapsulated in `BarGroup`, rendering the AI icon, wave bars, and duration text with dynamic Material You palette tokens.
-3. **`modules/ii/bar/BarContent.qml`**: Placed in `rightSectionRowLayout` between `mediaLoader` and `updatesLoader`.
+**Anti-features (what to avoid):**
+- Adding close buttons to screen toast popups (`NotificationPopup.qml`) — user explicitly wants toasts to remain clean and dismiss via hover/timeout.
+- Modifying `vendor/dots-hyprland` directly — all QML overrides must reside under `restow/quickshell/`.
 
-### Critical Pitfalls & Mitigations
+### Architecture Approach
 
-- **Pitfall:** Blocking the QML render loop by running synchronous CLI commands.  
-  *Mitigation:* Read runtime state files directly via `FileView` and non-blocking timers; never invoke synchronous shell subshells.
-- **Pitfall:** Stale PID state keeping UI in perpetual recording mode after an unexpected crash.  
-  *Mitigation:* Check process liveness in `/proc/<pid>` before transitioning to active states.
-- **Pitfall:** Battery drain from aggressive polling.  
-  *Mitigation:* Use low-frequency (500–1000ms) background polling when idle; handle fluid wave animations with native QML `NumberAnimation` loops.
-- **Pitfall:** GNU Stow directory folding.  
-  *Mitigation:* Ensure parent directory pre-creation in `./bootstrap.sh` and assert zero drift via `arch/dots-hyprland.sh verify --strict`.
+The architecture maintains strict separation of concerns across four modules:
+1. `MediaControls.qml`: Exposes and binds dynamic coordinates to the active monitor's `Media` pill position, clamping horizontal bounds between `screenMargin` and `screen.width - popup.width - screenMargin`.
+2. `power-profiles-daemon`: Systemd system service communicating over system D-Bus, transparently consumed by Quickshell's existing `PowerProfiles` model.
+3. `NotificationGroup.qml`: Adds `RippleButton` with `"close"` glyph to `topRow` with `visible: !root.popup`.
+4. `NotificationItem.qml` & `NotificationUtils.qml`: Implements interactive body click handler, regex OTP detection (`extractOTPCode`), and dedicated copy chip.
+
+### Critical Pitfalls
+
+1. **Media Popup Edge Overflow**: Unclamped anchoring causes the popup to bleed off the right screen boundary on narrow or scaled displays. Avoid by using `Math.min(Math.max(...))` clamping.
+2. **Event Stealing between MouseAreas**: Adding card click handlers could break `DragManager` swipe-to-dismiss. Avoid by assigning explicit interactive bounds and ensuring child buttons (`X`, `Copy OTP`) stop event bubbling.
+3. **False Positive OTP Codes**: Unanchored `\d{4,8}` matches years (2026) or timestamps. Avoid by requiring context keywords (`code`, `otp`, `verification`, `pin`).
+4. **Toast Popup Close Button Clutter**: Forgetting to check `!root.popup` renders 'X' on toasts. Avoid by strictly conditioning on `!root.popup`.
 
 ## Implications for Roadmap
 
-The implementation cleanly decomposes into 3 sequential phases:
+Suggested phase structure for Milestone v0.8:
 
-1. **Phase 35: Voice Telemetry & State Service Architecture (`services/Voice.qml`)**
-   - Implement `Voice.qml` Singleton service to observe `$XDG_RUNTIME_DIR/voice-stt/`.
-   - Track STT states (`starting`, `recording`, `transcribing`, `typing`) and TTS states (`speaking`).
-   - Liveness checking against `/proc/<pid>` to prevent stale lock states.
-   - Live elapsed seconds counter with formatted duration string.
-   - Automated service verification harness.
+### Phase 38: Power Profiles Daemon System Integration
+**Rationale:** Independent system service requirement with zero UI risk. Resolves the non-functional toggle immediately.
+**Delivers:** `power-profiles-daemon` package installed, systemd unit enabled, added to `arch/pkglist-native.txt` and `bootstrap.sh`, verified via `powerprofilesctl` and Quickshell toggle.
+**Addresses:** `POWER-01`, `POWER-02`, `POWER-03`.
+**Avoids:** Inactive service across reboots and bootstrap drift.
 
-2. **Phase 36: Visual Voice Pill Component & Dynamic Animations (`VoicePill.qml`)**
-   - Implement `VoicePill.qml` with `BarGroup` geometry and fluid 250ms M3 width animation.
-   - Integrate `MaterialSymbol` with `auto_awesome` (sparkles) icon and reactive state color bindings.
-   - Implement declarative audio waveform equalizer bars with smooth looping animations.
-   - Support compact resting idle state and expanded active state with duration and status labels.
+### Phase 39: Dynamic Media Popup Anchoring
+**Rationale:** Isolates the top status bar and layer-shell coordinate calculation without touching the notification subsystem.
+**Delivers:** `restow/quickshell/.../modules/ii/mediaControls/MediaControls.qml` with dynamic anchoring relative to `Media.qml` in `BarContent.qml`, complete with dual-monitor screen boundary clamping.
+**Addresses:** `MEDIA-01`.
+**Avoids:** Coordinate overflow and off-screen rendering.
 
-3. **Phase 37: Bar Layout Integration, Dual-Monitor Verification & Strict Packaging**
-   - Integrate `VoicePill` into `BarContent.qml` Right zone immediately after Media (`mediaLoader`).
-   - Reconcile `restow/quickshell/` deployment with GNU Stow.
-   - Verify Material You palette reactivity across wallpaper switches via `switchwall.sh`.
-   - Dual-monitor testing across ultrawide (`DP-1`) and secondary (`HDMI-A-1`) displays.
-   - Strict repository integrity sign-off (`arch/dots-hyprland.sh verify --strict` 0 findings).
+### Phase 40: Notification Center Quick-Dismiss & Smart Interaction
+**Rationale:** Builds the UI and logic enhancements for notifications in `restow/quickshell/`.
+**Delivers:** Right sidebar 'X' close button on notification cards (`NotificationGroup.qml`), smart body click with app `default` action trigger and link opening (`NotificationItem.qml`), and regex OTP/link extraction helper functions in `NotificationUtils.qml` with dedicated "Copy [Code]" action chips.
+**Addresses:** `NOTIF-01`, `NOTIF-02`, `NOTIF-03`, `NOTIF-04`, `NOTIF-05`.
+**Avoids:** Toast popup clutter, event propagation stealing, and false-positive OTP extraction.
+
+### Phase 41: End-to-End Verification & Repository Integrity
+**Rationale:** Comprehensive validation across all new features, regression sweep, and strict repository verification.
+**Delivers:** Multi-section automated test harness validating power profile toggling, media popup positioning, notification dismissal, link opening, and OTP copying; verification that `arch/dots-hyprland.sh verify --strict` exits 0 with zero git churn.
+**Addresses:** `INTG-01`, `INTG-02`.
 
 ## Sources
 
-- `/home/pera/github_repo/Voice/voice.py` — runtime state tracking and PID conventions.
-- `restow/quickshell/.config/quickshell/ii/services/Privacy.qml` — reference for Quickshell IO integration.
-- `restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml` — 3-zone layout contracts.
-- `restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarGroup.qml` — pill styling and M3 width animation Behavior.
-
----
-*Executive research summary for: Quickshell Desktop Shell v0.7*  
-*Researched: 2026-09-21*  
+- Quickshell QML source: `~/.config/quickshell/ii/`
+- dots-hyprland submodule: `vendor/dots-hyprland/`
+- Freedesktop Notifications Specification: `org.freedesktop.Notifications`
+- Freedesktop Power Profiles Specification: `net.hadess.PowerProfiles`
