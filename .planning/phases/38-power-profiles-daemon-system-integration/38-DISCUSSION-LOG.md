@@ -9,104 +9,40 @@
 
 ---
 
-## System Package Provisioning & Script Anchoring
+## Direct User Directives
 
-| Option | Description | Selected |
-|--------|-------------|----------|
-| Add to arch/necessary.sh / arch/hyprland.sh and arch/pkglist-native.txt | Installs alongside base system/desktop utilities and guarantees presence on clean machine installs | |
-| Create a dedicated arch/power.sh script | Encapsulates package installation, service enablement, and user permissions independently | |
-| Install exclusively via bootstrap.sh step_packages | Treat it as a core system prerequisite alongside git/stow/jq/yay | ✓ |
+1. *"everything about powerprofiles needs to be upstream default dots-hyprland. (whether i gave you decisions or not) No need to do anything else"*
+2. *"i would like to keep everything default upstream powerprofile setup basically how it is in the dots-hyprland. do i need a phase for this. i think i only have to install it"*
 
-**User's choice:** Install exclusively via bootstrap.sh step_packages — treat it as a core system prerequisite alongside git/stow/jq/yay.
-**Notes:** Also record in `arch/pkglist-native.txt` per requirements.
-
-| Option | Description | Selected |
-|--------|-------------|----------|
-| Idempotent sudo systemctl enable --now check in bootstrap.sh | Check if already enabled/active before prompting sudo, ensuring zero-overhead and no-op on existing setups | ✓ |
-| Always run sudo systemctl enable --now unconditionally in bootstrap.sh | Check and prompt on every bootstrap run | |
-| You decide | Agent chooses cleanest pattern | |
-
-**User's choice:** Idempotent sudo systemctl enable --now check in bootstrap.sh.
-
-| Option | Description | Selected |
-|--------|-------------|----------|
-| Preflight conflict detection in bootstrap.sh | Detect if tlp, auto-cpufreq, or tuned is active, and prompt or safely disable them | ✓ |
-| Strict assertion failure | Halt bootstrap with an actionable message to manually disable conflicting services | |
-| You decide | Handle conflicts gracefully | |
-
-**User's choice:** Preflight conflict detection in bootstrap.sh.
-
-| Option | Description | Selected |
-|--------|-------------|----------|
-| Keep arch/dots-hyprland.sh verify focused strictly on repository/symlink drift | Verify service/package health via the phase test harness and bootstrap — avoids coupling repo file verification to root systemd runtime state | ✓ |
-| Add active service check to arch/dots-hyprland.sh verify | Strictly fail verify if power-profiles-daemon.service is not active | |
-| You decide | Best respects existing verify strict contract | |
-
-**User's choice:** Keep arch/dots-hyprland.sh verify focused strictly on repository/symlink drift.
+**Key Takeaway:**
+Zero QML modifications or shell development required. Upstream `dots-hyprland` already has the complete toggle and UI built. The phase consists purely of:
+1. Installing `power-profiles-daemon` and enabling `power-profiles-daemon.service`.
+2. Tracking `power-profiles-daemon` in `arch/pkglist-native.txt` and `bootstrap.sh`.
+3. Verifying that the existing upstream toggle operates live.
 
 ---
 
-## Quickshell Quick-Toggle Behavior & Feedback
+## Package Provisioning & Script Anchoring
 
-| Option | Description | Selected |
-|--------|-------------|----------|
-| Rely on upstream 3-state cycling | Power Saver -> Balanced -> Performance -> Power Saver; requires 0 QML changes if daemon is active | ✓ |
-| Overlay PowerProfilesToggle.qml in restow/quickshell | Custom cycling order or right-click selection | |
-| You decide | Standard cycling | |
-
-**User's choice:** Rely on upstream 3-state cycling.
-
-| Option | Description | Selected |
-|--------|-------------|----------|
-| Purely in-sidebar visual feedback | Update the toggle icon and label text directly with no extra popups or toasts, keeping desktop interactions calm | ✓ |
-| Trigger an OSD notification on profile switch | Show a brief desktop notification or toast showing the active profile and icon | |
-| You decide | Keep minimal | |
-
-**User's choice:** Purely in-sidebar visual feedback.
-
-| Option | Description | Selected |
-|--------|-------------|----------|
-| Upstream default | Keep upstream neutral definition (toggled when not Balanced) | ✓ |
-| Custom highlight | Always highlighted | |
-
-**User's choice (User write-in):** "power profiles everything should be default dots-hyprland basically upstream. change nothing"
-**Notes:** User emphasized strict compliance with upstream `dots-hyprland` defaults.
-
-| Option | Description | Selected |
-|--------|-------------|----------|
-| Keep default 4th position in quick toggles grid | No config overrides or QML restow needed; works immediately once daemon runs | ✓ |
-| Move powerProfile to a different slot | Config.qml overlay in restow | |
-
-**User's choice:** Keep default 4th position in quick toggles grid.
+- **Package location:** Added to `arch/pkglist-native.txt` and checked/installed in `bootstrap.sh` (`step_packages`).
+- **Service enablement:** Idempotent check in `bootstrap.sh` (`systemctl is-active --quiet power-profiles-daemon.service`) before invoking `sudo systemctl enable --now`.
+- **Verification scope:** `arch/dots-hyprland.sh verify --strict` stays focused on symlinks and git working tree integrity.
 
 ---
 
-## Profile Switching Policy & Power Automation
+## Upstream Shell UI & Power Policy
 
-| Option | Description | Selected |
-|--------|-------------|----------|
-| Purely manual switching (daemon default) | power-profiles-daemon persists the user's chosen profile across boots without automatic switching scripts | ✓ |
-| Automated udev / battery rule | Automatically shift to 'power-saver' on battery and restore on AC | |
-| You decide | Upstream default | |
-
-**User's choice:** Purely manual switching (daemon default).
-
-| Option | Description | Selected |
-|--------|-------------|----------|
-| Explicitly assert 'balanced' baseline | Run powerprofilesctl set balanced during bootstrap setup | |
-| Leave untouched | Let power-profiles-daemon initialize with its internal defaults | ✓ |
-
-**User's choice (User write-in):** "keep default upstream"
-
-**Overarching User Directive:**
-"everything about powerprofiles needs to be upstream default dots-hyprland. (whether i gave you decisions or not) No need to do anything else"
+- **Toggle behavior:** Strictly default upstream `PowerProfilesToggle.qml` using `Quickshell.Services.UPower`.
+- **Feedback:** Purely in-sidebar visual feedback (icon + label update); no desktop popups or OSDs.
+- **Switching policy:** Strictly default upstream manual switching; no custom udev or automated battery scripts.
+- **Grid position:** Default 4th slot in `Config.qml` quick toggles.
 
 ---
 
 ## the agent's Discretion
 
-- Automated test harness design in `scripts/phase38-power-profiles-assert.sh`.
-- Idempotent conflict detection and systemctl check implementation in `bootstrap.sh`.
+- Clean bash syntax for idempotent checks in `bootstrap.sh`.
+- Simple assertion commands for verifying D-Bus and CLI status.
 
 ## Deferred Ideas
 
