@@ -1,5 +1,16 @@
 # Quickshell Desktop Shell
 
+## Current Milestone: v0.8 Notification Experience & Shell Interaction Polish
+
+**Goal:** Elevate desktop shell interactions and ergonomics with dynamic media popup anchoring, operational power profile switching, and an upgraded notification experience featuring sidebar quick-close, smart link/app body click, and automated OTP quick-copy.
+
+**Target features:**
+- **Dynamic Media Popup Anchoring**: Dynamically anchor `MediaControls.qml` directly beneath the top bar's `Media` pill across active monitors with safe screen boundary clamping.
+- **Power Profiles Daemon Integration**: Install and enable `power-profiles-daemon`, wire into bootstrap/packages, making the Quickshell power profile quick-toggle operational.
+- **Notification Quick-Close (Right Sidebar Only)**: Provide an always-visible 'X' close button on notification cards strictly in the Right Sidebar for 1-click dismissal without expanding. Toast popups remain clean for hover/timeout.
+- **Smart Notification Body Click & Link Navigation**: Clicking the notification body invokes the app's `default` D-Bus action or extracts and opens links (YouTube, WhatsApp, Chromium) in the default browser.
+- **Smart OTP / 2FA Verification Code Detection**: Regex parser detects verification codes and displays a dedicated "Copy [Code]" quick-action chip directly on the card.
+
 ## Current State
 
 **Shipped:** v0.7 Voice Status Bar Component & Audio Telemetry (2026-09-21)  
@@ -274,7 +285,17 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 ### Active
 
-(No active requirements — next milestone not yet defined. Run `/gsd-new-milestone` to start.)
+- [ ] **MEDIA-01**: `MediaControls.qml` popup dynamically anchors directly beneath the top status bar's `Media` pill with screen boundary clamping.
+- [ ] **POWER-01**: `power-profiles-daemon` package installed and systemd service enabled on Arch Linux.
+- [ ] **POWER-02**: Power profiles toggle in Quickshell (`PowerProfilesToggle.qml`) cycles profiles correctly and displays active state.
+- [ ] **POWER-03**: Package manifests (`pkglist-native.txt`, `dots-hyprland.sh`, `bootstrap.sh`) updated to guarantee `power-profiles-daemon` on fresh install.
+- [ ] **NOTIF-01**: Notification card header in Right Sidebar (`NotificationGroup.qml` / `NotificationList.qml`) displays an always-visible 'X' close button for immediate dismissal without dropdown expansion.
+- [ ] **NOTIF-02**: Toast notification popups (`NotificationPopup.qml`) retain clean hover/timeout behavior without top-row close button clutter.
+- [ ] **NOTIF-03**: Clicking the notification card body invokes the sending application's `default` D-Bus action to focus/open the application.
+- [ ] **NOTIF-04**: Notification URL extraction parses links from Chromium notifications (`<a href="...">`), YouTube, WhatsApp, and raw URLs in body, opening them in the default browser on click.
+- [ ] **NOTIF-05**: Smart regex parser detects OTP / 2FA verification codes (4–8 digits) and displays a dedicated "Copy [Code]" quick-action chip on the notification card.
+- [ ] **INTG-01**: All QML modifications deployed via `restow/quickshell/` leaf symlinks without modifying `vendor/dots-hyprland`.
+- [ ] **INTG-02**: `arch/dots-hyprland.sh verify --strict` passes with 0 findings and zero git churn.
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -458,5 +479,5 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-21 after v0.7 milestone*
+*Last updated: 2026-09-22 for Milestone v0.8 start*
 
