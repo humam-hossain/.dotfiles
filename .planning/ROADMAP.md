@@ -10,7 +10,7 @@ Milestone v0.8 refines core desktop shell interactions and ergonomics across med
 
 ## Phases
 
-- [ ] **Phase 38: Power Profiles Daemon System Integration** - Install, enable, and wire `power-profiles-daemon` into systemd, package manifests, and Quickshell's quick-toggle.
+- [x] **Phase 38: Power Profiles Daemon System Integration** - Install, enable, and wire `power-profiles-daemon` into systemd, package manifests, and Quickshell's quick-toggle. (completed 2026-09-23)
 - [ ] **Phase 39: Dynamic Media Popup Anchoring** - Anchor `MediaControls.qml` dynamically beneath the top status bar's `Media` pill with screen boundary clamping.
 - [ ] **Phase 40: Notification Center Quick-Dismiss & Smart Interaction** - Add sidebar 'X' close button, smart body click app/link routing, and regex OTP code extraction with copy chip.
 - [ ] **Phase 41: End-to-End Verification & Repository Integrity** - Validate all features with automated test harnesses and assert strict zero-churn repository compliance.
@@ -79,7 +79,7 @@ Phases execute in numeric order: 38 → 39 → 40 → 41
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 38. Power Profiles Daemon System Integration | 1/1 | In Progress|  |
+| 38. Power Profiles Daemon System Integration | 1/1 | Complete    | 2026-09-23 |
 | 39. Dynamic Media Popup Anchoring | 0/TBD | Not started | - |
 | 40. Notification Center Quick-Dismiss & Smart Interaction | 0/TBD | Not started | - |
 | 41. End-to-End Verification & Repository Integrity | 0/TBD | Not started | - |
