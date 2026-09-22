@@ -270,6 +270,7 @@ execute_step() {
 
   if [[ "$DRY_RUN" -eq 1 ]]; then
     echo "[DRY-RUN] Would execute step: $step_name"
+    "$step_command_func"
     return 0
   fi
 
@@ -349,6 +350,7 @@ step_submodules() {
 step_packages() {
   if [[ "$DRY_RUN" -eq 1 ]]; then
     echo "[DRY-RUN] Checking base prerequisites (git, stow, jq, yay)..."
+    echo "[DRY-RUN] Checking and activating power-profiles-daemon..."
     return 0
   fi
   echo "[STEP 2/7] Checking base prerequisites..."
@@ -369,6 +371,20 @@ step_packages() {
     else
       echo "[FAIL] yay not found and arch/aur.sh is missing or not executable." >&2
       return 1
+    fi
+  fi
+
+  if ! pacman -Q power-profiles-daemon &>/dev/null; then
+    echo "[INFO] power-profiles-daemon not installed; installing via pacman..."
+    sudo pacman -S --needed --noconfirm power-profiles-daemon
+  fi
+
+  if command -v systemctl &>/dev/null; then
+    if ! systemctl is-active --quiet power-profiles-daemon.service 2>/dev/null; then
+      echo "[CONFIG] Enabling and starting power-profiles-daemon.service..."
+      sudo systemctl enable --now power-profiles-daemon.service
+    else
+      echo "[PASS] power-profiles-daemon.service is already active."
     fi
   fi
 }

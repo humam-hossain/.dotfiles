@@ -3,7 +3,7 @@
 # Timestamp: 2026-09-15T06:12:28Z
 # Kernel: 7.2.4-arch1-2
 # Pacman: Pacman v7.1.0 - libalpm v16.0.1
-# Count: 207
+# Count: 208
 alacritty
 android-tools
 at
@@ -136,6 +136,7 @@ pipewire
 pipewire-alsa
 pipewire-pulse
 playerctl
+power-profiles-daemon
 python
 python-pip
 python-pipx
