@@ -18,44 +18,58 @@ Milestone v0.8 refines core desktop shell interactions and ergonomics across med
 ## Phase Details
 
 ### Phase 38: Power Profiles Daemon System Integration
+
 **Goal**: Establish system-level power profile switching support on Arch Linux and connect it to Quickshell's power profile quick-toggle.  
 **Depends on**: Nothing (first phase of v0.8)  
 **Requirements**: POWER-01, POWER-02, POWER-03  
 **Success Criteria** (what must be TRUE):
+
   1. `power-profiles-daemon` is installed on Arch Linux and `power-profiles-daemon.service` is actively running.
   2. Clicking the power profile toggle button in Quickshell (`PowerProfilesToggle.qml`) cycles through Power Saver, Balanced, and Performance modes, updating the button icon and status text live.
   3. `arch/pkglist-native.txt`, `arch/dots-hyprland.sh`, and `./bootstrap.sh` are updated to ensure idempotent installation and service activation on fresh machines.
+
 **Plans**: TBD
 
+- [x] 38-01-PLAN.md
+
 ### Phase 39: Dynamic Media Popup Anchoring
+
 **Goal**: Dynamically position `MediaControls.qml` directly beneath the top status bar's `Media` pill across active displays with boundary clamping.  
 **Depends on**: Nothing (independent QML component)  
 **Requirements**: MEDIA-01, MEDIA-02  
 **Success Criteria** (what must be TRUE):
+
   1. `MediaControls.qml` computes its horizontal position dynamically based on the `Media` pill's position in `BarContent.qml` rather than a static center offset.
   2. Horizontal coordinate clamping (`Math.min` / `Math.max`) prevents the popup from extending past monitor margins on narrow, scaled, or ultrawide displays.
   3. Left-clicking the `Media` pill in the top status bar cleanly toggles the popup open directly underneath the pill.
+
 **Plans**: TBD
 
 ### Phase 40: Notification Center Quick-Dismiss & Smart Interaction
+
 **Goal**: Enhance notification ergonomics with 1-click sidebar dismissal, smart body click routing, and automated OTP verification code detection.  
 **Depends on**: Nothing (notification overlay component)  
 **Requirements**: NOTIF-01, NOTIF-02, NAV-01, NAV-02, OTP-01, OTP-02  
 **Success Criteria** (what must be TRUE):
+
   1. Notification cards in the Right Sidebar (`NotificationGroup.qml`) feature an always-visible 'X' close button that immediately dismisses the notification without expanding.
   2. Toast notification popups (`NotificationPopup.qml`) strictly suppress the header 'X' close button (`visible: !root.popup`), preserving clean hover/timeout dismissal.
   3. Clicking the notification card body invokes the sending application's `default` D-Bus action, or extracts and opens embedded/Chromium web links in the default browser.
   4. Incoming notifications containing 4–8 digit verification codes display a prominent "Copy [123456]" action chip that copies the code to the clipboard with visual confirmation.
+
 **Plans**: TBD
 
 ### Phase 41: End-to-End Verification & Repository Integrity
+
 **Goal**: Execute comprehensive automated verification across all milestone features and assert repository cleanliness.  
 **Depends on**: Phases 38, 39, 40  
 **Requirements**: INTG-01, INTG-02, INTG-03  
 **Success Criteria** (what must be TRUE):
+
   1. All QML modifications are deployed strictly via `restow/quickshell/` leaf symlinks without modifying `vendor/dots-hyprland`.
   2. A dedicated automated test harness (`scripts/phase41-interactions-assert.sh`) verifies power profile transitions, media popup positioning, notification dismissal, link opening, and OTP parsing.
   3. `arch/dots-hyprland.sh verify --strict` exits 0 with `0 findings` and zero git working-tree churn.
+
 **Plans**: TBD
 
 ## Progress
@@ -65,7 +79,7 @@ Phases execute in numeric order: 38 → 39 → 40 → 41
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 38. Power Profiles Daemon System Integration | 0/TBD | Not started | - |
+| 38. Power Profiles Daemon System Integration | 1/1 | In Progress|  |
 | 39. Dynamic Media Popup Anchoring | 0/TBD | Not started | - |
 | 40. Notification Center Quick-Dismiss & Smart Interaction | 0/TBD | Not started | - |
 | 41. End-to-End Verification & Repository Integrity | 0/TBD | Not started | - |

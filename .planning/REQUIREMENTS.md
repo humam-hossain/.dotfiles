@@ -15,9 +15,9 @@ Requirements for milestone release. Each maps to roadmap phases.
 
 ### Power Profiles Management
 
-- [ ] **POWER-01**: `power-profiles-daemon` package installed and `power-profiles-daemon.service` enabled on Arch Linux.
-- [ ] **POWER-02**: Quickshell power profile quick-toggle (`PowerProfilesToggle.qml`) cycles through profiles (Power Saver, Balanced, Performance) with matching icons and live state feedback.
-- [ ] **POWER-03**: Package manifests (`arch/pkglist-native.txt`, `dots-hyprland.sh`, `bootstrap.sh`) updated to guarantee `power-profiles-daemon` on fresh machine installs.
+- [x] **POWER-01**: `power-profiles-daemon` package installed and `power-profiles-daemon.service` enabled on Arch Linux.
+- [x] **POWER-02**: Quickshell power profile quick-toggle (`PowerProfilesToggle.qml`) cycles through profiles (Power Saver, Balanced, Performance) with matching icons and live state feedback.
+- [x] **POWER-03**: Package manifests (`arch/pkglist-native.txt`, `dots-hyprland.sh`, `bootstrap.sh`) updated to guarantee `power-profiles-daemon` on fresh machine installs.
 
 ### Notification Header & Dismissal
 
@@ -43,11 +43,13 @@ Requirements for milestone release. Each maps to roadmap phases.
 ## Future Requirements
 
 ### Waybar Custom Module Ports
+
 - **CUST-01**: Port self-hosted ping monitor widget (`127.0.0.1:8765/api/status`) into Quickshell.
 - **CUST-02**: Port weather widget with detailed multi-day forecast popup.
 - **CUST-03**: Port earthquake real-time alert widget.
 
 ### Desktop Session & IPC Polish
+
 - **POLISH-02**: Framework autostart refinement and bar toggle IPC keybindings under the upstream model.
 
 ## Out of Scope
@@ -67,9 +69,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | MEDIA-01 | Phase 39 | Pending |
 | MEDIA-02 | Phase 39 | Pending |
-| POWER-01 | Phase 38 | Pending |
-| POWER-02 | Phase 38 | Pending |
-| POWER-03 | Phase 38 | Pending |
+| POWER-01 | Phase 38 | Complete |
+| POWER-02 | Phase 38 | Complete |
+| POWER-03 | Phase 38 | Complete |
 | NOTIF-01 | Phase 40 | Pending |
 | NOTIF-02 | Phase 40 | Pending |
 | NAV-01 | Phase 40 | Pending |
