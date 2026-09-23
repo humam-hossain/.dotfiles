@@ -22,8 +22,8 @@ MouseArea {
         Resource {
             iconName: "memory"
             percentage: ResourceUsage.memoryUsedPercentage
-            customText: `${(ResourceUsage.memoryUsed / (1024 * 1024)).toFixed(1)}/${(ResourceUsage.memoryTotal / (1024 * 1024)).toFixed(1)} GB (${Math.round(ResourceUsage.memoryUsedPercentage * 100)}%)`
-            warningThreshold: 80
+            customText: `${(ResourceUsage.memoryUsed / (1024 * 1024)).toFixed(1)}/${(ResourceUsage.memoryTotal / (1024 * 1024)).toFixed(1)} GB [${Math.round(ResourceUsage.memoryUsedPercentage * 100)}%]`
+            warningThreshold: 70
             criticalThreshold: 90
         }
 

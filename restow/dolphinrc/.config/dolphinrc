@@ -4,6 +4,7 @@ MenuBar=Disabled
 UseShortRelativeDates=false
 
 [DetailsMode]
+PreviewSize=22
 RightPadding=0
 
 [General]
