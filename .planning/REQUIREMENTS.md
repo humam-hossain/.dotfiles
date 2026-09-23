@@ -10,8 +10,8 @@ Requirements for milestone release. Each maps to roadmap phases.
 
 ### Media Popup Anchoring
 
-- [ ] **MEDIA-01**: `MediaControls.qml` popup dynamically anchors directly beneath the top status bar's `Media` pill across active monitors.
-- [ ] **MEDIA-02**: `MediaControls.qml` popup enforces horizontal boundary clamping (`Math.min` / `Math.max`) to prevent off-screen clipping.
+- [x] **MEDIA-01**: `MediaControls.qml` popup dynamically anchors directly beneath the top status bar's `Media` pill across active monitors.
+- [x] **MEDIA-02**: `MediaControls.qml` popup enforces horizontal boundary clamping (`Math.min` / `Math.max`) to prevent off-screen clipping.
 
 ### Power Profiles Management
 
@@ -67,8 +67,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MEDIA-01 | Phase 39 | Pending |
-| MEDIA-02 | Phase 39 | Pending |
+| MEDIA-01 | Phase 39 | Complete |
+| MEDIA-02 | Phase 39 | Complete |
 | POWER-01 | Phase 38 | Complete |
 | POWER-02 | Phase 38 | Complete |
 | POWER-03 | Phase 38 | Complete |
