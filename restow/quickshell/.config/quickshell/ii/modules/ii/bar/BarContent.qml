@@ -17,6 +17,40 @@ Item { // Bar content region
     property real useShortenedForm: (Appearance.sizes.barHellaShortenScreenWidthThreshold >= screen?.width) ? 2 : (Appearance.sizes.barShortenScreenWidthThreshold >= screen?.width) ? 1 : 0
     readonly property int centerSideModuleWidth: (useShortenedForm == 2) ? Appearance.sizes.barCenterSideModuleWidthHellaShortened : (useShortenedForm == 1) ? Appearance.sizes.barCenterSideModuleWidthShortened : Appearance.sizes.barCenterSideModuleWidth
 
+    // Phase 39: Dynamic Media Popup Anchoring — coordinate capture
+    function updateMediaPillCoords() {
+        if (!mediaLoader.item) return;
+        const pt = mediaLoader.item.mapToItem(null, mediaLoader.item.width / 2, mediaLoader.item.height / 2);
+        GlobalStates.mediaPillCenterX = pt.x;
+        GlobalStates.mediaPillCenterY = pt.y;
+        GlobalStates.mediaPillScreen = root.screen;
+    }
+
+    // Phase 39: Media popup open/close lifecycle with multi-monitor hover gating
+    Connections {
+        target: GlobalStates
+        function onMediaControlsOpenChanged() {
+            if (GlobalStates.mediaControlsOpen) {
+                if (mediaHoverHandler.hovered && mediaLoader.item) {
+                    root.updateMediaPillCoords();
+                }
+            } else {
+                if (GlobalStates.mediaPillScreen === root.screen) {
+                    GlobalStates.mediaPillCenterX = -1;
+                    GlobalStates.mediaPillCenterY = -1;
+                    GlobalStates.mediaPillScreen = null;
+                }
+            }
+        }
+    }
+
+    // Phase 39: Reactive position tracking on pill layout shifts (D-04)
+    Connections {
+        target: (GlobalStates.mediaControlsOpen && GlobalStates.mediaPillScreen === root.screen) ? mediaLoader.item : null
+        function onWidthChanged() { root.updateMediaPillCoords(); }
+        function onXChanged() { root.updateMediaPillCoords(); }
+    }
+
 
     // Background shadow
     Loader {
@@ -193,6 +227,10 @@ Item { // Bar content region
                 Layout.alignment: Qt.AlignVCenter
                 active: (root.useShortenedForm < 2) && (MprisController.activePlayer != null && (MprisController.activePlayer.trackTitle?.length > 0))
                 visible: active
+
+                HoverHandler {
+                    id: mediaHoverHandler
+                }
 
                 sourceComponent: BarGroup {
                     Media {

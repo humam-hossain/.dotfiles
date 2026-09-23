@@ -17,6 +17,40 @@ Item { // Bar content region
     property var screen: root.QsWindow.window?.screen
     property var brightnessMonitor: Brightness.getMonitorForScreen(screen)
 
+    // Phase 39: Dynamic Media Popup Anchoring — vertical coordinate capture
+    function updateVerticalMediaPillCoords() {
+        if (!verticalMedia) return;
+        const pt = verticalMedia.mapToItem(null, verticalMedia.width / 2, verticalMedia.height / 2);
+        GlobalStates.mediaPillCenterX = pt.x;
+        GlobalStates.mediaPillCenterY = pt.y;
+        GlobalStates.mediaPillScreen = root.screen;
+    }
+
+    // Phase 39: Vertical media popup open/close lifecycle with hover gating
+    Connections {
+        target: GlobalStates
+        function onMediaControlsOpenChanged() {
+            if (GlobalStates.mediaControlsOpen) {
+                if (verticalMediaHoverHandler.hovered) {
+                    root.updateVerticalMediaPillCoords();
+                }
+            } else {
+                if (GlobalStates.mediaPillScreen === root.screen) {
+                    GlobalStates.mediaPillCenterX = -1;
+                    GlobalStates.mediaPillCenterY = -1;
+                    GlobalStates.mediaPillScreen = null;
+                }
+            }
+        }
+    }
+
+    // Phase 39: Reactive vertical position tracking on pill layout shifts
+    Connections {
+        target: (GlobalStates.mediaControlsOpen && GlobalStates.mediaPillScreen === root.screen) ? verticalMedia : null
+        function onYChanged() { root.updateVerticalMediaPillCoords(); }
+        function onHeightChanged() { root.updateVerticalMediaPillCoords(); }
+    }
+
     component HorizontalBarSeparator: Rectangle {
         Layout.leftMargin: Appearance.sizes.baseBarHeight / 3
         Layout.rightMargin: Appearance.sizes.baseBarHeight / 3
@@ -97,8 +131,13 @@ Item { // Bar content region
             HorizontalBarSeparator {}
 
             VerticalMedia {
+                id: verticalMedia
                 Layout.fillWidth: true
                 Layout.fillHeight: false
+
+                HoverHandler {
+                    id: verticalMediaHoverHandler
+                }
             }
         }
 
