@@ -18,7 +18,7 @@ milestone_name: Notification Experience & Shell Interaction Polish
 ---
 
 Total Phases: 4 (Phases 38-41)
-Progress: [░░░░░░░░░░░░░░░░░░░░] 0/4 phases (0%)
+Progress: [██████████░░░░░░░░░░] 2/4 phases (50%)
 
 # Project State
 
@@ -31,16 +31,16 @@ Last activity: 2026-09-23 — Phase 39 complete, transitioned to Phase 40
 
 ## Session
 
-**Last session:** 2026-09-23T02:48:16.290Z
+**Last session:** 2026-09-23T09:55:00+06:00
 **Stopped at:** Phase 39 complete, ready to plan Phase 40
-**Resume file:** /home/pera/github_repo/.dotfiles/.planning/phases/39-dynamic-media-popup-anchoring/39-CONTEXT.md
+**Resume file:** None
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-22 for Milestone v0.8 start)
+See: .planning/PROJECT.md (updated 2026-09-23 after Phase 39)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 39 — Dynamic Media Popup Anchoring
+**Current focus:** Phase 40 — Notification Center Quick-Dismiss & Smart Interaction
 
 ## Deferred Items
 
@@ -120,6 +120,8 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 29: Automated 5-section assert harness scripts/phase29-theme-data-contracts-assert.sh passed 30 checks with FAIL=0 FINDINGS=0 across isolated scratch drill and full v0.5 regression sweep (Phases 25–28) (INTG-01..03)
 - Phase 35: Centralized Voice.qml Singleton service in restow/quickshell/ with native FileView adaptive polling over tmpfs, procfs liveness verification, automated stale PID purge, drift-free duration counter with reload anchor, and TTS metadata extraction (TELEM-01..05)
 - Phase 36: Dedicated VoicePill.qml component extending BarGroup with compact idle state (26px), graphic_eq glyph, direct content-bound root implicitWidth driving 250ms M3 width animation, breathing pulse (1.0 <-> 0.5 over 1000ms with fail-safe reset), and Sequential Linear Flow with 1.5s wrap-up linger (VOICE-01..06, D-01..09)
+- Phase 38: Idempotent bootstrap integration for power-profiles-daemon with pacman -Q and systemctl is-active pre-checks before any sudo invocation; zero local QML overrides (upstream PowerProfilesToggle.qml confirmed working directly) (POWER-01..03)
+- Phase 39: Dynamic media popup anchoring via GlobalStates.qml coordinate bridge with HoverHandler-based multi-monitor pill detection, sentinel -1 keyboard/IPC fallback, horizontal boundary clamping with narrow-screen guard, and reactive Connections tracking for pill layout shifts (MEDIA-01, MEDIA-02)
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.  
@@ -278,3 +280,5 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 31]: D-02: Added Behavior on implicitWidth with Material 3 emphasizedDecel in BarGroup.qml — Ensures fluid pill resizing animations
 - [Phase 31]: D-03: Preserved 100% upstream visual fidelity tokens — Maintains visual consistency with dots-hyprland
 - [Phase 37]: Integrated VoicePill into BarContent.qml right zone directly following mediaLoader, with full multi-monitor responsive suppression logic and an inert MouseArea preventing clicks from bleeding to the status bar toggles. Deployment completed exclusively through GNU Stow leaf symlinks, leaving the upstream dots-hyprland submodule untouched. Test harness executing perfectly across 5 sections with FAIL=0 FINDINGS=0.
+- [Phase 38]: Confirmed upstream PowerProfilesToggle.qml works directly without local QML overlay (D-01 parity). Integrated power-profiles-daemon into bootstrap.sh step_packages with idempotent pre-checks (pacman -Q, systemctl is-active) and dry-run preview. Updated pkglist-native.txt and dots-hyprland.sh verification anchors.
+- [Phase 39]: Implemented GlobalStates.qml singleton coordinate bridge with mediaPillCenterX/Y properties. BarContent.qml and VerticalBarContent.qml capture pill coordinates via HoverHandler (avoiding MouseArea inner-click interception). MediaControls.qml anchors directly beneath the pill with Math.min/Math.max horizontal boundary clamping and narrow-screen guard (maxX < minX fallback). Sentinel -1 activates upstream center fallback for keyboard/IPC open.

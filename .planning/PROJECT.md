@@ -283,12 +283,16 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Deployed via GNU Stow leaf symlinks under `restow/quickshell/` without folding ancestor directories and zero git churn — Phase 37 / INTG-02
 - ✓ Dynamic Material You palette adaptation and automated assertion harness with strict repository verification — Phase 37 / INTG-03, INTG-04
 
+### Validated — v0.8 (partial)
+
+- ✓ **MEDIA-01**: `MediaControls.qml` popup dynamically anchors directly beneath the top status bar's `Media` pill across active monitors — Phase 39
+- ✓ **MEDIA-02**: `MediaControls.qml` popup enforces horizontal boundary clamping (`Math.min` / `Math.max`) to prevent off-screen clipping — Phase 39
+- ✓ **POWER-01**: `power-profiles-daemon` package installed and systemd service enabled on Arch Linux — Phase 38
+- ✓ **POWER-02**: Power profiles toggle in Quickshell (`PowerProfilesToggle.qml`) cycles profiles correctly and displays active state — Phase 38
+- ✓ **POWER-03**: Package manifests (`pkglist-native.txt`, `dots-hyprland.sh`, `bootstrap.sh`) updated to guarantee `power-profiles-daemon` on fresh install — Phase 38
+
 ### Active
 
-- [ ] **MEDIA-01**: `MediaControls.qml` popup dynamically anchors directly beneath the top status bar's `Media` pill with screen boundary clamping.
-- [ ] **POWER-01**: `power-profiles-daemon` package installed and systemd service enabled on Arch Linux.
-- [ ] **POWER-02**: Power profiles toggle in Quickshell (`PowerProfilesToggle.qml`) cycles profiles correctly and displays active state.
-- [ ] **POWER-03**: Package manifests (`pkglist-native.txt`, `dots-hyprland.sh`, `bootstrap.sh`) updated to guarantee `power-profiles-daemon` on fresh install.
 - [ ] **NOTIF-01**: Notification card header in Right Sidebar (`NotificationGroup.qml` / `NotificationList.qml`) displays an always-visible 'X' close button for immediate dismissal without dropdown expansion.
 - [ ] **NOTIF-02**: Toast notification popups (`NotificationPopup.qml`) retain clean hover/timeout behavior without top-row close button clutter.
 - [ ] **NOTIF-03**: Clicking the notification card body invokes the sending application's `default` D-Bus action to focus/open the application.
@@ -460,6 +464,12 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 37: Responsive useShortenedForm suppression | Suppresses text expansion on narrow/rotated screens (useShortenedForm == 2) and vertical bars to maintain compact 26px resting state (INTG-01) | ✓ Section 3 FAIL=0 |
 | Phase 37: Inert MouseArea event isolation | Qt.AllButtons MouseArea absorbs accidental clicks preventing sidebar toggle activation (INTG-01) | ✓ Section 2 FAIL=0 |
 | Phase 37: Duration tracking hardening against clock skew | Clamped elapsedSec to Math.max(0, ...) and validated non-future startTime with Math.min(Date.now(), ...) (G-37-6) | ✓ Section 3 live counter FAIL=0 |
+| Phase 38: Idempotent bootstrap integration for power-profiles-daemon | `step_packages` performs `pacman -Q` and `systemctl is-active` pre-checks before any `sudo` invocation; dry-run previews without state mutation (D-04, D-05, D-06, POWER-03) | ✓ Section 4 FAIL=0, POWER-03 |
+| Phase 38: Upstream D-01 parity — zero local QML overrides for power profiles | Confirmed `PowerProfilesToggle.qml` and `AndroidPowerProfileToggle.qml` work directly from upstream without restow overlay (D-01, POWER-02) | ✓ Section 3 FAIL=0, POWER-02 |
+| Phase 39: HoverHandler for multi-monitor pill hover detection | HoverHandler avoids intercepting inner click handlers in Media.qml that MouseArea would block (D-06, D-07, MEDIA-01) | ✓ Section 4 FAIL=0, MEDIA-01 |
+| Phase 39: Sentinel -1 for coordinate bridge properties | `mediaPillCenterX/Y: -1` cleanly activates upstream center fallback when opened via keyboard shortcut or IPC without pill click (D-08) | ✓ Section 3 T7 FAIL=0 |
+| Phase 39: Narrow-screen guard in clamping formula | `(maxX < minX) ? minX` prevents boundary inversion on screens narrower than popup width (D-09, D-10, MEDIA-02) | ✓ Section 3 T6 FAIL=0 |
+| Phase 39: Reactive Connections tracking for pill layout shifts | Dynamically connects to item geometry changes only while popup is open on the same screen, preventing jitter (D-04) | ✓ Verified in BarContent.qml and VerticalBarContent.qml |
 
 ## Evolution
 
@@ -479,5 +489,5 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-22 for Milestone v0.8 start*
+*Last updated: 2026-09-23 after Phase 39 (Dynamic Media Popup Anchoring)*
 
