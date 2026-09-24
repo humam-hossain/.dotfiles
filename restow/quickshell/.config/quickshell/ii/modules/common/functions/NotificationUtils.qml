@@ -108,4 +108,74 @@ Singleton {
         
         return processedBody
     }
+
+    /**
+     * Extracts 4-8 digit verification code, hyphenated code, or service-prefixed code
+     * anchored to security keywords.
+     * @param { string } body
+     * @param { string } summary
+     * @returns { string }
+     */
+    function extractOtpCode(body = "", summary = "") {
+        const fullText = (summary ? summary + " " : "") + (body || "");
+        if (!fullText) return "";
+        const cleaned = fullText.replace(/<[^>]*>/g, " ");
+
+        const keywords = "code|otp|verify|verification|pin|auth|2fa|security|one-time(?:\\s+password)?|password|passcode";
+        const codePattern = "(?:[A-Za-z]{1,2}-\\d{4,8}|\\d{3,4}-\\d{3,4}|\\b\\d{4,8}\\b)";
+
+        // 1. Keyword before code (e.g. "verification code is 482910", "code: G-123456", "PIN is 9482")
+        const reKeywordBefore = new RegExp("(?:\\b(?:" + keywords + ")\\b)[^\\w\\r\\n]{0,30}?(?:is\\s+|:\\s*|\\s+)?(?<![-/0-9])(" + codePattern + ")(?![-/0-9])", "i");
+        const m1 = cleaned.match(reKeywordBefore);
+        if (m1 && m1[1]) return m1[1].trim();
+
+        // 2. Code before keyword (e.g. "123-456 is your code", "Use 582910 for 2FA auth")
+        const reCodeBefore = new RegExp("(?<![-/0-9])(" + codePattern + ")[^\\w\\r\\n]{0,30}?(?:is\\s+|for\\s+|as\\s+|to\\s+)?(?:\\b(?:" + keywords + ")\\b)", "i");
+        const m2 = cleaned.match(reCodeBefore);
+        if (m2 && m2[1]) return m2[1].trim();
+
+        // 3. Proximity within sentence (e.g. "Your Google code is 839201. Sent on...")
+        const reProximity = new RegExp("(?:\\b(?:" + keywords + ")\\b)[^\\r\\n]{1,60}?(?<![-/0-9])(" + codePattern + ")(?![-/0-9])", "i");
+        const m3 = cleaned.match(reProximity);
+        if (m3 && m3[1]) return m3[1].trim();
+
+        const reProximityReverse = new RegExp("(?<![-/0-9])(" + codePattern + ")[^\\r\\n]{1,60}?(?:\\b(?:" + keywords + ")\\b)", "i");
+        const m4 = cleaned.match(reProximityReverse);
+        if (m4 && m4[1]) return m4[1].trim();
+
+        return "";
+    }
+
+    /**
+     * Extracts destination URL from Chromium HTML anchor (<a href="...">) or raw http(s) URL.
+     * @param { string } body
+     * @returns { string }
+     */
+    function extractUrl(body = "") {
+        if (!body) return "";
+
+        let url = "";
+
+        // 1. HTML anchor tag href (Chromium notifications)
+        const aMatch = body.match(/<a\s+[^>]*href=["']([^"']+)["']/i);
+        if (aMatch && aMatch[1]) {
+            url = aMatch[1].replace(/&amp;/g, "&").trim();
+        } else {
+            // 2. Standalone raw URL (strip trailing punctuation)
+            const urlMatch = body.match(/\bhttps?:\/\/[^\s<>"'()]+[^\s<>"'().,;:!?]/i);
+            if (urlMatch && urlMatch[0]) {
+                url = urlMatch[0].replace(/&amp;/g, "&").trim();
+            }
+        }
+
+        if (!url) return "";
+
+        // Scheme whitelist: http:// or https:// only (T-40-03)
+        if (!/^https?:\/\//i.test(url)) {
+            return "";
+        }
+
+        return url;
+    }
 }
+

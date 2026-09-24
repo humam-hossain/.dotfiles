@@ -109,16 +109,25 @@ const testCode = process.argv[2];
 
 let content = fs.readFileSync(qmlPath, "utf8");
 content = content.replace(/^pragma.*$/gm, "").replace(/^import.*$/gm, "");
-content = content.replace(/Singleton\s*\{[\s\S]*?id:\s*root/, "var root = {");
-content = content.replace(/function\s+([a-zA-Z0-9_]+)\s*\(/g, "$1: function(");
+content = content.replace(/Singleton\s*\{[\s\S]*?id:\s*root/, "");
 const lastBrace = content.lastIndexOf("}");
-content = content.substring(0, lastBrace) + "};";
+content = content.substring(0, lastBrace);
 
 const sandbox = {
   Qt: { formatDateTime: () => "" },
   Translation: { tr: (s) => s }
 };
-const fn = new Function("sandbox", content + "\nreturn root;\n");
+const fn = new Function("sandbox", `
+  const { Qt, Translation } = sandbox;
+  ${content}
+  return {
+    findSuitableMaterialSymbol,
+    getFriendlyNotifTimeString,
+    processNotificationBody,
+    extractOtpCode,
+    extractUrl
+  };
+`);
 const NotificationUtils = fn(sandbox);
 
 const runTest = new Function("NotificationUtils", testCode);
@@ -236,7 +245,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 || "$SYNTAX_ONLY" -eq 1 ]]; t
 
     if grep -q "function extractUrl" "$REPO_ROOT/$NU_RESTOW"; then
       pass "S2: NotificationUtils.qml declares function extractUrl"
-      if grep -q "https\?:\\/\\/" "$REPO_ROOT/$NU_RESTOW"; then
+      if grep -qE 'https?://' "$REPO_ROOT/$NU_RESTOW"; then
         pass "S2: NotificationUtils.extractUrl validates http/https scheme"
       else
         fail "S2: NotificationUtils.extractUrl missing http/https scheme pattern"
