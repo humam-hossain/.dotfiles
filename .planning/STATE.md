@@ -18,7 +18,7 @@ milestone_name: Notification Experience & Shell Interaction Polish
 ---
 
 Total Phases: 4 (Phases 38-41)
-Progress: [██████████░░░░░░░░░░] 2/4 phases (50%)
+Progress: [███████████████░░░░░] 3/4 phases (75%)
 
 # Project State
 
@@ -37,10 +37,10 @@ Last activity: 2026-09-24 — Phase 40 complete, transitioned to Phase 41
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-23 after Phase 39)
+See: .planning/PROJECT.md (updated 2026-09-24 after Phase 40)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 40 — Notification Center Quick-Dismiss & Smart Interaction
+**Current focus:** Phase 41 — End-to-End Verification & Repository Integrity
 
 ## Deferred Items
 
