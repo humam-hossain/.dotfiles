@@ -1,18 +1,19 @@
 # Roadmap: Quickshell Desktop Shell
 
 **Milestone:** v0.8 Notification Experience & Shell Interaction Polish  
-**Phases:** 4 phases (Phases 38–41, continuing from v0.7 Phase 37)  
-**Requirements:** 14 requirements mapped (100% coverage)
+**Phases:** 5 phases (Phases 38–41, including Phase 40.1)  
+**Requirements:** 17 requirements mapped (100% coverage)
 
 ## Overview
 
-Milestone v0.8 refines core desktop shell interactions and ergonomics across media controls, system power switching, and notifications. Phase 38 integrates `power-profiles-daemon` into Arch Linux and connects it to the existing Quickshell toggle. Phase 39 implements dynamic coordinate anchoring and edge clamping for `MediaControls.qml` relative to the top bar's `Media` pill. Phase 40 delivers notification ergonomics in `restow/quickshell/`: an always-visible 'X' close button on sidebar cards, smart body click with app focus and URL launching, and regex OTP verification code extraction with a quick "Copy [Code]" action chip. Phase 41 unifies these features under an automated regression test harness and verifies strict repository integrity with zero upstream drift.
+Milestone v0.8 refines core desktop shell interactions and ergonomics across media controls, system power switching, and notifications. Phase 38 integrates `power-profiles-daemon` into Arch Linux and connects it to the existing Quickshell toggle. Phase 39 implements dynamic coordinate anchoring and edge clamping for `MediaControls.qml` relative to the top bar's `Media` pill. Phase 40 delivers notification ergonomics in `restow/quickshell/`: an always-visible 'X' close button on sidebar cards, smart body click with app focus and URL launching, and regex OTP verification code extraction with a quick "Copy [Code]" action chip. Phase 40.1 polishes status bar clock padding to match adjacent pills and establishes a single source of truth for the 150% volume ceiling across keyboard keybinds, right sidebar slider, and scrolling. Phase 41 unifies these features under an automated regression test harness and verifies strict repository integrity with zero upstream drift.
 
 ## Phases
 
 - [x] **Phase 38: Power Profiles Daemon System Integration** - Install, enable, and wire `power-profiles-daemon` into systemd, package manifests, and Quickshell's quick-toggle. (completed 2026-09-23)
 - [x] **Phase 39: Dynamic Media Popup Anchoring** - Anchor `MediaControls.qml` dynamically beneath the top status bar's `Media` pill with screen boundary clamping. (completed 2026-09-23)
 - [x] **Phase 40: Notification Center Quick-Dismiss & Smart Interaction** - Add sidebar 'X' close button, smart body click app/link routing, and regex OTP code extraction with copy chip. (completed 2026-09-24)
+- [ ] **Phase 40.1: Clock Pill Padding and Unified Volume Ceiling Ergonomics (INSERTED)** - Provide consistent horizontal padding for the clock pill matching adjacent pills, and unify the 150% volume ceiling from a single source of truth across keyboard, sidebar slider, and scrolling.
 - [ ] **Phase 41: End-to-End Verification & Repository Integrity** - Validate all features with automated test harnesses and assert strict zero-churn repository compliance.
 
 ## Phase Details
@@ -69,10 +70,29 @@ Milestone v0.8 refines core desktop shell interactions and ergonomics across med
 
 - [x] 40-02-PLAN.md
 
+### Phase 40.1: Clock Pill Padding and Unified Volume Ceiling Ergonomics (INSERTED)
+
+**Goal**: Restore comfortable visual padding to the top status bar clock/date pill matching other bar pills, and establish a single source of truth for the 150% volume ceiling across Hyprland keybinds, right sidebar slider, and Quickshell audio controls.  
+**Depends on**: Phase 40  
+**Requirements**: CLOCK-01, VOL-01, VOL-02  
+**Success Criteria** (what must be TRUE):
+
+  1. Top status bar clock/date pill has comfortable horizontal padding matching adjacent pills while retaining custom second precision and full date string formatting.
+  2. A single source of truth defines the desktop-wide 150% (1.5) volume ceiling consumed by both Hyprland keybinds and Quickshell services without hardcoded magic numbers.
+  3. The Right Sidebar volume slider (`QuickSliders.qml`) smoothly drags from 0% to 150% (1.5) bound to the single source of truth rather than capping at 100%.
+  4. Mouse scroll volume adjustments dynamically respect the single source of truth 150% ceiling.
+
+**Plans**: 2 plans
+
+Plans:
+
+- [ ] 40.1-01-PLAN.md
+- [ ] 40.1-02-PLAN.md
+
 ### Phase 41: End-to-End Verification & Repository Integrity
 
 **Goal**: Execute comprehensive automated verification across all milestone features and assert repository cleanliness.  
-**Depends on**: Phases 38, 39, 40  
+**Depends on**: Phases 38, 39, 40, 40.1  
 **Requirements**: INTG-01, INTG-02, INTG-03  
 **Success Criteria** (what must be TRUE):
 
@@ -85,11 +105,12 @@ Milestone v0.8 refines core desktop shell interactions and ergonomics across med
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 38 → 39 → 40 → 41
+Phases execute in numeric order: 38 → 39 → 40 → 40.1 → 41
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 38. Power Profiles Daemon System Integration | 1/1 | Complete    | 2026-09-23 |
 | 39. Dynamic Media Popup Anchoring | 1/1 | Complete    | 2026-09-23 |
 | 40. Notification Center Quick-Dismiss & Smart Interaction | 3/3 | Complete    | 2026-09-24 |
+| 40.1. Clock Pill Padding and Unified Volume Ceiling Ergonomics | 0/2 | Not started | - |
 | 41. End-to-End Verification & Repository Integrity | 0/TBD | Not started | - |
