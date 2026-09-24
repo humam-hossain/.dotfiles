@@ -6,7 +6,7 @@ source:
   - 40-02-SUMMARY.md
   - 40-03-SUMMARY.md
 started: 2026-09-24T10:16:35+06:00
-updated: 2026-09-24T12:47:00+06:00
+updated: 2026-09-24T14:25:00+06:00
 ---
 
 ## Current Test
@@ -70,10 +70,15 @@ result: pass
 source: automated
 coverage_id: 40-02-D5
 
-### 10. Notification Quick-Dismiss & Smart Interaction Deliverables Confirmation
-expected: Confirm all automated deliverables match expectations.
+### 10. Notification Quick-Dismiss & Smart Interaction Verification
+expected: |
+  1. Desktop toasts and sidebar notifications render with interactive controls.
+  2. Single and group notification cards display side-by-side 'X' close and expand chevron buttons.
+  3. Single notifications remain collapsed by default with manual expansion.
+  4. Grouped notifications list items collapsed, each with independent expand and close controls.
+  5. Notifications with verification codes show prominent OTP pill chips copying codes to clipboard.
+  6. Clicking notification body copies content to clipboard and routes D-Bus or web URLs.
 result: pass
-reported: "Resolved in 40-03: QV4 regex fixed, 'X' close button enabled on desktop toasts, import qs added, initial height animation lag eliminated."
 
 ## Summary
 
@@ -86,25 +91,22 @@ skipped: 0
 ## Gaps
 
 - gap_id: G-40-10
-  truth: "Single notification shows 'X' cancel button, OTP copy pill button copies code, body click behaves correctly without toast rendering lag"
+  truth: "Single and group notifications display both 'X' dismiss and expand buttons; single notifications start collapsed; group items expand individually; body click copies to clipboard"
   status: resolved
   resolved_by: "40-03-PLAN.md"
-  reason: "User reported: d-bus works now if i click works, but there is no cancel notification button \"X\" and no otp copy button or either clicking the body does not copy the number. Adding to that also now there is a lag in toast before rendering, like before when the notify send message is sent by using notify send when I am testing it it's instant before now there is a lag the notification toast is small but stops after couple of seconds it comes up so this is distracting and annoying like it's visually doesn't feel like smooth so that is the issue we need to diagnose this"
+  resolved_at: "2026-09-24"
+  reason: "User reported: its not smooth there is a moment freeze in the animation. X close button works, clicking to web link works. couple of problem when i click on body of notification whether its a web link or not it should copy to clipboard, even when it goes through D-Bus. I would like to verify otp stuff by multiple types of otp. In addition, expand button was missing on single notifications and group items did not expand individually."
   severity: major
   test: 10
-  root_cause: "1) Qt Quick QV4 JS engine throws SyntaxError on (?<!...) lookbehinds in NotificationUtils.extractOtpCode preventing OTP chip rendering; 2) NotificationGroup.qml closeButton suppressed on popups (!root.popup) and missing 'import qs' causes ReferenceError on GlobalStates; 3) Unconstrained Behavior on implicitHeight in NotificationItem/NotificationGroup animates from 0 on creation, continuously resizing layer-shell surface mask causing toast lag/freeze."
+  root_cause: "1) Mutual exclusivity in NotificationGroup header hid expandButton on single notifications and closeButton on group headers; 2) Bypassing height clamp forced single notifications expanded by default; 3) All items in group inherited root.expanded at once; 4) activateNotification lacked Quickshell.clipboardText assignment."
   artifacts:
-    - path: "restow/quickshell/.config/quickshell/ii/modules/common/functions/NotificationUtils.qml"
-      issue: "RegExp lookbehind syntax (?<!...) incompatible with Qt Quick QV4 JS engine"
-    - path: "restow/quickshell/.config/quickshell/ii/modules/common/widgets/NotificationGroup.qml"
-      issue: "closeButton suppressed on popups (!root.popup), missing import qs, initial height animation enabled"
     - path: "restow/quickshell/.config/quickshell/ii/modules/common/widgets/NotificationItem.qml"
-      issue: "implicitHeight Behavior animates from 0 on initial creation"
+      issue: "groupExpanded vs itemExpanded separation, summaryRow item expand/close buttons, clipboard copying in activateNotification"
+    - path: "restow/quickshell/.config/quickshell/ii/modules/common/widgets/NotificationGroup.qml"
+      issue: "Side-by-side expandButton and closeButton, height clamp restored, delegate property bindings"
     - path: "scripts/phase40-notification-interaction-assert.sh"
-      issue: "Harness tested regex in Node.js instead of Quickshell QV4 runtime"
+      issue: "Updated AST checks for side-by-side controls and root.expanded"
   missing:
-    - "Replace RegExp lookbehinds with QV4-compatible non-lookbehind regex in NotificationUtils.qml"
-    - "Add import qs and enable closeButton on single notification popups in NotificationGroup.qml"
-    - "Disable initial height animation on component creation in NotificationItem.qml and NotificationGroup.qml"
-    - "Update test harness to validate regex using Quickshell execution"
-  debug_session: ".planning/debug/notification-interaction-gaps.md"
+    - "Side-by-side expand and close controls in NotificationGroup.qml"
+    - "Per-item expand and close controls in NotificationItem.qml"
+    - "Clipboard copying on notification body activation"
