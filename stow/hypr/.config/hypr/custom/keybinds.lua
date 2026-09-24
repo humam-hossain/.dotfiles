@@ -1,7 +1,27 @@
 -- Authoring SoT: parent-repo .config/hypr/custom/ (see 13-SOT-APPLY.md). Do not commit into vendor/dots-hyprland.
 
+local HOME = HOME or os.getenv("HOME")
+
+-- Pure Lua startup configuration parser for desktop volume ceiling (VOL-01, D-04, T-40.1-02)
+local function get_volume_ceiling()
+    local default_ceiling = "1.5"
+    local config_path = HOME .. "/.config/illogical-impulse/config.json"
+    local f = io.open(config_path, "r")
+    if not f then return default_ceiling end
+    local content = f:read("*a")
+    f:close()
+    if not content then return default_ceiling end
+    local ceiling = content:match('"volumeCeiling"%s*:%s*([%d%.]+)')
+    if ceiling and tonumber(ceiling) and tonumber(ceiling) > 0 then
+        return ceiling
+    end
+    return default_ceiling
+end
+local volume_ceiling = get_volume_ceiling()
+
 -- Upstream unbinds (D-06, HYPR-02)
 -- Must execute before binding new actions to avoid dual-action firing on identical key chords
+hl.unbind("XF86AudioRaiseVolume") -- upstream volume raise with hardcoded limit (D-04)
 hl.unbind("SUPER + C")     -- upstream code editor
 hl.unbind("SUPER + L")     -- upstream lock
 hl.unbind("SUPER + K")     -- upstream on-screen keyboard
@@ -82,9 +102,10 @@ hl.bind("SUPER + L", hl.dsp.focus({ direction = "r" }), { description = "Window:
 hl.bind("SUPER + K", hl.dsp.focus({ direction = "u" }), { description = "Window: Focus up" })
 hl.bind("SUPER + J", hl.dsp.focus({ direction = "d" }), { description = "Window: Focus down" })
 
--- Audio controls (D-11, G-20-2)
+-- Audio controls (D-11, G-20-2, VOL-01, D-04)
 hl.bind("SUPER + M", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"), { locked = true, description = "Audio: Toggle mic" })
 hl.bind("SUPER + ALT + M", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"), { locked = true, description = "Audio: Toggle mute" })
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+ -l " .. volume_ceiling), { locked = true, repeating = true, description = "Audio: Raise volume" })
 
 -- Shell search (D-12)
 hl.bind("SUPER + Space", hl.dsp.global("quickshell:searchToggle"), { description = "Shell: Toggle search" })
