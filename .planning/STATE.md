@@ -1,46 +1,46 @@
 ---
 gsd_state_version: "1.0"
 milestone: v0.8
-current_phase: 41
-current_phase_name: End-to-End Verification & Repository Integrity
+current_phase: "40.1"
+current_phase_name: Clock Pill Padding and Unified Volume Ceiling Ergonomics
 status: planning
-stopped_at: Phase 40 complete, ready to plan Phase 41
-last_updated: "2026-09-24T06:47:41.074Z"
+stopped_at: Phase 40.1 context gathered
+last_updated: "2026-09-24T15:33:59.688Z"
 last_activity: 2026-09-24
-last_activity_desc: Phase 40 complete, transitioned to Phase 41
-state_head: 7ea02a2e135abe923f62087b0da2f1784de9f24a
+last_activity_desc: Phase 40.1 inserted, ready to plan
+state_head: 479f81fb7723f8f32549b9a0a5df563b23834fbf
 progress:
-  total_phases: 4
+  total_phases: 5
   completed_phases: 3
   total_plans: 5
   completed_plans: 5
 milestone_name: Notification Experience & Shell Interaction Polish
 ---
 
-Total Phases: 4 (Phases 38-41)
-Progress: [███████████████░░░░░] 3/4 phases (75%)
+Total Phases: 5 (Phases 38-41, including 40.1)
+Progress: [████████████░░░░░░░░] 3/5 phases (60%)
 
 # Project State
 
 ## Current Position
 
-Phase: 41 — End-to-End Verification & Repository Integrity
+Phase: 40.1 — Clock Pill Padding and Unified Volume Ceiling Ergonomics
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-09-24 — Phase 40 complete, transitioned to Phase 41
+Last activity: 2026-09-24 — Phase 40.1 inserted, ready to plan
 
 ## Session
 
-**Last session:** 2026-09-24T03:26:23.576Z
-**Stopped at:** Phase 40 complete, ready to plan Phase 41
-**Resume file:** .planning/phases/40-notification-center-quick-dismiss-smart-interaction/40-CONTEXT.md
+**Last session:** 2026-09-24T15:33:59.607Z
+**Stopped at:** Phase 40.1 context gathered
+**Resume file:** /home/pera/github_repo/.dotfiles/.planning/phases/40.1-clock-pill-padding-and-unified-volume-ceiling-ergonomics/40.1-CONTEXT.md
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-24 after Phase 40)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 41 — End-to-End Verification & Repository Integrity
+**Current focus:** Phase 40.1 — Clock Pill Padding and Unified Volume Ceiling Ergonomics
 
 ## Deferred Items
 
@@ -49,7 +49,7 @@ Items acknowledged and deferred at milestone close on 2026-07-25 (v0.1), re-ackn
 | Category | Item | Status | Deferred At | Milestone |
 |----------|------|--------|-------------|-----------|
 | debug | cpu-warning-color-missing | unknown (re-acknowledged v0.7; local bar retired) | 2026-09-21 | v0.7 |
-| debug | keyboard-volume-ceiling | unknown (re-acknowledged v0.7; local bar retired) | 2026-09-21 | v0.7 |
+| debug | keyboard-volume-ceiling | active (targeted in Phase 40.1) | 2026-09-21 | v0.7 |
 | debug | pavucontrol-launch-broken | unknown (re-acknowledged v0.7; local bar retired) | 2026-09-21 | v0.7 |
 | debug | ram-label-spacing | unknown (re-acknowledged v0.7; local bar retired) | 2026-09-21 | v0.7 |
 | debug | DEBUG-gtk-visual-theming-pink-accent | unknown (re-acknowledged v0.7) | 2026-09-21 | v0.7 |
@@ -145,6 +145,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - Phase 16 added as a DOC-03 gap closure, then retitled on 2026-09-07 and widened to the safe-profile retirement — full-only wrapper, full-only playbook, and the planning artifacts swept to match. Its original B-1 update-path / B-2 restore-path scope was replaced before execution began; both closed by retiring the destination rather than documenting a route to it.
 - Phase 24 added: Address tech debt: bookkeeping and validation cleanup
 - Phase 30 added: Address tech debt: v0.5 cleanup and validation sign-off
+- Phase 40.1 inserted after Phase 40: Clock Pill Padding and Unified Volume Ceiling Ergonomics (URGENT)
 
 ## Operator Next Steps
 
