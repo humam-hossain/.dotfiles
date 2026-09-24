@@ -184,24 +184,24 @@ if [[ "$SYNTAX_ONLY" -eq 0 ]] && [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1
     fail "S1: $NU_HOME is NOT a symlink in home deploy"
   fi
 
-  # Verify optional widgets if present in restow (Plan 40-02)
+  # Verify widget overlays exist in restow and are symlinked into home deploy
   for widget_rel in "$NG_RESTOW" "$NI_RESTOW"; do
     widget_name="$(basename "$widget_rel")"
     home_path="$HOME/.config/quickshell/ii/modules/common/widgets/$widget_name"
     if [[ -f "$REPO_ROOT/$widget_rel" ]]; then
       pass "S1: Restow overlay exists: $widget_rel"
-      if [[ -L "$home_path" ]]; then
-        link_target="$(readlink -f "$home_path")"
-        if [[ "$link_target" == *"/restow/quickshell/.config/quickshell/ii/modules/common/widgets/$widget_name"* ]]; then
-          pass "S1: $home_path is a symlink resolving into restow/quickshell/"
-        else
-          fail "S1: $home_path symlink resolves to unexpected target: $link_target"
-        fi
+    else
+      fail "S1: Restow overlay MISSING: $widget_rel"
+    fi
+    if [[ -L "$home_path" ]]; then
+      link_target="$(readlink -f "$home_path")"
+      if [[ "$link_target" == *"/restow/quickshell/.config/quickshell/ii/modules/common/widgets/$widget_name"* ]]; then
+        pass "S1: $home_path is a symlink resolving into restow/quickshell/"
       else
-        fail "S1: $home_path is NOT a symlink in home deploy"
+        fail "S1: $home_path symlink resolves to unexpected target: $link_target"
       fi
     else
-      info "S1: widgets/$widget_name not yet in restow (Plan 40-02 target)"
+      fail "S1: $home_path is NOT a symlink in home deploy"
     fi
   done
 
@@ -461,8 +461,86 @@ if [[ "$SYNTAX_ONLY" -eq 0 ]] && [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4
     else
       fail "S4: One or more URL extraction test cases failed"
     fi
+
+    # Test Body Click Activation Routing Precedence (D-04, D-05, D-06, NAV-01)
+    js_activation_test='
+    function simulateActivation(notif, NotificationUtils) {
+      let invokedAction = null;
+      let openedUrl = null;
+      let discardedId = null;
+
+      const Notifications = {
+        attemptInvokeAction: (id, action) => { invokedAction = action; },
+        discardNotification: (id) => { discardedId = id; }
+      };
+      const Qt = {
+        openUrlExternally: (url) => { openedUrl = url; }
+      };
+      const GlobalStates = {
+        sidebarRightOpen: true
+      };
+
+      function activateNotification() {
+        if (!notif) return;
+        const hasDefaultAction = notif.actions?.some(a => a.identifier === "default");
+        const extractedUrl = NotificationUtils.extractUrl(notif.body);
+
+        if (hasDefaultAction) {
+          Notifications.attemptInvokeAction(notif.notificationId, "default");
+        } else if (extractedUrl) {
+          Qt.openUrlExternally(extractedUrl);
+          Notifications.discardNotification(notif.notificationId);
+        } else {
+          Notifications.discardNotification(notif.notificationId);
+        }
+        GlobalStates.sidebarRightOpen = false;
+      }
+
+      activateNotification();
+      return { invokedAction, openedUrl, discardedId, sidebarOpen: GlobalStates.sidebarRightOpen };
+    }
+
+    let actFailed = 0;
+
+    // Case 1: D-Bus action takes precedence over embedded URL
+    const r1 = simulateActivation({ notificationId: 101, actions: [{ identifier: "default" }], body: "Check https://github.com" }, NotificationUtils);
+    if (r1.invokedAction === "default" && r1.openedUrl === null && r1.sidebarOpen === false) {
+      console.log("[PASS] S4: Precedence 1 - D-Bus default action prioritized over URL");
+    } else {
+      console.log("[FAIL] S4: Precedence 1 - Expected D-Bus action invocation");
+      actFailed++;
+    }
+
+    // Case 2: URL fallback when no D-Bus default action exists
+    const r2 = simulateActivation({ notificationId: 102, actions: [{ identifier: "other" }], body: "Check https://github.com" }, NotificationUtils);
+    if (r2.openedUrl === "https://github.com" && r2.discardedId === 102 && r2.sidebarOpen === false) {
+      console.log("[PASS] S4: Precedence 2 - Embedded URL fallback opened externally and discarded");
+    } else {
+      console.log("[FAIL] S4: Precedence 2 - Expected URL fallback");
+      actFailed++;
+    }
+
+    // Case 3: Passive notification without actions or URLs simply discards and closes sidebar
+    const r3 = simulateActivation({ notificationId: 103, actions: [], body: "Simple notice text" }, NotificationUtils);
+    if (r3.discardedId === 103 && r3.openedUrl === null && r3.sidebarOpen === false) {
+      console.log("[PASS] S4: Precedence 3 - Passive notification discarded and sidebar closed");
+    } else {
+      console.log("[FAIL] S4: Precedence 3 - Expected passive notification discard");
+      actFailed++;
+    }
+
+    if (actFailed > 0) {
+      process.exit(1);
+    }
+    '
+
+    if run_js_eval "$js_activation_test"; then
+      pass "S4: Smart body click activation precedence tests passed"
+    else
+      fail "S4: Smart body click activation precedence tests failed"
+    fi
   else
-    info "S4: extractUrl not yet declared in NotificationUtils.qml (Task 2 target)"
+    fail "S4: extractUrl missing in NotificationUtils.qml"
   fi
 fi
 
