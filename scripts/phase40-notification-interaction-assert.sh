@@ -239,6 +239,12 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 || "$SYNTAX_ONLY" -eq 1 ]]; t
       else
         fail "S2: NotificationUtils.extractOtpCode missing negative lookaround bounds"
       fi
+
+      if grep -qE '\(\?<!|\(\?<=' "$REPO_ROOT/$NU_RESTOW"; then
+        fail "S2: NotificationUtils.qml contains unsupported RegExp lookbehind syntax (?<! or (?<="
+      else
+        pass "S2: NotificationUtils.qml contains no RegExp lookbehinds (QV4 engine compatible)"
+      fi
     else
       info "S2: extractOtpCode not yet declared in NotificationUtils.qml (Task 2 target)"
     fi
@@ -257,18 +263,24 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 || "$SYNTAX_ONLY" -eq 1 ]]; t
     fail "S2: $NU_RESTOW does not exist"
   fi
 
-  # NotificationGroup.qml checks (Plan 40-02)
+  # NotificationGroup.qml checks (Plan 40-02 & Plan 40-03)
   if [[ -f "$REPO_ROOT/$NG_RESTOW" ]]; then
+    if grep -qE '^import qs\b' "$REPO_ROOT/$NG_RESTOW"; then
+      pass "S2: NotificationGroup.qml imports qs (GlobalStates in scope)"
+    else
+      fail "S2: NotificationGroup.qml missing 'import qs'"
+    fi
+
     if grep -q "id:\s*closeButton" "$REPO_ROOT/$NG_RESTOW"; then
       pass "S2: NotificationGroup.qml declares closeButton"
     else
       fail "S2: NotificationGroup.qml missing closeButton declaration"
     fi
 
-    if grep -q "visible:\s*!root\.multipleNotifications\s*&&\s*!root\.popup" "$REPO_ROOT/$NG_RESTOW"; then
-      pass "S2: NotificationGroup.qml closeButton visible exclusively on single sidebar notifications"
+    if grep -qE 'visible:\s*!root\.multipleNotifications\s*$' "$REPO_ROOT/$NG_RESTOW"; then
+      pass "S2: NotificationGroup.qml closeButton visible on single notifications (including popups)"
     else
-      fail "S2: NotificationGroup.qml closeButton visibility condition missing or incorrect"
+      fail "S2: NotificationGroup.qml closeButton visibility condition missing or contains !root.popup"
     fi
 
     if grep -q "root\.destroyWithAnimation()" "$REPO_ROOT/$NG_RESTOW"; then
@@ -277,10 +289,10 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 || "$SYNTAX_ONLY" -eq 1 ]]; t
       fail "S2: NotificationGroup.qml closeButton missing destroyWithAnimation invocation"
     fi
 
-    if grep -q "root\.multipleNotifications\s*||\s*root\.popup" "$REPO_ROOT/$NG_RESTOW"; then
-      pass "S2: NotificationGroup.qml expandButton preserves multi-notif or popup visibility"
+    if grep -qE 'visible:\s*root\.multipleNotifications\s*$' "$REPO_ROOT/$NG_RESTOW"; then
+      pass "S2: NotificationGroup.qml expandButton visible exclusively for multiple notifications"
     else
-      fail "S2: NotificationGroup.qml expandButton visibility condition missing or incorrect"
+      fail "S2: NotificationGroup.qml expandButton visibility condition missing or contains || root.popup"
     fi
 
     if grep -q "root\.expanded\s*||\s*!root\.multipleNotifications" "$REPO_ROOT/$NG_RESTOW"; then
