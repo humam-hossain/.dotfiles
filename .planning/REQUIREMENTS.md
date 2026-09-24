@@ -21,18 +21,18 @@ Requirements for milestone release. Each maps to roadmap phases.
 
 ### Notification Header & Dismissal
 
-- [ ] **NOTIF-01**: Notification card header in Right Sidebar (`NotificationGroup.qml`) displays an always-visible 'X' close button for immediate 1-click dismissal without dropdown expansion.
-- [ ] **NOTIF-02**: Toast notification popups (`NotificationPopup.qml`) strictly suppress the header 'X' close button (`visible: !root.popup`), preserving clean hover/timeout dismissal.
+- [x] **NOTIF-01**: Notification card header in Right Sidebar (`NotificationGroup.qml`) displays an always-visible 'X' close button for immediate 1-click dismissal without dropdown expansion.
+- [x] **NOTIF-02**: Toast notification popups (`NotificationPopup.qml`) strictly suppress the header 'X' close button (`visible: !root.popup`), preserving clean hover/timeout dismissal.
 
 ### Notification Body Click & URL Navigation
 
-- [ ] **NAV-01**: Clicking the notification card body invokes the sending application's `default` D-Bus action to focus/open the application.
-- [ ] **NAV-02**: Notification URL extraction parses links from Chromium notifications (`<a href="...">`), YouTube, WhatsApp, and raw URLs in body, opening them in the default browser.
+- [x] **NAV-01**: Clicking the notification card body invokes the sending application's `default` D-Bus action to focus/open the application.
+- [x] **NAV-02**: Notification URL extraction parses links from Chromium notifications (`<a href="...">`), YouTube, WhatsApp, and raw URLs in body, opening them in the default browser.
 
 ### Smart OTP / 2FA Detection
 
-- [ ] **OTP-01**: Regex parser in `NotificationUtils.qml` scans incoming notification text for 4–8 digit verification codes anchored to security keywords (`code`, `otp`, `verification`, `pin`, `auth`).
-- [ ] **OTP-02**: Notification card in `NotificationItem.qml` renders a prominent "Copy [Code]" quick-action chip that copies the extracted code to clipboard with visual confirmation.
+- [x] **OTP-01**: Regex parser in `NotificationUtils.qml` scans incoming notification text for 4–8 digit verification codes anchored to security keywords (`code`, `otp`, `verification`, `pin`, `auth`).
+- [x] **OTP-02**: Notification card in `NotificationItem.qml` renders a prominent "Copy [Code]" quick-action chip that copies the extracted code to clipboard with visual confirmation.
 
 ### Integration & Repository Integrity
 
@@ -72,12 +72,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | POWER-01 | Phase 38 | Complete |
 | POWER-02 | Phase 38 | Complete |
 | POWER-03 | Phase 38 | Complete |
-| NOTIF-01 | Phase 40 | Pending |
-| NOTIF-02 | Phase 40 | Pending |
-| NAV-01 | Phase 40 | Pending |
-| NAV-02 | Phase 40 | Pending |
-| OTP-01 | Phase 40 | Pending |
-| OTP-02 | Phase 40 | Pending |
+| NOTIF-01 | Phase 40 | Complete |
+| NOTIF-02 | Phase 40 | Complete |
+| NAV-01 | Phase 40 | Complete |
+| NAV-02 | Phase 40 | Complete |
+| OTP-01 | Phase 40 | Complete |
+| OTP-02 | Phase 40 | Complete |
 | INTG-01 | Phase 41 | Pending |
 | INTG-02 | Phase 41 | Pending |
 | INTG-03 | Phase 41 | Pending |
