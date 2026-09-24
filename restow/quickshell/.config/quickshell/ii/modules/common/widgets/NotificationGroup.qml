@@ -1,3 +1,4 @@
+import qs
 import qs.services
 import qs.modules.common
 import qs.modules.common.functions
@@ -73,8 +74,7 @@ MouseArea { // Notification group area
     }
 
     function toggleExpanded() {
-        if (expanded) implicitHeightAnim.enabled = true;
-        else implicitHeightAnim.enabled = false;
+        implicitHeightAnim.enabled = true;
         root.expanded = !root.expanded;
     }
 
@@ -165,6 +165,7 @@ MouseArea { // Notification group area
 
         Behavior on implicitHeight {
             id: implicitHeightAnim
+            enabled: false
             animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
         }
 
@@ -236,7 +237,7 @@ MouseArea { // Notification group area
                     }
                     NotificationGroupExpandButton {
                         id: expandButton
-                        visible: root.multipleNotifications || root.popup
+                        visible: root.multipleNotifications
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         count: root.notificationCount
@@ -251,7 +252,7 @@ MouseArea { // Notification group area
                     }
                     RippleButton {
                         id: closeButton
-                        visible: !root.multipleNotifications && !root.popup
+                        visible: !root.multipleNotifications
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         implicitWidth: topRow.fontSize + 4 * 2

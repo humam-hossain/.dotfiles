@@ -15,9 +15,16 @@ Item { // Notification item area
     property string otpCode: NotificationUtils.extractOtpCode(notificationObject?.body, notificationObject?.summary)
     property bool expanded: false
     property bool onlyNotification: false
+    property bool initialized: false
     property real fontSize: Appearance.font.pixelSize.small
     property real padding: onlyNotification ? 0 : 8
     property real summaryElideRatio: 0.85
+
+    Component.onCompleted: {
+        Qt.callLater(() => {
+            initialized = true;
+        });
+    }
 
     property real dragConfirmThreshold: 70 // Drag further to discard notification
     property real dismissOvershoot: notificationIcon.implicitWidth + 20 // Account for gaps and bouncy animations
@@ -152,6 +159,7 @@ Item { // Notification item area
 
         implicitHeight: expanded ? (contentColumn.implicitHeight + padding * 2) : contentColumn.implicitHeight
         Behavior on implicitHeight {
+            enabled: root.initialized
             animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
         }
 
