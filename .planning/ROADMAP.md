@@ -57,7 +57,14 @@ Milestone v0.8 refines core desktop shell interactions and ergonomics across med
   3. Clicking the notification card body invokes the sending application's `default` D-Bus action, or extracts and opens embedded/Chromium web links in the default browser.
   4. Incoming notifications containing 4–8 digit verification codes display a prominent "Copy [123456]" action chip that copies the code to the clipboard with visual confirmation.
 
-**Plans**: TBD
+**Plans**: 2 plans
+**Wave 1**
+
+- [ ] 40-01-PLAN.md
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 40-02-PLAN.md
 
 ### Phase 41: End-to-End Verification & Repository Integrity
 
