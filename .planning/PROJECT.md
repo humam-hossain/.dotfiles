@@ -290,8 +290,8 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ **POWER-01**: `power-profiles-daemon` package installed and systemd service enabled on Arch Linux — Phase 38
 - ✓ **POWER-02**: Power profiles toggle in Quickshell (`PowerProfilesToggle.qml`) cycles profiles correctly and displays active state — Phase 38
 - ✓ **POWER-03**: Package manifests (`pkglist-native.txt`, `dots-hyprland.sh`, `bootstrap.sh`) updated to guarantee `power-profiles-daemon` on fresh install — Phase 38
-- ✓ **NOTIF-01**: Notification card header in Right Sidebar (`NotificationGroup.qml`) displays an always-visible 'X' close button for immediate dismissal without dropdown expansion — Phase 40
-- ✓ **NOTIF-02**: Toast notification popups strictly suppress the header 'X' close button (`visible: !root.popup`), preserving clean hover/timeout dismissal — Phase 40
+- ✓ **NOTIF-01**: Notification card header across desktop toasts and Right Sidebar (`NotificationGroup.qml`) displays an always-visible 'X' close button for immediate dismissal without dropdown expansion — Phase 40
+- ✓ **NOTIF-02**: Toast notification popups eliminate initial height animation lag from 0 and provide smooth instant popup rendering — Phase 40
 - ✓ **NAV-01**: Clicking notification card body invokes sending application's default D-Bus action to focus/open application window — Phase 40
 - ✓ **NAV-02**: Notification URL extraction parses links from Chromium notifications (`<a href="...">`), YouTube, WhatsApp, and raw URLs in body, opening them in default browser — Phase 40
 - ✓ **OTP-01**: Regex parser in `NotificationUtils.qml` scans incoming notification text for 4–8 digit verification codes anchored to security keywords — Phase 40
@@ -472,10 +472,12 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 39: Sentinel -1 for coordinate bridge properties | `mediaPillCenterX/Y: -1` cleanly activates upstream center fallback when opened via keyboard shortcut or IPC without pill click (D-08) | ✓ Section 3 T7 FAIL=0 |
 | Phase 39: Narrow-screen guard in clamping formula | `(maxX < minX) ? minX` prevents boundary inversion on screens narrower than popup width (D-09, D-10, MEDIA-02) | ✓ Section 3 T6 FAIL=0 |
 | Phase 39: Reactive Connections tracking for pill layout shifts | Dynamically connects to item geometry changes only while popup is open on the same screen, preventing jitter (D-04) | ✓ Verified in BarContent.qml and VerticalBarContent.qml |
-| Phase 40: Single-card header 'X' close button | Adds `closeButton` invoking `root.destroyWithAnimation()` strictly when `!root.multipleNotifications && !root.popup`; preserves upstream grouped accordion chevron/count and suppresses on popups (D-01..D-03, NOTIF-01, NOTIF-02) | ✓ Section 2 FAIL=0 |
+| Phase 40: Single-card header 'X' close button on toasts & sidebar | Adds `closeButton` invoking `root.destroyWithAnimation()` on single notifications (`!root.multipleNotifications`); preserves upstream grouped accordion chevron/count for multi-notifications | ✓ Section 2 FAIL=0 |
 | Phase 40: Body click routing precedence | Checks sending app's D-Bus `default` action first; falls back to `NotificationUtils.extractUrl` via `Qt.openUrlExternally`; always discards card and closes sidebar (D-04..D-06, NAV-01, NAV-02) | ✓ Section 4 FAIL=0 |
 | Phase 40: Bypassing 80px height clamping | Bypasses 80px implicitHeight clamping on single notification cards `(root.expanded || !root.multipleNotifications)`, eliminating summary and OTP chip truncation (Pitfall 3) | ✓ Section 2 FAIL=0 |
-| Phase 40: Keyword-anchored OTP regex with ReDoS bounds | Anchors 4–8 digit extraction to security keywords (`code`, `otp`, `pin`, etc.) with word boundaries and negative lookarounds, achieving 100% precision across 19 test cases (D-07, T-40-01, OTP-01) | ✓ Section 3 FAIL=0 |
+| Phase 40: QV4-compatible non-lookbehind OTP regex | Eliminates `(?<!...)` lookbehinds in `extractOtpCode`, replacing with prefix non-capturing boundaries `(?:^|[^0-9\-\/])` to avoid QV4 SyntaxError | ✓ Section 3 FAIL=0 |
+| Phase 40: Initial mount height animation suppression | Gating `Behavior on implicitHeight` via `enabled: root.initialized` and `implicitHeightAnim.enabled = false` prevents initial height animation from 0, eliminating toast rendering lag and surface mask thrashing | ✓ Section 2 FAIL=0 |
+| Phase 40: In-scope GlobalStates resolution via import qs | Added `import qs` to `NotificationGroup.qml` to ensure `GlobalStates.sidebarRightOpen` resolves without ReferenceError during activation | ✓ Section 2 FAIL=0 |
 | Phase 40: Icon-free Material 3 OTP quick-action chip | Text-only "Copy [Code]" pill chip with 1500ms "Copied!" confirmation copying directly to `Quickshell.clipboardText` without decorative icons (D-08, D-09, T-40-02, OTP-02) | ✓ Section 2 FAIL=0 |
 | Phase 40: Non-invasive leaf symlink overlay | Deployed entirely under `restow/quickshell/` without modifying `vendor/dots-hyprland`, verified with strict zero-churn gate (D-10, INTG-01) | ✓ Section 1, 5 FAIL=0 |
 
