@@ -207,12 +207,13 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
     fi
   done
 
-  # Check other overlays if present or when verifying full suite at completion
+  # Verify all overlays exist and are deployed as valid symlinks
   for overlay in "$CONF_RESTOW" "$AUDIO_RESTOW" "$QS_RESTOW"; do
+    overlay_name="$(basename "$overlay")"
+    parent_dir="$(dirname "$overlay" | sed 's|^restow/quickshell/||')"
+    live_path="$HOME/$parent_dir/$overlay_name"
     if [[ -f "$REPO_ROOT/$overlay" ]]; then
-      overlay_name="$(basename "$overlay")"
-      parent_dir="$(dirname "$overlay" | sed 's|^restow/quickshell/||')"
-      live_path="$HOME/$parent_dir/$overlay_name"
+      pass "S1: Restow overlay exists: $overlay"
       if [[ -L "$live_path" ]]; then
         target="$(readlink -f "$live_path" || true)"
         if [[ "$target" == *"/$overlay"* ]]; then
@@ -222,6 +223,10 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
         fi
       else
         fail "S1: Overlay $overlay_name live path is NOT a symlink: $live_path"
+      fi
+    else
+      if [[ "$RUN_SECTION" -eq 0 ]]; then
+        fail "S1: Required overlay MISSING in full test run: $overlay"
       fi
     fi
   done
