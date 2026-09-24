@@ -1,9 +1,9 @@
 ---
 phase: "40"
 slug: "notification-center-quick-dismiss-smart-interaction"
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: verified
+nyquist_compliant: true
+wave_0_complete: true
 created: "2026-09-24"
 ---
 
@@ -38,11 +38,11 @@ created: "2026-09-24"
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 40-01-01 | 01 | 0 | INTG-01, INTG-02 | — | Harness validates symlink integrity, submodule cleanliness, and test matrices | unit | `test -x scripts/phase40-notification-interaction-assert.sh && ./scripts/phase40-notification-interaction-assert.sh --section 1` | ❌ W0 | ⬜ pending |
-| 40-01-02 | 01 | 1 | OTP-01, NAV-02 | T-40-01, T-40-03 | Regex sanitization, safe URL schema bounds, OTP security keyword anchoring | unit | `./scripts/phase40-notification-interaction-assert.sh --section 3 && ./scripts/phase40-notification-interaction-assert.sh --section 4` | ❌ W0 | ⬜ pending |
-| 40-02-01 | 02 | 2 | NOTIF-01, NOTIF-02 | — | Single notification card shows 'X' button; toast popup strictly suppresses it | unit | `./scripts/phase40-notification-interaction-assert.sh --section 2` | ❌ W0 | ⬜ pending |
-| 40-02-02 | 02 | 2 | NAV-01, OTP-02 | T-40-02 | Smart body click routes D-Bus default / URL fallback; OTP chip copies to clipboard with 1.5s confirmation | unit | `./scripts/phase40-notification-interaction-assert.sh` | ❌ W0 | ⬜ pending |
-| 40-02-03 | 02 | 3 | INTG-01, INTG-03 | — | Leaf symlinks deployed cleanly via stow; zero diff in vendor/dots-hyprland | integration | `./scripts/phase40-notification-interaction-assert.sh && ./arch/dots-hyprland.sh verify --strict` | ❌ W0 | ⬜ pending |
+| 40-01-01 | 01 | 0 | INTG-01, INTG-02 | — | Harness validates symlink integrity, submodule cleanliness, and test matrices | unit | `test -x scripts/phase40-notification-interaction-assert.sh && ./scripts/phase40-notification-interaction-assert.sh --section 1` | ✅ | ✅ green |
+| 40-01-02 | 01 | 1 | OTP-01, NAV-02 | T-40-01, T-40-03 | Regex sanitization, safe URL schema bounds, OTP security keyword anchoring | unit | `./scripts/phase40-notification-interaction-assert.sh --section 3 && ./scripts/phase40-notification-interaction-assert.sh --section 4` | ✅ | ✅ green |
+| 40-02-01 | 02 | 2 | NOTIF-01, NOTIF-02 | — | Single notification card shows 'X' button; toast popup strictly suppresses it | unit | `./scripts/phase40-notification-interaction-assert.sh --section 2` | ✅ | ✅ green |
+| 40-02-02 | 02 | 2 | NAV-01, OTP-02 | T-40-02 | Smart body click routes D-Bus default / URL fallback; OTP chip copies to clipboard with 1.5s confirmation | unit | `./scripts/phase40-notification-interaction-assert.sh` | ✅ | ✅ green |
+| 40-02-03 | 02 | 3 | INTG-01, INTG-03 | — | Leaf symlinks deployed cleanly via stow; zero diff in vendor/dots-hyprland | integration | `./scripts/phase40-notification-interaction-assert.sh && ./arch/dots-hyprland.sh verify --strict` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -50,8 +50,8 @@ created: "2026-09-24"
 
 ## Wave 0 Requirements
 
-- [ ] `scripts/phase40-notification-interaction-assert.sh` — assertion harness covering 5 sections (symlink integrity, AST verification, OTP regex matrix, URL extraction, repository strict verification)
-- [ ] Staging test harness in `scripts/` before implementation components
+- [x] `scripts/phase40-notification-interaction-assert.sh` — assertion harness covering 5 sections (symlink integrity, AST verification, OTP regex matrix, URL extraction, repository strict verification)
+- [x] Staging test harness in `scripts/` before implementation components
 
 ---
 
@@ -68,11 +68,11 @@ created: "2026-09-24"
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 10s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 10s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** verified 2026-09-24
