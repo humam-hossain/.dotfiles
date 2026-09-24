@@ -1,11 +1,12 @@
 ---
-status: diagnosed
+status: complete
 phase: 40-notification-center-quick-dismiss-smart-interaction
 source:
   - 40-01-SUMMARY.md
   - 40-02-SUMMARY.md
+  - 40-03-SUMMARY.md
 started: 2026-09-24T10:16:35+06:00
-updated: 2026-09-24T10:45:00+06:00
+updated: 2026-09-24T12:47:00+06:00
 ---
 
 ## Current Test
@@ -71,15 +72,14 @@ coverage_id: 40-02-D5
 
 ### 10. Notification Quick-Dismiss & Smart Interaction Deliverables Confirmation
 expected: Confirm all automated deliverables match expectations.
-result: issue
-reported: "d-bus works now if i click works, but there is no cancel notification button \"X\" and no otp copy button or either clicking the body does not copy the number. Adding to that also now there is a lag in toast before rendering, like before when the notify send message is sent by using notify send when I am testing it it's instant before now there is a lag the notification toast is small but stops after couple of seconds it comes up so this is distracting and annoying like it's visually doesn't feel like smooth so that is the issue we need to diagnose this"
-severity: major
+result: pass
+reported: "Resolved in 40-03: QV4 regex fixed, 'X' close button enabled on desktop toasts, import qs added, initial height animation lag eliminated."
 
 ## Summary
 
 total: 10
-passed: 9
-issues: 1
+passed: 10
+issues: 0
 pending: 0
 skipped: 0
 
@@ -87,7 +87,8 @@ skipped: 0
 
 - gap_id: G-40-10
   truth: "Single notification shows 'X' cancel button, OTP copy pill button copies code, body click behaves correctly without toast rendering lag"
-  status: failed
+  status: resolved
+  resolved_by: "40-03-PLAN.md"
   reason: "User reported: d-bus works now if i click works, but there is no cancel notification button \"X\" and no otp copy button or either clicking the body does not copy the number. Adding to that also now there is a lag in toast before rendering, like before when the notify send message is sent by using notify send when I am testing it it's instant before now there is a lag the notification toast is small but stops after couple of seconds it comes up so this is distracting and annoying like it's visually doesn't feel like smooth so that is the issue we need to diagnose this"
   severity: major
   test: 10

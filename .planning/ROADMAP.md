@@ -57,7 +57,10 @@ Milestone v0.8 refines core desktop shell interactions and ergonomics across med
   3. Clicking the notification card body invokes the sending application's `default` D-Bus action, or extracts and opens embedded/Chromium web links in the default browser.
   4. Incoming notifications containing 4–8 digit verification codes display a prominent "Copy [123456]" action chip that copies the code to the clipboard with visual confirmation.
 
-**Plans**: 2/2 plans executed
+**Plans**: 3/3 plans executed
+
+- [x] 40-03-PLAN.md
+
 **Wave 1**
 
 - [x] 40-01-PLAN.md
@@ -88,5 +91,5 @@ Phases execute in numeric order: 38 → 39 → 40 → 41
 |-------|----------------|--------|-----------|
 | 38. Power Profiles Daemon System Integration | 1/1 | Complete    | 2026-09-23 |
 | 39. Dynamic Media Popup Anchoring | 1/1 | Complete    | 2026-09-23 |
-| 40. Notification Center Quick-Dismiss & Smart Interaction | 2/2 | Complete    | 2026-09-24 |
+| 40. Notification Center Quick-Dismiss & Smart Interaction | 3/3 | Complete    | 2026-09-24 |
 | 41. End-to-End Verification & Repository Integrity | 0/TBD | Not started | - |
