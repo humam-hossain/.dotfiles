@@ -277,8 +277,8 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 || "$SYNTAX_ONLY" -eq 1 ]]; t
       fail "S2: NotificationGroup.qml missing closeButton declaration"
     fi
 
-    if grep -qE 'visible:\s*!root\.multipleNotifications\s*$' "$REPO_ROOT/$NG_RESTOW"; then
-      pass "S2: NotificationGroup.qml closeButton visible on single notifications (including popups)"
+    if grep -A 5 "id:\s*closeButton" "$REPO_ROOT/$NG_RESTOW" | grep -qE 'visible:\s*true'; then
+      pass "S2: NotificationGroup.qml closeButton visible on single and group notifications"
     else
       fail "S2: NotificationGroup.qml closeButton visibility condition missing or contains !root.popup"
     fi
@@ -289,14 +289,14 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 || "$SYNTAX_ONLY" -eq 1 ]]; t
       fail "S2: NotificationGroup.qml closeButton missing destroyWithAnimation invocation"
     fi
 
-    if grep -qE 'visible:\s*root\.multipleNotifications\s*$' "$REPO_ROOT/$NG_RESTOW"; then
-      pass "S2: NotificationGroup.qml expandButton visible exclusively for multiple notifications"
+    if grep -A 5 "id:\s*expandButton" "$REPO_ROOT/$NG_RESTOW" | grep -qE 'visible:\s*true'; then
+      pass "S2: NotificationGroup.qml expandButton visible on single and group notifications"
     else
-      fail "S2: NotificationGroup.qml expandButton visibility condition missing or contains || root.popup"
+      fail "S2: NotificationGroup.qml expandButton visibility condition missing"
     fi
 
-    if grep -q "root\.expanded\s*||\s*!root\.multipleNotifications" "$REPO_ROOT/$NG_RESTOW"; then
-      pass "S2: NotificationGroup.qml card height clamping bypassed for single notifications"
+    if grep -q "implicitHeight:\s*root\.expanded" "$REPO_ROOT/$NG_RESTOW"; then
+      pass "S2: NotificationGroup.qml card height respects root.expanded state"
     else
       fail "S2: NotificationGroup.qml card height clamping fix missing"
     fi

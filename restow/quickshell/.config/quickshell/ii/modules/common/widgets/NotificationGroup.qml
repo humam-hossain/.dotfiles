@@ -83,6 +83,13 @@ MouseArea { // Notification group area
         const notif = root.notifications[0];
         const hasDefaultAction = notif.actions?.some(a => a.identifier === "default");
         const extractedUrl = NotificationUtils.extractUrl(notif.body);
+        const otp = NotificationUtils.extractOtpCode(notif.body, notif.summary);
+
+        if (otp && otp.length > 0) {
+            Quickshell.clipboardText = otp;
+        } else if (notif.body) {
+            Quickshell.clipboardText = notif.body;
+        }
 
         if (hasDefaultAction) {
             Notifications.attemptInvokeAction(notif.notificationId, "default");
@@ -159,7 +166,7 @@ MouseArea { // Notification group area
         }
         
         clip: true
-        implicitHeight: (root.expanded || !root.multipleNotifications) ? 
+        implicitHeight: root.expanded ? 
             row.implicitHeight + padding * 2 :
             Math.min(80, row.implicitHeight + padding * 2)
 
@@ -203,12 +210,13 @@ MouseArea { // Notification group area
                     Layout.fillWidth: true
                     property real fontSize: Appearance.font.pixelSize.smaller
                     property bool showAppName: root.multipleNotifications
-                    implicitHeight: Math.max(topTextRow.implicitHeight, expandButton.visible ? expandButton.implicitHeight : closeButton.implicitHeight)
+                    implicitHeight: Math.max(topTextRow.implicitHeight, Math.max(expandButton.implicitHeight, closeButton.implicitHeight))
 
                     RowLayout {
                         id: topTextRow
                         anchors.left: parent.left
-                        anchors.right: expandButton.visible ? expandButton.left : (closeButton.visible ? closeButton.left : parent.right)
+                        anchors.right: expandButton.left
+                        anchors.rightMargin: 4
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 5
                         StyledText {
@@ -237,8 +245,9 @@ MouseArea { // Notification group area
                     }
                     NotificationGroupExpandButton {
                         id: expandButton
-                        visible: root.multipleNotifications
-                        anchors.right: parent.right
+                        visible: true
+                        anchors.right: closeButton.left
+                        anchors.rightMargin: 4
                         anchors.verticalCenter: parent.verticalCenter
                         count: root.notificationCount
                         expanded: root.expanded
@@ -252,7 +261,7 @@ MouseArea { // Notification group area
                     }
                     RippleButton {
                         id: closeButton
-                        visible: !root.multipleNotifications
+                        visible: true
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
                         implicitWidth: topRow.fontSize + 4 * 2
@@ -271,7 +280,9 @@ MouseArea { // Notification group area
                         }
 
                         StyledToolTip {
-                            text: Translation.tr("Dismiss notification")
+                            text: root.multipleNotifications ? 
+                                Translation.tr("Dismiss all notifications in group") : 
+                                Translation.tr("Dismiss notification")
                         }
                     }
                 }
@@ -294,7 +305,7 @@ MouseArea { // Notification group area
                         required property int index
                         required property var modelData
                         notificationObject: modelData
-                        expanded: root.expanded
+                        groupExpanded: root.expanded
                         onlyNotification: (root.notificationCount === 1)
                         opacity: (!root.expanded && index == 1 && root.notificationCount > 2) ? 0.5 : 1
                         visible: root.expanded || (index < 2)

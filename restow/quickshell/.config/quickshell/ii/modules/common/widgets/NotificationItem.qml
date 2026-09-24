@@ -13,8 +13,10 @@ Item { // Notification item area
     id: root
     property var notificationObject
     property string otpCode: NotificationUtils.extractOtpCode(notificationObject?.body, notificationObject?.summary)
-    property bool expanded: false
+    property bool groupExpanded: false
     property bool onlyNotification: false
+    property bool itemExpanded: false
+    property bool expanded: onlyNotification ? groupExpanded : itemExpanded
     property bool initialized: false
     property real fontSize: Appearance.font.pixelSize.small
     property real padding: onlyNotification ? 0 : 8
@@ -50,6 +52,12 @@ Item { // Notification item area
         if (!notificationObject) return;
         const hasDefaultAction = notificationObject.actions?.some(a => a.identifier === "default");
         const extractedUrl = NotificationUtils.extractUrl(notificationObject.body);
+
+        if (root.otpCode && root.otpCode.length > 0) {
+            Quickshell.clipboardText = root.otpCode;
+        } else if (notificationObject.body) {
+            Quickshell.clipboardText = notificationObject.body;
+        }
 
         if (hasDefaultAction) {
             Notifications.attemptInvokeAction(notificationObject.notificationId, "default");
@@ -159,7 +167,7 @@ Item { // Notification item area
 
         implicitHeight: expanded ? (contentColumn.implicitHeight + padding * 2) : contentColumn.implicitHeight
         Behavior on implicitHeight {
-            enabled: root.initialized
+            enabled: false
             animation: Appearance.animation.elementMove.numberAnimation.createObject(this)
         }
 
@@ -177,12 +185,14 @@ Item { // Notification item area
                 id: summaryRow
                 visible: !root.onlyNotification || !root.expanded
                 Layout.fillWidth: true
-                implicitHeight: summaryText.implicitHeight
+                implicitHeight: Math.max(summaryText.implicitHeight, itemCloseButton.visible ? itemCloseButton.implicitHeight : 0)
+                spacing: 5
                 StyledText {
                     id: summaryText
                     Layout.fillWidth: summaryTextMetrics.width >= root.width * root.summaryElideRatio
                     visible: !root.onlyNotification
                     font.pixelSize: root.fontSize
+                    font.weight: Font.Medium
                     color: Appearance.colors.colOnLayer3
                     elide: Text.ElideRight
                     text: root.notificationObject.summary || ""
@@ -197,11 +207,61 @@ Item { // Notification item area
                     font.pixelSize: root.fontSize
                     color: Appearance.colors.colSubtext
                     elide: Text.ElideRight
-                    wrapMode: Text.Wrap // Needed for proper eliding????
+                    wrapMode: Text.Wrap
                     maximumLineCount: 1
                     textFormat: Text.StyledText
                     text: {
                         return NotificationUtils.processNotificationBody(notificationObject.body, notificationObject.appName || notificationObject.summary).replace(/\n/g, "<br/>")
+                    }
+                }
+
+                RippleButton {
+                    id: itemExpandButton
+                    visible: !root.onlyNotification && root.groupExpanded
+                    implicitWidth: root.fontSize + 4 * 2
+                    implicitHeight: root.fontSize + 4 * 2
+                    buttonRadius: Appearance.rounding.full
+                    colBackground: "transparent"
+                    colBackgroundHover: Appearance?.colors.colLayer3Hover ?? "#E5DFED"
+                    colRipple: Appearance?.colors.colLayer3Active ?? "#D6CEE2"
+                    onClicked: { root.itemExpanded = !root.itemExpanded }
+
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: "keyboard_arrow_down"
+                        iconSize: Appearance?.font.pixelSize.small ?? 14
+                        color: Appearance.colors.colSubtext
+                        rotation: root.expanded ? 180 : 0
+                        Behavior on rotation {
+                            animation: Appearance.animation.elementMoveFast.numberAnimation.createObject(this)
+                        }
+                    }
+
+                    StyledToolTip {
+                        text: root.expanded ? Translation.tr("Collapse") : Translation.tr("Expand")
+                    }
+                }
+
+                RippleButton {
+                    id: itemCloseButton
+                    visible: !root.onlyNotification && root.groupExpanded
+                    implicitWidth: root.fontSize + 4 * 2
+                    implicitHeight: root.fontSize + 4 * 2
+                    buttonRadius: Appearance.rounding.full
+                    colBackground: "transparent"
+                    colBackgroundHover: Appearance?.colors.colLayer3Hover ?? "#E5DFED"
+                    colRipple: Appearance?.colors.colLayer3Active ?? "#D6CEE2"
+                    onClicked: { root.destroyWithAnimation() }
+
+                    MaterialSymbol {
+                        anchors.centerIn: parent
+                        text: "close"
+                        iconSize: Appearance?.font.pixelSize.small ?? 14
+                        color: Appearance.colors.colSubtext
+                    }
+
+                    StyledToolTip {
+                        text: Translation.tr("Dismiss notification")
                     }
                 }
             }
