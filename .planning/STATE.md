@@ -1,19 +1,19 @@
 ---
 gsd_state_version: "1.0"
 milestone: v0.8
-current_phase: "40.1"
-current_phase_name: clock-pill-padding-and-unified-volume-ceiling-ergonomics
-status: executing
-stopped_at: Phase 40.1 context gathered
-last_updated: "2026-09-24T15:56:16.671Z"
+current_phase: 41
+current_phase_name: End-to-End Verification & Repository Integrity
+status: planning
+stopped_at: Phase 40.1 complete, ready to plan Phase 41
+last_updated: "2026-09-24T16:13:44.519Z"
 last_activity: 2026-09-24
-last_activity_desc: Phase 40.1 inserted, ready to plan
-state_head: 28622333b1abdc44e4d6ec886636f8da989e7667
+last_activity_desc: Phase 40.1 complete, transitioned to Phase 41
+state_head: ba91f1e3b04f7441152b8f1650ecd842d82aca0a
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 7
 milestone_name: Notification Experience & Shell Interaction Polish
 ---
 
@@ -24,15 +24,15 @@ Progress: [████████████░░░░░░░░] 3/5 pha
 
 ## Current Position
 
-Phase: 40.1 (clock-pill-padding-and-unified-volume-ceiling-ergonomics) — READY TO EXECUTE
+Phase: 41 — End-to-End Verification & Repository Integrity
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-24 — Phase 40.1 inserted, ready to plan
+Status: Ready to plan
+Last activity: 2026-09-24 — Phase 40.1 complete, transitioned to Phase 41
 
 ## Session
 
 **Last session:** 2026-09-24T15:33:59.607Z
-**Stopped at:** Phase 40.1 context gathered
+**Stopped at:** Phase 40.1 complete, ready to plan Phase 41
 **Resume file:** /home/pera/github_repo/.dotfiles/.planning/phases/40.1-clock-pill-padding-and-unified-volume-ceiling-ergonomics/40.1-CONTEXT.md
 
 ## Project Reference
@@ -40,7 +40,7 @@ Last activity: 2026-09-24 — Phase 40.1 inserted, ready to plan
 See: .planning/PROJECT.md (updated 2026-09-24 after Phase 40)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 40.1 — Clock Pill Padding and Unified Volume Ceiling Ergonomics
+**Current focus:** Phase 40.1 — Clock Pill Padding and Unified Volume Ceiling Ergonomics (INSERTED)
 
 ## Deferred Items
 

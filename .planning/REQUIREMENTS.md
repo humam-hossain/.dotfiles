@@ -36,12 +36,12 @@ Requirements for milestone release. Each maps to roadmap phases.
 
 ### Clock Pill Padding & Ergonomics
 
-- [ ] **CLOCK-01**: Top status bar clock/date pill provides comfortable horizontal padding matching adjacent pills while retaining custom second precision and full date string formatting.
+- [x] **CLOCK-01**: Top status bar clock/date pill provides comfortable horizontal padding matching adjacent pills while retaining custom second precision and full date string formatting.
 
 ### Unified Volume Ceiling
 
-- [ ] **VOL-01**: Single source of truth defines the desktop-wide volume ceiling (150% / 1.5) consumed consistently across Hyprland keybinds and Quickshell services without hardcoded magic numbers.
-- [ ] **VOL-02**: Right sidebar volume slider and mouse scroll volume increments allow reaching the 150% upper ceiling defined by the single source of truth.
+- [x] **VOL-01**: Single source of truth defines the desktop-wide volume ceiling (150% / 1.5) consumed consistently across Hyprland keybinds and Quickshell services without hardcoded magic numbers.
+- [x] **VOL-02**: Right sidebar volume slider and mouse scroll volume increments allow reaching the 150% upper ceiling defined by the single source of truth.
 
 ### Integration & Repository Integrity
 
@@ -87,9 +87,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NAV-02 | Phase 40 | Complete |
 | OTP-01 | Phase 40 | Complete |
 | OTP-02 | Phase 40 | Complete |
-| CLOCK-01 | Phase 40.1 | Pending |
-| VOL-01 | Phase 40.1 | Pending |
-| VOL-02 | Phase 40.1 | Pending |
+| CLOCK-01 | Phase 40.1 | Complete |
+| VOL-01 | Phase 40.1 | Complete |
+| VOL-02 | Phase 40.1 | Complete |
 | INTG-01 | Phase 41 | Pending |
 | INTG-02 | Phase 41 | Pending |
 | INTG-03 | Phase 41 | Pending |
