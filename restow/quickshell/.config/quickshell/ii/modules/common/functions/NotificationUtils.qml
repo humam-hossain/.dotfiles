@@ -125,21 +125,21 @@ Singleton {
         const codePattern = "(?:[A-Za-z]{1,2}-\\d{4,8}|\\d{3,4}-\\d{3,4}|\\b\\d{4,8}\\b)";
 
         // 1. Keyword before code (e.g. "verification code is 482910", "code: G-123456", "PIN is 9482")
-        const reKeywordBefore = new RegExp("(?:\\b(?:" + keywords + ")\\b)[^\\w\\r\\n]{0,30}?(?:is\\s+|:\\s*|\\s+)?(?<![-/0-9])(" + codePattern + ")(?![-/0-9])", "i");
+        const reKeywordBefore = new RegExp("(?:\\b(?:" + keywords + ")\\b)[^\\w\\r\\n]{0,30}?(?:is\\s+|:\\s*|\\s+)?(?:^|[^0-9\\-\\/])(" + codePattern + ")(?![-/0-9])", "i");
         const m1 = cleaned.match(reKeywordBefore);
         if (m1 && m1[1]) return m1[1].trim();
 
         // 2. Code before keyword (e.g. "123-456 is your code", "Use 582910 for 2FA auth")
-        const reCodeBefore = new RegExp("(?<![-/0-9])(" + codePattern + ")[^\\w\\r\\n]{0,30}?(?:is\\s+|for\\s+|as\\s+|to\\s+)?(?:\\b(?:" + keywords + ")\\b)", "i");
+        const reCodeBefore = new RegExp("(?:^|[^0-9\\-\\/])(" + codePattern + ")[^\\w\\r\\n]{0,30}?(?:is\\s+|for\\s+|as\\s+|to\\s+)?(?:\\b(?:" + keywords + ")\\b)", "i");
         const m2 = cleaned.match(reCodeBefore);
         if (m2 && m2[1]) return m2[1].trim();
 
         // 3. Proximity within sentence (e.g. "Your Google code is 839201. Sent on...")
-        const reProximity = new RegExp("(?:\\b(?:" + keywords + ")\\b)[^\\r\\n]{1,60}?(?<![-/0-9])(" + codePattern + ")(?![-/0-9])", "i");
+        const reProximity = new RegExp("(?:\\b(?:" + keywords + ")\\b)[^\\r\\n]{1,60}?(?:^|[^0-9\\-\\/])(" + codePattern + ")(?![-/0-9])", "i");
         const m3 = cleaned.match(reProximity);
         if (m3 && m3[1]) return m3[1].trim();
 
-        const reProximityReverse = new RegExp("(?<![-/0-9])(" + codePattern + ")[^\\r\\n]{1,60}?(?:\\b(?:" + keywords + ")\\b)", "i");
+        const reProximityReverse = new RegExp("(?:^|[^0-9\\-\\/])(" + codePattern + ")[^\\r\\n]{1,60}?(?:\\b(?:" + keywords + ")\\b)", "i");
         const m4 = cleaned.match(reProximityReverse);
         if (m4 && m4[1]) return m4[1].trim();
 
