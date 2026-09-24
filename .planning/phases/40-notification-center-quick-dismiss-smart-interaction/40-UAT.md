@@ -1,11 +1,11 @@
 ---
-status: testing
+status: diagnosed
 phase: 40-notification-center-quick-dismiss-smart-interaction
 source:
   - 40-01-SUMMARY.md
   - 40-02-SUMMARY.md
 started: 2026-09-24T10:16:35+06:00
-updated: 2026-09-24T10:32:00+06:00
+updated: 2026-09-24T10:45:00+06:00
 ---
 
 ## Current Test
@@ -91,5 +91,19 @@ skipped: 0
   reason: "User reported: d-bus works now if i click works, but there is no cancel notification button \"X\" and no otp copy button or either clicking the body does not copy the number. Adding to that also now there is a lag in toast before rendering, like before when the notify send message is sent by using notify send when I am testing it it's instant before now there is a lag the notification toast is small but stops after couple of seconds it comes up so this is distracting and annoying like it's visually doesn't feel like smooth so that is the issue we need to diagnose this"
   severity: major
   test: 10
-  artifacts: []
-  missing: []
+  root_cause: "1) Qt Quick QV4 JS engine throws SyntaxError on (?<!...) lookbehinds in NotificationUtils.extractOtpCode preventing OTP chip rendering; 2) NotificationGroup.qml closeButton suppressed on popups (!root.popup) and missing 'import qs' causes ReferenceError on GlobalStates; 3) Unconstrained Behavior on implicitHeight in NotificationItem/NotificationGroup animates from 0 on creation, continuously resizing layer-shell surface mask causing toast lag/freeze."
+  artifacts:
+    - path: "restow/quickshell/.config/quickshell/ii/modules/common/functions/NotificationUtils.qml"
+      issue: "RegExp lookbehind syntax (?<!...) incompatible with Qt Quick QV4 JS engine"
+    - path: "restow/quickshell/.config/quickshell/ii/modules/common/widgets/NotificationGroup.qml"
+      issue: "closeButton suppressed on popups (!root.popup), missing import qs, initial height animation enabled"
+    - path: "restow/quickshell/.config/quickshell/ii/modules/common/widgets/NotificationItem.qml"
+      issue: "implicitHeight Behavior animates from 0 on initial creation"
+    - path: "scripts/phase40-notification-interaction-assert.sh"
+      issue: "Harness tested regex in Node.js instead of Quickshell QV4 runtime"
+  missing:
+    - "Replace RegExp lookbehinds with QV4-compatible non-lookbehind regex in NotificationUtils.qml"
+    - "Add import qs and enable closeButton on single notification popups in NotificationGroup.qml"
+    - "Disable initial height animation on component creation in NotificationItem.qml and NotificationGroup.qml"
+    - "Update test harness to validate regex using Quickshell execution"
+  debug_session: ".planning/debug/notification-interaction-gaps.md"
