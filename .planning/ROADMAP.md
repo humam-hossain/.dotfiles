@@ -85,9 +85,17 @@ Milestone v0.8 refines core desktop shell interactions and ergonomics across med
 **Plans**: 2 plans
 
 Plans:
+**Wave 1**
 
 - [ ] 40.1-01-PLAN.md
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 40.1-02-PLAN.md
+
+**Cross-cutting constraints:**
+
+- All QML modifications are deployed as leaf symlinks via restow/quickshell/ without modifying vendor/dots-hyprland (INTG-01, T-40.1-01).
 
 ### Phase 41: End-to-End Verification & Repository Integrity
 
