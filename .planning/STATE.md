@@ -2,41 +2,42 @@
 gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry
-status: planning
-last_updated: "2026-09-25T13:17:09.146Z"
+status: ready_to_plan
+current_phase: 42
+last_updated: "2026-09-25T13:42:00.000Z"
 last_activity: 2026-09-25
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
   percent: 0
 ---
 
-Total Phases: 5 (Phases 38-41, including 40.1)
-Progress: [████████████████████] 5/5 phases (100%)
+Total Phases: 5 (Phases 42–46)
+Progress: [░░░░░░░░░░] 0/5 phases (0%)
 
 # Project State
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 42: Telemetry Services & Sensor Infrastructure
 Plan: —
-Status: Defining requirements
-Last activity: 2026-09-25 — Milestone v0.9 started
+Status: Ready to plan
+Last activity: 2026-09-25 — Milestone v0.9 roadmap created
 
 ## Session
 
-**Last session:** 2026-09-25T12:11:10.024Z
-**Stopped at:** Phase 41 complete — all phases complete
+**Last session:** 2026-09-25
+**Stopped at:** Milestone v0.9 roadmap created
 **Resume file:** None
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-25 after v0.8 milestone)
+See: .planning/PROJECT.md (updated 2026-09-25 for v0.9 milestone start)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Planning next milestone (v0.9)
+**Current focus:** Phase 42 — Telemetry Services & Sensor Infrastructure
 
 ## Deferred Items
 
