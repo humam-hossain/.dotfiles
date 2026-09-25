@@ -283,7 +283,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ Deployed via GNU Stow leaf symlinks under `restow/quickshell/` without folding ancestor directories and zero git churn — Phase 37 / INTG-02
 - ✓ Dynamic Material You palette adaptation and automated assertion harness with strict repository verification — Phase 37 / INTG-03, INTG-04
 
-### Validated — v0.8 (partial)
+### Validated — v0.8
 
 - ✓ **MEDIA-01**: `MediaControls.qml` popup dynamically anchors directly beneath the top status bar's `Media` pill across active monitors — Phase 39
 - ✓ **MEDIA-02**: `MediaControls.qml` popup enforces horizontal boundary clamping (`Math.min` / `Math.max`) to prevent off-screen clipping — Phase 39
@@ -296,12 +296,13 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ **NAV-02**: Notification URL extraction parses links from Chromium notifications (`<a href="...">`), YouTube, WhatsApp, and raw URLs in body, opening them in default browser — Phase 40
 - ✓ **OTP-01**: Regex parser in `NotificationUtils.qml` scans incoming notification text for 4–8 digit verification codes anchored to security keywords — Phase 40
 - ✓ **OTP-02**: Notification card in `NotificationItem.qml` renders a prominent "Copy [Code]" quick-action chip that copies extracted code to clipboard with visual confirmation — Phase 40
+- ✓ **INTG-01**: All QML modifications deployed via `restow/quickshell/` leaf symlinks without modifying `vendor/dots-hyprland` — Phase 41
+- ✓ **INTG-02**: Automated test harness suite and regression checks pass with 0 failures across all milestone features — Phase 41
+- ✓ **INTG-03**: `arch/dots-hyprland.sh verify --strict` passes with 0 findings and zero git churn — Phase 41
 
 ### Active
 
-- [ ] **INTG-01**: All QML modifications deployed via `restow/quickshell/` leaf symlinks without modifying `vendor/dots-hyprland`.
-- [ ] **INTG-02**: Automated test harness suite and regression checks pass with 0 failures across all milestone features.
-- [ ] **INTG-03**: `arch/dots-hyprland.sh verify --strict` passes with 0 findings and zero git churn.
+*(None — all milestone v0.8 requirements validated)*
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -480,6 +481,9 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 40: In-scope GlobalStates resolution via import qs | Added `import qs` to `NotificationGroup.qml` to ensure `GlobalStates.sidebarRightOpen` resolves without ReferenceError during activation | ✓ Section 2 FAIL=0 |
 | Phase 40: Icon-free Material 3 OTP quick-action chip | Text-only "Copy [Code]" pill chip with 1500ms "Copied!" confirmation copying directly to `Quickshell.clipboardText` without decorative icons (D-08, D-09, T-40-02, OTP-02) | ✓ Section 2 FAIL=0 |
 | Phase 40: Non-invasive leaf symlink overlay | Deployed entirely under `restow/quickshell/` without modifying `vendor/dots-hyprland`, verified with strict zero-churn gate (D-10, INTG-01) | ✓ Section 1, 5 FAIL=0 |
+| Phase 41: Consolidated assertion engine orchestrating sub-harnesses | `scripts/phase41-interactions-assert.sh` orchestrates all 4 milestone sub-harnesses (Phases 38, 39, 40, 40.1) under fail-closed gates with live notification and zero working-tree churn | ✓ Section 6 FAIL=0, INTG-01..03 |
+| Phase 41: Non-destructive D-Bus testing and atomic rollback | `power-profiles-daemon` D-Bus transitions tested with signal trap rollback to active profile, preventing system power regression | ✓ Section 2 FAIL=0, POWER-01..03 |
+| Phase 41: Deterministic coordinate clamping & OTP VM simulation | Headless Node.js VM assertions verify 10 multi-monitor boundary test cases and 19-case OTP extraction matrix across diverse locales | ✓ Section 3, 4 FAIL=0 |
 
 ## Evolution
 
@@ -499,6 +503,6 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-24 after Phase 40 (Notification Center Quick-Dismiss & Smart Interaction)*
+*Last updated: 2026-09-25 after Phase 41 (End-to-End Verification & Repository Integrity)*
 
 
