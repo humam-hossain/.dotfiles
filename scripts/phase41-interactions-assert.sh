@@ -164,4 +164,94 @@ if [[ "$SYNTAX_ONLY" -eq 1 ]]; then
   exit "$FAIL"
 fi
 
-info "Scaffold baseline ready."
+# ===========================================================================
+# Section 1: Restow Symlink Isolation & Tree Topology (INTG-01, D-02, D-09)
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
+  info "--- Section 1: Restow Symlink Isolation & Tree Topology ---"
+
+  # 1. Submodule Cleanliness Check
+  sub_status="$(git -C vendor/dots-hyprland status --porcelain 2>/dev/null || true)"
+  if [[ -z "$sub_status" ]]; then
+    pass "S1: vendor/dots-hyprland submodule has 0 uncommitted changes"
+  else
+    fail "S1: vendor/dots-hyprland submodule has uncommitted changes:\n$sub_status"
+    finding "S1: Submodule vendor/dots-hyprland is dirty"
+  fi
+
+  # 2. Overlay Leaf Symlink Assertions
+  OVERLAY_FILES=(
+    "restow/quickshell/.config/quickshell/ii/GlobalStates.qml"
+    "restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml"
+    "restow/quickshell/.config/quickshell/ii/modules/ii/verticalBar/VerticalBarContent.qml"
+    "restow/quickshell/.config/quickshell/ii/modules/ii/mediaControls/MediaControls.qml"
+    "restow/quickshell/.config/quickshell/ii/modules/common/functions/NotificationUtils.qml"
+    "restow/quickshell/.config/quickshell/ii/modules/common/widgets/NotificationGroup.qml"
+    "restow/quickshell/.config/quickshell/ii/modules/common/widgets/NotificationItem.qml"
+    "restow/quickshell/.config/quickshell/ii/modules/ii/bar/ClockWidget.qml"
+    "restow/quickshell/.config/quickshell/ii/modules/common/Config.qml"
+    "restow/quickshell/.config/quickshell/ii/services/Audio.qml"
+    "restow/quickshell/.config/quickshell/ii/modules/ii/sidebarRight/QuickSliders.qml"
+  )
+
+  for rel in "${OVERLAY_FILES[@]}"; do
+    src="$REPO_ROOT/$rel"
+    live="$HOME/${rel#restow/quickshell/}"
+
+    if [[ -f "$src" ]]; then
+      pass "S1: Repo overlay source exists: $rel"
+    else
+      fail "S1: Repo overlay source MISSING: $rel"
+      continue
+    fi
+
+    if [[ -L "$live" ]]; then
+      pass "S1: Live target is symbolic link: $live"
+    else
+      fail "S1: Live target is NOT a symlink: $live"
+      finding "S1: Leaf symlink missing or folded: $live"
+      continue
+    fi
+
+    real_src="$(readlink -f "$src")"
+    real_live="$(readlink -f "$live")"
+    if [[ "$real_src" == "$real_live" ]]; then
+      pass "S1: Symlink target matches canonical repo source for $rel"
+    else
+      fail "S1: Symlink target mismatch: $real_live != $real_src"
+      finding "S1: Symlink target mismatch for $live"
+    fi
+  done
+
+  # 3. Directory Folding Guard
+  TREE_DIRS=(
+    "$HOME/.config/quickshell/ii"
+    "$HOME/.config/quickshell/ii/modules"
+    "$HOME/.config/quickshell/ii/modules/ii"
+    "$HOME/.config/quickshell/ii/modules/ii/bar"
+    "$HOME/.config/quickshell/ii/modules/ii/mediaControls"
+    "$HOME/.config/quickshell/ii/modules/ii/sidebarRight"
+    "$HOME/.config/quickshell/ii/modules/ii/verticalBar"
+    "$HOME/.config/quickshell/ii/modules/common"
+    "$HOME/.config/quickshell/ii/modules/common/functions"
+    "$HOME/.config/quickshell/ii/modules/common/widgets"
+    "$HOME/.config/quickshell/ii/services"
+  )
+
+  for d in "${TREE_DIRS[@]}"; do
+    if [[ -d "$d" && ! -L "$d" ]]; then
+      pass "S1: Physical directory verified (no folding): $d"
+    else
+      fail "S1: Directory folding or missing directory detected: $d"
+      finding "S1: Directory $d is a symlink or missing"
+    fi
+  done
+
+  if [[ "$RUN_SECTION" -eq 1 ]]; then
+    info "=========================================="
+    info "Phase 41 Section 1 Summary: FAIL=$FAIL FINDINGS=$FINDINGS"
+    info "=========================================="
+    exit "$FAIL"
+  fi
+fi
+
