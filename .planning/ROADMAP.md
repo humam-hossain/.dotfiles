@@ -22,7 +22,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 
 ### 📋 v0.9 Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
 
-- [ ] **Phase 42: Telemetry Services & Sensor Infrastructure** (4 plans)
+- [x] **Phase 42: Telemetry Services & Sensor Infrastructure** (4 plans) (completed 2026-09-25)
 - [ ] **Phase 43: CPU & GPU Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 44: Memory & Storage Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 45: Network & Multi-Target Ping Component (Pill & Popup)** (0 plans)
@@ -38,6 +38,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 **Plans**: 4 plans (00, 01, 02, 03)
 
 Success criteria:
+
 1. `HardwareTelemetry.qml` reads CPU package temp (`coretemp`), RAPL power draw (with unprivileged fallback), frequencies, and Intel iGPU active load (RC6 residency delta) and clock MHz without blocking the event loop.
 2. `StorageUsage.qml` asynchronously enumerates mount points (`df`) every 15–30s into a reactive model containing root `/`, physical partitions (`/boot`, `/mnt/windows`, `/mnt/hdd`), and FUSE cloud mounts (`GoogleDrive`).
 3. `PingService.qml` polls `http://127.0.0.1:8765/api/status` at 5s intervals exposing latency for WAN (`8.8.8.8`), Gateway (`192.168.0.1`), and Home Server (`192.168.0.104`) with offline fallback.
@@ -51,6 +52,7 @@ Success criteria:
 **Plans**: 0 plans
 
 Success criteria:
+
 1. Status bar pill displays live CPU % and GPU % with distinct Material Symbols icons (`planner_review`, `speed`) and 250ms M3 emphasized deceleration width resizing.
 2. Popup inspector displays CPU load %, package temperature (°C), wattage draw, clock speeds (MHz), and Intel iGPU load %, average load, frequency (MHz), and thermal status.
 3. Synchronized two-tier alert coloring (Amber at 70%, Red at 90%) applied consistently across pill icons, text labels, and popup headers.
@@ -63,6 +65,7 @@ Success criteria:
 **Plans**: 0 plans
 
 Success criteria:
+
 1. Status bar pill displays live RAM usage (`X.X/Y.Y GB` or `%`) and root filesystem `/` usage (`ZZ%`).
 2. Popup inspector displays detailed memory allocation tiers: Used, Available, Cached, Buffers, Free, and Swap (with dynamic swap reveal when > 0%).
 3. Storage popup inspector displays clean progress bars for root `/` and all mounted filesystems (physical and FUSE cloud mounts) with used and free space.
@@ -76,6 +79,7 @@ Success criteria:
 **Plans**: 0 plans
 
 Success criteria:
+
 1. Status bar pill displays live network throughput rates (Rx/Tx KB/s or MB/s) derived from `/proc/net/dev`.
 2. Status bar pill displays **all 3 ping targets** (WAN `8.8.8.8`, Gateway `192.168.0.1`, Home Server `192.168.0.104`) with latency numbers and status colors.
 3. Popup inspector displays active NIC interface name, IP address, link speed, and detailed 3-target ping diagnostic cards.
@@ -89,6 +93,7 @@ Success criteria:
 **Plans**: 0 plans
 
 Success criteria:
+
 1. Three standalone pills replace legacy `Resources.qml` in `BarContent.qml` Left zone alongside `LeftSidebarButton` and `UtilButtons`.
 2. Responsive layout adapts cleanly across standard and `useShortenedForm` screen widths without pushing Center Workspaces off-center.
 3. All files deployed via GNU Stow leaf symlinks under `restow/quickshell/` without folding parent directories, maintaining `vendor/dots-hyprland` pristine.
@@ -103,7 +108,7 @@ Success criteria:
 | 40. Notification Center Quick-Dismiss & Smart Interaction | v0.8 | 3/3 | Complete | 2026-09-24 |
 | 40.1. Clock Pill Padding and Unified Volume Ceiling Ergonomics | v0.8 | 2/2 | Complete | 2026-09-24 |
 | 41. End-to-End Verification & Repository Integrity | v0.8 | 2/2 | Complete | 2026-09-25 |
-| 42. Telemetry Services & Sensor Infrastructure | v0.9 | 0/4 plans | Planned | — |
+| 42. Telemetry Services & Sensor Infrastructure | v0.9 | 4/4 | Complete    | 2026-09-25 |
 | 43. CPU & GPU Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |

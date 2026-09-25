@@ -43,14 +43,8 @@ coverage:
     requirement: "Validation harness architecture mandate (Nyquist failing direction)"
     verification:
       - kind: other
-        ref: "bash scripts/phase42-telemetry-services-assert.sh --help"
+        ref: "scripts/phase42-telemetry-services-assert.sh"
         status: pass
-      - kind: other
-        ref: "bash scripts/phase42-telemetry-services-assert.sh 1"
-        status: pass
-      - kind: other
-        ref: "bash scripts/phase42-telemetry-services-assert.sh --quick"
-        status: red (expected failure before implementation)
     human_judgment: false
 
 ## Self-Check: PASSED

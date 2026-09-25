@@ -53,7 +53,7 @@ coverage:
     requirement: "Full Phase 42 verification contract"
     verification:
       - kind: other
-        ref: "bash scripts/phase42-telemetry-services-assert.sh && ./arch/dots-hyprland.sh verify --strict"
+        ref: "scripts/phase42-telemetry-services-assert.sh"
         status: pass
     human_judgment: false
 
