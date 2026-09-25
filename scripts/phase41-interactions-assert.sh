@@ -824,5 +824,85 @@ process.exit(errors === 0 ? 0 : 1);
   fi
 fi
 
+# ===========================================================================
+# Section 6: Repository Integrity & Strict Verification (INTG-03, D-02, D-10)
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
+  info "--- Section 6: Repository Integrity & Strict Verification ---"
+
+  if [[ "$SYNTAX_ONLY" -eq 0 ]]; then
+    STRICT_LOG="$(mktemp /tmp/p41-strict-XXXXXX)"
+    TMP_FILES+=("$STRICT_LOG")
+
+    if ./arch/dots-hyprland.sh verify --strict >"$STRICT_LOG" 2>&1 && grep -q "=== done: FAIL=0 FINDINGS=0 ===" "$STRICT_LOG"; then
+      pass "S6: ./arch/dots-hyprland.sh verify --strict passed with FAIL=0 FINDINGS=0"
+    else
+      fail "S6: ./arch/dots-hyprland.sh verify --strict failed"
+      finding "S6: Repository strict verification failed"
+    fi
+  else
+    info "S6: Syntax-only mode — skipping dots-hyprland.sh verify --strict"
+  fi
+
+  if [[ "$RUN_SECTION" -eq 6 ]]; then
+    info "=========================================="
+    info "Phase 41 Section 6 Summary: FAIL=$FAIL FINDINGS=$FINDINGS"
+    info "=========================================="
+    exit "$FAIL"
+  fi
+fi
+
+# ===========================================================================
+# Sub-Harness Orchestration (D-01, INTG-02)
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 && "$QUICK_MODE" -eq 0 && "$SYNTAX_ONLY" -eq 0 ]]; then
+  info "--- Sub-Harness Orchestration ---"
+
+  SUB_HARNESSES=(
+    "scripts/phase38-power-profiles-assert.sh"
+    "scripts/phase39-media-popup-assert.sh"
+    "scripts/phase40-notification-interaction-assert.sh"
+    "scripts/phase40.1-clock-volume-assert.sh"
+  )
+
+  for sub in "${SUB_HARNESSES[@]}"; do
+    sub_path="$REPO_ROOT/$sub"
+    if [[ -x "$sub_path" ]]; then
+      if "$sub_path" --syntax >/dev/null 2>&1 && "$sub_path" >/dev/null 2>&1; then
+        pass "Sub-harness $sub passed completely"
+      else
+        fail "Sub-harness $sub failed (exit code $?)"
+        finding "Sub-harness $sub failed"
+      fi
+    else
+      fail "Sub-harness $sub not executable or missing at $sub_path"
+      finding "Sub-harness missing or not executable: $sub"
+    fi
+  done
+fi
+
+# ===========================================================================
+# Git Porcelain Zero-Churn Verification (D-09, T-41-04)
+# ===========================================================================
+porcelain_snapshot > "$PORCELAIN_AFTER"
+DIFF_OUT="$(diff -u "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" || true)"
+if [[ -n "$DIFF_OUT" ]]; then
+  fail "Working tree porcelain drift detected during test execution:\n$DIFF_OUT"
+  finding "Working tree porcelain drift detected"
+else
+  pass "Working tree porcelain is clean (zero execution drift)"
+fi
+
+echo "=========================================="
+echo "Phase 41 Test Results: FAIL=$FAIL FINDINGS=$FINDINGS"
+echo "=========================================="
+
+if [[ "$FAIL" -gt 0 ]]; then
+  exit 1
+fi
+
+exit 0
+
+
 
 
