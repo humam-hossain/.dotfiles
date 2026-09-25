@@ -14,7 +14,7 @@ Milestone v0.8 refines core desktop shell interactions and ergonomics across med
 - [x] **Phase 39: Dynamic Media Popup Anchoring** - Anchor `MediaControls.qml` dynamically beneath the top status bar's `Media` pill with screen boundary clamping. (completed 2026-09-23)
 - [x] **Phase 40: Notification Center Quick-Dismiss & Smart Interaction** - Add sidebar 'X' close button, smart body click app/link routing, and regex OTP code extraction with copy chip. (completed 2026-09-24)
 - [x] **Phase 40.1: Clock Pill Padding and Unified Volume Ceiling Ergonomics (INSERTED)** - Provide consistent horizontal padding for the clock pill matching adjacent pills, and unify the 150% volume ceiling from a single source of truth across keyboard, sidebar slider, and scrolling. (completed 2026-09-24)
-- [ ] **Phase 41: End-to-End Verification & Repository Integrity** - Validate all features with automated test harnesses and assert strict zero-churn repository compliance.
+- [x] **Phase 41: End-to-End Verification & Repository Integrity** - Validate all features with automated test harnesses and assert strict zero-churn repository compliance. (completed 2026-09-25)
 
 ## Phase Details
 
@@ -108,7 +108,7 @@ Plans:
   2. A dedicated automated test harness (`scripts/phase41-interactions-assert.sh`) verifies power profile transitions, media popup positioning, notification dismissal, link opening, and OTP parsing.
   3. `arch/dots-hyprland.sh verify --strict` exits 0 with `0 findings` and zero git working-tree churn.
 
-**Plans:** 2/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 **Wave 1**
@@ -130,4 +130,4 @@ Phases execute in numeric order: 38 → 39 → 40 → 40.1 → 41
 | 39. Dynamic Media Popup Anchoring | 1/1 | Complete    | 2026-09-23 |
 | 40. Notification Center Quick-Dismiss & Smart Interaction | 3/3 | Complete    | 2026-09-24 |
 | 40.1. Clock Pill Padding and Unified Volume Ceiling Ergonomics | 2/2 | Complete    | 2026-09-24 |
-| 41. End-to-End Verification & Repository Integrity | 2/2 | In Progress|  |
+| 41. End-to-End Verification & Repository Integrity | 2/2 | Complete    | 2026-09-25 |
