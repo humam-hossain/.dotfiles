@@ -711,12 +711,12 @@ exit 0
 |---|-------|---------|---------------|
 | — | None | — | All claims and values in this research were verified directly against code and live host probes. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Sub-harness execution runtime budget**
+1. **Sub-harness execution runtime budget (RESOLVED)**
    - What we know: Chaining all 4 sub-harnesses sequentially takes ~28 seconds on the host machine.
    - What's unclear: Will future slow machines exceed typical test timeouts?
-   - Recommendation: The `--quick` flag provides sub-6-second execution for rapid feedback; the full suite remains default for comprehensive confidence.
+   - Resolution: RESOLVED: The `--quick` flag provides sub-6-second execution for rapid feedback; the full suite remains default for comprehensive confidence.
 
 ## Environment Availability
 
