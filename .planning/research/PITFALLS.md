@@ -1,115 +1,59 @@
-# Pitfalls Research
+# Domain Pitfalls Research
 
-**Domain:** Linux Desktop Shell (Quickshell / Qt 6 QML / Hyprland / D-Bus / Arch Linux)
-**Researched:** 2026-09-22
-**Confidence:** HIGH
+**Domain:** Top Status Bar Telemetry & Hardware Sensors (Quickshell ii / Arch Linux)  
+**Researched:** 2026-09-25  
+**Confidence:** HIGH  
 
 ## Critical Pitfalls
 
-### Pitfall 1: Coordinate Overflow in Dynamic Media Popup Anchoring
+### Pitfall 1: Root Permission Restrictions on Intel RAPL Powercap
 
-**What goes wrong:**
-When calculating the popup's X position directly from the `Media` pill, the popup extends beyond the right screen edge on standard displays or narrow windows, causing part of the media player (album art, sliders, or buttons) to be clipped off-screen or rendered into invisible layer-shell space.
-
-**Why it happens:**
-The top bar's `Media` pill is located in the Right Zone. If the popup's width (`Appearance.sizes.mediaControlsWidth`, typically 360–400px) is anchored to the pill's left or center without edge clamping, `pill.x + popup.width` can exceed `screen.width - margins`.
-
-**How to avoid:**
-Implement strict boundary clamping:
-```qml
-readonly property real desiredLeft: Math.min(
-    Math.max(screenMargin, calculatedPillLeft),
-    panelWindow.screen.width - root.widgetWidth - screenMargin
-)
-```
-Always clamp between the minimum screen margin and `screen.width - widgetWidth - screenMargin`.
-
-**Warning signs:**
-Popup buttons unreachable, horizontal scroll appearing, or media player opening half off-screen on the right edge.
-
-**Phase to address:**
-Phase addressing Media Popup Anchoring.
+**Warning Signs:** `/sys/class/powercap/intel-rapl/intel-rapl:0/energy_uj` returns empty or permission denied (0400 root-only). Wattage display shows `NaN` or crashes parsing logic.  
+**Root Cause:** Due to Linux kernel security mitigation for CVE-2020-8694 (PLATYPUS side-channel attack), energy counters are restricted to root by default.  
+**Prevention Strategy:**
+1. Code must verify read accessibility before parsing.
+2. If inaccessible, display graceful placeholder `-- W` rather than failing.
+3. Provide an optional systemd/udev rule tracked in `arch/` (e.g. `/etc/udev/rules.d/99-rapl.rules`) that allows unprivileged read access for the local wheel/user group if desired.
 
 ---
 
-### Pitfall 2: Mouse Event Bleed and DragManager Conflict on Notification Cards
+### Pitfall 2: UI Stutter from Synchronous Subprocess Execution
 
-**What goes wrong:**
-Adding a clickable MouseArea on `NotificationItem.qml` or `NotificationGroup.qml` interferes with `DragManager` swipe-to-dismiss gestures or prevents the child "Close" and "Copy" buttons from receiving click events. Alternatively, clicking the 'X' button or OTP chip accidentally triggers the body click (opening a browser or focusing an app).
-
-**Why it happens:**
-In Qt Quick / QML, nested `MouseArea` items steal or propagate events unless `mouse.accepted = true` or `stopPropagation()` is called, and `DragManager` relies on capturing mouse press/drag thresholds.
-
-**How to avoid:**
-1. Separate distinct click zones: The header 'X' button must reside in its own `RippleButton` on `topRow` with `acceptedButtons: Qt.LeftButton`, explicitly consuming the click.
-2. The OTP chip must be a distinct interactive button that consumes clicks independently.
-3. The body click target must only handle clicks that do not land on action chips, links, or dismiss buttons, and must not break `DragManager`'s swipe threshold check (`dragDistance > 70`).
-
-**Warning signs:**
-Clicking 'X' dismisses the notification but also opens a browser window, or swiping to dismiss becomes sticky and unresponsive.
-
-**Phase to address:**
-Phase addressing Notification Item & Group interactions.
+**Warning Signs:** Status bar animations stutter, clock skips seconds, or mouse clicks feel sluggish whenever disk usage or ping status updates.  
+**Root Cause:** Synchronous execution (`Quickshell.execDetached` or blocking subshells) runs on the main Qt Quick event loop. Slow FUSE cloud mounts (`GoogleDrive`) or network timeouts block UI rendering.  
+**Prevention Strategy:**
+1. Direct memory, CPU load, and network throughput MUST use `Quickshell.Io.FileView` over `/proc/meminfo`, `/proc/stat`, and `/proc/net/dev`. These are virtual in-RAM filesystem reads taking < 50 microseconds.
+2. Multi-mount disk enumeration (`df`) must use `Quickshell.Io.Process` asynchronously with a relaxed 15–30s interval.
+3. Ping queries must use asynchronous `curl` via `Process` or consume the existing daemon's HTTP JSON response with a strict 2-second timeout.
 
 ---
 
-### Pitfall 3: False Positive OTP Code Extraction
+### Pitfall 3: Popup Screen Boundary Clipping on Multi-Monitor Displays
 
-**What goes wrong:**
-The regex parser mistakenly treats years (e.g. `2026`), timestamps (e.g. `143000`), port numbers (e.g. `8080`), or generic numerical values as verification codes, cluttering notifications with useless "Copy 2026" chips.
-
-**Why it happens:**
-Using an overly broad pattern like `/\b\d{4,8}\b/` matches any standalone 4–8 digit number in the text.
-
-**How to avoid:**
-Use contextual keyword anchoring in `NotificationUtils.qml`:
-1. Search for verification-related keywords in the summary or body (`otp`, `code`, `verification`, `verify`, `pin`, `password`, `auth`, `2fa`, `login`).
-2. If keywords exist, extract the 4–8 digit number closest to the keyword (e.g. `/(?:code|otp|verify|pin)[:\s]+([0-9]{4,8})\b/i` or `/\b([0-9]{4,8})\b/`).
-3. Exclude years (e.g. numbers starting with `19xx` or `20xx` when 4 digits unless explicitly preceded by "code").
-
-**Warning signs:**
-System update notifications ("Updated 2048 packages") or calendar alerts ("Meeting at 1500") showing an OTP copy button.
-
-**Phase to address:**
-Phase addressing Notification Link & OTP extraction.
+**Warning Signs:** Popups for pills located near screen edges or across secondary monitors render partially off-screen or jump coordinates when adjacent pills resize.  
+**Root Cause:** Hardcoding popup `x` coordinates or relying on unmapped local item coordinates causes incorrect placement on secondary screens or left-aligned layouts.  
+**Prevention Strategy:**
+1. Implement dynamic coordinate anchoring via `mapToItem(null, item.width / 2, item.height / 2)`.
+2. Apply horizontal clamping formula: `Math.max(screenX + margin, Math.min(centerX - popupWidth / 2, screenX + screenWidth - popupWidth - margin))` as proven in Phase 39 (`MediaControls.qml`).
 
 ---
 
-### Pitfall 4: `power-profiles-daemon` Service Inactivity Across Bootstraps
+### Pitfall 4: Top Status Bar Left-Zone Crowding on Narrow Screens
 
-**What goes wrong:**
-Installing the `power-profiles-daemon` package via pacman enables the binaries, but if `power-profiles-daemon.service` is not explicitly enabled and started via systemd, the D-Bus interface remains absent after reboot or on a freshly bootstrapped machine, causing the quick-toggle button to silently break again.
-
-**Why it happens:**
-Pacman installs package files but does not enable systemd services by default on Arch Linux (per Arch packaging policy).
-
-**How to avoid:**
-1. In the implementation phase, run `sudo systemctl enable --now power-profiles-daemon.service`.
-2. Add `power-profiles-daemon` to `arch/pkglist-native.txt`.
-3. Add an idempotent service activation check in `bootstrap.sh` and `arch/dots-hyprland.sh`.
-4. Verify with `powerprofilesctl get` in the automated test harness.
-
-**Warning signs:**
-`PowerProfiles.profile` property remains undefined or null in QML, and `powerprofilesctl` reports "Failed to connect to bus".
-
-**Phase to address:**
-Phase addressing Power Profiles integration.
+**Warning Signs:** 3 expanded pills push the dead-center Workspaces widget to the right, causing visual asymmetry or overlapping the Center and Right zones.  
+**Root Cause:** Left-side pill widths expanding beyond the available width buffer on 1080p displays (minimum 180px gap required between Left and Center zones).  
+**Prevention Strategy:**
+1. Implement `useShortenedForm` responsive tiers:
+   - Standard width: Full labels (`350/958 GB`, `WAN 27ms | GW 2ms | SRV 1.6ms`).
+   - Shortened (`useShortenedForm >= 1`): Compact icon + percentage or latency numbers only.
+2. Maintain `BarGroup` 250ms emphasized deceleration width resizing to prevent layout snapping.
 
 ---
 
-### Pitfall 5: Inadvertent Close Button Injection into Screen Toast Popups
+### Pitfall 5: Directory Folding in `restow/quickshell/`
 
-**What goes wrong:**
-The header close button appears on transient on-screen toast popups (`NotificationPopup.qml`), violating the user's explicit preference that toasts remain clean and dismiss via natural hover/timeout.
-
-**Why it happens:**
-`NotificationGroup.qml` is shared by both `NotificationPopup.qml` (toasts) and `SidebarRight.qml` (sidebar notification center) via `NotificationListView.qml`.
-
-**How to avoid:**
-`NotificationGroup.qml` already receives `property bool popup`. Strictly guard the close button visibility with `visible: !root.popup`. This guarantees the 'X' button only renders in the sidebar notification drawer.
-
-**Warning signs:**
-'X' icon appearing on transient toast notifications on the top-right corner of the desktop.
-
-**Phase to address:**
-Phase addressing Notification Group header UI.
+**Warning Signs:** Symlinks point to whole directories rather than leaf files, modifying `vendor/dots-hyprland` or triggering `arch/dots-hyprland.sh verify --strict` failures.  
+**Root Cause:** Running GNU Stow without `--no-folding` or failing to pre-create target subdirectories causes Stow to fold directories into single symlinks.  
+**Prevention Strategy:**
+1. Ensure all new files under `restow/quickshell/` follow the leaf symlink overlay topology.
+2. Verify with `arch/dots-hyprland.sh verify --strict` before closing each phase.

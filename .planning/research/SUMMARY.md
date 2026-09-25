@@ -1,92 +1,80 @@
 # Project Research Summary
 
-**Project:** Quickshell Desktop Shell (Milestone v0.8)
-**Domain:** Linux Desktop Shell (Quickshell / Qt 6 QML / Hyprland / D-Bus / Arch Linux)
-**Researched:** 2026-09-22
-**Confidence:** HIGH
+**Project:** Quickshell Desktop Shell  
+**Domain:** Top Status Bar Telemetry & Hardware Inspector (Quickshell ii / Arch Linux)  
+**Researched:** 2026-09-25  
+**Confidence:** HIGH  
 
 ## Executive Summary
 
-Milestone v0.8 focuses on ergonomic interactions and desktop polish across three primary surfaces: the status bar media popup, system power management toggling, and the notification subsystem. Investigation of the current implementation revealed clear root causes for each issue: the media popup currently relies on a legacy hardcoded horizontal offset from stock dots-hyprland that does not track the moved Right-Zone media pill; the power profile quick-toggle silently fails because the system-level `power-profiles-daemon` D-Bus service is missing on the host; and the notification subsystem lacks direct sidebar dismissal, clickable link routing, and OTP extraction.
+Milestone v0.9 addresses the evolution of the desktop shell's system monitoring infrastructure by transforming the single, monolithic `Resources.qml` status bar widget into three specialized, high-fidelity telemetry components in the Left zone of `BarContent.qml`: **CPU & GPU Telemetry**, **Memory & Storage Telemetry**, and **Network & Multi-Target Ping Telemetry**.
 
-The recommended engineering approach leverages Quickshell's modular architecture via personal overlays deployed under `restow/quickshell/`, ensuring that the upstream `vendor/dots-hyprland` submodule remains completely untouched and pristine. System-level requirements will be satisfied by installing `power-profiles-daemon`, activating its systemd unit, and persisting it into `arch/pkglist-native.txt` and `bootstrap.sh`. The notification pipeline will be refined by augmenting `NotificationGroup.qml` with an always-visible 'X' button strictly in the sidebar (`!popup`), enabling smart body clicks and link delegation in `NotificationItem.qml`, and adding microsecond-latency regex OTP/link parsing in `NotificationUtils.qml`.
+Each component features an always-visible status bar pill with dynamic Material 3 width resizing and a rich, interactive `StyledPopup` inspector providing deep hardware and network diagnostics. Telemetry is collected via high-performance, non-blocking Linux kernel virtual filesystems (`procfs` and `sysfs` hwmon/drm), lightweight asynchronous subprocesses for storage mounts, and seamless integration with the user's pre-existing SQLite-backed ping monitor daemon running on port 8765.
 
-Key operational risks—such as media popup off-screen clipping, event propagation stealing between nested MouseAreas, false-positive OTP matching, and accidental close button leakage onto on-screen toast popups—are addressed by deterministic coordinate clamping, clear click-zone boundaries, keyword-anchored regex patterns, and strict `!popup` visibility guards.
+All modifications strictly adhere to the project's leaf-symlink overlay topology under `restow/quickshell/`, ensuring zero git churn on upstream `vendor/dots-hyprland`, dynamic Material You color token adaptation, and automated assertion test coverage.
 
 ## Key Findings
 
 ### Recommended Stack
 
-All changes are implemented natively within the existing desktop stack without introducing heavy dependencies or background daemons.
-
-**Core technologies:**
-- `power-profiles-daemon` (0.30+): Standard Freedesktop D-Bus daemon providing `net.hadess.PowerProfiles` for CPU performance profile switching across Power Saver, Balanced, and Performance.
-- `Quickshell` / `QtQuick 6.11`: Wayland layer-shell UI toolkit hosting `PanelWindow` popups, `BarGroup` pills, and reactive state bindings.
-- `Quickshell.Services.Notifications`: D-Bus notification server tracking and action invocation (`attemptInvokeAction()`, `discardNotification()`).
-- `Qt.openUrlExternally` / `xdg-open`: High-reliability URL dispatching to the system default browser.
-- JavaScript RegExp (Qt QML engine): In-process pattern matching for OTP verification codes and Chromium notification link extraction.
+- **Quickshell QML (Qt 6.11):** UI layer utilizing `BarGroup`, `RowLayout`, and `StyledPopup` with 250ms emphasized deceleration animations.
+- **Kernel Direct Polling (`procfs` / `sysfs`):**
+  - CPU load via `/proc/stat` and frequencies via `/proc/cpuinfo`.
+  - CPU temperature via `/sys/class/hwmon/hwmon5/temp1_input` (`coretemp`).
+  - Intel iGPU clock MHz via `/sys/class/drm/card1/gt_act_freq_mhz` and load via `rc6_residency_ms` delta.
+  - Memory breakdown via `/proc/meminfo` (Used, Avail, Cached, Buffers, Free, Swap).
+  - Network throughput via `/proc/net/dev`.
+- **Asynchronous Mount Inspection:** Periodic `df` execution via `Quickshell.Io.Process` every 15–30s to discover root, physical, and cloud FUSE filesystems without blocking the UI thread.
+- **System Monitor Ping Integration:** Consumes `http://127.0.0.1:8765/api/status` for 3-target latency (WAN `8.8.8.8`, Gateway `192.168.0.1`, Home Server `192.168.0.104`) with click-to-open web dashboard.
 
 ### Expected Features
 
-**Must have (table stakes):**
-- **Dynamic Media Popup Anchoring**: `MediaControls.qml` dynamically anchors beneath the top bar's `Media` pill across active monitors with safe screen boundary clamping.
-- **Power Profiles Daemon Integration**: `power-profiles-daemon` installed, enabled, and functioning with the Quickshell `PowerProfilesToggle.qml` UI component.
-- **Sidebar Quick-Close Button**: Direct, always-visible 'X' close button on notification cards strictly in the Right Sidebar (no dropdown required).
-- **Smart Notification Body Click**: Clicking notification body invokes the app's `default` action or opens extracted URLs in the default browser.
+**Table stakes (Must Have):**
+- Three distinct `BarGroup` pills in `BarContent.qml` Left zone: `[CPU & GPU]`, `[Memory & Storage]`, `[Network & Ping]`.
+- CPU & GPU pill with live load %; popup with temperature, wattage (with fallback), clock speeds, and GPU telemetry.
+- Memory & Storage pill with live RAM GB/% and Root `/` usage; popup with detailed memory tiers and multi-mount storage bars (root, physical, and FUSE cloud mounts).
+- Network & Ping pill with active transfer throughput and **all 3 ping targets visible on the bar** (WAN, Gateway, Home Server); popup with NIC details and click-through to web dashboard.
 
-**Should have (differentiators):**
-- **Smart OTP / 2FA Code Extraction**: Automated detection of 4–8 digit verification codes with a prominent "Copy [123456]" action chip on the notification card.
-- **Bootstrap & Package Reproducibility**: `power-profiles-daemon` registered in `arch/pkglist-native.txt` and `bootstrap.sh` to ensure fresh machine portability.
-
-**Anti-features (what to avoid):**
-- Adding close buttons to screen toast popups (`NotificationPopup.qml`) — user explicitly wants toasts to remain clean and dismiss via hover/timeout.
-- Modifying `vendor/dots-hyprland` directly — all QML overrides must reside under `restow/quickshell/`.
+**Differentiators (Should Have):**
+- Zero-churn leaf symlink overlay in `restow/quickshell/`.
+- Dynamic two-tier warning (Amber) and critical (Red) alert tokens.
+- Responsive width adaptation under `useShortenedForm`.
+- Dynamic popup coordinate anchoring with screen boundary clamping.
 
 ### Architecture Approach
 
-The architecture maintains strict separation of concerns across four modules:
-1. `MediaControls.qml`: Exposes and binds dynamic coordinates to the active monitor's `Media` pill position, clamping horizontal bounds between `screenMargin` and `screen.width - popup.width - screenMargin`.
-2. `power-profiles-daemon`: Systemd system service communicating over system D-Bus, transparently consumed by Quickshell's existing `PowerProfiles` model.
-3. `NotificationGroup.qml`: Adds `RippleButton` with `"close"` glyph to `topRow` with `visible: !root.popup`.
-4. `NotificationItem.qml` & `NotificationUtils.qml`: Implements interactive body click handler, regex OTP detection (`extractOTPCode`), and dedicated copy chip.
+Create decoupled telemetry services in `restow/quickshell/.config/quickshell/ii/services/`:
+1. `ResourceUsage.qml` (extended for deep memory stats).
+2. `HardwareTelemetry.qml` (CPU temp/power/clocks, Intel GPU telemetry).
+3. `StorageUsage.qml` (asynchronous mount point enumeration).
+4. `PingService.qml` (daemon HTTP bridge and 3-target latency model).
+
+Create 3 modular pills and popups in `modules/ii/bar/`:
+- `CpuGpuPill.qml` & `CpuGpuPopup.qml`
+- `MemoryStoragePill.qml` & `MemoryStoragePopup.qml`
+- `NetworkPingPill.qml` & `NetworkPingPopup.qml`
+
+Mount them in `BarContent.qml` Left zone alongside `LeftSidebarButton` and `UtilButtons`.
 
 ### Critical Pitfalls
 
-1. **Media Popup Edge Overflow**: Unclamped anchoring causes the popup to bleed off the right screen boundary on narrow or scaled displays. Avoid by using `Math.min(Math.max(...))` clamping.
-2. **Event Stealing between MouseAreas**: Adding card click handlers could break `DragManager` swipe-to-dismiss. Avoid by assigning explicit interactive bounds and ensuring child buttons (`X`, `Copy OTP`) stop event bubbling.
-3. **False Positive OTP Codes**: Unanchored `\d{4,8}` matches years (2026) or timestamps. Avoid by requiring context keywords (`code`, `otp`, `verification`, `pin`).
-4. **Toast Popup Close Button Clutter**: Forgetting to check `!root.popup` renders 'X' on toasts. Avoid by strictly conditioning on `!root.popup`.
+1. **Platypus RAPL Permissions:** RAPL `energy_uj` is mode 0400 root-only; handle unprivileged access gracefully with fallback placeholder.
+2. **Synchronous UI Freezes:** Never use blocking CLI calls in QML; use `FileView` for procfs/sysfs and async `Process` for `df`/`curl`.
+3. **Popup Boundary Clipping:** Use `mapToItem(null, ...)` with horizontal clamping to avoid multi-monitor clipping.
+4. **Left Zone Layout Overlap:** Maintain responsive `useShortenedForm` tiers to preserve the minimum 180px gap to Center Workspaces on 1080p.
+5. **GNU Stow Directory Folding:** Maintain `--no-folding` and assert zero git churn with `arch/dots-hyprland.sh verify --strict`.
 
 ## Implications for Roadmap
 
-Suggested phase structure for Milestone v0.8:
-
-### Phase 38: Power Profiles Daemon System Integration
-**Rationale:** Independent system service requirement with zero UI risk. Resolves the non-functional toggle immediately.
-**Delivers:** `power-profiles-daemon` package installed, systemd unit enabled, added to `arch/pkglist-native.txt` and `bootstrap.sh`, verified via `powerprofilesctl` and Quickshell toggle.
-**Addresses:** `POWER-01`, `POWER-02`, `POWER-03`.
-**Avoids:** Inactive service across reboots and bootstrap drift.
-
-### Phase 39: Dynamic Media Popup Anchoring
-**Rationale:** Isolates the top status bar and layer-shell coordinate calculation without touching the notification subsystem.
-**Delivers:** `restow/quickshell/.../modules/ii/mediaControls/MediaControls.qml` with dynamic anchoring relative to `Media.qml` in `BarContent.qml`, complete with dual-monitor screen boundary clamping.
-**Addresses:** `MEDIA-01`.
-**Avoids:** Coordinate overflow and off-screen rendering.
-
-### Phase 40: Notification Center Quick-Dismiss & Smart Interaction
-**Rationale:** Builds the UI and logic enhancements for notifications in `restow/quickshell/`.
-**Delivers:** Right sidebar 'X' close button on notification cards (`NotificationGroup.qml`), smart body click with app `default` action trigger and link opening (`NotificationItem.qml`), and regex OTP/link extraction helper functions in `NotificationUtils.qml` with dedicated "Copy [Code]" action chips.
-**Addresses:** `NOTIF-01`, `NOTIF-02`, `NOTIF-03`, `NOTIF-04`, `NOTIF-05`.
-**Avoids:** Toast popup clutter, event propagation stealing, and false-positive OTP extraction.
-
-### Phase 41: End-to-End Verification & Repository Integrity
-**Rationale:** Comprehensive validation across all new features, regression sweep, and strict repository verification.
-**Delivers:** Multi-section automated test harness validating power profile toggling, media popup positioning, notification dismissal, link opening, and OTP copying; verification that `arch/dots-hyprland.sh verify --strict` exits 0 with zero git churn.
-**Addresses:** `INTG-01`, `INTG-02`.
+Recommended phase structure:
+1. **Phase 42: Telemetry Services & Sensor Infrastructure:** Implement backend services (`HardwareTelemetry.qml`, `StorageUsage.qml`, `PingService.qml`, and `ResourceUsage.qml` extensions) for CPU, GPU, memory, storage, and 3-target ping data collection.
+2. **Phase 43: CPU & GPU Component (Pill & Popup):** Build `CpuGpuPill.qml` and `CpuGpuPopup.qml` with thermals, frequencies, load metrics, and M3 animations.
+3. **Phase 44: Memory & Storage Component (Pill & Popup):** Build `MemoryStoragePill.qml` and `MemoryStoragePopup.qml` with RAM breakdown and multi-mount disk usage bars.
+4. **Phase 45: Network & Multi-Target Ping Component (Pill & Popup):** Build `NetworkPingPill.qml` and `NetworkPingPopup.qml` with all 3 pings visible on the bar, NIC telemetry, and web dashboard integration.
+5. **Phase 46: Top Bar Left-Zone Integration, Verification & Polish:** Mount all 3 pills into `BarContent.qml` Left zone, verify responsive layouts, build automated assertion test suite, and verify repository cleanliness.
 
 ## Sources
 
-- Quickshell QML source: `~/.config/quickshell/ii/`
-- dots-hyprland submodule: `vendor/dots-hyprland/`
-- Freedesktop Notifications Specification: `org.freedesktop.Notifications`
-- Freedesktop Power Profiles Specification: `net.hadess.PowerProfiles`
+- Quickshell Architecture & Upstream dots-hyprland (`vendor/dots-hyprland`)
+- Linux Kernel sysfs/procfs documentation (`coretemp`, `intel_rapl`, `i915/drm`)
+- Waybar ping monitor configuration & SQLite database (`stow/system_monitor/`)

@@ -1,59 +1,58 @@
 # Feature Research
 
-**Domain:** Linux Desktop Shell (Quickshell / Qt 6 QML / Hyprland / D-Bus / Arch Linux)
-**Researched:** 2026-09-22
-**Confidence:** HIGH
+**Domain:** Top Status Bar Modular Resource Telemetry & Hardware Inspector (Quickshell ii)  
+**Researched:** 2026-09-25  
+**Confidence:** HIGH  
 
 ## Feature Landscape
 
 ### Table Stakes (Users Expect These)
 
-Features users assume exist. Missing these = product feels incomplete or broken.
-
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| Dynamic Media Popup Placement | Clicking a status bar icon should open its popup directly beneath it, not off in another section of the screen. | MEDIUM | Compute dynamic `x` anchor from the Media pill's global coordinates on the active monitor, clamping to screen edges. |
-| Working Power Profiles Toggle | A quick-toggle button in the control panel must cycle through power profiles (Power Saver ↔ Balanced ↔ Performance) when clicked. | LOW | Install and enable `power-profiles-daemon.service` on Arch Linux; verify Quickshell D-Bus listener updates UI state. |
-| One-Click Notification Dismissal | In a notification drawer/center (Right Sidebar), dismissing a notification should be a direct 1-click action without expanding a sub-menu. | LOW | Add an always-visible 'X' button on the notification card header beside the expand chevron, strictly in `sidebarRight`. |
-| Notification Body Click Navigation | Clicking a notification should either open the relevant URL in the default browser or trigger the sending app's `default` action to focus the window. | MEDIUM | Connect `MouseArea.onClicked` on the card body to `Notifications.attemptInvokeAction(id, "default")` and URL launch fallback. |
-| Embedded URL Extraction | Notifications from YouTube, WhatsApp Web, or Chromium contain links that users expect to open immediately upon clicking. | MEDIUM | Extract URLs from Chromium's `<a href="...">` headers or body text and pass them to `Qt.openUrlExternally()`. |
+| 3 Standalone BarGroup Pills | User requested decoupling monolithic Resources into dedicated Left-zone components | MEDIUM | `[CPU & GPU]`, `[Memory & Storage]`, `[Network & Ping]` placed in `BarContent.qml` Left zone. |
+| CPU & GPU Pill Metrics | Immediate visual feedback on compute load | LOW | Display CPU usage % and GPU usage % with Material Symbols icons (`planner_review`, `speed` / `developer_board`). |
+| CPU Hardware Telemetry Popup | In-depth troubleshooting and thermals | MEDIUM | Shows CPU overall load %, Package temperature (°C via `coretemp`), power draw (Wattage via RAPL), and clock speeds (MHz). |
+| GPU Hardware Telemetry Popup | In-depth graphics telemetry | MEDIUM | Shows Intel UHD 770 load %, average load, live clock frequency (MHz via `rps_act_freq_mhz`), and thermal state. |
+| RAM & Root Storage Pill Metrics | Immediate awareness of memory and primary OS disk capacity | LOW | Display RAM used/total in GB (`X.X/Y.Y GB [ZZ%]`) and root `/` disk usage % / GB. |
+| Detailed Memory Breakdown Popup | Transparency between active vs cached RAM | LOW | Breaks down RAM into Used, Available, Cached, Buffers, Free, and Swap with clean byte formatting. |
+| Multi-Mount Storage Inspector Popup | Comprehensive visibility into all physical & virtual drives | MEDIUM | Clean progress bars showing Used vs Free space for `/`, `/boot`, `/mnt/windows`, `/mnt/hdd`, and FUSE cloud mounts (`GoogleDrive`). |
+| Multi-Target Ping on Status Bar Pill | User requirement: all 3 system monitor pings visible on the bar | MEDIUM | Displays WAN (`8.8.8.8`), Gateway (`192.168.0.1`), and Home Server (`192.168.0.104`) with latency (ms) and quality colors. |
+| Network Throughput & Interface Info | Real-time traffic awareness | LOW | Live Rx/Tx rates (KB/s or MB/s) derived from `/proc/net/dev`. |
+| Network Inspector & Web Dashboard Click | Seamless integration with existing infrastructure | LOW | Popup displays NIC details (IP, interface, link) and 1-click opens `http://127.0.0.1:8765/` in the default browser. |
 
 ### Differentiators (Competitive Advantage)
 
-Features that set the desktop experience apart and deliver exceptional usability.
-
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Smart OTP / 2FA Code Auto-Extraction | Eliminates manual text selection or copying entire multi-line SMS/email notifications just to paste a 6-digit verification code. | MEDIUM | Regex parser scans notification text for patterns like `\b\d{4,8}\b` associated with keywords ("code", "otp", "verification", "pin", "login"). |
-| Dedicated "Copy [Code]" Quick Action Chip | A visually distinct, styled chip displaying the extracted code with a one-click clipboard copy and toast confirmation. | LOW | Material 3 tonal button rendering the code with a clipboard icon and 1.5s visual feedback on copy. |
-| Dual-Monitor Adaptive Clamping | Ensures the media popup stays strictly within monitor bounds regardless of whether the bar is on an ultrawide or standard display. | LOW | Clamp popup `x` between `padding` and `screen.width - popup.width - padding`. |
+| Zero-Overhead Ping Daemon Re-use | Leverages pre-existing SQLite/Docker ping service without duplicate network ICMP traffic | LOW | Pulls from `http://127.0.0.1:8765/api/status` at a configurable interval (5s) without shell fork overhead. |
+| Asynchronous Storage Mount Discovery | Does not freeze shell when querying network or cloud FUSE mounts | MEDIUM | Runs `df` asynchronously via `Quickshell.Io.Process` every 15–30s with cached state. |
+| Dynamic Material You Two-Tier Alerts | Harmonious theme consistency across system state changes | LOW | Synchronized Amber (warning) and Red (critical) thresholds matching dots-hyprland palette tokens. |
+| Material 3 Smooth Width Resizing | Prevents visual jarring as telemetry strings fluctuate | LOW | 250ms emphasized deceleration Behavior on `implicitWidth`. |
 
-### Anti-Features (Commonly Requested, Often Problematic)
+### Anti-Features (Avoid)
 
-Features that seem good but create problems.
-
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| Close Button on Screen Toast Popups | Consistency across popup and sidebar. | Clutters small temporary toast cards, causes accidental clicks when aiming to hover-dismiss or interact. | Keep toast popups clean; preserve mouse-hover timeout cancellation and natural expiration as requested by the user. |
-| Modifying `vendor/dots-hyprland` directly | Quickest way to edit QML. | Modifies git submodule working tree, breaks `git diff` reproducibility, fails `arch/dots-hyprland.sh verify --strict`. | Deploy all changes as leaf symlinks via `restow/quickshell/`. |
-| Aggressive OTP regex matching any number | Catch every possible verification code. | High false-positive rate (matches years like 2026, timestamps, phone numbers, quantities). | Require keyword context or strict boundary heuristics to ensure only genuine verification codes trigger the chip. |
+| Feature | Why Requested | Why Problematic | Better Approach |
+|---------|---------------|-----------------|-----------------|
+| Raw ICMP Ping from QML | Users might think QML needs to run ping commands | Spawning sub-processes every second introduces process churn and duplicate ICMP packets | Poll existing local Python daemon (`127.0.0.1:8765/api/status`) which already collects and logs to SQLite. |
+| High-Frequency Disk Polling (1s) | Real-time disk tracking | Disk capacity changes slowly; polling every 1s prevents drives and FUSE mounts from sleeping | Poll storage every 15–30 seconds. |
+| Blocking `statvfs` on FUSE mounts | Direct C-level filesystem queries | If a Google Drive FUSE mount lags or times out, the main UI thread freezes | Query via async `Process` with a strict timeout. |
+| Hardcoded Screen Coordinate Popups | Simple absolute positioning | Misaligned on multi-monitor or secondary displays | Dynamic coordinate anchoring relative to each pill with screen boundary clamping (proven in Phase 39). |
 
 ## Feature Dependencies
 
 ```
-[power-profiles-daemon] ──enables──> [PowerProfilesToggle Quick Action]
+[System Monitor Ping Daemon] (port 8765)
+    └──consumed by──> [Network & Ping Service]
+                          └──powers──> [Network & Ping Pill & Popup]
 
-[Media pill coordinates in BarContent] ──positions──> [MediaControls Popup]
+[Linux sysfs / procfs / hwmon]
+    └──read by──> [Hardware Telemetry Service]
+                      └──powers──> [CPU & GPU Pill & Popup]
+                      └──powers──> [Memory & Storage Pill & Popup]
 
-[NotificationUtils URL/OTP parser]
-    ├──powers──> [Smart Body Click / Link Dispatch]
-    └──powers──> [OTP "Copy Code" Action Chip]
-
-[NotificationGroup Header X Button] ──strictly scoped to──> [Right Sidebar]
+[BarContent.qml Left Zone]
+    ├──mounts──> [CPU & GPU Pill]
+    ├──mounts──> [Memory & Storage Pill]
+    └──mounts──> [Network & Ping Pill]
 ```
-
-### Dependency Notes
-
-- **`power-profiles-daemon` enables `PowerProfilesToggle`:** Without the system daemon running on `/run/dbus/system_bus_socket`, the D-Bus interface does not exist and calls fail silently.
-- **Media pill coordinates position `MediaControls`:** `MediaControls.qml` runs as a top-level `PanelWindow`. It must read the `Media` pill's screen-relative position or monitor layout to position itself accurately.
-- **`NotificationUtils` powers both Link Opening and OTP Extraction:** Centralizing text parsing in `NotificationUtils.qml` ensures consistent sanitization and extraction logic.
