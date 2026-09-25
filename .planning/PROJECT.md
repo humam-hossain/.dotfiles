@@ -33,6 +33,16 @@ Desktop shell is fully unified under upstream dots-hyprland Material You / Matug
 - Collision Map: `collision-map.tsv` (machine-asserted)
 - Guard Paths: `guard-paths.tsv` (machine-asserted)
 
+## Current Milestone: v0.9 Top Status Bar Resource Components & Hardware Telemetry
+
+**Goal:** Re-architect and divide the left status bar Resources into three dedicated telemetry pills (CPU & GPU, Memory & Storage, Network & Multi-Target Ping) with rich popups, deep hardware sensors, and live system monitor daemon integration.
+
+**Target features:**
+- **CPU & GPU Telemetry Pill & Popup:** Live CPU % and GPU % on the bar pill with M3 smooth width resizing; popup with CPU load, package temperature, power draw (RAPL), frequencies, and GPU load, clock MHz, and temperature.
+- **Memory & Storage Telemetry Pill & Popup:** Live RAM usage (GB / %) and root filesystem `/` usage on the bar pill; popup with detailed RAM breakdown (Used, Available, Cached/Buffers, Free, Swap) and multi-mount storage usage bars (root `/`, physical drives, and FUSE/cloud mounts).
+- **Network & Multi-Target Ping Pill & Popup:** Network throughput/status + all 3 ping targets displayed directly on the status bar (WAN `8.8.8.8`, Gateway `192.168.0.1`, Home Server `192.168.0.104`) with latency numbers and status colors from local daemon; popup with NIC details, IP info, diagnostics, and click-through opening the web dashboard at `http://127.0.0.1:8765/`.
+- **Modular Shell Integration & Integrity:** Three standalone BarGroup pills in `BarContent.qml` Left zone under `restow/quickshell/`, dynamic Material You color tokens, and comprehensive automated test harness with strict zero git churn.
+
 ## Prior Milestones
 
 <details>
@@ -318,7 +328,8 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 ### Active
 
-*(None — all milestone v0.8 requirements validated)*
+Milestone v0.9 (Top Status Bar Resource Components & Hardware Telemetry):
+- Scoped requirements defined during `/gsd-new-milestone` (see `.planning/REQUIREMENTS.md`)
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -522,7 +533,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-25 after v0.8 milestone*
+*Last updated: 2026-09-25 for v0.9 milestone start*
 
 
 

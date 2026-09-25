@@ -1,19 +1,16 @@
 ---
-gsd_state_version: 1.0
-milestone: v0.8
-milestone_name: Notification Experience & Shell Interaction Polish
-current_phase: 8
-status: Awaiting next milestone
-stopped_at: Phase 41 complete — all phases complete
-last_updated: "2026-09-25T12:11:10.024Z"
+gsd_state_version: "1.0"
+milestone: v0.9
+milestone_name: Top Status Bar Resource Components & Hardware Telemetry
+status: planning
+last_updated: "2026-09-25T13:17:09.146Z"
 last_activity: 2026-09-25
-last_activity_desc: Milestone v0.8 completed and archived
 progress:
-  total_phases: 6
-  completed_phases: 5
-  total_plans: 9
-  completed_plans: 9
-  percent: 83
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 Total Phases: 5 (Phases 38-41, including 40.1)
@@ -23,10 +20,10 @@ Progress: [████████████████████] 5/5 pha
 
 ## Current Position
 
-Phase: Milestone v0.8 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-09-25 — Milestone v0.8 completed and archived
+Status: Defining requirements
+Last activity: 2026-09-25 — Milestone v0.9 started
 
 ## Session
 
