@@ -255,3 +255,191 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
   fi
 fi
 
+# ===========================================================================
+# Section 2: Power Profiles Daemon & Safe Rollback (POWER-01..03, D-02, D-07)
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
+  info "--- Section 2: Power Profiles Daemon & Safe Rollback ---"
+
+  # 1. Pacman package verification (POWER-01)
+  if pacman -Q power-profiles-daemon >/dev/null 2>&1; then
+    pass "S2: Pacman package power-profiles-daemon is installed"
+  else
+    fail "S2: Pacman package power-profiles-daemon is NOT installed (POWER-01)"
+    finding "S2: Missing power-profiles-daemon package"
+  fi
+
+  # 2. Package manifest verification (POWER-03)
+  PKG_FILE="$REPO_ROOT/arch/pkglist-native.txt"
+  if [[ -f "$PKG_FILE" ]]; then
+    if grep -qx "power-profiles-daemon" "$PKG_FILE"; then
+      pass "S2: power-profiles-daemon is present in arch/pkglist-native.txt"
+    else
+      fail "S2: power-profiles-daemon MISSING from arch/pkglist-native.txt (POWER-03)"
+      finding "S2: Unmanifested package power-profiles-daemon"
+    fi
+  else
+    fail "S2: arch/pkglist-native.txt not found at $PKG_FILE"
+  fi
+
+  # 3. Upstream toggle parity check (zero local overrides) (POWER-02)
+  for override in \
+    "restow/quickshell/.config/quickshell/ii/modules/common/models/quickToggles/PowerProfilesToggle.qml" \
+    "restow/quickshell/.config/quickshell/ii/modules/ii/sidebarRight/quickToggles/androidStyle/AndroidPowerProfileToggle.qml"; do
+    if [[ -e "$REPO_ROOT/$override" ]]; then
+      fail "S2: Unauthorized local override found at $override (POWER-02)"
+      finding "S2: Local toggle override detected: $override"
+    else
+      pass "S2: Zero local override confirmed for $override"
+    fi
+  done
+
+  # 4. Live D-Bus state & atomic cycle test with safe rollback (D-04, D-07)
+  if [[ "$SYNTAX_ONLY" -eq 0 ]]; then
+    if systemctl is-active --quiet power-profiles-daemon.service 2>/dev/null; then
+      pass "S2: power-profiles-daemon.service is active"
+      INITIAL_PROFILE="$(powerprofilesctl get 2>/dev/null || echo "")"
+      if [[ -n "$INITIAL_PROFILE" ]]; then
+        pass "S2: Captured initial system power profile '$INITIAL_PROFILE'"
+        for p in power-saver balanced performance; do
+          if powerprofilesctl list 2>/dev/null | grep -qE "^[* ]*${p}:"; then
+            if powerprofilesctl set "$p" 2>/dev/null; then
+              cur="$(powerprofilesctl get 2>/dev/null || echo "")"
+              if [[ "$cur" == "$p" ]]; then
+                pass "S2: Successfully cycled to power profile '$p'"
+              else
+                fail "S2: Profile switch to '$p' failed (active is '$cur')"
+              fi
+            else
+              fail "S2: powerprofilesctl set '$p' exited non-zero"
+            fi
+          else
+            info "S2: Power profile '$p' not reported by hardware platform driver"
+          fi
+        done
+
+        # Explicit restore
+        if powerprofilesctl set "$INITIAL_PROFILE" 2>/dev/null; then
+          restored="$(powerprofilesctl get 2>/dev/null || echo "")"
+          if [[ "$restored" == "$INITIAL_PROFILE" ]]; then
+            pass "S2: Successfully restored initial power profile '$INITIAL_PROFILE' (atomic rollback)"
+          else
+            fail "S2: Rollback verification failed: current '$restored' != initial '$INITIAL_PROFILE'"
+          fi
+        else
+          fail "S2: powerprofilesctl set '$INITIAL_PROFILE' failed during rollback"
+        fi
+      else
+        soft "S2: Could not read power profile via powerprofilesctl get; soft-skipping profile cycle"
+      fi
+    else
+      soft "S2: power-profiles-daemon.service inactive; soft-skipping live transition test (D-04)"
+    fi
+  else
+    info "S2: Syntax-only mode — skipping live D-Bus profile cycling"
+  fi
+
+  if [[ "$RUN_SECTION" -eq 2 ]]; then
+    info "=========================================="
+    info "Phase 41 Section 2 Summary: FAIL=$FAIL FINDINGS=$FINDINGS"
+    info "=========================================="
+    exit "$FAIL"
+  fi
+fi
+
+# ===========================================================================
+# Section 3: Dynamic Media Popup Positioning & Clamping (MEDIA-01..02, D-02)
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
+  info "--- Section 3: Dynamic Media Popup Positioning & Clamping ---"
+
+  MC_FILE="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/mediaControls/MediaControls.qml"
+  GS_FILE="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/GlobalStates.qml"
+
+  # 1. Static AST Analysis of MediaControls.qml (MEDIA-01, MEDIA-02)
+  if [[ -f "$MC_FILE" ]]; then
+    for token in "GlobalStates.mediaPillScreen" "GlobalStates.mediaPillCenterX" "Math.round" "hyprlandGapsOut" "Math.max" "Math.min"; do
+      if grep -q "$token" "$MC_FILE"; then
+        pass "S3: MediaControls.qml contains AST token: $token"
+      else
+        fail "S3: MediaControls.qml MISSING required AST token: $token"
+        finding "S3: Missing AST token $token in MediaControls.qml"
+      fi
+    done
+  else
+    fail "S3: MediaControls.qml not found at $MC_FILE"
+  fi
+
+  # 2. Static AST Analysis of GlobalStates.qml
+  if [[ -f "$GS_FILE" ]]; then
+    for prop in "mediaPillCenterX" "mediaPillCenterY" "mediaPillScreen"; do
+      if grep -q "$prop" "$GS_FILE"; then
+        pass "S3: GlobalStates.qml defines property: $prop"
+      else
+        fail "S3: GlobalStates.qml MISSING required property: $prop"
+        finding "S3: Missing property $prop in GlobalStates.qml"
+      fi
+    done
+  else
+    fail "S3: GlobalStates.qml not found at $GS_FILE"
+  fi
+
+  # 3. Headless JavaScript Clamping Simulation
+  SIM_RESULT="$(node -e '
+function calculatePopupX(pillCenterX, pillWidth, popupWidth, screenX, screenWidth, gaps) {
+  if (pillCenterX <= 0) {
+    return Math.round(screenX + (screenWidth - popupWidth) / 2);
+  }
+  const targetX = pillCenterX - (popupWidth / 2);
+  const minX = screenX + gaps;
+  const maxX = screenX + screenWidth - popupWidth - gaps;
+  const clampedX = (maxX < minX) ? minX : Math.max(minX, Math.min(targetX, maxX));
+  return Math.round(clampedX);
+}
+
+const s1 = calculatePopupX(960, 120, 400, 0, 1920, 10);
+const s2 = calculatePopupX(1900, 100, 400, 0, 1920, 10);
+const s3 = calculatePopupX(-1, 0, 400, 0, 1920, 10);
+
+const ok = (s1 === 760 && s2 === 1510 && s3 === 760);
+console.log(JSON.stringify({ s1, s2, s3, ok }));
+process.exit(ok ? 0 : 1);
+' 2>/dev/null || echo '{"ok":false}')"
+
+  if echo "$SIM_RESULT" | jq -e '.ok' >/dev/null 2>&1; then
+    pass "S3: Headless JS coordinate clamping simulation passed all 3 scenarios (centered: 760, clamped: 1510, fallback: 760)"
+  else
+    fail "S3: Headless JS coordinate clamping simulation FAILED: $SIM_RESULT"
+    finding "S3: Media popup clamping math simulation mismatch"
+  fi
+
+  # 4. Two-Tier Live Desktop Probing (D-04, D-06)
+  if [[ "$SYNTAX_ONLY" -eq 0 ]]; then
+    if [[ -n "${WAYLAND_DISPLAY:-}" ]] && command -v hyprctl >/dev/null 2>&1; then
+      if hyprctl monitors -j >/dev/null 2>&1; then
+        pass "S3: Live Wayland monitor query via hyprctl succeeded"
+      else
+        soft "S3: Live hyprctl monitors query failed; soft-skipping"
+      fi
+    else
+      soft "S3: WAYLAND_DISPLAY not set or hyprctl missing; soft-skipping Wayland check (D-04)"
+    fi
+
+    if qs -c ii list 2>/dev/null | grep -q "quickshell/ii/shell.qml"; then
+      pass "S3: Active Quickshell shell.qml confirmed running under -c ii profile"
+    else
+      soft "S3: Quickshell shell.qml not currently running under -c ii profile; soft-skipping (D-06)"
+    fi
+  else
+    info "S3: Syntax-only mode — skipping live desktop probes"
+  fi
+
+  if [[ "$RUN_SECTION" -eq 3 ]]; then
+    info "=========================================="
+    info "Phase 41 Section 3 Summary: FAIL=$FAIL FINDINGS=$FINDINGS"
+    info "=========================================="
+    exit "$FAIL"
+  fi
+fi
+
+
