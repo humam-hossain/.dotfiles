@@ -45,9 +45,9 @@ Requirements for milestone release. Each maps to roadmap phases.
 
 ### Integration & Repository Integrity
 
-- [ ] **INTG-01**: All QML modifications deployed via `restow/quickshell/` leaf symlinks without modifying `vendor/dots-hyprland`.
-- [ ] **INTG-02**: Automated assertion test harness validates media popup positioning, power profile cycling, notification dismissal, link opening, and OTP parsing.
-- [ ] **INTG-03**: `arch/dots-hyprland.sh verify --strict` passes with 0 findings and zero git working-tree churn.
+- [x] **INTG-01**: All QML modifications deployed via `restow/quickshell/` leaf symlinks without modifying `vendor/dots-hyprland`.
+- [x] **INTG-02**: Automated assertion test harness validates media popup positioning, power profile cycling, notification dismissal, link opening, and OTP parsing.
+- [x] **INTG-03**: `arch/dots-hyprland.sh verify --strict` passes with 0 findings and zero git working-tree churn.
 
 ## Future Requirements
 
@@ -90,6 +90,6 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CLOCK-01 | Phase 40.1 | Complete |
 | VOL-01 | Phase 40.1 | Complete |
 | VOL-02 | Phase 40.1 | Complete |
-| INTG-01 | Phase 41 | Pending |
-| INTG-02 | Phase 41 | Pending |
-| INTG-03 | Phase 41 | Pending |
+| INTG-01 | Phase 41 | Complete |
+| INTG-02 | Phase 41 | Complete |
+| INTG-03 | Phase 41 | Complete |
