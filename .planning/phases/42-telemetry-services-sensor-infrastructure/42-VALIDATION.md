@@ -2,8 +2,8 @@
 phase: "42"
 slug: "telemetry-services-sensor-infrastructure"
 status: draft
-nyquist_compliant: false
-wave_0_complete: false
+nyquist_compliant: true
+wave_0_complete: true
 created: "2026-09-25"
 ---
 
