@@ -22,7 +22,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 
 ### 📋 v0.9 Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
 
-- [ ] **Phase 42: Telemetry Services & Sensor Infrastructure** (0 plans)
+- [ ] **Phase 42: Telemetry Services & Sensor Infrastructure** (3 plans)
 - [ ] **Phase 43: CPU & GPU Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 44: Memory & Storage Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 45: Network & Multi-Target Ping Component (Pill & Popup)** (0 plans)
@@ -35,7 +35,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 **Goal**: Implement backend telemetry services and data acquisition singletons for CPU/GPU hardware sensors, multi-mount storage discovery, and local ping daemon bridging.  
 **Depends on**: Phase 41  
 **Requirements**: Foundation for CPUGPU-01..04, MEMDSK-01..04, NETPING-01..05  
-**Plans**: 0 plans
+**Plans**: 3 plans
 
 Success criteria:
 1. `HardwareTelemetry.qml` reads CPU package temp (`coretemp`), RAPL power draw (with unprivileged fallback), frequencies, and Intel iGPU active load (RC6 residency delta) and clock MHz without blocking the event loop.
