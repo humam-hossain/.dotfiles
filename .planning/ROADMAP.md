@@ -108,7 +108,14 @@ Plans:
   2. A dedicated automated test harness (`scripts/phase41-interactions-assert.sh`) verifies power profile transitions, media popup positioning, notification dismissal, link opening, and OTP parsing.
   3. `arch/dots-hyprland.sh verify --strict` exits 0 with `0 findings` and zero git working-tree churn.
 
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+**Wave 1**
+- [ ] 41-01-PLAN.md — Scaffold test harness, Section 1 (restow symlinks), Section 2 (power profiles), and Section 3 (media popup)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [ ] 41-02-PLAN.md — Section 4 (notifications/OTP), Section 5 (clock/volume), Section 6 (repo integrity), sub-harnesses, and 41-VERIFICATION.md
 
 ## Progress
 
@@ -121,4 +128,4 @@ Phases execute in numeric order: 38 → 39 → 40 → 40.1 → 41
 | 39. Dynamic Media Popup Anchoring | 1/1 | Complete    | 2026-09-23 |
 | 40. Notification Center Quick-Dismiss & Smart Interaction | 3/3 | Complete    | 2026-09-24 |
 | 40.1. Clock Pill Padding and Unified Volume Ceiling Ergonomics | 2/2 | Complete    | 2026-09-24 |
-| 41. End-to-End Verification & Repository Integrity | 0/TBD | Not started | - |
+| 41. End-to-End Verification & Repository Integrity | 0/2 | Not started | - |
