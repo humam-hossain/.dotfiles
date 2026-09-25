@@ -1,5 +1,7 @@
 .config/system_monitor/ping/data/
+stow/system_monitor/.config/system_monitor/ping/data/
 .config/system_monitor/ping/.env
+stow/system_monitor/.config/system_monitor/ping/.env
 .planning/tmp/
 .claude/
 .commandcode/

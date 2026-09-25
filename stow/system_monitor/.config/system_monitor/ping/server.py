@@ -472,9 +472,9 @@ def store_cycle(ts: str, target_rows: list[dict[str, Any]]) -> None:
         conn.close()
 
 
-def render_status(target_rows: list[dict[str, Any]], fmt: str | None) -> dict[str, str]:
+def render_status(target_rows: list[dict[str, Any]], fmt: str | None) -> dict[str, Any]:
     if not target_rows:
-        return {"text": "ping down", "class": "dead"}
+        return {"text": "ping down", "class": "dead", "targets": []}
 
     if fmt:
         result = fmt
@@ -491,11 +491,26 @@ def render_status(target_rows: list[dict[str, Any]], fmt: str | None) -> dict[st
         text = " ".join(parts)
 
     worst_class = max(target_rows, key=lambda row: quality_rank(row["class"]))["class"]
-    return {"text": text, "class": worst_class}
+    return {
+        "text": text,
+        "class": worst_class,
+        "targets": [
+            {
+                "host": row["host"],
+                "label": row.get("label", ""),
+                "ms": row["ms"],
+                "quality": row["quality"],
+                "class": row["class"],
+                "text_value": row["text_value"],
+                "color": row.get("color", ""),
+            }
+            for row in target_rows
+        ],
+    }
 
 
-def stale_status() -> dict[str, str]:
-    return {"text": "ping stale", "class": "dead"}
+def stale_status() -> dict[str, Any]:
+    return {"text": "ping stale", "class": "dead", "targets": []}
 
 
 def update_latest_cycle(target_rows: list[dict[str, Any]], generated_at: datetime) -> None:
@@ -568,7 +583,7 @@ def collector_loop() -> None:
         time.sleep(max(0.0, COLLECTION_INTERVAL - elapsed))
 
 
-def api_status(params: dict[str, list[str]]) -> dict[str, str]:
+def api_status(params: dict[str, list[str]]) -> dict[str, Any]:
     fmt = params.get("format", [None])[0]
     cycle = get_latest_cycle()
     generated_at = cycle["generated_at"]
