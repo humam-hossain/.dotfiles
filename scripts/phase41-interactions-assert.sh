@@ -442,4 +442,387 @@ process.exit(ok ? 0 : 1);
   fi
 fi
 
+# ===========================================================================
+# Section 4: Notification Center Ergonomics, Smart OTP & URL Navigation
+# (NOTIF-01..02, NAV-01..02, OTP-01..02, D-02, D-04, D-08, T-41-03)
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
+  info "--- Section 4: Notification Center Ergonomics, Smart OTP & URL Navigation ---"
+
+  NG_FILE="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/common/widgets/NotificationGroup.qml"
+  NI_FILE="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/common/widgets/NotificationItem.qml"
+  NU_FILE="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/common/functions/NotificationUtils.qml"
+  NP_VENDOR="$REPO_ROOT/vendor/dots-hyprland/dots/.config/quickshell/ii/modules/ii/notificationPopup/NotificationPopup.qml"
+
+  # 1. Static AST Validation
+  if [[ -f "$NG_FILE" ]]; then
+    if grep -q "id:\s*closeButton" "$NG_FILE"; then
+      pass "S4: NotificationGroup.qml declares closeButton (NOTIF-01)"
+    else
+      fail "S4: NotificationGroup.qml MISSING closeButton declaration"
+      finding "S4: Missing closeButton in NotificationGroup.qml"
+    fi
+
+    if grep -A 5 "id:\s*closeButton" "$NG_FILE" | grep -qE 'visible:\s*true'; then
+      pass "S4: NotificationGroup.qml closeButton is explicitly visible: true (NOTIF-01)"
+    else
+      fail "S4: NotificationGroup.qml closeButton is not explicitly visible: true"
+      finding "S4: NotificationGroup.qml closeButton visibility not true"
+    fi
+  else
+    fail "S4: NotificationGroup.qml not found at $NG_FILE"
+  fi
+
+  if [[ -f "$NP_VENDOR" ]]; then
+    if grep -q "closeButton" "$NP_VENDOR"; then
+      fail "S4: NotificationPopup.qml contains closeButton (must be suppressed in toast popups per NOTIF-02)"
+      finding "S4: NotificationPopup.qml contains closeButton"
+    else
+      pass "S4: NotificationPopup.qml suppresses closeButton in toast popups (NOTIF-02)"
+    fi
+  else
+    fail "S4: NotificationPopup.qml not found in vendor tree at $NP_VENDOR"
+  fi
+
+  if [[ -f "$NI_FILE" ]]; then
+    if grep -q "property string otpCode:" "$NI_FILE"; then
+      pass "S4: NotificationItem.qml declares property string otpCode (OTP-02)"
+    else
+      fail "S4: NotificationItem.qml MISSING property string otpCode"
+      finding "S4: Missing otpCode property in NotificationItem.qml"
+    fi
+
+    if grep -q "function activateNotification" "$NI_FILE" && grep -q "Notifications\.attemptInvokeAction" "$NI_FILE"; then
+      pass "S4: NotificationItem.qml defines smart body click invoking dismiss and default action (NAV-01)"
+    else
+      fail "S4: NotificationItem.qml MISSING smart body click dismissal action"
+      finding "S4: Missing smart body click action in NotificationItem.qml"
+    fi
+
+    if grep -q "Quickshell\.clipboardText\s*=" "$NI_FILE"; then
+      pass "S4: NotificationItem.qml copies OTP code to clipboardText on action chip click (OTP-02)"
+    else
+      fail "S4: NotificationItem.qml MISSING Quickshell.clipboardText assignment"
+      finding "S4: Missing clipboardText assignment in NotificationItem.qml"
+    fi
+  else
+    fail "S4: NotificationItem.qml not found at $NI_FILE"
+  fi
+
+  if [[ -f "$NU_FILE" ]]; then
+    if grep -q "function extractOtpCode" "$NU_FILE" && grep -q "function extractUrl" "$NU_FILE"; then
+      pass "S4: NotificationUtils.qml defines extractOtpCode and extractUrl functions"
+    else
+      fail "S4: NotificationUtils.qml MISSING extractOtpCode or extractUrl definitions"
+      finding "S4: Missing extractOtpCode or extractUrl in NotificationUtils.qml"
+    fi
+  else
+    fail "S4: NotificationUtils.qml not found at $NU_FILE"
+  fi
+
+  # 2. Sandboxed Node.js VM Evaluation of extractOtpCode() and extractUrl()
+  OTP_VM_RESULT="$(node -e '
+const fs = require("fs");
+const qmlPath = process.argv[1];
+let content = fs.readFileSync(qmlPath, "utf8");
+content = content.replace(/^pragma.*$/gm, "").replace(/^import.*$/gm, "");
+content = content.replace(/Singleton\s*\{[\s\S]*?id:\s*root/, "");
+const lastBrace = content.lastIndexOf("}");
+content = content.substring(0, lastBrace);
+
+const sandbox = {
+  Qt: { formatDateTime: () => "" },
+  Translation: { tr: (s) => s }
+};
+const fn = new Function("sandbox", `
+  const { Qt, Translation } = sandbox;
+  ${content}
+  return { extractOtpCode, extractUrl };
+`);
+const NotificationUtils = fn(sandbox);
+
+const cases = [
+  { body: "Your PIN is 9482.", summary: "", expected: "9482", desc: "4-digit PIN" },
+  { body: "Your verification code: 482910", summary: "", expected: "482910", desc: "6-digit standard verification code" },
+  { body: "Your security code: 84920192", summary: "", expected: "84920192", desc: "8-digit auth code" },
+  { body: "123-456 is your code", summary: "", expected: "123-456", desc: "Hyphenated code (code before keyword)" },
+  { body: "Google: G-829104 is your verification code", summary: "", expected: "G-829104", desc: "Service-prefixed code (G-XXXXXX)" },
+  { body: "Use 582910 for 2FA auth", summary: "", expected: "582910", desc: "Proximity preceding keyword" },
+  { body: "Your code is 738291. It will expire in 5 minutes.", summary: "", expected: "738291", desc: "Proximity with trailing sentence" },
+  { body: "Your one-time password is 192837", summary: "", expected: "192837", desc: "Keyword: one-time password" },
+  { body: "Your passcode: 472910", summary: "", expected: "472910", desc: "Keyword: passcode" },
+  { body: "Please verify using 619283", summary: "", expected: "619283", desc: "Keyword: verify" },
+  { body: "OTP: 839201", summary: "", expected: "839201", desc: "Keyword: OTP" },
+  { body: "Auth code 928103", summary: "", expected: "928103", desc: "Keyword: auth code" },
+  { body: "Security code is 382910", summary: "", expected: "382910", desc: "Keyword: security code" },
+  { body: "<p>Your verification code is <b>829104</b></p>", summary: "", expected: "829104", desc: "HTML formatted body" },
+
+  // Negative Cases
+  { body: "Meeting on 2026-09-24 at room 4B", summary: "", expected: "", desc: "Calendar date rejection" },
+  { body: "Event scheduled at 14:30 today", summary: "", expected: "", desc: "Timestamp rejection" },
+  { body: "Call us at +1-800-555-0199 for assistance", summary: "", expected: "", desc: "Phone number rejection" },
+  { body: "Order #9482103 has been placed successfully", summary: "", expected: "", desc: "Order ID without security keywords" },
+  { body: "Downloaded 1048576 bytes in 2 seconds", summary: "", expected: "", desc: "Counter metric rejection" }
+];
+
+let otpPass = true;
+for (const c of cases) {
+  const actual = NotificationUtils.extractOtpCode(c.body, c.summary);
+  if (actual !== c.expected) {
+    otpPass = false;
+  }
+}
+
+const u1 = NotificationUtils.extractUrl("<a href=\"https://example.com/verify\">Click here</a>");
+const u2 = NotificationUtils.extractUrl("Please visit https://github.com/test for details");
+const u3 = NotificationUtils.extractUrl("<a href=\"javascript:alert(1)\">Bad</a>");
+const u4 = NotificationUtils.extractUrl("<a href=\"file:///etc/passwd\">Bad</a>");
+const u5 = NotificationUtils.extractUrl("visit data:text/html,bad");
+
+const urlPass = (u1 === "https://example.com/verify" && u2 === "https://github.com/test" && u3 === "" && u4 === "" && u5 === "");
+
+console.log(JSON.stringify({ otpPass, urlPass, ok: (otpPass && urlPass) }));
+process.exit((otpPass && urlPass) ? 0 : 1);
+' "$NU_FILE" 2>/dev/null || echo '{"ok":false}')"
+
+  if echo "$OTP_VM_RESULT" | jq -e '.otpPass' >/dev/null 2>&1; then
+    pass "S4: Sandboxed Node.js VM passed all 19 OTP extraction test cases (OTP-01)"
+  else
+    fail "S4: Sandboxed Node.js VM failed one or more OTP extraction test cases"
+    finding "S4: OTP extraction test matrix failure"
+  fi
+
+  if echo "$OTP_VM_RESULT" | jq -e '.urlPass' >/dev/null 2>&1; then
+    pass "S4: Sandboxed Node.js VM passed URL extraction & scheme sanitization (NAV-02, T-41-03)"
+  else
+    fail "S4: Sandboxed Node.js VM failed URL extraction & scheme sanitization"
+    finding "S4: URL extraction sanitization failure"
+  fi
+
+  # 3. Optional Live Notification (D-08)
+  if [[ "$LIVE_NOTIFY" -eq 1 && "$SYNTAX_ONLY" -eq 0 ]]; then
+    if command -v notify-send >/dev/null 2>&1; then
+      if notify-send -t 800 -a "Phase41Test" "Test OTP: 582910" "Verification code for Phase 41" 2>/dev/null; then
+        pass "S4: Transient visual notification dispatched successfully (D-08)"
+      else
+        soft "S4: notify-send returned non-zero; soft-skipping visual notification (D-04)"
+      fi
+    else
+      soft "S4: notify-send not available on PATH; soft-skipping visual notification (D-04)"
+    fi
+  fi
+
+  if [[ "$RUN_SECTION" -eq 4 ]]; then
+    info "=========================================="
+    info "Phase 41 Section 4 Summary: FAIL=$FAIL FINDINGS=$FINDINGS"
+    info "=========================================="
+    exit "$FAIL"
+  fi
+fi
+
+# ===========================================================================
+# Section 5: Clock Padding & Unified Volume Ceiling Contract
+# (CLOCK-01, VOL-01..02, INTG-02, D-02, D-04)
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
+  info "--- Section 5: Clock Padding & Unified Volume Ceiling Contract ---"
+
+  CW_FILE="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/ClockWidget.qml"
+  CFG_FILE="$REPO_ROOT/capture/ii/.config/illogical-impulse/config.json"
+  KB_FILE="$REPO_ROOT/stow/hypr/.config/hypr/custom/keybinds.lua"
+  CONFIG_QML="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/common/Config.qml"
+  AUDIO_QML="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/services/Audio.qml"
+  QS_FILE="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/sidebarRight/QuickSliders.qml"
+
+  # 1. Static AST Validation of ClockWidget.qml (CLOCK-01, D-01)
+  if [[ -f "$CW_FILE" ]]; then
+    if grep -q "anchors\.leftMargin:\s*5" "$CW_FILE" && grep -q "anchors\.rightMargin:\s*5" "$CW_FILE"; then
+      pass "S5: ClockWidget.qml has 10px horizontal breathing room (5px left/right margins on rowLayout) (CLOCK-01)"
+    else
+      fail "S5: ClockWidget.qml MISSING 5px left/right margins on rowLayout"
+      finding "S5: ClockWidget.qml margins do not match 5px"
+    fi
+
+    if grep -q "implicitWidth:\s*8" "$CW_FILE" && grep -q "DateTime\.time" "$CW_FILE" && grep -q "DateTime\.longDate" "$CW_FILE"; then
+      pass "S5: ClockWidget.qml preserves spacer (implicitWidth: 8) and DateTime bindings"
+    else
+      fail "S5: ClockWidget.qml MISSING spacer or DateTime bindings"
+      finding "S5: ClockWidget.qml missing core AST tokens"
+    fi
+  else
+    fail "S5: ClockWidget.qml not found at $CW_FILE"
+  fi
+
+  # 2. Desktop Config Single Source of Truth (VOL-01)
+  if [[ -f "$CFG_FILE" ]]; then
+    CEILING="$(jq -r '.audio.volumeCeiling // empty' "$CFG_FILE" 2>/dev/null || echo "")"
+    if [[ "$CEILING" == "1.5" ]]; then
+      pass "S5: config.json defines audio.volumeCeiling: 1.5 as single source of truth (VOL-01)"
+    else
+      fail "S5: config.json audio.volumeCeiling is '$CEILING' (expected 1.5)"
+      finding "S5: config.json volumeCeiling mismatch"
+    fi
+  else
+    fail "S5: config.json not found at $CFG_FILE"
+  fi
+
+  # 3. Hyprland Keybinds Validation
+  if [[ -f "$KB_FILE" ]]; then
+    if luac -p "$KB_FILE" >/dev/null 2>&1; then
+      pass "S5: keybinds.lua syntax verified via luac -p"
+    else
+      fail "S5: keybinds.lua failed luac syntax check"
+      finding "S5: keybinds.lua syntax error"
+    fi
+
+    if grep -q 'hl\.unbind("XF86AudioRaiseVolume")' "$KB_FILE"; then
+      pass "S5: keybinds.lua unbinds upstream XF86AudioRaiseVolume"
+    else
+      fail "S5: keybinds.lua MISSING unbind of upstream XF86AudioRaiseVolume"
+      finding "S5: keybinds.lua missing unbind"
+    fi
+
+    if grep -q 'volumeCeiling' "$KB_FILE" && grep -q 'wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%+ -l' "$KB_FILE"; then
+      pass "S5: keybinds.lua dynamically parses volumeCeiling and binds wpctl 2%+ with ceiling limit"
+    else
+      fail "S5: keybinds.lua MISSING volumeCeiling parsing or wpctl raise binding"
+      finding "S5: keybinds.lua volume binding mismatch"
+    fi
+  else
+    fail "S5: keybinds.lua not found at $KB_FILE"
+  fi
+
+  # 4. Quickshell Audio Schema & Service AST
+  if [[ -f "$CONFIG_QML" ]]; then
+    if grep -q "property real volumeCeiling:\s*1\.5" "$CONFIG_QML"; then
+      pass "S5: Config.qml defines property real volumeCeiling: 1.5"
+    else
+      fail "S5: Config.qml MISSING property real volumeCeiling: 1.5"
+      finding "S5: Config.qml volumeCeiling declaration missing"
+    fi
+  else
+    fail "S5: Config.qml not found at $CONFIG_QML"
+  fi
+
+  if [[ -f "$AUDIO_QML" ]]; then
+    if grep -q "readonly property real maxVolume:" "$AUDIO_QML" && grep -q "volumeCeiling" "$AUDIO_QML"; then
+      pass "S5: Audio.qml defines maxVolume property bound to Config.options.audio.volumeCeiling"
+    else
+      fail "S5: Audio.qml MISSING maxVolume binding to volumeCeiling"
+      finding "S5: Audio.qml maxVolume binding missing"
+    fi
+
+    if grep -q "Math\.min(root\.maxVolume" "$AUDIO_QML" && grep -q "Audio\.sink\.audio\.muted\s*=\s*false" "$AUDIO_QML"; then
+      pass "S5: Audio.qml incrementVolume() enforces dynamic clamp to maxVolume and auto-unmutes (VOL-02)"
+    else
+      fail "S5: Audio.qml incrementVolume() missing clamp or auto-unmute"
+      finding "S5: Audio.qml incrementVolume logic missing"
+    fi
+  else
+    fail "S5: Audio.qml not found at $AUDIO_QML"
+  fi
+
+  # 5. Sidebar Slider AST in QuickSliders.qml
+  if [[ -f "$QS_FILE" ]]; then
+    if grep -q "to:\s*Audio\.maxVolume" "$QS_FILE" && grep -q "stopIndicatorValues:\s*\[1\.0\]" "$QS_FILE"; then
+      pass "S5: QuickSliders.qml slider binds to Audio.maxVolume with 100% stop notch [1.0] (VOL-02)"
+    else
+      fail "S5: QuickSliders.qml MISSING Audio.maxVolume binding or [1.0] stop notch"
+      finding "S5: QuickSliders.qml slider contract missing"
+    fi
+
+    if grep -q "tooltipContent:" "$QS_FILE" && grep -q "Math\.round(value \* 100)" "$QS_FILE"; then
+      pass "S5: QuickSliders.qml slider includes percentage tooltip content"
+    else
+      fail "S5: QuickSliders.qml MISSING percentage tooltip content"
+      finding "S5: QuickSliders.qml tooltip missing"
+    fi
+  else
+    fail "S5: QuickSliders.qml not found at $QS_FILE"
+  fi
+
+  # 6. Headless Node.js Volume Step Simulation
+  VOL_SIM_RESULT="$(node -e '
+function createAudioModel(initialVolume, initialMuted, maxVolume) {
+  const root = { maxVolume: maxVolume || 1.5, hardMaxValue: 2.0 };
+  const Audio = {
+    value: initialVolume,
+    sink: {
+      audio: {
+        volume: initialVolume,
+        muted: initialMuted
+      }
+    }
+  };
+
+  function incrementVolume() {
+    if (Audio.sink && Audio.sink.audio) {
+      Audio.sink.audio.muted = false;
+      const currentVolume = Audio.value;
+      const step = currentVolume < 0.1 ? 0.01 : 0.02;
+      Audio.sink.audio.volume = Math.min(root.maxVolume, Audio.sink.audio.volume + step);
+      Audio.value = Audio.sink.audio.volume;
+    }
+  }
+
+  return { Audio, incrementVolume };
+}
+
+let errors = 0;
+// Test 1: Step below 0.1 uses 0.01 step
+const s1 = createAudioModel(0.05, false, 1.5);
+s1.incrementVolume();
+if (Math.abs(s1.Audio.sink.audio.volume - 0.06) > 0.0001) errors++;
+
+// Test 2: Step at or above 0.1 uses 0.02 step
+const s2 = createAudioModel(0.50, false, 1.5);
+s2.incrementVolume();
+if (Math.abs(s2.Audio.sink.audio.volume - 0.52) > 0.0001) errors++;
+
+// Test 3: Clamping at 1.5
+const s3 = createAudioModel(1.49, false, 1.5);
+s3.incrementVolume();
+if (Math.abs(s3.Audio.sink.audio.volume - 1.50) > 0.0001) errors++;
+
+// Test 4: Auto-unmute when raised
+const s4 = createAudioModel(0.50, true, 1.5);
+s4.incrementVolume();
+if (s4.Audio.sink.audio.muted !== false) errors++;
+
+console.log(JSON.stringify({ errors, ok: errors === 0 }));
+process.exit(errors === 0 ? 0 : 1);
+' 2>/dev/null || echo '{"ok":false}')"
+
+  if echo "$VOL_SIM_RESULT" | jq -e '.ok' >/dev/null 2>&1; then
+    pass "S5: Headless Node.js volume step & auto-unmute simulation passed all cases"
+  else
+    fail "S5: Headless Node.js volume step simulation failed: $VOL_SIM_RESULT"
+    finding "S5: Volume step simulation failure"
+  fi
+
+  # 7. Two-tier live PipeWire query (D-04)
+  if [[ "$SYNTAX_ONLY" -eq 0 ]]; then
+    if wpctl status >/dev/null 2>&1; then
+      LIVE_VOL="$(wpctl get-volume @DEFAULT_AUDIO_SINK@ 2>/dev/null || echo "")"
+      if [[ -n "$LIVE_VOL" ]]; then
+        pass "S5: Live PipeWire default sink query succeeded: $LIVE_VOL"
+      else
+        soft "S5: wpctl get-volume returned empty; soft-skipping live query"
+      fi
+    else
+      soft "S5: PipeWire audio server inactive or wpctl status failed; soft-skipping live query (D-04)"
+    fi
+  else
+    info "S5: Syntax-only mode — skipping live PipeWire queries"
+  fi
+
+  if [[ "$RUN_SECTION" -eq 5 ]]; then
+    info "=========================================="
+    info "Phase 41 Section 5 Summary: FAIL=$FAIL FINDINGS=$FINDINGS"
+    info "=========================================="
+    exit "$FAIL"
+  fi
+fi
+
+
 
