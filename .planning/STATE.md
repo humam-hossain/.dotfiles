@@ -1,59 +1,52 @@
 ---
-gsd_state_version: "1.0"
+gsd_state_version: 1.0
 milestone: v0.8
-current_phase: 41
-status: completed
+milestone_name: Notification Experience & Shell Interaction Polish
+current_phase: 8
+status: Awaiting next milestone
 stopped_at: Phase 41 complete — all phases complete
-last_updated: "2026-09-25T05:54:01.119Z"
+last_updated: "2026-09-25T12:11:10.024Z"
 last_activity: 2026-09-25
-last_activity_desc: Phase 41 complete
-state_head: 5e57d1a96f80d8c5be90625df0315b20824b4b97
+last_activity_desc: Milestone v0.8 completed and archived
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 5
   total_plans: 9
   completed_plans: 9
-milestone_name: Notification Experience & Shell Interaction Polish
+  percent: 83
 ---
 
 Total Phases: 5 (Phases 38-41, including 40.1)
-Progress: [████████████░░░░░░░░] 3/5 phases (60%)
+Progress: [████████████████████] 5/5 phases (100%)
 
 # Project State
 
 ## Current Position
 
-Phase: 41
-Plan: Not started
-Status: All phases complete
-Last activity: 2026-09-25 — Phase 41 complete
+Phase: Milestone v0.8 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-09-25 — Milestone v0.8 completed and archived
 
 ## Session
 
-**Last session:** 2026-09-25T05:51:07.957Z
+**Last session:** 2026-09-25T12:11:10.024Z
 **Stopped at:** Phase 41 complete — all phases complete
 **Resume file:** None
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-24 after Phase 40)
+See: .planning/PROJECT.md (updated 2026-09-25 after v0.8 milestone)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 41 — End-to-End Verification & Repository Integrity
+**Current focus:** Planning next milestone (v0.9)
 
 ## Deferred Items
 
-Items acknowledged and deferred at milestone close on 2026-07-25 (v0.1), re-acknowledged 2026-08-02 (v0.2), re-acknowledged 2026-09-16 (v0.4 override_closeout), re-acknowledged 2026-09-18 (v0.5), re-acknowledged 2026-09-20 (v0.6), and re-acknowledged 2026-09-21 (v0.7 override_closeout):
+Items acknowledged and deferred at prior milestone closes (all legacy debug sessions resolved as of v0.8 verified closeout):
 
 | Category | Item | Status | Deferred At | Milestone |
 |----------|------|--------|-------------|-----------|
-| debug | cpu-warning-color-missing | unknown (re-acknowledged v0.7; local bar retired) | 2026-09-21 | v0.7 |
-| debug | keyboard-volume-ceiling | active (targeted in Phase 40.1) | 2026-09-21 | v0.7 |
-| debug | pavucontrol-launch-broken | unknown (re-acknowledged v0.7; local bar retired) | 2026-09-21 | v0.7 |
-| debug | ram-label-spacing | unknown (re-acknowledged v0.7; local bar retired) | 2026-09-21 | v0.7 |
-| debug | DEBUG-gtk-visual-theming-pink-accent | unknown (re-acknowledged v0.7) | 2026-09-21 | v0.7 |
-| debug | stt-duration-timer-zero | unknown (re-acknowledged v0.7; resolved by G-37-6 hardening) | 2026-09-21 | v0.7 |
-| debug | voice-pill-vertical-bar-missing | unknown (re-acknowledged v0.7; resolved by G-37-2 vertical integration) | 2026-09-21 | v0.7 |
 | requirement | FWK-02 (exec-once auto-start) | deferred finishing touch — revisit under upstream model | 2026-09-16 | v0.4 |
 | requirement | IPC-02 (bar toggle keybind) | deferred finishing touch — revisit under upstream model | 2026-09-16 | v0.4 |
 | backlog | Waybar cutover (CUT-01) | deferred until parity accepted; DISP-03 defaults keep dual-run **[superseded by Phase 16]** — the dual-run session ended at the Phase 14 adopt. | 2026-09-16 | v0.4 |
@@ -145,6 +138,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - Phase 24 added: Address tech debt: bookkeeping and validation cleanup
 - Phase 30 added: Address tech debt: v0.5 cleanup and validation sign-off
 - Phase 40.1 inserted after Phase 40: Clock Pill Padding and Unified Volume Ceiling Ergonomics (URGENT)
+- Phase 42 added: Top Status Bar Resource Component Customization & Hardware Telemetry
 
 ## Operator Next Steps
 

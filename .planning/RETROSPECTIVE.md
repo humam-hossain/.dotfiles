@@ -316,6 +316,56 @@
 
 ---
 
+## Milestone: v0.8 — Notification Experience & Shell Interaction Polish
+
+**Shipped:** 2026-09-25  
+**Phases:** 5 | **Plans:** 9 | **Tasks:** 26  
+**Closeout:** verified_closeout (milestone audit passed with 17/17 requirements satisfied, 5/5 phases verified, 11/11 integrations verified, 6/6 flows verified, and all open debug sessions resolved)
+
+### What Was Built
+
+- `power-profiles-daemon` system service integration on Arch Linux, tracked across package manifests (`pkglist-native.txt`, `dots-hyprland.sh`, `bootstrap.sh`), enabling Quickshell's `PowerProfilesToggle.qml` quick-toggle with zero local QML overrides
+- Dynamic `MediaControls.qml` positioning anchored directly beneath the top status bar's `Media` pill across active monitors with robust screen boundary clamping (`Math.min` / `Math.max`) via `GlobalStates` coordinate bridge and HoverHandler event isolation
+- Notification Center quick-dismiss and smart routing in `restow/quickshell/`: 1-click 'X' close button on single sidebar cards (`NotificationGroup.qml`), smart body click routing to app D-Bus default action and web links, and QV4-safe regex OTP code extraction with 1-click "Copy [Code]" action chip (`NotificationItem.qml`, `NotificationUtils.qml`)
+- Restored 10px horizontal breathing room to status bar clock/date pill (`ClockWidget.qml`) matching adjacent pills, and unified the 150% volume ceiling from a single source of truth (`config.json`) consumed by Hyprland keybinds (`custom/keybinds.lua`), Quickshell audio services (`Config.qml`, `Audio.qml`), right sidebar volume slider (`QuickSliders.qml` with 100% stop notch), and bar mouse scroll
+- Consolidated test runner and regression harness (`scripts/phase41-interactions-assert.sh`) orchestrating all milestone sub-harnesses (Phases 38, 39, 40, 40.1), verifying non-invasive leaf symlinks under `restow/quickshell/`, and asserting strict zero git churn (`arch/dots-hyprland.sh verify --strict` with `FAIL=0 FINDINGS=0`)
+
+### What Worked
+
+- **Upstream parity first** — investigating upstream `PowerProfilesToggle.qml` showed it natively supports `net.hadess.PowerProfiles` via `Quickshell.Services.UPower`, requiring zero local QML overrides and avoiding unnecessary leaf symlink maintenance.
+- **Sentinel value coordinate fallback** — using `-1` as a sentinel for `mediaPillCenterX` cleanly activated upstream center fallback when opened via keyboard shortcut or IPC without pill click.
+- **QV4-compatible non-lookbehind regex** — replacing modern regex lookbehinds `(?<!...)` with non-capturing prefix boundaries `(?:^|[^0-9\-\/])` prevented engine-level `SyntaxError` in Qt's QV4 JavaScript runtime.
+- **Inserted decimal phase (Phase 40.1)** — adding Phase 40.1 dynamically cleanly decoupled status bar clock padding and volume ceiling ergonomics into focused plans without disturbing the existing roadmap numbering.
+- **Single source of truth for configuration** — reading `"volumeCeiling": 1.5` from `config.json` via pure Lua in Hyprland and QML in Quickshell eliminated split-brain volume ceiling discrepancies.
+- **Consolidated test orchestration** — having `phase41-interactions-assert.sh` chain sub-harnesses with a porcelain baseline snapshot guaranteed zero working-tree churn across the entire suite.
+
+### What Was Inefficient
+
+- Initial OTP regex used lookbehinds supported in Node.js but unsupported in Qt 6.8 QV4, which wasn't caught until UAT; running regex tests inside Quickshell's engine earlier would have avoided the gap closure plan.
+- Initial toast notification cards had height animation stutter from 0 because `Behavior on implicitHeight` was enabled during component instantiation; disabling the animation during initial load resolved the issue.
+
+### Patterns Established
+
+- Two-tier assertion pattern: hard fail on static AST / symlink topology, soft skip on interactive live GUI if running headless or missing runtime prerequisites.
+- Non-lookbehind regex for Quickshell QML: always use boundary markers `(?:^|[^...])` and capture groups instead of lookbehinds for QV4 engine compatibility.
+- Unified configuration contracts: store shell tuning parameters in `~/.config/illogical-impulse/config.json` and consume via pure Lua in Hyprland and `Config.qml` in Quickshell.
+- Initial animation gating: disable property Behaviors until component initialization completes (`root.initialized`) to prevent startup visual lag and mask thrashing.
+
+### Key Lessons
+
+1. **Verify JavaScript engine compatibility early** — Qt's QV4 engine does not support ES2018+ features like regex lookbehinds; test regex logic in `qs` or avoid lookbehinds by default.
+2. **Audit open debug sessions before close** — moving resolved debug sessions to `.planning/debug/resolved/` keeps the artifact audit clean and allows a true `verified_closeout`.
+3. **Suppress initial load animations** — animating height or opacity during component creation causes perceptible visual stutter; gate animation behaviors on initial layout completion.
+4. **Single configuration source of truth prevents drift** — binding both compositor keybinds and shell sliders to the same config file eliminates subtle volume or parameter mismatch bugs.
+
+### Cost Observations
+
+- Model mix: Gemini 3.8 Flash (High)
+- Timeline: 4 calendar days (2026-09-22 definition → 2026-09-25 ship)
+- Notable: 5 phases, 9 plans, 26 tasks executed with clean test assertion suites and 0 working tree churn.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -328,6 +378,7 @@
 | v0.5 | 6 | 17 | Unified Material You theming across GTK/Qt/Hyprland/Kitty/Fuzzel with zero git churn |
 | v0.6 | 4 | 12 | Shipped modular 3-zone status bar with rounded pill geometry and verified closeout |
 | v0.7 | 3 | 4 | Voice telemetry service + status bar pill with tmpfs IPC, procfs liveness, and dual-bar integration |
+| v0.8 | 5 | 9 | Integrated power-profiles-daemon, dynamic media anchoring, notification quick-dismiss & smart routing, unified volume ceiling, and consolidated test harness |
 
 ### Cumulative Quality
 
@@ -339,6 +390,7 @@
 | v0.5 | All 6 phases passed (100% Nyquist) | 5 debug (4 retired bar + 1 Phase 25 resolved) | override_closeout |
 | v0.6 | All 4 phases passed (audit passed) | 0 gaps (5 legacy debug carried forward) | verified_closeout |
 | v0.7 | All 3 phases passed (audit passed) | 0 gaps (7 debug acknowledged: 5 legacy + 2 resolved) | override_closeout |
+| v0.8 | All 5 phases passed (audit passed) | 0 gaps (all debug sessions resolved) | verified_closeout |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -351,5 +403,6 @@
 7. Reorganize layouts using modular zoning and dynamic space defense before live human visual trial-and-error
 8. Use restow with leaf symlinks (`--no-folding`) for third-party QML shell modifications to maintain live hot-reload without submodule forks
 9. Tmpfs IPC + procfs liveness is a lightweight, daemon-free pattern for desktop service status integration
+10. Quickshell QV4 engine requires avoiding regex lookbehinds and gating initial layout animations to prevent visual stutter
 
 

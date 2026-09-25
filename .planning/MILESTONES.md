@@ -1,5 +1,33 @@
 # Milestones
 
+## v0.8 Notification Experience & Shell Interaction Polish (Shipped: 2026-09-25)
+
+**Closeout type:** `verified_closeout`  
+**Phases completed:** 5 phases, 9 plans, 26 tasks (Phases 38–41, including Phase 40.1)  
+**Git range:** `553afb8` → `fa496f4` (2026-09-22 → 2026-09-25) · 97 commits  
+**Diffstat:** 89 files changed, +16,813 / −1,011  
+
+**Delivered:** Comprehensive shell interaction refinements, notification ergonomics, and system power integrations across Quickshell ii and Hyprland on Arch Linux. Integrated `power-profiles-daemon` into systemd and package manifests, connecting it to Quickshell's power profile quick-toggle with zero local QML overrides. Implemented dynamic coordinate anchoring and screen boundary clamping for `MediaControls.qml` relative to the top status bar's `Media` pill via a clean `GlobalStates` coordinate bridge. Delivered enhanced notification ergonomics in `restow/quickshell/`: an always-visible 'X' close button on sidebar cards, smart body click routing invoking sending application D-Bus default actions with web URL fallback, and QV4-safe regex OTP verification code extraction with a 1-click "Copy [Code]" Material 3 quick-action chip. Restored 10px horizontal breathing room to `ClockWidget.qml` matching adjacent pills, established a single source of truth for the 150% (1.5) volume ceiling across Hyprland keybinds (`custom/keybinds.lua`), Quickshell services (`Config.qml`, `Audio.qml`), and right sidebar slider (`QuickSliders.qml` with 100% stop notch) and mouse scroll. Verified all capabilities under a consolidated automated assertion engine (`scripts/phase41-interactions-assert.sh`) orchestrating all milestone test harnesses with zero working-tree churn and strict repository integrity.
+
+### Key accomplishments
+
+1. Integrated `power-profiles-daemon` system service into Arch Linux, tracked in package manifests (`arch/pkglist-native.txt`, `arch/dots-hyprland.sh`, `bootstrap.sh`), and verified live Quickshell UPower D-Bus binding with strict zero local QML overrides and clean repository integrity (Phase 38 / POWER-01..03).
+2. Dynamic media popup positioning (`MediaControls.qml`) directly beneath the top status bar's `Media` pill across active monitors with robust horizontal screen boundary clamping (`Math.min` / `Math.max`) via `GlobalStates` coordinate bridge and HoverHandler event isolation (Phase 39 / MEDIA-01..02).
+3. Notification Center quick-dismiss and smart routing in `restow/quickshell/`: 1-click 'X' close button on single sidebar cards (`NotificationGroup.qml`), smart body click routing to app D-Bus default action and web links, and QV4-safe regex OTP code extraction with 1-click "Copy [Code]" action chip (`NotificationItem.qml`, `NotificationUtils.qml`) (Phase 40 / NOTIF-01..02, NAV-01..02, OTP-01..02).
+4. Restored 10px horizontal breathing room to status bar clock/date pill (`ClockWidget.qml`) matching adjacent pills, and unified the 150% volume ceiling from a single source of truth (`config.json`) consumed by Hyprland keybinds (`custom/keybinds.lua`), Quickshell audio services (`Config.qml`, `Audio.qml`), right sidebar volume slider (`QuickSliders.qml` with 100% stop notch), and bar mouse scroll (Phase 40.1 / CLOCK-01, VOL-01..02).
+5. Consolidated test runner and regression harness (`scripts/phase41-interactions-assert.sh`) orchestrating all milestone sub-harnesses (Phases 38, 39, 40, 40.1), verifying non-invasive leaf symlinks under `restow/quickshell/`, and asserting strict zero git churn (`arch/dots-hyprland.sh verify --strict` with `FAIL=0 FINDINGS=0`) (Phase 41 / INTG-01..03).
+
+**Known verification overrides:** 0 (all phases verified, 17/17 requirements satisfied, verified closeout)
+
+**Archives:**
+
+- [milestones/v0.8-ROADMAP.md](milestones/v0.8-ROADMAP.md)
+- [milestones/v0.8-REQUIREMENTS.md](milestones/v0.8-REQUIREMENTS.md)
+- [milestones/v0.8-phases/](milestones/v0.8-phases/)
+- [milestones/v0.8-MILESTONE-AUDIT.md](milestones/v0.8-MILESTONE-AUDIT.md)
+
+---
+
 ## v0.7 Voice Status Bar Component & Audio Telemetry (Shipped: 2026-09-21)
 
 **Closeout type:** `override_closeout`  
@@ -25,8 +53,6 @@
 - [milestones/v0.7-ROADMAP.md](milestones/v0.7-ROADMAP.md)
 - [milestones/v0.7-REQUIREMENTS.md](milestones/v0.7-REQUIREMENTS.md)
 - [milestones/v0.7-MILESTONE-AUDIT.md](milestones/v0.7-MILESTONE-AUDIT.md)
-
-
 
 ## v0.6 Top Status Bar Layout, Pill Styling & Component Customization (Shipped: 2026-09-20)
 

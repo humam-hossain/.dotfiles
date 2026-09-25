@@ -1,26 +1,15 @@
 # Quickshell Desktop Shell
 
-## Current Milestone: v0.8 Notification Experience & Shell Interaction Polish
-
-**Goal:** Elevate desktop shell interactions and ergonomics with dynamic media popup anchoring, operational power profile switching, and an upgraded notification experience featuring sidebar quick-close, smart link/app body click, and automated OTP quick-copy.
-
-**Target features:**
-- **Dynamic Media Popup Anchoring**: Dynamically anchor `MediaControls.qml` directly beneath the top bar's `Media` pill across active monitors with safe screen boundary clamping.
-- **Power Profiles Daemon Integration**: Install and enable `power-profiles-daemon`, wire into bootstrap/packages, making the Quickshell power profile quick-toggle operational.
-- **Notification Quick-Close (Right Sidebar Only)**: Provide an always-visible 'X' close button on notification cards strictly in the Right Sidebar for 1-click dismissal without expanding. Toast popups remain clean for hover/timeout.
-- **Smart Notification Body Click & Link Navigation**: Clicking the notification body invokes the app's `default` D-Bus action or extracts and opens links (YouTube, WhatsApp, Chromium) in the default browser.
-- **Smart OTP / 2FA Verification Code Detection**: Regex parser detects verification codes and displays a dedicated "Copy [Code]" quick-action chip directly on the card.
-
 ## Current State
 
-**Shipped:** v0.7 Voice Status Bar Component & Audio Telemetry (2026-09-21)  
-**Status:** All 3 phases of v0.7 (Phases 35–37) complete, 15/15 requirements satisfied, verified, and archived
+**Shipped:** v0.8 Notification Experience & Shell Interaction Polish (2026-09-25)  
+**Status:** All 5 phases of v0.8 (Phases 38–41, including Phase 40.1) complete, 17/17 requirements satisfied, verified, and archived
 
-Desktop shell is fully unified under upstream dots-hyprland Material You / Matugen dynamic theming generated from wallpaper with modular 3-zone rounded-rectangle pill geometry and real-time voice telemetry. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, personal overlays under three-tree capture (`stow/`, `restow/`, `capture/`), guarded theme contracts (`guard-paths.tsv`), and one-command idempotent bootstrap (`./bootstrap.sh`).
+Desktop shell is fully unified under upstream dots-hyprland Material You / Matugen dynamic theming generated from wallpaper with modular 3-zone rounded-rectangle pill geometry, real-time voice telemetry, operational power profile management, dynamic media popup anchoring, refined notification ergonomics (sidebar quick-dismiss, smart body click, regex OTP copy), unified 150% volume ceiling, and 10px clock breathing room. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, personal overlays under three-tree capture (`stow/`, `restow/`, `capture/`), guarded theme contracts (`guard-paths.tsv`), and one-command idempotent bootstrap (`./bootstrap.sh`).
 
-**v0.7 delivered:** Non-blocking voice status bar component and telemetry architecture connecting to the local `voice` speech engine (`faster-whisper` STT and `Kokoro` TTS) via tmpfs IPC state files. Centralized `Voice.qml` Singleton service with adaptive polling, procfs liveness verification, drift-free duration counting, and TTS voice metadata extraction. Dedicated `VoicePill.qml` pill with `graphic_eq` iconography, breathing pulse animation, Sequential Linear Flow state transitions with 1.5s wrap-up linger, fluid 250ms M3 emphasized deceleration width expansion, horizontal and vertical bar integration with responsive multi-monitor adaptation, inert mouse isolation, and dynamic Material You palette adaptation with zero hardcoded hex colors or git churn.
+**v0.8 delivered:** Refined desktop shell interactions and ergonomics across media controls, system power switching, notifications, and audio volume. Dynamic coordinate anchoring and screen boundary clamping for `MediaControls.qml` relative to the top status bar's `Media` pill. `power-profiles-daemon` system service integration enabling Quickshell's quick-toggle with zero local QML overrides. Notification Center quick-dismiss 'X' button on sidebar cards, smart body click routing to application D-Bus default action and web links, and QV4-safe regex OTP code extraction with 1-click "Copy [Code]" Material 3 quick-action chip. Clock pill 10px horizontal breathing room matching adjacent pills. Unified 150% volume ceiling single source of truth across keyboard keybinds, sidebar volume slider (with 100% stop notch), and mouse scroll. Complete automated test harness orchestrating all milestone sub-harnesses with strict zero git churn.
 
-**Stats at v0.7 ship:** 3 phases · 4 plans · 6 tasks · 47 files changed (+9.2k / −62) · 460 LOC QML + 1,767 LOC test harnesses
+**Stats at v0.8 ship:** 5 phases · 9 plans · 26 tasks · 89 files changed (+16.8k / −1.0k) · 97 commits
 
 **Product surface:**
 - Fork: `humam-hossain/dots-hyprland` (upstream = end-4)
@@ -30,8 +19,14 @@ Desktop shell is fully unified under upstream dots-hyprland Material You / Matug
 - Live path: real `~/.config/quickshell` (not symlink into git)
 - Session: ii Lua entry `~/.config/hypr/hyprland.lua` is authoritative (Phase 14) and owns the venv env plus `exec-once = qs -c ii`; personal overrides ride in `~/.config/hypr/custom/`; Waybar, rofi and swaync are retired from the session
 - Theming pipeline: `switchwall.sh` triggers Matugen synchronously for GTK CSS, Hyprland `colors.lua`, Quickshell `colors.json`, Fuzzel `fuzzel_theme.ini`, and Kitty `kitty-theme.conf` (SIGUSR1), plus background `kde-material-you-colors` for Qt/KDE `kdeglobals`. All outputs guarded via `guard-paths.tsv` with zero working tree drift.
-- Personal bar overlays: `restow/quickshell/` deployed via GNU Stow leaf symlinks to `~/.config/quickshell/ii/` without touching `vendor/dots-hyprland`.
+- Personal bar & shell overlays: `restow/quickshell/` deployed via GNU Stow leaf symlinks to `~/.config/quickshell/ii/` without touching `vendor/dots-hyprland`.
+- Media Controls: `MediaControls.qml` dynamic coordinate anchoring beneath top bar `Media` pill with screen boundary clamping.
+- Power Management: `power-profiles-daemon` system service enabled and bound to Quickshell `PowerProfilesToggle.qml` with zero local QML overrides.
+- Notifications: 1-click 'X' close button on sidebar cards, smart body click routing (D-Bus default action + browser URL fallback), and regex OTP verification code extraction with Material 3 "Copy [Code]" quick-action chip.
+- Volume ceiling: Unified 150% volume ceiling single source of truth across `config.json`, `custom/keybinds.lua`, and Quickshell `Audio.qml` / `QuickSliders.qml`.
+- Clock pill: Restored 10px horizontal breathing room in `ClockWidget.qml` matching adjacent bar pills.
 - Voice telemetry: `Voice.qml` Singleton service observing `$XDG_RUNTIME_DIR/voice-stt/` tmpfs state files; `VoicePill.qml` in Right zone after Media with vertical bar support.
+- Verification & Test Harness: `scripts/phase41-interactions-assert.sh` orchestrating all milestone sub-harnesses with strict zero git churn.
 - Rollback: clean reinstall from the pinned `vendor/dots-hyprland` submodule; runbook `docs/phase14-adopt-runbook.md` §14
 - Playbook: `docs/dots-hyprland-workflow.md`
 - Inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`
@@ -39,6 +34,24 @@ Desktop shell is fully unified under upstream dots-hyprland Material You / Matug
 - Guard Paths: `guard-paths.tsv` (machine-asserted)
 
 ## Prior Milestones
+
+<details>
+<summary>v0.8 Notification Experience & Shell Interaction Polish (shipped 2026-09-25)</summary>
+
+**Goal:** Elevate desktop shell interactions and ergonomics with dynamic media popup anchoring, operational power profile switching, upgraded notification experience featuring sidebar quick-close, smart link/app body click, automated OTP quick-copy, clock padding, and unified volume ceiling.
+
+**Shipped features:**
+- Operational `power-profiles-daemon` systemd service integration and package manifests updates for Quickshell quick-toggle with zero local QML overrides
+- Dynamic `MediaControls.qml` positioning directly beneath status bar `Media` pill across active monitors with screen boundary clamping
+- Single notification 1-click 'X' close button on sidebar cards (`NotificationGroup.qml`) without expanding
+- Smart notification body click routing to sending app's D-Bus `default` action or opening extracted URLs in default browser
+- QV4-compatible regex OTP verification code extraction in `NotificationUtils.qml` with Material 3 "Copy [Code]" quick-action chip on `NotificationItem.qml`
+- Status bar clock pill (`ClockWidget.qml`) 10px horizontal breathing room matching adjacent pills
+- Desktop-wide 150% volume ceiling single source of truth (`config.json`) bound across `custom/keybinds.lua`, `Config.qml`, `Audio.qml`, right sidebar slider (`QuickSliders.qml` with 100% stop notch), and mouse scroll
+- Non-invasive leaf symlink overlay topology under `restow/quickshell/` keeping `vendor/dots-hyprland` pristine
+- Consolidated automated test harness `scripts/phase41-interactions-assert.sh` orchestrating all 4 milestone sub-harnesses and verifying repository cleanliness (`FAIL=0 FINDINGS=0`)
+
+</details>
 
 <details>
 <summary>v0.7 Voice Status Bar Component & Audio Telemetry (shipped 2026-09-21)</summary>
@@ -296,6 +309,9 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ **NAV-02**: Notification URL extraction parses links from Chromium notifications (`<a href="...">`), YouTube, WhatsApp, and raw URLs in body, opening them in default browser — Phase 40
 - ✓ **OTP-01**: Regex parser in `NotificationUtils.qml` scans incoming notification text for 4–8 digit verification codes anchored to security keywords — Phase 40
 - ✓ **OTP-02**: Notification card in `NotificationItem.qml` renders a prominent "Copy [Code]" quick-action chip that copies extracted code to clipboard with visual confirmation — Phase 40
+- ✓ **CLOCK-01**: Top status bar clock/date pill provides comfortable horizontal padding matching adjacent pills while retaining custom second precision and full date string formatting — Phase 40.1
+- ✓ **VOL-01**: Single source of truth defines desktop-wide volume ceiling (150% / 1.5) consumed consistently across Hyprland keybinds and Quickshell services without hardcoded magic numbers — Phase 40.1
+- ✓ **VOL-02**: Right sidebar volume slider and mouse scroll volume increments allow reaching the 150% upper ceiling defined by single source of truth — Phase 40.1
 - ✓ **INTG-01**: All QML modifications deployed via `restow/quickshell/` leaf symlinks without modifying `vendor/dots-hyprland` — Phase 41
 - ✓ **INTG-02**: Automated test harness suite and regression checks pass with 0 failures across all milestone features — Phase 41
 - ✓ **INTG-03**: `arch/dots-hyprland.sh verify --strict` passes with 0 findings and zero git churn — Phase 41
@@ -481,6 +497,9 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 40: In-scope GlobalStates resolution via import qs | Added `import qs` to `NotificationGroup.qml` to ensure `GlobalStates.sidebarRightOpen` resolves without ReferenceError during activation | ✓ Section 2 FAIL=0 |
 | Phase 40: Icon-free Material 3 OTP quick-action chip | Text-only "Copy [Code]" pill chip with 1500ms "Copied!" confirmation copying directly to `Quickshell.clipboardText` without decorative icons (D-08, D-09, T-40-02, OTP-02) | ✓ Section 2 FAIL=0 |
 | Phase 40: Non-invasive leaf symlink overlay | Deployed entirely under `restow/quickshell/` without modifying `vendor/dots-hyprland`, verified with strict zero-churn gate (D-10, INTG-01) | ✓ Section 1, 5 FAIL=0 |
+| Phase 40.1: ClockWidget horizontal breathing room | Applied 5px horizontal margins on RowLayout plus 5px container padding for 10px breathing room matching adjacent pills (D-01, CLOCK-01) | ✓ Section 1 FAIL=0, CLOCK-01 |
+| Phase 40.1: Desktop-wide volume ceiling single source of truth | Defined "volumeCeiling": 1.5 in config.json and consumed dynamically in custom/keybinds.lua, Config.qml, and Audio.qml (D-02..D-04, VOL-01) | ✓ Section 2 FAIL=0, VOL-01 |
+| Phase 40.1: Dynamic slider binding with 100% stop notch | Bound QuickSliders.qml to Audio.maxVolume with stopIndicatorValues: [1.0] and true percentage tooltip (D-05, VOL-02) | ✓ Section 3 FAIL=0, VOL-02 |
 | Phase 41: Consolidated assertion engine orchestrating sub-harnesses | `scripts/phase41-interactions-assert.sh` orchestrates all 4 milestone sub-harnesses (Phases 38, 39, 40, 40.1) under fail-closed gates with live notification and zero working-tree churn | ✓ Section 6 FAIL=0, INTG-01..03 |
 | Phase 41: Non-destructive D-Bus testing and atomic rollback | `power-profiles-daemon` D-Bus transitions tested with signal trap rollback to active profile, preventing system power regression | ✓ Section 2 FAIL=0, POWER-01..03 |
 | Phase 41: Deterministic coordinate clamping & OTP VM simulation | Headless Node.js VM assertions verify 10 multi-monitor boundary test cases and 19-case OTP extraction matrix across diverse locales | ✓ Section 3, 4 FAIL=0 |
@@ -503,6 +522,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-25 after Phase 41 (End-to-End Verification & Repository Integrity)*
+*Last updated: 2026-09-25 after v0.8 milestone*
+
 
 
