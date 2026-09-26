@@ -1,5 +1,5 @@
 ---
-status: complete
+status: diagnosed
 phase: 43-cpu-gpu-component-pill-popup
 source:
   - 43-01-SUMMARY.md
@@ -9,7 +9,7 @@ source:
   - 43-05-SUMMARY.md
   - 43-06-SUMMARY.md
 started: 2026-09-26T12:24:00+06:00
-updated: 2026-09-26T16:07:45+06:00
+updated: 2026-09-26T16:12:30+06:00
 ---
 
 ## Current Test
@@ -139,5 +139,15 @@ skipped: 0
   reason: "User reported: 1) High GPU/CPU resource usage (30-40% GPU) when popup is open; optimize polling and rendering overhead. 2) Check render clock reading accuracy (showing 0-15 MHz during 30-40% load). 3) Remove redundant EPP button entirely. 4) Platform sensors font size should decrease to match CPU cores, arranged cleanly with labels on left and °C on right."
   severity: major
   test: 5
-  artifacts: []
-  missing: []
+  root_cause: "20 concurrent StyledProgressBar animations in ThreadMeter force continuous 60fps scene graph repaints causing high GPU usage; gt_act_freq_mhz drops to 0 on RC6 sleep instead of reading gt_cur_freq_mhz; redundant EPP button in popup; 2-column platform sensor layout lacks consistent row alignment and smaller font size."
+  artifacts:
+    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/bar/CpuGpuPopup.qml"
+      issue: "Heavy StyledProgressBar in ThreadMeter; redundant eppButton; 2-column platform sensor grid"
+    - path: "restow/quickshell/.config/quickshell/ii/services/HardwareTelemetry.qml"
+      issue: "Reads gt_act_freq_mhz which fluctuates to 0 instead of gt_cur_freq_mhz"
+  missing:
+    - "Replace ThreadMeter StyledProgressBar with zero-animation static Rectangle bar"
+    - "Remove EPP button from CpuGpuPopup.qml"
+    - "Reorganize 6 platform sensors into clean rows with smaller typography matching CPU cores"
+    - "Read gt_cur_freq_mhz or fallback from gt_act_freq_mhz when 0"
+  debug_session: .planning/debug/phase43-telemetry-ui-gaps-v3.md
