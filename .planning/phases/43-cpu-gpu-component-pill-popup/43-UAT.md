@@ -1,13 +1,14 @@
 ---
-status: diagnosed
+status: complete
 phase: 43-cpu-gpu-component-pill-popup
 source:
   - 43-01-SUMMARY.md
   - 43-02-SUMMARY.md
   - 43-03-SUMMARY.md
   - 43-04-SUMMARY.md
-started: 2026-09-26T09:43:00+06:00
-updated: 2026-09-26T10:50:00+06:00
+  - 43-05-SUMMARY.md
+started: 2026-09-26T12:24:00+06:00
+updated: 2026-09-26T13:20:00+06:00
 ---
 
 ## Current Test
@@ -16,10 +17,10 @@ updated: 2026-09-26T10:50:00+06:00
 
 ## Tests
 
-### 1. Top Bar CPU/GPU Pill Readout
-expected: The top status bar pill displays live CPU load % and package temp °C alongside Intel UHD 770 GPU load % with distinct Material Symbols icons ('planner_review' for CPU, 'speed' for GPU).
+### 1. Top Bar CPU/GPU Pill Readout & Circular Meters
+expected: The top status bar pill displays live CPU load % and package temp °C alongside Intel UHD 770 GPU load % with distinct Material Symbols icons ('planner_review' for CPU, 'sports_esports' for GPU). Both icons are framed by circular progress percentage indicator rings (ClippedFilledCircularProgress) matching legacy styling. Values are non-zero (temp ~30-40°C, GPU load matches activity).
 result: issue
-reported: "ok we have some issues so now it is showing first a CPU icon then the percentage of the load and then the temperature in Celsius and then the GPU icon, I don't like the GPU icon so it has to change then the percentage of the GPU load but the problem is the CPU percentage is working I checked with vtop, it is matching with it but the temperature is showing 0 degree Celsius which should be 33-34 degree Celsius and the next thing is the GPU percentage load percentage is not accurate either it is showing, it is currently 30-40 around 30-40% load but it is showing 0% load, so that is the issue"
+reported: "yeah everything is showing fine but I think for the the pulsing motion it is not present when the when the load spikes it's not present when CPU load is high or the GPU load is high I think it's not it's not also the temperature does not change like it doesn't change color I think it should have some more thresholds and like that like to like throw so it needs also thresholds for coloring and also yes the the GPU has like a sky blue type of color when it is like 76% I don't know why that is the case it shouldn't be it should be the like the warning color the red color something like that like the dots hyperlend the color from the palette of the color the warning or critical those kind of colors should be"
 severity: major
 
 ### 2. Popup Hover Transit & Grace Bridge
@@ -30,82 +31,66 @@ result: pass
 expected: The popup smoothly slides down and fades in (150ms M3 entrance transition) and is clamped within the visible screen boundaries with gap offsets, never overflowing off-screen.
 result: pass
 
-### 4. CPU Inspector & Segregated Core Meters
-expected: The left column of the popup displays overall CPU load, package temperature, scaling governor, unprivileged power fallback ('N/A (unprivileged)'), and segregated progress meters for 12 P-core threads and 8 E-core threads with active MHz clock speeds.
+### 4. CPU Inspector: P/E Core Breakdown & Temperatures
+expected: The left column of the popup displays symmetric padding around content, overall CPU load %, package temp °C, P-core and E-core average temperatures, scaling governor, unprivileged power fallback ('N/A (unprivileged)'), and segregated progress meters listing all 12 individual P-core threads (C0-C11) and 8 individual E-core threads (C12-C19) with active MHz clock speeds and thread load.
 result: issue
-reported: "popup missing top/left padding; 0 MHz clock speeds; package temp 0°C; requested individual core listings under P-cores and E-cores with per-core MHz/load and P/E average temps; GPU icon change to 'sports_esports'"
+reported: "P-core/E-core average temperature text is overlapping due to width; remove redundant standalone package temp and P/E average rows; reorganize hierarchy into [MHz] [Load %] [Temp °C] across overall CPU, P-cores, E-cores and individual threads; widen popup; ensure warning/critical colors are applied to temperatures and percentages; investigate resource overhead (GPU showing 70-80% on bar vs 33-34% in btop, and CPU spiking to 5% when popup is open)"
 severity: major
 
-### 5. GPU & Motherboard Platform Telemetry
-expected: The right column displays Intel UHD 770 GPU load %, render clock MHz, thermal throttle badge ('Normal' or 'Throttling'), Gigabyte B760 VRM temperature, and Energy Performance Preference (EPP).
+### 5. GPU Inspector, 6 Motherboard Sensors & Power Profile Switcher
+expected: The right column displays Intel UHD 770 GPU load %, render clock MHz, thermal throttle badge ('Normal' or 'Throttling'), all 6 Gigabyte B760 platform sensor temperatures plus average platform temperature, and an interactive power profile switcher button that cycles through power-saver, balanced, and performance profiles via powerprofilesctl.
 result: issue
-reported: "ok so lets the right section the right section has the issue of IGPU load is 0% it should be around 30 to 35% right render clock 0Mhz showing 0Mhz thermal throttle normal platform ok then makes the platform be 760 vrm temperature 0C not showing full I think when I give you the like the chart right of the board temperatures lets if I look at sensors yeah like there should be 6 temperature yes you should show me the average platform temperature also the 6 all 6 temperature that should be there ok then next EPP balance performance ok can I change the balance performance thing I don't know like the governor is power save but EPP is balance performance why it is not like power save like when I'm using power profiles it is set to power save mode I think yes so it's not changing it to like EPP can I control it can I not control it let me know"
+reported: "GPU unhovered spikes to 70-80% on pill but drops to 30-37% (matching btop) when popup opens; all temperatures/sensors need unified warning/critical threshold colors; platform 6 sensors font is too small and style is not eye-catching; replace muted gray text color with crisp white/on-layer color"
 severity: major
 
 ### 6. Alert Thresholds & Critical Breathing Pulse
 expected: Under normal load, pill text/icons resolve to standard layer colors. Elevated loads/thermals tint amber (70%/75°C warning) or red (90%/85°C critical) using Material You dynamic color tokens. Under critical red, a breathing pulse animation gently modulates icon opacity and resets to 1.0 when load normalizes.
-result: pass
+result: issue
+reported: "Icon breathing pulse is too subtle because it is inside the circle ring; text (percentage, temperature) and GPU in pill also need to pulse when critical; and critical elements inside the popup should also have the consistent breathing pulse effect"
+severity: minor
 
 ## Summary
 
 total: 6
-passed: 3
-issues: 3
+passed: 2
+issues: 4
 pending: 0
 skipped: 0
 
 ## Gaps
 
 - gap_id: G-43-1
-  truth: "The top status bar pill displays live CPU load % and package temp °C alongside Intel UHD 770 GPU load % with distinct Material Symbols icons ('planner_review' for CPU, 'speed' for GPU)."
+  truth: "The top status bar pill displays live CPU load % and package temp °C alongside Intel UHD 770 GPU load % with distinct Material Symbols icons ('planner_review' for CPU, 'sports_esports' for GPU). Both icons are framed by circular progress percentage indicator rings (ClippedFilledCircularProgress) matching legacy styling. Values are non-zero (temp ~30-40°C, GPU load matches activity)."
   status: failed
-  reason: "User reported: CPU package temp reads 0°C instead of ~34°C; GPU load reads 0% instead of active 30-40%; change GPU icon to 'sports_esports'; add circular progress percentage rings around CPU and GPU icons matching legacy Resources style"
+  reason: "User reported: pulsing motion not working when CPU/GPU load is high; temperature does not change color with thresholds; GPU circular meter or text has sky blue color at 76% instead of dots-hyprland warning/critical palette color"
   severity: major
   test: 1
-  root_cause: "TypeError matchAll in HardwareTelemetry.qml halts pollAll() before updateGpuMetrics() and updateThermals() execute; CpuGpuPill lacks circular progress arcs and uses 'speed' icon instead of 'sports_esports'"
-  artifacts:
-    - path: "restow/quickshell/.config/quickshell/ii/services/HardwareTelemetry.qml"
-      issue: "matchAll is not supported in QML JS engine, throwing TypeError and aborting polling loop"
-    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/bar/CpuGpuPill.qml"
-      issue: "Uses 'speed' icon; lacks circular progress rings around icons"
-  missing:
-    - "Replace matchAll with standard regex loop in HardwareTelemetry.qml"
-    - "Change GPU icon in CpuGpuPill.qml to 'sports_esports'"
-    - "Add circular progress percentage indicators around CPU and GPU icons in CpuGpuPill.qml"
-  debug_session: .planning/debug/cpu-gpu-telemetry-and-ui-gaps.md
+  artifacts: []
+  missing: []
 
 - gap_id: G-43-4
-  truth: "The left column of the popup displays overall CPU load, package temperature, scaling governor, unprivileged power fallback ('N/A (unprivileged)'), and segregated progress meters for 12 P-core threads and 8 E-core threads with active MHz clock speeds."
+  truth: "The left column of the popup displays overall CPU load %, package temp °C, P-core and E-core average temperatures, scaling governor, unprivileged power fallback ('N/A (unprivileged)'), and segregated progress meters listing all 12 individual P-core threads (C0-C11) and 8 individual E-core threads (C12-C19) with active MHz clock speeds and thread load."
   status: failed
-  reason: "User reported: popup container missing top and left padding; 0 MHz clock speeds (TypeError matchAll in HardwareTelemetry); package temp 0°C; requested individual core listings under P-cores and E-cores with per-core MHz/load and P/E average temps; GPU icon change to 'sports_esports'"
+  reason: "User reported: 1) Overlap in P-core/E-core average temperature text due to constrained column width; widen popup container. 2) Eliminate redundant standalone Package Temp and P/E Avg lines. 3) Unify format to [MHz] [Load %] [Temp °C] followed by bar across overall CPU, P-core group & individual threads, and E-core group & individual threads. 4) Apply dynamic threshold colors (warning/critical) to temperatures and percentages. 5) Investigate resource overhead (GPU showing 70-80% on bar vs 33-34% in btop, CPU spiking to 5% when popup opens)."
   severity: major
   test: 4
-  root_cause: "CpuGpuPopup layout lacks top/left padding; frequencies empty due to matchAll error; core meters only aggregated rather than detailing all 12 P-core threads and 8 E-core threads with live MHz and P/E average temperatures"
-  artifacts:
-    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/bar/CpuGpuPopup.qml"
-      issue: "Missing top/left padding; lacks detailed list of all 20 individual core threads and P/E average temps"
-    - path: "restow/quickshell/.config/quickshell/ii/services/HardwareTelemetry.qml"
-      issue: "Does not expose P-core and E-core average temperatures"
-  missing:
-    - "Add symmetric padding to CpuGpuPopup container"
-    - "Render individual core meters for 12 P-core threads and 8 E-core threads with MHz readout"
-    - "Compute and display average P-core and E-core temperatures"
-  debug_session: .planning/debug/cpu-gpu-telemetry-and-ui-gaps.md
+  artifacts: []
+  missing: []
 
 - gap_id: G-43-5
-  truth: "The right column displays Intel UHD 770 GPU load %, render clock MHz, thermal throttle badge ('Normal' or 'Throttling'), Gigabyte B760 VRM temperature, and Energy Performance Preference (EPP)."
+  truth: "The right column displays Intel UHD 770 GPU load %, render clock MHz, thermal throttle badge ('Normal' or 'Throttling'), all 6 Gigabyte B760 platform sensor temperatures plus average platform temperature, and an interactive power profile switcher button that cycles through power-saver, balanced, and performance profiles via powerprofilesctl."
   status: failed
-  reason: "User reported: iGPU load 0% (expected 30-35%); render clock 0 MHz; platform VRM temp 0°C; requested average platform temp and all 6 platform temps from gigabyte_wmi sensors; EPP showed balance_performance instead of active power-saver (sysfs 'power'); requested interactive EPP switching"
+  reason: "User reported: 1) GPU load calculation discrepancy (spikes to 70-80% on pill when unhovered, normalizes to 30-37% when hovered/opened). 2) All temperatures and platform sensors need unified threshold coloring (warning and critical colors from palette). 3) Platform sensors font size too small and styling lacks visual appeal; increase size to match CPU cores and modernize layout. 4) Avoid muted gray text, use crisp white/colOnLayer1 colors."
   severity: major
   test: 5
-  root_cause: "updateGpuMetrics and updateGovernors blocked by matchAll error; HardwareTelemetry only binds 1 VRM sensor instead of all 6 gigabyte_wmi sensors; EPP is static readout without interactive switching via powerprofilesctl"
-  artifacts:
-    - path: "restow/quickshell/.config/quickshell/ii/services/HardwareTelemetry.qml"
-      issue: "Only reads temp1_input for VRM; misses temp2-temp6 inputs from gigabyte_wmi"
-    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/bar/CpuGpuPopup.qml"
-      issue: "Lacks readout for all 6 platform sensors + average platform temp; EPP is not interactive"
-  missing:
-    - "Bind all 6 gigabyte_wmi sensors and expose platformTemps + platformTempAvg in HardwareTelemetry.qml"
-    - "Display all 6 platform sensors and average temp in CpuGpuPopup.qml"
-    - "Add interactive power-profile switcher to toggle EPP / powerprofilesctl"
-  debug_session: .planning/debug/cpu-gpu-telemetry-and-ui-gaps.md
+  artifacts: []
+  missing: []
+
+- gap_id: G-43-6
+  truth: "Under normal load, pill text/icons resolve to standard layer colors. Elevated loads/thermals tint amber (70%/75°C warning) or red (90%/85°C critical) using Material You dynamic color tokens. Under critical red, a breathing pulse animation gently modulates icon opacity and resets to 1.0 when load normalizes."
+  status: failed
+  reason: "User reported: Icon breathing pulse is too subtle within circle ring; animate text (percentage, temperature) and GPU in pill with breathing pulse when critical; extend breathing pulse effect to critical elements inside the popup"
+  severity: minor
+  test: 6
+  artifacts: []
+  missing: []
