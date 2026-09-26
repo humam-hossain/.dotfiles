@@ -2,38 +2,38 @@
 gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
-current_phase: 43
-current_phase_name: cpu-gpu-component-pill-popup
-status: executing
-stopped_at: Phase 43 context gathered
-last_updated: "2026-09-26T02:38:38.797Z"
-last_activity: 2026-09-25
-last_activity_desc: Phase 42 complete, transitioned to Phase 43
-state_head: 2f5a102bf1367fc5c8d7c1db9d2e2820d7f7cfaf
+current_phase: 44
+current_phase_name: Memory & Storage Component (Pill & Popup)
+status: planning
+stopped_at: Phase 43 complete, ready to plan Phase 44
+last_updated: "2026-09-26T02:51:19.198Z"
+last_activity: 2026-09-26
+last_activity_desc: Phase 43 complete, transitioned to Phase 44
+state_head: 8179b46d10acf93d828e066e7b740c3a5d6ccd0d
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 4
-  percent: 20
+  completed_plans: 7
+  percent: 40
 ---
 
 Total Phases: 5 (Phases 42–46)
-Progress: [░░░░░░░░░░] 0/5 phases ([██░░░░░░░░] 20%)
+Progress: [░░░░░░░░░░] 0/5 phases ([████░░░░░░] 40%)
 
 # Project State
 
 ## Current Position
 
-Phase: 43 (cpu-gpu-component-pill-popup) — READY TO EXECUTE
+Phase: 44 — Memory & Storage Component (Pill & Popup)
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-25 — Phase 42 complete, transitioned to Phase 43
+Status: Ready to plan
+Last activity: 2026-09-26 — Phase 43 complete, transitioned to Phase 44
 
 ## Session
 
 **Last session:** 2026-09-25T18:04:13.008Z
-**Stopped at:** Phase 43 context gathered
+**Stopped at:** Phase 43 complete, ready to plan Phase 44
 **Resume file:** .planning/phases/43-cpu-gpu-component-pill-popup/43-CONTEXT.md
 
 ## Project Reference
@@ -41,7 +41,7 @@ Last activity: 2026-09-25 — Phase 42 complete, transitioned to Phase 43
 See: .planning/PROJECT.md (updated 2026-09-25 for v0.9 milestone start)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 42 — Telemetry Services & Sensor Infrastructure
+**Current focus:** Phase 43 — CPU & GPU Component (Pill & Popup)
 
 ## Deferred Items
 

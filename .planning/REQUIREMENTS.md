@@ -9,10 +9,10 @@ Scoped requirements for Milestone v0.9 (Top Status Bar Resource Components & Har
 
 ### CPU & GPU Telemetry
 
-- [ ] **CPUGPU-01**: Bar pill displays live CPU usage % and GPU usage % with Material Symbols icons (`planner_review`, `speed`) and 250ms M3 emphasized deceleration width resizing.
-- [ ] **CPUGPU-02**: CPU popup inspector displays overall load %, package temperature (°C via `/sys/class/hwmon/hwmon5/temp1_input`), power draw in Watts (RAPL `/sys/class/powercap/intel-rapl` with unprivileged fallback placeholder), and clock frequencies (MHz).
-- [ ] **CPUGPU-03**: GPU popup inspector displays Intel iGPU load % (via RC6 residency delta), average load, active clock frequency (MHz via `rps_act_freq_mhz`), and temperature.
-- [ ] **CPUGPU-04**: Synchronized two-tier alert coloring (Amber warning at 70%, Red critical at 90%) across icons, text badges, and popup headers.
+- [x] **CPUGPU-01**: Bar pill displays live CPU usage % and GPU usage % with Material Symbols icons (`planner_review`, `speed`) and 250ms M3 emphasized deceleration width resizing.
+- [x] **CPUGPU-02**: CPU popup inspector displays overall load %, package temperature (°C via `/sys/class/hwmon/hwmon5/temp1_input`), power draw in Watts (RAPL `/sys/class/powercap/intel-rapl` with unprivileged fallback placeholder), and clock frequencies (MHz).
+- [x] **CPUGPU-03**: GPU popup inspector displays Intel iGPU load % (via RC6 residency delta), average load, active clock frequency (MHz via `rps_act_freq_mhz`), and temperature.
+- [x] **CPUGPU-04**: Synchronized two-tier alert coloring (Amber warning at 70%, Red critical at 90%) across icons, text badges, and popup headers.
 
 ### Memory & Storage Telemetry
 
@@ -62,10 +62,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CPUGPU-01 | Phase 43 | Pending |
-| CPUGPU-02 | Phase 43 | Pending |
-| CPUGPU-03 | Phase 43 | Pending |
-| CPUGPU-04 | Phase 43 | Pending |
+| CPUGPU-01 | Phase 43 | Complete |
+| CPUGPU-02 | Phase 43 | Complete |
+| CPUGPU-03 | Phase 43 | Complete |
+| CPUGPU-04 | Phase 43 | Complete |
 | MEMDSK-01 | Phase 44 | Pending |
 | MEMDSK-02 | Phase 44 | Pending |
 | MEMDSK-03 | Phase 44 | Pending |
