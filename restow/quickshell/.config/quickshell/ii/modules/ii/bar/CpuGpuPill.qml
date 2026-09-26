@@ -16,20 +16,21 @@ BarGroup {
     readonly property alias hoverArea: inertMouseArea
 
     // Two-tier alert state thresholds (D-09, D-10)
-    // Warning: >= 70% load or >= 75°C; Critical: >= 90% load or >= 85°C
-    readonly property bool cpuCritical: (HardwareTelemetry.overallCpuLoad || 0.0) >= 0.90 || (HardwareTelemetry.packageTemp || 0) >= 85
-    readonly property bool cpuWarning: !cpuCritical && ((HardwareTelemetry.overallCpuLoad || 0.0) >= 0.70 || (HardwareTelemetry.packageTemp || 0) >= 75)
+    // Multi-tier temperature color thresholds (warning >= 65°C, critical >= 80°C)
+    readonly property bool tempCritical: (HardwareTelemetry.packageTemp || 0) >= 80
+    readonly property bool tempWarning: !tempCritical && (HardwareTelemetry.packageTemp || 0) >= 65
 
-    readonly property bool tempCritical: (HardwareTelemetry.packageTemp || 0) >= 85
-    readonly property bool tempWarning: !tempCritical && (HardwareTelemetry.packageTemp || 0) >= 75
+    readonly property bool cpuCritical: (HardwareTelemetry.overallCpuLoad || 0.0) >= 0.90 || tempCritical
+    readonly property bool cpuWarning: !cpuCritical && ((HardwareTelemetry.overallCpuLoad || 0.0) >= 0.70 || tempWarning)
 
     readonly property bool gpuCritical: (HardwareTelemetry.gpuLoad || 0.0) >= 0.90
     readonly property bool gpuWarning: !gpuCritical && (HardwareTelemetry.gpuLoad || 0.0) >= 0.70
 
-    // Dynamic Material You token resolution (zero hardcoded hex colors per D-11)
-    readonly property color cpuColor: cpuCritical ? Appearance.colors.colError : (cpuWarning ? Appearance.colors.colTertiary : Appearance.colors.colOnLayer1)
-    readonly property color tempColor: tempCritical ? Appearance.colors.colError : (tempWarning ? Appearance.colors.colTertiary : Appearance.colors.colOnLayer1)
-    readonly property color gpuColor: gpuCritical ? Appearance.colors.colError : (gpuWarning ? Appearance.colors.colTertiary : Appearance.colors.colOnLayer1)
+    // Dynamic Material You token resolution with dots-hyprland amber warning color fallback
+    readonly property color warningColor: Appearance.colors.colWarning !== undefined ? Appearance.colors.colWarning : "#FFA000"
+    readonly property color cpuColor: cpuCritical ? Appearance.colors.colError : (cpuWarning ? warningColor : Appearance.colors.colOnLayer1)
+    readonly property color tempColor: tempCritical ? Appearance.colors.colError : (tempWarning ? warningColor : Appearance.colors.colOnLayer1)
+    readonly property color gpuColor: gpuCritical ? Appearance.colors.colError : (gpuWarning ? warningColor : Appearance.colors.colOnLayer1)
 
     // Re-parented inert MouseArea (D-17, Pitfall 1)
     MouseArea {
@@ -83,20 +84,24 @@ BarGroup {
                     id: cpuPulseAnimation
                     running: root.cpuCritical
                     loops: Animation.Infinite
-                    onRunningChanged: { if (!running) cpuIcon.opacity = 1.0; }
-                    NumberAnimation {
-                        target: cpuIcon
-                        property: "opacity"
-                        to: 0.6
-                        duration: 600
-                        easing.type: Easing.InOutSine
+                    onRunningChanged: { if (!running) cpuIcon.opacity = 1.0;
+                        if (!running) {
+                            cpuCircProg.opacity = 1.0;
+                            cpuText.opacity = 1.0;
+                            tempText.opacity = 1.0;
+                        }
                     }
-                    NumberAnimation {
-                        target: cpuIcon
-                        property: "opacity"
-                        to: 1.0
-                        duration: 600
-                        easing.type: Easing.InOutSine
+                    ParallelAnimation {
+                        NumberAnimation { target: cpuIcon; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { target: cpuCircProg; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { target: cpuText; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { target: tempText; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+                    }
+                    ParallelAnimation {
+                        NumberAnimation { target: cpuIcon; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { target: cpuCircProg; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { target: cpuText; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { target: tempText; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
                     }
                 }
             }
@@ -173,20 +178,21 @@ BarGroup {
                     id: gpuPulseAnimation
                     running: root.gpuCritical
                     loops: Animation.Infinite
-                    onRunningChanged: { if (!running) gpuIcon.opacity = 1.0; }
-                    NumberAnimation {
-                        target: gpuIcon
-                        property: "opacity"
-                        to: 0.6
-                        duration: 600
-                        easing.type: Easing.InOutSine
+                    onRunningChanged: { if (!running) gpuIcon.opacity = 1.0;
+                        if (!running) {
+                            gpuCircProg.opacity = 1.0;
+                            gpuText.opacity = 1.0;
+                        }
                     }
-                    NumberAnimation {
-                        target: gpuIcon
-                        property: "opacity"
-                        to: 1.0
-                        duration: 600
-                        easing.type: Easing.InOutSine
+                    ParallelAnimation {
+                        NumberAnimation { target: gpuIcon; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { target: gpuCircProg; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { target: gpuText; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+                    }
+                    ParallelAnimation {
+                        NumberAnimation { target: gpuIcon; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { target: gpuCircProg; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { target: gpuText; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
                     }
                 }
             }

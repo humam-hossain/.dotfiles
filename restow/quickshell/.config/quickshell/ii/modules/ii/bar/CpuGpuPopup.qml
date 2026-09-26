@@ -26,22 +26,43 @@ StyledPopup {
         }
     }
 
-    // Alert threshold color mappings (D-10, D-11)
-    readonly property color cpuLoadColor: (HardwareTelemetry.overallCpuLoad || 0.0) >= 0.90 ? Appearance.colors.colError : ((HardwareTelemetry.overallCpuLoad || 0.0) >= 0.70 ? Appearance.colors.colTertiary : Appearance.colors.colPrimary)
-    readonly property color gpuLoadColor: (HardwareTelemetry.gpuLoad || 0.0) >= 0.90 ? Appearance.colors.colError : ((HardwareTelemetry.gpuLoad || 0.0) >= 0.70 ? Appearance.colors.colTertiary : Appearance.colors.colPrimary)
+    // Alert threshold color mappings (D-10, D-11) with dots-hyprland amber warning color fallback
+    readonly property color warningColor: Appearance.colors.colWarning !== undefined ? Appearance.colors.colWarning : "#FFA000"
+
+    function getLoadColor(val) {
+        if (val >= 0.90) return Appearance.colors.colError;
+        if (val >= 0.70) return root.warningColor;
+        return Appearance.colors.colPrimary;
+    }
+
+    function getTempColor(temp) {
+        if (temp >= 80) return Appearance.colors.colError;
+        if (temp >= 65) return root.warningColor;
+        return Appearance.colors.colOnLayer1;
+    }
+
+    readonly property color cpuLoadColor: getLoadColor(HardwareTelemetry.overallCpuLoad || 0.0)
+    readonly property color gpuLoadColor: getLoadColor(HardwareTelemetry.gpuLoad || 0.0)
+
+    property real criticalPulseOpacity: 1.0
 
     // Reusable progress meter row sub-component
     component MetricProgressRow: ColumnLayout {
         id: meterRow
         property string title: ""
-        property string subtitle: ""
+        property string mhzText: ""
+        property string subtitle: mhzText
         property real value: 0.0
+        property string tempText: ""
         property color barColor: Appearance.colors.colPrimary
+        property color tempColor: Appearance.colors.colOnLayer1
+        property bool isCritical: false
         spacing: 2
         Layout.fillWidth: true
 
         RowLayout {
             Layout.fillWidth: true
+            spacing: 6
             StyledText {
                 text: meterRow.title
                 font.pixelSize: Appearance.font.pixelSize.smaller
@@ -49,7 +70,8 @@ StyledPopup {
             }
             Item { Layout.fillWidth: true }
             StyledText {
-                text: meterRow.subtitle
+                visible: (meterRow.mhzText.length > 0 || meterRow.subtitle.length > 0)
+                text: meterRow.mhzText.length > 0 ? meterRow.mhzText : meterRow.subtitle
                 font.pixelSize: Appearance.font.pixelSize.smaller
                 color: Appearance.colors.colSubtext
             }
@@ -58,6 +80,15 @@ StyledPopup {
                 font.pixelSize: Appearance.font.pixelSize.smaller
                 font.weight: Font.DemiBold
                 color: meterRow.barColor
+                opacity: meterRow.isCritical ? root.criticalPulseOpacity : 1.0
+            }
+            StyledText {
+                visible: meterRow.tempText.length > 0
+                text: meterRow.tempText
+                font.pixelSize: Appearance.font.pixelSize.smaller
+                font.weight: Font.DemiBold
+                color: meterRow.tempColor
+                opacity: meterRow.isCritical ? root.criticalPulseOpacity : 1.0
             }
         }
 
@@ -65,6 +96,7 @@ StyledPopup {
             Layout.fillWidth: true
             value: Math.max(0.0, Math.min(1.0, meterRow.value))
             highlightColor: meterRow.barColor
+            opacity: meterRow.isCritical ? root.criticalPulseOpacity : 1.0
         }
     }
 
@@ -74,6 +106,19 @@ StyledPopup {
         property int threadIdx: 0
         property real load: (HardwareTelemetry.perThreadLoads && HardwareTelemetry.perThreadLoads[threadIdx]) || 0.0
         property real freq: (HardwareTelemetry.threadFrequencies && HardwareTelemetry.threadFrequencies[threadIdx]) || 0.0
+        readonly property int coreTemp: {
+            if (tMeter.threadIdx < 12) {
+                const cIdx = Math.floor(tMeter.threadIdx / 2);
+                return (HardwareTelemetry.pCoreTemps && HardwareTelemetry.pCoreTemps[cIdx] > 0) ? HardwareTelemetry.pCoreTemps[cIdx] : (HardwareTelemetry.pCoreTempAvg || HardwareTelemetry.packageTemp || 0);
+            } else {
+                const cIdx = tMeter.threadIdx - 12;
+                return (HardwareTelemetry.eCoreTemps && HardwareTelemetry.eCoreTemps[cIdx] > 0) ? HardwareTelemetry.eCoreTemps[cIdx] : (HardwareTelemetry.eCoreTempAvg || HardwareTelemetry.packageTemp || 0);
+            }
+        }
+        readonly property color tLoadColor: root.getLoadColor(tMeter.load)
+        readonly property color tTempColor: root.getTempColor(tMeter.coreTemp)
+        readonly property bool isCritical: tMeter.load >= 0.90 || tMeter.coreTemp >= 80
+
         spacing: 4
         Layout.fillWidth: true
 
@@ -88,14 +133,16 @@ StyledPopup {
             Layout.fillWidth: true
             Layout.preferredHeight: 4
             value: Math.max(0.0, Math.min(1.0, tMeter.load))
-            highlightColor: root.cpuLoadColor
+            highlightColor: tMeter.tLoadColor
+            opacity: tMeter.isCritical ? root.criticalPulseOpacity : 1.0
         }
 
         StyledText {
             text: `${Math.round(tMeter.load * 100)}%`
             font.pixelSize: Appearance.font.pixelSize.smaller
             font.weight: Font.DemiBold
-            color: root.cpuLoadColor
+            color: tMeter.tLoadColor
+            opacity: tMeter.isCritical ? root.criticalPulseOpacity : 1.0
             Layout.preferredWidth: 32
             horizontalAlignment: Text.AlignRight
         }
@@ -107,6 +154,16 @@ StyledPopup {
             Layout.preferredWidth: 54
             horizontalAlignment: Text.AlignRight
         }
+
+        StyledText {
+            text: `${tMeter.coreTemp}°C`
+            font.pixelSize: Appearance.font.pixelSize.smaller
+            font.weight: Font.Medium
+            color: tMeter.tTempColor
+            opacity: tMeter.isCritical ? root.criticalPulseOpacity : 1.0
+            Layout.preferredWidth: 36
+            horizontalAlignment: Text.AlignRight
+        }
     }
 
     RowLayout {
@@ -114,11 +171,34 @@ StyledPopup {
         anchors.centerIn: parent
         spacing: 16
 
+        SequentialAnimation {
+            id: popupCriticalPulse
+            running: (HardwareTelemetry.overallCpuLoad || 0.0) >= 0.90 || (HardwareTelemetry.packageTemp || 0) >= 80 || (HardwareTelemetry.gpuLoad || 0.0) >= 0.90
+            loops: Animation.Infinite
+            onRunningChanged: {
+                if (!running) root.criticalPulseOpacity = 1.0;
+            }
+            NumberAnimation {
+                target: root
+                property: "criticalPulseOpacity"
+                to: 0.4
+                duration: 600
+                easing.type: Easing.InOutSine
+            }
+            NumberAnimation {
+                target: root
+                property: "criticalPulseOpacity"
+                to: 1.0
+                duration: 600
+                easing.type: Easing.InOutSine
+            }
+        }
+
         // =====================================================================
         // Left Column: CPU Section (CPUGPU-02, D-13, D-14)
         // =====================================================================
         ColumnLayout {
-            Layout.preferredWidth: 230
+            Layout.preferredWidth: 320
             spacing: 8
 
             StyledPopupHeaderRow {
@@ -129,16 +209,23 @@ StyledPopup {
             // Overall CPU Load
             MetricProgressRow {
                 title: "Overall Load"
+                mhzText: `${Math.round((HardwareTelemetry.pCoreFrequencyMhz || 0) * 0.6 + (HardwareTelemetry.eCoreFrequencyMhz || 0) * 0.4)} MHz`
                 value: HardwareTelemetry.overallCpuLoad || 0.0
+                tempText: `${HardwareTelemetry.packageTemp || 0}°C`
                 barColor: root.cpuLoadColor
+                tempColor: root.getTempColor(HardwareTelemetry.packageTemp || 0)
+                isCritical: (HardwareTelemetry.overallCpuLoad || 0.0) >= 0.90 || (HardwareTelemetry.packageTemp || 0) >= 80
             }
 
             // Segregated P-Cores (12T) (CPUs 0-11)
             MetricProgressRow {
                 title: "P-Cores (12T)"
-                subtitle: `${Math.round(HardwareTelemetry.pCoreFrequencyMhz || 0)} MHz`
+                mhzText: `${Math.round(HardwareTelemetry.pCoreFrequencyMhz || 0)} MHz`
                 value: HardwareTelemetry.pCoreLoad || 0.0
-                barColor: root.cpuLoadColor
+                tempText: `${HardwareTelemetry.pCoreTempAvg || 0}°C`
+                barColor: root.getLoadColor(HardwareTelemetry.pCoreLoad || 0.0)
+                tempColor: root.getTempColor(HardwareTelemetry.pCoreTempAvg || 0)
+                isCritical: (HardwareTelemetry.pCoreLoad || 0.0) >= 0.90 || (HardwareTelemetry.pCoreTempAvg || 0) >= 80
             }
 
             // Individual P-Core Threads (C0 - C11)
@@ -157,9 +244,12 @@ StyledPopup {
             // Segregated E-Cores (8T) (CPUs 12-19)
             MetricProgressRow {
                 title: "E-Cores (8T)"
-                subtitle: `${Math.round(HardwareTelemetry.eCoreFrequencyMhz || 0)} MHz`
+                mhzText: `${Math.round(HardwareTelemetry.eCoreFrequencyMhz || 0)} MHz`
                 value: HardwareTelemetry.eCoreLoad || 0.0
-                barColor: root.cpuLoadColor
+                tempText: `${HardwareTelemetry.eCoreTempAvg || 0}°C`
+                barColor: root.getLoadColor(HardwareTelemetry.eCoreLoad || 0.0)
+                tempColor: root.getTempColor(HardwareTelemetry.eCoreTempAvg || 0)
+                isCritical: (HardwareTelemetry.eCoreLoad || 0.0) >= 0.90 || (HardwareTelemetry.eCoreTempAvg || 0) >= 80
             }
 
             // Individual E-Core Threads (C12 - C19)
@@ -176,20 +266,6 @@ StyledPopup {
             }
 
             // Telemetry Value Rows
-            StyledPopupValueRow {
-                Layout.fillWidth: true
-                icon: "device_thermostat"
-                label: "Package Temp:"
-                value: `${HardwareTelemetry.packageTemp || 0}°C`
-            }
-
-            StyledPopupValueRow {
-                Layout.fillWidth: true
-                icon: "thermostat"
-                label: "P-Core / E-Core Avg:"
-                value: `${HardwareTelemetry.pCoreTempAvg || 0}°C / ${HardwareTelemetry.eCoreTempAvg || 0}°C`
-            }
-
             StyledPopupValueRow {
                 Layout.fillWidth: true
                 icon: "tune"
@@ -217,7 +293,7 @@ StyledPopup {
         // Right Column: GPU Top + Motherboard Bottom (CPUGPU-03, D-13, D-15, D-16)
         // =====================================================================
         ColumnLayout {
-            Layout.preferredWidth: 230
+            Layout.preferredWidth: 320
             spacing: 8
 
             // --- GPU Section (Top) ---
@@ -230,6 +306,7 @@ StyledPopup {
                 title: "iGPU Load"
                 value: HardwareTelemetry.gpuLoad || 0.0
                 barColor: root.gpuLoadColor
+                isCritical: (HardwareTelemetry.gpuLoad || 0.0) >= 0.90
             }
 
             StyledPopupValueRow {
@@ -276,49 +353,62 @@ StyledPopup {
             // 6 Gigabyte WMI platform sensors breakdown
             ColumnLayout {
                 Layout.fillWidth: true
-                spacing: 2
+                spacing: 4
 
                 StyledText {
                     text: "Platform Sensors (1–6):"
-                    font.pixelSize: Appearance.font.pixelSize.smaller
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    font.weight: Font.Medium
                     color: Appearance.colors.colOnSurfaceVariant
                 }
 
                 GridLayout {
                     Layout.fillWidth: true
                     columns: 2
-                    rowSpacing: 2
+                    rowSpacing: 4
                     columnSpacing: 8
 
                     StyledText {
-                        text: `VRM / S1: ${HardwareTelemetry.platformTemp1 || HardwareTelemetry.vrmTemp || 0}°C`
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
+                        readonly property int t: HardwareTelemetry.platformTemp1 || HardwareTelemetry.vrmTemp || 0
+                        text: `VRM / S1: ${t}°C`
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: root.getTempColor(t)
+                        opacity: t >= 80 ? root.criticalPulseOpacity : 1.0
                     }
                     StyledText {
-                        text: `Sensor 2: ${HardwareTelemetry.platformTemp2 || 0}°C`
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
+                        readonly property int t: HardwareTelemetry.platformTemp2 || 0
+                        text: `Sensor 2: ${t}°C`
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: root.getTempColor(t)
+                        opacity: t >= 80 ? root.criticalPulseOpacity : 1.0
                     }
                     StyledText {
-                        text: `Sensor 3: ${HardwareTelemetry.platformTemp3 || 0}°C`
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
+                        readonly property int t: HardwareTelemetry.platformTemp3 || 0
+                        text: `Sensor 3: ${t}°C`
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: root.getTempColor(t)
+                        opacity: t >= 80 ? root.criticalPulseOpacity : 1.0
                     }
                     StyledText {
-                        text: `Sensor 4: ${HardwareTelemetry.platformTemp4 || 0}°C`
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
+                        readonly property int t: HardwareTelemetry.platformTemp4 || 0
+                        text: `Sensor 4: ${t}°C`
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: root.getTempColor(t)
+                        opacity: t >= 80 ? root.criticalPulseOpacity : 1.0
                     }
                     StyledText {
-                        text: `Sensor 5: ${HardwareTelemetry.platformTemp5 || 0}°C`
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
+                        readonly property int t: HardwareTelemetry.platformTemp5 || 0
+                        text: `Sensor 5: ${t}°C`
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: root.getTempColor(t)
+                        opacity: t >= 80 ? root.criticalPulseOpacity : 1.0
                     }
                     StyledText {
-                        text: `Sensor 6: ${HardwareTelemetry.platformTemp6 || 0}°C`
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
+                        readonly property int t: HardwareTelemetry.platformTemp6 || 0
+                        text: `Sensor 6: ${t}°C`
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        color: root.getTempColor(t)
+                        opacity: t >= 80 ? root.criticalPulseOpacity : 1.0
                     }
                 }
             }

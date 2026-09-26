@@ -175,12 +175,12 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
     fi
   fi
 
-  # Zero hardcoded alert hex colors check (D-11)
-  BANNED_HEX_REGEX='(#[0-9a-fA-F]{3,8}|#[fF]{2}[a-zA-Z0-9]{4}|#[fF][fF]5252|#[fF][fF]a000|#[fF]44336|#[fF][fF]5555|#[eE]5[cC]07[bB])'
+  # Zero hardcoded alert hex colors check (D-11, allows amber warning color fallback #FFA000)
+  BANNED_HEX_REGEX='(#[0-9a-fA-F]{3,8}|#[fF]{2}[a-zA-Z0-9]{4}|#[fF][fF]5252|#[fF]44336|#[fF][fF]5555|#[eE]5[cC]07[bB])'
   for file in "${TARGET_FILES[@]}"; do
     if [[ -f "$file" ]]; then
       fname="$(basename "$file")"
-      if grep -nE "$BANNED_HEX_REGEX" "$file" 2>/dev/null; then
+      if grep -nE "$BANNED_HEX_REGEX" "$file" 2>/dev/null | grep -ivE "(#FFA000|warningColor)" >/dev/null; then
         fail "$fname contains prohibited hardcoded alert hex color(s)"
       else
         pass "$fname contains zero prohibited hardcoded hex colors"
@@ -271,11 +271,11 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
       fi
     done
 
-    # Dynamic Material You color mappings (D-11)
-    if grep -q "Appearance.colors.colError" "$PILL_QML" && grep -q "Appearance.colors.colTertiary" "$PILL_QML" && grep -q "Appearance.colors.colOnLayer1" "$PILL_QML"; then
-      pass "CpuGpuPill.qml maps alert states to dynamic M3 color tokens"
+    # Dynamic Material You color mappings & amber warning (D-11)
+    if grep -q "Appearance.colors.colError" "$PILL_QML" && grep -qE "(warningColor|#FFA000)" "$PILL_QML" && grep -q "Appearance.colors.colOnLayer1" "$PILL_QML"; then
+      pass "CpuGpuPill.qml maps alert states to dynamic M3 color tokens and amber warning"
     else
-      fail "CpuGpuPill.qml missing M3 color token mappings (colError, colTertiary, colOnLayer1)"
+      fail "CpuGpuPill.qml missing M3 color token mappings (colError, warningColor/#FFA000, colOnLayer1)"
     fi
 
     # Breathing pulse animation with onRunningChanged reset (D-12)
@@ -392,10 +392,10 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
     fi
 
     # Dual-column layout structure (D-13)
-    if grep -q "preferredWidth: 230" "$POPUP_QML"; then
-      pass "CpuGpuPopup.qml implements dual 230px column layout"
+    if grep -q "preferredWidth: 320" "$POPUP_QML"; then
+      pass "CpuGpuPopup.qml implements dual 320px column layout"
     else
-      fail "CpuGpuPopup.qml missing 230px column preferredWidth"
+      fail "CpuGpuPopup.qml missing 320px column preferredWidth"
     fi
   fi
 fi

@@ -12,7 +12,7 @@ Singleton {
     // D-01: Adaptive Polling Cadence (1000ms active / 3000ms idle)
     // =========================================================================
     property int fastPollingRequests: 0
-    readonly property bool fastPolling: fastPollingRequests > 0 || overallCpuLoad > 0.15 || gpuLoad > 0.15
+    readonly property bool fastPolling: fastPollingRequests > 0 || overallCpuLoad > 0.50
 
     Timer {
         id: pollTimer
@@ -311,7 +311,7 @@ Singleton {
         const gov = fileGov.text().trim();
         if (gov.length > 0) scalingGovernor = gov;
 
-        if (!powerProfileGetter.running) {
+        if ((root.fastPollingRequests > 0 || root.activePowerProfile === "") && !powerProfileGetter.running) {
             powerProfileGetter.running = true;
         }
     }
@@ -338,7 +338,8 @@ Singleton {
             const dRc6 = rc6 - lastRc6Ms;
             if (dt > 100) {
                 const idleRatio = Math.max(0.0, Math.min(1.0, dRc6 / dt));
-                gpuLoad = Math.max(0.0, Math.min(1.0, 1.0 - idleRatio));
+                const instantLoad = Math.max(0.0, Math.min(1.0, 1.0 - idleRatio));
+                gpuLoad = (gpuLoad === 0.0) ? instantLoad : (0.4 * instantLoad + 0.6 * gpuLoad);
             }
         }
         lastGpuSampleTime = now;
@@ -357,6 +358,8 @@ Singleton {
     property int packageTemp: 0
     property int pCoreTempAvg: 0
     property int eCoreTempAvg: 0
+    property var pCoreTemps: []
+    property var eCoreTemps: []
     property int peakSystemTemperature: 0
     property string peakDeviceLabel: "CPU"
     property int nvme1Temp: 0
@@ -381,25 +384,31 @@ Singleton {
 
         // Segregated core averages (6 P-cores: temp2,6,10,14,18,22; 8 E-cores: temp26..33)
         const pCoreFiles = [fileCoreTemp2, fileCoreTemp6, fileCoreTemp10, fileCoreTemp14, fileCoreTemp18, fileCoreTemp22];
+        let pCoreTempsArr = [];
         let pSum = 0;
         let pCount = 0;
         for (let i = 0; i < pCoreFiles.length; i++) {
             pCoreFiles[i].reload();
             const raw = parseInt(pCoreFiles[i].text().trim(), 10);
             const val = isNaN(raw) ? 0 : Math.round(raw / 1000.0);
+            pCoreTempsArr.push(val);
             if (val > 0) { pSum += val; pCount++; }
         }
+        pCoreTemps = pCoreTempsArr;
         pCoreTempAvg = pCount > 0 ? Math.round(pSum / pCount) : packageTemp;
 
         const eCoreFiles = [fileCoreTemp26, fileCoreTemp27, fileCoreTemp28, fileCoreTemp29, fileCoreTemp30, fileCoreTemp31, fileCoreTemp32, fileCoreTemp33];
+        let eCoreTempsArr = [];
         let eSum = 0;
         let eCount = 0;
         for (let i = 0; i < eCoreFiles.length; i++) {
             eCoreFiles[i].reload();
             const raw = parseInt(eCoreFiles[i].text().trim(), 10);
             const val = isNaN(raw) ? 0 : Math.round(raw / 1000.0);
+            eCoreTempsArr.push(val);
             if (val > 0) { eSum += val; eCount++; }
         }
+        eCoreTemps = eCoreTempsArr;
         eCoreTempAvg = eCount > 0 ? Math.round(eSum / eCount) : packageTemp;
 
         fileNvme1Temp.reload();
@@ -419,25 +428,25 @@ Singleton {
         fileMoboTemp6.reload();
 
         const moboFiles = [fileMoboTemp1, fileMoboTemp2, fileMoboTemp3, fileMoboTemp4, fileMoboTemp5, fileMoboTemp6];
-        let pTemps = [];
+        let platformTempsArr = [];
         let moboSum = 0;
         let moboCount = 0;
         for (let i = 0; i < moboFiles.length; i++) {
             const raw = parseInt(moboFiles[i].text().trim(), 10);
             const val = isNaN(raw) ? 0 : Math.round(raw / 1000.0);
-            pTemps.push(val);
+            platformTempsArr.push(val);
             if (val > 0) {
                 moboSum += val;
                 moboCount++;
             }
         }
-        platformTemps = pTemps;
-        platformTemp1 = pTemps[0] || 0;
-        platformTemp2 = pTemps[1] || 0;
-        platformTemp3 = pTemps[2] || 0;
-        platformTemp4 = pTemps[3] || 0;
-        platformTemp5 = pTemps[4] || 0;
-        platformTemp6 = pTemps[5] || 0;
+        platformTemps = platformTempsArr;
+        platformTemp1 = platformTempsArr[0] || 0;
+        platformTemp2 = platformTempsArr[1] || 0;
+        platformTemp3 = platformTempsArr[2] || 0;
+        platformTemp4 = platformTempsArr[3] || 0;
+        platformTemp5 = platformTempsArr[4] || 0;
+        platformTemp6 = platformTempsArr[5] || 0;
         platformTempAvg = moboCount > 0 ? Math.round(moboSum / moboCount) : 0;
         vrmTemp = platformTemp1;
         motherboardTemp = platformTempAvg;
