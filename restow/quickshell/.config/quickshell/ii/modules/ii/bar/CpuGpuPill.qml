@@ -47,40 +47,58 @@ BarGroup {
         }
     }
 
-    // --- CPU Section ---
-    MaterialSymbol {
-        id: cpuIcon
-        text: "planner_review"
-        iconSize: Appearance.font.pixelSize.normal
-        color: root.cpuColor
+    // --- CPU Section (Circular progress indicator + MaterialSymbol) ---
+    ClippedFilledCircularProgress {
+        id: cpuCircProg
+        Layout.alignment: Qt.AlignVCenter
+        lineWidth: Appearance.rounding.unsharpen
+        value: Math.max(0.0, Math.min(1.0, HardwareTelemetry.overallCpuLoad || 0.0))
+        implicitSize: 20
+        colPrimary: root.cpuColor
+        accountForLightBleeding: !root.cpuCritical && !root.cpuWarning
+        enableAnimation: false
 
-        Behavior on color {
-            ColorAnimation {
-                duration: 200
-                easing.type: Easing.BezierSpline
-                easing.bezierCurve: Appearance.animationCurves.expressiveEffects
-            }
-        }
+        Item {
+            anchors.centerIn: parent
+            width: cpuCircProg.implicitSize
+            height: cpuCircProg.implicitSize
 
-        // Breathing pulse animation on critical red (D-12)
-        SequentialAnimation {
-            id: cpuPulseAnimation
-            running: root.cpuCritical
-            loops: Animation.Infinite
-            onRunningChanged: { if (!running) cpuIcon.opacity = 1.0; }
-            NumberAnimation {
-                target: cpuIcon
-                property: "opacity"
-                to: 0.6
-                duration: 600
-                easing.type: Easing.InOutSine
-            }
-            NumberAnimation {
-                target: cpuIcon
-                property: "opacity"
-                to: 1.0
-                duration: 600
-                easing.type: Easing.InOutSine
+            MaterialSymbol {
+                id: cpuIcon
+                anchors.centerIn: parent
+                text: "planner_review"
+                iconSize: Appearance.font.pixelSize.normal
+                color: root.cpuColor
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: 200
+                        easing.type: Easing.BezierSpline
+                        easing.bezierCurve: Appearance.animationCurves.expressiveEffects
+                    }
+                }
+
+                // Breathing pulse animation on critical red (D-12)
+                SequentialAnimation {
+                    id: cpuPulseAnimation
+                    running: root.cpuCritical
+                    loops: Animation.Infinite
+                    onRunningChanged: { if (!running) cpuIcon.opacity = 1.0; }
+                    NumberAnimation {
+                        target: cpuIcon
+                        property: "opacity"
+                        to: 0.6
+                        duration: 600
+                        easing.type: Easing.InOutSine
+                    }
+                    NumberAnimation {
+                        target: cpuIcon
+                        property: "opacity"
+                        to: 1.0
+                        duration: 600
+                        easing.type: Easing.InOutSine
+                    }
+                }
             }
         }
     }
@@ -118,41 +136,59 @@ BarGroup {
         }
     }
 
-    // --- GPU Section ---
-    MaterialSymbol {
-        id: gpuIcon
-        text: "speed"
-        iconSize: Appearance.font.pixelSize.normal
-        color: root.gpuColor
+    // --- GPU Section (Circular progress indicator + sports_esports icon) ---
+    ClippedFilledCircularProgress {
+        id: gpuCircProg
+        Layout.alignment: Qt.AlignVCenter
         Layout.leftMargin: root.vertical ? 0 : 6 // Visual cluster separation per D-02
+        lineWidth: Appearance.rounding.unsharpen
+        value: Math.max(0.0, Math.min(1.0, HardwareTelemetry.gpuLoad || 0.0))
+        implicitSize: 20
+        colPrimary: root.gpuColor
+        accountForLightBleeding: !root.gpuCritical && !root.gpuWarning
+        enableAnimation: false
 
-        Behavior on color {
-            ColorAnimation {
-                duration: 200
-                easing.type: Easing.BezierSpline
-                easing.bezierCurve: Appearance.animationCurves.expressiveEffects
-            }
-        }
+        Item {
+            anchors.centerIn: parent
+            width: gpuCircProg.implicitSize
+            height: gpuCircProg.implicitSize
 
-        // Breathing pulse animation on critical red (D-12)
-        SequentialAnimation {
-            id: gpuPulseAnimation
-            running: root.gpuCritical
-            loops: Animation.Infinite
-            onRunningChanged: { if (!running) gpuIcon.opacity = 1.0; }
-            NumberAnimation {
-                target: gpuIcon
-                property: "opacity"
-                to: 0.6
-                duration: 600
-                easing.type: Easing.InOutSine
-            }
-            NumberAnimation {
-                target: gpuIcon
-                property: "opacity"
-                to: 1.0
-                duration: 600
-                easing.type: Easing.InOutSine
+            MaterialSymbol {
+                id: gpuIcon
+                anchors.centerIn: parent
+                text: "sports_esports"
+                iconSize: Appearance.font.pixelSize.normal
+                color: root.gpuColor
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: 200
+                        easing.type: Easing.BezierSpline
+                        easing.bezierCurve: Appearance.animationCurves.expressiveEffects
+                    }
+                }
+
+                // Breathing pulse animation on critical red (D-12)
+                SequentialAnimation {
+                    id: gpuPulseAnimation
+                    running: root.gpuCritical
+                    loops: Animation.Infinite
+                    onRunningChanged: { if (!running) gpuIcon.opacity = 1.0; }
+                    NumberAnimation {
+                        target: gpuIcon
+                        property: "opacity"
+                        to: 0.6
+                        duration: 600
+                        easing.type: Easing.InOutSine
+                    }
+                    NumberAnimation {
+                        target: gpuIcon
+                        property: "opacity"
+                        to: 1.0
+                        duration: 600
+                        easing.type: Easing.InOutSine
+                    }
+                }
             }
         }
     }
