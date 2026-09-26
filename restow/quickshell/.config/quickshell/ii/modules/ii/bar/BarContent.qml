@@ -101,6 +101,12 @@ Item { // Bar content region
                 colBackground: barLeftSideMouseArea.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
             }
 
+            CpuGpuPill {
+                id: cpuGpuPill
+                Layout.alignment: Qt.AlignVCenter
+                useShortenedForm: root.useShortenedForm
+            }
+
             BarGroup {
                 id: resourcesGroup
                 Layout.alignment: Qt.AlignVCenter
