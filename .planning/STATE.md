@@ -4,17 +4,17 @@ milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
 current_phase: 43
 current_phase_name: CPU & GPU Component (Pill & Popup)
-status: executing
-stopped_at: Plan 43-04 complete (gap closure for UAT G-43-1..6)
-last_updated: "2026-09-26T08:09:10.822Z"
+status: complete
+stopped_at: Plan 43-07 complete (gap closure for UAT G-43-5-2)
+last_updated: "2026-09-26T17:40:00+06:00"
 last_activity: 2026-09-26
-last_activity_desc: Phase 43 execution started
-state_head: 6a863cecac4dee004bff73e95c0226a020658afb
+last_activity_desc: Plan 43-07 gap closure complete
+state_head: 6592111
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 10
-  completed_plans: 10
+  total_plans: 11
+  completed_plans: 11
   percent: 20
 ---
 
@@ -25,10 +25,10 @@ Progress: [░░░░░░░░░░] 0/5 phases ([██░░░░░░
 
 ## Current Position
 
-Phase: 43 (CPU & GPU Component (Pill & Popup)) — EXECUTING
-Plan: 2 of 6
-Status: Ready to execute
-Last activity: 2026-09-26 — Phase 43 execution started
+Phase: 43 (CPU & GPU Component (Pill & Popup)) — COMPLETE
+Plan: 7 of 7
+Status: Ready for verification / UAT
+Last activity: 2026-09-26 — Plan 43-07 gap closure complete
 
 ## Session
 

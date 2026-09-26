@@ -1,5 +1,5 @@
 ---
-status: diagnosed
+status: complete
 phase: 43-cpu-gpu-component-pill-popup
 source:
   - 43-01-SUMMARY.md
@@ -8,8 +8,9 @@ source:
   - 43-04-SUMMARY.md
   - 43-05-SUMMARY.md
   - 43-06-SUMMARY.md
+  - 43-07-SUMMARY.md
 started: 2026-09-26T12:24:00+06:00
-updated: 2026-09-26T16:12:30+06:00
+updated: 2026-09-26T17:38:00+06:00
 ---
 
 ## Current Test
@@ -35,10 +36,8 @@ expected: The left column of the popup displays symmetric padding around content
 result: pass
 
 ### 5. GPU Inspector, 6 Motherboard Sensors & Power Profile Switcher
-expected: The right column displays Intel UHD 770 GPU load % (smoothed EMA without jitter spikes), render clock MHz, thermal throttle badge ('Normal' or 'Throttling'), all 6 Gigabyte B760 platform sensor temperatures with crisp typography and threshold coloring, and an interactive power profile switcher button that cycles through power-saver, balanced, and performance profiles via powerprofilesctl.
-result: issue
-reported: "High GPU usage (30-40%) when popup is open (needs resource optimization); render clock shows 0-15 MHz while load is 30-40%; remove redundant EPP button; platform sensors font size should decrease to match CPU cores, arranged cleanly with labels on left and °C on right."
-severity: major
+expected: The right column displays Intel UHD 770 GPU load % (smoothed EMA without jitter spikes), render clock MHz, thermal throttle badge ('Normal' or 'Throttling'), all 6 Gigabyte B760 platform sensor temperatures with crisp typography and threshold coloring, operating with minimal resource overhead and cleanly aligned sensor rows.
+result: pass
 
 ### 6. Alert Thresholds & Critical Breathing Pulse
 expected: Under normal load, pill text/icons resolve to standard layer colors. Elevated loads/thermals tint amber (warning) or red (critical). Under critical red, a breathing pulse animation gently modulates opacity across text, circular indicator rings, and popup critical badges, resetting to 1.0 when load normalizes.
@@ -47,8 +46,8 @@ result: pass
 ## Summary
 
 total: 6
-passed: 5
-issues: 1
+passed: 6
+issues: 0
 pending: 0
 skipped: 0
 
@@ -135,7 +134,9 @@ skipped: 0
 
 - gap_id: G-43-5-2
   truth: "The right column displays Intel UHD 770 GPU load %, render clock MHz, thermal throttle badge ('Normal' or 'Throttling'), and all 6 Gigabyte B760 platform sensor temperatures with crisp typography and threshold coloring, operating with minimal resource overhead and cleanly aligned sensor rows."
-  status: failed
+  status: resolved
+  resolved_by: 43-07-PLAN.md
+  resolved_at: 2026-09-26
   reason: "User reported: 1) High GPU/CPU resource usage (30-40% GPU) when popup is open; optimize polling and rendering overhead. 2) Check render clock reading accuracy (showing 0-15 MHz during 30-40% load). 3) Remove redundant EPP button entirely. 4) Platform sensors font size should decrease to match CPU cores, arranged cleanly with labels on left and °C on right."
   severity: major
   test: 5

@@ -49,7 +49,9 @@ Success criteria:
 **Goal**: Build dedicated `CpuGpuPill.qml` status bar pill and interactive `CpuGpuPopup.qml` inspector overlay.  
 **Depends on**: Phase 42  
 **Requirements**: CPUGPU-01, CPUGPU-02, CPUGPU-03, CPUGPU-04  
-**Plans**: 6/6 plans executed
+**Plans**: 7/7 plans executed
+
+- [x] 43-07-PLAN.md
 
 - [x] 43-05-PLAN.md
 - [x] 43-06-PLAN.md
@@ -117,7 +119,7 @@ Success criteria:
 | 40.1. Clock Pill Padding and Unified Volume Ceiling Ergonomics | v0.8 | 2/2 | Complete | 2026-09-24 |
 | 41. End-to-End Verification & Repository Integrity | v0.8 | 2/2 | Complete | 2026-09-25 |
 | 42. Telemetry Services & Sensor Infrastructure | v0.9 | 4/4 | Complete    | 2026-09-25 |
-| 43. CPU & GPU Component (Pill & Popup) | v0.9 | 6/6 | In Progress|  |
+| 43. CPU & GPU Component (Pill & Popup) | v0.9 | 7/7 | In Progress|  |
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 0 plans | Planned | — |
