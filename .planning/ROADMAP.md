@@ -23,7 +23,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 ### 📋 v0.9 Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
 
 - [x] **Phase 42: Telemetry Services & Sensor Infrastructure** (4 plans) (completed 2026-09-25)
-- [x] **Phase 43: CPU & GPU Component (Pill & Popup)** (0 plans) (completed 2026-09-26)
+- [x] **Phase 43: CPU & GPU Component (Pill & Popup)** (4 plans) (completed 2026-09-26)
 - [ ] **Phase 44: Memory & Storage Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 45: Network & Multi-Target Ping Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 46: Left-Zone Integration, Verification & Repository Integrity** (0 plans)
@@ -49,11 +49,12 @@ Success criteria:
 **Goal**: Build dedicated `CpuGpuPill.qml` status bar pill and interactive `CpuGpuPopup.qml` inspector overlay.  
 **Depends on**: Phase 42  
 **Requirements**: CPUGPU-01, CPUGPU-02, CPUGPU-03, CPUGPU-04  
-**Plans**: 3/3 plans executed
+**Plans**: 4/4 plans executed
 
 - [x] 43-01-PLAN.md
 - [x] 43-02-PLAN.md
 - [x] 43-03-PLAN.md
+- [x] 43-04-PLAN.md
 
 Success criteria:
 

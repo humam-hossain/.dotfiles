@@ -4,17 +4,17 @@ milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
 current_phase: 44
 current_phase_name: Memory & Storage Component (Pill & Popup)
-status: planning
-stopped_at: Phase 43 complete, ready to plan Phase 44
-last_updated: "2026-09-26T02:51:19.198Z"
+status: in-progress
+stopped_at: Plan 43-04 complete (gap closure for UAT G-43-1..6)
+last_updated: "2026-09-26T09:34:00.000Z"
 last_activity: 2026-09-26
-last_activity_desc: Phase 43 complete, transitioned to Phase 44
-state_head: 8179b46d10acf93d828e066e7b740c3a5d6ccd0d
+last_activity_desc: Plan 43-04 complete (gap closure for UAT G-43-1..6)
+state_head: 9573809
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 8
+  completed_plans: 8
   percent: 40
 ---
 
@@ -25,10 +25,10 @@ Progress: [░░░░░░░░░░] 0/5 phases ([████░░░░
 
 ## Current Position
 
-Phase: 44 — Memory & Storage Component (Pill & Popup)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-26 — Phase 43 complete, transitioned to Phase 44
+Phase: 43 — CPU & GPU Component (Pill & Popup)
+Plan: 43-04 (gap closure) complete
+Status: Gap closure complete, ready to re-verify UAT
+Last activity: 2026-09-26 — Plan 43-04 complete (gap closure for UAT G-43-1..6)
 
 ## Session
 
@@ -116,6 +116,9 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 36: Dedicated VoicePill.qml component extending BarGroup with compact idle state (26px), graphic_eq glyph, direct content-bound root implicitWidth driving 250ms M3 width animation, breathing pulse (1.0 <-> 0.5 over 1000ms with fail-safe reset), and Sequential Linear Flow with 1.5s wrap-up linger (VOICE-01..06, D-01..09)
 - Phase 38: Idempotent bootstrap integration for power-profiles-daemon with pacman -Q and systemctl is-active pre-checks before any sudo invocation; zero local QML overrides (upstream PowerProfilesToggle.qml confirmed working directly) (POWER-01..03)
 - Phase 39: Dynamic media popup anchoring via GlobalStates.qml coordinate bridge with HoverHandler-based multi-monitor pill detection, sentinel -1 keyboard/IPC fallback, horizontal boundary clamping with narrow-screen guard, and reactive Connections tracking for pill layout shifts (MEDIA-01, MEDIA-02)
+- Phase 43: Qualified StyledPopup.qml closeTimer identifier under pragma ComponentBehavior: Bound (D-21)
+- Phase 43: Self-encapsulated CpuGpuPopup inside CpuGpuPill's inertMouseArea anchored to root.hoverArea (D-22)
+- Phase 43: Mounted CpuGpuPill directly into BarContent.qml Left Zone preceding resourcesGroup with useShortenedForm binding (D-23)
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.  
