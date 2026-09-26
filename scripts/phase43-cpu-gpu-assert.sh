@@ -366,13 +366,13 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
     fi
 
     # Motherboard & Platform telemetry (D-16)
-    if grep -q "Platform (B760)" "$POPUP_QML" && grep -q "vrmTemp" "$POPUP_QML" && grep -q "energyPerformancePreference" "$POPUP_QML"; then
-      pass "CpuGpuPopup.qml displays Platform B760 VRM temp and EPP telemetry"
+    if grep -q "Platform (B760)" "$POPUP_QML" && grep -q "vrmTemp" "$POPUP_QML"; then
+      pass "CpuGpuPopup.qml displays Platform B760 VRM temp"
     else
-      fail "CpuGpuPopup.qml missing Platform B760 VRM temp or EPP telemetry"
+      fail "CpuGpuPopup.qml missing Platform B760 VRM temp"
     fi
 
-    # Segregated P/E core average temperatures & 6 platform sensors + interactive EPP
+    # Segregated P/E core average temperatures & 6 platform sensors
     if grep -q "pCoreTempAvg" "$POPUP_QML" && grep -q "eCoreTempAvg" "$POPUP_QML"; then
       pass "CpuGpuPopup.qml displays segregated P-core and E-core average temperatures"
     else
@@ -385,10 +385,33 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
       fail "CpuGpuPopup.qml missing platform sensor breakdown or platformTempAvg"
     fi
 
-    if grep -q "cyclePowerProfile" "$POPUP_QML" || grep -q "setPowerProfile" "$POPUP_QML"; then
-      pass "CpuGpuPopup.qml provides interactive power-profile switcher"
+    # Platform sensors single-column rows and smaller typography (G-43-5-2)
+    if grep -q "component PlatformSensorRow:" "$POPUP_QML" && grep -q "Appearance.font.pixelSize.smaller" "$POPUP_QML"; then
+      pass "CpuGpuPopup.qml structures platform sensors into clean rows with smaller typography"
     else
-      fail "CpuGpuPopup.qml missing interactive power-profile switching handler"
+      fail "CpuGpuPopup.qml missing PlatformSensorRow with smaller typography"
+    fi
+
+    # Absence of redundant EPP button (G-43-5-2)
+    if ! grep -q "id: eppButton" "$POPUP_QML" && ! grep -q "cyclePowerProfile" "$POPUP_QML"; then
+      pass "CpuGpuPopup.qml excludes redundant interactive EPP button as requested"
+    else
+      fail "CpuGpuPopup.qml contains redundant EPP switcher button"
+    fi
+
+    # Lightweight ThreadMeter rendering (G-43-5-2)
+    if grep -A 40 "component ThreadMeter:" "$POPUP_QML" | grep -q "Rectangle" && ! (grep -A 50 "component ThreadMeter:" "$POPUP_QML" | grep -q "StyledProgressBar"); then
+      pass "CpuGpuPopup.qml uses lightweight static Rectangle progress bar for ThreadMeter"
+    else
+      fail "CpuGpuPopup.qml does not use lightweight static Rectangle progress bar in ThreadMeter"
+    fi
+
+    # Stable GPU frequency handling (G-43-5-2)
+    TELEMETRY_QML="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/services/HardwareTelemetry.qml"
+    if grep -q "gt_cur_freq_mhz" "$TELEMETRY_QML" && grep -q "fileGpuCurFreq" "$TELEMETRY_QML"; then
+      pass "HardwareTelemetry.qml monitors gt_cur_freq_mhz for stable GPU render clock"
+    else
+      fail "HardwareTelemetry.qml missing gt_cur_freq_mhz stable frequency observer"
     fi
 
     # Dual-column layout structure (D-13)
