@@ -32,6 +32,7 @@ Singleton {
 
     property string gpuRc6Path: "/sys/class/drm/card1/gt/gt0/rc6_residency_ms"
     property string gpuFreqPath: "/sys/class/drm/card1/gt_act_freq_mhz"
+    property string gpuCurFreqPath: "/sys/class/drm/card1/gt_cur_freq_mhz"
     property string gpuThrottlePath: "/sys/class/drm/card1/gt/gt0/throttle_reason_thermal"
 
     property string eppPath: "/sys/devices/system/cpu/cpu0/cpufreq/energy_performance_preference"
@@ -107,6 +108,13 @@ Singleton {
     FileView {
         id: fileGpuFreq
         path: root.gpuFreqPath
+        printErrors: false
+        blockLoading: true
+    }
+
+    FileView {
+        id: fileGpuCurFreq
+        path: root.gpuCurFreqPath
         printErrors: false
         blockLoading: true
     }
@@ -329,6 +337,7 @@ Singleton {
     function updateGpuMetrics() {
         fileGpuRc6.reload();
         fileGpuFreq.reload();
+        fileGpuCurFreq.reload();
         fileGpuThrottle.reload();
 
         const now = Date.now();
@@ -345,8 +354,15 @@ Singleton {
         lastGpuSampleTime = now;
         lastRc6Ms = rc6;
 
-        const freq = parseFloat(fileGpuFreq.text().trim());
-        gpuFrequencyMhz = isNaN(freq) ? 0.0 : freq;
+        const actFreq = parseFloat(fileGpuFreq.text().trim());
+        const curFreq = parseFloat(fileGpuCurFreq.text().trim());
+        if (!isNaN(actFreq) && actFreq > 0) {
+            gpuFrequencyMhz = actFreq;
+        } else if (!isNaN(curFreq) && curFreq > 0) {
+            gpuFrequencyMhz = curFreq;
+        } else {
+            gpuFrequencyMhz = !isNaN(actFreq) ? actFreq : (!isNaN(curFreq) ? curFreq : 0.0);
+        }
 
         const throttle = parseInt(fileGpuThrottle.text().trim(), 10);
         gpuThrottled = (!isNaN(throttle) && throttle !== 0);
