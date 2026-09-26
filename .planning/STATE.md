@@ -2,33 +2,33 @@
 gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
-current_phase: 44
-current_phase_name: Memory & Storage Component (Pill & Popup)
-status: planning
+current_phase: 43
+current_phase_name: CPU & GPU Component (Pill & Popup)
+status: executing
 stopped_at: Plan 43-04 complete (gap closure for UAT G-43-1..6)
-last_updated: "2026-09-26T06:06:15.071Z"
+last_updated: "2026-09-26T08:09:10.822Z"
 last_activity: 2026-09-26
-last_activity_desc: Phase 43 complete, transitioned to Phase 44
-state_head: 41c54387aa45614a7fd6a5b3f4fe668eeac5316b
+last_activity_desc: Phase 43 execution started
+state_head: 6a863cecac4dee004bff73e95c0226a020658afb
 progress:
   total_phases: 5
-  completed_phases: 2
-  total_plans: 9
-  completed_plans: 9
-  percent: 40
+  completed_phases: 1
+  total_plans: 10
+  completed_plans: 10
+  percent: 20
 ---
 
 Total Phases: 5 (Phases 42–46)
-Progress: [░░░░░░░░░░] 0/5 phases ([████░░░░░░] 40%)
+Progress: [░░░░░░░░░░] 0/5 phases ([██░░░░░░░░] 20%)
 
 # Project State
 
 ## Current Position
 
-Phase: 44 — Memory & Storage Component (Pill & Popup)
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-26 — Phase 43 complete, transitioned to Phase 44
+Phase: 43 (CPU & GPU Component (Pill & Popup)) — EXECUTING
+Plan: 2 of 6
+Status: Ready to execute
+Last activity: 2026-09-26 — Phase 43 execution started
 
 ## Session
 
@@ -198,6 +198,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 | Phase 35 P01 | 12 min | 3 tasks | 3 files |
 | Phase 41 P01 | 7 min | 3 tasks | 1 files |
 | Phase 41 P02 | 9 min | 3 tasks | 2 files |
+| Phase 43 P06 | 15 min | 4 tasks | 4 files |
 
 ## Decisions
 
