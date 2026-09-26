@@ -20,7 +20,7 @@ LazyLoader {
     readonly property bool hovered: (hoverTarget && hoverTarget.containsMouse) || popupHovered
     property bool shouldBeActive: false
 
-    Timer {
+    readonly property Timer closeTimer: Timer {
         id: closeTimer
         interval: 200 // 200ms grace period across window bounds
         repeat: false
@@ -33,10 +33,10 @@ LazyLoader {
 
     onHoveredChanged: {
         if (hovered) {
-            closeTimer.stop();
+            root.closeTimer.stop();
             shouldBeActive = true;
         } else {
-            closeTimer.restart();
+            root.closeTimer.restart();
         }
     }
 
