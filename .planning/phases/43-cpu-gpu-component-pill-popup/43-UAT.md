@@ -1,5 +1,5 @@
 ---
-status: diagnosed
+status: complete
 phase: 43-cpu-gpu-component-pill-popup
 source:
   - 43-01-SUMMARY.md
@@ -7,8 +7,9 @@ source:
   - 43-03-SUMMARY.md
   - 43-04-SUMMARY.md
   - 43-05-SUMMARY.md
+  - 43-06-SUMMARY.md
 started: 2026-09-26T12:24:00+06:00
-updated: 2026-09-26T13:22:30+06:00
+updated: 2026-09-26T16:07:45+06:00
 ---
 
 ## Current Test
@@ -18,10 +19,8 @@ updated: 2026-09-26T13:22:30+06:00
 ## Tests
 
 ### 1. Top Bar CPU/GPU Pill Readout & Circular Meters
-expected: The top status bar pill displays live CPU load % and package temp °C alongside Intel UHD 770 GPU load % with distinct Material Symbols icons ('planner_review' for CPU, 'sports_esports' for GPU). Both icons are framed by circular progress percentage indicator rings (ClippedFilledCircularProgress) matching legacy styling. Values are non-zero (temp ~30-40°C, GPU load matches activity).
-result: issue
-reported: "yeah everything is showing fine but I think for the the pulsing motion it is not present when the when the load spikes it's not present when CPU load is high or the GPU load is high I think it's not it's not also the temperature does not change like it doesn't change color I think it should have some more thresholds and like that like to like throw so it needs also thresholds for coloring and also yes the the GPU has like a sky blue type of color when it is like 76% I don't know why that is the case it shouldn't be it should be the like the warning color the red color something like that like the dots hyperlend the color from the palette of the color the warning or critical those kind of colors should be"
-severity: major
+expected: The top status bar pill displays live CPU load % and package temp °C alongside Intel UHD 770 GPU load % with distinct Material Symbols icons ('planner_review' for CPU, 'sports_esports' for GPU). Both icons are framed by circular progress percentage indicator rings (ClippedFilledCircularProgress) matching legacy styling. Values are non-zero (temp ~30-40°C, GPU load matches activity). Warning/critical states show amber (#FFA000) or red alert coloring, and breathing pulse activates during high load.
+result: pass
 
 ### 2. Popup Hover Transit & Grace Bridge
 expected: Hovering over the CPU/GPU pill triggers the inspector popup. Moving the mouse pointer across the gap between the pill and the popup window stays open smoothly without flickering or abrupt closing (200ms debounce bridge).
@@ -32,28 +31,24 @@ expected: The popup smoothly slides down and fades in (150ms M3 entrance transit
 result: pass
 
 ### 4. CPU Inspector: P/E Core Breakdown & Temperatures
-expected: The left column of the popup displays symmetric padding around content, overall CPU load %, package temp °C, P-core and E-core average temperatures, scaling governor, unprivileged power fallback ('N/A (unprivileged)'), and segregated progress meters listing all 12 individual P-core threads (C0-C11) and 8 individual E-core threads (C12-C19) with active MHz clock speeds and thread load.
-result: issue
-reported: "P-core/E-core average temperature text is overlapping due to width; remove redundant standalone package temp and P/E average rows; reorganize hierarchy into [MHz] [Load %] [Temp °C] across overall CPU, P-cores, E-cores and individual threads; widen popup; ensure warning/critical colors are applied to temperatures and percentages; investigate resource overhead (GPU showing 70-80% on bar vs 33-34% in btop, and CPU spiking to 5% when popup is open)"
-severity: major
+expected: The left column of the popup displays symmetric padding around content, overall CPU load %, package temp °C, P-core and E-core average temperatures, scaling governor, unprivileged power fallback ('N/A (unprivileged)'), and segregated progress meters listing all 12 individual P-core threads (C0-C11) and 8 individual E-core threads (C12-C19) with active MHz clock speeds, thread load, and per-core temp °C.
+result: pass
 
 ### 5. GPU Inspector, 6 Motherboard Sensors & Power Profile Switcher
-expected: The right column displays Intel UHD 770 GPU load %, render clock MHz, thermal throttle badge ('Normal' or 'Throttling'), all 6 Gigabyte B760 platform sensor temperatures plus average platform temperature, and an interactive power profile switcher button that cycles through power-saver, balanced, and performance profiles via powerprofilesctl.
+expected: The right column displays Intel UHD 770 GPU load % (smoothed EMA without jitter spikes), render clock MHz, thermal throttle badge ('Normal' or 'Throttling'), all 6 Gigabyte B760 platform sensor temperatures with crisp typography and threshold coloring, and an interactive power profile switcher button that cycles through power-saver, balanced, and performance profiles via powerprofilesctl.
 result: issue
-reported: "GPU unhovered spikes to 70-80% on pill but drops to 30-37% (matching btop) when popup opens; all temperatures/sensors need unified warning/critical threshold colors; platform 6 sensors font is too small and style is not eye-catching; replace muted gray text color with crisp white/on-layer color"
+reported: "High GPU usage (30-40%) when popup is open (needs resource optimization); render clock shows 0-15 MHz while load is 30-40%; remove redundant EPP button; platform sensors font size should decrease to match CPU cores, arranged cleanly with labels on left and °C on right."
 severity: major
 
 ### 6. Alert Thresholds & Critical Breathing Pulse
-expected: Under normal load, pill text/icons resolve to standard layer colors. Elevated loads/thermals tint amber (70%/75°C warning) or red (90%/85°C critical) using Material You dynamic color tokens. Under critical red, a breathing pulse animation gently modulates icon opacity and resets to 1.0 when load normalizes.
-result: issue
-reported: "Icon breathing pulse is too subtle because it is inside the circle ring; text (percentage, temperature) and GPU in pill also need to pulse when critical; and critical elements inside the popup should also have the consistent breathing pulse effect"
-severity: minor
+expected: Under normal load, pill text/icons resolve to standard layer colors. Elevated loads/thermals tint amber (warning) or red (critical). Under critical red, a breathing pulse animation gently modulates opacity across text, circular indicator rings, and popup critical badges, resetting to 1.0 when load normalizes.
+result: pass
 
 ## Summary
 
 total: 6
-passed: 2
-issues: 4
+passed: 5
+issues: 1
 pending: 0
 skipped: 0
 
@@ -61,7 +56,9 @@ skipped: 0
 
 - gap_id: G-43-1
   truth: "The top status bar pill displays live CPU load % and package temp °C alongside Intel UHD 770 GPU load % with distinct Material Symbols icons ('planner_review' for CPU, 'sports_esports' for GPU). Both icons are framed by circular progress percentage indicator rings (ClippedFilledCircularProgress) matching legacy styling. Values are non-zero (temp ~30-40°C, GPU load matches activity)."
-  status: failed
+  status: resolved
+  resolved_by: 43-06-PLAN.md
+  resolved_at: 2026-09-26
   reason: "User reported: pulsing motion not working when CPU/GPU load is high; temperature does not change color with thresholds; GPU circular meter or text has sky blue color at 76% instead of dots-hyprland warning/critical palette color"
   severity: major
   test: 1
@@ -77,7 +74,9 @@ skipped: 0
 
 - gap_id: G-43-4
   truth: "The left column of the popup displays overall CPU load %, package temp °C, P-core and E-core average temperatures, scaling governor, unprivileged power fallback ('N/A (unprivileged)'), and segregated progress meters listing all 12 individual P-core threads (C0-C11) and 8 individual E-core threads (C12-C19) with active MHz clock speeds and thread load."
-  status: failed
+  status: resolved
+  resolved_by: 43-06-PLAN.md
+  resolved_at: 2026-09-26
   reason: "User reported: 1) Overlap in P-core/E-core average temperature text due to constrained column width; widen popup container. 2) Eliminate redundant standalone Package Temp and P/E Avg lines. 3) Unify format to [MHz] [Load %] [Temp °C] followed by bar across overall CPU, P-core group & individual threads, and E-core group & individual threads. 4) Apply dynamic threshold colors (warning/critical) to temperatures and percentages. 5) Investigate resource overhead (GPU showing 70-80% on bar vs 33-34% in btop, CPU spiking to 5% when popup opens)."
   severity: major
   test: 4
@@ -96,7 +95,9 @@ skipped: 0
 
 - gap_id: G-43-5
   truth: "The right column displays Intel UHD 770 GPU load %, render clock MHz, thermal throttle badge ('Normal' or 'Throttling'), all 6 Gigabyte B760 platform sensor temperatures plus average platform temperature, and an interactive power profile switcher button that cycles through power-saver, balanced, and performance profiles via powerprofilesctl."
-  status: failed
+  status: resolved
+  resolved_by: 43-06-PLAN.md
+  resolved_at: 2026-09-26
   reason: "User reported: 1) GPU load calculation discrepancy (spikes to 70-80% on pill when unhovered, normalizes to 30-37% when hovered/opened). 2) All temperatures and platform sensors need unified threshold coloring (warning and critical colors from palette). 3) Platform sensors font size too small and styling lacks visual appeal; increase size to match CPU cores and modernize layout. 4) Avoid muted gray text, use crisp white/colOnLayer1 colors."
   severity: major
   test: 5
@@ -115,7 +116,9 @@ skipped: 0
 
 - gap_id: G-43-6
   truth: "Under normal load, pill text/icons resolve to standard layer colors. Elevated loads/thermals tint amber (70%/75°C warning) or red (90%/85°C critical) using Material You dynamic color tokens. Under critical red, a breathing pulse animation gently modulates icon opacity and resets to 1.0 when load normalizes."
-  status: failed
+  status: resolved
+  resolved_by: 43-06-PLAN.md
+  resolved_at: 2026-09-26
   reason: "User reported: Icon breathing pulse is too subtle within circle ring; animate text (percentage, temperature) and GPU in pill with breathing pulse when critical; extend breathing pulse effect to critical elements inside the popup"
   severity: minor
   test: 6
@@ -129,3 +132,12 @@ skipped: 0
     - "Modulate opacity of pill text labels and circular meters during critical state"
     - "Add breathing pulse animation to critical metrics in CpuGpuPopup.qml"
   debug_session: .planning/debug/phase43-telemetry-ui-gaps-v2.md
+
+- gap_id: G-43-5-2
+  truth: "The right column displays Intel UHD 770 GPU load %, render clock MHz, thermal throttle badge ('Normal' or 'Throttling'), and all 6 Gigabyte B760 platform sensor temperatures with crisp typography and threshold coloring, operating with minimal resource overhead and cleanly aligned sensor rows."
+  status: failed
+  reason: "User reported: 1) High GPU/CPU resource usage (30-40% GPU) when popup is open; optimize polling and rendering overhead. 2) Check render clock reading accuracy (showing 0-15 MHz during 30-40% load). 3) Remove redundant EPP button entirely. 4) Platform sensors font size should decrease to match CPU cores, arranged cleanly with labels on left and °C on right."
+  severity: major
+  test: 5
+  artifacts: []
+  missing: []
