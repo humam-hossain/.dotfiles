@@ -114,7 +114,7 @@ Success criteria:
 | 40.1. Clock Pill Padding and Unified Volume Ceiling Ergonomics | v0.8 | 2/2 | Complete | 2026-09-24 |
 | 41. End-to-End Verification & Repository Integrity | v0.8 | 2/2 | Complete | 2026-09-25 |
 | 42. Telemetry Services & Sensor Infrastructure | v0.9 | 4/4 | Complete    | 2026-09-25 |
-| 43. CPU & GPU Component (Pill & Popup) | v0.9 | 3/3 | Complete    | 2026-09-26 |
+| 43. CPU & GPU Component (Pill & Popup) | v0.9 | 5/5 | Complete    | 2026-09-26 |
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 0 plans | Planned | — |

@@ -4,17 +4,17 @@ milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
 current_phase: 44
 current_phase_name: Memory & Storage Component (Pill & Popup)
-status: in-progress
+status: planning
 stopped_at: Plan 43-04 complete (gap closure for UAT G-43-1..6)
-last_updated: "2026-09-26T09:34:00.000Z"
+last_updated: "2026-09-26T06:06:15.071Z"
 last_activity: 2026-09-26
-last_activity_desc: Plan 43-04 complete (gap closure for UAT G-43-1..6)
-state_head: 9573809
+last_activity_desc: Phase 43 complete, transitioned to Phase 44
+state_head: 41c54387aa45614a7fd6a5b3f4fe668eeac5316b
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 9
+  completed_plans: 9
   percent: 40
 ---
 
@@ -25,10 +25,10 @@ Progress: [░░░░░░░░░░] 0/5 phases ([████░░░░
 
 ## Current Position
 
-Phase: 43 — CPU & GPU Component (Pill & Popup)
-Plan: 43-04 (gap closure) complete
-Status: Gap closure complete, ready to re-verify UAT
-Last activity: 2026-09-26 — Plan 43-04 complete (gap closure for UAT G-43-1..6)
+Phase: 44 — Memory & Storage Component (Pill & Popup)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-26 — Phase 43 complete, transitioned to Phase 44
 
 ## Session
 
