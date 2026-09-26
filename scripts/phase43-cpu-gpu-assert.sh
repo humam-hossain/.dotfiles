@@ -155,10 +155,10 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
     else
       fail "CpuGpuPill.qml missing Material Symbol 'planner_review'"
     fi
-    if grep -q "speed" "$PILL_QML"; then
-      pass "CpuGpuPill.qml references Material Symbol 'speed'"
+    if grep -q "sports_esports" "$PILL_QML"; then
+      pass "CpuGpuPill.qml references Material Symbol 'sports_esports'"
     else
-      fail "CpuGpuPill.qml missing Material Symbol 'speed'"
+      fail "CpuGpuPill.qml missing Material Symbol 'sports_esports'"
     fi
   fi
 
@@ -168,10 +168,10 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
     else
       fail "CpuGpuPopup.qml missing Material Symbol 'planner_review'"
     fi
-    if grep -q "speed" "$POPUP_QML"; then
-      pass "CpuGpuPopup.qml references Material Symbol 'speed'"
+    if grep -q "sports_esports" "$POPUP_QML"; then
+      pass "CpuGpuPopup.qml references Material Symbol 'sports_esports'"
     else
-      fail "CpuGpuPopup.qml missing Material Symbol 'speed'"
+      fail "CpuGpuPopup.qml missing Material Symbol 'sports_esports'"
     fi
   fi
 
@@ -245,6 +245,13 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
       pass "CpuGpuPill.qml binds to HardwareTelemetry CPU load, GPU load, and package temp"
     else
       fail "CpuGpuPill.qml missing HardwareTelemetry telemetry bindings"
+    fi
+
+    # Circular progress indicators around icons
+    if grep -q "ClippedFilledCircularProgress" "$PILL_QML"; then
+      pass "CpuGpuPill.qml encapsulates ClippedFilledCircularProgress indicator rings"
+    else
+      fail "CpuGpuPill.qml missing ClippedFilledCircularProgress rings"
     fi
 
     # Safe null coalescing / fallbacks
@@ -363,6 +370,25 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
       pass "CpuGpuPopup.qml displays Platform B760 VRM temp and EPP telemetry"
     else
       fail "CpuGpuPopup.qml missing Platform B760 VRM temp or EPP telemetry"
+    fi
+
+    # Segregated P/E core average temperatures & 6 platform sensors + interactive EPP
+    if grep -q "pCoreTempAvg" "$POPUP_QML" && grep -q "eCoreTempAvg" "$POPUP_QML"; then
+      pass "CpuGpuPopup.qml displays segregated P-core and E-core average temperatures"
+    else
+      fail "CpuGpuPopup.qml missing P-core or E-core average temperatures"
+    fi
+
+    if grep -q "platformTempAvg" "$POPUP_QML" && grep -q "platformTemp1" "$POPUP_QML" && grep -q "platformTemp6" "$POPUP_QML"; then
+      pass "CpuGpuPopup.qml displays all 6 platform sensors and average platform temp"
+    else
+      fail "CpuGpuPopup.qml missing platform sensor breakdown or platformTempAvg"
+    fi
+
+    if grep -q "cyclePowerProfile" "$POPUP_QML" || grep -q "setPowerProfile" "$POPUP_QML"; then
+      pass "CpuGpuPopup.qml provides interactive power-profile switcher"
+    else
+      fail "CpuGpuPopup.qml missing interactive power-profile switching handler"
     fi
 
     # Dual-column layout structure (D-13)
