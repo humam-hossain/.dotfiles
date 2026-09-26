@@ -2,7 +2,7 @@
 phase: "43"
 slug: "cpu-gpu-component-pill-popup"
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: "2026-09-26"
 ---
@@ -38,13 +38,11 @@ created: "2026-09-26"
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 43-01-01 | 01 | 1 | CPUGPU-01 | — | N/A | test-harness | `./scripts/phase43-cpu-gpu-assert.sh --syntax` | ❌ W0 | ⬜ pending |
-| 43-01-02 | 01 | 1 | CPUGPU-01 | — | N/A | unit-static | `./scripts/phase43-cpu-gpu-assert.sh -s 4` | ❌ W0 | ⬜ pending |
-| 43-02-01 | 02 | 2 | CPUGPU-01 | — | N/A | unit-static | `./scripts/phase43-cpu-gpu-assert.sh -s 2` | ❌ W0 | ⬜ pending |
-| 43-02-02 | 02 | 2 | CPUGPU-04 | — | N/A | unit-static | `./scripts/phase43-cpu-gpu-assert.sh -s 2` | ❌ W0 | ⬜ pending |
-| 43-03-01 | 03 | 3 | CPUGPU-02 | — | N/A | unit-static | `./scripts/phase43-cpu-gpu-assert.sh -s 3` | ❌ W0 | ⬜ pending |
-| 43-03-02 | 03 | 3 | CPUGPU-03 | — | N/A | unit-static | `./scripts/phase43-cpu-gpu-assert.sh -s 3` | ❌ W0 | ⬜ pending |
-| 43-03-03 | 03 | 3 | CPUGPU-01 | — | N/A | integration | `./scripts/phase43-cpu-gpu-assert.sh -s 5` | ❌ W0 | ⬜ pending |
+| 43-01-01 | 01 | 1 | CPUGPU-01 | ASVS-L1 | Fail closed on root (`EUID -ne 0`) | test-harness | `bash -n scripts/phase43-cpu-gpu-assert.sh && ./scripts/phase43-cpu-gpu-assert.sh --syntax` | ❌ W0 | ⬜ pending |
+| 43-01-02 | 01 | 1 | CPUGPU-01 | ASVS-L1 | Screen boundary clamping (`minX` to `maxX`) | unit-static | `./scripts/phase43-cpu-gpu-assert.sh -s 4` | ❌ W0 | ⬜ pending |
+| 43-02-01 | 02 | 2 | CPUGPU-01, CPUGPU-04 | ASVS-L1 | Inert mouse handling & safe null coalescing | unit-static | `./scripts/phase43-cpu-gpu-assert.sh -s 2` | ❌ W0 | ⬜ pending |
+| 43-03-01 | 03 | 3 | CPUGPU-02, CPUGPU-03, CPUGPU-04 | ASVS-L1 | Unprivileged power fallback & leak-free refcounting | unit-static | `./scripts/phase43-cpu-gpu-assert.sh -s 3` | ❌ W0 | ⬜ pending |
+| 43-03-02 | 03 | 3 | CPUGPU-01 | ASVS-L1 | Stow backup preservation & zero repo drift | integration | `./scripts/phase43-cpu-gpu-assert.sh && ./arch/dots-hyprland.sh verify --strict` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -68,11 +66,11 @@ created: "2026-09-26"
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 5s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 5s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** verified
