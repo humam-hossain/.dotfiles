@@ -129,12 +129,24 @@ StyledPopup {
             Layout.preferredWidth: 26
         }
 
-        StyledProgressBar {
+        Item {
             Layout.fillWidth: true
             Layout.preferredHeight: 4
-            value: Math.max(0.0, Math.min(1.0, tMeter.load))
-            highlightColor: tMeter.tLoadColor
-            opacity: tMeter.isCritical ? root.criticalPulseOpacity : 1.0
+
+            Rectangle {
+                anchors.fill: parent
+                radius: 2
+                color: Appearance.colors.colLayer2
+            }
+
+            Rectangle {
+                anchors.left: parent.left
+                width: parent.width * Math.max(0.0, Math.min(1.0, tMeter.load))
+                height: parent.height
+                radius: 2
+                color: tMeter.tLoadColor
+                opacity: tMeter.isCritical ? root.criticalPulseOpacity : 1.0
+            }
         }
 
         StyledText {
@@ -353,125 +365,62 @@ StyledPopup {
             // 6 Gigabyte WMI platform sensors breakdown
             ColumnLayout {
                 Layout.fillWidth: true
-                spacing: 4
+                spacing: 2
 
                 StyledText {
                     text: "Platform Sensors (1–6):"
-                    font.pixelSize: Appearance.font.pixelSize.small
+                    font.pixelSize: Appearance.font.pixelSize.smaller
                     font.weight: Font.Medium
                     color: Appearance.colors.colOnSurfaceVariant
                 }
 
-                GridLayout {
+                component PlatformSensorRow: RowLayout {
+                    id: psRow
+                    property string label: ""
+                    property int temp: 0
+                    spacing: 4
                     Layout.fillWidth: true
-                    columns: 2
-                    rowSpacing: 4
-                    columnSpacing: 8
 
                     StyledText {
-                        readonly property int t: HardwareTelemetry.platformTemp1 || HardwareTelemetry.vrmTemp || 0
-                        text: `VRM / S1: ${t}°C`
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: root.getTempColor(t)
-                        opacity: t >= 80 ? root.criticalPulseOpacity : 1.0
-                    }
-                    StyledText {
-                        readonly property int t: HardwareTelemetry.platformTemp2 || 0
-                        text: `Sensor 2: ${t}°C`
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: root.getTempColor(t)
-                        opacity: t >= 80 ? root.criticalPulseOpacity : 1.0
-                    }
-                    StyledText {
-                        readonly property int t: HardwareTelemetry.platformTemp3 || 0
-                        text: `Sensor 3: ${t}°C`
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: root.getTempColor(t)
-                        opacity: t >= 80 ? root.criticalPulseOpacity : 1.0
-                    }
-                    StyledText {
-                        readonly property int t: HardwareTelemetry.platformTemp4 || 0
-                        text: `Sensor 4: ${t}°C`
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: root.getTempColor(t)
-                        opacity: t >= 80 ? root.criticalPulseOpacity : 1.0
-                    }
-                    StyledText {
-                        readonly property int t: HardwareTelemetry.platformTemp5 || 0
-                        text: `Sensor 5: ${t}°C`
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: root.getTempColor(t)
-                        opacity: t >= 80 ? root.criticalPulseOpacity : 1.0
-                    }
-                    StyledText {
-                        readonly property int t: HardwareTelemetry.platformTemp6 || 0
-                        text: `Sensor 6: ${t}°C`
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        color: root.getTempColor(t)
-                        opacity: t >= 80 ? root.criticalPulseOpacity : 1.0
-                    }
-                }
-            }
-
-            // Interactive EPP / Power Profile Switcher
-            Rectangle {
-                id: eppButton
-                Layout.fillWidth: true
-                implicitHeight: 32
-                radius: Appearance.rounding.small
-                color: eppMouseArea.containsMouse ? Appearance.colors.colLayer2 : Appearance.colors.colLayer1
-                border.width: 1
-                border.color: eppMouseArea.containsMouse ? Appearance.colors.colPrimary : Appearance.colors.colLayer0Border
-
-                Behavior on color {
-                    ColorAnimation { duration: 150 }
-                }
-                Behavior on border.color {
-                    ColorAnimation { duration: 150 }
-                }
-
-                RowLayout {
-                    anchors.fill: parent
-                    anchors.leftMargin: 8
-                    anchors.rightMargin: 8
-                    spacing: 6
-
-                    MaterialSymbol {
-                        text: "energy_program_saving"
-                        iconSize: Appearance.font.pixelSize.normal
-                        color: Appearance.colors.colPrimary
-                    }
-
-                    StyledText {
-                        text: "EPP:"
-                        font.pixelSize: Appearance.font.pixelSize.small
+                        text: psRow.label
+                        font.pixelSize: Appearance.font.pixelSize.smaller
                         color: Appearance.colors.colOnSurfaceVariant
                     }
 
                     Item { Layout.fillWidth: true }
 
                     StyledText {
-                        text: `${HardwareTelemetry.activePowerProfile || HardwareTelemetry.energyPerformancePreference || ""}`
-                        font.pixelSize: Appearance.font.pixelSize.small
-                        font.weight: Font.DemiBold
-                        color: Appearance.colors.colPrimary
-                    }
-
-                    MaterialSymbol {
-                        text: "swap_vert"
-                        iconSize: Appearance.font.pixelSize.small
-                        color: Appearance.colors.colSubtext
+                        text: `${psRow.temp}°C`
+                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        font.weight: Font.Medium
+                        color: root.getTempColor(psRow.temp)
+                        opacity: psRow.temp >= 80 ? root.criticalPulseOpacity : 1.0
                     }
                 }
 
-                MouseArea {
-                    id: eppMouseArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: {
-                        HardwareTelemetry.cyclePowerProfile();
-                    }
+                PlatformSensorRow {
+                    label: "VRM / Sensor 1:"
+                    temp: HardwareTelemetry.platformTemp1 || HardwareTelemetry.vrmTemp || 0
+                }
+                PlatformSensorRow {
+                    label: "Sensor 2:"
+                    temp: HardwareTelemetry.platformTemp2 || 0
+                }
+                PlatformSensorRow {
+                    label: "Sensor 3:"
+                    temp: HardwareTelemetry.platformTemp3 || 0
+                }
+                PlatformSensorRow {
+                    label: "Sensor 4:"
+                    temp: HardwareTelemetry.platformTemp4 || 0
+                }
+                PlatformSensorRow {
+                    label: "Sensor 5:"
+                    temp: HardwareTelemetry.platformTemp5 || 0
+                }
+                PlatformSensorRow {
+                    label: "Sensor 6:"
+                    temp: HardwareTelemetry.platformTemp6 || 0
                 }
             }
         }
