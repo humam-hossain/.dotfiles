@@ -41,6 +41,10 @@ BarGroup {
         hoverEnabled: true
         onPressed: event => event.accepted = true
         onClicked: event => event.accepted = true
+
+        CpuGpuPopup {
+            hoverTarget: root.hoverArea
+        }
     }
 
     // --- CPU Section ---
