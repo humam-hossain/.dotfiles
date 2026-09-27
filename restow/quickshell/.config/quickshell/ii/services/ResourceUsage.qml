@@ -12,6 +12,8 @@ import Quickshell.Io
 Singleton {
     id: root
 
+    property bool isInspectorActive: false
+
     // Core Memory Properties (extended per D-15)
     property real memoryTotal: 1
     property real memoryFree: 0
@@ -71,44 +73,54 @@ Singleton {
         updateCpuUsageHistory();
     }
 
+    function pollMetrics() {
+        // Reload virtual files
+        fileMeminfo.reload();
+        fileStat.reload();
+
+        // Parse memory and swap usage (D-15 extended fields)
+        const textMeminfo = fileMeminfo.text();
+        memoryTotal = Number(textMeminfo.match(/MemTotal:\s*(\d+)/)?.[1] ?? 1);
+        memoryAvailable = Number(textMeminfo.match(/MemAvailable:\s*(\d+)/)?.[1] ?? 0);
+        memoryFree = memoryAvailable;
+        memoryBuffers = Number(textMeminfo.match(/Buffers:\s*(\d+)/)?.[1] ?? 0);
+        memoryCached = Number(textMeminfo.match(/^Cached:\s*(\d+)/m)?.[1] ?? 0);
+        swapTotal = Number(textMeminfo.match(/SwapTotal:\s*(\d+)/)?.[1] ?? 1);
+        swapFree = Number(textMeminfo.match(/SwapFree:\s*(\d+)/)?.[1] ?? 0);
+
+        // Parse CPU usage
+        const textStat = fileStat.text();
+        const cpuLine = textStat.match(/^cpu\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/);
+        if (cpuLine) {
+            const stats = cpuLine.slice(1).map(Number);
+            const total = stats.reduce((a, b) => a + b, 0);
+            const idle = stats[3];
+
+            if (previousCpuStats) {
+                const totalDiff = total - previousCpuStats.total;
+                const idleDiff = idle - previousCpuStats.idle;
+                cpuUsage = totalDiff > 0 ? (1 - idleDiff / totalDiff) : 0;
+            }
+
+            previousCpuStats = { total, idle };
+        }
+
+        if (root.isInspectorActive) {
+            root.updateHistories();
+        }
+    }
+
+    Component.onCompleted: {
+        root.pollMetrics();
+    }
+
     Timer {
-        interval: 1
+        id: pollTimer
+        interval: root.isInspectorActive ? 1000 : (Config?.options?.resources?.updateInterval ?? 3000)
         running: true 
         repeat: true
         onTriggered: {
-            // Reload virtual files
-            fileMeminfo.reload();
-            fileStat.reload();
-
-            // Parse memory and swap usage (D-15 extended fields)
-            const textMeminfo = fileMeminfo.text();
-            memoryTotal = Number(textMeminfo.match(/MemTotal:\s*(\d+)/)?.[1] ?? 1);
-            memoryAvailable = Number(textMeminfo.match(/MemAvailable:\s*(\d+)/)?.[1] ?? 0);
-            memoryFree = memoryAvailable;
-            memoryBuffers = Number(textMeminfo.match(/Buffers:\s*(\d+)/)?.[1] ?? 0);
-            memoryCached = Number(textMeminfo.match(/^Cached:\s*(\d+)/m)?.[1] ?? 0);
-            swapTotal = Number(textMeminfo.match(/SwapTotal:\s*(\d+)/)?.[1] ?? 1);
-            swapFree = Number(textMeminfo.match(/SwapFree:\s*(\d+)/)?.[1] ?? 0);
-
-            // Parse CPU usage
-            const textStat = fileStat.text();
-            const cpuLine = textStat.match(/^cpu\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)/);
-            if (cpuLine) {
-                const stats = cpuLine.slice(1).map(Number);
-                const total = stats.reduce((a, b) => a + b, 0);
-                const idle = stats[3];
-
-                if (previousCpuStats) {
-                    const totalDiff = total - previousCpuStats.total;
-                    const idleDiff = idle - previousCpuStats.idle;
-                    cpuUsage = totalDiff > 0 ? (1 - idleDiff / totalDiff) : 0;
-                }
-
-                previousCpuStats = { total, idle };
-            }
-
-            root.updateHistories();
-            interval = Config?.options?.resources?.updateInterval ?? 3000;
+            root.pollMetrics();
         }
     }
 

@@ -14,6 +14,13 @@ Singleton {
     property int fastPollingRequests: 0
     readonly property bool fastPolling: fastPollingRequests > 0 || overallCpuLoad > 0.50
 
+    onFastPollingRequestsChanged: {
+        if (fastPollingRequests < 0) fastPollingRequests = 0;
+        if (fastPollingRequests === 1) {
+            root.pollTier2();
+        }
+    }
+
     Timer {
         id: pollTimer
         interval: root.fastPolling ? 1000 : 3000
@@ -186,8 +193,29 @@ Singleton {
     property var threadFrequencies: []
     property var prevCpuTicks: ({})
 
-    function updateCpuLoad() {
+    function updateCpuLoadTier1() {
         fileProcStat.reload();
+        const text = fileProcStat.text();
+        if (!text) return;
+
+        const line = text.slice(0, text.indexOf("\n")).trim();
+        if (!line.startsWith("cpu ")) return;
+        const parts = line.split(/\s+/);
+        const total = parts.slice(1, 9).reduce((acc, val) => acc + (parseFloat(val) || 0), 0);
+        const idle = (parseFloat(parts[4]) || 0) + (parseFloat(parts[5]) || 0);
+        const active = total - idle;
+
+        const prev = prevCpuTicks["cpu"];
+        if (prev) {
+            const dTotal = total - prev.total;
+            const dActive = active - prev.active;
+            overallCpuLoad = dTotal > 0 ? Math.max(0.0, Math.min(1.0, dActive / dTotal)) : 0.0;
+        }
+        prevCpuTicks["cpu"] = { total: total, active: active };
+    }
+
+    function updateCpuLoadTier2() {
+        if (!fileProcStat.text()) fileProcStat.reload();
         const text = fileProcStat.text();
         if (!text) return;
 
@@ -198,7 +226,7 @@ Singleton {
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].trim();
-            if (!line.startsWith("cpu")) continue;
+            if (!line.startsWith("cpu") || line.startsWith("cpu ")) continue;
             const parts = line.split(/\s+/);
             const name = parts[0];
 
@@ -216,23 +244,24 @@ Singleton {
             }
             prevCpuTicks[name] = { total: total, active: active };
 
-            if (name === "cpu") {
-                overallCpuLoad = load;
-            } else {
-                const cpuIdx = parseInt(name.replace("cpu", ""), 10);
-                if (!isNaN(cpuIdx) && cpuIdx < 20) {
-                    newThreadLoads[cpuIdx] = load;
-                    if (cpuIdx < 12) {
-                        pCoreSum += load; // CPUs 0-11: 6 P-cores (12 threads)
-                    } else {
-                        eCoreSum += load; // CPUs 12-19: 8 E-cores (8 threads)
-                    }
+            const cpuIdx = parseInt(name.replace("cpu", ""), 10);
+            if (!isNaN(cpuIdx) && cpuIdx < 20) {
+                newThreadLoads[cpuIdx] = load;
+                if (cpuIdx < 12) {
+                    pCoreSum += load; // CPUs 0-11: 6 P-cores (12 threads)
+                } else {
+                    eCoreSum += load; // CPUs 12-19: 8 E-cores (8 threads)
                 }
             }
         }
         perThreadLoads = newThreadLoads;
         pCoreLoad = pCoreSum / 12.0;
         eCoreLoad = eCoreSum / 8.0;
+    }
+
+    function updateCpuLoad() {
+        updateCpuLoadTier1();
+        updateCpuLoadTier2();
     }
 
     function updateFrequencies() {
@@ -334,12 +363,8 @@ Singleton {
     property real lastGpuSampleTime: 0
     property real lastRc6Ms: 0
 
-    function updateGpuMetrics() {
+    function updateGpuRc6Tier1() {
         fileGpuRc6.reload();
-        fileGpuFreq.reload();
-        fileGpuCurFreq.reload();
-        fileGpuThrottle.reload();
-
         const now = Date.now();
         const rc6 = parseFloat(fileGpuRc6.text().trim());
         if (!isNaN(rc6) && lastGpuSampleTime > 0 && lastRc6Ms > 0) {
@@ -353,6 +378,12 @@ Singleton {
         }
         lastGpuSampleTime = now;
         lastRc6Ms = rc6;
+    }
+
+    function updateGpuMetricsTier2() {
+        fileGpuFreq.reload();
+        fileGpuCurFreq.reload();
+        fileGpuThrottle.reload();
 
         const actFreq = parseFloat(fileGpuFreq.text().trim());
         const curFreq = parseFloat(fileGpuCurFreq.text().trim());
@@ -366,6 +397,11 @@ Singleton {
 
         const throttle = parseInt(fileGpuThrottle.text().trim(), 10);
         gpuThrottled = (!isNaN(throttle) && throttle !== 0);
+    }
+
+    function updateGpuMetrics() {
+        updateGpuRc6Tier1();
+        updateGpuMetricsTier2();
     }
 
     // =========================================================================
@@ -393,11 +429,13 @@ Singleton {
     property int vrmTemp: platformTemp1
     property int motherboardTemp: platformTempAvg
 
-    function updateThermals() {
+    function updatePackageTempTier1() {
         filePackageTemp.reload();
         const pkgRaw = parseInt(filePackageTemp.text().trim(), 10);
         packageTemp = isNaN(pkgRaw) ? 0 : Math.round(pkgRaw / 1000.0);
+    }
 
+    function updateThermalsTier2() {
         // Segregated core averages (6 P-cores: temp2,6,10,14,18,22; 8 E-cores: temp26..33)
         const pCoreFiles = [fileCoreTemp2, fileCoreTemp6, fileCoreTemp10, fileCoreTemp14, fileCoreTemp18, fileCoreTemp22];
         let pCoreTempsArr = [];
@@ -477,15 +515,33 @@ Singleton {
         peakDeviceLabel = label;
     }
 
+    function updateThermals() {
+        updatePackageTempTier1();
+        updateThermalsTier2();
+    }
+
     // =========================================================================
-    // Master Polling Dispatcher
+    // Master Polling Dispatcher (Two-Tier Demand-Gated Sweeping)
     // =========================================================================
-    function pollAll() {
-        try { updateCpuLoad(); } catch (e) { console.warn("updateCpuLoad error:", e); }
+    function pollTier1() {
+        try { updateCpuLoadTier1(); } catch (e) { console.warn("updateCpuLoadTier1 error:", e); }
+        try { updatePackageTempTier1(); } catch (e) { console.warn("updatePackageTempTier1 error:", e); }
+        try { updateGpuRc6Tier1(); } catch (e) { console.warn("updateGpuRc6Tier1 error:", e); }
+    }
+
+    function pollTier2() {
+        try { updateCpuLoadTier2(); } catch (e) { console.warn("updateCpuLoadTier2 error:", e); }
         try { updateFrequencies(); } catch (e) { console.warn("updateFrequencies error:", e); }
         try { updateGovernors(); } catch (e) { console.warn("updateGovernors error:", e); }
-        try { updateGpuMetrics(); } catch (e) { console.warn("updateGpuMetrics error:", e); }
-        try { updateThermals(); } catch (e) { console.warn("updateThermals error:", e); }
+        try { updateGpuMetricsTier2(); } catch (e) { console.warn("updateGpuMetricsTier2 error:", e); }
+        try { updateThermalsTier2(); } catch (e) { console.warn("updateThermalsTier2 error:", e); }
+    }
+
+    function pollAll() {
+        pollTier1();
+        if (root.fastPollingRequests > 0) {
+            pollTier2();
+        }
     }
 
     Component.onCompleted: {

@@ -123,12 +123,6 @@ Item { // Bar content region
         Bar.BarGroup {
             vertical: true
             padding: 8
-            Resources {
-                Layout.fillWidth: true
-                Layout.fillHeight: false
-            }
-            
-            HorizontalBarSeparator {}
 
             VerticalMedia {
                 id: verticalMedia

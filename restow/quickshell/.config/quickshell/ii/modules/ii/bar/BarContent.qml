@@ -108,16 +108,6 @@ Item { // Bar content region
             }
 
             BarGroup {
-                id: resourcesGroup
-                Layout.alignment: Qt.AlignVCenter
-
-                Resources {
-                    alwaysShowAllResources: root.useShortenedForm === 2
-                    Layout.fillWidth: root.useShortenedForm === 2
-                }
-            }
-
-            BarGroup {
                 id: utilButtonsGroup
                 Layout.alignment: Qt.AlignVCenter
                 visible: (Config.options.bar.verbose && root.useShortenedForm === 0)
