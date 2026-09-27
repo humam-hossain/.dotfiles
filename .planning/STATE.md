@@ -2,46 +2,46 @@
 gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
-current_phase: "44"
-current_phase_name: Memory & Storage Component (Pill & Popup)
+current_phase: "43.5"
+current_phase_name: cpu-gpu-dynamic-telemetry-top-process-attribution-tree-hover
 status: ready_to_plan
-stopped_at: Phase 43.4 complete, ready to plan Phase 44
-last_updated: "2026-09-27T15:06:00.000Z"
+stopped_at: Phase 43.5 inserted, ready for discussion and planning
+last_updated: "2026-09-27T17:03:15.236Z"
 last_activity: 2026-09-27
-last_activity_desc: Phase 43.4 completed with empirical benchmark verification
-state_head: 0a4257b
+last_activity_desc: Phase 43.5 inserted (Dynamic Telemetry, Process Attribution Tree, Hover Delay)
+state_head: 9e6902ed9d3af8ce3cb60bccb13f2103659fb1e3
 progress:
-  total_phases: 9
+  total_phases: 10
   completed_phases: 4
-  total_plans: 20
+  total_plans: 23
   completed_plans: 20
-  percent: 44
+  percent: 30
 ---
 
-Total Phases: 7 (Phases 42–46 + 43.1 + 43.4)
-Progress: [████░░░░░░] 4/9 phases ([████░░░░░░] 44%)
+Total Phases: 10 (Phases 42–46 + 43.1–43.5)
+Progress: [████░░░░░░] 4/10 phases ([███░░░░░░░] 30%)
 
 # Project State
 
 ## Current Position
 
-Phase: 44 (Memory & Storage Component (Pill & Popup)) — READY TO PLAN
+Phase: 43.5 (cpu-gpu-dynamic-telemetry-top-process-attribution-tree-hover) — READY TO EXECUTE
 Plan: 0 of TBD
-Status: Ready to plan Phase 44
-Last activity: 2026-09-27 — Phase 43.4 completed with empirical benchmark verification
+Status: Ready to discuss and plan Phase 43.5
+Last activity: 2026-09-27 — Phase 43.5 inserted
 
 ## Session
 
-**Last session:** 2026-09-27T12:48:30.000Z
-**Stopped at:** Phase 43.4 context gathered, ready to plan Phase 43.4
-**Resume file:** /home/pera/github_repo/.dotfiles/.planning/phases/43.4-quickshell-targeted-optimization-and-empirical-verification/43.4-CONTEXT.md
+**Last session:** 2026-09-27T15:29:00.000Z
+**Stopped at:** Phase 43.5 inserted, ready for discussion and planning
+**Resume file:** .planning/phases/43.5-cpu-gpu-dynamic-telemetry-top-process-attribution-tree-hover/
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-27 after Phase 43.1)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 43.4 — Quickshell Targeted Optimization & Empirical Verification (INSERTED)
+**Current focus:** Phase 43.5 — CPU/GPU Dynamic Telemetry, Top Process Attribution Tree & Hover Delay Ergonomics (INSERTED)
 
 ## Deferred Items
 
@@ -149,6 +149,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - Phase 40.1 inserted after Phase 40: Clock Pill Padding and Unified Volume Ceiling Ergonomics (URGENT)
 - Phase 42 added: Top Status Bar Resource Component Customization & Hardware Telemetry
 - Phase 43.1 inserted after Phase 43: Quickshell Performance Profiling and Resource Optimization (URGENT)
+- Phase 43.5 inserted after Phase 43.4: CPU/GPU Dynamic Telemetry, Top Process Attribution Tree & Hover Delay Ergonomics (URGENT)
 
 ## Operator Next Steps
 
