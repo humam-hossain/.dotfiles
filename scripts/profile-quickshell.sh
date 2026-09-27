@@ -53,10 +53,10 @@ cleanup() {
   local exit_code=$?
   trap - EXIT INT TERM
   info "Cleaning up temporary files and restoring state..."
+  restore_restow_quickshell || true
   if [[ ${#TMP_FILES[@]} -gt 0 ]]; then
     rm -f "${TMP_FILES[@]}" 2>/dev/null || true
   fi
-  restore_restow_quickshell || true
   exit "$exit_code"
 }
 trap cleanup EXIT INT TERM
@@ -235,6 +235,14 @@ restore_restow_quickshell() {
       done < "$STUB_LIST_FILE"
       > "$STUB_LIST_FILE"
     fi
+    local f target
+    while IFS= read -r f; do
+      [[ -n "$f" ]] || continue
+      target="$HOME/$f"
+      if [[ -f "$target" && ! -L "$target" ]]; then
+        rm -f "$target" 2>/dev/null || true
+      fi
+    done < <(cd "$REPO_ROOT/restow/quickshell" && find . -type f)
     stow --no-folding -d "$REPO_ROOT/restow" -t "$HOME" quickshell 2>/dev/null || true
     STOW_ISOLATED=0
     info "Restarting Quickshell with restored custom overlays..."
