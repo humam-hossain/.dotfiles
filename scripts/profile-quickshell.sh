@@ -53,9 +53,7 @@ cleanup() {
   if [[ ${#TMP_FILES[@]} -gt 0 ]]; then
     rm -f "${TMP_FILES[@]}" 2>/dev/null || true
   fi
-  if declare -F restore_restow_quickshell >/dev/null 2>&1; then
-    restore_restow_quickshell || true
-  fi
+  restore_restow_quickshell || true
   exit "$exit_code"
 }
 trap cleanup EXIT INT TERM
@@ -166,6 +164,49 @@ restart_quickshell() {
   info "Starting Quickshell daemon ($qs_bin -c ii -d)..."
   $qs_bin -c ii -d >/dev/null 2>&1 &
   sleep 1.5
+}
+
+# -----------------------------------------------------------------------------
+# GNU Stow Baseline Isolation & Restoration (Pattern E, D-01, D-12)
+# -----------------------------------------------------------------------------
+isolate_upstream_baseline() {
+  info "Isolating pure upstream baseline: unstowing restow/quickshell..."
+  stow -D --no-folding -d "$REPO_ROOT/restow" -t "$HOME" quickshell 2>/dev/null || true
+
+  local ii_dir="$HOME/.config/quickshell/ii"
+  > "$STUB_LIST_FILE"
+  local bak_file dir base target_name target
+  while IFS= read -r bak_file; do
+    [[ -n "$bak_file" ]] || continue
+    dir="$(dirname "$bak_file")"
+    base="$(basename "$bak_file")"
+    target_name="${base%%.bak*}"
+    target="$dir/$target_name"
+    if [[ ! -e "$target" ]]; then
+      cp "$bak_file" "$target"
+      echo "$target" >> "$STUB_LIST_FILE"
+    fi
+  done < <(find "$ii_dir" -name "*.bak*" -type f)
+
+  STOW_ISOLATED=1
+  info "Restarting Quickshell in pure upstream baseline mode..."
+  restart_quickshell
+}
+
+restore_restow_quickshell() {
+  if [[ "$STOW_ISOLATED" -eq 1 ]]; then
+    info "Restoring custom overlays: removing upstream stubs and restowing..."
+    if [[ -f "$STUB_LIST_FILE" ]]; then
+      while IFS= read -r target; do
+        [[ -n "$target" ]] && rm -f "$target" 2>/dev/null || true
+      done < "$STUB_LIST_FILE"
+      > "$STUB_LIST_FILE"
+    fi
+    stow --no-folding -d "$REPO_ROOT/restow" -t "$HOME" quickshell 2>/dev/null || true
+    STOW_ISOLATED=0
+    info "Restarting Quickshell with restored custom overlays..."
+    restart_quickshell
+  fi
 }
 
 # -----------------------------------------------------------------------------
@@ -418,7 +459,19 @@ run_sample_window() {
 # -----------------------------------------------------------------------------
 main() {
   local target_stage="${SELECTED_STAGE:-full_idle}"
-  run_sample_window "$target_stage" "Quickshell Run"
+  case "$target_stage" in
+    upstream_baseline)
+      isolate_upstream_baseline
+      run_sample_window "upstream_baseline" "Upstream Baseline (Pure)"
+      restore_restow_quickshell
+      ;;
+    full_idle)
+      run_sample_window "full_idle" "Full Shell (Idle)"
+      ;;
+    *)
+      run_sample_window "$target_stage" "Quickshell Run ($target_stage)"
+      ;;
+  esac
 }
 
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
