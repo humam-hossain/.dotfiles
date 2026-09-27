@@ -27,6 +27,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 - [x] **Phase 43.1: Quickshell Performance Profiling and Resource Optimization (INSERTED)** (3 plans) (completed 2026-09-27)
 - [x] **Phase 43.2: Quickshell Profiling Harness Calibration & Empirical Baseline Capture (INSERTED)** (2 plans) (completed 2026-09-27)
 - [x] **Phase 43.3: Quickshell Benchmark Bottleneck Analysis & Optimization Strategy (INSERTED)** (1 plan) (completed 2026-09-27)
+- [ ] **Phase 43.4: Quickshell Targeted Optimization & Empirical Verification (INSERTED)** (0 plans)
 - [ ] **Phase 44: Memory & Storage Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 45: Network & Multi-Target Ping Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 46: Left-Zone Integration, Verification & Repository Integrity** (0 plans)
@@ -135,6 +136,22 @@ Plans:
 **Wave 1**
 - [x] 43.3-01-PLAN.md — Bottleneck Root-Cause Dissection & Architectural Optimization Decision Matrix
 
+### Phase 43.4: Quickshell Targeted Optimization & Empirical Verification (INSERTED)
+
+**Goal:** Implement prioritized QML optimizations formulated in Phase 43.3 (ResourceUsage timer fix D-02, history array GC gating D-03, legacy Resources pill retirement D-04, HardwareTelemetry two-tier sensor sweeping D-05/D-06/D-07/D-08, and CpuGpuPopup/Pill scenegraph throttling D-09/D-10/D-11/D-12), then execute a complete re-benchmarking run via `scripts/profile-quickshell.sh` to capture both clean upstream baseline and optimized custom shell side-by-side in `BENCHMARK.md`.  
+**Depends on:** Phase 43.3  
+**Requirements**: PERF-01, PERF-02, PERF-03  
+**Plans:** 0 plans
+
+Success criteria:
+
+1. `ResourceUsage.qml` configured with declarative timer initialized to 3000ms idle interval (and `Component.onCompleted` initial fetch), eliminating the `interval: 1` bug and dropping idle read syscalls from ~3,120/s to <80/s.
+2. `ResourceUsage.qml` history array updates gated on `isInspectorActive`, eliminating idle V8/QJSEngine garbage collection spread copying.
+3. Legacy `Resources` pill retired and removed from `BarContent.qml` and `VerticalBarContent.qml`, leaving `ResourceUsage.qml` dormant and clearing the Left Zone for Phase 44.
+4. `HardwareTelemetry.qml` implements Two-Tier Demand-Gated Sweeping (Tier 1: 3 files in idle every 3s; Tier 2: 28 files in active every 1s with frame-0 zero-latency synchronization on popup open).
+5. Scenegraph throttling applied to `CpuGpuPopup.qml` and `CpuGpuPill.qml` (gated critical alert pulse animation, 1% integer deadband quantization, and `root.active` binding guards) retaining all 20 thread meters while reducing active iGPU rendering overhead.
+6. Side-by-side re-benchmarking executed via `scripts/profile-quickshell.sh`, capturing upstream baseline, idle, and active UI performance metrics in `BENCHMARK.md`.
+
 ### Phase 44: Memory & Storage Component (Pill & Popup)
 
 **Goal**: Build dedicated `MemoryStoragePill.qml` status bar pill and interactive `MemoryStoragePopup.qml` inspector overlay.  
@@ -191,6 +208,8 @@ Success criteria:
 | 43.1. Quickshell Performance Profiling and Resource Optimization | v0.9 | 3/3 | Complete    | 2026-09-27 |
 | 43.2. Quickshell Profiling Harness Calibration & Empirical Baseline Capture | v0.9 | 2/2 | Complete | 2026-09-27 |
 | 43.3. Quickshell Benchmark Bottleneck Analysis & Optimization Strategy | v0.9 | 1/1 | Complete | 2026-09-27 |
+| 43.4. Quickshell Targeted Optimization & Empirical Verification | v0.9 | 0 plans | Planned | — |
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 0 plans | Planned | — |
+

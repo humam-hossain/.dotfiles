@@ -3,32 +3,32 @@ gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
 current_phase: "43.3"
-current_phase_name: quickshell-performance-analysis-and-optimization-strategy
+current_phase_name: Quickshell Benchmark Bottleneck Analysis & Optimization Strategy (INSERTED)
 status: executing
 stopped_at: Phase 43.3 context gathered
-last_updated: "2026-09-27T08:25:11.426Z"
+last_updated: "2026-09-27T08:28:53.645Z"
 last_activity: 2026-09-27
-last_activity_desc: Phase 43.1 complete, transitioned to Phase 44
-state_head: dc85c449b8698945ef0205d5d65eb4c4d6f2a43e
+last_activity_desc: Phase 43.3 execution started
+state_head: 3e53cee79fd7814a72b9bec5f476761bbdfc7ca4
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 2
   total_plans: 17
-  completed_plans: 17
-  percent: 25
+  completed_plans: 16
+  percent: 22
 ---
 
-Total Phases: 6 (Phases 42–46 + 43.1)
-Progress: [███░░░░░░░] 2/6 phases ([███░░░░░░░] 25%)
+Total Phases: 7 (Phases 42–46 + 43.1 + 43.4)
+Progress: [██░░░░░░░░] 2/7 phases (22%)
 
 # Project State
 
 ## Current Position
 
-Phase: 43.3 (quickshell-performance-analysis-and-optimization-strategy) — READY TO EXECUTE
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-27 — Phase 43.1 complete, transitioned to Phase 44
+Phase: 43.3 (Quickshell Benchmark Bottleneck Analysis & Optimization Strategy (INSERTED)) — EXECUTING
+Plan: 1 of 1
+Status: Executing Phase 43.3
+Last activity: 2026-09-27 — Phase 43.3 execution started
 
 ## Session
 
@@ -41,7 +41,7 @@ Last activity: 2026-09-27 — Phase 43.1 complete, transitioned to Phase 44
 See: .planning/PROJECT.md (updated 2026-09-27 after Phase 43.1)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 44 — Memory & Storage Component (Pill & Popup)
+**Current focus:** Phase 43.3 — Quickshell Benchmark Bottleneck Analysis & Optimization Strategy (INSERTED)
 
 ## Deferred Items
 
@@ -292,3 +292,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 37]: Integrated VoicePill into BarContent.qml right zone directly following mediaLoader, with full multi-monitor responsive suppression logic and an inert MouseArea preventing clicks from bleeding to the status bar toggles. Deployment completed exclusively through GNU Stow leaf symlinks, leaving the upstream dots-hyprland submodule untouched. Test harness executing perfectly across 5 sections with FAIL=0 FINDINGS=0.
 - [Phase 38]: Confirmed upstream PowerProfilesToggle.qml works directly without local QML overlay (D-01 parity). Integrated power-profiles-daemon into bootstrap.sh step_packages with idempotent pre-checks (pacman -Q, systemctl is-active) and dry-run preview. Updated pkglist-native.txt and dots-hyprland.sh verification anchors.
 - [Phase 39]: Implemented GlobalStates.qml singleton coordinate bridge with mediaPillCenterX/Y properties. BarContent.qml and VerticalBarContent.qml capture pill coordinates via HoverHandler (avoiding MouseArea inner-click interception). MediaControls.qml anchors directly beneath the pill with Math.min/Math.max horizontal boundary clamping and narrow-screen guard (maxX < minX fallback). Sentinel -1 activates upstream center fallback for keyboard/IPC open.
+- [Phase 43.3]: D-01: Insert Phase 43.4 ahead of Phase 44 for targeted QML optimization and empirical re-benchmarking side-by-side in BENCHMARK.md.
+- [Phase 43.3]: D-02..D-04: Declarative timer (3s idle) and Component.onCompleted in ResourceUsage.qml to eliminate interval: 1 bug; gate history array allocations on inspector active; retire legacy Resources pill ahead of Phase 44.
+- [Phase 43.3]: D-05..D-08: Two-tier sensor sweeping in HardwareTelemetry.qml (Tier 1: 3 files in idle; Tier 2: 28 files in active with zero-latency frame 0 sync); maintain 3s idle / 1s active cadence; consolidate procfs CPU parsing.
+- [Phase 43.3]: D-09..D-12: Retain full 20-thread layout in CpuGpuPopup.qml while eliminating rendering overhead via binding guards (root.active), strict critical alert pulse gating, and 1% integer deadband quantization.
