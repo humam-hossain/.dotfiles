@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
 current_phase: "43.1"
-current_phase_name: Quickshell Performance Profiling and Resource Optimization
+current_phase_name: quickshell-performance-profiling-and-resource-optimization
 status: ready_to_plan
 stopped_at: Phase 43.1 context gathered
-last_updated: "2026-09-27T04:14:52.723Z"
+last_updated: "2026-09-27T04:54:50.037Z"
 last_activity: 2026-09-26
 last_activity_desc: Inserted Phase 43.1 for resource profiling and optimization
-state_head: 366fc62b9f4e521ac508f85f4587009ff0d572b8
+state_head: 4f63146df4b2b4e4c80dab2fb2c9fc10f4bb75c3
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 11
+  total_plans: 14
   completed_plans: 11
   percent: 17
 ---
@@ -25,7 +25,7 @@ Progress: [░░░░░░░░░░] 2/6 phases ([██░░░░░░
 
 ## Current Position
 
-Phase: 43.1 (Quickshell Performance Profiling and Resource Optimization) — INSERTED (URGENT)
+Phase: 43.1 (quickshell-performance-profiling-and-resource-optimization) — READY TO EXECUTE
 Plan: 0 of TBD
 Status: Ready to plan (/gsd-plan-phase 43.1)
 Last activity: 2026-09-26 — Phase 43.1 inserted for Quickshell resource profiling and optimization

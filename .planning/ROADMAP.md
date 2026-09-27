@@ -24,6 +24,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 
 - [x] **Phase 42: Telemetry Services & Sensor Infrastructure** (4 plans) (completed 2026-09-25)
 - [x] **Phase 43: CPU & GPU Component (Pill & Popup)** (4 plans) (completed 2026-09-26)
+- [ ] **Phase 43.1: Quickshell Performance Profiling and Resource Optimization (INSERTED)** (3 plans)
 - [ ] **Phase 44: Memory & Storage Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 45: Network & Multi-Target Ping Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 46: Left-Zone Integration, Verification & Repository Integrity** (0 plans)
@@ -66,6 +67,33 @@ Success criteria:
 1. Status bar pill displays live CPU % and GPU % with distinct Material Symbols icons (`planner_review`, `speed`) and 250ms M3 emphasized deceleration width resizing.
 2. Popup inspector displays CPU load %, package temperature (°C), wattage draw, clock speeds (MHz), and Intel iGPU load %, average load, frequency (MHz), and thermal status.
 3. Synchronized two-tier alert coloring (Amber at 70%, Red at 90%) applied consistently across pill icons, text labels, and popup headers.
+
+### Phase 43.1: Quickshell Performance Profiling and Resource Optimization (INSERTED)
+
+**Goal:** Profile Quickshell CPU, GPU, memory, and timer/process usage across components and singletons (telemetry services, polling loops, animations). Isolate the root causes of elevated resource consumption, optimize hot routines, and streamline or remove unnecessary components to ensure the status bar remains lightweight and resource-efficient.  
+**Requirements**: PERF-01, PERF-02, PERF-03  
+**Depends on:** Phase 43  
+**Plans:** 3 plans
+
+Success criteria:
+
+1. Benchmark baseline and per-component CPU, GPU, and memory footprints across Quickshell runtime (including `HardwareTelemetry`, `ResourceUsage`, `StorageUsage`, `PingService`, and active pills/popups).
+2. Identify specific bottlenecks, runaway intervals, redundant polling loops, or expensive QML bindings/animations.
+3. Apply targeted optimizations, throttles, or removals for high-cost components.
+4. Validate reduced resource overhead without degrading core shell stability or UX.
+
+Plans:
+**Wave 1**
+
+- [ ] 43.1-01-PLAN.md — Baseline & Staged Resource Profiling Harness
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 43.1-02-PLAN.md — Staged Attribution Matrix, Dual-State Profiling & Comprehensive Reporting
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 43.1-03-PLAN.md — Performance Assertion Suite & Evidence-Based Optimization Framework
 
 ### Phase 44: Memory & Storage Component (Pill & Popup)
 
@@ -119,7 +147,8 @@ Success criteria:
 | 40.1. Clock Pill Padding and Unified Volume Ceiling Ergonomics | v0.8 | 2/2 | Complete | 2026-09-24 |
 | 41. End-to-End Verification & Repository Integrity | v0.8 | 2/2 | Complete | 2026-09-25 |
 | 42. Telemetry Services & Sensor Infrastructure | v0.9 | 4/4 | Complete    | 2026-09-25 |
-| 43. CPU & GPU Component (Pill & Popup) | v0.9 | 7/7 | In Progress|  |
+| 43. CPU & GPU Component (Pill & Popup) | v0.9 | 7/7 | Complete | 2026-09-26 |
+| 43.1. Quickshell Performance Profiling and Resource Optimization | v0.9 | 0/3 | Planned | — |
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 0 plans | Planned | — |
