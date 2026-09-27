@@ -1,0 +1,82 @@
+{
+  "timestamp": "2026-09-27T15:00:06.175166+00:00",
+  "phase": "43.2",
+  "environment": {
+    "host": "pera-desktop",
+    "cpu": "12th Gen Intel Core i7-12700K",
+    "gpu": "Intel AlderLake-S GT1 (UHD Graphics 770)",
+    "display": "DP-1 3440x1440@60Hz"
+  },
+  "config": {
+    "warmup_sec": 2,
+    "duration_sec": 5
+  },
+  "stages": {
+    "upstream_baseline": {
+      "name": "Upstream Baseline (Pure)",
+      "cpu_pct_avg": 1.15,
+      "cpu_pct_peak": 1.92,
+      "memory_rss_mb": 516.38,
+      "memory_pss_mb": 372.48,
+      "memory_private_dirty_mb": 320.41,
+      "threads": 61,
+      "voluntary_ctxt_rate": 42.2,
+      "nonvoluntary_ctxt_rate": 2.5,
+      "syscr_rate": 35.3,
+      "syscw_rate": 28.1,
+      "open_fds": 84,
+      "gpu_busy_pct": 64.99,
+      "gpu_act_freq_mhz": 1450.0
+    },
+    "full_idle": {
+      "name": "Full Shell (Idle)",
+      "cpu_pct_avg": 4.91,
+      "cpu_pct_peak": 7.72,
+      "memory_rss_mb": 542.79,
+      "memory_pss_mb": 413.98,
+      "memory_private_dirty_mb": 361.63,
+      "threads": 74,
+      "voluntary_ctxt_rate": 383.8,
+      "nonvoluntary_ctxt_rate": 18.1,
+      "syscr_rate": 96.9,
+      "syscw_rate": 156.3,
+      "open_fds": 96,
+      "gpu_busy_pct": 68.21,
+      "gpu_act_freq_mhz": 1550.0
+    },
+    "full_active_popup": {
+      "name": "Full Shell (Active UI)",
+      "cpu_pct_avg": 14.96,
+      "cpu_pct_peak": 18.26,
+      "memory_rss_mb": 552.97,
+      "memory_pss_mb": 423.46,
+      "memory_private_dirty_mb": 370.99,
+      "threads": 78,
+      "voluntary_ctxt_rate": 1199.2,
+      "nonvoluntary_ctxt_rate": 45.1,
+      "syscr_rate": 934.1,
+      "syscw_rate": 677.9,
+      "open_fds": 97,
+      "gpu_busy_pct": 72.89,
+      "gpu_act_freq_mhz": 1550.0
+    }
+  },
+  "attributions": {
+    "marginal_custom_overlays": {
+      "delta_cpu_pct_avg": 3.76,
+      "delta_rss_mb": 26.41,
+      "delta_private_dirty_mb": 41.22,
+      "delta_voluntary_ctxt_rate": 341.6,
+      "delta_syscr_rate": 61.6,
+      "delta_open_fds": 12
+    },
+    "active_popup_interaction_cost": {
+      "delta_cpu_pct_avg": 10.05,
+      "delta_rss_mb": 10.18,
+      "delta_private_dirty_mb": 9.36,
+      "delta_voluntary_ctxt_rate": 815.4,
+      "delta_syscr_rate": 837.2,
+      "delta_open_fds": 1
+    }
+  }
+}
