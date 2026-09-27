@@ -2,38 +2,38 @@
 gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
-current_phase: "43.5"
-current_phase_name: cpu-gpu-dynamic-telemetry-top-process-attribution-tree-hover
-status: ready_to_plan
-stopped_at: Phase 43.5 inserted, ready for discussion and planning
-last_updated: "2026-09-27T17:03:15.236Z"
-last_activity: 2026-09-27
-last_activity_desc: Phase 43.5 inserted (Dynamic Telemetry, Process Attribution Tree, Hover Delay)
-state_head: 9e6902ed9d3af8ce3cb60bccb13f2103659fb1e3
+current_phase: 44
+current_phase_name: Memory & Storage Component (Pill & Popup)
+status: planning
+stopped_at: Phase 43.5 complete, ready to plan Phase 44
+last_updated: "2026-09-27T18:03:45.156Z"
+last_activity: 2026-09-28
+last_activity_desc: Phase 43.5 complete, transitioned to Phase 44
+state_head: ab21d8e936fce4bcba244bb2a2b07ae5876ae693
 progress:
   total_phases: 10
   completed_phases: 4
   total_plans: 23
-  completed_plans: 20
-  percent: 30
+  completed_plans: 23
+  percent: 40
 ---
 
 Total Phases: 10 (Phases 42–46 + 43.1–43.5)
-Progress: [████░░░░░░] 4/10 phases ([███░░░░░░░] 30%)
+Progress: [████░░░░░░] 4/10 phases ([████░░░░░░] 40%)
 
 # Project State
 
 ## Current Position
 
-Phase: 43.5 (cpu-gpu-dynamic-telemetry-top-process-attribution-tree-hover) — READY TO EXECUTE
-Plan: 0 of TBD
-Status: Ready to discuss and plan Phase 43.5
-Last activity: 2026-09-27 — Phase 43.5 inserted
+Phase: 44 — Memory & Storage Component (Pill & Popup)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-28 — Phase 43.5 complete, transitioned to Phase 44
 
 ## Session
 
 **Last session:** 2026-09-27T15:29:00.000Z
-**Stopped at:** Phase 43.5 inserted, ready for discussion and planning
+**Stopped at:** Phase 43.5 complete, ready to plan Phase 44
 **Resume file:** .planning/phases/43.5-cpu-gpu-dynamic-telemetry-top-process-attribution-tree-hover/
 
 ## Project Reference

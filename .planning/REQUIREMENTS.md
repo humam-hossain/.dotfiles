@@ -13,6 +13,13 @@ Scoped requirements for Milestone v0.9 (Top Status Bar Resource Components & Har
 - [x] **CPUGPU-02**: CPU popup inspector displays overall load %, package temperature (°C via `/sys/class/hwmon/hwmon5/temp1_input`), power draw in Watts (RAPL `/sys/class/powercap/intel-rapl` with unprivileged fallback placeholder), and clock frequencies (MHz).
 - [x] **CPUGPU-03**: GPU popup inspector displays Intel iGPU load % (via RC6 residency delta), average load, active clock frequency (MHz via `rps_act_freq_mhz`), and temperature.
 - [x] **CPUGPU-04**: Synchronized two-tier alert coloring (Amber warning at 70%, Red critical at 90%) across icons, text badges, and popup headers.
+- [x] **CPUGPU-05**: Dynamic hardware model discovery and elimination of hardcoded strings for CPU, GPU, and Motherboard/Platform.
+- [x] **CPUGPU-06**: Dynamic core topology and hybrid P/E core thread detection without hardcoded thread counts or static divisors.
+- [x] **CPUGPU-07**: Hierarchical process attribution tree engine aggregating multi-process applications with delta CPU ticks and unprivileged DRM GPU memory residency.
+
+### Hover Intent Ergonomics
+
+- [x] **POPUP-01**: Universal 1000ms hover intent delay in `StyledPopup.qml` with 200ms grace period across window bounds.
 
 ### Memory & Storage Telemetry
 
@@ -72,6 +79,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CPUGPU-02 | Phase 43 | Complete |
 | CPUGPU-03 | Phase 43 | Complete |
 | CPUGPU-04 | Phase 43 | Complete |
+| CPUGPU-05 | Phase 43.5 | Complete |
+| CPUGPU-06 | Phase 43.5 | Complete |
+| CPUGPU-07 | Phase 43.5 | Complete |
+| POPUP-01 | Phase 43.5 | Complete |
 | PERF-01 | Phase 43.1 | Complete |
 | PERF-02 | Phase 43.1 | Complete |
 | PERF-03 | Phase 43.1 | Complete |
