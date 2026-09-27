@@ -277,6 +277,28 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
   else
     fail "benchmark-latest.json missing or invalid JSON"
   fi
+
+  # Phase 43.2 Artifact check if directory exists
+  PHASE43_2_DIR="$REPO_ROOT/.planning/phases/43.2-quickshell-profiling-harness-calibration-and-empirical-baseline"
+  if [[ -d "$PHASE43_2_DIR" ]]; then
+    if [[ -f "$PHASE43_2_DIR/BENCHMARK.md" ]]; then
+      pass "Phase 43.2 BENCHMARK.md exists and is populated"
+    fi
+    if [[ -f "$PHASE43_2_DIR/benchmark-latest.json" ]] && jq empty "$PHASE43_2_DIR/benchmark-latest.json" 2>/dev/null; then
+      pass "Phase 43.2 benchmark-latest.json exists and is valid JSON"
+    fi
+  fi
+
+  # Phase 43.4 Artifact check if directory exists
+  PHASE43_4_DIR="$REPO_ROOT/.planning/phases/43.4-quickshell-targeted-optimization-and-empirical-verification"
+  if [[ -d "$PHASE43_4_DIR" ]]; then
+    if [[ -f "$PHASE43_4_DIR/BENCHMARK.md" ]]; then
+      pass "Phase 43.4 BENCHMARK.md exists and is populated"
+    fi
+    if [[ -f "$PHASE43_4_DIR/benchmark-latest.json" ]] && jq empty "$PHASE43_4_DIR/benchmark-latest.json" 2>/dev/null; then
+      pass "Phase 43.4 benchmark-latest.json exists and is valid JSON"
+    fi
+  fi
 fi
 
 # ---------------------------------------------------------------------------

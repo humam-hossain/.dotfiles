@@ -195,8 +195,25 @@ restart_quickshell() {
   fi
 
   info "Starting Quickshell daemon ($qs_bin -c ii -d)..."
-  $qs_bin -c ii -d >/dev/null 2>&1 || true
-  sleep 1.5
+  $qs_bin -c ii -d >/tmp/quickshell-daemon.log 2>&1 || true
+
+  # Poll for active Quickshell PID up to 4s
+  local active_pid=""
+  for _ in {1..20}; do
+    local pids_now=($(collect_qs_pids))
+    if [[ ${#pids_now[@]} -gt 0 ]]; then
+      active_pid="${pids_now[0]}"
+      break
+    fi
+    sleep 0.2
+  done
+
+  if [[ -z "$active_pid" ]]; then
+    warn "Quickshell process failed to start. Last daemon log output:"
+    tail -n 25 /tmp/quickshell-daemon.log >&2 || true
+    return 1
+  fi
+  pass "Quickshell daemon active (PID: $active_pid)"
 }
 
 # -----------------------------------------------------------------------------
@@ -207,7 +224,10 @@ isolate_upstream_baseline() {
   stow -D --no-folding -d "$REPO_ROOT/restow" -t "$HOME" quickshell 2>/dev/null || true
 
   local ii_dir="$HOME/.config/quickshell/ii"
+  local vendor_ii="$REPO_ROOT/vendor/dots-hyprland/dots/.config/quickshell/ii"
   > "$STUB_LIST_FILE"
+
+  # 1. Restore from .bak files if available
   local bak_file dir base target_name target
   while IFS= read -r bak_file; do
     [[ -n "$bak_file" ]] || continue
@@ -220,6 +240,20 @@ isolate_upstream_baseline() {
       echo "$target" >> "$STUB_LIST_FILE"
     fi
   done < <(find "$ii_dir" -name "*.bak*" -type f)
+
+  # 2. For any files unstowed that exist in pristine vendor dots-hyprland, copy vendor original
+  if [[ -d "$vendor_ii" ]]; then
+    while IFS= read -r vfile; do
+      [[ -n "$vfile" ]] || continue
+      local rel="${vfile#$vendor_ii/}"
+      local vtarget="$ii_dir/$rel"
+      if [[ ! -e "$vtarget" ]]; then
+        mkdir -p "$(dirname "$vtarget")"
+        cp "$vfile" "$vtarget"
+        echo "$vtarget" >> "$STUB_LIST_FILE"
+      fi
+    done < <(find "$vendor_ii" -type f)
+  fi
 
   STOW_ISOLATED=1
   info "Restarting Quickshell in pure upstream baseline mode..."
@@ -250,6 +284,10 @@ restore_restow_quickshell() {
   fi
 }
 
+is_popup_open() {
+  hyprctl layers 2>/dev/null | grep -q "namespace: quickshell:popup"
+}
+
 # -----------------------------------------------------------------------------
 # Dual-State Active UI Benchmarking Dispatcher (Pattern F, D-11)
 # -----------------------------------------------------------------------------
@@ -266,13 +304,59 @@ set_ui_state() {
 
   case "$state" in
     idle)
-      # Move cursor to inert screen coordinates away from top bar and popups
-      ydotool mousemove -a -x 1000 -y 500 2>/dev/null || true
+      info ">> [MOUSE NOTICE] Moving cursor to neutral idle position (away from bar and popups)..."
+      # Move cursor to inert screen coordinates (500, 250 maps to ~1001, 501 under 2x uinput scaling)
+      ydotool mousemove -a -x 500 -y 250 2>/dev/null || true
+      sleep 0.4
+      if is_popup_open; then
+        warn "Pop-up still open after moving cursor; waiting for 200ms grace closeTimer..."
+        sleep 0.3
+      fi
+      if ! is_popup_open; then
+        pass "Verified: Pop-up is closed (layer namespace quickshell:popup dismissed)"
+      fi
+      info ">> [MOUSE NOTICE] Mouse movement complete. Cursor is at neutral idle position."
       ;;
     active_popup)
-      # Move cursor to top bar CPU/GPU pill to activate StyledPopup and fast telemetry
-      # Monitor width: 3440, pill is on top-left bar (x=180, y=20)
-      ydotool mousemove -a -x 180 -y 20 2>/dev/null || true
+      info ">> [MOUSE NOTICE] Automated mouse movement starting. Moving cursor to CPU/GPU pill to activate popup..."
+      # Under 2x Wayland uinput scale factor on DP-1, passing -x 60..80 -y 10 positions cursor on CpuGpuPill
+      ydotool mousemove -a -x 60 -y 10 2>/dev/null || true
+      sleep 0.4
+
+      # Verify pop-up activation via Hyprland layer shell
+      local pop_active=0
+      for attempt in {1..6}; do
+        if is_popup_open; then
+          pop_active=1
+          break
+        fi
+        # Slight coordinate nudge in case of layout jitter
+        case "$attempt" in
+          2) ydotool mousemove -a -x 80 -y 10 2>/dev/null || true ;;
+          3) ydotool mousemove -a -x 50 -y 10 2>/dev/null || true ;;
+          4) ydotool mousemove -a -x 90 -y 10 2>/dev/null || true ;;
+          5) ydotool mousemove -a -x 40 -y 10 2>/dev/null || true ;;
+        esac
+        sleep 0.3
+      done
+
+      if [[ "$pop_active" -eq 1 ]]; then
+        pass "Verified: CPU/GPU pop-up is ACTIVE in layer shell (namespace: quickshell:popup)"
+      else
+        warn "Pop-up not automatically detected at (180, 20). Waiting up to 5s for operator hover..."
+        for _ in {1..10}; do
+          if is_popup_open; then
+            pop_active=1
+            pass "Operator hover confirmed: CPU/GPU pop-up is ACTIVE"
+            break
+          fi
+          sleep 0.5
+        done
+        if [[ "$pop_active" -eq 0 ]]; then
+          fail "Could not activate quickshell:popup layer shell!"
+        fi
+      fi
+      info ">> [MOUSE NOTICE] Pop-up active. Profiling window starting. Please do not touch the mouse."
       ;;
   esac
 }
@@ -323,7 +407,10 @@ for root, _, files in os.walk(qml_dir):
             run = running_m.group(1).strip() if running_m else 'true'
             timers.append((rel, interval, f'run:{run} rep:{rep}'))
 
-print(f'{\"QML Component\":<45} | {\"Interval (ms)\":<20} | {\"Running/Repeat\":<20} | Type')
+title_comp = "QML Component"
+title_int = "Interval (ms)"
+title_state = "Running/Repeat"
+print(f'{title_comp:<45} | {title_int:<20} | {title_state:<20} | Type')
 print('-' * 98)
 for comp, interval, state in timers:
     note = ' (Anomaly: 1ms!)' if interval == '1' else ''
@@ -372,7 +459,31 @@ sample_proc_memory() {
 sample_proc_status() {
   local pid="$1"
   local threads=0 vol_ctx=0 nonvol_ctx=0
-  if [[ -r "/proc/$pid/status" ]]; then
+  if [[ -d "/proc/$pid/task" ]]; then
+    # Aggregate thread-wide context switches across all worker threads
+    read -r threads vol_ctx nonvol_ctx < <(python3 -c "
+import glob, sys
+
+pid = sys.argv[1]
+threads = 0
+vol_ctx = 0
+nonvol_ctx = 0
+
+for status_file in glob.glob(f'/proc/{pid}/task/*/status'):
+    threads += 1
+    try:
+        with open(status_file, 'r') as f:
+            for line in f:
+                if line.startswith('voluntary_ctxt_switches:'):
+                    vol_ctx += int(line.split(':', 1)[1])
+                elif line.startswith('nonvoluntary_ctxt_switches:'):
+                    nonvol_ctx += int(line.split(':', 1)[1])
+    except (OSError, ValueError):
+        pass
+
+print(f'{threads} {vol_ctx} {nonvol_ctx}')
+" "$pid" 2>/dev/null || echo "0 0 0")
+  elif [[ -r "/proc/$pid/status" ]]; then
     while IFS=':' read -r key val; do
       val="${val//[[:space:]]/}"
       case "$key" in
@@ -723,56 +834,9 @@ if os.path.exists(data_file):
                     'gpu_act_freq_mhz': float(freq)
                 }
 
-# Registry stage definitions to populate complete stages dictionary
-registry_stages = [
-    ('upstream_baseline', 'Upstream Baseline', 'Pristine dots-hyprland without custom overlays'),
-    ('base_overlay', 'Base Overlays', 'Core styling, BarContent, and StyledPopup overlay'),
-    ('hardware_telemetry', '+ HardwareTelemetry', 'High-frequency hwmon & procfs sensor singleton'),
-    ('resource_usage', '+ ResourceUsage', 'Extended memory & swap polling singleton'),
-    ('storage_usage', '+ StorageUsage', 'Diskstats and df process discovery singleton'),
-    ('ping_service', '+ PingService', 'Network latency bridge singleton'),
-    ('voice_service', '+ Voice STT', 'Voice telemetry tmpfs polling singleton'),
-    ('cpugpu_pill', '+ CpuGpuPill', 'Status bar telemetry pill with circular meters'),
-    ('full_idle', 'Full Shell (Idle)', 'Complete production overlay in stationary state'),
-    ('full_active_popup', 'Full Shell (Active UI)', 'Complete production overlay with inspector open')
-]
-
 stages_dict = {}
-for sid, sname, _ in registry_stages:
-    if sid in raw_stages:
-        stages_dict[sid] = raw_stages[sid]
-    else:
-        # Interpolate / attribute based on measured full_idle and baseline if not run individually
-        base = raw_stages.get('upstream_baseline')
-        idle = raw_stages.get('full_idle')
-        if base and idle:
-            # Estimate intermediate stages proportional to component weights
-            weight_map = {
-                'base_overlay': 0.10,
-                'hardware_telemetry': 0.35,
-                'resource_usage': 0.20,
-                'storage_usage': 0.05,
-                'ping_service': 0.05,
-                'voice_service': 0.10,
-                'cpugpu_pill': 0.15
-            }
-            w = weight_map.get(sid, 0.10)
-            stages_dict[sid] = {
-                'name': sname,
-                'cpu_pct_avg': round(base['cpu_pct_avg'] + (idle['cpu_pct_avg'] - base['cpu_pct_avg']) * w, 2),
-                'cpu_pct_peak': round(base['cpu_pct_peak'] + (idle['cpu_pct_peak'] - base['cpu_pct_peak']) * w, 2),
-                'memory_rss_mb': round(base['memory_rss_mb'] + (idle['memory_rss_mb'] - base['memory_rss_mb']) * w, 2),
-                'memory_pss_mb': round(base['memory_pss_mb'] + (idle['memory_pss_mb'] - base['memory_pss_mb']) * w, 2),
-                'memory_private_dirty_mb': round(base['memory_private_dirty_mb'] + (idle['memory_private_dirty_mb'] - base['memory_private_dirty_mb']) * w, 2),
-                'threads': base['threads'] + int((idle['threads'] - base['threads']) * w),
-                'voluntary_ctxt_rate': round(base['voluntary_ctxt_rate'] + (idle['voluntary_ctxt_rate'] - base['voluntary_ctxt_rate']) * w, 1),
-                'nonvoluntary_ctxt_rate': round(base['nonvoluntary_ctxt_rate'] + (idle['nonvoluntary_ctxt_rate'] - base['nonvoluntary_ctxt_rate']) * w, 1),
-                'syscr_rate': round(base['syscr_rate'] + (idle['syscr_rate'] - base['syscr_rate']) * w, 1),
-                'syscw_rate': round(base['syscw_rate'] + (idle['syscw_rate'] - base['syscw_rate']) * w, 1),
-                'open_fds': base['open_fds'] + int((idle['open_fds'] - base['open_fds']) * w),
-                'gpu_busy_pct': round(base['gpu_busy_pct'] + (idle['gpu_busy_pct'] - base['gpu_busy_pct']) * w, 2),
-                'gpu_act_freq_mhz': idle['gpu_act_freq_mhz']
-            }
+for sid, data in raw_stages.items():
+    stages_dict[sid] = data
 
 # Compute attributions
 base = stages_dict.get('upstream_baseline', {})
@@ -803,7 +867,7 @@ if idle and popup:
 now_iso = datetime.now(timezone.utc).isoformat()
 json_payload = {
     'timestamp': now_iso,
-    'phase': '43.1',
+    'phase': '43.2',
     'environment': {
         'host': 'pera-desktop',
         'cpu': '12th Gen Intel Core i7-12700K',
@@ -825,14 +889,32 @@ with open(json_out, 'w') as f:
 with open(report_out, 'w') as f:
     f.write(f'# Quickshell Performance Profile & Attribution Matrix\n\n')
     f.write(f'**Generated:** {now_iso}  \n')
-    f.write(f'**Phase:** 43.1  \n')
+    f.write(f'**Phase:** 43.2  \n')
     f.write(f'**Host:** pera-desktop (12th Gen Intel Core i7-12700K, Intel UHD Graphics 770, DP-1 3440x1440@60Hz)  \n')
-    f.write(f'**Methodology:** Unprivileged Linux procfs/sysfs telemetry (`/proc/$PID/stat`, `smaps_rollup`, `status`, `io`, `/sys/class/drm/card1/`)  \n')
+    f.write(f'**Methodology:** Unprivileged Linux procfs/sysfs telemetry (`/proc/$PID/stat`, `smaps_rollup`, `task/*/status`, `io`, `/sys/class/drm/card1/`)  \n')
     f.write(f'**Cadence:** {warmup_sec}s stabilization warm-up, {duration_sec}s steady-state sampling per stage  \n\n')
     f.write('---\n\n')
 
     f.write('## 1. Executive Summary & Test Environment\n\n')
-    f.write('This report establishes empirical reference baselines for Quickshell under pure upstream `dots-hyprland` vs the full custom overlay stack. Telemetry confirms that custom components introduce a measurable marginal footprint (~6–8% idle CPU, ~350–450MB RSS, ~200 context switches/s) driven primarily by active sensor polling in `HardwareTelemetry.qml` and `ResourceUsage.qml`.\n\n')
+    base_cpu = base.get('cpu_pct_avg', 0)
+    idle_cpu = idle.get('cpu_pct_avg', 0)
+    base_rss = base.get('memory_rss_mb', 0)
+    idle_rss = idle.get('memory_rss_mb', 0)
+    base_ctx = base.get('voluntary_ctxt_rate', 0)
+    idle_ctx = idle.get('voluntary_ctxt_rate', 0)
+    base_syscr = base.get('syscr_rate', 0)
+    idle_syscr = idle.get('syscr_rate', 0)
+
+    delta_cpu = round(idle_cpu - base_cpu, 2)
+    delta_rss = round(idle_rss - base_rss, 2)
+    delta_ctx = round(idle_ctx - base_ctx, 1)
+    delta_syscr = round(idle_syscr - base_syscr, 1)
+
+    f.write(f'This report establishes empirical reference baselines for Quickshell under pure upstream `dots-hyprland` vs the verified custom overlay stack.\n\n')
+    f.write(f'- **Marginal CPU Footprint:** {idle_cpu:.2f}% (delta: {delta_cpu:+.2f}% over upstream {base_cpu:.2f}%)\n')
+    f.write(f'- **Marginal RSS Footprint:** {idle_rss:.2f} MB (delta: {delta_rss:+.2f} MB over upstream {base_rss:.2f} MB)\n')
+    f.write(f'- **Process Context Switches:** {idle_ctx:.1f}/s (delta: {delta_ctx:+.1f}/s over upstream {base_ctx:.1f}/s, aggregated across all threads)\n')
+    f.write(f'- **Read Syscall Churn:** {idle_syscr:.1f}/s (delta: {delta_syscr:+.1f}/s over upstream {base_syscr:.1f}/s)\n\n')
 
     f.write('## 2. Master Attribution Matrix\n\n')
     f.write('| Stage ID | Stage Name | CPU % (Avg) | CPU % (Peak) | RSS (MB) | PSS (MB) | Priv Dirty (MB) | Threads | Vol Ctxt/s | Syscr/s | Syscw/s | FDs | iGPU % | iGPU MHz |\n')
@@ -888,6 +970,20 @@ with open(report_out, 'w') as f:
 PY_EOF
   pass "Exported benchmark telemetry: $JSON_OUT_FILE"
   pass "Exported benchmark report: $REPORT_OUT_FILE"
+
+  local phase43_2_dir="$REPO_ROOT/.planning/phases/43.2-quickshell-profiling-harness-calibration-and-empirical-baseline"
+  if [[ -d "$phase43_2_dir" ]]; then
+    cp "$JSON_OUT_FILE" "$phase43_2_dir/benchmark-latest.json"
+    cp "$REPORT_OUT_FILE" "$phase43_2_dir/BENCHMARK.md"
+    pass "Mirrored benchmark outputs to Phase 43.2 directory"
+  fi
+
+  local phase43_4_dir="$REPO_ROOT/.planning/phases/43.4-quickshell-targeted-optimization-and-empirical-verification"
+  if [[ -d "$phase43_4_dir" ]]; then
+    cp "$JSON_OUT_FILE" "$phase43_4_dir/benchmark-latest.json"
+    cp "$REPORT_OUT_FILE" "$phase43_4_dir/BENCHMARK.md"
+    pass "Mirrored benchmark outputs to Phase 43.4 directory"
+  fi
 }
 
 # -----------------------------------------------------------------------------

@@ -17,11 +17,18 @@ Singleton {
     readonly property bool screenSharing: screenRecording || Pipewire.linkGroups.values.some(pwlg => pwlg.source?.type === PwNodeType.VideoSource)
     readonly property bool micActive: Pipewire.linkGroups.values.some(pwlg => pwlg.source?.type === PwNodeType.AudioSource && pwlg.target?.type === PwNodeType.AudioInStream)
 
+    IpcHandler {
+        target: "privacy"
+        function setRecording(active: bool): void {
+            root.screenRecording = active;
+        }
+    }
+
     Timer {
         id: pollTimer
-        interval: 1000
+        interval: 5000
         repeat: true
-        running: true
+        running: root.screenRecording
         onTriggered: {
             if (!wfRecorderProc.running) {
                 wfRecorderProc.running = true;

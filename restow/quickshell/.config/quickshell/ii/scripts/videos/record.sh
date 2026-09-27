@@ -54,6 +54,7 @@ if pgrep wf-recorder > /dev/null; then
         saved_path="$(cat "$STATE_FILE" 2>/dev/null)"
         rm -f "$STATE_FILE"
     fi
+    qs -c ii ipc call privacy setRecording false 2>/dev/null || true
     if [[ -n "$saved_path" ]]; then
         notify-send "Recording Stopped" "Saved to: $saved_path" -a 'Recorder' &
     else
@@ -64,6 +65,7 @@ else
     filename='recording_'"$(getdate)"'.mp4'
     filepath="$RECORDING_DIR/$filename"
     echo "$filepath" > "$STATE_FILE"
+    qs -c ii ipc call privacy setRecording true 2>/dev/null || true
 
     if [[ $FULLSCREEN_FLAG -eq 1 ]]; then
         notify-send "Starting recording" "$filename" -a 'Recorder' & disown
@@ -80,6 +82,7 @@ else
             if ! region="$(slurp 2>&1)"; then
                 notify-send "Recording cancelled" "Selection was cancelled" -a 'Recorder' & disown
                 rm -f "$STATE_FILE"
+                qs -c ii ipc call privacy setRecording false 2>/dev/null || true
                 exit 1
             fi
         fi
@@ -92,4 +95,5 @@ else
         fi
     fi
     rm -f "$STATE_FILE"
+    qs -c ii ipc call privacy setRecording false 2>/dev/null || true
 fi
