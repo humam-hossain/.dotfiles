@@ -15,10 +15,23 @@ LazyLoader {
     default property Item contentItem
     property real popupBackgroundMargin: 0
 
-    // Seamless cursor tracking (D-18, Pitfall 2)
+    // Seamless cursor tracking with deliberate 1000ms hover intent delay (D-03, POPUP-01)
     property bool popupHovered: false
     readonly property bool hovered: (hoverTarget && hoverTarget.containsMouse) || popupHovered
     property bool shouldBeActive: false
+
+    property int hoverOpenDelayMs: 1000
+
+    readonly property Timer openTimer: Timer {
+        id: openTimer
+        interval: root.hoverOpenDelayMs
+        repeat: false
+        onTriggered: {
+            if (root.hovered) {
+                root.shouldBeActive = true;
+            }
+        }
+    }
 
     readonly property Timer closeTimer: Timer {
         id: closeTimer
@@ -34,9 +47,16 @@ LazyLoader {
     onHoveredChanged: {
         if (hovered) {
             root.closeTimer.stop();
-            shouldBeActive = true;
+            if (shouldBeActive) {
+                // Moving between pill and open popup window; preserve open state without delay
+                return;
+            }
+            root.openTimer.restart();
         } else {
-            root.closeTimer.restart();
+            root.openTimer.stop();
+            if (shouldBeActive) {
+                root.closeTimer.restart();
+            }
         }
     }
 

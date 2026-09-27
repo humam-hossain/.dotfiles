@@ -75,6 +75,38 @@ Singleton {
     }
 
     // =========================================================================
+    // Dynamic Model Strings & Topology Properties (D-01, D-02)
+    // =========================================================================
+    property string cpuModelName: "CPU"
+    property string gpuModelName: "GPU"
+    property string motherboardModelName: "Platform"
+    property bool isHybridArchitecture: false
+    property int pCoreThreadCount: 0
+    property int eCoreThreadCount: 0
+    property int totalThreadCount: 0
+
+    // One-shot dynamic hardware resolver at startup
+    Process {
+        id: hardwareDiscoveryProc
+        running: true
+        command: ["bash", "-c", "cpu_name=$(awk -F': ' '/model name/ {print $2; exit}' /proc/cpuinfo 2>/dev/null | sed -E 's/.*(Core\\(TM\\) |AMD )//; s/\\((R|TM)\\)//g; s/CPU //g; s/Processor//g; s/@.*//; s/^[ ]+//; s/[ ]+$//'); [ -z \"$cpu_name\" ] && cpu_name=\"CPU\"; gpu_name=\"GPU\"; if command -v lspci >/dev/null 2>&1; then gpu_raw=$(lspci -d ::0300 2>/dev/null | head -n1 | sed -E 's/.*: (Intel Corporation |Advanced Micro Devices, Inc. \\[AMD\\/ATI\\] |NVIDIA Corporation )?//; s/.*\\[(.*)\\].*/\\1/; s/^[ ]+//; s/[ ]+$//'); [ -n \"$gpu_raw\" ] && gpu_name=\"$gpu_raw\"; fi; mobo_name=\"Platform\"; if [ -r /sys/class/dmi/id/board_name ]; then mobo_name=$(cat /sys/class/dmi/id/board_name 2>/dev/null | xargs); elif [ -r /sys/class/dmi/id/product_name ]; then mobo_name=$(cat /sys/class/dmi/id/product_name 2>/dev/null | xargs); fi; [ -z \"$mobo_name\" ] && mobo_name=\"Platform\"; is_hybrid=false; p_threads=0; e_threads=0; if [ -d /sys/devices/cpu_atom ] && [ -f /sys/devices/cpu_atom/cpus ]; then is_hybrid=true; p_threads=$(cat /sys/devices/cpu_core/cpus 2>/dev/null | tr ',' '\\n' | awk -F- '{ if ($2 != \"\") sum += ($2 - $1 + 1); else sum += 1 } END { print sum }'); e_threads=$(cat /sys/devices/cpu_atom/cpus 2>/dev/null | tr ',' '\\n' | awk -F- '{ if ($2 != \"\") sum += ($2 - $1 + 1); else sum += 1 } END { print sum }'); else p_threads=$(grep -c '^processor' /proc/cpuinfo 2>/dev/null || echo 1); e_threads=0; fi; echo \"$cpu_name|$gpu_name|$mobo_name|$is_hybrid|$p_threads|$e_threads\""]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const parts = text.trim().split("|");
+                if (parts.length >= 6) {
+                    root.cpuModelName = parts[0] || "CPU";
+                    root.gpuModelName = parts[1] || "GPU";
+                    root.motherboardModelName = parts[2] || "Platform";
+                    root.isHybridArchitecture = (parts[3] === "true");
+                    root.pCoreThreadCount = parseInt(parts[4], 10) || 0;
+                    root.eCoreThreadCount = parseInt(parts[5], 10) || 0;
+                    root.totalThreadCount = root.pCoreThreadCount + root.eCoreThreadCount;
+                }
+            }
+        }
+    }
+
+    // =========================================================================
     // Virtual File Observers
     // =========================================================================
     FileView {
@@ -245,18 +277,25 @@ Singleton {
             prevCpuTicks[name] = { total: total, active: active };
 
             const cpuIdx = parseInt(name.replace("cpu", ""), 10);
-            if (!isNaN(cpuIdx) && cpuIdx < 20) {
+            if (!isNaN(cpuIdx)) {
                 newThreadLoads[cpuIdx] = load;
-                if (cpuIdx < 12) {
-                    pCoreSum += load; // CPUs 0-11: 6 P-cores (12 threads)
-                } else {
-                    eCoreSum += load; // CPUs 12-19: 8 E-cores (8 threads)
+                if (root.isHybridArchitecture) {
+                    if (cpuIdx < root.pCoreThreadCount) {
+                        pCoreSum += load;
+                    } else if (cpuIdx < root.totalThreadCount) {
+                        eCoreSum += load;
+                    }
                 }
             }
         }
         perThreadLoads = newThreadLoads;
-        pCoreLoad = pCoreSum / 12.0;
-        eCoreLoad = eCoreSum / 8.0;
+        if (root.isHybridArchitecture) {
+            pCoreLoad = root.pCoreThreadCount > 0 ? (pCoreSum / root.pCoreThreadCount) : 0.0;
+            eCoreLoad = root.eCoreThreadCount > 0 ? (eCoreSum / root.eCoreThreadCount) : 0.0;
+        } else {
+            pCoreLoad = overallCpuLoad;
+            eCoreLoad = 0.0;
+        }
     }
 
     function updateCpuLoad() {
@@ -277,19 +316,28 @@ Singleton {
         let i = 0;
 
         while ((match = regex.exec(text)) !== null) {
-            if (i >= 20) break;
+            if (root.totalThreadCount > 0 && i >= root.totalThreadCount) break;
             const freq = parseFloat(match[1]);
             freqs[i] = isNaN(freq) ? 0.0 : freq;
-            if (i < 12) {
-                pSum += freqs[i];
+            if (root.isHybridArchitecture) {
+                if (i < root.pCoreThreadCount) {
+                    pSum += freqs[i];
+                } else if (i < root.totalThreadCount) {
+                    eSum += freqs[i];
+                }
             } else {
-                eSum += freqs[i];
+                pSum += freqs[i];
             }
             i++;
         }
         threadFrequencies = freqs;
-        pCoreFrequencyMhz = freqs.length >= 12 ? (pSum / 12.0) : 0.0;
-        eCoreFrequencyMhz = freqs.length >= 20 ? (eSum / 8.0) : 0.0;
+        if (root.isHybridArchitecture) {
+            pCoreFrequencyMhz = (root.pCoreThreadCount > 0 && freqs.length >= root.pCoreThreadCount) ? (pSum / root.pCoreThreadCount) : 0.0;
+            eCoreFrequencyMhz = (root.eCoreThreadCount > 0 && freqs.length >= root.totalThreadCount) ? (eSum / root.eCoreThreadCount) : 0.0;
+        } else {
+            pCoreFrequencyMhz = i > 0 ? (pSum / i) : 0.0;
+            eCoreFrequencyMhz = 0.0;
+        }
     }
 
     // =========================================================================
