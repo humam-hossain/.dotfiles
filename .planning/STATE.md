@@ -2,39 +2,39 @@
 gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
-current_phase: 43
-current_phase_name: CPU & GPU Component (Pill & Popup)
-status: complete
-stopped_at: Plan 43-07 complete (gap closure for UAT G-43-5-2)
-last_updated: "2026-09-26T17:40:00+06:00"
+current_phase: "43.1"
+current_phase_name: Quickshell Performance Profiling and Resource Optimization
+status: ready_to_plan
+stopped_at: Phase 43.1 context gathered
+last_updated: "2026-09-27T04:14:52.723Z"
 last_activity: 2026-09-26
-last_activity_desc: Plan 43-07 gap closure complete
-state_head: 6592111
+last_activity_desc: Inserted Phase 43.1 for resource profiling and optimization
+state_head: 366fc62b9f4e521ac508f85f4587009ff0d572b8
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 1
   total_plans: 11
   completed_plans: 11
-  percent: 20
+  percent: 17
 ---
 
-Total Phases: 5 (Phases 42–46)
-Progress: [░░░░░░░░░░] 0/5 phases ([██░░░░░░░░] 20%)
+Total Phases: 6 (Phases 42–46 + 43.1)
+Progress: [░░░░░░░░░░] 2/6 phases ([██░░░░░░░░] 17%)
 
 # Project State
 
 ## Current Position
 
-Phase: 43 (CPU & GPU Component (Pill & Popup)) — COMPLETE
-Plan: 7 of 7
-Status: Ready for verification / UAT
-Last activity: 2026-09-26 — Plan 43-07 gap closure complete
+Phase: 43.1 (Quickshell Performance Profiling and Resource Optimization) — INSERTED (URGENT)
+Plan: 0 of TBD
+Status: Ready to plan (/gsd-plan-phase 43.1)
+Last activity: 2026-09-26 — Phase 43.1 inserted for Quickshell resource profiling and optimization
 
 ## Session
 
-**Last session:** 2026-09-25T18:04:13.008Z
-**Stopped at:** Phase 43 complete, ready to plan Phase 44
-**Resume file:** .planning/phases/43-cpu-gpu-component-pill-popup/43-CONTEXT.md
+**Last session:** 2026-09-27T04:14:52.337Z
+**Stopped at:** Phase 43.1 context gathered
+**Resume file:** /home/pera/github_repo/.dotfiles/.planning/phases/43.1-quickshell-performance-profiling-and-resource-optimization/43.1-CONTEXT.md
 
 ## Project Reference
 
@@ -144,6 +144,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - Phase 30 added: Address tech debt: v0.5 cleanup and validation sign-off
 - Phase 40.1 inserted after Phase 40: Clock Pill Padding and Unified Volume Ceiling Ergonomics (URGENT)
 - Phase 42 added: Top Status Bar Resource Component Customization & Hardware Telemetry
+- Phase 43.1 inserted after Phase 43: Quickshell Performance Profiling and Resource Optimization (URGENT)
 
 ## Operator Next Steps
 
