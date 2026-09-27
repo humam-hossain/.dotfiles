@@ -399,11 +399,18 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
       fail "CpuGpuPopup.qml contains redundant EPP switcher button"
     fi
 
-    # Lightweight ThreadMeter rendering (G-43-5-2)
-    if grep -A 40 "component ThreadMeter:" "$POPUP_QML" | grep -q "Rectangle" && ! (grep -A 50 "component ThreadMeter:" "$POPUP_QML" | grep -q "StyledProgressBar"); then
-      pass "CpuGpuPopup.qml uses lightweight static Rectangle progress bar for ThreadMeter"
+    # Lightweight Cluster Summary Layout (D-09, D-10, PERF-02)
+    if grep -q "MetricProgressRow" "$POPUP_QML" && grep -q "pCoreFrequencyMhz" "$POPUP_QML" && grep -q "eCoreFrequencyMhz" "$POPUP_QML" && ! grep -q "component ThreadMeter:" "$POPUP_QML"; then
+      pass "CpuGpuPopup.qml implements lightweight Cluster Summary progress meters without per-thread items"
     else
-      fail "CpuGpuPopup.qml does not use lightweight static Rectangle progress bar in ThreadMeter"
+      fail "CpuGpuPopup.qml missing Cluster Summary meters or contains legacy ThreadMeter component"
+    fi
+
+    # Gated critical pulse animation (D-10)
+    if grep -qE "running:[[:space:]]*root\.active[[:space:]]*&&[[:space:]]*root\.isCritical" "$POPUP_QML"; then
+      pass "CpuGpuPopup.qml strictly gates popupCriticalPulse on root.active && root.isCritical"
+    else
+      fail "CpuGpuPopup.qml does not gate popupCriticalPulse on root.active && root.isCritical"
     fi
 
     # Stable GPU frequency handling (G-43-5-2)

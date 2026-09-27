@@ -26,6 +26,9 @@ BarGroup {
     readonly property bool gpuCritical: (HardwareTelemetry.gpuLoad || 0.0) >= 0.90
     readonly property bool gpuWarning: !gpuCritical && (HardwareTelemetry.gpuLoad || 0.0) >= 0.70
 
+    readonly property real quantizedCpuLoad: Math.round((HardwareTelemetry.overallCpuLoad || 0.0) * 100) / 100
+    readonly property real quantizedGpuLoad: Math.round((HardwareTelemetry.gpuLoad || 0.0) * 100) / 100
+
     // Dynamic Material You token resolution with dots-hyprland amber warning color fallback
     readonly property color warningColor: Appearance.colors.colWarning !== undefined ? Appearance.colors.colWarning : "#FFA000"
     readonly property color cpuColor: cpuCritical ? Appearance.colors.colError : (cpuWarning ? warningColor : Appearance.colors.colOnLayer1)
@@ -53,7 +56,7 @@ BarGroup {
         id: cpuCircProg
         Layout.alignment: Qt.AlignVCenter
         lineWidth: Appearance.rounding.unsharpen
-        value: Math.max(0.0, Math.min(1.0, HardwareTelemetry.overallCpuLoad || 0.0))
+        value: Math.max(0.0, Math.min(1.0, root.quantizedCpuLoad))
         implicitSize: 20
         colPrimary: root.cpuColor
         accountForLightBleeding: !root.cpuCritical && !root.cpuWarning
@@ -147,7 +150,7 @@ BarGroup {
         Layout.alignment: Qt.AlignVCenter
         Layout.leftMargin: root.vertical ? 0 : 6 // Visual cluster separation per D-02
         lineWidth: Appearance.rounding.unsharpen
-        value: Math.max(0.0, Math.min(1.0, HardwareTelemetry.gpuLoad || 0.0))
+        value: Math.max(0.0, Math.min(1.0, root.quantizedGpuLoad))
         implicitSize: 20
         colPrimary: root.gpuColor
         accountForLightBleeding: !root.gpuCritical && !root.gpuWarning
