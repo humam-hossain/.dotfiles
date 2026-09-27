@@ -144,7 +144,15 @@ Plans:
 **Goal:** Implement prioritized QML optimizations formulated in Phase 43.3 (ResourceUsage timer fix D-02, history array GC gating D-03, legacy Resources pill retirement D-04, HardwareTelemetry two-tier sensor sweeping D-05/D-06/D-07/D-08, and CpuGpuPopup/Pill scenegraph throttling D-09/D-10/D-11/D-12), then execute a complete re-benchmarking run via `scripts/profile-quickshell.sh` to capture both clean upstream baseline and optimized custom shell side-by-side in `BENCHMARK.md`.  
 **Depends on:** Phase 43.3  
 **Requirements**: PERF-01, PERF-02, PERF-03  
-**Plans:** 0 plans
+**Plans:** 3 plans
+
+Plans:
+**Wave 1**
+- [x] 43.4-01-PLAN.md — Service Layer Optimizations & Bar Layout Cleanup
+**Wave 2**
+- [x] 43.4-02-PLAN.md — UI & Popup Scenegraph Optimization & Assertion Alignment
+**Wave 3**
+- [x] 43.4-03-PLAN.md — Empirical Benchmark Re-run & Performance Verification
 
 Success criteria:
 
@@ -211,7 +219,7 @@ Success criteria:
 | 43.1. Quickshell Performance Profiling and Resource Optimization | v0.9 | 3/3 | Complete    | 2026-09-27 |
 | 43.2. Quickshell Profiling Harness Calibration & Empirical Baseline Capture | v0.9 | 2/2 | Complete | 2026-09-27 |
 | 43.3. Quickshell Benchmark Bottleneck Analysis & Optimization Strategy | v0.9 | 1/1 | Complete    | 2026-09-27 |
-| 43.4. Quickshell Targeted Optimization & Empirical Verification | v0.9 | 0 plans | Planned | — |
+| 43.4. Quickshell Targeted Optimization & Empirical Verification | v0.9 | 3/3 | Complete | 2026-09-27 |
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 0 plans | Planned | — |
