@@ -25,6 +25,8 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 - [x] **Phase 42: Telemetry Services & Sensor Infrastructure** (4 plans) (completed 2026-09-25)
 - [x] **Phase 43: CPU & GPU Component (Pill & Popup)** (4 plans) (completed 2026-09-26)
 - [x] **Phase 43.1: Quickshell Performance Profiling and Resource Optimization (INSERTED)** (3 plans) (completed 2026-09-27)
+- [x] **Phase 43.2: Quickshell Profiling Harness Calibration & Empirical Baseline Capture (INSERTED)** (2 plans) (completed 2026-09-27)
+- [x] **Phase 43.3: Quickshell Benchmark Bottleneck Analysis & Optimization Strategy (INSERTED)** (1 plan) (completed 2026-09-27)
 - [ ] **Phase 44: Memory & Storage Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 45: Network & Multi-Target Ping Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 46: Left-Zone Integration, Verification & Repository Integrity** (0 plans)
@@ -95,6 +97,44 @@ Plans:
 
 - [x] 43.1-03-PLAN.md — Performance Assertion Suite & Evidence-Based Optimization Framework
 
+### Phase 43.2: Quickshell Profiling Harness Calibration & Empirical Baseline Capture (INSERTED)
+
+**Goal:** Calibrate `scripts/profile-quickshell.sh` input coordinate scaling for Wayland, implement automated layer-shell pop-up verification (`quickshell:popup`), aggregate multi-threaded context switches, remove synthetic attribution calculations, and capture genuine empirical reference baselines for Quickshell under upstream baseline, full idle, and verified active pop-up states.  
+**Depends on:** Phase 43.1  
+**Plans:** 2 plans
+
+Success criteria:
+
+1. Mouse movement coordinates scaled correctly for Wayland uinput device; layer detection via `hyprctl layers` confirms `quickshell:popup` before measuring active UI state.
+2. User notification protocol implemented in harness and chat (prominent warnings before mouse movement, notifications on completion).
+3. Thread-wide context switch aggregation implemented across all worker threads in `/proc/$PID/task/*/status`.
+4. Synthetic attribution weight map removed; reporting truthfully reflects measured vs unmeasured states.
+5. Calibrated baseline capture executed, outputting verified `BENCHMARK.md` and `benchmark-latest.json`.
+
+Plans:
+**Wave 1**
+- [x] 43.2-01-PLAN.md — Profiling Harness Calibration, Layer Verification & Multi-Thread Telemetry
+
+**Wave 2** *(blocked on Wave 1 completion)*
+- [x] 43.2-02-PLAN.md — Calibrated Empirical Baseline Capture & Report Generation
+
+### Phase 43.3: Quickshell Benchmark Bottleneck Analysis & Optimization Strategy (INSERTED)
+
+**Goal:** Conduct in-depth diagnostic analysis of calibrated benchmark findings (3,120 reads/s idle churn, +8.14% CPU active pop-up overhead, +14.4% iGPU load), analyze source QML bottlenecks, evaluate optimization trade-offs, and establish a data-driven optimization decision matrix prior to code implementation.  
+**Depends on:** Phase 43.2  
+**Plans:** 1 plan
+
+Success criteria:
+
+1. Root-cause analysis of idle syscall churn (`ResourceUsage.qml` 1ms timer, `/proc/meminfo` & `/proc/stat` reloads).
+2. Root-cause analysis of active pop-up overhead (`HardwareTelemetry.qml` fast-polling, 23 sensor FileViews, circular meter animations, StyledPopup blur/shadows).
+3. Evaluation of secondary background pollers (`PingService.qml`, `Voice.qml`, `StorageUsage.qml`).
+4. Architecture decision record (`43.3-DECISIONS.md`) formalizing consensus on optimization knobs, target thresholds, and rollout boundaries across upcoming phases.
+
+Plans:
+**Wave 1**
+- [x] 43.3-01-PLAN.md — Bottleneck Root-Cause Dissection & Architectural Optimization Decision Matrix
+
 ### Phase 44: Memory & Storage Component (Pill & Popup)
 
 **Goal**: Build dedicated `MemoryStoragePill.qml` status bar pill and interactive `MemoryStoragePopup.qml` inspector overlay.  
@@ -149,6 +189,8 @@ Success criteria:
 | 42. Telemetry Services & Sensor Infrastructure | v0.9 | 4/4 | Complete    | 2026-09-25 |
 | 43. CPU & GPU Component (Pill & Popup) | v0.9 | 7/7 | Complete | 2026-09-26 |
 | 43.1. Quickshell Performance Profiling and Resource Optimization | v0.9 | 3/3 | Complete    | 2026-09-27 |
+| 43.2. Quickshell Profiling Harness Calibration & Empirical Baseline Capture | v0.9 | 2/2 | Complete | 2026-09-27 |
+| 43.3. Quickshell Benchmark Bottleneck Analysis & Optimization Strategy | v0.9 | 1/1 | Complete | 2026-09-27 |
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 0 plans | Planned | — |
