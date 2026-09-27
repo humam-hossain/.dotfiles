@@ -3,18 +3,18 @@ gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
 current_phase: "43.1"
-current_phase_name: quickshell-performance-profiling-and-resource-optimization
-status: ready_to_plan
+current_phase_name: Quickshell Performance Profiling and Resource Optimization (INSERTED)
+status: executing
 stopped_at: Phase 43.1 context gathered
-last_updated: "2026-09-27T04:54:50.037Z"
-last_activity: 2026-09-26
-last_activity_desc: Inserted Phase 43.1 for resource profiling and optimization
-state_head: 4f63146df4b2b4e4c80dab2fb2c9fc10f4bb75c3
+last_updated: "2026-09-27T05:08:00.439Z"
+last_activity: 2026-09-27
+last_activity_desc: Phase 43.1 execution started
+state_head: 19863388a74eaf3f85a49380f866568b3162b9aa
 progress:
   total_phases: 6
   completed_phases: 1
   total_plans: 14
-  completed_plans: 11
+  completed_plans: 12
   percent: 17
 ---
 
@@ -25,10 +25,10 @@ Progress: [░░░░░░░░░░] 2/6 phases ([██░░░░░░
 
 ## Current Position
 
-Phase: 43.1 (quickshell-performance-profiling-and-resource-optimization) — READY TO EXECUTE
-Plan: 0 of TBD
-Status: Ready to plan (/gsd-plan-phase 43.1)
-Last activity: 2026-09-26 — Phase 43.1 inserted for Quickshell resource profiling and optimization
+Phase: 43.1 (Quickshell Performance Profiling and Resource Optimization (INSERTED)) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-09-27 — Phase 43.1 execution started
 
 ## Session
 
@@ -41,7 +41,7 @@ Last activity: 2026-09-26 — Phase 43.1 inserted for Quickshell resource profil
 See: .planning/PROJECT.md (updated 2026-09-25 for v0.9 milestone start)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 43 — CPU & GPU Component (Pill & Popup)
+**Current focus:** Phase 43.1 — Quickshell Performance Profiling and Resource Optimization (INSERTED)
 
 ## Deferred Items
 
@@ -200,6 +200,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 | Phase 41 P01 | 7 min | 3 tasks | 1 files |
 | Phase 41 P02 | 9 min | 3 tasks | 2 files |
 | Phase 43 P06 | 15 min | 4 tasks | 4 files |
+| Phase 43.1 P01 | 10 min | 2 tasks | 1 files |
 
 ## Decisions
 
