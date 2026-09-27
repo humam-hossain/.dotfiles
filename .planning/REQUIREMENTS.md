@@ -32,7 +32,7 @@ Scoped requirements for Milestone v0.9 (Top Status Bar Resource Components & Har
 ### Quickshell Performance & Profiling
 
 - [x] **PERF-01**: Baseline & Staged Resource Profiling Harness (`scripts/profile-quickshell.sh`) capturing pure upstream `dots-hyprland` reference metrics via `stow -D`, executing declarative multi-stage attribution runs, and recording CPU %, deep memory (RSS, PSS, Private Dirty), context switches, I/O syscall rates, and Intel UHD 770 iGPU activity.
-- [ ] **PERF-02**: Comprehensive Diagnostic Reporting & Bottleneck Attribution Matrix producing human-readable `BENCHMARK.md` and machine-readable `benchmark-latest.json` detailing marginal component costs, dual-state idle vs active popup interaction deltas, and static timer/FileView inventory audit.
+- [x] **PERF-02**: Comprehensive Diagnostic Reporting & Bottleneck Attribution Matrix producing human-readable `BENCHMARK.md` and machine-readable `benchmark-latest.json` detailing marginal component costs, dual-state idle vs active popup interaction deltas, and static timer/FileView inventory audit.
 - [ ] **PERF-03**: Automated Performance Assertion Suite (`scripts/phase43-perf-assert.sh`) enforcing resource budgets, file descriptor leak caps (< 150), idle CPU (< 15%), and zero working tree drift under `./arch/dots-hyprland.sh verify --strict`, accompanied by an evidence-based optimization framework.
 
 ### Shell Integration & Repository Integrity
@@ -73,7 +73,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CPUGPU-03 | Phase 43 | Complete |
 | CPUGPU-04 | Phase 43 | Complete |
 | PERF-01 | Phase 43.1 | Complete |
-| PERF-02 | Phase 43.1 | Pending |
+| PERF-02 | Phase 43.1 | Complete |
 | PERF-03 | Phase 43.1 | Pending |
 | MEMDSK-01 | Phase 44 | Pending |
 | MEMDSK-02 | Phase 44 | Pending |

@@ -73,7 +73,7 @@ Success criteria:
 **Goal:** Profile Quickshell CPU, GPU, memory, and timer/process usage across components and singletons (telemetry services, polling loops, animations). Isolate the root causes of elevated resource consumption, optimize hot routines, and streamline or remove unnecessary components to ensure the status bar remains lightweight and resource-efficient.  
 **Requirements**: PERF-01, PERF-02, PERF-03  
 **Depends on:** Phase 43  
-**Plans:** 1/3 plans executed
+**Plans:** 2/3 plans executed
 
 Success criteria:
 
@@ -89,7 +89,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 43.1-02-PLAN.md — Staged Attribution Matrix, Dual-State Profiling & Comprehensive Reporting
+- [x] 43.1-02-PLAN.md — Staged Attribution Matrix, Dual-State Profiling & Comprehensive Reporting
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -148,7 +148,7 @@ Success criteria:
 | 41. End-to-End Verification & Repository Integrity | v0.8 | 2/2 | Complete | 2026-09-25 |
 | 42. Telemetry Services & Sensor Infrastructure | v0.9 | 4/4 | Complete    | 2026-09-25 |
 | 43. CPU & GPU Component (Pill & Popup) | v0.9 | 7/7 | Complete | 2026-09-26 |
-| 43.1. Quickshell Performance Profiling and Resource Optimization | v0.9 | 1/3 | In Progress|  |
+| 43.1. Quickshell Performance Profiling and Resource Optimization | v0.9 | 2/3 | In Progress|  |
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 0 plans | Planned | — |
