@@ -114,16 +114,18 @@ Success criteria:
 
 Plans:
 **Wave 1**
+
 - [x] 43.2-01-PLAN.md — Profiling Harness Calibration, Layer Verification & Multi-Thread Telemetry
 
 **Wave 2** *(blocked on Wave 1 completion)*
+
 - [x] 43.2-02-PLAN.md — Calibrated Empirical Baseline Capture & Report Generation
 
 ### Phase 43.3: Quickshell Benchmark Bottleneck Analysis & Optimization Strategy (INSERTED)
 
 **Goal:** Conduct in-depth diagnostic analysis of calibrated benchmark findings (3,120 reads/s idle churn, +8.14% CPU active pop-up overhead, +14.4% iGPU load), analyze source QML bottlenecks, evaluate optimization trade-offs, and establish a data-driven optimization decision matrix prior to code implementation.  
 **Depends on:** Phase 43.2  
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Success criteria:
 
@@ -134,6 +136,7 @@ Success criteria:
 
 Plans:
 **Wave 1**
+
 - [x] 43.3-01-PLAN.md — Bottleneck Root-Cause Dissection & Architectural Optimization Decision Matrix
 
 ### Phase 43.4: Quickshell Targeted Optimization & Empirical Verification (INSERTED)
@@ -207,9 +210,8 @@ Success criteria:
 | 43. CPU & GPU Component (Pill & Popup) | v0.9 | 7/7 | Complete | 2026-09-26 |
 | 43.1. Quickshell Performance Profiling and Resource Optimization | v0.9 | 3/3 | Complete    | 2026-09-27 |
 | 43.2. Quickshell Profiling Harness Calibration & Empirical Baseline Capture | v0.9 | 2/2 | Complete | 2026-09-27 |
-| 43.3. Quickshell Benchmark Bottleneck Analysis & Optimization Strategy | v0.9 | 1/1 | Complete | 2026-09-27 |
+| 43.3. Quickshell Benchmark Bottleneck Analysis & Optimization Strategy | v0.9 | 1/1 | Complete    | 2026-09-27 |
 | 43.4. Quickshell Targeted Optimization & Empirical Verification | v0.9 | 0 plans | Planned | — |
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 0 plans | Planned | — |
-
