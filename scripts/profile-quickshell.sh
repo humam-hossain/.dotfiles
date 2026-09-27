@@ -23,6 +23,7 @@ DURATION_SEC=30
 QUICK_MODE=0
 SELECTED_STAGE=""
 COMPARE_FILE=""
+ACTION_MODE=""
 JSON_OUT_FILE="$REPO_ROOT/.planning/phases/43.1-quickshell-performance-profiling-and-resource-optimization/benchmark-latest.json"
 REPORT_OUT_FILE="$REPO_ROOT/.planning/phases/43.1-quickshell-performance-profiling-and-resource-optimization/BENCHMARK.md"
 
@@ -59,6 +60,34 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 # -----------------------------------------------------------------------------
+# Declarative Staging Registry (D-02, 43.1-PATTERNS.md:347-358)
+# Schema: STAGE_ID | STAGE_NAME | ISOLATION_MODE | UI_MODE | DESCRIPTION
+# -----------------------------------------------------------------------------
+STAGES=(
+  "upstream_baseline|Upstream Baseline|baseline|idle|Pristine dots-hyprland without custom overlays"
+  "base_overlay|Base Overlays|restow|idle|Core styling, BarContent, and StyledPopup overlay"
+  "hardware_telemetry|+ HardwareTelemetry|restow|idle|High-frequency hwmon & procfs sensor singleton"
+  "resource_usage|+ ResourceUsage|restow|idle|Extended memory & swap polling singleton"
+  "storage_usage|+ StorageUsage|restow|idle|Diskstats and df process discovery singleton"
+  "ping_service|+ PingService|restow|idle|Network latency bridge singleton"
+  "voice_service|+ Voice STT|restow|idle|Voice telemetry tmpfs polling singleton"
+  "cpugpu_pill|+ CpuGpuPill|restow|idle|Status bar telemetry pill with circular meters"
+  "full_idle|Full Shell (Idle)|restow|idle|Complete production overlay in stationary state"
+  "full_active_popup|Full Shell (Active UI)|restow|active_popup|Complete production overlay with inspector open"
+)
+
+list_stages() {
+  header "Quickshell Profiling Staging Registry"
+  printf "${CLR_BOLD}%-22s | %-24s | %-12s | %-14s | %s${CLR_RESET}\n" "Stage ID" "Stage Name" "Isolation" "UI Mode" "Description"
+  printf "%s\n" "---------------------------------------------------------------------------------------------------------------------"
+  local entry id name iso ui desc
+  for entry in "${STAGES[@]}"; do
+    IFS='|' read -r id name iso ui desc <<< "$entry"
+    printf "%-22s | %-24s | %-12s | %-14s | %s\n" "$id" "$name" "$iso" "$ui" "$desc"
+  done
+}
+
+# -----------------------------------------------------------------------------
 # CLI Usage and Help
 # -----------------------------------------------------------------------------
 show_help() {
@@ -69,6 +98,8 @@ Quickshell Performance Profiling and Resource Optimization Harness (Phase 43.1)
 
 Options:
   -h, --help              Show this help message and exit
+  --list-stages           List all registered staging phases in declarative registry
+  --audit                 Run static QML timer and FileView hotspot analysis
   -q, --quick             Run fast smoke profiling (2s warmup, 5s duration per stage)
   -s, --stage <id>        Execute only a single specified stage ID from registry
   --warmup <sec>          Stabilization warm-up interval in seconds (default: 5, quick: 2)
@@ -162,7 +193,7 @@ restart_quickshell() {
   fi
 
   info "Starting Quickshell daemon ($qs_bin -c ii -d)..."
-  $qs_bin -c ii -d >/dev/null 2>&1 &
+  $qs_bin -c ii -d >/dev/null 2>&1 || true
   sleep 1.5
 }
 
@@ -210,6 +241,93 @@ restore_restow_quickshell() {
 }
 
 # -----------------------------------------------------------------------------
+# Dual-State Active UI Benchmarking Dispatcher (Pattern F, D-11)
+# -----------------------------------------------------------------------------
+set_ui_state() {
+  local state="$1" # "idle" or "active_popup"
+  if ! command -v ydotool >/dev/null 2>&1; then
+    info "ydotool not found; skipping automated mouse interaction"
+    return 0
+  fi
+  if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
+    info "WAYLAND_DISPLAY not set; skipping automated mouse interaction"
+    return 0
+  fi
+
+  case "$state" in
+    idle)
+      # Move cursor to inert screen coordinates away from top bar and popups
+      ydotool mousemove -a -x 1000 -y 500 2>/dev/null || true
+      ;;
+    active_popup)
+      # Move cursor to top bar CPU/GPU pill to activate StyledPopup and fast telemetry
+      # Monitor width: 3440, pill is on top-left bar (x=180, y=20)
+      ydotool mousemove -a -x 180 -y 20 2>/dev/null || true
+      ;;
+  esac
+}
+
+# -----------------------------------------------------------------------------
+# Static Code Audit & Hotspot Inventory (D-10)
+# -----------------------------------------------------------------------------
+run_static_audit() {
+  header "Static Code Audit & Hotspot Inventory (D-10)"
+  info "Auditing QML timers and FileViews in restow/quickshell..."
+
+  local qml_dir="$REPO_ROOT/restow/quickshell"
+  if [[ ! -d "$qml_dir" ]]; then
+    warn "Directory $qml_dir not found"
+    return 0
+  fi
+
+  python3 -c "
+import os, re
+
+qml_dir = '$qml_dir'
+timers = []
+fileviews = []
+
+for root, _, files in os.walk(qml_dir):
+    for f in sorted(files):
+        if not f.endswith('.qml'):
+            continue
+        path = os.path.join(root, f)
+        rel = os.path.relpath(path, qml_dir)
+        try:
+            with open(path, 'r', errors='ignore') as fp:
+                content = fp.read()
+        except:
+            continue
+
+        fvs = re.findall(r'FileView\s*\{', content)
+        if fvs:
+            fileviews.append((rel, len(fvs)))
+
+        for m in re.finditer(r'Timer\s*\{([^}]+)\}', content):
+            block = m.group(1)
+            interval_m = re.search(r'interval:\s*([^\n;]+)', block)
+            repeat_m = re.search(r'repeat:\s*([^\n;]+)', block)
+            running_m = re.search(r'running:\s*([^\n;]+)', block)
+            interval = interval_m.group(1).strip() if interval_m else 'unknown'
+            rep = repeat_m.group(1).strip() if repeat_m else 'false'
+            run = running_m.group(1).strip() if running_m else 'true'
+            timers.append((rel, interval, f'run:{run} rep:{rep}'))
+
+print(f'{\"QML Component\":<45} | {\"Interval (ms)\":<20} | {\"Running/Repeat\":<20} | Type')
+print('-' * 98)
+for comp, interval, state in timers:
+    note = ' (Anomaly: 1ms!)' if interval == '1' else ''
+    print(f'{comp:<45} | {interval + note:<20} | {state:<20} | Timer')
+
+print('\n' + '=' * 80)
+print(f'{\"Component with FileViews\":<50} | {\"Count\":<16}')
+print('-' * 80)
+for comp, count in fileviews:
+    print(f'{comp:<50} | {count:<16}')
+"
+}
+
+# -----------------------------------------------------------------------------
 # Linux Kernel Telemetry Sampling Engine (procfs & sysfs, Pattern C & D)
 # -----------------------------------------------------------------------------
 sample_proc_cpu() {
@@ -217,9 +335,7 @@ sample_proc_cpu() {
   local stat_line tail utime stime
   stat_line="$(cat "/proc/$pid/stat" 2>/dev/null || true)"
   [[ -n "$stat_line" ]] || { echo "0"; return 0; }
-  # Strip everything up to the last closing parenthesis to safely handle process names with spaces
   tail="${stat_line##*) }"
-  # In tail: field 12 is utime, field 13 is stime
   read -r _ _ _ _ _ _ _ _ _ _ _ utime stime _ <<< "$tail"
   echo "$((utime + stime))"
 }
@@ -318,6 +434,14 @@ while [[ $# -gt 0 ]]; do
       show_help
       exit 0
       ;;
+    --list-stages)
+      ACTION_MODE="list_stages"
+      shift
+      ;;
+    --audit)
+      ACTION_MODE="audit"
+      shift
+      ;;
     -q|--quick)
       QUICK_MODE=1
       WARMUP_SEC=2
@@ -368,11 +492,14 @@ done
 run_sample_window() {
   local stage_id="$1"
   local stage_name="$2"
+  local ui_mode="${3:-idle}"
   local warmup_sec="$WARMUP_SEC"
   local duration_sec="$DURATION_SEC"
 
   header "Profiling Stage: $stage_name ($stage_id)"
-  info "Warm-up: ${warmup_sec}s | Sampling Duration: ${duration_sec}s"
+  info "Warm-up: ${warmup_sec}s | Sampling Duration: ${duration_sec}s | UI Mode: ${ui_mode}"
+
+  set_ui_state "$ui_mode"
 
   info "Stabilization warm-up (${warmup_sec}s)..."
   sleep "$warmup_sec"
@@ -442,6 +569,11 @@ run_sample_window() {
   syscw_rate="$(awk -v s1="$syscw1" -v s2="$syscw2" -v dt="$total_dt_sec" 'BEGIN { printf "%.1f", (s2 - s1) / dt }')"
   gpu_busy_pct="$(compute_gpu_load "$((rc6_2 - rc6_1))" "$total_dt_ms")"
 
+  # Reset UI state to idle if was active
+  if [[ "$ui_mode" == "active_popup" ]]; then
+    set_ui_state "idle"
+  fi
+
   header "Telemetry Results: $stage_name ($stage_id)"
   printf "  %-24s: %s%% (avg) / %s%% (peak)\n" "CPU Utilization" "$avg_cpu" "$peak_cpu"
   printf "  %-24s: %s MB\n" "Memory RSS" "$rss_mb"
@@ -458,18 +590,31 @@ run_sample_window() {
 # Main Execution Entrypoint
 # -----------------------------------------------------------------------------
 main() {
+  if [[ "$ACTION_MODE" == "list_stages" ]]; then
+    list_stages
+    exit 0
+  fi
+
+  if [[ "$ACTION_MODE" == "audit" ]]; then
+    run_static_audit
+    exit 0
+  fi
+
   local target_stage="${SELECTED_STAGE:-full_idle}"
   case "$target_stage" in
     upstream_baseline)
       isolate_upstream_baseline
-      run_sample_window "upstream_baseline" "Upstream Baseline (Pure)"
+      run_sample_window "upstream_baseline" "Upstream Baseline (Pure)" "idle"
       restore_restow_quickshell
       ;;
     full_idle)
-      run_sample_window "full_idle" "Full Shell (Idle)"
+      run_sample_window "full_idle" "Full Shell (Idle)" "idle"
+      ;;
+    full_active_popup)
+      run_sample_window "full_active_popup" "Full Shell (Active UI)" "active_popup"
       ;;
     *)
-      run_sample_window "$target_stage" "Quickshell Run ($target_stage)"
+      run_sample_window "$target_stage" "Quickshell Run ($target_stage)" "idle"
       ;;
   esac
 }
