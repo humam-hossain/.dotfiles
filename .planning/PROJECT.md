@@ -514,6 +514,10 @@ Milestone v0.9 (Top Status Bar Resource Components & Hardware Telemetry):
 | Phase 41: Consolidated assertion engine orchestrating sub-harnesses | `scripts/phase41-interactions-assert.sh` orchestrates all 4 milestone sub-harnesses (Phases 38, 39, 40, 40.1) under fail-closed gates with live notification and zero working-tree churn | ✓ Section 6 FAIL=0, INTG-01..03 |
 | Phase 41: Non-destructive D-Bus testing and atomic rollback | `power-profiles-daemon` D-Bus transitions tested with signal trap rollback to active profile, preventing system power regression | ✓ Section 2 FAIL=0, POWER-01..03 |
 | Phase 41: Deterministic coordinate clamping & OTP VM simulation | Headless Node.js VM assertions verify 10 multi-monitor boundary test cases and 19-case OTP extraction matrix across diverse locales | ✓ Section 3, 4 FAIL=0 |
+| Phase 43.1: Core unprivileged Linux procfs/sysfs profiling harness | `scripts/profile-quickshell.sh` measures pure upstream baseline via temporary `.bak` stubs with unconditional trap restoration (`EXIT INT TERM`) and zero root escalation | ✓ PERF-01, Section 1 FAIL=0 |
+| Phase 43.1: Extensible staging registry, active UI dispatcher & static audit | Declarative staging runs, `ydotool` stationary idle vs active popup inspection, and static QML scanner identifying timer and FileView hot spots | ✓ PERF-02, Section 2 FAIL=0 |
+| Phase 43.1: Diagnostic reporting pipeline & baseline diffing | Generates `BENCHMARK.md` attribution matrix and `benchmark-latest.json` telemetry export with signed delta `--compare` diffing | ✓ PERF-02, Section 4 FAIL=0 |
+| Phase 43.1: Automated 5-section performance regression test harness | `scripts/phase43-perf-assert.sh` asserts safety traps, schemas, runtime leak caps (FDs < 150, RSS < 1200MB, Private Dirty < 700MB, CPU < 15%), and zero git drift | ✓ PERF-03, 0 FAIL 0 FINDINGS |
 
 ## Evolution
 
@@ -533,7 +537,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-25 for v0.9 milestone start*
+*Last updated: 2026-09-27 after Phase 43.1*
 
 
 

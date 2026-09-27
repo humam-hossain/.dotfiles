@@ -24,7 +24,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 
 - [x] **Phase 42: Telemetry Services & Sensor Infrastructure** (4 plans) (completed 2026-09-25)
 - [x] **Phase 43: CPU & GPU Component (Pill & Popup)** (4 plans) (completed 2026-09-26)
-- [ ] **Phase 43.1: Quickshell Performance Profiling and Resource Optimization (INSERTED)** (3 plans)
+- [x] **Phase 43.1: Quickshell Performance Profiling and Resource Optimization (INSERTED)** (3 plans) (completed 2026-09-27)
 - [ ] **Phase 44: Memory & Storage Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 45: Network & Multi-Target Ping Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 46: Left-Zone Integration, Verification & Repository Integrity** (0 plans)
@@ -73,7 +73,7 @@ Success criteria:
 **Goal:** Profile Quickshell CPU, GPU, memory, and timer/process usage across components and singletons (telemetry services, polling loops, animations). Isolate the root causes of elevated resource consumption, optimize hot routines, and streamline or remove unnecessary components to ensure the status bar remains lightweight and resource-efficient.  
 **Requirements**: PERF-01, PERF-02, PERF-03  
 **Depends on:** Phase 43  
-**Plans:** 3/3 plans executed
+**Plans:** 3/3 plans complete
 
 Success criteria:
 
@@ -148,7 +148,7 @@ Success criteria:
 | 41. End-to-End Verification & Repository Integrity | v0.8 | 2/2 | Complete | 2026-09-25 |
 | 42. Telemetry Services & Sensor Infrastructure | v0.9 | 4/4 | Complete    | 2026-09-25 |
 | 43. CPU & GPU Component (Pill & Popup) | v0.9 | 7/7 | Complete | 2026-09-26 |
-| 43.1. Quickshell Performance Profiling and Resource Optimization | v0.9 | 3/3 | Complete | 2026-09-27 |
+| 43.1. Quickshell Performance Profiling and Resource Optimization | v0.9 | 3/3 | Complete    | 2026-09-27 |
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 0 plans | Planned | — |

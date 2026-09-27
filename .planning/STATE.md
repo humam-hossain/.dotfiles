@@ -2,14 +2,14 @@
 gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
-current_phase: "43.1"
-current_phase_name: Quickshell Performance Profiling and Resource Optimization (INSERTED)
-status: complete
-stopped_at: Phase 43.1 execution completed
-last_updated: "2026-09-27T05:28:00.000Z"
+current_phase: 44
+current_phase_name: Memory & Storage Component (Pill & Popup)
+status: planning
+stopped_at: Phase 43.1 complete, ready to plan Phase 44
+last_updated: "2026-09-27T05:44:42.229Z"
 last_activity: 2026-09-27
-last_activity_desc: Phase 43.1 plan 03 completed
-state_head: 048d8c89da1f7678b87fcf39a79be8217bbba9d2
+last_activity_desc: Phase 43.1 complete, transitioned to Phase 44
+state_head: b42c88a37c4ffe99665f745ee83a255cc55a0a2f
 progress:
   total_phases: 6
   completed_phases: 2
@@ -19,29 +19,29 @@ progress:
 ---
 
 Total Phases: 6 (Phases 42–46 + 43.1)
-Progress: [███░░░░░░░] 2/6 phases ([████░░░░░░] 33%)
+Progress: [███░░░░░░░] 2/6 phases ([███░░░░░░░] 33%)
 
 # Project State
 
 ## Current Position
 
-Phase: 43.1 (Quickshell Performance Profiling and Resource Optimization (INSERTED)) — COMPLETE
-Plan: 3 of 3 (Complete)
-Status: Verified complete
-Last activity: 2026-09-27 — Phase 43.1 plan 03 completed
+Phase: 44 — Memory & Storage Component (Pill & Popup)
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-27 — Phase 43.1 complete, transitioned to Phase 44
 
 ## Session
 
-**Last session:** 2026-09-27T05:28:00.000Z
-**Stopped at:** Phase 43.1 context gathered
-**Resume file:** /home/pera/github_repo/.dotfiles/.planning/phases/43.1-quickshell-performance-profiling-and-resource-optimization/43.1-CONTEXT.md
+**Last session:** 2026-09-27T05:45:00.000Z
+**Stopped at:** Phase 43.1 complete, ready to plan Phase 44
+**Resume file:** None
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-25 for v0.9 milestone start)
+See: .planning/PROJECT.md (updated 2026-09-27 after Phase 43.1)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 43.1 — Quickshell Performance Profiling and Resource Optimization (INSERTED)
+**Current focus:** Phase 44 — Memory & Storage Component (Pill & Popup)
 
 ## Deferred Items
 
@@ -119,6 +119,10 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 43: Qualified StyledPopup.qml closeTimer identifier under pragma ComponentBehavior: Bound (D-21)
 - Phase 43: Self-encapsulated CpuGpuPopup inside CpuGpuPill's inertMouseArea anchored to root.hoverArea (D-22)
 - Phase 43: Mounted CpuGpuPill directly into BarContent.qml Left Zone preceding resourcesGroup with useShortenedForm binding (D-23)
+- Phase 43.1: Profiled Quickshell baseline via GNU Stow isolation with 16 upstream .bak stubs and automatic trap restoration (D-01)
+- Phase 43.1: Active UI benchmarking via ydotool dispatcher and static QML scan identifying 1ms timer anomaly in ResourceUsage.qml and 31 FileViews (D-02)
+- Phase 43.1: Established BENCHMARK.md reporting and benchmark-latest.json pipeline with --compare delta verification (D-03)
+- Phase 43.1: Automated 5-section performance regression harness (scripts/phase43-perf-assert.sh) asserting FDs < 150, RSS < 1200MB, Private Dirty < 700MB, CPU < 15%, and strict zero drift (D-04)
 
 Full decision log: PROJECT.md Key Decisions table.  
 Phase archives: `milestones/v0.2-phases/`.  
