@@ -247,10 +247,10 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
     fi
 
     CIRC_PROG_COUNT=$(grep -c "ClippedFilledCircularProgress" "$PILL_QML" || true)
-    if [[ "$CIRC_PROG_COUNT" -eq 0 ]]; then
-      pass "MemoryStoragePill.qml replaced circular progress rings with clean text layout"
+    if [[ "$CIRC_PROG_COUNT" -ge 2 ]]; then
+      pass "MemoryStoragePill.qml renders dual ClippedFilledCircularProgress rings wrapping icons (count: $CIRC_PROG_COUNT)"
     else
-      fail "MemoryStoragePill.qml retains ClippedFilledCircularProgress rings (count: $CIRC_PROG_COUNT, expected 0)"
+      fail "MemoryStoragePill.qml missing dual ClippedFilledCircularProgress rings (count: $CIRC_PROG_COUNT, expected >= 2)"
     fi
 
     # Material Symbols: memory and storage
