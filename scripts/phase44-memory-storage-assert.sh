@@ -233,12 +233,24 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
       fail "MemoryStoragePill.qml missing StorageUsage.rootDisk binding"
     fi
 
-    # Circular progress indicators (D-01, D-02)
-    CIRC_PROG_COUNT=$(grep -c "ClippedFilledCircularProgress" "$PILL_QML" || true)
-    if [[ "$CIRC_PROG_COUNT" -ge 2 ]]; then
-      pass "MemoryStoragePill.qml renders dual ClippedFilledCircularProgress rings (count: $CIRC_PROG_COUNT)"
+    # Free/Total capacity text readouts (G-44-1, user decision in Phase 44 UAT)
+    if grep -q "ResourceUsage.memoryAvailable" "$PILL_QML" && grep -q "ResourceUsage.memoryTotal" "$PILL_QML"; then
+      pass "MemoryStoragePill.qml formats RAM as free GB out of total GB"
     else
-      fail "MemoryStoragePill.qml does not render dual ClippedFilledCircularProgress rings (count: $CIRC_PROG_COUNT, expected >= 2)"
+      fail "MemoryStoragePill.qml missing free/total GB formatting for RAM"
+    fi
+
+    if grep -q "StorageUsage.rootDisk" "$PILL_QML" && grep -q "availKb" "$PILL_QML"; then
+      pass "MemoryStoragePill.qml formats Root Storage as free GB out of total GB"
+    else
+      fail "MemoryStoragePill.qml missing free/total GB formatting for Root Storage"
+    fi
+
+    CIRC_PROG_COUNT=$(grep -c "ClippedFilledCircularProgress" "$PILL_QML" || true)
+    if [[ "$CIRC_PROG_COUNT" -eq 0 ]]; then
+      pass "MemoryStoragePill.qml replaced circular progress rings with clean text layout"
+    else
+      fail "MemoryStoragePill.qml retains ClippedFilledCircularProgress rings (count: $CIRC_PROG_COUNT, expected 0)"
     fi
 
     # Material Symbols: memory and storage

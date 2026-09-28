@@ -43,67 +43,52 @@ BarGroup {
         }
     }
 
-    // --- RAM Section (Circular progress indicator + MaterialSymbol) ---
-    ClippedFilledCircularProgress {
-        id: ramCircProg
+    // --- RAM Section (MaterialSymbol + capacity readout) ---
+    MaterialSymbol {
+        id: ramIcon
         Layout.alignment: Qt.AlignVCenter
-        lineWidth: Appearance.rounding.unsharpen
-        value: Math.max(0.0, Math.min(1.0, ResourceUsage.memoryUsedPercentage || 0.0))
-        implicitSize: 20
-        colPrimary: root.ramColor
-        accountForLightBleeding: !root.ramCritical && !root.ramWarning
-        enableAnimation: false
+        text: "memory"
+        iconSize: Appearance.font.pixelSize.normal
+        color: root.ramColor
 
-        Item {
-            anchors.centerIn: parent
-            width: ramCircProg.implicitSize
-            height: ramCircProg.implicitSize
+        Behavior on color {
+            ColorAnimation {
+                duration: 200
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: Appearance.animationCurves.expressiveEffects
+            }
+        }
 
-            MaterialSymbol {
-                id: ramIcon
-                anchors.centerIn: parent
-                text: "memory"
-                iconSize: Appearance.font.pixelSize.normal
-                color: root.ramColor
-
-                Behavior on color {
-                    ColorAnimation {
-                        duration: 200
-                        easing.type: Easing.BezierSpline
-                        easing.bezierCurve: Appearance.animationCurves.expressiveEffects
-                    }
+        // Breathing pulse animation on critical red (D-04)
+        SequentialAnimation {
+            id: ramPulseAnimation
+            running: root.ramCritical
+            loops: Animation.Infinite
+            onRunningChanged: {
+                if (!running) {
+                    ramIcon.opacity = 1.0;
+                    ramText.opacity = 1.0;
                 }
-
-                // Breathing pulse animation on critical red (D-04)
-                SequentialAnimation {
-                    id: ramPulseAnimation
-                    running: root.ramCritical
-                    loops: Animation.Infinite
-                    onRunningChanged: {
-                        if (!running) {
-                            ramIcon.opacity = 1.0;
-                            ramCircProg.opacity = 1.0;
-                            ramText.opacity = 1.0;
-                        }
-                    }
-                    ParallelAnimation {
-                        NumberAnimation { target: ramIcon; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
-                        NumberAnimation { target: ramCircProg; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
-                        NumberAnimation { target: ramText; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
-                    }
-                    ParallelAnimation {
-                        NumberAnimation { target: ramIcon; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
-                        NumberAnimation { target: ramCircProg; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
-                        NumberAnimation { target: ramText; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
-                    }
-                }
+            }
+            ParallelAnimation {
+                NumberAnimation { target: ramIcon; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+                NumberAnimation { target: ramText; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+            }
+            ParallelAnimation {
+                NumberAnimation { target: ramIcon; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+                NumberAnimation { target: ramText; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
             }
         }
     }
 
     StyledText {
         id: ramText
-        text: `${Math.round((ResourceUsage.memoryUsedPercentage || 0.0) * 100)}%`
+        Layout.alignment: Qt.AlignVCenter
+        text: {
+            const freeGb = ((ResourceUsage.memoryAvailable > 0 ? ResourceUsage.memoryAvailable : ResourceUsage.memoryFree) / (1024 * 1024)).toFixed(1);
+            const totalGb = (ResourceUsage.memoryTotal / (1024 * 1024)).toFixed(0);
+            return `${freeGb} / ${totalGb} GB`;
+        }
         font.pixelSize: Appearance.font.pixelSize.small
         color: root.ramColor
 
@@ -116,68 +101,53 @@ BarGroup {
         }
     }
 
-    // --- Storage Section (Circular progress indicator + storage icon) ---
-    ClippedFilledCircularProgress {
-        id: storageCircProg
+    // --- Storage Section (storage icon + capacity readout) ---
+    MaterialSymbol {
+        id: storageIcon
         Layout.alignment: Qt.AlignVCenter
         Layout.leftMargin: root.vertical ? 0 : 6 // Visual cluster separation per D-02
-        lineWidth: Appearance.rounding.unsharpen
-        value: Math.max(0.0, Math.min(1.0, (StorageUsage.rootDisk?.usePercent ?? 0) / 100.0))
-        implicitSize: 20
-        colPrimary: root.storageColor
-        accountForLightBleeding: !root.storageCritical && !root.storageWarning
-        enableAnimation: false
+        text: "storage"
+        iconSize: Appearance.font.pixelSize.normal
+        color: root.storageColor
 
-        Item {
-            anchors.centerIn: parent
-            width: storageCircProg.implicitSize
-            height: storageCircProg.implicitSize
+        Behavior on color {
+            ColorAnimation {
+                duration: 200
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: Appearance.animationCurves.expressiveEffects
+            }
+        }
 
-            MaterialSymbol {
-                id: storageIcon
-                anchors.centerIn: parent
-                text: "storage"
-                iconSize: Appearance.font.pixelSize.normal
-                color: root.storageColor
-
-                Behavior on color {
-                    ColorAnimation {
-                        duration: 200
-                        easing.type: Easing.BezierSpline
-                        easing.bezierCurve: Appearance.animationCurves.expressiveEffects
-                    }
+        // Breathing pulse animation on critical red (D-04)
+        SequentialAnimation {
+            id: storagePulseAnimation
+            running: root.storageCritical
+            loops: Animation.Infinite
+            onRunningChanged: {
+                if (!running) {
+                    storageIcon.opacity = 1.0;
+                    storageText.opacity = 1.0;
                 }
-
-                // Breathing pulse animation on critical red (D-04)
-                SequentialAnimation {
-                    id: storagePulseAnimation
-                    running: root.storageCritical
-                    loops: Animation.Infinite
-                    onRunningChanged: {
-                        if (!running) {
-                            storageIcon.opacity = 1.0;
-                            storageCircProg.opacity = 1.0;
-                            storageText.opacity = 1.0;
-                        }
-                    }
-                    ParallelAnimation {
-                        NumberAnimation { target: storageIcon; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
-                        NumberAnimation { target: storageCircProg; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
-                        NumberAnimation { target: storageText; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
-                    }
-                    ParallelAnimation {
-                        NumberAnimation { target: storageIcon; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
-                        NumberAnimation { target: storageCircProg; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
-                        NumberAnimation { target: storageText; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
-                    }
-                }
+            }
+            ParallelAnimation {
+                NumberAnimation { target: storageIcon; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+                NumberAnimation { target: storageText; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+            }
+            ParallelAnimation {
+                NumberAnimation { target: storageIcon; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+                NumberAnimation { target: storageText; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
             }
         }
     }
 
     StyledText {
         id: storageText
-        text: `${StorageUsage.rootDisk?.usePercent ?? 0}%`
+        Layout.alignment: Qt.AlignVCenter
+        text: {
+            const rootAvailGb = ((StorageUsage.rootDisk?.availKb ?? 0) / (1024 * 1024)).toFixed(1);
+            const rootTotalGb = ((StorageUsage.rootDisk?.totalKb ?? 0) / (1024 * 1024)).toFixed(0);
+            return `${rootAvailGb} / ${rootTotalGb} GB`;
+        }
         font.pixelSize: Appearance.font.pixelSize.small
         color: root.storageColor
 
