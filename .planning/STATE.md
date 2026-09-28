@@ -2,46 +2,46 @@
 gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
-current_phase: 44
-current_phase_name: Memory & Storage Component (Pill & Popup)
-status: planning
-stopped_at: Phase 43.5 complete, ready to plan Phase 44
-last_updated: "2026-09-28T06:03:28.597Z"
+current_phase: "43.6"
+current_phase_name: Remove Top Processes & Streamline CpuGpuPopup Layout (INSERTED)
+status: executing
+stopped_at: Phase 43.6 inserted, ready to plan
+last_updated: "2026-09-28T07:53:34.577Z"
 last_activity: 2026-09-28
-last_activity_desc: Phase 43.5 complete, transitioned to Phase 44
-state_head: fb25d604b896dd61a66a63f05503031c323f5a7f
+last_activity_desc: Phase 43.6 inserted after Phase 43.5
+state_head: 7b1e468fde7e0956c36602aa3d4dbc9d8e00e5c6
 progress:
-  total_phases: 10
-  completed_phases: 7
-  total_plans: 23
+  total_phases: 11
+  completed_phases: 4
+  total_plans: 25
   completed_plans: 23
-  percent: 70
+  percent: 36
 ---
 
 Total Phases: 10 (Phases 42–46 + 43.1–43.5)
-Progress: [███████░░░] 7/10 phases ([███████░░░] 70%)
+Progress: [███████░░░] 7/10 phases ([████░░░░░░] 36%)
 
 # Project State
 
 ## Current Position
 
-Phase: 44 — Memory & Storage Component (Pill & Popup)
+Phase: 43.6 (Remove Top Processes & Streamline CpuGpuPopup Layout (INSERTED)) — READY TO EXECUTE
 Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-28 — Phase 43.5 complete, transitioned to Phase 44
+Status: Ready to execute
+Last activity: 2026-09-28 — Phase 43.6 inserted after Phase 43.5
 
 ## Session
 
 **Last session:** 2026-09-27T15:29:00.000Z
-**Stopped at:** Phase 43.5 complete, ready to plan Phase 44
-**Resume file:** .planning/phases/43.5-cpu-gpu-dynamic-telemetry-top-process-attribution-tree-hover/
+**Stopped at:** Phase 43.6 inserted, ready to plan
+**Resume file:** .planning/phases/43.6-remove-top-processes-streamline-cpugpupopup-layout/
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-27 after Phase 43.1)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 44 — Memory & Storage Component (Pill & Popup)
+**Current focus:** Phase 43.6 — Remove Top Processes & Streamline CpuGpuPopup Layout
 
 ## Deferred Items
 
@@ -151,6 +151,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - Phase 42 added: Top Status Bar Resource Component Customization & Hardware Telemetry
 - Phase 43.1 inserted after Phase 43: Quickshell Performance Profiling and Resource Optimization (URGENT)
 - Phase 43.5 inserted after Phase 43.4: CPU/GPU Dynamic Telemetry, Top Process Attribution Tree & Hover Delay Ergonomics (URGENT)
+- Phase 43.6 inserted after Phase 43.5: Remove Top Processes & Streamline CpuGpuPopup Layout (URGENT)
 
 ## Operator Next Steps
 
