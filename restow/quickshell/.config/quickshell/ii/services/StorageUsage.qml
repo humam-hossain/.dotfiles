@@ -127,16 +127,18 @@ Singleton {
         }
         root.activeDiskLabel = root.labelForMount(root.activeDisk);
 
-        // D-08: Pure I/O-driven df trigger
-        if (totalIoTicksDelta > 0 && (now - lastDfTime) > dfCooldownMs) {
+        // D-08: Pure I/O-driven df trigger + 30s background fallback
+        if ((totalIoTicksDelta > 0 && (now - lastDfTime) > dfCooldownMs) || (now - lastDfTime) > 30000) {
             root.refresh();
         }
     }
 
     function deviceToMount(dev) {
-        if (dev.startsWith("nvme1n1")) return "/";
-        if (dev.startsWith("nvme0n1")) return "/mnt/windows";
-        if (dev.startsWith("sda")) return "/mnt/hdd";
+        for (let i = 0; i < mounts.length; i++) {
+            if (mounts[i].fs && mounts[i].fs.includes(dev)) {
+                return mounts[i].mount;
+            }
+        }
         return "/";
     }
 

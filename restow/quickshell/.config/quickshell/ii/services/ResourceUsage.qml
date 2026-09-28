@@ -82,7 +82,7 @@ Singleton {
         const textMeminfo = fileMeminfo.text();
         memoryTotal = Number(textMeminfo.match(/MemTotal:\s*(\d+)/)?.[1] ?? 1);
         memoryAvailable = Number(textMeminfo.match(/MemAvailable:\s*(\d+)/)?.[1] ?? 0);
-        memoryFree = memoryAvailable;
+        memoryFree = Number(textMeminfo.match(/MemFree:\s*(\d+)/)?.[1] ?? 0);
         memoryBuffers = Number(textMeminfo.match(/Buffers:\s*(\d+)/)?.[1] ?? 0);
         memoryCached = Number(textMeminfo.match(/^Cached:\s*(\d+)/m)?.[1] ?? 0);
         swapTotal = Number(textMeminfo.match(/SwapTotal:\s*(\d+)/)?.[1] ?? 1);
