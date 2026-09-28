@@ -6,20 +6,20 @@ current_phase: 44
 current_phase_name: Memory & Storage Component (Pill & Popup)
 status: planning
 stopped_at: Phase 43.5 complete, ready to plan Phase 44
-last_updated: "2026-09-27T18:03:45.156Z"
+last_updated: "2026-09-28T06:03:28.597Z"
 last_activity: 2026-09-28
 last_activity_desc: Phase 43.5 complete, transitioned to Phase 44
-state_head: ab21d8e936fce4bcba244bb2a2b07ae5876ae693
+state_head: fb25d604b896dd61a66a63f05503031c323f5a7f
 progress:
   total_phases: 10
-  completed_phases: 4
+  completed_phases: 7
   total_plans: 23
   completed_plans: 23
-  percent: 40
+  percent: 70
 ---
 
 Total Phases: 10 (Phases 42–46 + 43.1–43.5)
-Progress: [████░░░░░░] 4/10 phases ([████░░░░░░] 40%)
+Progress: [███████░░░] 7/10 phases ([███████░░░] 70%)
 
 # Project State
 
@@ -41,7 +41,7 @@ Last activity: 2026-09-28 — Phase 43.5 complete, transitioned to Phase 44
 See: .planning/PROJECT.md (updated 2026-09-27 after Phase 43.1)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 43.5 — CPU/GPU Dynamic Telemetry, Top Process Attribution Tree & Hover Delay Ergonomics (INSERTED)
+**Current focus:** Phase 44 — Memory & Storage Component (Pill & Popup)
 
 ## Deferred Items
 
@@ -49,6 +49,7 @@ Items acknowledged and deferred at prior milestone closes (all legacy debug sess
 
 | Category | Item | Status | Deferred At | Milestone |
 |----------|------|--------|-------------|-----------|
+| optimization | CPU/GPU process tree resource usage | consider dropping top process list altogether in future optimization phase | 2026-09-28 | v0.9 |
 | requirement | FWK-02 (exec-once auto-start) | deferred finishing touch — revisit under upstream model | 2026-09-16 | v0.4 |
 | requirement | IPC-02 (bar toggle keybind) | deferred finishing touch — revisit under upstream model | 2026-09-16 | v0.4 |
 | backlog | Waybar cutover (CUT-01) | deferred until parity accepted; DISP-03 defaults keep dual-run **[superseded by Phase 16]** — the dual-run session ended at the Phase 14 adopt. | 2026-09-16 | v0.4 |
