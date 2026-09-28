@@ -1,4 +1,5 @@
 #!/bin/sh
+# DEPRECATED: No longer invoked by CpuGpuPopup.qml as of Phase 43.6. Retained as standalone CLI diagnostic utility.
 # process_tree.sh — Fast process tree + GPU engine utilization scanner
 # Aggregates multi-process application hierarchies under parent roots.
 # Calculates delta CPU ticks and DRM engine-render utilization percentage.

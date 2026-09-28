@@ -6,39 +6,23 @@ import qs.services
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Io
 
 StyledPopup {
     id: root
-
-    // =========================================================================
-    // Process Attribution Tree State & Demand-Gating (D-04, D-05, CPUGPU-07)
-    // =========================================================================
-    property var topCpuProcesses: []
-    property var topGpuProcesses: []
-
 
     // Reactive fast-polling lifecycle boost (1000ms active / 3000ms idle)
     // Guarantees zero reference count leaks (Pitfall 5)
     onActiveChanged: {
         if (active) {
             HardwareTelemetry.fastPollingRequests++;
-            root.triggerProcessScan();
         } else {
             HardwareTelemetry.fastPollingRequests--;
-            processTreeProc.running = false;
         }
     }
 
     Component.onDestruction: {
         if (active) {
             HardwareTelemetry.fastPollingRequests--;
-        }
-    }
-
-    function triggerProcessScan() {
-        if (!processTreeProc.running) {
-            processTreeProc.running = true;
         }
     }
 
@@ -149,33 +133,6 @@ StyledPopup {
         anchors.centerIn: parent
         spacing: 12
 
-        // Non-visual objects placed here because StyledPopup's default property
-        // is `Item contentItem` — Timer and Process are not Items.
-        Timer {
-            id: procScanTimer
-            interval: 2500 // 2.5s update cadence while active
-            running: root.active
-            repeat: true
-            onTriggered: root.triggerProcessScan()
-        }
-
-        Process {
-            id: processTreeProc
-            command: [Quickshell.shellPath("scripts/resource-usage/process_tree.sh")]
-            stdout: StdioCollector {
-                onStreamFinished: {
-                    if (!text || text.trim().length === 0) return;
-                    try {
-                        const parsed = JSON.parse(text);
-                        root.topCpuProcesses = parsed.top_cpu || [];
-                        root.topGpuProcesses = parsed.top_gpu || [];
-                    } catch (err) {
-                        console.warn("Failed to parse process tree JSON:", err);
-                    }
-                }
-            }
-        }
-
         SequentialAnimation {
             id: popupCriticalPulse
             running: root.active && root.isCritical
@@ -267,84 +224,6 @@ StyledPopup {
                     label: "Power Draw:"
                     value: root.active ? "N/A (unprivileged)" : ""
                 }
-
-                // Horizontal Separator
-                Rectangle {
-                    Layout.fillWidth: true
-                    implicitHeight: 1
-                    color: Appearance.colors.colLayer0Border
-                }
-
-                // Top CPU Process Attribution Tree
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 4
-
-                    StyledText {
-                        text: "Top Processes (CPU):"
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnSurfaceVariant
-                    }
-
-                    Repeater {
-                        model: root.topCpuProcesses
-
-                        delegate: ColumnLayout {
-                            id: cpuRootItem
-                            required property var modelData
-                            Layout.fillWidth: true
-                            spacing: 1
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 6
-
-                                StyledText {
-                                    text: cpuRootItem.modelData.name || "Process"
-                                    font.pixelSize: Appearance.font.pixelSize.smaller
-                                    font.weight: Font.DemiBold
-                                    color: Appearance.colors.colOnSurfaceVariant
-                                    elide: Text.ElideRight
-                                    Layout.fillWidth: true
-                                }
-
-                                StyledText {
-                                    text: `${(cpuRootItem.modelData.total_cpu || 0.0).toFixed(1)}%`
-                                    font.pixelSize: Appearance.font.pixelSize.smaller
-                                    font.weight: Font.DemiBold
-                                    color: root.getLoadColor((cpuRootItem.modelData.total_cpu || 0.0) / 100.0)
-                                }
-                            }
-
-                            Repeater {
-                                model: cpuRootItem.modelData.children || []
-
-                                delegate: RowLayout {
-                                    id: cpuChildItem
-                                    required property var modelData
-                                    Layout.fillWidth: true
-                                    Layout.leftMargin: 12
-                                    spacing: 4
-
-                                    StyledText {
-                                        text: `└─ ${cpuChildItem.modelData.name}`
-                                        font.pixelSize: Appearance.font.pixelSize.smallest
-                                        color: Appearance.colors.colSubtext
-                                        elide: Text.ElideRight
-                                        Layout.fillWidth: true
-                                    }
-
-                                    StyledText {
-                                        text: `${(cpuChildItem.modelData.cpu || 0.0).toFixed(1)}%`
-                                        font.pixelSize: Appearance.font.pixelSize.smallest
-                                        color: Appearance.colors.colSubtext
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
 
             // Vertical Separator
@@ -386,84 +265,6 @@ StyledPopup {
                     icon: "warning"
                     label: "Thermal Throttle:"
                     value: root.active ? (HardwareTelemetry.gpuThrottled ? "Throttling" : "Normal") : ""
-                }
-
-                // Horizontal Separator
-                Rectangle {
-                    Layout.fillWidth: true
-                    implicitHeight: 1
-                    color: Appearance.colors.colLayer0Border
-                }
-
-                // Top GPU Process Attribution Tree
-                ColumnLayout {
-                    Layout.fillWidth: true
-                    spacing: 4
-
-                    StyledText {
-                        text: "Top Processes (GPU):"
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        font.weight: Font.Medium
-                        color: Appearance.colors.colOnSurfaceVariant
-                    }
-
-                    Repeater {
-                        model: root.topGpuProcesses
-
-                        delegate: ColumnLayout {
-                            id: gpuRootItem
-                            required property var modelData
-                            Layout.fillWidth: true
-                            spacing: 1
-
-                            RowLayout {
-                                Layout.fillWidth: true
-                                spacing: 6
-
-                                StyledText {
-                                    text: gpuRootItem.modelData.name || "Process"
-                                    font.pixelSize: Appearance.font.pixelSize.smaller
-                                    font.weight: Font.DemiBold
-                                    color: Appearance.colors.colOnSurfaceVariant
-                                    elide: Text.ElideRight
-                                    Layout.fillWidth: true
-                                }
-
-                                StyledText {
-                                    text: `${((gpuRootItem.modelData.total_gpu_pct !== undefined ? gpuRootItem.modelData.total_gpu_pct : gpuRootItem.modelData.total_gpu_mb) || 0.0).toFixed(1)}%`
-                                    font.pixelSize: Appearance.font.pixelSize.smaller
-                                    font.weight: Font.DemiBold
-                                    color: root.getLoadColor(((gpuRootItem.modelData.total_gpu_pct !== undefined ? gpuRootItem.modelData.total_gpu_pct : gpuRootItem.modelData.total_gpu_mb) || 0.0) / 100.0)
-                                }
-                            }
-
-                            Repeater {
-                                model: gpuRootItem.modelData.children || []
-
-                                delegate: RowLayout {
-                                    id: gpuChildItem
-                                    required property var modelData
-                                    Layout.fillWidth: true
-                                    Layout.leftMargin: 12
-                                    spacing: 4
-
-                                    StyledText {
-                                        text: `└─ ${gpuChildItem.modelData.name}`
-                                        font.pixelSize: Appearance.font.pixelSize.smallest
-                                        color: Appearance.colors.colSubtext
-                                        elide: Text.ElideRight
-                                        Layout.fillWidth: true
-                                    }
-
-                                    StyledText {
-                                        text: `${((gpuChildItem.modelData.gpu_pct !== undefined ? gpuChildItem.modelData.gpu_pct : gpuChildItem.modelData.gpu_mb) || 0.0).toFixed(1)}%`
-                                        font.pixelSize: Appearance.font.pixelSize.smallest
-                                        color: Appearance.colors.colSubtext
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }

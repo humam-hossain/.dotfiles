@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# DEPRECATED: No longer invoked by CpuGpuPopup.qml as of Phase 43.6. Retained as standalone CLI diagnostic utility.
 """
 Fast launcher delegating to process_tree.sh for maximum performance and zero duplicate logic.
 """
