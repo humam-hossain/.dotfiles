@@ -119,12 +119,12 @@ def main():
                 prev_val = prev_pids[spid]
                 prev_ticks = prev_val[0] if isinstance(prev_val, list) else prev_val
                 d_proc = max(0, pdata["ticks"] - prev_ticks)
-                pdata["cpu"] = max(0.0, round((d_proc / d_sys) * 100.0 * num_cpus, 1))
+                pdata["cpu"] = max(0.0, round((d_proc / d_sys) * 100.0, 1))
     else:
         # Fallback to lifetime average on first frame or stale state
         for pid, pdata in procs.items():
             elapsed = max(1, sys_ticks - pdata["starttime"])
-            pdata["cpu"] = max(0.0, round((pdata["ticks"] / elapsed) * 100.0 * num_cpus, 1))
+            pdata["cpu"] = max(0.0, round((pdata["ticks"] / elapsed) * 100.0, 1))
 
     # Save state for next delta
     try:
@@ -142,7 +142,9 @@ def main():
 
     # 4. Build application root clusters
     SYSTEM_ROOTS = {"systemd", "init", "hyprland", "Hyprland", "login", "pipewire", "seatd", "(sd-pam)"}
-    TERMINAL_EMULATORS = {"kitty", "alacritty", "foot", "wezterm", "gnome-terminal", "konsole"}
+    TERMINAL_EMULATORS = {"kitty", "alacritty", "foot", "wezterm", "gnome-terminal", "konsole", "tmux: server"}
+
+    SHELLS = {"sh", "bash", "zsh", "fish", "dash", "csh", "tcsh", "nu"}
 
     def find_app_root(pid):
         curr = pid
@@ -159,7 +161,12 @@ def main():
                 return curr
             if pd["comm"] in TERMINAL_EMULATORS:
                 return curr
-            if d["comm"] == pd["comm"] or pd["comm"] in ("sh", "bash", "zsh", "fish"):
+            # Shells are boundaries: if parent is a shell and we are NOT
+            # also that same shell, stop — this process is its own app root.
+            if pd["comm"] in SHELLS and d["comm"] != pd["comm"]:
+                return curr
+            # Same-name parent or shell-to-shell: keep climbing
+            if d["comm"] == pd["comm"] or pd["comm"] in SHELLS:
                 curr = d["ppid"]
                 continue
             curr = d["ppid"]
