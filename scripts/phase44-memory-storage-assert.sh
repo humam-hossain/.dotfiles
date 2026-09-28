@@ -275,7 +275,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
       fail "MemoryStoragePill.qml missing ramPulseAnimation or storagePulseAnimation"
     fi
 
-    if grep -q "opacity: 0.4" "$PILL_QML" && grep -q "duration: 600" "$PILL_QML"; then
+    if grep -q "to: 0.4" "$PILL_QML" && grep -q "duration: 600" "$PILL_QML"; then
       pass "MemoryStoragePill.qml implements 600ms breathing pulse between 0.4 and 1.0 opacity"
     else
       fail "MemoryStoragePill.qml missing 600ms opacity pulse parameters"
