@@ -280,6 +280,6 @@ Success criteria:
 | 43.4. Quickshell Targeted Optimization & Empirical Verification | v0.9 | 3/3 | Complete | 2026-09-27 |
 | 43.5. CPU/GPU Dynamic Telemetry, Top Process Attribution Tree & Hover Delay Ergonomics | v0.9 | 3/3 | Complete    | 2026-09-28 |
 | 43.6. Remove Top Processes & Streamline CpuGpuPopup Layout | v0.9 | 2/2 | Complete    | 2026-09-28 |
-| 44. Memory & Storage Component (Pill & Popup) | v0.9 | 3/3 | In Progress|  |
+| 44. Memory & Storage Component (Pill & Popup) | v0.9 | 3/3 | Complete    | 2026-09-28 |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 0 plans | Planned | — |
