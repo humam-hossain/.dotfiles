@@ -128,10 +128,10 @@ StyledPopup {
         }
     }
 
-    ColumnLayout {
+    RowLayout {
         id: popupContent
         anchors.centerIn: parent
-        spacing: 12
+        spacing: 16
 
         SequentialAnimation {
             id: popupCriticalPulse
@@ -157,201 +157,180 @@ StyledPopup {
         }
 
         // =====================================================================
-        // Upper Dual Columns: Left (CPU + Process Tree) & Right (GPU + Process Tree)
+        // Left Column (320px): CPU (Top) + GPU (Bottom)
         // =====================================================================
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 16
+        ColumnLayout {
+            Layout.preferredWidth: 320
+            spacing: 8
 
-            // =================================================================
-            // Left Column: CPU Telemetry & Top CPU Process Tree
-            // =================================================================
-            ColumnLayout {
-                Layout.preferredWidth: 320
-                spacing: 8
-
-                StyledPopupHeaderRow {
-                    icon: "planner_review"
-                    label: `CPU (${HardwareTelemetry.cpuModelName})`
-                }
-
-                // Overall CPU Load
-                MetricProgressRow {
-                    title: "Overall CPU"
-                    mhzText: root.active ? `${Math.round((HardwareTelemetry.pCoreFrequencyMhz || 0) * 0.6 + (HardwareTelemetry.eCoreFrequencyMhz || 0) * 0.4)} MHz` : ""
-                    value: root.active ? (Math.round((HardwareTelemetry.overallCpuLoad || 0.0) * 100) / 100) : 0.0
-                    tempText: root.active ? `${HardwareTelemetry.packageTemp || 0}°C` : ""
-                    barColor: root.cpuLoadColor
-                    tempColor: root.getTempColor(HardwareTelemetry.packageTemp || 0)
-                    isCritical: (HardwareTelemetry.overallCpuLoad || 0.0) >= 0.90 || (HardwareTelemetry.packageTemp || 0) >= 80
-                }
-
-                // Segregated Hybrid P-Cores
-                MetricProgressRow {
-                    visible: HardwareTelemetry.isHybridArchitecture
-                    title: `P-Cores (${HardwareTelemetry.pCoreThreadCount}T)`
-                    mhzText: root.active ? `${Math.round(HardwareTelemetry.pCoreFrequencyMhz || 0)} MHz` : ""
-                    value: root.active ? (Math.round((HardwareTelemetry.pCoreLoad || 0.0) * 100) / 100) : 0.0
-                    tempText: root.active ? `${HardwareTelemetry.pCoreTempAvg || 0}°C` : ""
-                    barColor: root.getLoadColor(HardwareTelemetry.pCoreLoad || 0.0)
-                    tempColor: root.getTempColor(HardwareTelemetry.pCoreTempAvg || 0)
-                    isCritical: (HardwareTelemetry.pCoreLoad || 0.0) >= 0.90 || (HardwareTelemetry.pCoreTempAvg || 0) >= 80
-                }
-
-                // Segregated Hybrid E-Cores
-                MetricProgressRow {
-                    visible: HardwareTelemetry.isHybridArchitecture
-                    title: `E-Cores (${HardwareTelemetry.eCoreThreadCount}T)`
-                    mhzText: root.active ? `${Math.round(HardwareTelemetry.eCoreFrequencyMhz || 0)} MHz` : ""
-                    value: root.active ? (Math.round((HardwareTelemetry.eCoreLoad || 0.0) * 100) / 100) : 0.0
-                    tempText: root.active ? `${HardwareTelemetry.eCoreTempAvg || 0}°C` : ""
-                    barColor: root.getLoadColor(HardwareTelemetry.eCoreLoad || 0.0)
-                    tempColor: root.getTempColor(HardwareTelemetry.eCoreTempAvg || 0)
-                    isCritical: (HardwareTelemetry.eCoreLoad || 0.0) >= 0.90 || (HardwareTelemetry.eCoreTempAvg || 0) >= 80
-                }
-
-                // Telemetry Value Rows
-                StyledPopupValueRow {
-                    Layout.fillWidth: true
-                    icon: "tune"
-                    label: "Governor:"
-                    value: root.active ? (HardwareTelemetry.scalingGovernor || "") : ""
-                }
-
-                StyledPopupValueRow {
-                    Layout.fillWidth: true
-                    icon: "bolt"
-                    label: "Power Draw:"
-                    value: root.active ? "N/A (unprivileged)" : ""
-                }
+            // --- CPU Section (Top) ---
+            StyledPopupHeaderRow {
+                icon: "planner_review"
+                label: `CPU (${HardwareTelemetry.cpuModelName})`
             }
 
-            // Vertical Separator
+            MetricProgressRow {
+                title: "Overall CPU"
+                mhzText: root.active ? `${Math.round((HardwareTelemetry.pCoreFrequencyMhz || 0) * 0.6 + (HardwareTelemetry.eCoreFrequencyMhz || 0) * 0.4)} MHz` : ""
+                value: root.active ? (Math.round((HardwareTelemetry.overallCpuLoad || 0.0) * 100) / 100) : 0.0
+                tempText: root.active ? `${HardwareTelemetry.packageTemp || 0}°C` : ""
+                barColor: root.cpuLoadColor
+                tempColor: root.getTempColor(HardwareTelemetry.packageTemp || 0)
+                isCritical: (HardwareTelemetry.overallCpuLoad || 0.0) >= 0.90 || (HardwareTelemetry.packageTemp || 0) >= 80
+            }
+
+            MetricProgressRow {
+                visible: HardwareTelemetry.isHybridArchitecture
+                title: `P-Cores (${HardwareTelemetry.pCoreThreadCount}T)`
+                mhzText: root.active ? `${Math.round(HardwareTelemetry.pCoreFrequencyMhz || 0)} MHz` : ""
+                value: root.active ? (Math.round((HardwareTelemetry.pCoreLoad || 0.0) * 100) / 100) : 0.0
+                tempText: root.active ? `${HardwareTelemetry.pCoreTempAvg || 0}°C` : ""
+                barColor: root.getLoadColor(HardwareTelemetry.pCoreLoad || 0.0)
+                tempColor: root.getTempColor(HardwareTelemetry.pCoreTempAvg || 0)
+                isCritical: (HardwareTelemetry.pCoreLoad || 0.0) >= 0.90 || (HardwareTelemetry.pCoreTempAvg || 0) >= 80
+            }
+
+            MetricProgressRow {
+                visible: HardwareTelemetry.isHybridArchitecture
+                title: `E-Cores (${HardwareTelemetry.eCoreThreadCount}T)`
+                mhzText: root.active ? `${Math.round(HardwareTelemetry.eCoreFrequencyMhz || 0)} MHz` : ""
+                value: root.active ? (Math.round((HardwareTelemetry.eCoreLoad || 0.0) * 100) / 100) : 0.0
+                tempText: root.active ? `${HardwareTelemetry.eCoreTempAvg || 0}°C` : ""
+                barColor: root.getLoadColor(HardwareTelemetry.eCoreLoad || 0.0)
+                tempColor: root.getTempColor(HardwareTelemetry.eCoreTempAvg || 0)
+                isCritical: (HardwareTelemetry.eCoreLoad || 0.0) >= 0.90 || (HardwareTelemetry.eCoreTempAvg || 0) >= 80
+            }
+
+            StyledPopupValueRow {
+                Layout.fillWidth: true
+                icon: "tune"
+                label: "Governor:"
+                value: root.active ? (HardwareTelemetry.scalingGovernor || "") : ""
+            }
+
+            StyledPopupValueRow {
+                Layout.fillWidth: true
+                icon: "bolt"
+                label: "Power Draw:"
+                value: root.active ? "N/A (unprivileged)" : ""
+            }
+
+            // Horizontal Separator between CPU and GPU
             Rectangle {
-                Layout.fillHeight: true
-                implicitWidth: 1
+                Layout.fillWidth: true
+                implicitHeight: 1
                 color: Appearance.colors.colLayer0Border
             }
 
-            // =================================================================
-            // Right Column: GPU Telemetry & Top GPU Process Tree
-            // =================================================================
-            ColumnLayout {
-                Layout.preferredWidth: 320
-                spacing: 8
+            // --- GPU Section (Bottom) ---
+            StyledPopupHeaderRow {
+                icon: "sports_esports"
+                label: `GPU (${HardwareTelemetry.gpuModelName})`
+            }
 
-                // --- GPU Section (Top) ---
-                StyledPopupHeaderRow {
-                    icon: "sports_esports"
-                    label: `GPU (${HardwareTelemetry.gpuModelName})`
-                }
+            MetricProgressRow {
+                title: "iGPU Load"
+                value: root.active ? (Math.round((HardwareTelemetry.gpuLoad || 0.0) * 100) / 100) : 0.0
+                barColor: root.gpuLoadColor
+                isCritical: (HardwareTelemetry.gpuLoad || 0.0) >= 0.90
+            }
 
-                MetricProgressRow {
-                    title: "iGPU Load"
-                    value: root.active ? (Math.round((HardwareTelemetry.gpuLoad || 0.0) * 100) / 100) : 0.0
-                    barColor: root.gpuLoadColor
-                    isCritical: (HardwareTelemetry.gpuLoad || 0.0) >= 0.90
-                }
+            StyledPopupValueRow {
+                Layout.fillWidth: true
+                icon: "speed"
+                label: "Render Clock:"
+                value: root.active ? `${Math.round(HardwareTelemetry.gpuClockMhz || 0)} MHz` : ""
+            }
 
-                StyledPopupValueRow {
-                    Layout.fillWidth: true
-                    icon: "speed"
-                    label: "Render Clock:"
-                    value: root.active ? `${Math.round(HardwareTelemetry.gpuClockMhz || 0)} MHz` : ""
-                }
-
-                StyledPopupValueRow {
-                    Layout.fillWidth: true
-                    icon: "warning"
-                    label: "Thermal Throttle:"
-                    value: root.active ? (HardwareTelemetry.gpuThrottled ? "Throttling" : "Normal") : ""
-                }
+            StyledPopupValueRow {
+                Layout.fillWidth: true
+                icon: "warning"
+                label: "Thermal Throttle:"
+                value: root.active ? (HardwareTelemetry.gpuThrottled ? "Throttling" : "Normal") : ""
             }
         }
 
         // =====================================================================
-        // Bottom Section: Platform & Motherboard Hardware Drawer (D-08)
+        // Center Vertical Separator
         // =====================================================================
         Rectangle {
-            Layout.fillWidth: true
-            implicitHeight: 1
+            Layout.fillHeight: true
+            implicitWidth: 1
             color: Appearance.colors.colLayer0Border
         }
 
+        // =====================================================================
+        // Right Column (320px): Platform & Motherboard Hardware Telemetry
+        // =====================================================================
         ColumnLayout {
-            Layout.fillWidth: true
-            spacing: 6
+            Layout.preferredWidth: 320
+            spacing: 8
 
             StyledPopupHeaderRow {
                 icon: "developer_board"
                 label: `Platform (${HardwareTelemetry.motherboardModelName})`
             }
 
-            RowLayout {
+            StyledPopupValueRow {
                 Layout.fillWidth: true
-                spacing: 16
+                icon: "device_thermostat"
+                label: "VRM Temp:"
+                value: root.active ? `${HardwareTelemetry.vrmTemp || 0}°C` : ""
+            }
 
-                // Summary Temps
-                ColumnLayout {
-                    Layout.preferredWidth: 320
-                    spacing: 4
+            StyledPopupValueRow {
+                Layout.fillWidth: true
+                icon: "thermostat"
+                label: "Platform Avg Temp:"
+                value: root.active ? `${HardwareTelemetry.platformTempAvg || 0}°C` : ""
+            }
 
-                    StyledPopupValueRow {
-                        Layout.fillWidth: true
-                        icon: "device_thermostat"
-                        label: "VRM Temp:"
-                        value: root.active ? `${HardwareTelemetry.vrmTemp || 0}°C` : ""
-                    }
+            // Horizontal Separator
+            Rectangle {
+                Layout.fillWidth: true
+                implicitHeight: 1
+                color: Appearance.colors.colLayer0Border
+            }
 
-                    StyledPopupValueRow {
-                        Layout.fillWidth: true
-                        icon: "thermostat"
-                        label: "Platform Avg Temp:"
-                        value: root.active ? `${HardwareTelemetry.platformTempAvg || 0}°C` : ""
-                    }
-                }
+            StyledText {
+                text: "Platform Sensors:"
+                font.pixelSize: Appearance.font.pixelSize.smaller
+                font.weight: Font.Medium
+                color: Appearance.colors.colOnSurfaceVariant
+            }
 
-                // 6 Gigabyte WMI platform sensors breakdown in 2 columns of 3
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 12
+            PlatformSensorRow {
+                label: "VRM / Sensor 1:"
+                temp: root.active ? (HardwareTelemetry.platformTemp1 || HardwareTelemetry.vrmTemp || 0) : 0
+            }
 
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 2
+            PlatformSensorRow {
+                label: "Sensor 2:"
+                temp: root.active ? (HardwareTelemetry.platformTemp2 || 0) : 0
+            }
 
-                        PlatformSensorRow {
-                            label: "VRM / S1:"
-                            temp: root.active ? (HardwareTelemetry.platformTemp1 || HardwareTelemetry.vrmTemp || 0) : 0
-                        }
-                        PlatformSensorRow {
-                            label: "Sensor 2:"
-                            temp: root.active ? (HardwareTelemetry.platformTemp2 || 0) : 0
-                        }
-                        PlatformSensorRow {
-                            label: "Sensor 3:"
-                            temp: root.active ? (HardwareTelemetry.platformTemp3 || 0) : 0
-                        }
-                    }
+            PlatformSensorRow {
+                label: "Sensor 3:"
+                temp: root.active ? (HardwareTelemetry.platformTemp3 || 0) : 0
+            }
 
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        spacing: 2
+            PlatformSensorRow {
+                label: "Sensor 4:"
+                temp: root.active ? (HardwareTelemetry.platformTemp4 || 0) : 0
+            }
 
-                        PlatformSensorRow {
-                            label: "Sensor 4:"
-                            temp: root.active ? (HardwareTelemetry.platformTemp4 || 0) : 0
-                        }
-                        PlatformSensorRow {
-                            label: "Sensor 5:"
-                            temp: root.active ? (HardwareTelemetry.platformTemp5 || 0) : 0
-                        }
-                        PlatformSensorRow {
-                            label: "Sensor 6:"
-                            temp: root.active ? (HardwareTelemetry.platformTemp6 || 0) : 0
-                        }
-                    }
-                }
+            PlatformSensorRow {
+                label: "Sensor 5:"
+                temp: root.active ? (HardwareTelemetry.platformTemp5 || 0) : 0
+            }
+
+            PlatformSensorRow {
+                label: "Sensor 6:"
+                temp: root.active ? (HardwareTelemetry.platformTemp6 || 0) : 0
+            }
+
+            Item {
+                Layout.fillHeight: true
             }
         }
     }
