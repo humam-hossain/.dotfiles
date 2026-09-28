@@ -161,7 +161,7 @@ StyledPopup {
 
         Process {
             id: processTreeProc
-            command: ["python3", Quickshell.shellPath("scripts/resource-usage/process_tree.py")]
+            command: [Quickshell.shellPath("scripts/resource-usage/process_tree.sh")]
             stdout: StdioCollector {
                 onStreamFinished: {
                     if (!text || text.trim().length === 0) return;
@@ -430,10 +430,10 @@ StyledPopup {
                                 }
 
                                 StyledText {
-                                    text: `${(gpuRootItem.modelData.total_gpu_mb || 0.0).toFixed(1)} MB`
+                                    text: `${((gpuRootItem.modelData.total_gpu_pct !== undefined ? gpuRootItem.modelData.total_gpu_pct : gpuRootItem.modelData.total_gpu_mb) || 0.0).toFixed(1)}%`
                                     font.pixelSize: Appearance.font.pixelSize.smaller
                                     font.weight: Font.DemiBold
-                                    color: Appearance.colors.colPrimary
+                                    color: root.getLoadColor(((gpuRootItem.modelData.total_gpu_pct !== undefined ? gpuRootItem.modelData.total_gpu_pct : gpuRootItem.modelData.total_gpu_mb) || 0.0) / 100.0)
                                 }
                             }
 
@@ -456,7 +456,7 @@ StyledPopup {
                                     }
 
                                     StyledText {
-                                        text: `${(gpuChildItem.modelData.gpu_mb || 0.0).toFixed(1)} MB`
+                                        text: `${((gpuChildItem.modelData.gpu_pct !== undefined ? gpuChildItem.modelData.gpu_pct : gpuChildItem.modelData.gpu_mb) || 0.0).toFixed(1)}%`
                                         font.pixelSize: Appearance.font.pixelSize.smallest
                                         color: Appearance.colors.colSubtext
                                     }
