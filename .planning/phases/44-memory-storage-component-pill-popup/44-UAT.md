@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 44-memory-storage-component-pill-popup
 source: [44-01-SUMMARY.md, 44-02-SUMMARY.md]
 started: 2026-09-28T19:58:00+06:00
-updated: 2026-09-28T22:26:00+06:00
+updated: 2026-09-28T22:28:00+06:00
 ---
 
 ## Current Test
@@ -65,8 +65,14 @@ blocked: 0
   reason: "User reported: The pill should show free GB out of total GB for memory, and free GB out of total GB for the root storage. The percentage is not important on the pill — detailed info belongs in the popup."
   severity: major
   test: 1
-  artifacts: []
-  missing: []
+  root_cause: "MemoryStoragePill.qml renders circular progress rings with percentage strings instead of free GB / total GB text for RAM and Root Disk"
+  artifacts:
+    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/bar/MemoryStoragePill.qml"
+      issue: "Displays circular progress rings and percentage strings instead of free GB / total GB text"
+  missing:
+    - "Replace circular progress percentage display with free GB / total GB text for Memory"
+    - "Replace circular progress percentage display with free GB / total GB text for Root Storage"
+  debug_session: ".planning/debug/pill-free-total-gb-display.md"
 
 - gap_id: G-44-5
   truth: "Storage column displays physical drives with progress bars, labels, mount paths, and live throughput badge"
@@ -74,8 +80,14 @@ blocked: 0
   reason: "User reported: no storage column is not working at all, no text showing up and progress bar shows zero"
   severity: blocker
   test: 5
-  artifacts: []
-  missing: []
+  root_cause: "In MemoryStoragePopup.qml, Repeater delegates pass modelData: modelData under Bound ComponentBehavior, causing circular self-reference where modelData is undefined and crashes property lookups"
+  artifacts:
+    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/bar/MemoryStoragePopup.qml"
+      issue: "Repeater delegate modelData self-reference evaluates to undefined"
+  missing:
+    - "Fix Repeater delegate binding for physicalDisks and cloudDisks"
+    - "Add null-safety guards on driveRow.modelData accesses"
+  debug_session: ".planning/debug/storage-column-undefined-modeldata.md"
 
 - gap_id: G-44-6
   truth: "Drive performing active I/O is highlighted with an indicator dot when StorageUsage.diskIoPercentage > 0"
@@ -83,5 +95,10 @@ blocked: 0
   reason: "User reported: nope (indicator dot does not appear, storage drive items not rendering correctly)"
   severity: major
   test: 6
-  artifacts: []
-  missing: []
+  root_cause: "In MemoryStoragePopup.qml line 113, active indicator visibility crashes because driveRow.modelData is undefined due to the delegate binding bug"
+  artifacts:
+    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/bar/MemoryStoragePopup.qml"
+      issue: "Line 113 visibility binding crashes on unverified property access"
+  missing:
+    - "Resolve delegate modelData definition and safe access driveRow.modelData?.mount"
+  debug_session: ".planning/debug/active-drive-indicator-modeldata.md"
