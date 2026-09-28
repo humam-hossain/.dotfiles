@@ -64,29 +64,8 @@ StyledPopup {
     readonly property bool isCritical: (ResourceUsage.memoryUsedPercentage || 0.0) >= 0.90 || ((StorageUsage.rootDisk?.usePercent ?? 0) / 100.0) >= 0.90
     property real criticalPulseOpacity: 1.0
 
-    // Gated critical pulse animation (D-06)
-    SequentialAnimation {
-        id: popupCriticalPulse
-        running: root.active && root.isCritical
-        loops: Animation.Infinite
-        onRunningChanged: {
-            if (!running) root.criticalPulseOpacity = 1.0;
-        }
-        NumberAnimation {
-            target: root
-            property: "criticalPulseOpacity"
-            to: 0.4
-            duration: 600
-            easing.type: Easing.InOutSine
-        }
-        NumberAnimation {
-            target: root
-            property: "criticalPulseOpacity"
-            to: 1.0
-            duration: 600
-            easing.type: Easing.InOutSine
-        }
-    }
+
+
 
     // Sub-components
     component MemoryTierRow: RowLayout {
@@ -163,6 +142,30 @@ StyledPopup {
         id: popupContent
         anchors.centerIn: parent
         spacing: 16
+
+        // Gated critical pulse animation (D-06)
+        SequentialAnimation {
+            id: popupCriticalPulse
+            running: root.active && root.isCritical
+            loops: Animation.Infinite
+            onRunningChanged: {
+                if (!running) root.criticalPulseOpacity = 1.0;
+            }
+            NumberAnimation {
+                target: root
+                property: "criticalPulseOpacity"
+                to: 0.4
+                duration: 600
+                easing.type: Easing.InOutSine
+            }
+            NumberAnimation {
+                target: root
+                property: "criticalPulseOpacity"
+                to: 1.0
+                duration: 600
+                easing.type: Easing.InOutSine
+            }
+        }
 
         // =====================================================================
         // Left Column (320px): Memory Card (RAM Allocation + Tiers)

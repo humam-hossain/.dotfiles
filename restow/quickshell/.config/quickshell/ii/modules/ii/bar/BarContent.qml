@@ -107,6 +107,12 @@ Item { // Bar content region
                 useShortenedForm: root.useShortenedForm
             }
 
+            MemoryStoragePill {
+                id: memoryStoragePill
+                Layout.alignment: Qt.AlignVCenter
+                useShortenedForm: root.useShortenedForm
+            }
+
             BarGroup {
                 id: utilButtonsGroup
                 Layout.alignment: Qt.AlignVCenter
