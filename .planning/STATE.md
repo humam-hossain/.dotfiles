@@ -2,38 +2,38 @@
 gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
-current_phase: 44
-current_phase_name: memory-storage-component-pill-popup
-status: executing
-stopped_at: Phase 44 context gathered
-last_updated: "2026-09-28T12:23:25.675Z"
+current_phase: 45
+current_phase_name: Network & Multi-Target Ping Component (Pill & Popup)
+status: planning
+stopped_at: Phase 44 complete, ready to plan Phase 45
+last_updated: "2026-09-28T12:40:55.984Z"
 last_activity: 2026-09-28
-last_activity_desc: Phase 43.6 complete, transitioned to Phase 44
-state_head: ece7f57e550393cad68261944f4c712257881874
+last_activity_desc: Phase 44 complete, transitioned to Phase 45
+state_head: dad9f4462bebedd1f295e2441f6a32f208f7a2cb
 progress:
   total_phases: 11
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 27
-  completed_plans: 25
-  percent: 45
+  completed_plans: 27
+  percent: 55
 ---
 
 Total Phases: 10 (Phases 42–46 + 43.1–43.5)
-Progress: [███████░░░] 7/10 phases ([█████░░░░░] 45%)
+Progress: [███████░░░] 7/10 phases ([██████░░░░] 55%)
 
 # Project State
 
 ## Current Position
 
-Phase: 44 (memory-storage-component-pill-popup) — READY TO EXECUTE
+Phase: 45 — Network & Multi-Target Ping Component (Pill & Popup)
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-28 — Phase 43.6 complete, transitioned to Phase 44
+Status: Ready to plan
+Last activity: 2026-09-28 — Phase 44 complete, transitioned to Phase 45
 
 ## Session
 
 **Last session:** 2026-09-28T12:01:38.122Z
-**Stopped at:** Phase 44 context gathered
+**Stopped at:** Phase 44 complete, ready to plan Phase 45
 **Resume file:** .planning/phases/44-memory-storage-component-pill-popup/44-CONTEXT.md
 
 ## Project Reference
@@ -41,7 +41,7 @@ Last activity: 2026-09-28 — Phase 43.6 complete, transitioned to Phase 44
 See: .planning/PROJECT.md (updated 2026-09-27 after Phase 43.1)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 43.6 — Remove Top Processes & Streamline CpuGpuPopup Layout (INSERTED)
+**Current focus:** Phase 44 — Memory & Storage Component (Pill & Popup)
 
 ## Deferred Items
 

@@ -30,7 +30,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 - [x] **Phase 43.4: Quickshell Targeted Optimization & Empirical Verification (INSERTED)** (3 plans) (completed 2026-09-27)
 - [x] **Phase 43.5: CPU/GPU Dynamic Telemetry, Top Process Attribution Tree & Hover Delay Ergonomics (INSERTED)** (3 plans) (completed 2026-09-28)
 - [x] **Phase 43.6: Remove Top Processes & Streamline CpuGpuPopup Layout (INSERTED)** (0 plans) (completed 2026-09-28)
-- [ ] **Phase 44: Memory & Storage Component (Pill & Popup)** (0 plans)
+- [x] **Phase 44: Memory & Storage Component (Pill & Popup)** (0 plans) (completed 2026-09-28)
 - [ ] **Phase 45: Network & Multi-Target Ping Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 46: Left-Zone Integration, Verification & Repository Integrity** (0 plans)
 
@@ -221,7 +221,10 @@ Plans:
 **Goal**: Build dedicated `MemoryStoragePill.qml` status bar pill and interactive `MemoryStoragePopup.qml` inspector overlay.  
 **Depends on**: Phase 42  
 **Requirements**: MEMDSK-01, MEMDSK-02, MEMDSK-03, MEMDSK-04  
-**Plans**: 0 plans
+**Plans**: 1/2 plans executed
+
+- [x] 44-01-PLAN.md
+- [x] 44-02-PLAN.md
 
 Success criteria:
 
@@ -275,6 +278,6 @@ Success criteria:
 | 43.4. Quickshell Targeted Optimization & Empirical Verification | v0.9 | 3/3 | Complete | 2026-09-27 |
 | 43.5. CPU/GPU Dynamic Telemetry, Top Process Attribution Tree & Hover Delay Ergonomics | v0.9 | 3/3 | Complete    | 2026-09-28 |
 | 43.6. Remove Top Processes & Streamline CpuGpuPopup Layout | v0.9 | 2/2 | Complete    | 2026-09-28 |
-| 44. Memory & Storage Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
+| 44. Memory & Storage Component (Pill & Popup) | v0.9 | 2/2 | Complete    | 2026-09-28 |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 0 plans | Planned | — |

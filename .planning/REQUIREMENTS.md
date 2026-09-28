@@ -23,10 +23,10 @@ Scoped requirements for Milestone v0.9 (Top Status Bar Resource Components & Har
 
 ### Memory & Storage Telemetry
 
-- [ ] **MEMDSK-01**: Bar pill displays RAM usage in gigabytes (`X.X/Y.Y GB` or `%`) and root filesystem `/` usage (`ZZ%`).
-- [ ] **MEMDSK-02**: Memory popup inspector displays detailed memory allocation tiers: Used, Available, Cached, Buffers, Free, and Swap with dynamic swap reveal (> 0%).
-- [ ] **MEMDSK-03**: Storage popup inspector displays clean progress bars for root `/` and all mounted filesystems (physical `/boot`, `/mnt/windows`, `/mnt/hdd`, and FUSE cloud mounts `GoogleDrive`) showing mount point, size, used, and free space.
-- [ ] **MEMDSK-04**: Asynchronous non-blocking storage mount discovery via `Quickshell.Io.Process` running `df` at 15–30s intervals, preventing UI rendering freezes.
+- [x] **MEMDSK-01**: Bar pill displays RAM usage in gigabytes (`X.X/Y.Y GB` or `%`) and root filesystem `/` usage (`ZZ%`).
+- [x] **MEMDSK-02**: Memory popup inspector displays detailed memory allocation tiers: Used, Available, Cached, Buffers, Free, and Swap with dynamic swap reveal (> 0%).
+- [x] **MEMDSK-03**: Storage popup inspector displays clean progress bars for root `/` and all mounted filesystems (physical `/boot`, `/mnt/windows`, `/mnt/hdd`, and FUSE cloud mounts `GoogleDrive`) showing mount point, size, used, and free space.
+- [x] **MEMDSK-04**: Asynchronous non-blocking storage mount discovery via `Quickshell.Io.Process` running `df` at 15–30s intervals, preventing UI rendering freezes.
 
 ### Network & Multi-Target Ping Telemetry
 
@@ -86,10 +86,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PERF-01 | Phase 43.1 | Complete |
 | PERF-02 | Phase 43.1 | Complete |
 | PERF-03 | Phase 43.1 | Complete |
-| MEMDSK-01 | Phase 44 | Pending |
-| MEMDSK-02 | Phase 44 | Pending |
-| MEMDSK-03 | Phase 44 | Pending |
-| MEMDSK-04 | Phase 44 | Pending |
+| MEMDSK-01 | Phase 44 | Complete |
+| MEMDSK-02 | Phase 44 | Complete |
+| MEMDSK-03 | Phase 44 | Complete |
+| MEMDSK-04 | Phase 44 | Complete |
 | NETPING-01 | Phase 45 | Pending |
 | NETPING-02 | Phase 45 | Pending |
 | NETPING-03 | Phase 45 | Pending |
