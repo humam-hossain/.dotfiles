@@ -38,7 +38,9 @@ BarGroup {
         onPressed: event => event.accepted = true
         onClicked: event => event.accepted = true
 
-        // MemoryStoragePopup will be instantiated here in Plan 44-02
+        MemoryStoragePopup {
+            hoverTarget: root.hoverArea
+        }
     }
 
     // --- RAM Section (Circular progress indicator + MaterialSymbol) ---
