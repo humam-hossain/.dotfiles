@@ -2,38 +2,38 @@
 gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
-current_phase: "43.6"
-current_phase_name: Remove Top Processes & Streamline CpuGpuPopup Layout (INSERTED)
-status: executing
-stopped_at: Phase 43.6 inserted, ready to plan
-last_updated: "2026-09-28T07:53:34.577Z"
+current_phase: 44
+current_phase_name: Memory & Storage Component (Pill & Popup)
+status: planning
+stopped_at: Phase 43.6 complete, ready to plan Phase 44
+last_updated: "2026-09-28T08:09:21.137Z"
 last_activity: 2026-09-28
-last_activity_desc: Phase 43.6 inserted after Phase 43.5
-state_head: 7b1e468fde7e0956c36602aa3d4dbc9d8e00e5c6
+last_activity_desc: Phase 43.6 complete, transitioned to Phase 44
+state_head: e38dd943a621d672e405c523fd72c8b70046016b
 progress:
   total_phases: 11
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 25
-  completed_plans: 23
-  percent: 36
+  completed_plans: 25
+  percent: 45
 ---
 
 Total Phases: 10 (Phases 42–46 + 43.1–43.5)
-Progress: [███████░░░] 7/10 phases ([████░░░░░░] 36%)
+Progress: [███████░░░] 7/10 phases ([█████░░░░░] 45%)
 
 # Project State
 
 ## Current Position
 
-Phase: 43.6 (Remove Top Processes & Streamline CpuGpuPopup Layout (INSERTED)) — READY TO EXECUTE
+Phase: 44 — Memory & Storage Component (Pill & Popup)
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-28 — Phase 43.6 inserted after Phase 43.5
+Status: Ready to plan
+Last activity: 2026-09-28 — Phase 43.6 complete, transitioned to Phase 44
 
 ## Session
 
 **Last session:** 2026-09-27T15:29:00.000Z
-**Stopped at:** Phase 43.6 inserted, ready to plan
+**Stopped at:** Phase 43.6 complete, ready to plan Phase 44
 **Resume file:** .planning/phases/43.6-remove-top-processes-streamline-cpugpupopup-layout/
 
 ## Project Reference
@@ -41,7 +41,7 @@ Last activity: 2026-09-28 — Phase 43.6 inserted after Phase 43.5
 See: .planning/PROJECT.md (updated 2026-09-27 after Phase 43.1)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 43.6 — Remove Top Processes & Streamline CpuGpuPopup Layout
+**Current focus:** Phase 43.6 — Remove Top Processes & Streamline CpuGpuPopup Layout (INSERTED)
 
 ## Deferred Items
 

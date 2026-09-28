@@ -29,7 +29,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 - [x] **Phase 43.3: Quickshell Benchmark Bottleneck Analysis & Optimization Strategy (INSERTED)** (1 plan) (completed 2026-09-27)
 - [x] **Phase 43.4: Quickshell Targeted Optimization & Empirical Verification (INSERTED)** (3 plans) (completed 2026-09-27)
 - [x] **Phase 43.5: CPU/GPU Dynamic Telemetry, Top Process Attribution Tree & Hover Delay Ergonomics (INSERTED)** (3 plans) (completed 2026-09-28)
-- [ ] **Phase 43.6: Remove Top Processes & Streamline CpuGpuPopup Layout (INSERTED)** (0 plans)
+- [x] **Phase 43.6: Remove Top Processes & Streamline CpuGpuPopup Layout (INSERTED)** (0 plans) (completed 2026-09-28)
 - [ ] **Phase 44: Memory & Storage Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 45: Network & Multi-Target Ping Component (Pill & Popup)** (0 plans)
 - [ ] **Phase 46: Left-Zone Integration, Verification & Repository Integrity** (0 plans)
@@ -203,7 +203,7 @@ Success criteria:
 **Goal:** Simplify `CpuGpuPopup.qml` by removing top CPU and GPU process attribution trees (eliminating background process polling and script complexity) and restructuring the popup into a clean two-column layout: Left column hosting CPU (top) and GPU (bottom); Right column hosting Platform / Motherboard telemetry all in one column.  
 **Depends on:** Phase 43.5  
 **Requirements**: CPUGPU-05, CPUGPU-06  
-**Plans:** 0 plans
+**Plans:** 2/2 plans complete
 
 Success criteria:
 
@@ -274,7 +274,7 @@ Success criteria:
 | 43.3. Quickshell Benchmark Bottleneck Analysis & Optimization Strategy | v0.9 | 1/1 | Complete    | 2026-09-27 |
 | 43.4. Quickshell Targeted Optimization & Empirical Verification | v0.9 | 3/3 | Complete | 2026-09-27 |
 | 43.5. CPU/GPU Dynamic Telemetry, Top Process Attribution Tree & Hover Delay Ergonomics | v0.9 | 3/3 | Complete    | 2026-09-28 |
-| 43.6. Remove Top Processes & Streamline CpuGpuPopup Layout | v0.9 | 0 plans | Planned | — |
+| 43.6. Remove Top Processes & Streamline CpuGpuPopup Layout | v0.9 | 2/2 | Complete    | 2026-09-28 |
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 0 plans | Planned | — |
