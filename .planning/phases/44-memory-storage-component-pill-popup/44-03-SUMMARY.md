@@ -33,7 +33,7 @@ key-files:
     - scripts/phase44-memory-storage-assert.sh
 
 key-decisions:
-  - "D-18: MemoryStoragePill displays capacity as free GB out of total GB ([free] / [total] GB) for RAM and Root Storage without circular percentage rings."
+  - "D-18: MemoryStoragePill displays capacity as free GB out of total GB ([free] / [total] GB) for RAM and Root Storage, with ClippedFilledCircularProgress rings wrapping the Material Symbols."
   - "D-19: MemoryStoragePopup Repeater delegates instantiate StorageDriveRow without explicit self-referential modelData binding, allowing QtQuick Bound ComponentBehavior to inject modelData safely."
   - "D-20: StorageDriveRow applies defensive null-safety guards across all drive properties and active drive indicator visibility binding."
 
@@ -84,25 +84,26 @@ status: complete
 
 # Phase 44 Plan 03: Gap Closure for MemoryStoragePill & Storage Column Pop-up Summary
 
-**Closed UAT gaps G-44-1, G-44-5, and G-44-6: updated MemoryStoragePill to display free GB / total GB capacity text, resolved Repeater modelData circular binding and active drive indicator visibility in MemoryStoragePopup, and verified 100% test pass rate.**
+**Closed UAT gaps G-44-1, G-44-5, and G-44-6: updated MemoryStoragePill to display free GB / total GB capacity text with circular progress rings wrapping icons, resolved Repeater modelData circular binding and active drive indicator visibility in MemoryStoragePopup, and verified 100% test pass rate.**
 
 ## Performance & Execution Metrics
 
 - **Duration:** 10 min
 - **Started:** 2026-09-28T22:28:00+06:00
-- **Completed:** 2026-09-28T22:34:00+06:00
+- **Completed:** 2026-09-28T22:42:00+06:00
 - **Tasks:** 2
 - **Files modified:** 3 (`MemoryStoragePill.qml`, `MemoryStoragePopup.qml`, `scripts/phase44-memory-storage-assert.sh`)
 - **Task Commits:**
   1. Task 1: `626f37d8` feat(44-03): update MemoryStoragePill to free/total GB capacity text
   2. Task 2: `968330a7` fix(44-03): fix MemoryStoragePopup delegate binding and null safety
+  3. Polish: `580c2683` fix(44): restore circular progress rings wrapping icons on MemoryStoragePill
 
 ## Accomplishments
 
-1. **MemoryStoragePill Free / Total GB Readout (G-44-1):**
-   - Replaced dual `ClippedFilledCircularProgress` rings with clean status bar text readouts alongside Material Symbols `memory` and `storage`.
-   - Formatted RAM capacity as `${freeGb} / ${totalGb} GB` from `ResourceUsage.memoryAvailable` / `ResourceUsage.memoryFree` and `ResourceUsage.memoryTotal`.
-   - Formatted Root Storage capacity as `${rootAvailGb} / ${rootTotalGb} GB` from `StorageUsage.rootDisk.availKb` and `StorageUsage.rootDisk.totalKb`.
+1. **MemoryStoragePill Free / Total GB Readout & Icon Progress Rings (G-44-1):**
+   - Retained `ClippedFilledCircularProgress` rings (size 20) wrapping Material Symbols `memory` and `storage` to indicate usage levels.
+   - Formatted RAM capacity text as `${freeGb} / ${totalGb} GB` from `ResourceUsage.memoryAvailable` / `ResourceUsage.memoryFree` and `ResourceUsage.memoryTotal`.
+   - Formatted Root Storage capacity text as `${rootAvailGb} / ${rootTotalGb} GB` from `StorageUsage.rootDisk.availKb` and `StorageUsage.rootDisk.totalKb`.
    - Preserved two-tier alert thresholds (`ramWarning`, `ramCritical`, `storageWarning`, `storageCritical`), warning color fallback (`#FFA000`), and 600ms infinite breathing pulse animations (`ramPulseAnimation`, `storagePulseAnimation`) on critical load.
 
 2. **MemoryStoragePopup Storage Column Delegate & Active Indicator Fix (G-44-5, G-44-6):**
