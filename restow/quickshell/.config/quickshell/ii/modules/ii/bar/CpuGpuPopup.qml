@@ -17,13 +17,6 @@ StyledPopup {
     property var topCpuProcesses: []
     property var topGpuProcesses: []
 
-    Timer {
-        id: procScanTimer
-        interval: 2500 // 2.5s update cadence while active
-        running: root.active
-        repeat: true
-        onTriggered: root.triggerProcessScan()
-    }
 
     // Reactive fast-polling lifecycle boost (1000ms active / 3000ms idle)
     // Guarantees zero reference count leaks (Pitfall 5)
@@ -49,22 +42,8 @@ StyledPopup {
         }
     }
 
-    Process {
-        id: processTreeProc
-        command: ["python3", Quickshell.shellPath("scripts/resource-usage/process_tree.py")]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                if (!text || text.trim().length === 0) return;
-                try {
-                    const parsed = JSON.parse(text);
-                    root.topCpuProcesses = parsed.top_cpu || [];
-                    root.topGpuProcesses = parsed.top_gpu || [];
-                } catch (err) {
-                    console.warn("Failed to parse process tree JSON:", err);
-                }
-            }
-        }
-    }
+
+
 
     // Alert threshold color mappings (D-10, D-11) with dots-hyprland amber warning color fallback
     readonly property color warningColor: Appearance.colors.colWarning !== undefined ? Appearance.colors.colWarning : "#FFA000"
@@ -169,6 +148,33 @@ StyledPopup {
         id: popupContent
         anchors.centerIn: parent
         spacing: 12
+
+        // Non-visual objects placed here because StyledPopup's default property
+        // is `Item contentItem` — Timer and Process are not Items.
+        Timer {
+            id: procScanTimer
+            interval: 2500 // 2.5s update cadence while active
+            running: root.active
+            repeat: true
+            onTriggered: root.triggerProcessScan()
+        }
+
+        Process {
+            id: processTreeProc
+            command: ["python3", Quickshell.shellPath("scripts/resource-usage/process_tree.py")]
+            stdout: StdioCollector {
+                onStreamFinished: {
+                    if (!text || text.trim().length === 0) return;
+                    try {
+                        const parsed = JSON.parse(text);
+                        root.topCpuProcesses = parsed.top_cpu || [];
+                        root.topGpuProcesses = parsed.top_gpu || [];
+                    } catch (err) {
+                        console.warn("Failed to parse process tree JSON:", err);
+                    }
+                }
+            }
+        }
 
         SequentialAnimation {
             id: popupCriticalPulse
