@@ -110,11 +110,11 @@ StyledPopup {
                 implicitHeight: 6
                 radius: 3
                 color: Appearance.colors.colPrimary
-                visible: StorageUsage.activeDisk === driveRow.modelData.mount && StorageUsage.diskIoPercentage > 0
+                visible: driveRow.modelData && StorageUsage.activeDisk === driveRow.modelData.mount && StorageUsage.diskIoPercentage > 0
             }
 
             StyledText {
-                text: root.formatDriveLabel(driveRow.modelData.fs, driveRow.modelData.mount)
+                text: driveRow.modelData ? root.formatDriveLabel(driveRow.modelData.fs, driveRow.modelData.mount) : ""
                 font.pixelSize: Appearance.font.pixelSize.smaller
                 color: Appearance.colors.colOnSurfaceVariant
                 Layout.fillWidth: true
@@ -122,19 +122,19 @@ StyledPopup {
             }
 
             StyledText {
-                text: `${root.formatKB(driveRow.modelData.usedKb)} / ${root.formatKB(driveRow.modelData.totalKb)} (${driveRow.modelData.usePercent}%)`
+                text: driveRow.modelData ? `${root.formatKB(driveRow.modelData.usedKb)} / ${root.formatKB(driveRow.modelData.totalKb)} (${driveRow.modelData.usePercent ?? 0}%)` : ""
                 font.pixelSize: Appearance.font.pixelSize.smaller
                 font.weight: Font.DemiBold
-                color: root.getLoadColor((driveRow.modelData.usePercent || 0) / 100.0)
-                opacity: ((driveRow.modelData.usePercent || 0) / 100.0) >= 0.90 ? root.criticalPulseOpacity : 1.0
+                color: root.getLoadColor(((driveRow.modelData?.usePercent ?? 0)) / 100.0)
+                opacity: ((driveRow.modelData?.usePercent ?? 0) / 100.0) >= 0.90 ? root.criticalPulseOpacity : 1.0
             }
         }
 
         StyledProgressBar {
             Layout.fillWidth: true
-            value: Math.max(0.0, Math.min(1.0, (driveRow.modelData.usePercent || 0) / 100.0))
-            highlightColor: root.getLoadColor((driveRow.modelData.usePercent || 0) / 100.0)
-            opacity: ((driveRow.modelData.usePercent || 0) / 100.0) >= 0.90 ? root.criticalPulseOpacity : 1.0
+            value: Math.max(0.0, Math.min(1.0, ((driveRow.modelData?.usePercent ?? 0)) / 100.0))
+            highlightColor: root.getLoadColor(((driveRow.modelData?.usePercent ?? 0)) / 100.0)
+            opacity: ((driveRow.modelData?.usePercent ?? 0) / 100.0) >= 0.90 ? root.criticalPulseOpacity : 1.0
         }
     }
 
@@ -392,9 +392,7 @@ StyledPopup {
 
             Repeater {
                 model: StorageUsage.physicalDisks
-                delegate: StorageDriveRow {
-                    modelData: modelData
-                }
+                delegate: StorageDriveRow {}
             }
 
             // Sub-section: Cloud Mounts (Google Drive) (D-10, D-11)
@@ -418,9 +416,7 @@ StyledPopup {
 
                 Repeater {
                     model: StorageUsage.cloudDisks
-                    delegate: StorageDriveRow {
-                        modelData: modelData
-                    }
+                    delegate: StorageDriveRow {}
                 }
             }
 
