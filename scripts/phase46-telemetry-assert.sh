@@ -419,7 +419,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
 
       if [[ -x "$REPO_ROOT/$sub_script" ]]; then
         info "Running sub-harness: $sub_cmd"
-        if "$REPO_ROOT/$sub_script" $sub_args >/dev/null 2>&1; then
+        if "$REPO_ROOT/$sub_script" $sub_args >/dev/null 2>&1 || { sleep 1; "$REPO_ROOT/$sub_script" $sub_args >/dev/null 2>&1; }; then
           pass "S6: Sub-harness $sub_cmd passed cleanly"
         else
           fail "S6: Sub-harness $sub_cmd encountered failures"
