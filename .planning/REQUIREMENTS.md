@@ -30,11 +30,11 @@ Scoped requirements for Milestone v0.9 (Top Status Bar Resource Components & Har
 
 ### Network & Multi-Target Ping Telemetry
 
-- [ ] **NETPING-01**: Bar pill displays real-time network throughput rates (Rx/Tx KB/s or MB/s) derived from `/proc/net/dev`.
-- [ ] **NETPING-02**: Bar pill displays **all 3 ping targets** (WAN `8.8.8.8`, Gateway `192.168.0.1`, Home Server `192.168.0.104`) with numeric latency (ms) and quality status colors.
-- [ ] **NETPING-03**: Ping client service polls local system monitor daemon (`http://127.0.0.1:8765/api/status`) asynchronously at 5s intervals with graceful fallback if the daemon is offline.
-- [ ] **NETPING-04**: Network popup inspector displays active NIC interface name, IPv4 address, link speed, and detailed 3-target ping diagnostic cards.
-- [ ] **NETPING-05**: Clicking Network pill or popup launches the web ping dashboard at `http://127.0.0.1:8765/` in the default browser.
+- [x] **NETPING-01**: Bar pill displays real-time network throughput rates (Rx/Tx KB/s or MB/s) derived from `/proc/net/dev`.
+- [x] **NETPING-02**: Bar pill displays **all 3 ping targets** (WAN `8.8.8.8`, Gateway `192.168.0.1`, Home Server `192.168.0.104`) with numeric latency (ms) and quality status colors.
+- [x] **NETPING-03**: Ping client service polls local system monitor daemon (`http://127.0.0.1:8765/api/status`) asynchronously at 5s intervals with graceful fallback if the daemon is offline.
+- [x] **NETPING-04**: Network popup inspector displays active NIC interface name, IPv4 address, link speed, and detailed 3-target ping diagnostic cards.
+- [x] **NETPING-05**: Clicking Network pill or popup launches the web ping dashboard at `http://127.0.0.1:8765/` in the default browser.
 
 ### Quickshell Performance & Profiling
 
@@ -90,11 +90,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MEMDSK-02 | Phase 44 | Complete |
 | MEMDSK-03 | Phase 44 | Complete |
 | MEMDSK-04 | Phase 44 | Complete |
-| NETPING-01 | Phase 45 | Pending |
-| NETPING-02 | Phase 45 | Pending |
-| NETPING-03 | Phase 45 | Pending |
-| NETPING-04 | Phase 45 | Pending |
-| NETPING-05 | Phase 45 | Pending |
+| NETPING-01 | Phase 45 | Complete |
+| NETPING-02 | Phase 45 | Complete |
+| NETPING-03 | Phase 45 | Complete |
+| NETPING-04 | Phase 45 | Complete |
+| NETPING-05 | Phase 45 | Complete |
 | INTG-01 | Phase 46 | Pending |
 | INTG-02 | Phase 46 | Pending |
 | INTG-03 | Phase 46 | Pending |
