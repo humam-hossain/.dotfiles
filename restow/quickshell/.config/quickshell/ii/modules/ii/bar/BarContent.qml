@@ -140,20 +140,32 @@ Item { // Bar content region
         id: middleSection
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        anchors.left: weatherGroup.active ? weatherGroup.left : middleCenterGroup.left
-        anchors.right: rightCenterGroup.right
+        anchors.left: leftCenterGroup.left
+        anchors.right: weatherGroup.active ? weatherGroup.right : middleCenterGroup.right
         property int spacing: 4
     }
 
-    Loader {
-        id: weatherGroup
+    MouseArea {
+        id: leftCenterGroup
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: middleCenterGroup.left
         anchors.rightMargin: 4
-        active: Config.options.bar.weather.enable
+        implicitWidth: leftCenterGroupContent.implicitWidth
+        implicitHeight: leftCenterGroupContent.implicitHeight
 
-        sourceComponent: BarGroup {
-            WeatherBar {}
+        onPressed: {
+            GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
+        }
+
+        BarGroup {
+            id: leftCenterGroupContent
+            anchors.fill: parent
+
+            ClockWidget {
+                showDate: (Config.options.bar.verbose && root.useShortenedForm < 2)
+                Layout.alignment: Qt.AlignVCenter
+                Layout.fillWidth: true
+            }
         }
     }
 
@@ -180,27 +192,15 @@ Item { // Bar content region
         }
     }
 
-    MouseArea {
-        id: rightCenterGroup
+    Loader {
+        id: weatherGroup
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: middleCenterGroup.right
         anchors.leftMargin: 4
-        implicitWidth: rightCenterGroupContent.implicitWidth
-        implicitHeight: rightCenterGroupContent.implicitHeight
+        active: Config.options.bar.weather.enable
 
-        onPressed: {
-            GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
-        }
-
-        BarGroup {
-            id: rightCenterGroupContent
-            anchors.fill: parent
-
-            ClockWidget {
-                showDate: (Config.options.bar.verbose && root.useShortenedForm < 2)
-                Layout.alignment: Qt.AlignVCenter
-                Layout.fillWidth: true
-            }
+        sourceComponent: BarGroup {
+            WeatherBar {}
         }
     }
 
