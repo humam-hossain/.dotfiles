@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–47)
 current_phase: 47
-current_phase_name: center-zone-layout-reorganization
+current_phase_name: Center-Zone Layout Reorganization
 status: executing
 stopped_at: "Phase 47 added: Center-Zone Layout Reorganization"
-last_updated: "2026-09-29T11:38:23.427Z"
+last_updated: "2026-09-29T12:15:04.142Z"
 last_activity: 2026-09-29
-last_activity_desc: "Phase 47 added: Center-Zone Layout Reorganization"
-state_head: 577bc7eb211d18cbae6e74cb116d926ae7eaaec6
+last_activity_desc: Phase 47 execution started
+state_head: 66fdb1b2589ace69c01c5b49b1517d4761fa6fc3
 progress:
   total_phases: 12
-  completed_phases: 11
+  completed_phases: 7
   total_plans: 35
   completed_plans: 33
   percent: 58
@@ -25,10 +25,10 @@ Progress: [█████████░] 11/12 phases ([██████░�
 
 ## Current Position
 
-Phase: 47 (center-zone-layout-reorganization) — READY TO EXECUTE
-Plan: Ready to plan
-Status: Ready to execute
-Last activity: 2026-09-29 — Phase 47 added: Center-Zone Layout Reorganization
+Phase: 47 (Center-Zone Layout Reorganization) — EXECUTING
+Plan: 1 of 2
+Status: Executing Phase 47
+Last activity: 2026-09-29 — Phase 47 execution started
 
 ## Session
 
@@ -41,7 +41,7 @@ Last activity: 2026-09-29 — Phase 47 added: Center-Zone Layout Reorganization
 See: .planning/PROJECT.md (updated 2026-09-29 after Phase 46)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 47: Center-Zone Layout Reorganization
+**Current focus:** Phase 47 — Center-Zone Layout Reorganization
 
 ## Deferred Items
 
@@ -309,3 +309,4 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 46]: D-03: Storage-first presentation in MemoryStoragePopup (Storage card in Left 320px column, Memory card in Right 320px column).
 - [Phase 46]: D-08..D-09: Permanently retired legacy Resource.qml and Resources.qml from git; restored upstream regular file stubs in ~/.config/quickshell; zero submodule churn in vendor/dots-hyprland.
 - [Phase 46]: D-10..D-11: Consolidated 6-section milestone assertion suite scripts/phase46-telemetry-assert.sh with sub-harness orchestration and fail-closed exit status.
+- [Phase 47]: CNTR-01..CNTR-03: Reorganized Center Zone in BarContent.qml. Swapped ClockWidget to the left of Workspaces and WeatherBar to the right. Locked Workspaces dead-centered using anchors.horizontalCenter. Implemented dynamic width collapsing for the middleSection wrapper when Weather is inactive. Tested extensively via a dedicated phase47-center-layout-assert.sh AST test harness maintaining zero submodule churn.

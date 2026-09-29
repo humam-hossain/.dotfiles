@@ -50,9 +50,9 @@ Scoped requirements for Milestone v0.9 (Top Status Bar Resource Components & Har
 
 ### Center Zone Layout Reorganization
 
-- [ ] **CNTR-01**: Top status bar center widgets reordered so Clock/Date (`ClockWidget`) is positioned to the left of Workspaces, and Weather (`WeatherBar`) is positioned to the right of Workspaces.
-- [ ] **CNTR-02**: Workspaces widget (`middleCenterGroup`) preserves dead-center alignment on the bar (`anchors.horizontalCenter: parent.horizontalCenter`) with uniform 4px margins on both sides.
-- [ ] **CNTR-03**: `middleSection` wrapper boundary anchors, right sidebar click toggle on ClockWidget, and responsive shortening rules are preserved with zero layout overlap and zero git churn.
+- [x] **CNTR-01**: Top status bar center widgets reordered so Clock/Date (`ClockWidget`) is positioned to the left of Workspaces, and Weather (`WeatherBar`) is positioned to the right of Workspaces.
+- [x] **CNTR-02**: Workspaces widget (`middleCenterGroup`) preserves dead-center alignment on the bar (`anchors.horizontalCenter: parent.horizontalCenter`) with uniform 4px margins on both sides.
+- [x] **CNTR-03**: `middleSection` wrapper boundary anchors, right sidebar click toggle on ClockWidget, and responsive shortening rules are preserved with zero layout overlap and zero git churn.
 
 ## Future Requirements
 
@@ -104,6 +104,6 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INTG-01 | Phase 46 | Complete |
 | INTG-02 | Phase 46 | Complete |
 | INTG-03 | Phase 46 | Complete |
-| CNTR-01 | Phase 47 | Pending |
-| CNTR-02 | Phase 47 | Pending |
-| CNTR-03 | Phase 47 | Pending |
+| CNTR-01 | Phase 47 | Complete |
+| CNTR-02 | Phase 47 | Complete |
+| CNTR-03 | Phase 47 | Complete |
