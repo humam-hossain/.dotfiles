@@ -258,10 +258,10 @@ Success criteria:
 **Goal**: Integrate all 3 pills into `BarContent.qml` Left zone, verify responsive layouts, and create comprehensive automated test harness with strict zero git churn.  
 **Depends on**: Phase 43, Phase 44, Phase 45  
 **Requirements**: INTG-01, INTG-02, INTG-03  
-**Plans**: 1/2 plans executed
+**Plans**: 2/2 plans executed
 
 - [x] 46-01-PLAN.md
-- [ ] 46-02-PLAN.md
+- [x] 46-02-PLAN.md
 
 Success criteria:
 
@@ -289,4 +289,4 @@ Success criteria:
 | 43.6. Remove Top Processes & Streamline CpuGpuPopup Layout | v0.9 | 2/2 | Complete    | 2026-09-28 |
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 3/3 | Complete    | 2026-09-28 |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 3/3 | Complete    | 2026-09-29 |
-| 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 1/2 | In Progress|  |
+| 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 2/2 | In Progress|  |
