@@ -157,7 +157,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
   if [[ ! -f "$LEGACY_RESOURCE" && ! -f "$LEGACY_RESOURCES" ]]; then
     pass "S1: Legacy Resource.qml and Resources.qml permanently removed from repo (D-08)"
   else
-    info "S1: Legacy Resource(s).qml still present in repo (will be retired in Plan 46-02)"
+    fail "S1: Legacy Resource(s).qml still present in repo"
   fi
 
   # 4. Verify live symlinks for required bar pills
@@ -169,6 +169,17 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
       info "S1: Live component is regular file or stub: $comp"
     else
       finding "S1: Live component not found at $LIVE_BAR/$comp"
+    fi
+  done
+
+  # 5. Verify absence of dangling repo symlinks for retired Resource components
+  for legacy in "Resource.qml" "Resources.qml"; do
+    if [[ -L "$LIVE_BAR/$legacy" ]] && [[ "$(readlink "$LIVE_BAR/$legacy")" =~ \.dotfiles ]]; then
+      fail "S1: Dangling live repo symlink for retired component: $LIVE_BAR/$legacy"
+    elif [[ -f "$LIVE_BAR/$legacy" ]]; then
+      pass "S1: Live $legacy is restored regular file stub (Arm 7 compliant)"
+    else
+      pass "S1: Live $legacy cleanly removed or absent"
     fi
   done
 fi
