@@ -276,7 +276,7 @@ Success criteria:
 **Goal**: Reorganize the Center Zone in `BarContent.qml` to swap Clock/Date and Weather positions around Workspaces: placing Clock/Date to the left, keeping Workspaces dead-centered, and placing Weather to the right.  
 **Depends on**: Phase 46  
 **Requirements**: CNTR-01, CNTR-02, CNTR-03  
-**Plans:** 0 plans
+**Plans:** 1/2 plans executed
 
 Success criteria:
 
@@ -287,6 +287,9 @@ Success criteria:
 5. Verification via `arch/dots-hyprland.sh verify --strict` passes with zero git churn in `vendor/dots-hyprland`.
 
 Plans:
+
+- [x] 47-01-PLAN.md
+- [ ] 47-02-PLAN.md
 
 - [ ] TBD (run /gsd-plan-phase 47 to break down)
 
@@ -310,4 +313,4 @@ Plans:
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 3/3 | Complete    | 2026-09-28 |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 3/3 | Complete    | 2026-09-29 |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 2/2 | Complete    | 2026-09-29 |
-| 47. Center-Zone Layout Reorganization | v0.9 | 0/0 | Not Started | - |
+| 47. Center-Zone Layout Reorganization | v0.9 | 1/2 | In Progress|  |

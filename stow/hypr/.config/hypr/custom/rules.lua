@@ -7,3 +7,8 @@ hl.window_rule({ match = { class = "^(python3)$" }, float = true })
 -- Social workspace pinning for Discord / Vesktop (G-20-1)
 hl.window_rule({ match = { class = "^(discord|vesktop)$" }, workspace = "special:social silent" })
 
+-- Thunderbird workspace pinning and silent background start
+hl.window_rule({ match = { class = "^([Tt]hunderbird|org\\.mozilla\\.Thunderbird)$" }, workspace = "special:btop silent" })
+hl.window_rule({ match = { class = "^([Tt]hunderbird|org\\.mozilla\\.Thunderbird)$" }, no_initial_focus = true })
+hl.window_rule({ match = { class = "^([Tt]hunderbird|org\\.mozilla\\.Thunderbird)$" }, suppress_event = "activate activatefocus" })
+

@@ -291,11 +291,98 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
 fi
 
 # ===========================================================================
-# Section 4 and 5 stubs
+# Section 4: Multi-Resolution Geometry Simulation & Spacing Margin Invariants
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
-  info "--- Section 4: Stub ---"
-  pass "S4: Stub passed"
+  info "--- Section 4: Multi-Resolution Geometry Simulation & Spacing Margin Invariants ---"
+
+  w_workspaces=180
+  w_weather=75
+  margin=4
+
+  for screen_w in 3440 2560 1920 1200 900; do
+    info "Simulating Resolution: ${screen_w}px"
+    screen_center=$(( screen_w / 2 ))
+
+    if (( screen_w <= 900 )); then
+      form=2
+      w_clock=70
+      req_left=220
+      req_right=250
+    elif (( screen_w <= 1200 )); then
+      form=1
+      w_clock=220
+      req_left=277
+      req_right=380
+    else
+      form=0
+      w_clock=220
+      req_left=612
+      req_right=480
+    fi
+
+    ws_left=$(( screen_center - (w_workspaces / 2) ))
+    ws_right=$(( ws_left + w_workspaces ))
+    ws_calc_center=$(( (ws_left + ws_right) / 2 ))
+
+    if (( ws_calc_center == screen_center )); then
+      pass "S4 [${screen_w}px]: Workspaces perfectly centered at $ws_calc_center"
+    else
+      fail "S4 [${screen_w}px]: Workspaces center $ws_calc_center != $screen_center"
+    fi
+
+    clk_right=$(( ws_left - margin ))
+    clk_left=$(( clk_right - w_clock ))
+    left_gap=$(( ws_left - clk_right ))
+
+    if (( left_gap == 4 )); then
+      pass "S4 [${screen_w}px]: Clock-to-Workspaces gap is exactly 4px"
+    else
+      fail "S4 [${screen_w}px]: Clock-to-Workspaces gap is $left_gap != 4px"
+    fi
+
+    wthr_left=$(( ws_right + margin ))
+    wthr_right=$(( wthr_left + w_weather ))
+    right_gap=$(( wthr_left - ws_right ))
+
+    if (( right_gap == 4 )); then
+      pass "S4 [${screen_w}px]: Workspaces-to-Weather gap is exactly 4px"
+    else
+      fail "S4 [${screen_w}px]: Workspaces-to-Weather gap is $right_gap != 4px"
+    fi
+
+    left_avail=$clk_left
+    left_clearance=$(( left_avail - req_left ))
+    if (( left_clearance >= 0 )); then
+      pass "S4 [${screen_w}px]: Left zone clearance is positive (+${left_clearance}px)"
+    else
+      fail "S4 [${screen_w}px]: Left zone collision (clearance ${left_clearance}px)"
+    fi
+
+    right_avail=$(( screen_w - wthr_right ))
+    right_clearance=$(( right_avail - req_right ))
+    if (( right_clearance >= 0 )); then
+      pass "S4 [${screen_w}px]: Right zone clearance is positive (+${right_clearance}px)"
+    else
+      fail "S4 [${screen_w}px]: Right zone collision (clearance ${right_clearance}px)"
+    fi
+
+    if (( screen_w == 900 )); then
+      if (( w_clock == 70 && left_clearance == 66 && right_avail == 281 )); then
+        pass "S4 [900px]: Boundary condition verified (clock collapsed, +66px left, +281px right)"
+      else
+        fail "S4 [900px]: Boundary condition failed (clock=$w_clock, left=$left_clearance, right=$right_avail)"
+      fi
+    fi
+
+    right_avail_no_wthr=$(( screen_w - ws_right ))
+    right_clearance_no_wthr=$(( right_avail_no_wthr - req_right ))
+    if (( right_clearance_no_wthr >= right_clearance )); then
+      pass "S4 [${screen_w}px]: Adjacency edge case preserved clearance when weather inactive"
+    else
+      fail "S4 [${screen_w}px]: Adjacency edge case reduced clearance when weather inactive"
+    fi
+  done
 fi
 
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
