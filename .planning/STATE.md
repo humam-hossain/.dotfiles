@@ -3,36 +3,37 @@ gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–47)
 current_phase: 47
-status: completed
-stopped_at: Phase 47 complete — all phases complete
-last_updated: "2026-09-29T12:28:49.477Z"
+current_phase_name: Center-Zone Layout Reorganization
+status: executing
+stopped_at: Completed 47-03-PLAN.md
+last_updated: "2026-09-29T16:16:46.081Z"
 last_activity: 2026-09-29
-last_activity_desc: Phase 47 complete
-state_head: 80484cfcac1f0b18a1c92c9d6ebd9f2bfb7f4bea
+last_activity_desc: Phase 47 execution started
+state_head: af0148f603bc718123b9cc1de593a0e2e0c6f45b
 progress:
   total_phases: 12
-  completed_phases: 8
-  total_plans: 35
-  completed_plans: 35
-  percent: 67
+  completed_phases: 7
+  total_plans: 36
+  completed_plans: 36
+  percent: 58
 ---
 
 Total Phases: 12 (Phases 42–47 + 43.1–43.6)
-Progress: [█████████░] 11/12 phases ([███████░░░] 67%)
+Progress: [█████████░] 11/12 phases ([██████░░░░] 58%)
 
 # Project State
 
 ## Current Position
 
-Phase: 47
-Plan: Not started
-Status: All phases complete
-Last activity: 2026-09-29 — Phase 47 complete
+Phase: 47 (Center-Zone Layout Reorganization) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-09-29 — Phase 47 execution started
 
 ## Session
 
-**Last session:** 2026-09-29T17:18:00.000Z
-**Stopped at:** Phase 47 complete — all phases complete
+**Last session:** 2026-09-29T16:16:45.151Z
+**Stopped at:** Completed 47-03-PLAN.md
 **Resume file:** None
 
 ## Project Reference
@@ -214,6 +215,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 | Phase 45 P03 | 10m | 2 tasks | 4 files |
 | Phase 46 P01 | 12 min | 3 tasks | 4 files |
 | Phase 46 P02 | 15 min | 3 tasks | 3 files |
+| Phase 47 P03 | 4 min | 2 tasks | 2 files |
 
 ## Decisions
 
