@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 47-center-zone-layout-reorganization
 source: [47-VERIFICATION.md]
 started: 2026-09-29T18:28:00Z
-updated: 2026-09-29T22:01:25+06:00
+updated: 2026-09-29T22:06:40+06:00
 ---
 
 ## Current Test
@@ -47,5 +47,13 @@ blocked: 0
   reason: "User reported: nope it does not and it does need to do anything when i click on it"
   severity: major
   test: 3
-  artifacts: []
-  missing: []
+  root_cause: "Event absorption in ClockWidget inner MouseArea prevented clicks reaching outer MouseArea; furthermore, user confirmed clock does not need to toggle sidebar (historical remnant from when clock was on right side)"
+  artifacts:
+    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml"
+      issue: "leftCenterGroup wrapped in unnecessary MouseArea with sidebarRightOpen toggle"
+    - path: "scripts/phase47-center-layout-assert.sh"
+      issue: "Section 2 checks for sidebarRightOpen toggle on leftCenterGroup"
+  missing:
+    - "Simplify leftCenterGroup in BarContent.qml to a plain BarGroup, removing MouseArea wrapper and toggle"
+    - "Update test harness scripts/phase47-center-layout-assert.sh Section 2 to assert BarGroup structure without sidebar toggle"
+  debug_session: .planning/debug/sidebar-toggle.md
