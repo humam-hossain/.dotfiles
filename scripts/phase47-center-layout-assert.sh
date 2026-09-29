@@ -179,6 +179,18 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
       fail "S2: middleSection missing proper dynamic anchors.right"
     fi
 
+    if grep -B 2 "id: leftCenterGroup" "$BAR_CONTENT" | grep -q "BarGroup"; then
+      pass "S2: leftCenterGroup declared directly as BarGroup"
+    else
+      fail "S2: leftCenterGroup not declared as BarGroup"
+    fi
+
+    if grep -B 2 "id: leftCenterGroup" "$BAR_CONTENT" | grep -q "MouseArea"; then
+      fail "S2: leftCenterGroup still declared as MouseArea"
+    else
+      pass "S2: leftCenterGroup is not wrapped in MouseArea"
+    fi
+
     if grep -A 10 "id: leftCenterGroup" "$BAR_CONTENT" | grep -q "anchors.right: middleCenterGroup.left"; then
       pass "S2: leftCenterGroup anchors.right: middleCenterGroup.left"
     else
@@ -191,22 +203,22 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
       fail "S2: leftCenterGroup missing anchors.rightMargin: 4"
     fi
 
-    if grep -A 10 "id: leftCenterGroup" "$BAR_CONTENT" | grep -q "implicitWidth: leftCenterGroupContent.implicitWidth" && grep -A 10 "id: leftCenterGroup" "$BAR_CONTENT" | grep -q "implicitHeight: leftCenterGroupContent.implicitHeight"; then
-      pass "S2: leftCenterGroup binds implicit dimensions"
+    if sed -n '/id: leftCenterGroup/,/id: middleCenterGroup/p' "$BAR_CONTENT" | grep -q "ClockWidget"; then
+      pass "S2: leftCenterGroup directly hosts ClockWidget"
     else
-      fail "S2: leftCenterGroup missing implicit dimension bindings"
+      fail "S2: leftCenterGroup missing ClockWidget"
     fi
 
-    if grep -A 15 "id: leftCenterGroup" "$BAR_CONTENT" | grep -q "GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen"; then
-      pass "S2: leftCenterGroup toggles GlobalStates.sidebarRightOpen on click"
+    if sed -n '/id: leftCenterGroup/,/id: middleCenterGroup/p' "$BAR_CONTENT" | grep -q "GlobalStates.sidebarRightOpen"; then
+      fail "S2: leftCenterGroup contains obsolete sidebarRightOpen toggle"
     else
-      fail "S2: leftCenterGroup click toggle missing or incorrect"
+      pass "S2: leftCenterGroup has no obsolete sidebarRightOpen toggle"
     fi
 
-    if sed -n '/id: leftCenterGroupContent/,/}/p' "$BAR_CONTENT" | grep -q "ClockWidget"; then
-      pass "S2: leftCenterGroupContent wraps ClockWidget"
+    if grep -q "id: leftCenterGroupContent" "$BAR_CONTENT"; then
+      fail "S2: Obsolete id: leftCenterGroupContent found in BarContent.qml"
     else
-      fail "S2: leftCenterGroupContent missing ClockWidget"
+      pass "S2: Obsolete id: leftCenterGroupContent absent"
     fi
 
     if grep -A 5 "id: middleCenterGroup" "$BAR_CONTENT" | grep -q "anchors.horizontalCenter: parent.horizontalCenter"; then
