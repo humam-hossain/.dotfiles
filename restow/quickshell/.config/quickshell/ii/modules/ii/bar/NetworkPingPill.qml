@@ -85,11 +85,52 @@ BarGroup {
     Rectangle {
         id: divider
         implicitWidth: 1
-        Layout.fillHeight: true
+        Layout.preferredHeight: 14
+        Layout.alignment: Qt.AlignVCenter
         color: Appearance.colors.colLayer0Border
-        opacity: 0.6
+        opacity: 1.0
         Layout.leftMargin: 2
         Layout.rightMargin: 2
+    }
+
+    // =========================================================================
+    // Breathing pulse animation on critical latency or daemon offline state (G-45-1)
+    // =========================================================================
+    readonly property bool isCritical: PingService.isOffline ||
+        PingService.wanStatus === "critical" || PingService.wanStatus === "dead" ||
+        PingService.gatewayStatus === "critical" || PingService.gatewayStatus === "dead" ||
+        PingService.homeServerStatus === "critical" || PingService.homeServerStatus === "dead"
+
+    SequentialAnimation {
+        id: pingPulseAnimation
+        running: root.isCritical
+        loops: Animation.Infinite
+        onRunningChanged: {
+            if (!running) {
+                wanIcon.opacity = 1.0;
+                wanText.opacity = 1.0;
+                gwIcon.opacity = 1.0;
+                gwText.opacity = 1.0;
+                srvIcon.opacity = 1.0;
+                srvText.opacity = 1.0;
+            }
+        }
+        ParallelAnimation {
+            NumberAnimation { target: wanIcon; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+            NumberAnimation { target: wanText; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+            NumberAnimation { target: gwIcon; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+            NumberAnimation { target: gwText; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+            NumberAnimation { target: srvIcon; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+            NumberAnimation { target: srvText; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+        }
+        ParallelAnimation {
+            NumberAnimation { target: wanIcon; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+            NumberAnimation { target: wanText; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+            NumberAnimation { target: gwIcon; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+            NumberAnimation { target: gwText; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+            NumberAnimation { target: srvIcon; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+            NumberAnimation { target: srvText; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+        }
     }
 
     // =========================================================================

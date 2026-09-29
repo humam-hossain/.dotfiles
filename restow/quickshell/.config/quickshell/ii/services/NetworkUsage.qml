@@ -38,8 +38,8 @@ Singleton {
     property real txBytesPerSec: 0.0
     property string rxRateString: "0 B/s"
     property string txRateString: "0 B/s"
-    property string rxShortRate: "0K"
-    property string txShortRate: "0K"
+    property string rxShortRate: "0 B"
+    property string txShortRate: "0 B"
 
     property real totalRxBytes: 0
     property real totalTxBytes: 0
@@ -324,10 +324,11 @@ Singleton {
     }
 
     function formatShortRate(bytesPerSec) {
-        if (!bytesPerSec || bytesPerSec < 1024) return "0K";
-        if (bytesPerSec < 1024 * 1024) return Math.round(bytesPerSec / 1024) + "K";
-        if (bytesPerSec < 1024 * 1024 * 1024) return (bytesPerSec / (1024 * 1024)).toFixed(1) + "M";
-        return (bytesPerSec / (1024 * 1024 * 1024)).toFixed(1) + "G";
+        if (!bytesPerSec || bytesPerSec <= 0) return "0 B";
+        if (bytesPerSec < 1024) return Math.round(bytesPerSec) + " B";
+        if (bytesPerSec < 1024 * 1024) return Math.round(bytesPerSec / 1024) + " KB";
+        if (bytesPerSec < 1024 * 1024 * 1024) return (bytesPerSec / (1024 * 1024)).toFixed(1) + " MB";
+        return (bytesPerSec / (1024 * 1024 * 1024)).toFixed(1) + " GB";
     }
 
     function formatGigabytes(bytes) {
