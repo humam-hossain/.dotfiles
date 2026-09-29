@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v0.8 Notification Experience & Shell Interaction Polish** — Phases 38–41 (shipped 2026-09-25) — [Archive](milestones/v0.8-ROADMAP.md)
-- 📋 **v0.9 Top Status Bar Resource Components & Hardware Telemetry** — Phases 42–46 (in progress)
+- 📋 **v0.9 Top Status Bar Resource Components & Hardware Telemetry** — Phases 42–46 (completed 2026-09-29)
 
 ## Phases
 
@@ -29,10 +29,10 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 - [x] **Phase 43.3: Quickshell Benchmark Bottleneck Analysis & Optimization Strategy (INSERTED)** (1 plan) (completed 2026-09-27)
 - [x] **Phase 43.4: Quickshell Targeted Optimization & Empirical Verification (INSERTED)** (3 plans) (completed 2026-09-27)
 - [x] **Phase 43.5: CPU/GPU Dynamic Telemetry, Top Process Attribution Tree & Hover Delay Ergonomics (INSERTED)** (3 plans) (completed 2026-09-28)
-- [x] **Phase 43.6: Remove Top Processes & Streamline CpuGpuPopup Layout (INSERTED)** (0 plans) (completed 2026-09-28)
-- [x] **Phase 44: Memory & Storage Component (Pill & Popup)** (0 plans) (completed 2026-09-28)
-- [x] **Phase 45: Network & Multi-Target Ping Component (Pill & Popup)** (0 plans) (completed 2026-09-29)
-- [x] **Phase 46: Left-Zone Integration, Verification & Repository Integrity** (0 plans) (completed 2026-09-29)
+- [x] **Phase 43.6: Remove Top Processes & Streamline CpuGpuPopup Layout (INSERTED)** (2 plans) (completed 2026-09-28)
+- [x] **Phase 44: Memory & Storage Component (Pill & Popup)** (3 plans) (completed 2026-09-28)
+- [x] **Phase 45: Network & Multi-Target Ping Component (Pill & Popup)** (3 plans) (completed 2026-09-29)
+- [x] **Phase 46: Left-Zone Integration, Verification & Repository Integrity** (2 plans) (completed 2026-09-29)
 
 ## Phase Details
 

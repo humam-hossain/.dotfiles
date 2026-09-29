@@ -326,10 +326,35 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ **INTG-02**: Automated test harness suite and regression checks pass with 0 failures across all milestone features — Phase 41
 - ✓ **INTG-03**: `arch/dots-hyprland.sh verify --strict` passes with 0 findings and zero git churn — Phase 41
 
+### Validated — v0.9
+
+- ✓ **CPUGPU-01**: Live CPU % and GPU % on bar pill with Material Symbols icons and 250ms M3 emphasized deceleration width resizing — Phase 43
+- ✓ **CPUGPU-02**: CPU popup inspector with overall load %, package temperature, power draw in Watts, and clock frequencies — Phase 43
+- ✓ **CPUGPU-03**: GPU popup inspector with Intel iGPU load %, average load, active clock frequency, and thermal status — Phase 43
+- ✓ **CPUGPU-04**: Synchronized two-tier alert coloring (Amber warning at 70%, Red critical at 90%) across icons, text badges, and popup headers — Phase 43
+- ✓ **CPUGPU-05**: Dynamic hardware model discovery resolving CPU, GPU, and Motherboard/Platform names without hardcoded strings — Phase 43.5
+- ✓ **CPUGPU-06**: Dynamic core topology and hybrid P/E core thread detection without static thread count divisors — Phase 43.5
+- ✓ **CPUGPU-07**: Hierarchical process attribution tree engine aggregating multi-process applications with delta CPU ticks and DRM GPU memory — Phase 43.5 (streamlined in Phase 43.6)
+- ✓ **POPUP-01**: Universal 1000ms hover intent delay in `StyledPopup.qml` with 200ms grace period across window bounds — Phase 43.5
+- ✓ **PERF-01**: Baseline & Staged Resource Profiling Harness (`scripts/profile-quickshell.sh`) capturing pure upstream reference metrics — Phase 43.1
+- ✓ **PERF-02**: Comprehensive Diagnostic Reporting & Bottleneck Attribution Matrix (`BENCHMARK.md` and `benchmark-latest.json`) — Phase 43.1
+- ✓ **PERF-03**: Automated Performance Assertion Suite (`scripts/phase43-perf-assert.sh`) enforcing resource budgets and leak caps — Phase 43.1
+- ✓ **MEMDSK-01**: Live RAM usage (`X.X/Y.Y GB`) and root filesystem `/` usage on status bar pill — Phase 44
+- ✓ **MEMDSK-02**: Memory popup inspector with detailed memory allocation tiers (Used, Available, Cached, Buffers, Free, Swap) — Phase 44
+- ✓ **MEMDSK-03**: Storage popup inspector with clean progress bars for root `/` and all mounted filesystems (physical and cloud mounts) — Phase 44
+- ✓ **MEMDSK-04**: Asynchronous non-blocking storage mount discovery via `Quickshell.Io.Process` running `df` at 15–30s intervals — Phase 44
+- ✓ **NETPING-01**: Real-time network throughput rates (Rx/Tx KB/s or MB/s) derived from `/proc/net/dev` — Phase 45
+- ✓ **NETPING-02**: Status bar pill displaying all 3 ping targets (WAN, Gateway, Home Server) with latency numbers and status colors — Phase 45
+- ✓ **NETPING-03**: Ping client service polling local daemon (`http://127.0.0.1:8765/api/status`) asynchronously at 5s intervals with offline fallback — Phase 45
+- ✓ **NETPING-04**: Network popup inspector displaying active NIC interface name, IPv4 address, link speed, and detailed diagnostic cards — Phase 45
+- ✓ **NETPING-05**: Clicking Network pill or popup launches web ping dashboard at `http://127.0.0.1:8765/` in default browser — Phase 45
+- ✓ **INTG-01**: Three standalone `BarGroup` pills integrated into `BarContent.qml` Left zone in canonical order with uniform 4px spacing and dead-centered Workspaces — Phase 46
+- ✓ **INTG-02**: Deployed via GNU Stow leaf symlinks under `restow/quickshell/` without folding parent directories, legacy Resource components retired, and zero git churn in `vendor/dots-hyprland` — Phase 46
+- ✓ **INTG-03**: Consolidated 6-section milestone assertion suite (`scripts/phase46-telemetry-assert.sh`) orchestrating all sub-harnesses and verifying strict repository integrity — Phase 46
+
 ### Active
 
-Milestone v0.9 (Top Status Bar Resource Components & Hardware Telemetry):
-- Scoped requirements defined during `/gsd-new-milestone` (see `.planning/REQUIREMENTS.md`)
+Milestone v0.9 complete — all 23 requirements validated. Ready for milestone close and next milestone cycle.
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -518,6 +543,10 @@ Milestone v0.9 (Top Status Bar Resource Components & Hardware Telemetry):
 | Phase 43.1: Extensible staging registry, active UI dispatcher & static audit | Declarative staging runs, `ydotool` stationary idle vs active popup inspection, and static QML scanner identifying timer and FileView hot spots | ✓ PERF-02, Section 2 FAIL=0 |
 | Phase 43.1: Diagnostic reporting pipeline & baseline diffing | Generates `BENCHMARK.md` attribution matrix and `benchmark-latest.json` telemetry export with signed delta `--compare` diffing | ✓ PERF-02, Section 4 FAIL=0 |
 | Phase 43.1: Automated 5-section performance regression test harness | `scripts/phase43-perf-assert.sh` asserts safety traps, schemas, runtime leak caps (FDs < 150, RSS < 1200MB, Private Dirty < 700MB, CPU < 15%), and zero git drift | ✓ PERF-03, 0 FAIL 0 FINDINGS |
+| Phase 46: Canonical Left zone sequence in BarContent.qml | `LeftSidebarButton` → `MemoryStoragePill` → `CpuGpuPill` → `NetworkPingPill` → `utilButtonsGroup` with uniform 4px spacing and dead-centered Workspaces (D-01, D-04, D-05, D-07) | ✓ INTG-01, Section 2 FAIL=0 |
+| Phase 46: Storage-First metric and inspector column layout | Storage displayed first on left, RAM on right in `MemoryStoragePill`; Storage card in Left 320px column and Memory card in Right 320px column in `MemoryStoragePopup` (D-02, D-03) | ✓ INTG-01, Section 3 FAIL=0 |
+| Phase 46: Permanent retirement of legacy Resource.qml/Resources.qml | Deleted legacy monolithic resource meters from git, unlinked live symlinks, restored upstream .bak stubs without broken symlinks into repo (D-08, D-09) | ✓ INTG-02, Section 1 FAIL=0 |
+| Phase 46: Consolidated 6-section milestone assertion suite | `scripts/phase46-telemetry-assert.sh` orchestrates all Milestone v0.9 sub-harnesses (`phase42`, `phase43.6`, `phase43-perf`, `phase44`, `phase45`) and `./arch/dots-hyprland.sh verify --strict` with zero git churn (D-10, D-11) | ✓ INTG-03, Section 6 FAIL=0 FINDINGS=0 |
 
 ## Evolution
 
@@ -537,7 +566,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-27 after Phase 43.1*
+*Last updated: 2026-09-29 after Phase 46*
 
 
 

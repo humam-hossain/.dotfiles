@@ -5,42 +5,42 @@ milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 
 current_phase: 46
 status: completed
 stopped_at: Phase 46 complete — all phases complete
-last_updated: "2026-09-29T11:00:18.861Z"
+last_updated: "2026-09-29T11:06:33.771Z"
 last_activity: 2026-09-29
 last_activity_desc: Phase 46 complete
-state_head: 013b3e9151dd931899f43dc0e9a129f137ed46b1
+state_head: 576f653c39a2db935c84c63719eaea09137b6a17
 progress:
   total_phases: 11
-  completed_phases: 7
+  completed_phases: 11
   total_plans: 33
   completed_plans: 33
-  percent: 64
+  percent: 100
 ---
 
-Total Phases: 10 (Phases 42–46 + 43.1–43.5)
-Progress: [███████░░░] 7/10 phases ([██████░░░░] 64%)
+Total Phases: 11 (Phases 42–46 + 43.1–43.6)
+Progress: [██████████] 11/11 phases ([██████████] 100%)
 
 # Project State
 
 ## Current Position
 
 Phase: 46
-Plan: Not started
-Status: All phases complete
+Plan: Complete
+Status: All phases complete — Milestone v0.9 ready to archive
 Last activity: 2026-09-29 — Phase 46 complete
 
 ## Session
 
-**Last session:** 2026-09-29T10:17:54.978Z
-**Stopped at:** Phase 46 complete — all phases complete
-**Resume file:** .planning/phases/46-left-zone-integration-verification-repository-integrity/46-CONTEXT.md
+**Last session:** 2026-09-29T17:08:00.000Z
+**Stopped at:** Phase 46 complete — all phases complete in Milestone v0.9
+**Resume file:** None
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-27 after Phase 43.1)
+See: .planning/PROJECT.md (updated 2026-09-29 after Phase 46)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 46 — Left-Zone Integration, Verification & Repository Integrity
+**Current focus:** Milestone v0.9 Complete — ready for /gsd-complete-milestone v0.9
 
 ## Deferred Items
 
@@ -211,6 +211,8 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 | Phase 43.1 P03 | 10 min | 2 tasks | 2 files |
 | Phase 44 P03 | 10 min | 2 tasks | 3 files |
 | Phase 45 P03 | 10m | 2 tasks | 4 files |
+| Phase 46 P01 | 12 min | 3 tasks | 4 files |
+| Phase 46 P02 | 15 min | 3 tasks | 3 files |
 
 ## Decisions
 
@@ -300,3 +302,8 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 43.3]: D-02..D-04: Declarative timer (3s idle) and Component.onCompleted in ResourceUsage.qml to eliminate interval: 1 bug; gate history array allocations on inspector active; retire legacy Resources pill ahead of Phase 44.
 - [Phase 43.3]: D-05..D-08: Two-tier sensor sweeping in HardwareTelemetry.qml (Tier 1: 3 files in idle; Tier 2: 28 files in active with zero-latency frame 0 sync); maintain 3s idle / 1s active cadence; consolidate procfs CPU parsing.
 - [Phase 43.3]: D-09..D-12: Retain full 20-thread layout in CpuGpuPopup.qml while eliminating rendering overhead via binding guards (root.active), strict critical alert pulse gating, and 1% integer deadband quantization.
+- [Phase 46]: D-01: Canonical Left zone sequence LeftSidebarButton -> MemoryStoragePill -> CpuGpuPill -> NetworkPingPill -> utilButtonsGroup with uniform 4px spacing, zero dividers, and dead-centered Workspaces.
+- [Phase 46]: D-02: Storage-first presentation in MemoryStoragePill (Storage left, RAM right with 6px cluster separation).
+- [Phase 46]: D-03: Storage-first presentation in MemoryStoragePopup (Storage card in Left 320px column, Memory card in Right 320px column).
+- [Phase 46]: D-08..D-09: Permanently retired legacy Resource.qml and Resources.qml from git; restored upstream regular file stubs in ~/.config/quickshell; zero submodule churn in vendor/dots-hyprland.
+- [Phase 46]: D-10..D-11: Consolidated 6-section milestone assertion suite scripts/phase46-telemetry-assert.sh with sub-harness orchestration and fail-closed exit status.
