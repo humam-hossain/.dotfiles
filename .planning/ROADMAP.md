@@ -240,7 +240,11 @@ Success criteria:
 **Goal**: Build dedicated `NetworkPingPill.qml` status bar pill and interactive `NetworkPingPopup.qml` inspector overlay.  
 **Depends on**: Phase 42  
 **Requirements**: NETPING-01, NETPING-02, NETPING-03, NETPING-04, NETPING-05  
-**Plans**: 0 plans
+**Plans**: 3/3 plans executed
+
+- [x] 45-01-PLAN.md
+- [x] 45-02-PLAN.md
+- [x] 45-03-PLAN.md
 
 Success criteria:
 
@@ -281,5 +285,5 @@ Success criteria:
 | 43.5. CPU/GPU Dynamic Telemetry, Top Process Attribution Tree & Hover Delay Ergonomics | v0.9 | 3/3 | Complete    | 2026-09-28 |
 | 43.6. Remove Top Processes & Streamline CpuGpuPopup Layout | v0.9 | 2/2 | Complete    | 2026-09-28 |
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 3/3 | Complete    | 2026-09-28 |
-| 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 0 plans | Planned | — |
+| 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 3/3 | In Progress|  |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 0 plans | Planned | — |
