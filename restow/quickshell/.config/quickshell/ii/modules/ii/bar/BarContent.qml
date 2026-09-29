@@ -145,27 +145,16 @@ Item { // Bar content region
         property int spacing: 4
     }
 
-    MouseArea {
+    BarGroup {
         id: leftCenterGroup
         anchors.verticalCenter: parent.verticalCenter
         anchors.right: middleCenterGroup.left
         anchors.rightMargin: 4
-        implicitWidth: leftCenterGroupContent.implicitWidth
-        implicitHeight: leftCenterGroupContent.implicitHeight
 
-        onPressed: {
-            GlobalStates.sidebarRightOpen = !GlobalStates.sidebarRightOpen;
-        }
-
-        BarGroup {
-            id: leftCenterGroupContent
-            anchors.fill: parent
-
-            ClockWidget {
-                showDate: (Config.options.bar.verbose && root.useShortenedForm < 2)
-                Layout.alignment: Qt.AlignVCenter
-                Layout.fillWidth: true
-            }
+        ClockWidget {
+            showDate: (Config.options.bar.verbose && root.useShortenedForm < 2)
+            Layout.alignment: Qt.AlignVCenter
+            Layout.fillWidth: true
         }
     }
 
