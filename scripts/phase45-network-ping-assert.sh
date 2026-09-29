@@ -316,11 +316,23 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
       fail "NetworkPingPill.qml missing getStatusColor function or warning fallback color"
     fi
 
-    # Vertical divider line separating throughput from ping targets (D-03)
-    if grep -q "implicitWidth: 1" "$PILL_QML" && grep -q "colLayer0Border" "$PILL_QML"; then
-      pass "NetworkPingPill.qml separates throughput from ping targets with vertical divider line"
+    # Vertical divider line separating throughput from ping targets (D-03, G-45-1)
+    if grep -q "implicitWidth: 1" "$PILL_QML" && \
+       grep -q "colLayer0Border" "$PILL_QML" && \
+       grep -q "Layout.preferredHeight: 14" "$PILL_QML" && \
+       grep -q "opacity: 1.0" "$PILL_QML"; then
+      pass "NetworkPingPill.qml separates throughput from ping targets with visible vertical divider (height: 14, opacity: 1.0)"
     else
-      fail "NetworkPingPill.qml missing vertical divider line separating pill segments"
+      fail "NetworkPingPill.qml missing visible vertical divider line (expected preferredHeight: 14 and opacity: 1.0)"
+    fi
+
+    # Breathing pulse animation on critical latency or daemon offline state (G-45-1)
+    if grep -q "pingPulseAnimation" "$PILL_QML" && \
+       grep -q "SequentialAnimation" "$PILL_QML" && \
+       grep -q "isCritical" "$PILL_QML"; then
+      pass "NetworkPingPill.qml implements breathing pulse animation on critical/offline latency"
+    else
+      fail "NetworkPingPill.qml missing breathing pulse animation on critical latency"
     fi
 
     # Responsive width parity (D-04)
@@ -398,7 +410,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
       fail "NetworkPingPopup.qml missing center vertical separator"
     fi
 
-    # Left Column Interface Card (D-06, D-11)
+    # Left Column Interface Card (D-06, D-11, G-45-3)
     if grep -q "NetworkUsage.activeInterface" "$POPUP_QML" && \
        grep -q "NetworkUsage.ipAddress" "$POPUP_QML" && \
        grep -q "NetworkUsage.gatewayIp" "$POPUP_QML" && \
@@ -411,16 +423,23 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
       fail "NetworkPingPopup.qml missing interface telemetry fields in Left column"
     fi
 
-    # Dual StyledProgressBar activity meters for Rx and Tx (D-08)
+    # Multi-line DNS Nameserver rows (G-45-3)
+    if grep -q "DNS Server" "$POPUP_QML" && grep -q "NetworkUsage.dnsServers" "$POPUP_QML"; then
+      pass "NetworkPingPopup.qml formats multiple DNS nameservers across distinct rows"
+    else
+      fail "NetworkPingPopup.qml missing multi-line DNS nameserver parsing"
+    fi
+
+    # Removal of StyledProgressBar and prominent rate/total readouts (D-08, G-45-3)
     PROG_COUNT=$(grep -c "StyledProgressBar" "$POPUP_QML" || true)
-    if [[ "$PROG_COUNT" -ge 2 ]] && \
-       grep -q "NetworkUsage.rxBytesPerSec" "$POPUP_QML" && \
-       grep -q "NetworkUsage.txBytesPerSec" "$POPUP_QML" && \
+    if [[ "$PROG_COUNT" -eq 0 ]] && \
+       grep -q "NetworkUsage.rxRateString" "$POPUP_QML" && \
+       grep -q "NetworkUsage.txRateString" "$POPUP_QML" && \
        grep -q "NetworkUsage.totalRxString" "$POPUP_QML" && \
        grep -q "NetworkUsage.totalTxString" "$POPUP_QML"; then
-      pass "NetworkPingPopup.qml renders dual StyledProgressBar meters for Rx and Tx with rate readouts and session totals"
+      pass "NetworkPingPopup.qml removes StyledProgressBar meters and displays prominent rate readouts and cumulative session totals"
     else
-      fail "NetworkPingPopup.qml missing dual StyledProgressBar meters or session total bindings"
+      fail "NetworkPingPopup.qml retains unwanted StyledProgressBar meters (count: $PROG_COUNT) or misses session total bindings"
     fi
 
     # Right Column Header: "Open Web Dashboard" button (D-15, D-17)
@@ -439,13 +458,15 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
       fail "NetworkPingPopup.qml missing offline warning banner"
     fi
 
-    # 3 Dedicated Ping Diagnostic Cards (D-07)
+    # 3 Dedicated Ping Diagnostic Cards with pure white badge text and breathing pulse (D-07, G-45-3)
     if grep -q "PingService.wanTarget" "$POPUP_QML" && \
        grep -q "PingService.gatewayTarget" "$POPUP_QML" && \
-       grep -q "PingService.homeServerTarget" "$POPUP_QML"; then
-      pass "NetworkPingPopup.qml renders 3 dedicated diagnostic cards (WAN, Gateway, Home Server)"
+       grep -q "PingService.homeServerTarget" "$POPUP_QML" && \
+       grep -q 'color: "#FFFFFF"' "$POPUP_QML" && \
+       grep -q "cardPulseAnimation" "$POPUP_QML"; then
+      pass "NetworkPingPopup.qml renders 3 dedicated diagnostic cards with pure white quality badges (#FFFFFF) and breathing pulse animation"
     else
-      fail "NetworkPingPopup.qml missing 3 dedicated target diagnostic cards"
+      fail "NetworkPingPopup.qml missing 3 dedicated target diagnostic cards, white quality badge text, or card pulse animation"
     fi
   fi
 fi
@@ -456,13 +477,14 @@ fi
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
   info "--- Section 4: Live Telemetry & Formatting Mathematics (D-01, D-06, D-11) ---"
 
-  # Unit test formatting mathematics via node
+  # Unit test formatting mathematics via node (D-01, G-45-1)
   MATH_TEST=$(node -e '
     function formatShortRate(b) {
-      if (!b || b < 1024) return "0K";
-      if (b < 1024 * 1024) return Math.round(b / 1024) + "K";
-      if (b < 1024 * 1024 * 1024) return (b / (1024 * 1024)).toFixed(1) + "M";
-      return (b / (1024 * 1024 * 1024)).toFixed(1) + "G";
+      if (!b || b <= 0) return "0 B";
+      if (b < 1024) return Math.round(b) + " B";
+      if (b < 1024 * 1024) return Math.round(b / 1024) + " KB";
+      if (b < 1024 * 1024 * 1024) return (b / (1024 * 1024)).toFixed(1) + " MB";
+      return (b / (1024 * 1024 * 1024)).toFixed(1) + " GB";
     }
     function formatThroughput(b) {
       if (!b || b <= 0) return "0 B/s";
@@ -477,11 +499,11 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
     }
 
     const checks = [
-      formatShortRate(0) === "0K",
-      formatShortRate(500) === "0K",
-      formatShortRate(1500) === "1K",
-      formatShortRate(1.5 * 1024 * 1024) === "1.5M",
-      formatShortRate(1.2 * 1024 * 1024 * 1024) === "1.2G",
+      formatShortRate(0) === "0 B",
+      formatShortRate(500) === "500 B",
+      formatShortRate(1500) === "1 KB",
+      formatShortRate(1.5 * 1024 * 1024) === "1.5 MB",
+      formatShortRate(1.2 * 1024 * 1024 * 1024) === "1.2 GB",
       formatThroughput(0) === "0 B/s",
       formatThroughput(512) === "512 B/s",
       formatThroughput(2048) === "2.0 KB/s",
@@ -497,7 +519,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
   ' 2>/dev/null || echo "ERROR")
 
   if [[ "$MATH_TEST" == "OK" ]]; then
-    pass "Formatting mathematics pass all unit test vectors (0K, 1K, 1.5M, 1.2G, B/s, GB)"
+    pass "Formatting mathematics pass all unit test vectors (0 B, 500 B, 1 KB, 1.5 MB, 1.2 GB, B/s, GB)"
   else
     fail "Formatting mathematics failed unit test vectors: $MATH_TEST"
   fi
@@ -548,12 +570,12 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
     finding "Live ping daemon at http://127.0.0.1:8765/api/status not responding (handled via offline mode)"
   fi
 
-  # Prohibited hardcoded alert hex colors check (allows #FFA000 fallback)
+  # Prohibited hardcoded alert hex colors check (allows #FFA000 fallback and #FFFFFF white badge text)
   BANNED_HEX_REGEX='(#[0-9a-fA-F]{3,8}|#[fF]{2}[a-zA-Z0-9]{4}|#[fF][fF]5252|#[fF]44336|#[fF][fF]5555|#[eE]5[cC]07[bB])'
   for file in "$PILL_QML" "$POPUP_QML"; do
     if [[ -f "$file" ]]; then
       fname="$(basename "$file")"
-      if grep -nE "$BANNED_HEX_REGEX" "$file" 2>/dev/null | grep -ivE "(#FFA000|warningColor)" >/dev/null; then
+      if grep -nE "$BANNED_HEX_REGEX" "$file" 2>/dev/null | grep -ivE "(#FFA000|#FFFFFF|#fff|warningColor)" >/dev/null; then
         fail "$fname contains prohibited hardcoded alert hex color(s)"
       else
         pass "$fname contains zero prohibited hardcoded alert hex colors"

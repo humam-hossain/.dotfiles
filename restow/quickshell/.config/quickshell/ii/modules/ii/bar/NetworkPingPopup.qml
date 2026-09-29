@@ -55,12 +55,13 @@ StyledPopup {
         property string value: ""
         property string iconName: ""
         property color valueColor: Appearance.colors.colOnSurface
+        property bool allowWrap: false
         spacing: 4
         Layout.fillWidth: true
 
         StyledText {
             text: rowItem.label
-            font.pixelSize: Appearance.font.pixelSize.smaller
+            font.pixelSize: Appearance.font.pixelSize.small
             color: Appearance.colors.colOnSurfaceVariant
         }
 
@@ -69,17 +70,20 @@ StyledPopup {
         MaterialSymbol {
             visible: rowItem.iconName !== ""
             text: rowItem.iconName
-            iconSize: Appearance.font.pixelSize.smaller
+            iconSize: Appearance.font.pixelSize.small
             color: rowItem.valueColor
         }
 
         StyledText {
             text: rowItem.value
-            font.pixelSize: Appearance.font.pixelSize.smaller
+            font.pixelSize: Appearance.font.pixelSize.small
             font.weight: Font.DemiBold
             color: rowItem.valueColor
-            elide: Text.ElideRight
-            Layout.maximumWidth: 190
+            wrapMode: rowItem.allowWrap ? Text.Wrap : Text.NoWrap
+            elide: rowItem.allowWrap ? Text.ElideNone : Text.ElideRight
+            horizontalAlignment: Text.AlignRight
+            Layout.maximumWidth: rowItem.allowWrap ? 170 : 190
+            Layout.fillWidth: rowItem.allowWrap
         }
     }
 
@@ -93,18 +97,46 @@ StyledPopup {
         property string statusClass: "dead"
         property string qualityText: "offline"
 
+        readonly property bool isCritical: card.statusClass === "critical" || card.statusClass === "dead" || PingService.isOffline
+
         Layout.fillWidth: true
-        implicitHeight: 74
+        implicitHeight: cardLayout.implicitHeight + 16
         radius: Appearance.rounding.small
         color: Appearance.m3colors.m3surfaceContainerHigh
         border.color: root.getStatusColor(card.statusClass)
         border.width: 1
         opacity: PingService.isOffline ? 0.6 : 1.0
 
+        SequentialAnimation {
+            id: cardPulseAnimation
+            running: card.isCritical
+            loops: Animation.Infinite
+            onRunningChanged: {
+                if (!running) {
+                    card.opacity = PingService.isOffline ? 0.6 : 1.0;
+                }
+            }
+            NumberAnimation {
+                target: card
+                property: "opacity"
+                to: 0.4
+                duration: 600
+                easing.type: Easing.InOutSine
+            }
+            NumberAnimation {
+                target: card
+                property: "opacity"
+                to: PingService.isOffline ? 0.7 : 1.0
+                duration: 600
+                easing.type: Easing.InOutSine
+            }
+        }
+
         ColumnLayout {
+            id: cardLayout
             anchors.fill: parent
             anchors.margins: 8
-            spacing: 4
+            spacing: 6
 
             // Top Header Row: Target icon + title, spacer, quality badge pill
             RowLayout {
@@ -127,19 +159,21 @@ StyledPopup {
                 Item { Layout.fillWidth: true }
 
                 Rectangle {
-                    implicitHeight: 18
-                    implicitWidth: qualityLabel.implicitWidth + 10
-                    radius: 9
-                    color: root.getStatusColor(card.statusClass)
-                    opacity: 0.2
+                    implicitHeight: 20
+                    implicitWidth: qualityLabel.implicitWidth + 12
+                    radius: 10
+                    color: {
+                        const c = root.getStatusColor(card.statusClass);
+                        return Qt.rgba(c.r, c.g, c.b, 0.35);
+                    }
 
                     StyledText {
                         id: qualityLabel
                         anchors.centerIn: parent
                         text: card.qualityText
-                        font.pixelSize: Appearance.font.pixelSize.smallest
+                        font.pixelSize: Appearance.font.pixelSize.smaller
                         font.weight: Font.Bold
-                        color: root.getStatusColor(card.statusClass)
+                        color: "#FFFFFF"
                     }
                 }
             }
@@ -149,8 +183,8 @@ StyledPopup {
                 Layout.fillWidth: true
 
                 Rectangle {
-                    implicitHeight: 18
-                    implicitWidth: ipText.implicitWidth + 8
+                    implicitHeight: 22
+                    implicitWidth: ipText.implicitWidth + 10
                     radius: 4
                     color: Appearance.colors.colLayer1
 
@@ -158,8 +192,9 @@ StyledPopup {
                         id: ipText
                         anchors.centerIn: parent
                         text: card.hostIp
-                        font.pixelSize: Appearance.font.pixelSize.smallest
-                        color: Appearance.colors.colOnSurfaceVariant
+                        font.pixelSize: Appearance.font.pixelSize.small
+                        font.weight: Font.Medium
+                        color: Appearance.colors.colOnSurface
                     }
                 }
 
@@ -230,14 +265,28 @@ StyledPopup {
                         value: NetworkUsage.gatewayIp
                     }
 
-                    NetworkDetailRow {
-                        label: "DNS Nameservers"
-                        value: NetworkUsage.dnsServers
+                    Repeater {
+                        model: {
+                            const raw = NetworkUsage.dnsServers;
+                            if (!raw || raw === "--") return [{ label: "DNS Server", value: "--" }];
+                            const parts = raw.split(",").map(s => s.trim()).filter(s => s.length > 0);
+                            if (parts.length <= 1) return [{ label: "DNS Server", value: parts[0] || "--" }];
+                            return parts.map((dns, idx) => ({
+                                label: `DNS Server ${idx + 1}`,
+                                value: dns
+                            }));
+                        }
+                        delegate: NetworkDetailRow {
+                            required property var modelData
+                            label: modelData.label
+                            value: modelData.value
+                        }
                     }
 
                     NetworkDetailRow {
                         label: "Link Speed"
                         value: NetworkUsage.linkSpeed
+                        allowWrap: true
                     }
 
                     NetworkDetailRow {
@@ -255,6 +304,7 @@ StyledPopup {
                     NetworkDetailRow {
                         label: "Drops / Errors"
                         value: `Rx: ${NetworkUsage.rxDrops}d / ${NetworkUsage.rxErrors}e  Tx: ${NetworkUsage.txDrops}d / ${NetworkUsage.txErrors}e`
+                        allowWrap: true
                     }
                 }
             }
@@ -269,82 +319,62 @@ StyledPopup {
             // Live Bandwidth Activity Section (D-08)
             StyledText {
                 text: "Live Bandwidth Activity"
-                font.pixelSize: Appearance.font.pixelSize.smaller
+                font.pixelSize: Appearance.font.pixelSize.small
                 font.weight: Font.Medium
                 color: Appearance.colors.colOnSurfaceVariant
             }
 
-            // Rx Activity Meter
-            ColumnLayout {
+            // Rx Activity Readout & Cumulative Session Total
+            RowLayout {
                 Layout.fillWidth: true
-                spacing: 3
+                spacing: 6
 
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 4
-
-                    MaterialSymbol {
-                        text: "arrow_downward"
-                        iconSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colPrimary
-                    }
-
-                    StyledText {
-                        text: "Rx Rate: " + NetworkUsage.rxRateString
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colOnSurface
-                    }
-
-                    Item { Layout.fillWidth: true }
-
-                    StyledText {
-                        text: "Total: " + NetworkUsage.totalRxString
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
-                    }
+                MaterialSymbol {
+                    text: "arrow_downward"
+                    iconSize: Appearance.font.pixelSize.small
+                    color: Appearance.colors.colPrimary
                 }
 
-                StyledProgressBar {
-                    Layout.fillWidth: true
-                    value: Math.min(1.0, NetworkUsage.rxBytesPerSec / (10 * 1024 * 1024))
-                    highlightColor: Appearance.colors.colPrimary
+                StyledText {
+                    text: "Rx Rate: " + NetworkUsage.rxRateString
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    font.weight: Font.Medium
+                    color: Appearance.colors.colOnSurface
+                }
+
+                Item { Layout.fillWidth: true }
+
+                StyledText {
+                    text: "Total: " + NetworkUsage.totalRxString
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    color: Appearance.colors.colSubtext
                 }
             }
 
-            // Tx Activity Meter
-            ColumnLayout {
+            // Tx Activity Readout & Cumulative Session Total
+            RowLayout {
                 Layout.fillWidth: true
-                spacing: 3
+                spacing: 6
 
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: 4
-
-                    MaterialSymbol {
-                        text: "arrow_upward"
-                        iconSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSecondary !== undefined ? Appearance.colors.colSecondary : Appearance.colors.colPrimary
-                    }
-
-                    StyledText {
-                        text: "Tx Rate: " + NetworkUsage.txRateString
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colOnSurface
-                    }
-
-                    Item { Layout.fillWidth: true }
-
-                    StyledText {
-                        text: "Total: " + NetworkUsage.totalTxString
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
-                    }
+                MaterialSymbol {
+                    text: "arrow_upward"
+                    iconSize: Appearance.font.pixelSize.small
+                    color: Appearance.colors.colSecondary !== undefined ? Appearance.colors.colSecondary : Appearance.colors.colPrimary
                 }
 
-                StyledProgressBar {
-                    Layout.fillWidth: true
-                    value: Math.min(1.0, NetworkUsage.txBytesPerSec / (10 * 1024 * 1024))
-                    highlightColor: Appearance.colors.colSecondary !== undefined ? Appearance.colors.colSecondary : Appearance.colors.colPrimary
+                StyledText {
+                    text: "Tx Rate: " + NetworkUsage.txRateString
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    font.weight: Font.Medium
+                    color: Appearance.colors.colOnSurface
+                }
+
+                Item { Layout.fillWidth: true }
+
+                StyledText {
+                    text: "Total: " + NetworkUsage.totalTxString
+                    font.pixelSize: Appearance.font.pixelSize.small
+                    color: Appearance.colors.colSubtext
                 }
             }
 
