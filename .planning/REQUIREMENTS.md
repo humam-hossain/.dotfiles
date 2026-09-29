@@ -44,9 +44,9 @@ Scoped requirements for Milestone v0.9 (Top Status Bar Resource Components & Har
 
 ### Shell Integration & Repository Integrity
 
-- [ ] **INTG-01**: Three standalone `BarGroup` pills integrated into `BarContent.qml` Left zone alongside `LeftSidebarButton` and `UtilButtons` with responsive `useShortenedForm` support.
-- [ ] **INTG-02**: Deployed via GNU Stow leaf symlinks under `restow/quickshell/` without folding parent directories, maintaining `vendor/dots-hyprland` pristine and passing `arch/dots-hyprland.sh verify --strict`.
-- [ ] **INTG-03**: Automated regression assertion suite (`scripts/phase46-telemetry-assert.sh`) verifying sensor polling, daemon bridge, multi-mount discovery, and zero working tree drift.
+- [x] **INTG-01**: Three standalone `BarGroup` pills integrated into `BarContent.qml` Left zone alongside `LeftSidebarButton` and `UtilButtons` with responsive `useShortenedForm` support.
+- [x] **INTG-02**: Deployed via GNU Stow leaf symlinks under `restow/quickshell/` without folding parent directories, maintaining `vendor/dots-hyprland` pristine and passing `arch/dots-hyprland.sh verify --strict`.
+- [x] **INTG-03**: Automated regression assertion suite (`scripts/phase46-telemetry-assert.sh`) verifying sensor polling, daemon bridge, multi-mount discovery, and zero working tree drift.
 
 ## Future Requirements
 
@@ -95,6 +95,6 @@ Which phases cover which requirements. Updated during roadmap creation.
 | NETPING-03 | Phase 45 | Complete |
 | NETPING-04 | Phase 45 | Complete |
 | NETPING-05 | Phase 45 | Complete |
-| INTG-01 | Phase 46 | Pending |
-| INTG-02 | Phase 46 | Pending |
-| INTG-03 | Phase 46 | Pending |
+| INTG-01 | Phase 46 | Complete |
+| INTG-02 | Phase 46 | Complete |
+| INTG-03 | Phase 46 | Complete |
