@@ -43,89 +43,10 @@ BarGroup {
         }
     }
 
-    // --- RAM Section (Circular progress indicator + MaterialSymbol) ---
-    ClippedFilledCircularProgress {
-        id: ramCircProg
-        Layout.alignment: Qt.AlignVCenter
-        lineWidth: Appearance.rounding.unsharpen
-        value: Math.max(0.0, Math.min(1.0, ResourceUsage.memoryUsedPercentage || 0.0))
-        implicitSize: 20
-        colPrimary: root.ramColor
-        accountForLightBleeding: !root.ramCritical && !root.ramWarning
-        enableAnimation: false
-
-        Item {
-            anchors.centerIn: parent
-            width: ramCircProg.implicitSize
-            height: ramCircProg.implicitSize
-
-            MaterialSymbol {
-                id: ramIcon
-                anchors.centerIn: parent
-                text: "memory"
-                iconSize: Appearance.font.pixelSize.normal
-                color: root.ramColor
-
-                Behavior on color {
-                    ColorAnimation {
-                        duration: 200
-                        easing.type: Easing.BezierSpline
-                        easing.bezierCurve: Appearance.animationCurves.expressiveEffects
-                    }
-                }
-
-                // Breathing pulse animation on critical red (D-04)
-                SequentialAnimation {
-                    id: ramPulseAnimation
-                    running: root.ramCritical
-                    loops: Animation.Infinite
-                    onRunningChanged: {
-                        if (!running) {
-                            ramIcon.opacity = 1.0;
-                            ramCircProg.opacity = 1.0;
-                            ramText.opacity = 1.0;
-                        }
-                    }
-                    ParallelAnimation {
-                        NumberAnimation { target: ramIcon; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
-                        NumberAnimation { target: ramCircProg; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
-                        NumberAnimation { target: ramText; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
-                    }
-                    ParallelAnimation {
-                        NumberAnimation { target: ramIcon; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
-                        NumberAnimation { target: ramCircProg; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
-                        NumberAnimation { target: ramText; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
-                    }
-                }
-            }
-        }
-    }
-
-    StyledText {
-        id: ramText
-        Layout.alignment: Qt.AlignVCenter
-        text: {
-            const freeGb = ((ResourceUsage.memoryAvailable > 0 ? ResourceUsage.memoryAvailable : ResourceUsage.memoryFree) / (1024 * 1024)).toFixed(1);
-            const totalGb = (ResourceUsage.memoryTotal / (1024 * 1024)).toFixed(0);
-            return `${freeGb} / ${totalGb} GB`;
-        }
-        font.pixelSize: Appearance.font.pixelSize.small
-        color: root.ramColor
-
-        Behavior on color {
-            ColorAnimation {
-                duration: 200
-                easing.type: Easing.BezierSpline
-                easing.bezierCurve: Appearance.animationCurves.expressiveEffects
-            }
-        }
-    }
-
     // --- Storage Section (Circular progress indicator + storage icon) ---
     ClippedFilledCircularProgress {
         id: storageCircProg
         Layout.alignment: Qt.AlignVCenter
-        Layout.leftMargin: root.vertical ? 0 : 6 // Visual cluster separation per D-02
         lineWidth: Appearance.rounding.unsharpen
         value: Math.max(0.0, Math.min(1.0, (StorageUsage.rootDisk?.usePercent ?? 0) / 100.0))
         implicitSize: 20
@@ -190,6 +111,85 @@ BarGroup {
         }
         font.pixelSize: Appearance.font.pixelSize.small
         color: root.storageColor
+
+        Behavior on color {
+            ColorAnimation {
+                duration: 200
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: Appearance.animationCurves.expressiveEffects
+            }
+        }
+    }
+
+    // --- RAM Section (Circular progress indicator + MaterialSymbol) ---
+    ClippedFilledCircularProgress {
+        id: ramCircProg
+        Layout.alignment: Qt.AlignVCenter
+        Layout.leftMargin: root.vertical ? 0 : 6 // Visual cluster separation per D-02
+        lineWidth: Appearance.rounding.unsharpen
+        value: Math.max(0.0, Math.min(1.0, ResourceUsage.memoryUsedPercentage || 0.0))
+        implicitSize: 20
+        colPrimary: root.ramColor
+        accountForLightBleeding: !root.ramCritical && !root.ramWarning
+        enableAnimation: false
+
+        Item {
+            anchors.centerIn: parent
+            width: ramCircProg.implicitSize
+            height: ramCircProg.implicitSize
+
+            MaterialSymbol {
+                id: ramIcon
+                anchors.centerIn: parent
+                text: "memory"
+                iconSize: Appearance.font.pixelSize.normal
+                color: root.ramColor
+
+                Behavior on color {
+                    ColorAnimation {
+                        duration: 200
+                        easing.type: Easing.BezierSpline
+                        easing.bezierCurve: Appearance.animationCurves.expressiveEffects
+                    }
+                }
+
+                // Breathing pulse animation on critical red (D-04)
+                SequentialAnimation {
+                    id: ramPulseAnimation
+                    running: root.ramCritical
+                    loops: Animation.Infinite
+                    onRunningChanged: {
+                        if (!running) {
+                            ramIcon.opacity = 1.0;
+                            ramCircProg.opacity = 1.0;
+                            ramText.opacity = 1.0;
+                        }
+                    }
+                    ParallelAnimation {
+                        NumberAnimation { target: ramIcon; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { target: ramCircProg; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { target: ramText; property: "opacity"; to: 0.4; duration: 600; easing.type: Easing.InOutSine }
+                    }
+                    ParallelAnimation {
+                        NumberAnimation { target: ramIcon; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { target: ramCircProg; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+                        NumberAnimation { target: ramText; property: "opacity"; to: 1.0; duration: 600; easing.type: Easing.InOutSine }
+                    }
+                }
+            }
+        }
+    }
+
+    StyledText {
+        id: ramText
+        Layout.alignment: Qt.AlignVCenter
+        text: {
+            const freeGb = ((ResourceUsage.memoryAvailable > 0 ? ResourceUsage.memoryAvailable : ResourceUsage.memoryFree) / (1024 * 1024)).toFixed(1);
+            const totalGb = (ResourceUsage.memoryTotal / (1024 * 1024)).toFixed(0);
+            return `${freeGb} / ${totalGb} GB`;
+        }
+        font.pixelSize: Appearance.font.pixelSize.small
+        color: root.ramColor
 
         Behavior on color {
             ColorAnimation {

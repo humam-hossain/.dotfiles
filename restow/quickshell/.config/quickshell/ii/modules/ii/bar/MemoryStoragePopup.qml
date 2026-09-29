@@ -168,7 +168,105 @@ StyledPopup {
         }
 
         // =====================================================================
-        // Left Column (320px): Memory Card (RAM Allocation + Tiers)
+        // Left Column (320px): Storage Card (Throughput + Drives) (D-03)
+        // =====================================================================
+        ColumnLayout {
+            Layout.preferredWidth: 320
+            spacing: 8
+
+            // Header Row with Live Throughput Badge (D-14, D-16)
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 6
+
+                StyledPopupHeaderRow {
+                    icon: "storage"
+                    label: "Storage"
+                }
+
+                Item { Layout.fillWidth: true }
+
+                RowLayout {
+                    spacing: 4
+
+                    MaterialSymbol {
+                        text: "arrow_downward"
+                        iconSize: Appearance.font.pixelSize.smaller
+                        color: Appearance.colors.colSubtext
+                    }
+
+                    StyledText {
+                        text: root.formatThroughput(StorageUsage.readBytesPerSec)
+                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        color: Appearance.colors.colSubtext
+                    }
+
+                    MaterialSymbol {
+                        text: "arrow_upward"
+                        iconSize: Appearance.font.pixelSize.smaller
+                        color: Appearance.colors.colSubtext
+                    }
+
+                    StyledText {
+                        text: root.formatThroughput(StorageUsage.writeBytesPerSec)
+                        font.pixelSize: Appearance.font.pixelSize.smaller
+                        color: Appearance.colors.colSubtext
+                    }
+                }
+            }
+
+            // Sub-section: Physical Drives (D-10)
+            StyledText {
+                text: "Physical Drives"
+                font.pixelSize: Appearance.font.pixelSize.smaller
+                font.weight: Font.Medium
+                color: Appearance.colors.colOnSurfaceVariant
+            }
+
+            Repeater {
+                model: StorageUsage.physicalDisks
+                delegate: StorageDriveRow {}
+            }
+
+            // Sub-section: Cloud Mounts (Google Drive) (D-10, D-11)
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 8
+                visible: StorageUsage.cloudDisks && StorageUsage.cloudDisks.length > 0
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    implicitHeight: 1
+                    color: Appearance.colors.colLayer0Border
+                }
+
+                StyledText {
+                    text: "Cloud Mounts (Google Drive)"
+                    font.pixelSize: Appearance.font.pixelSize.smaller
+                    font.weight: Font.Medium
+                    color: Appearance.colors.colOnSurfaceVariant
+                }
+
+                Repeater {
+                    model: StorageUsage.cloudDisks
+                    delegate: StorageDriveRow {}
+                }
+            }
+
+            Item { Layout.fillHeight: true }
+        }
+
+        // =====================================================================
+        // Center Vertical Separator
+        // =====================================================================
+        Rectangle {
+            Layout.fillHeight: true
+            implicitWidth: 1
+            color: Appearance.colors.colLayer0Border
+        }
+
+        // =====================================================================
+        // Right Column (320px): Memory Card (RAM Allocation + Tiers) (D-03)
         // =====================================================================
         ColumnLayout {
             Layout.preferredWidth: 320
@@ -320,104 +418,6 @@ StyledPopup {
                 value: `${root.formatKB(ResourceUsage.swapUsed)} / ${root.formatKB(ResourceUsage.swapTotal)} (${Math.round((ResourceUsage.swapUsedPercentage || 0.0) * 100)}%)`
                 valueColor: root.getLoadColor(ResourceUsage.swapUsedPercentage || 0.0)
                 isAlert: (ResourceUsage.swapUsedPercentage || 0.0) >= 0.70
-            }
-
-            Item { Layout.fillHeight: true }
-        }
-
-        // =====================================================================
-        // Center Vertical Separator
-        // =====================================================================
-        Rectangle {
-            Layout.fillHeight: true
-            implicitWidth: 1
-            color: Appearance.colors.colLayer0Border
-        }
-
-        // =====================================================================
-        // Right Column (320px): Storage Card (Throughput + Drives)
-        // =====================================================================
-        ColumnLayout {
-            Layout.preferredWidth: 320
-            spacing: 8
-
-            // Header Row with Live Throughput Badge (D-14, D-16)
-            RowLayout {
-                Layout.fillWidth: true
-                spacing: 6
-
-                StyledPopupHeaderRow {
-                    icon: "storage"
-                    label: "Storage"
-                }
-
-                Item { Layout.fillWidth: true }
-
-                RowLayout {
-                    spacing: 4
-
-                    MaterialSymbol {
-                        text: "arrow_downward"
-                        iconSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
-                    }
-
-                    StyledText {
-                        text: root.formatThroughput(StorageUsage.readBytesPerSec)
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
-                    }
-
-                    MaterialSymbol {
-                        text: "arrow_upward"
-                        iconSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
-                    }
-
-                    StyledText {
-                        text: root.formatThroughput(StorageUsage.writeBytesPerSec)
-                        font.pixelSize: Appearance.font.pixelSize.smaller
-                        color: Appearance.colors.colSubtext
-                    }
-                }
-            }
-
-            // Sub-section: Physical Drives (D-10)
-            StyledText {
-                text: "Physical Drives"
-                font.pixelSize: Appearance.font.pixelSize.smaller
-                font.weight: Font.Medium
-                color: Appearance.colors.colOnSurfaceVariant
-            }
-
-            Repeater {
-                model: StorageUsage.physicalDisks
-                delegate: StorageDriveRow {}
-            }
-
-            // Sub-section: Cloud Mounts (Google Drive) (D-10, D-11)
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: 8
-                visible: StorageUsage.cloudDisks && StorageUsage.cloudDisks.length > 0
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    implicitHeight: 1
-                    color: Appearance.colors.colLayer0Border
-                }
-
-                StyledText {
-                    text: "Cloud Mounts (Google Drive)"
-                    font.pixelSize: Appearance.font.pixelSize.smaller
-                    font.weight: Font.Medium
-                    color: Appearance.colors.colOnSurfaceVariant
-                }
-
-                Repeater {
-                    model: StorageUsage.cloudDisks
-                    delegate: StorageDriveRow {}
-                }
             }
 
             Item { Layout.fillHeight: true }
