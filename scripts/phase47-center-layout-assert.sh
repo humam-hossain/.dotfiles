@@ -385,15 +385,40 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
   done
 fi
 
+# ===========================================================================
+# Section 5: Sub-Harness Orchestration & Strict Repository Verification
+# ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
-  info "--- Section 5: Stub ---"
-  pass "S5: Stub passed"
+  info "--- Section 5: Sub-Harness Orchestration & Strict Repository Verification ---"
+
+  if [[ "$QUICK_MODE" -eq 1 ]]; then
+    info "S5: Quick mode enabled. Skipping sub-harness delegation and repo verify."
+  else
+    if bash scripts/phase46-telemetry-assert.sh --quick; then
+      pass "S5: Sub-harness phase46-telemetry-assert.sh --quick passed"
+    else
+      fail "S5: Sub-harness phase46-telemetry-assert.sh --quick failed"
+    fi
+
+    if ./arch/dots-hyprland.sh verify --strict; then
+      pass "S5: Repository strict verification passed (dots-hyprland.sh)"
+    else
+      fail "S5: Repository strict verification failed (dots-hyprland.sh)"
+    fi
+  fi
 fi
 
 # Git porcelain check for working tree drift
 PORCELAIN_AFTER="$(mktemp "${TMPDIR:-/tmp}/p47-porcelain-after.XXXXXX")"
 TMP_FILES+=("$PORCELAIN_AFTER")
 git status --porcelain > "$PORCELAIN_AFTER"
+
+if diff -u "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" >/dev/null; then
+  pass "S5: Zero working tree drift during assert execution (porcelain unchanged)"
+else
+  fail "S5: Working tree drifted during assert execution"
+  diff -u "$PORCELAIN_BEFORE" "$PORCELAIN_AFTER" || true
+fi
 
 # ===========================================================================
 # Final Summary
