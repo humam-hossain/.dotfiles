@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v0.8 Notification Experience & Shell Interaction Polish** — Phases 38–41 (shipped 2026-09-25) — [Archive](milestones/v0.8-ROADMAP.md)
-- 📋 **v0.9 Top Status Bar Resource Components & Hardware Telemetry** — Phases 42–46 (completed 2026-09-29)
+- 📋 **v0.9 Top Status Bar Resource Components & Hardware Telemetry** — Phases 42–47 (in progress)
 
 ## Phases
 
@@ -20,7 +20,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 
 </details>
 
-### 📋 v0.9 Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
+### 📋 v0.9 Top Status Bar Resource Components & Hardware Telemetry (Phases 42–47)
 
 - [x] **Phase 42: Telemetry Services & Sensor Infrastructure** (4 plans) (completed 2026-09-25)
 - [x] **Phase 43: CPU & GPU Component (Pill & Popup)** (4 plans) (completed 2026-09-26)
@@ -33,6 +33,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 - [x] **Phase 44: Memory & Storage Component (Pill & Popup)** (3 plans) (completed 2026-09-28)
 - [x] **Phase 45: Network & Multi-Target Ping Component (Pill & Popup)** (3 plans) (completed 2026-09-29)
 - [x] **Phase 46: Left-Zone Integration, Verification & Repository Integrity** (2 plans) (completed 2026-09-29)
+- [ ] **Phase 47: Center-Zone Layout Reorganization** (0 plans)
 
 ## Phase Details
 
@@ -270,6 +271,25 @@ Success criteria:
 3. All files deployed via GNU Stow leaf symlinks under `restow/quickshell/` without folding parent directories, maintaining `vendor/dots-hyprland` pristine.
 4. Consolidated assertion harness (`scripts/phase46-telemetry-assert.sh`) verifies all sensor parsers, daemon bridge, multi-mount discovery, and `arch/dots-hyprland.sh verify --strict` passes with `FAIL=0 FINDINGS=0`.
 
+### Phase 47: Center-Zone Layout Reorganization
+
+**Goal**: Reorganize the Center Zone in `BarContent.qml` to swap Clock/Date and Weather positions around Workspaces: placing Clock/Date to the left, keeping Workspaces dead-centered, and placing Weather to the right.  
+**Depends on**: Phase 46  
+**Requirements**: CNTR-01, CNTR-02, CNTR-03  
+**Plans:** 0 plans
+
+Success criteria:
+
+1. Clock & Date widget (`ClockWidget` in left center group) is relocated from the right of the middle section to the left of Workspaces (`middleCenterGroup.left`), retaining its click behavior to toggle `GlobalStates.sidebarRightOpen` and responsive date hiding (`showDate` under shortened widths).
+2. Workspaces widget (`middleCenterGroup`) remains dead-centered on the display bar (`anchors.horizontalCenter: parent.horizontalCenter`) with uniform 4px spacing on both sides.
+3. Weather bar (`WeatherBar` in `weatherGroup`) is relocated from the left of Workspaces to the right of Workspaces (`anchors.left: middleCenterGroup.right`), honoring `Config.options.bar.weather.enable`.
+4. `middleSection` wrapper boundary anchors (`middleSection.left` and `middleSection.right`) update cleanly to span between the leftmost center element and the rightmost center element without overlapping or clipping adjacent Left or Right bar zones.
+5. Verification via `arch/dots-hyprland.sh verify --strict` passes with zero git churn in `vendor/dots-hyprland`.
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 47 to break down)
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -290,3 +310,4 @@ Success criteria:
 | 44. Memory & Storage Component (Pill & Popup) | v0.9 | 3/3 | Complete    | 2026-09-28 |
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 3/3 | Complete    | 2026-09-29 |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 2/2 | Complete    | 2026-09-29 |
+| 47. Center-Zone Layout Reorganization | v0.9 | 0/0 | Not Started | - |

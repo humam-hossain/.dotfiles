@@ -1,38 +1,38 @@
 ---
 gsd_state_version: "1.0"
 milestone: v0.9
-milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–46)
-current_phase: 46
-status: completed
-stopped_at: Phase 46 complete — all phases complete
-last_updated: "2026-09-29T11:06:33.771Z"
+milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–47)
+current_phase: 47
+status: ready_to_plan
+stopped_at: "Phase 47 added: Center-Zone Layout Reorganization"
+last_updated: "2026-09-29T11:18:00.000Z"
 last_activity: 2026-09-29
-last_activity_desc: Phase 46 complete
+last_activity_desc: "Phase 47 added: Center-Zone Layout Reorganization"
 state_head: 576f653c39a2db935c84c63719eaea09137b6a17
 progress:
-  total_phases: 11
+  total_phases: 12
   completed_phases: 11
   total_plans: 33
   completed_plans: 33
-  percent: 100
+  percent: 91
 ---
 
-Total Phases: 11 (Phases 42–46 + 43.1–43.6)
-Progress: [██████████] 11/11 phases ([██████████] 100%)
+Total Phases: 12 (Phases 42–47 + 43.1–43.6)
+Progress: [█████████░] 11/12 phases ([█████████░] 91%)
 
 # Project State
 
 ## Current Position
 
-Phase: 46
-Plan: Complete
-Status: All phases complete — Milestone v0.9 ready to archive
-Last activity: 2026-09-29 — Phase 46 complete
+Phase: 47 (Center-Zone Layout Reorganization)
+Plan: Ready to plan
+Status: Ready to plan
+Last activity: 2026-09-29 — Phase 47 added: Center-Zone Layout Reorganization
 
 ## Session
 
-**Last session:** 2026-09-29T17:08:00.000Z
-**Stopped at:** Phase 46 complete — all phases complete in Milestone v0.9
+**Last session:** 2026-09-29T17:18:00.000Z
+**Stopped at:** Phase 47 added: Center-Zone Layout Reorganization
 **Resume file:** None
 
 ## Project Reference
@@ -40,7 +40,7 @@ Last activity: 2026-09-29 — Phase 46 complete
 See: .planning/PROJECT.md (updated 2026-09-29 after Phase 46)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Milestone v0.9 Complete — ready for /gsd-complete-milestone v0.9
+**Current focus:** Phase 47: Center-Zone Layout Reorganization
 
 ## Deferred Items
 
@@ -151,10 +151,11 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - Phase 43.1 inserted after Phase 43: Quickshell Performance Profiling and Resource Optimization (URGENT)
 - Phase 43.5 inserted after Phase 43.4: CPU/GPU Dynamic Telemetry, Top Process Attribution Tree & Hover Delay Ergonomics (URGENT)
 - Phase 43.6 inserted after Phase 43.5: Remove Top Processes & Streamline CpuGpuPopup Layout (URGENT)
+- Phase 47 added: Center-Zone Layout Reorganization (swap Clock/Date to left of Workspaces and Weather to right of Workspaces)
 
 ## Operator Next Steps
 
-- Start the next milestone with /gsd-new-milestone
+- Run `/gsd-plan-phase 47` to break down and plan Phase 47
 
 ## Performance Metrics
 
