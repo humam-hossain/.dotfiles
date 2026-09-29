@@ -101,14 +101,20 @@ Item { // Bar content region
                 colBackground: barLeftSideMouseArea.hovered ? Appearance.colors.colLayer1Hover : ColorUtils.transparentize(Appearance.colors.colLayer1Hover, 1)
             }
 
+            MemoryStoragePill {
+                id: memoryStoragePill
+                Layout.alignment: Qt.AlignVCenter
+                useShortenedForm: root.useShortenedForm
+            }
+
             CpuGpuPill {
                 id: cpuGpuPill
                 Layout.alignment: Qt.AlignVCenter
                 useShortenedForm: root.useShortenedForm
             }
 
-            MemoryStoragePill {
-                id: memoryStoragePill
+            NetworkPingPill {
+                id: networkPingPill
                 Layout.alignment: Qt.AlignVCenter
                 useShortenedForm: root.useShortenedForm
             }
