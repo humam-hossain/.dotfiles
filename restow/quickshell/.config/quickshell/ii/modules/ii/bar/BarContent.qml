@@ -232,6 +232,7 @@ Item { // Bar content region
 
                 sourceComponent: BarGroup {
                     Media {
+                        useShortenedForm: root.useShortenedForm
                         visible: root.useShortenedForm < 2
                         Layout.fillWidth: true
                         Layout.maximumWidth: (root.useShortenedForm === 1)

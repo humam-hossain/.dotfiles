@@ -12,6 +12,7 @@ import Quickshell.Hyprland
 Item {
     id: root
     property bool borderless: Config.options.bar.borderless
+    property real useShortenedForm: 0
     readonly property MprisPlayer activePlayer: MprisController.activePlayer
     readonly property string cleanedTitle: StringUtils.cleanMusicTitle(activePlayer?.trackTitle) || Translation.tr("No media")
 
@@ -73,24 +74,28 @@ Item {
         }
 
         StyledText {
-            id: mediaTrackInfoText
+            id: mediaTitleText
             visible: Config.options.bar.verbose
             Layout.alignment: Qt.AlignVCenter
-            Layout.fillWidth: true // Ensures the text takes up available space
-            Layout.rightMargin: rowLayout.spacing
+            Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
-            elide: Text.ElideRight // Truncates the text on the right
+            elide: Text.ElideRight
             color: Appearance.colors.colOnLayer1
-            textFormat: Text.StyledText
-            text: {
-                const escapedTitle = StringUtils.escapeHtml(cleanedTitle);
-                const artist = activePlayer?.trackArtist;
-                if (!artist) {
-                    return `<span style="color: ${Appearance.colors.colOnLayer1};">${escapedTitle}</span>`;
-                }
-                const escapedArtist = StringUtils.escapeHtml(artist);
-                return `<span style="color: ${Appearance.colors.colOnLayer1};">${escapedTitle}</span><span style="color: ${Appearance.colors.colSubtext};"> • ${escapedArtist}</span>`;
-            }
+            textFormat: Text.PlainText
+            text: cleanedTitle
+        }
+
+        StyledText {
+            id: mediaArtistText
+            visible: Config.options.bar.verbose && (root.useShortenedForm === 0) && Boolean(activePlayer?.trackArtist)
+            Layout.alignment: Qt.AlignVCenter
+            Layout.fillWidth: false
+            Layout.maximumWidth: Math.floor(root.width * 0.45)
+            Layout.rightMargin: rowLayout.spacing
+            elide: Text.ElideRight
+            color: Appearance.colors.colSubtext
+            textFormat: Text.PlainText
+            text: ` • ${activePlayer?.trackArtist ?? ""}`
         }
 
     }
