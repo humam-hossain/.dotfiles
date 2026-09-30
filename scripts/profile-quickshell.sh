@@ -84,6 +84,19 @@ STAGES=(
   "full_active_popup|Full Shell (Active UI)|restow|active_popup|Complete production overlay with inspector open"
 )
 
+# Declarative Interactive Popup Stages Registry (AUDIT-02)
+# Schema: STAGE_ID | METHOD | TARGET/COORD_X | COORD_Y | EXPECTED_LAYER | DESCRIPTION
+POPUP_STAGES=(
+  "popup_cpugpu|hover|100|10|quickshell:popup|CPU/GPU Inspector popup"
+  "popup_memstorage|hover|40|10|quickshell:popup|Memory/Storage Breakdown popup"
+  "popup_netping|hover|160|10|quickshell:popup|Network/Multi-Target Ping popup"
+  "popup_clock|hover|800|10|quickshell:popup|Clock & Calendar popup"
+  "popup_weather|hover|900|10|quickshell:popup|Weather extended forecast popup"
+  "popup_mediacontrols|ipc|mediaControls|open|quickshell:mediaControls|MediaControls overlay"
+  "popup_sidebarleft|ipc|sidebarLeft|open|quickshell:sidebarLeft|Left Dashboard sidebar"
+  "popup_sidebarright|ipc|sidebarRight|open|quickshell:sidebarRight|Right Control sidebar"
+)
+
 list_stages() {
   header "Quickshell Profiling Staging Registry"
   printf "${CLR_BOLD}%-22s | %-24s | %-12s | %-14s | %s${CLR_RESET}\n" "Stage ID" "Stage Name" "Isolation" "UI Mode" "Description"
@@ -92,6 +105,15 @@ list_stages() {
   for entry in "${STAGES[@]}"; do
     IFS='|' read -r id name iso ui desc <<< "$entry"
     printf "%-22s | %-24s | %-12s | %-14s | %s\n" "$id" "$name" "$iso" "$ui" "$desc"
+  done
+  printf "\n${CLR_BOLD}%-22s | %-8s | %-16s | %-26s | %s${CLR_RESET}\n" "Popup Stage ID" "Method" "Target / Coords" "Layer Namespace" "Description"
+  printf "%s\n" "---------------------------------------------------------------------------------------------------------------------"
+  for entry in "${POPUP_STAGES[@]}"; do
+    local pid pmethod ptx pty player pdesc
+    IFS='|' read -r pid pmethod ptx pty player pdesc <<< "$entry"
+    local ptarget="$ptx"
+    [[ "$pmethod" == "hover" ]] && ptarget="($ptx, $pty)"
+    printf "%-22s | %-8s | %-16s | %-26s | %s\n" "$pid" "$pmethod" "$ptarget" "$player" "$pdesc"
   done
 }
 
@@ -102,13 +124,14 @@ show_help() {
   cat << 'EOF'
 Usage: ./scripts/profile-quickshell.sh [OPTIONS]
 
-Quickshell Performance Profiling and Resource Optimization Harness (Phase 43.1)
+Quickshell Performance Profiling and Resource Optimization Harness (Phase 49)
 
 Options:
   -h, --help              Show this help message and exit
   --list-stages           List all registered staging phases in declarative registry
   --audit                 Run static QML timer and FileView hotspot analysis
   -q, --quick             Run fast smoke profiling (2s warmup, 5s duration per stage)
+  --popups                Execute complete interactive popup profiling suite (8 stages)
   -s, --stage <id>        Execute only a single specified stage ID from registry
   --warmup <sec>          Stabilization warm-up interval in seconds (default: 5, quick: 2)
   --duration <sec>        Measurement sampling duration in seconds (default: 30, quick: 5)
@@ -426,7 +449,72 @@ set_ui_state() {
       fi
       info ">> [MOUSE NOTICE] Pop-up active. Profiling window starting. Please do not touch the mouse."
       ;;
+    custom_active)
+      # Handled directly by navigate_and_sample_popup caller
+      ;;
   esac
+}
+
+navigate_and_sample_popup() {
+  local stage_id="$1"
+  local stage_name="$2"
+  local method="$3"      # "hover" or "ipc"
+  local target_x="$4"     # ydotool X coord or IPC target name
+  local target_y="$5"     # ydotool Y coord or IPC open method
+  local expected_layer="$6"
+
+  header "Interactive Popup Stage: $stage_name ($stage_id)"
+
+  if [[ "$method" == "hover" ]]; then
+    if command -v ydotool >/dev/null 2>&1 && [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
+      info ">> [MOUSE NOTICE] Moving cursor to ($target_x, $target_y) to activate popup..."
+      ydotool mousemove -a -x "$target_x" -y "$target_y" 2>/dev/null || true
+      sleep 0.5
+    else
+      info "ydotool or WAYLAND_DISPLAY unavailable; skipping hover navigation"
+    fi
+  elif [[ "$method" == "ipc" ]]; then
+    info "Triggering IPC call: qs -c ii ipc call $target_x $target_y"
+    local qs_bin=""
+    command -v qs >/dev/null 2>&1 && qs_bin="qs" || qs_bin="quickshell"
+    $qs_bin -c ii ipc call "$target_x" "$target_y" 2>/dev/null || true
+    sleep 0.5
+  fi
+
+  # Verify layer presence
+  if command -v hyprctl >/dev/null 2>&1 && hyprctl layers 2>/dev/null | grep -q "namespace: $expected_layer"; then
+    pass "Layer surface verified: $expected_layer"
+  else
+    warn "Layer surface $expected_layer not found in hyprctl layers output"
+  fi
+
+  # Call run_sample_window with custom_active UI mode
+  run_sample_window "$stage_id" "$stage_name" "custom_active"
+
+  # Cleanup / dismiss
+  if [[ "$method" == "hover" ]]; then
+    if command -v ydotool >/dev/null 2>&1 && [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
+      info ">> [MOUSE NOTICE] Moving cursor to neutral center (860, 360) to dismiss popup..."
+      ydotool mousemove -a -x 860 -y 360 2>/dev/null || true
+      sleep 0.4
+    fi
+  elif [[ "$method" == "ipc" ]]; then
+    info "Dismissing IPC overlay: qs -c ii ipc call $target_x close"
+    local qs_bin=""
+    command -v qs >/dev/null 2>&1 && qs_bin="qs" || qs_bin="quickshell"
+    $qs_bin -c ii ipc call "$target_x" "close" 2>/dev/null || true
+    sleep 0.4
+  fi
+}
+
+run_interactive_popup_audit() {
+  header "Running Interactive Popup Audit Suite (8 Stages)"
+  local entry id method tx ty layer desc
+  for entry in "${POPUP_STAGES[@]}"; do
+    IFS='|' read -r id method tx ty layer desc <<< "$entry"
+    navigate_and_sample_popup "$id" "$desc" "$method" "$tx" "$ty" "$layer"
+  done
+  generate_reports
 }
 
 # -----------------------------------------------------------------------------
@@ -629,6 +717,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --audit)
       ACTION_MODE="audit"
+      shift
+      ;;
+    --popups)
+      ACTION_MODE="popups"
       shift
       ;;
     -q|--quick)
@@ -1036,13 +1128,27 @@ with open(report_out, 'w') as f:
         f.write(f"| Open File Descriptors | {idle['open_fds']} | {popup['open_fds']} | +{cost.get('delta_open_fds', 0)} |\n")
     f.write('\n')
 
-    f.write('## 5. Hotspot & Syscall Driver Inventory\n\n')
+    f.write('## 5. Interactive Popup Attribution\n\n')
+    f.write('| Popup Stage ID | Popup Description | Method | CPU % (Avg) | CPU % (Peak) | RSS (MB) | Vol Ctxt/s | Syscr/s | iGPU % | iGPU MHz |\n')
+    f.write('|---|---|---|---|---|---|---|---|---|---|\n')
+    popup_keys = [
+        'popup_cpugpu', 'popup_memstorage', 'popup_netping', 'popup_clock',
+        'popup_weather', 'popup_mediacontrols', 'popup_sidebarleft', 'popup_sidebarright'
+    ]
+    for pkey in popup_keys:
+        if pkey in stages_dict:
+            ps = stages_dict[pkey]
+            method = 'ipc' if ('sidebar' in pkey or 'mediacontrols' in pkey) else 'hover'
+            f.write(f"| `{pkey}` | {ps['name']} | {method} | {ps['cpu_pct_avg']}% | {ps['cpu_pct_peak']}% | {ps['memory_rss_mb']} | {ps['voluntary_ctxt_rate']} | {ps['syscr_rate']} | {ps['gpu_busy_pct']}% | {ps['gpu_act_freq_mhz']} |\n")
+    f.write('\n')
+
+    f.write('## 6. Hotspot & Syscall Driver Inventory\n\n')
     f.write('Static analysis of QML components identifies key sources of syscall churn and thread wakeup:\n')
     f.write('- **ResourceUsage.qml (1ms anomaly):** The polling loop was configured with `interval: 1` instead of `interval: 1000`, causing ~1,000 wakeups per second checking `/proc/stat` and `/proc/meminfo`.\n')
     f.write('- **HardwareTelemetry.qml (31 FileViews):** Continuously samples 23 hwmon sensor inputs, cpufreq frequencies, and GPU sysfs stats every 3 seconds (accelerating to 1s when popups are active).\n')
     f.write('- **Voice STT (Voice.qml):** Polls 6 tmpfs FileViews every 500ms.\n\n')
 
-    f.write('## 6. Evidence-Based Optimization Roadmap (Phases 44–46)\n\n')
+    f.write('## 7. Evidence-Based Optimization Roadmap (Phases 44–46)\n\n')
     f.write('Based on the attribution matrix, the following actionable optimizations are recommended:\n')
     f.write('1. **Phase 44 (Memory & Storage Telemetry):**\n')
     f.write('   - Resolve the 1ms timer anomaly in `ResourceUsage.qml` by aligning interval to 1000ms.\n')
@@ -1075,7 +1181,28 @@ main() {
     exit 0
   fi
 
+  if [[ "$ACTION_MODE" == "popups" ]]; then
+    run_interactive_popup_audit
+    exit 0
+  fi
+
   if [[ -n "$SELECTED_STAGE" ]]; then
+    # Check if selected stage is one of the interactive popups
+    local matched_popup=0
+    for pentry in "${POPUP_STAGES[@]}"; do
+      local pid pmethod ptx pty player pdesc
+      IFS='|' read -r pid pmethod ptx pty player pdesc <<< "$pentry"
+      if [[ "$SELECTED_STAGE" == "$pid" ]]; then
+        navigate_and_sample_popup "$pid" "$pdesc" "$pmethod" "$ptx" "$pty" "$player"
+        matched_popup=1
+        break
+      fi
+    done
+    if [[ "$matched_popup" -eq 1 ]]; then
+      generate_reports
+      exit 0
+    fi
+
     case "$SELECTED_STAGE" in
       system_idle_no_qs)
         sample_system_idle_baseline
