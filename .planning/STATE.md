@@ -1,48 +1,49 @@
 ---
 gsd_state_version: "1.0"
 milestone: v0.9
-milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–48)
-current_phase: 48
+milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–49)
+current_phase: 49
+current_phase_name: quickshell-resource-profiling-component-performance-audit
 current_plan: Not started
-status: completed
-stopped_at: Phase 48 complete — all phases complete
-last_updated: "2026-09-30T07:49:51.042Z"
+status: in_progress
+stopped_at: Phase 49 added — ready for planning
+last_updated: "2026-09-30T09:12:18.568Z"
 last_activity: 2026-09-30
-last_activity_desc: Phase 48 complete
-state_head: 9de775c39a270173cf8dc9bb38b06737c522ce88
+last_activity_desc: Phase 49 added
+state_head: 7fa4dea1648a0388e49bd164edf09900868e8b57
 progress:
-  total_phases: 13
+  total_phases: 14
   completed_phases: 9
-  total_plans: 39
+  total_plans: 42
   completed_plans: 39
-  percent: 69
+  percent: 64
 ---
 
-Total Phases: 13 (Phases 42–48 + 43.1–43.6)
-Progress: [████████░░] 11/13 phases ([███████░░░] 69%)
+Total Phases: 14 (Phases 42–49 + 43.1–43.6)
+Progress: [████████░░] 11/14 phases ([██████░░░░] 64%)
 
 # Project State
 
 ## Current Position
 
-Phase: 48
+Phase: 49 (quickshell-resource-profiling-component-performance-audit) — READY TO EXECUTE
 Current Plan: Not started
 Total Plans in Phase: 3
-Status: All phases complete
-Last activity: 2026-09-30 — Phase 48 complete
+Status: Ready for planning
+Last activity: 2026-09-30 — Phase 49 added
 
 ## Session
 
-**Last session:** 2026-09-30T02:49:50.760Z
-**Stopped at:** Phase 48 complete — all phases complete
-**Resume file:** /home/pera/github_repo/.dotfiles/.planning/phases/48-right-zone-media-expansion-system-tray-empty-state-gating/48-CONTEXT.md
+**Last session:** 2026-09-30T08:35:00.000Z
+**Stopped at:** Phase 49 added — ready for planning
+**Resume file:** /home/pera/github_repo/.dotfiles/.planning/phases/49-quickshell-resource-profiling-component-performance-audit/
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-09-29 after Phase 46)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 48 — Right-Zone Media Expansion & System Tray Empty State Gating
+**Current focus:** Phase 49 — Quickshell Resource Profiling & Component Performance Audit
 
 ## Deferred Items
 
@@ -64,6 +65,7 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 
 ### Roadmap Evolution
 
+- Phase 49 added: Quickshell Resource Profiling & Component Performance Audit — comprehensive component-by-component and popup-by-popup resource measurement (GPU idle baseline <=10% vs 30-60%), upstream comparison, and targeted optimization.
 - Phase 48 added: Right-Zone Media Expansion & System Tray Empty State Gating — responsive screen-width media player sizing, track & artist metadata display, and empty system tray pill hiding.
 
 ### Decisions (carry-forward)

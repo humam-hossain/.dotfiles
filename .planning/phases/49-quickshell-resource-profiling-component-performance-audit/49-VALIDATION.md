@@ -38,11 +38,12 @@ created: "2026-09-30"
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 49-01-01 | 01 | 1 | AUDIT-01 | — | Safe harness execution without root privileges | unit | `test -x scripts/phase49-audit-assert.sh && bash -n scripts/phase49-audit-assert.sh` | ❌ W0 | ⬜ pending |
-| 49-01-02 | 01 | 1 | AUDIT-01 | — | Non-destructive telemetry sampling with media playback preflight check | integration | `bash scripts/phase49-audit-assert.sh -s 2` | ❌ W0 | ⬜ pending |
-| 49-02-01 | 02 | 1 | AUDIT-02 | — | Automated Wayland cursor navigation with zero hanging layers | integration | `bash scripts/phase49-audit-assert.sh -s 3` | ❌ W0 | ⬜ pending |
-| 49-03-01 | 03 | 1 | AUDIT-03 | — | Stable QML bindings, capped spectrum loops, and relaxed polling intervals | integration | `bash scripts/phase49-audit-assert.sh -s 4` | ❌ W0 | ⬜ pending |
-| 49-03-02 | 03 | 2 | AUDIT-03 | — | Zero GNU Stow symlink drift and repository strict compliance | regression | `bash scripts/phase49-audit-assert.sh -s 5 && ./arch/dots-hyprland.sh verify --strict` | ✅ | ⬜ pending |
+| 49-01-01 | 01 | 1 | AUDIT-01 | T-49-01 | Safe harness execution without root privileges | unit | `test -x scripts/phase49-audit-assert.sh && bash -n scripts/phase49-audit-assert.sh` | ❌ W0 | ⬜ pending |
+| 49-01-02 | 01 | 1 | AUDIT-01 | T-49-03 | Non-destructive telemetry sampling with media playback preflight check | integration | `bash scripts/phase49-audit-assert.sh -s 2` | ❌ W0 | ⬜ pending |
+| 49-02-01 | 02 | 2 | AUDIT-02 | T-49-06 | Calibrated Wayland 2x coordinate dispatch & stage registry validation | unit | `bash -n scripts/profile-quickshell.sh && ./scripts/profile-quickshell.sh --list-stages \| grep -q "popup_cpugpu"` | ✅ | ⬜ pending |
+| 49-02-02 | 02 | 2 | AUDIT-02 | T-49-05 | Full interactive popup execution & layer verification | integration | `bash scripts/phase49-audit-assert.sh -s 3` | ❌ W0 | ⬜ pending |
+| 49-03-01 | 03 | 3 | AUDIT-03 | T-49-09 | Stable QML bindings, capped spectrum loops, and relaxed polling intervals | integration | `bash scripts/phase49-audit-assert.sh -s 4` | ❌ W0 | ⬜ pending |
+| 49-03-02 | 03 | 3 | AUDIT-03 | T-49-12 | Zero GNU Stow symlink drift and repository strict compliance | regression | `bash scripts/phase49-audit-assert.sh -s 5 && ./arch/dots-hyprland.sh verify --strict` | ✅ | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 

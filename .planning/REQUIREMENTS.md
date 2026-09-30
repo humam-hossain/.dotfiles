@@ -56,9 +56,15 @@ Scoped requirements for Milestone v0.9 (Top Status Bar Resource Components & Har
 
 ### Right-Zone Media Expansion & System Tray Empty State Gating
 
-- [ ] **RGHT-01**: Media player pill dynamically calibrates length using responsive screen width equations: `Math.min(Math.max((root.screen?.width ?? 1920) * 0.12, 220), 450)` on full screens and `* 0.10` [140, 180] on shortened screens, hugging content via `implicitWidth` with 250ms M3 width animation.
-- [ ] **RGHT-02**: Complete track title and artist metadata rendered with visual hierarchy (primary `colOnLayer1` title, muted `colSubtext` artist, bullet separator, clean fallback when artist absent, right elision `Text.ElideRight` via `Text.StyledText`).
-- [ ] **RGHT-03**: System tray empty-state reactive gating (`visible: (root.useShortenedForm === 0) && ((SystemTray.items?.values?.length ?? 0) > 0)`) completely hides empty tray pill and reflows adjacent Right Zone modules with zero empty border artifacts.
+- [x] **RGHT-01**: Media player pill dynamically calibrates length using responsive screen width equations: `Math.min(Math.max((root.screen?.width ?? 1920) * 0.12, 220), 450)` on full screens and `* 0.10` [140, 180] on shortened screens, hugging content via `implicitWidth` with 250ms M3 width animation.
+- [x] **RGHT-02**: Complete track title and artist metadata rendered with visual hierarchy (primary `colOnLayer1` title, muted `colSubtext` artist, bullet separator, clean fallback when artist absent, right elision `Text.ElideRight` via `Text.StyledText`).
+- [x] **RGHT-03**: System tray empty-state reactive gating (`visible: (root.useShortenedForm === 0) && ((SystemTray.items?.values?.length ?? 0) > 0)`) completely hides empty tray pill and reflows adjacent Right Zone modules with zero empty border artifacts.
+
+### Quickshell Component Resource Profiling & Performance Audit
+
+- [ ] **AUDIT-01**: Baseline Resource Measurement — Empirical capture of system idle metrics without Quickshell (kill all QS processes, assert idle GPU <= 10%) and upstream default Quickshell baseline.
+- [ ] **AUDIT-02**: Component-by-Component & Interactive Popup Profiling — Incremental measurement of each status bar component and popup under idle and active hover/open states using cursor automation/control.
+- [ ] **AUDIT-03**: Targeted Optimization & Performance Audit Report — Identification and optimization of high-GPU/CPU components and comprehensive, human-readable comparative resource report.
 
 ## Future Requirements
 
@@ -116,3 +122,6 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RGHT-01 | Phase 48 | Complete |
 | RGHT-02 | Phase 48 | Complete |
 | RGHT-03 | Phase 48 | Complete |
+| AUDIT-01 | Phase 49 | In Progress |
+| AUDIT-02 | Phase 49 | In Progress |
+| AUDIT-03 | Phase 49 | In Progress |
