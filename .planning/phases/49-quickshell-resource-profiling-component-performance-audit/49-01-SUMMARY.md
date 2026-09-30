@@ -43,19 +43,19 @@ coverage:
   - deliverable: "Wave 0 Assertion Test Harness (scripts/phase49-audit-assert.sh)"
     verification:
       kind: "command"
-      ref: "bash scripts/phase49-audit-assert.sh -s 1"
+      ref: "scripts/phase49-audit-assert.sh"
       status: "pass"
     human_judgment: false
   - deliverable: "Media Pre-flight and Quickshell-free System Idle Baseline (AUDIT-01 Invariant 1)"
     verification:
       kind: "command"
-      ref: "bash scripts/phase49-audit-assert.sh -s 2"
+      ref: "scripts/phase49-audit-assert.sh"
       status: "pass"
     human_judgment: false
   - deliverable: "Pristine Upstream dots-hyprland Baseline Telemetry via Stow Isolation (AUDIT-01 Invariant 2)"
     verification:
       kind: "command"
-      ref: "bash scripts/phase49-audit-assert.sh -s 2"
+      ref: "scripts/phase49-audit-assert.sh"
       status: "pass"
     human_judgment: false
 ---
@@ -89,8 +89,8 @@ None - plan executed exactly as written.
 
 ## Verification Results
 
-- `bash scripts/phase49-audit-assert.sh -s 1`: PASSED (0 failures, 0 findings)
-- `bash scripts/phase49-audit-assert.sh -s 2`: PASSED (0 failures, 0 findings)
+- `scripts/phase49-audit-assert.sh`: Section 1 PASSED (0 failures, 0 findings)
+- `scripts/phase49-audit-assert.sh`: Section 2 PASSED (0 failures, 0 findings)
 - Invariants asserted:
   - System Idle GPU: 6.60% $\le 10.0\%$ (PASS)
   - Upstream CPU: 0.94% $\le 5.0\%$ (PASS)

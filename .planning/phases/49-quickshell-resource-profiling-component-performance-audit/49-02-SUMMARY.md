@@ -43,13 +43,13 @@ coverage:
   - deliverable: "Interactive Popup Profiling Engine (scripts/profile-quickshell.sh)"
     verification:
       kind: "command"
-      ref: "bash scripts/phase49-audit-assert.sh -s 1"
+      ref: "scripts/phase49-audit-assert.sh"
       status: "pass"
     human_judgment: false
   - deliverable: "Component & Popup Telemetry Coverage (AUDIT-02)"
     verification:
       kind: "command"
-      ref: "bash scripts/phase49-audit-assert.sh -s 3"
+      ref: "scripts/phase49-audit-assert.sh"
       status: "pass"
     human_judgment: false
 ---
@@ -89,9 +89,9 @@ None - plan executed exactly as written.
 
 ## Verification Results
 
-- `bash scripts/phase49-audit-assert.sh -s 1`: PASSED (0 failures, 0 findings)
-- `bash scripts/phase49-audit-assert.sh -s 2`: PASSED (0 failures, 0 findings)
-- `bash scripts/phase49-audit-assert.sh -s 3`: PASSED (0 failures, 0 findings)
+- `scripts/phase49-audit-assert.sh`: Section 1 PASSED (0 failures, 0 findings)
+- `scripts/phase49-audit-assert.sh`: Section 2 PASSED (0 failures, 0 findings)
+- `scripts/phase49-audit-assert.sh`: Section 3 PASSED (0 failures, 0 findings)
 - Invariants asserted:
   - All 8 required popup stages recorded in telemetry (PASS)
   - BENCHMARK.md contains Master Attribution Matrix and Interactive Popup Attribution (PASS)

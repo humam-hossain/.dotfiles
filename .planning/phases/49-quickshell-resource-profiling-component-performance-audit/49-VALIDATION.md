@@ -1,10 +1,11 @@
 ---
 phase: "49"
 slug: "quickshell-resource-profiling-component-performance-audit"
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: approved
+nyquist_compliant: true
+wave_0_complete: true
 created: "2026-09-30"
+updated: "2026-09-30"
 ---
 
 # Phase 49 — Validation Strategy
@@ -38,12 +39,12 @@ created: "2026-09-30"
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 49-01-01 | 01 | 1 | AUDIT-01 | T-49-01 | Safe harness execution without root privileges | unit | `test -x scripts/phase49-audit-assert.sh && bash -n scripts/phase49-audit-assert.sh` | ❌ W0 | ⬜ pending |
-| 49-01-02 | 01 | 1 | AUDIT-01 | T-49-03 | Non-destructive telemetry sampling with media playback preflight check | integration | `bash scripts/phase49-audit-assert.sh -s 2` | ❌ W0 | ⬜ pending |
-| 49-02-01 | 02 | 2 | AUDIT-02 | T-49-06 | Calibrated Wayland 2x coordinate dispatch & stage registry validation | unit | `bash -n scripts/profile-quickshell.sh && ./scripts/profile-quickshell.sh --list-stages \| grep -q "popup_cpugpu"` | ✅ | ⬜ pending |
-| 49-02-02 | 02 | 2 | AUDIT-02 | T-49-05 | Full interactive popup execution & layer verification | integration | `bash scripts/phase49-audit-assert.sh -s 3` | ❌ W0 | ⬜ pending |
-| 49-03-01 | 03 | 3 | AUDIT-03 | T-49-09 | Stable QML bindings, capped spectrum loops, and relaxed polling intervals | integration | `bash scripts/phase49-audit-assert.sh -s 4` | ❌ W0 | ⬜ pending |
-| 49-03-02 | 03 | 3 | AUDIT-03 | T-49-12 | Zero GNU Stow symlink drift and repository strict compliance | regression | `bash scripts/phase49-audit-assert.sh -s 5 && ./arch/dots-hyprland.sh verify --strict` | ✅ | ⬜ pending |
+| 49-01-01 | 01 | 1 | AUDIT-01 | T-49-01 | Safe harness execution without root privileges | unit | `test -x scripts/phase49-audit-assert.sh && bash -n scripts/phase49-audit-assert.sh` | ✅ | ✅ green |
+| 49-01-02 | 01 | 1 | AUDIT-01 | T-49-03 | Non-destructive telemetry sampling with media playback preflight check | integration | `bash scripts/phase49-audit-assert.sh -s 2` | ✅ | ✅ green |
+| 49-02-01 | 02 | 2 | AUDIT-02 | T-49-06 | Calibrated Wayland 2x coordinate dispatch & stage registry validation | unit | `bash -n scripts/profile-quickshell.sh && ./scripts/profile-quickshell.sh --list-stages \| grep -q "popup_cpugpu"` | ✅ | ✅ green |
+| 49-02-02 | 02 | 2 | AUDIT-02 | T-49-05 | Full interactive popup execution & layer verification | integration | `bash scripts/phase49-audit-assert.sh -s 3` | ✅ | ✅ green |
+| 49-03-01 | 03 | 3 | AUDIT-03 | T-49-09 | Stable QML bindings, capped spectrum loops, and relaxed polling intervals | integration | `bash scripts/phase49-audit-assert.sh -s 4` | ✅ | ✅ green |
+| 49-03-02 | 03 | 3 | AUDIT-03 | T-49-12 | Zero GNU Stow symlink drift and repository strict compliance | regression | `bash scripts/phase49-audit-assert.sh -s 5 && ./arch/dots-hyprland.sh verify --strict` | ✅ | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -51,8 +52,8 @@ created: "2026-09-30"
 
 ## Wave 0 Requirements
 
-- [ ] `scripts/phase49-audit-assert.sh` — assertion harness covering sections 1–5
-- [ ] Extension of `scripts/profile-quickshell.sh` — automated baseline capture, interactive popup suite, and JSON telemetry export
+- [x] `scripts/phase49-audit-assert.sh` — assertion harness covering sections 1–5
+- [x] Extension of `scripts/profile-quickshell.sh` — automated baseline capture, interactive popup suite, and JSON telemetry export
 
 ---
 
@@ -66,11 +67,11 @@ created: "2026-09-30"
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved (verified across all 5 sections with FAIL=0, FINDINGS=0)

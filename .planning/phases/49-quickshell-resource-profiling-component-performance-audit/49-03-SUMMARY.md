@@ -52,25 +52,25 @@ coverage:
   - deliverable: "MediaControls cava playback gating & frame-rate throttling"
     verification:
       kind: "command"
-      ref: "bash scripts/phase49-audit-assert.sh -s 4"
+      ref: "scripts/phase49-audit-assert.sh"
       status: "pass"
     human_judgment: false
   - deliverable: "NetworkPingPopup animation de-escalation & DNS model caching"
     verification:
       kind: "command"
-      ref: "bash scripts/phase49-audit-assert.sh -s 4"
+      ref: "scripts/phase49-audit-assert.sh"
       status: "pass"
     human_judgment: false
   - deliverable: "Voice and StorageUsage idle polling backoff"
     verification:
       kind: "command"
-      ref: "bash scripts/phase49-audit-assert.sh -s 4"
+      ref: "scripts/phase49-audit-assert.sh"
       status: "pass"
     human_judgment: false
   - deliverable: "Comparative Benchmark Report & Strict Repository Integrity (AUDIT-03)"
     verification:
       kind: "command"
-      ref: "bash scripts/phase49-audit-assert.sh && ./arch/dots-hyprland.sh verify --strict"
+      ref: "scripts/phase49-audit-assert.sh"
       status: "pass"
     human_judgment: false
 ---
@@ -99,7 +99,7 @@ Targeted optimizations across high-utilization components (`MediaControls.qml`, 
      - Section 7: Requirement Verification & Invariant Proof
 
 3. **Full Suite Verification & Repository Integrity**:
-   - Executed `bash scripts/phase49-audit-assert.sh` across all 5 sections: PASSED with `FAIL=0 FINDINGS=0`.
+   - Executed `scripts/phase49-audit-assert.sh` across all 5 sections: PASSED with `FAIL=0 FINDINGS=0`.
    - Executed `./arch/dots-hyprland.sh verify --strict`: PASSED with `FAIL=0 FINDINGS=0`, confirming zero Stow symlink drift, zero parent directory folding, and a pristine vendor submodule.
 
 ## Deviations from Plan
@@ -108,7 +108,7 @@ None - plan executed exactly as written.
 
 ## Verification Results
 
-- `bash scripts/phase49-audit-assert.sh`: PASSED (Sections 1–5 all green, 0 failures, 0 findings)
+- `scripts/phase49-audit-assert.sh`: PASSED (Sections 1–5 all green, 0 failures, 0 findings)
 - `./arch/dots-hyprland.sh verify --strict`: PASSED (0 failures, 0 findings)
 - Invariants asserted:
   - System Idle GPU: 6.60% $\le 10.0\%$ (PASS)
