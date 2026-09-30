@@ -1,0 +1,37 @@
+[Unit]
+Description=Rclone Mount for %i
+After=network-online.target
+Wants=network-online.target
+OnFailure=rclone-notify-failure@%i.service
+StartLimitIntervalSec=120s
+StartLimitBurst=3
+
+[Service]
+Type=notify
+ExecStartPre=/usr/bin/mkdir -p %h/GoogleDrive/%i
+ExecStart=/usr/bin/rclone mount %i: %h/GoogleDrive/%i \
+  --config=%h/.config/rclone/rclone.conf \
+  --vfs-cache-mode full \
+  --vfs-cache-max-size 10G \
+  --vfs-cache-max-age 24h \
+  --dir-cache-time 72h \
+  --poll-interval 15s \
+  --umask 022
+ExecStop=/usr/bin/fusermount3 -u %h/GoogleDrive/%i
+
+# Failure handling & circuit breaker
+Restart=on-failure
+RestartSec=15s
+
+# Resource clamping (prevent system freeze under any workload)
+Nice=19
+CPUSchedulingPolicy=batch
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+CPUQuota=50%
+MemoryHigh=512M
+MemoryMax=1G
+TasksMax=30
+
+[Install]
+WantedBy=default.target

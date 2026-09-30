@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+INPUT="${1:-unknown}"
+
+# Handle both "remote-name" and full "rclone@remote-name.service"
+if [[ "$INPUT" == *.service ]]; then
+    UNIT="$INPUT"
+    REMOTE=$(echo "$INPUT" | sed -E 's/^rclone@//; s/\.service$//')
+else
+    REMOTE="$INPUT"
+    UNIT="rclone@${REMOTE}.service"
+fi
+
+MOUNT_DIR="${HOME}/GoogleDrive/${REMOTE}"
+
+# Debounce/throttle duplicate notifications within 10 seconds (e.g. rapid systemd state changes)
+THROTTLE_FILE="/tmp/rclone-notify-${REMOTE}.last"
+NOW=$(date +%s)
+if [[ -f "$THROTTLE_FILE" ]]; then
+    LAST=$(cat "$THROTTLE_FILE" 2>/dev/null || echo 0)
+    if (( NOW - LAST < 10 )); then
+        exit 0
+    fi
+fi
+echo "$NOW" > "$THROTTLE_FILE"
+
+# Query systemd unit properties for the failure source and status
+UNIT_RESULT=$(systemctl --user show "$UNIT" -p Result --value 2>/dev/null || echo "failed")
+EXIT_CODE=$(systemctl --user show "$UNIT" -p ExecMainStatus --value 2>/dev/null || echo "unknown")
+EXIT_SIGNAL=$(systemctl --user show "$UNIT" -p ExecMainCode --value 2>/dev/null || echo "unknown")
+
+# Extract the raw journal logs for this unit
+RAW_LOGS=$(journalctl --user -u "$UNIT" -n 10 --no-pager --output=short 2>/dev/null || true)
+if [[ -z "$RAW_LOGS" ]]; then
+    RAW_LOGS="(No journal logs found for ${UNIT})"
+fi
+
+# Build notification content with source metadata and raw log
+TITLE="[FAILURE] ${UNIT}"
+BODY="Source: ${UNIT}
+Remote: ${REMOTE}:
+Mount: ${MOUNT_DIR}
+Status: Result=${UNIT_RESULT} (code=${EXIT_SIGNAL}, exit_status=${EXIT_CODE})
+
+--- Raw Journal Logs ---
+${RAW_LOGS}"
+
+if command -v notify-send >/dev/null 2>&1; then
+    notify-send \
+        --urgency=critical \
+        --icon=dialog-error \
+        --app-name="rclone" \
+        "$TITLE" \
+        "$BODY"
+fi
+
+logger -t rclone-notify-failure "Failure notification sent for ${UNIT} (Result: ${UNIT_RESULT}, Status: ${EXIT_CODE})"
+echo "[rclone-notify-failure] Dispatched raw log notification for ${UNIT}"

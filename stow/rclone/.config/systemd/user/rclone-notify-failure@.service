@@ -1,0 +1,9 @@
+[Unit]
+Description=Notify Rclone Mount Failure for %i
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/rclone-notify-failure %i
+StandardOutput=journal
+StandardError=journal

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "========================================="
+echo "  Restarting All Rclone Mounts"
+echo "========================================="
+
+# Get list of configured remotes (stripping trailing colon)
+REMOTES=$(rclone listremotes 2>/dev/null | tr -d ':' || true)
+
+if [[ -z "$REMOTES" ]]; then
+    echo "No remotes found in rclone configuration."
+    exit 1
+fi
+
+for remote in $REMOTES; do
+    echo -n "• Resetting & restarting rclone@${remote}... "
+    # Clear any previous start-limit / failed states
+    systemctl --user reset-failed "rclone@${remote}.service" 2>/dev/null || true
+    systemctl --user restart "rclone@${remote}.service"
+    echo "Done."
+done
+
+echo ""
+echo "Current Rclone Mount Status:"
+systemctl --user list-units 'rclone@*' --no-pager
