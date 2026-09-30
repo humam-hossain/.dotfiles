@@ -110,7 +110,7 @@ StyledPopup {
         SequentialAnimation {
             id: cardPulseAnimation
             running: card.isCritical
-            loops: Animation.Infinite
+            loops: 3
             onRunningChanged: {
                 if (!running) {
                     card.opacity = PingService.isOffline ? 0.6 : 1.0;
@@ -233,10 +233,22 @@ StyledPopup {
 
             // Comprehensive Interface Telemetry Card (D-06, D-11)
             Rectangle {
+                id: ifaceCard
                 Layout.fillWidth: true
                 radius: Appearance.rounding.small
                 color: Appearance.m3colors.m3surfaceContainerHigh
                 implicitHeight: cardContent.implicitHeight + 16
+
+                readonly property var cachedDnsServers: {
+                    const raw = NetworkUsage.dnsServers;
+                    if (!raw || raw === "--") return [{ label: "DNS Server", value: "--" }];
+                    const parts = raw.split(",").map(s => s.trim()).filter(s => s.length > 0);
+                    if (parts.length <= 1) return [{ label: "DNS Server", value: parts[0] || "--" }];
+                    return parts.map((dns, idx) => ({
+                        label: `DNS Server ${idx + 1}`,
+                        value: dns
+                    }));
+                }
 
                 ColumnLayout {
                     id: cardContent
@@ -266,16 +278,7 @@ StyledPopup {
                     }
 
                     Repeater {
-                        model: {
-                            const raw = NetworkUsage.dnsServers;
-                            if (!raw || raw === "--") return [{ label: "DNS Server", value: "--" }];
-                            const parts = raw.split(",").map(s => s.trim()).filter(s => s.length > 0);
-                            if (parts.length <= 1) return [{ label: "DNS Server", value: parts[0] || "--" }];
-                            return parts.map((dns, idx) => ({
-                                label: `DNS Server ${idx + 1}`,
-                                value: dns
-                            }));
-                        }
+                        model: ifaceCard.cachedDnsServers
                         delegate: NetworkDetailRow {
                             required property var modelData
                             label: modelData.label

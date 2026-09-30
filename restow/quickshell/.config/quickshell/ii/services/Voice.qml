@@ -252,7 +252,7 @@ Singleton {
 
     Timer {
         id: pollTimer
-        interval: (root.overallState === "idle" && !typingLingerTimer.running) ? 500 : 100
+        interval: (root.overallState === "idle" && !typingLingerTimer.running) ? 2500 : 100
         repeat: true
         running: true
         onTriggered: root.poll()

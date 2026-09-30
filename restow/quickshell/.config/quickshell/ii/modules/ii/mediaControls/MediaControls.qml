@@ -23,6 +23,7 @@ Scope {
     readonly property real widgetHeight: Appearance.sizes.mediaControlsHeight
     property real popupRounding: Appearance.rounding.screenRounding - Appearance.sizes.hyprlandGapsOut + 1
     property list<real> visualizerPoints: []
+    property int _cavaFrameSkip: 0
 
     function filterDuplicatePlayers(players) {
         let filtered = [];
@@ -55,16 +56,19 @@ Scope {
 
     Process {
         id: cavaProc
-        running: mediaControlsLoader.active
+        running: mediaControlsLoader.active && (root.activePlayer?.playbackState === MprisPlaybackState.Playing)
         onRunningChanged: {
             if (!cavaProc.running) {
                 root.visualizerPoints = [];
+                root._cavaFrameSkip = 0;
             }
         }
         command: ["cava", "-p", `${FileUtils.trimFileProtocol(Directories.scriptPath)}/cava/raw_output_config.txt`]
         stdout: SplitParser {
             onRead: data => {
-                // Parse `;`-separated values into the visualizerPoints array
+                // Downsample cava frames: skip 2 out of 3 frames (60 FPS -> 20 FPS)
+                root._cavaFrameSkip++;
+                if (root._cavaFrameSkip % 3 !== 0) return;
                 let points = data.split(";").map(p => parseFloat(p.trim())).filter(p => !isNaN(p));
                 root.visualizerPoints = points;
             }
