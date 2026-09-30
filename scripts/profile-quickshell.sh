@@ -1054,20 +1054,6 @@ with open(report_out, 'w') as f:
 PY_EOF
   pass "Exported benchmark telemetry: $JSON_OUT_FILE"
   pass "Exported benchmark report: $REPORT_OUT_FILE"
-
-  local phase43_2_dir="$REPO_ROOT/.planning/phases/43.2-quickshell-profiling-harness-calibration-and-empirical-baseline"
-  if [[ -d "$phase43_2_dir" ]]; then
-    cp "$JSON_OUT_FILE" "$phase43_2_dir/benchmark-latest.json"
-    cp "$REPORT_OUT_FILE" "$phase43_2_dir/BENCHMARK.md"
-    pass "Mirrored benchmark outputs to Phase 43.2 directory"
-  fi
-
-  local phase43_4_dir="$REPO_ROOT/.planning/phases/43.4-quickshell-targeted-optimization-and-empirical-verification"
-  if [[ -d "$phase43_4_dir" ]]; then
-    cp "$JSON_OUT_FILE" "$phase43_4_dir/benchmark-latest.json"
-    cp "$REPORT_OUT_FILE" "$phase43_4_dir/BENCHMARK.md"
-    pass "Mirrored benchmark outputs to Phase 43.4 directory"
-  fi
 }
 
 # -----------------------------------------------------------------------------

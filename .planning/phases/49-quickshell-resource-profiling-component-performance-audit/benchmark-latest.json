@@ -1,0 +1,49 @@
+{
+  "timestamp": "2026-09-30T09:18:41.814853+00:00",
+  "phase": "49",
+  "environment": {
+    "host": "pera-desktop",
+    "cpu": "12th Gen Intel Core i7-12700K",
+    "gpu": "Intel AlderLake-S GT1 (UHD Graphics 770)",
+    "display": "DP-1 3440x1440@60Hz"
+  },
+  "config": {
+    "warmup_sec": 2,
+    "duration_sec": 5
+  },
+  "stages": {
+    "system_idle_no_qs": {
+      "name": "System Idle (No Quickshell)",
+      "cpu_pct_avg": 0.0,
+      "cpu_pct_peak": 0.0,
+      "memory_rss_mb": 0.0,
+      "memory_pss_mb": 0.0,
+      "memory_private_dirty_mb": 0.0,
+      "threads": 0,
+      "voluntary_ctxt_rate": 0.0,
+      "nonvoluntary_ctxt_rate": 0.0,
+      "syscr_rate": 0.0,
+      "syscw_rate": 0.0,
+      "open_fds": 0,
+      "gpu_busy_pct": 6.6,
+      "gpu_act_freq_mhz": 0.0
+    },
+    "upstream_baseline": {
+      "name": "Upstream Baseline (Pure)",
+      "cpu_pct_avg": 0.94,
+      "cpu_pct_peak": 1.92,
+      "memory_rss_mb": 673.08,
+      "memory_pss_mb": 416.67,
+      "memory_private_dirty_mb": 336.41,
+      "threads": 62,
+      "voluntary_ctxt_rate": 39.4,
+      "nonvoluntary_ctxt_rate": 1.5,
+      "syscr_rate": 34.7,
+      "syscw_rate": 26.0,
+      "open_fds": 84,
+      "gpu_busy_pct": 0.0,
+      "gpu_act_freq_mhz": 0.0
+    }
+  },
+  "attributions": {}
+}
