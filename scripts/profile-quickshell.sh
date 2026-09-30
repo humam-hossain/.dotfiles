@@ -80,6 +80,7 @@ STAGES=(
   "ping_service|+ PingService|restow|idle|Network latency bridge singleton"
   "voice_service|+ Voice STT|restow|idle|Voice telemetry tmpfs polling singleton"
   "cpugpu_pill|+ CpuGpuPill|restow|idle|Status bar telemetry pill with circular meters"
+  "custom_idle|Full Shell Stationary Idle|restow|idle|Complete production overlay in quiescent idle state"
   "full_idle|Full Shell (Idle)|restow|idle|Complete production overlay in stationary state"
   "full_active_popup|Full Shell (Active UI)|restow|active_popup|Complete production overlay with inspector open"
 )
@@ -465,6 +466,11 @@ navigate_and_sample_popup() {
 
   header "Interactive Popup Stage: $stage_name ($stage_id)"
 
+  local popup_warmup="$WARMUP_SEC"
+  if [[ "$popup_warmup" -lt 5 ]]; then
+    popup_warmup=5
+  fi
+
   if [[ "$method" == "hover" ]]; then
     if command -v ydotool >/dev/null 2>&1 && [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
       info ">> [MOUSE NOTICE] Moving cursor to ($target_x, $target_y) to activate popup..."
@@ -488,15 +494,33 @@ navigate_and_sample_popup() {
     warn "Layer surface $expected_layer not found in hyprctl layers output"
   fi
 
-  # Call run_sample_window with custom_active UI mode
-  run_sample_window "$stage_id" "$stage_name" "custom_active"
+  local hover_kx="" hover_ky=""
+  if [[ "$method" == "hover" ]]; then
+    hover_kx="$target_x"
+    hover_ky="$target_y"
+    info ">> [MOUSE NOTICE] Sustaining steady cursor hover at ($target_x, $target_y) throughout steady-state measurement window..."
+  fi
+
+  # Call run_sample_window with custom_active UI mode, enforced minimum 5s warmup, and sustained hover keep-alive
+  run_sample_window "$stage_id" "$stage_name" "custom_active" "$popup_warmup" "$DURATION_SEC" "$hover_kx" "$hover_ky"
 
   # Cleanup / dismiss
   if [[ "$method" == "hover" ]]; then
     if command -v ydotool >/dev/null 2>&1 && [[ -n "${WAYLAND_DISPLAY:-}" ]]; then
       info ">> [MOUSE NOTICE] Moving cursor to neutral center (860, 360) to dismiss popup..."
       ydotool mousemove -a -x 860 -y 360 2>/dev/null || true
-      sleep 0.4
+      sleep 0.5
+      if command -v hyprctl >/dev/null 2>&1; then
+        if hyprctl layers 2>/dev/null | grep -q "namespace: $expected_layer"; then
+          warn "Layer surface $expected_layer still open after moving to neutral center; waiting 0.5s..."
+          sleep 0.5
+        fi
+        if ! hyprctl layers 2>/dev/null | grep -q "namespace: $expected_layer"; then
+          pass "Layer surface dismissed: $expected_layer"
+        else
+          warn "Layer surface $expected_layer still active after dismissal attempt"
+        fi
+      fi
     fi
   elif [[ "$method" == "ipc" ]]; then
     info "Dismissing IPC overlay: qs -c ii ipc call $target_x close"
@@ -504,16 +528,41 @@ navigate_and_sample_popup() {
     command -v qs >/dev/null 2>&1 && qs_bin="qs" || qs_bin="quickshell"
     $qs_bin -c ii ipc call "$target_x" "close" 2>/dev/null || true
     sleep 0.4
+    if command -v hyprctl >/dev/null 2>&1; then
+      if ! hyprctl layers 2>/dev/null | grep -q "namespace: $expected_layer"; then
+        pass "Layer surface dismissed: $expected_layer"
+      fi
+    fi
+  fi
+}
+
+sample_custom_idle() {
+  header "Sampling Post-Fix Stationary Idle with Quickshell Running (custom_idle)"
+  check_and_pause_media
+  set_ui_state "idle"
+  run_sample_window "custom_idle" "Full Shell Stationary Idle (Quickshell Active)" "idle" "$WARMUP_SEC" "$DURATION_SEC"
+  local last_line
+  last_line="$(tail -n 1 "$STAGE_DATA_FILE" 2>/dev/null || true)"
+  local idle_gpu
+  idle_gpu="$(echo "$last_line" | awk -F'|' '{print $14}')"
+  if [[ -n "$idle_gpu" ]]; then
+    if (( $(awk -v g="$idle_gpu" 'BEGIN { print (g <= 10.0) }') )); then
+      pass "Post-fix stationary idle iGPU load <= 10.0% (${idle_gpu}%) - G-49-1 satisfied!"
+    else
+      warn "Post-fix stationary idle iGPU load: ${idle_gpu}%"
+    fi
   fi
 }
 
 run_interactive_popup_audit() {
   header "Running Interactive Popup Audit Suite (8 Stages)"
+  check_and_pause_media
   local entry id method tx ty layer desc
   for entry in "${POPUP_STAGES[@]}"; do
     IFS='|' read -r id method tx ty layer desc <<< "$entry"
     navigate_and_sample_popup "$id" "$desc" "$method" "$tx" "$ty" "$layer"
   done
+  sample_custom_idle
   generate_reports
 }
 
@@ -723,6 +772,10 @@ while [[ $# -gt 0 ]]; do
       ACTION_MODE="popups"
       shift
       ;;
+    --idle)
+      ACTION_MODE="idle"
+      shift
+      ;;
     -q|--quick)
       QUICK_MODE=1
       WARMUP_SEC=2
@@ -781,8 +834,10 @@ run_sample_window() {
   local stage_id="$1"
   local stage_name="$2"
   local ui_mode="${3:-idle}"
-  local warmup_sec="$WARMUP_SEC"
-  local duration_sec="$DURATION_SEC"
+  local warmup_sec="${4:-$WARMUP_SEC}"
+  local duration_sec="${5:-$DURATION_SEC}"
+  local hover_kx="${6:-}"
+  local hover_ky="${7:-}"
 
   header "Profiling Stage: $stage_name ($stage_id)"
   info "Warm-up: ${warmup_sec}s | Sampling Duration: ${duration_sec}s | UI Mode: ${ui_mode}"
@@ -790,7 +845,12 @@ run_sample_window() {
   set_ui_state "$ui_mode"
 
   info "Stabilization warm-up (${warmup_sec}s)..."
-  sleep "$warmup_sec"
+  for ((w=1; w<=warmup_sec; w++)); do
+    if [[ -n "$hover_kx" && -n "$hover_ky" ]] && command -v ydotool >/dev/null 2>&1; then
+      ydotool mousemove -a -x "$hover_kx" -y "$hover_ky" 2>/dev/null || true
+    fi
+    sleep 1
+  done
 
   local pids=($(collect_qs_pids))
   if [[ ${#pids[@]} -eq 0 ]]; then
@@ -818,6 +878,9 @@ run_sample_window() {
   local last_t="$t1"
 
   for ((i=1; i<=duration_sec; i++)); do
+    if [[ -n "$hover_kx" && -n "$hover_ky" ]] && command -v ydotool >/dev/null 2>&1; then
+      ydotool mousemove -a -x "$hover_kx" -y "$hover_ky" 2>/dev/null || true
+    fi
     sleep 1
     local now_t="$(date +%s%N)"
     local now_ticks="$(sample_proc_cpu "$pid")"
@@ -1015,7 +1078,7 @@ for sid, data in raw_stages.items():
 
 # Compute attributions
 base = stages_dict.get('upstream_baseline', {})
-idle = stages_dict.get('full_idle', {})
+idle = stages_dict.get('custom_idle') or stages_dict.get('full_idle', {})
 popup = stages_dict.get('full_active_popup', {})
 
 attributions = {}
@@ -1186,6 +1249,12 @@ main() {
     exit 0
   fi
 
+  if [[ "$ACTION_MODE" == "idle" ]]; then
+    sample_custom_idle
+    generate_reports
+    exit 0
+  fi
+
   if [[ -n "$SELECTED_STAGE" ]]; then
     # Check if selected stage is one of the interactive popups
     local matched_popup=0
@@ -1213,8 +1282,8 @@ main() {
         run_sample_window "upstream_baseline" "Upstream Baseline (Pure)" "idle"
         restore_restow_quickshell
         ;;
-      full_idle)
-        run_sample_window "full_idle" "Full Shell (Idle)" "idle"
+      custom_idle|full_idle)
+        sample_custom_idle
         ;;
       full_active_popup)
         run_sample_window "full_active_popup" "Full Shell (Active UI)" "active_popup"
