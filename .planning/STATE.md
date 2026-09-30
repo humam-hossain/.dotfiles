@@ -1,39 +1,39 @@
 ---
 gsd_state_version: "1.0"
 milestone: v0.9
-milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–47)
-current_phase: 47
-status: completed
-stopped_at: Phase 47 complete — all phases complete
-last_updated: "2026-09-29T16:20:27.005Z"
+milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–48)
+current_phase: 48
+status: ready to plan
+stopped_at: Phase 48 context gathered
+last_updated: "2026-09-30T02:49:51.674Z"
 last_activity: 2026-09-29
-last_activity_desc: Phase 47 complete
-state_head: 3be55cfe4c555e986d62dc2381e829e749ddc7ad
+last_activity_desc: Phase 48 added (Right-Zone Media Expansion & System Tray Empty State Gating)
+state_head: 36ffb81e9a86e1e75cdc0fe3fa3c018ed7963950
 progress:
-  total_phases: 12
+  total_phases: 13
   completed_phases: 8
   total_plans: 36
   completed_plans: 36
-  percent: 67
+  percent: 62
 ---
 
-Total Phases: 12 (Phases 42–47 + 43.1–43.6)
-Progress: [█████████░] 11/12 phases ([███████░░░] 67%)
+Total Phases: 13 (Phases 42–48 + 43.1–43.6)
+Progress: [████████░░] 11/13 phases ([██████░░░░] 62%)
 
 # Project State
 
 ## Current Position
 
-Phase: 47
+Phase: 48
 Plan: Not started
-Status: All phases complete
-Last activity: 2026-09-29 — Phase 47 complete
+Status: Ready to plan
+Last activity: 2026-09-29 — Phase 48 added (Right-Zone Media Expansion & System Tray Empty State Gating)
 
 ## Session
 
-**Last session:** 2026-09-29T16:16:45.151Z
-**Stopped at:** Phase 47 complete — all phases complete
-**Resume file:** None
+**Last session:** 2026-09-30T02:49:50.760Z
+**Stopped at:** Phase 48 context gathered
+**Resume file:** /home/pera/github_repo/.dotfiles/.planning/phases/48-right-zone-media-expansion-system-tray-empty-state-gating/48-CONTEXT.md
 
 ## Project Reference
 
@@ -59,6 +59,10 @@ Items acknowledged and deferred at prior milestone closes (all legacy debug sess
 See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 
 ## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 48 added: Right-Zone Media Expansion & System Tray Empty State Gating — responsive screen-width media player sizing, track & artist metadata display, and empty system tray pill hiding.
 
 ### Decisions (carry-forward)
 
