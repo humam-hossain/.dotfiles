@@ -1,35 +1,36 @@
 ---
 gsd_state_version: "1.0"
 milestone: v0.9
-milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–49)
-current_phase: 49
+milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–50)
+current_phase: 50
+current_phase_name: Quickshell Deep Performance Optimization & Overhead Reduction
 current_plan: Not started
-status: completed
-stopped_at: Phase 49 complete — all phases complete
-last_updated: "2026-09-30T12:54:52.636Z"
+status: ready_to_plan
+stopped_at: Phase 50 added — ready for discussion and planning
+last_updated: "2026-09-30T13:05:00.000Z"
 last_activity: 2026-09-30
-last_activity_desc: Phase 49 complete
-state_head: 940bf410e481d194196084734e1208e90251af62
+last_activity_desc: Phase 50 added
+state_head: 0c973a447c2fe1fdfa3ceb7b629ef199e52dfbc2
 progress:
-  total_phases: 14
-  completed_phases: 10
+  total_phases: 15
+  completed_phases: 14
   total_plans: 43
   completed_plans: 43
-  percent: 71
+  percent: 93
 ---
 
-Total Phases: 14 (Phases 42–49 + 43.1–43.6)
-Progress: [████████░░] 11/14 phases ([███████░░░] 71%)
+Total Phases: 15 (Phases 42–50 + 43.1–43.6)
+Progress: [█████████░] 14/15 phases (93%)
 
 # Project State
 
 ## Current Position
 
-Phase: 49
+Phase: 50 (Quickshell Deep Performance Optimization & Overhead Reduction)
 Current Plan: Not started
-Total Plans in Phase: 4
-Status: All phases complete
-Last activity: 2026-09-30 — Phase 49 complete
+Total Plans in Phase: 0
+Status: Ready to plan
+Last activity: 2026-09-30 — Phase 50 added
 
 ## Session
 
@@ -64,6 +65,7 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 
 ### Roadmap Evolution
 
+- Phase 50 added: Quickshell Deep Performance Optimization & Overhead Reduction — address remaining idle CPU delta (+4.78%), context switch and syscall churn, MediaControls overhead, and popup scenegraph throttling based on Phase 49 empirical audit.
 - Phase 49 added: Quickshell Resource Profiling & Component Performance Audit — comprehensive component-by-component and popup-by-popup resource measurement (GPU idle baseline <=10% vs 30-60%), upstream comparison, and targeted optimization.
 - Phase 48 added: Right-Zone Media Expansion & System Tray Empty State Gating — responsive screen-width media player sizing, track & artist metadata display, and empty system tray pill hiding.
 

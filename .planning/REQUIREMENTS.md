@@ -66,6 +66,14 @@ Scoped requirements for Milestone v0.9 (Top Status Bar Resource Components & Har
 - [x] **AUDIT-02**: Component-by-Component & Interactive Popup Profiling — Incremental measurement of each status bar component and popup under idle and active hover/open states using cursor automation/control.
 - [x] **AUDIT-03**: Targeted Optimization & Performance Audit Report — Identification and optimization of high-GPU/CPU components and comprehensive, human-readable comparative resource report.
 
+### Quickshell Deep Performance Optimization & Overhead Reduction
+
+- [ ] **OPT-01**: Quiescent Idle Footprint & Timer Coalescing — Drive stationary idle CPU usage from 5.72% down to <= 2.0% (delta <= +1.0% over upstream 0.94%), reducing voluntary context switches from 453/s to < 100/s and read syscall churn from 169/s to < 50/s via timer alignment, sub-process elimination, and demand-gated sensor sweeping.
+- [ ] **OPT-02**: Multimedia & Audio Spectrum Optimization — Reduce MediaControls active overlay CPU from 24.58% to <= 10.0% and iGPU from 25.53% to <= 12.0% by eliminating offscreen `OpacityMask` and Gaussian blurs in `PlayerControl.qml`, throttling/gating `cava` frequency stream, and de-escalating wavy slider animation loops.
+- [ ] **OPT-03**: Network & Ping Telemetry Syscall Churn Elimination — Eliminate recurring subshell executions in `NetworkUsage.qml`, cache static interface attributes, throttle `/proc/net/dev` rate sampling, and eliminate the 1550 MHz GPU boost clock lock in `popup_netping`.
+- [ ] **OPT-04**: Canvas, Graphing & Scenegraph Throttling — Clamp interactive popup Canvas chart repainting to max 10 FPS, decouple Clock/Date and Todo re-evaluations from second ticks, and ensure all 8 popups maintain iGPU load <= 15.0%.
+- [ ] **OPT-05**: Empirical Re-Benchmarking & Comprehensive Report — Execute full multi-stage benchmarking suite via `scripts/profile-quickshell.sh`, verify all optimization invariants with an automated test harness, and update `BENCHMARK.md` with pre- vs post-optimization attribution matrices.
+
 ## Future Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -125,3 +133,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUDIT-01 | Phase 49 | Complete |
 | AUDIT-02 | Phase 49 | Complete |
 | AUDIT-03 | Phase 49 | Complete |
+| OPT-01 | Phase 50 | Pending |
+| OPT-02 | Phase 50 | Pending |
+| OPT-03 | Phase 50 | Pending |
+| OPT-04 | Phase 50 | Pending |
+| OPT-05 | Phase 50 | Pending |

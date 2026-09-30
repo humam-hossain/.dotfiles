@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v0.8 Notification Experience & Shell Interaction Polish** — Phases 38–41 (shipped 2026-09-25) — [Archive](milestones/v0.8-ROADMAP.md)
-- 📋 **v0.9 Top Status Bar Resource Components & Hardware Telemetry** — Phases 42–49 (in progress)
+- 📋 **v0.9 Top Status Bar Resource Components & Hardware Telemetry** — Phases 42–50 (in progress)
 
 ## Phases
 
@@ -20,7 +20,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 
 </details>
 
-### 📋 v0.9 Top Status Bar Resource Components & Hardware Telemetry (Phases 42–49)
+### 📋 v0.9 Top Status Bar Resource Components & Hardware Telemetry (Phases 42–50)
 
 - [x] **Phase 42: Telemetry Services & Sensor Infrastructure** (4 plans) (completed 2026-09-25)
 - [x] **Phase 43: CPU & GPU Component (Pill & Popup)** (4 plans) (completed 2026-09-26)
@@ -36,6 +36,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 - [x] **Phase 47: Center-Zone Layout Reorganization** (0 plans) (completed 2026-09-29)
 - [x] **Phase 48: Right-Zone Media Expansion & System Tray Empty State Gating** (0 plans) (completed 2026-09-30)
 - [x] **Phase 49: Quickshell Resource Profiling & Component Performance Audit** (0 plans) (completed 2026-09-30)
+- [ ] **Phase 50: Quickshell Deep Performance Optimization & Overhead Reduction** (0 plans)
 
 ## Phase Details
 
@@ -361,3 +362,23 @@ Plans:
 | 47. Center-Zone Layout Reorganization | v0.9 | 3/3 | Complete    | 2026-09-29 |
 | 48. Right-Zone Media Expansion & System Tray Empty State Gating | v0.9 | 3/3 | Complete    | 2026-09-30 |
 | 49. Quickshell Resource Profiling & Component Performance Audit | v0.9 | 4/4 | Complete    | 2026-09-30 |
+| 50. Quickshell Deep Performance Optimization & Overhead Reduction | v0.9 | 0 plans | Planned     | - |
+
+### Phase 50: Quickshell Deep Performance Optimization & Overhead Reduction
+
+**Goal:** Execute prioritized optimizations across Quickshell singletons, MediaControls, NetworkUsage, and popup scenegraph components to drive down the +4.78% idle CPU delta towards upstream baseline (target <= 2.0%), reduce context switch and syscall churn by >75%, eliminate the 1550 MHz GPU boost lock and excessive media overhead, and empirically re-benchmark all stages.  
+**Depends on:** Phase 49  
+**Requirements**: OPT-01, OPT-02, OPT-03, OPT-04, OPT-05  
+**Plans:** 0 plans
+
+Success criteria:
+
+1. Quiescent idle CPU usage reduced to <= 2.0% (delta <= +1.0% over upstream 0.94%), voluntary context switches reduced from 453/s to < 100/s, and read syscall churn reduced from 169/s to < 50/s via timer alignment, sub-process elimination, and demand-gated sensor sweeping.
+2. `MediaControls.qml` and `PlayerControl.qml` active overhead reduced to <= 10.0% CPU and <= 12.0% iGPU by replacing offscreen OpacityMask/blur passes with native styling, downsampling/gating `cava` processing, and de-escalating wavy slider animation loops.
+3. `NetworkUsage.qml` and `PingService.qml` optimized to eliminate recurring subshells (`probeProcess`), cache interface topology, throttle procfs polling, and eliminate the 1550 MHz GPU boost clock lock during `popup_netping`.
+4. Interactive popup Canvas chart repainting clamped to max 10 FPS, Clock/Date and Todo re-evaluations decoupled from second ticks, and all 8 popups maintain steady-state iGPU load <= 15.0%.
+5. Full 8-stage + idle benchmarking suite executed via `scripts/profile-quickshell.sh`, automated assertion harness verifying all optimization invariants, and `BENCHMARK.md` updated with pre- vs post-optimization attribution matrices.
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 50 to break down)
