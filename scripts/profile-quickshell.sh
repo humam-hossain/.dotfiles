@@ -24,8 +24,11 @@ QUICK_MODE=0
 SELECTED_STAGE=""
 COMPARE_FILE=""
 ACTION_MODE=""
+DEFAULT_PHASE50_DIR="$REPO_ROOT/.planning/phases/50-quickshell-deep-performance-optimization-overhead-reduction"
 DEFAULT_PHASE49_DIR="$REPO_ROOT/.planning/phases/49-quickshell-resource-profiling-component-performance-audit"
-if [[ -d "$DEFAULT_PHASE49_DIR" ]]; then
+if [[ -d "$DEFAULT_PHASE50_DIR" ]]; then
+  PHASE_DIR="$DEFAULT_PHASE50_DIR"
+elif [[ -d "$DEFAULT_PHASE49_DIR" ]]; then
   PHASE_DIR="$DEFAULT_PHASE49_DIR"
 else
   PHASE_DIR="$REPO_ROOT/.planning/phases/43.1-quickshell-performance-profiling-and-resource-optimization"
@@ -364,12 +367,13 @@ restore_restow_quickshell() {
     local f target
     while IFS= read -r f; do
       [[ -n "$f" ]] || continue
+      f="${f#./}"
       target="$HOME/$f"
       if [[ -f "$target" && ! -L "$target" ]]; then
         rm -f "$target" 2>/dev/null || true
       fi
     done < <(cd "$REPO_ROOT/restow/quickshell" && find . -type f)
-    stow --no-folding -d "$REPO_ROOT/restow" -t "$HOME" quickshell 2>/dev/null || true
+    stow --no-folding -d "$REPO_ROOT/restow" -t "$HOME" --restow quickshell 2>/dev/null || true
     STOW_ISOLATED=0
     info "Restarting Quickshell with restored custom overlays..."
     restart_quickshell
@@ -1056,6 +1060,7 @@ if os.path.exists(data_file):
                     'memory_private_dirty_mb': float(priv_dirty),
                     'threads': int(th),
                     'voluntary_ctxt_rate': float(vol_ctx),
+                    'ctx_switches_per_sec': float(vol_ctx),
                     'nonvoluntary_ctxt_rate': float(nonvol_ctx),
                     'syscr_rate': float(syscr),
                     'syscw_rate': float(syscw),
@@ -1256,42 +1261,48 @@ main() {
   fi
 
   if [[ -n "$SELECTED_STAGE" ]]; then
-    # Check if selected stage is one of the interactive popups
-    local matched_popup=0
-    for pentry in "${POPUP_STAGES[@]}"; do
-      local pid pmethod ptx pty player pdesc
-      IFS='|' read -r pid pmethod ptx pty player pdesc <<< "$pentry"
-      if [[ "$SELECTED_STAGE" == "$pid" ]]; then
-        navigate_and_sample_popup "$pid" "$pdesc" "$pmethod" "$ptx" "$pty" "$player"
-        matched_popup=1
-        break
-      fi
-    done
-    if [[ "$matched_popup" -eq 1 ]]; then
-      generate_reports
-      exit 0
-    fi
+    local -a stages_to_run=()
+    IFS=',' read -ra stages_to_run <<< "$SELECTED_STAGE"
+    for single_stage in "${stages_to_run[@]}"; do
+      single_stage="$(echo "$single_stage" | xargs)"
+      [[ -n "$single_stage" ]] || continue
 
-    case "$SELECTED_STAGE" in
-      system_idle_no_qs)
-        sample_system_idle_baseline
-        restart_quickshell || true
-        ;;
-      upstream_baseline)
-        isolate_upstream_baseline
-        run_sample_window "upstream_baseline" "Upstream Baseline (Pure)" "idle"
-        restore_restow_quickshell
-        ;;
-      custom_idle|full_idle)
-        sample_custom_idle
-        ;;
-      full_active_popup)
-        run_sample_window "full_active_popup" "Full Shell (Active UI)" "active_popup"
-        ;;
-      *)
-        run_sample_window "$SELECTED_STAGE" "Quickshell Run ($SELECTED_STAGE)" "idle"
-        ;;
-    esac
+      # Check if selected stage is one of the interactive popups
+      local matched_popup=0
+      for pentry in "${POPUP_STAGES[@]}"; do
+        local pid pmethod ptx pty player pdesc
+        IFS='|' read -r pid pmethod ptx pty player pdesc <<< "$pentry"
+        if [[ "$single_stage" == "$pid" ]]; then
+          navigate_and_sample_popup "$pid" "$pdesc" "$pmethod" "$ptx" "$pty" "$player"
+          matched_popup=1
+          break
+        fi
+      done
+      if [[ "$matched_popup" -eq 1 ]]; then
+        continue
+      fi
+
+      case "$single_stage" in
+        system_idle_no_qs)
+          sample_system_idle_baseline
+          restart_quickshell || true
+          ;;
+        upstream_baseline)
+          isolate_upstream_baseline
+          run_sample_window "upstream_baseline" "Upstream Baseline (Pure)" "idle"
+          restore_restow_quickshell
+          ;;
+        custom_idle|full_idle)
+          sample_custom_idle
+          ;;
+        full_active_popup)
+          run_sample_window "full_active_popup" "Full Shell (Active UI)" "active_popup"
+          ;;
+        *)
+          run_sample_window "$single_stage" "Quickshell Run ($single_stage)" "idle"
+          ;;
+      esac
+    done
     generate_reports
     exit 0
   fi

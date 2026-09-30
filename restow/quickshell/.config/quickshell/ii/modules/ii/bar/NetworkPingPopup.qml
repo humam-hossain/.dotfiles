@@ -224,6 +224,8 @@ StyledPopup {
         id: popupContent
         anchors.centerIn: parent
         spacing: 16
+        implicitWidth: 656
+        implicitHeight: 331
 
         // =====================================================================
         // Left Column (320px): Interface & Live Bandwidth Telemetry

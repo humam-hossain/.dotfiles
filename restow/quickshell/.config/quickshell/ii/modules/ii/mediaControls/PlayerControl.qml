@@ -95,6 +95,8 @@ Item { // Player instance
 
     StyledRectangularShadow {
         target: background
+        layer.enabled: true
+        layer.smooth: true
     }
     Rectangle { // Background with native rounded clipping (NO offscreen mask FBO - D-50-03)
         id: background

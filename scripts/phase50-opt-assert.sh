@@ -359,7 +359,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
     fi
 
     # Context Switches < 100/s
-    CTX_SW="$(jq -r '.stages.custom_idle.ctx_switches_per_sec // empty' "$BENCH_JSON")"
+    CTX_SW="$(jq -r '.stages.custom_idle.ctx_switches_per_sec // .stages.custom_idle.voluntary_ctxt_rate // empty' "$BENCH_JSON")"
     if [[ -n "$CTX_SW" ]]; then
       if (( $(awk -v c="$CTX_SW" 'BEGIN { print (c < 100.0) }') )); then
         pass "S5: Idle Context Switches < 100/s (${CTX_SW}/s)"
@@ -367,7 +367,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
         fail "S5: Idle Context Switches exceeded 100/s (${CTX_SW}/s)"
       fi
     else
-      fail "S5: stages.custom_idle.ctx_switches_per_sec missing from benchmark-latest.json"
+      fail "S5: stages.custom_idle context switch metrics missing from benchmark-latest.json"
     fi
 
     # MediaControls CPU <= 10.0%, iGPU <= 12.0%

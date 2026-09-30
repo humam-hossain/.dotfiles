@@ -81,25 +81,22 @@ LazyLoader {
         exclusionMode: ExclusionMode.Ignore
         exclusiveZone: 0
 
-        // Screen Boundary Clamping Math (D-19, Pitfall 4)
-        margins {
-            left: {
-                if (!Config.options.bar.vertical) {
-                    const screenWidth = root.QsWindow?.screen?.width ?? 1920;
-                    const targetX = root.QsWindow?.mapFromItem(
-                        root.hoverTarget, 
-                        (root.hoverTarget.width - popupBackground.implicitWidth) / 2, 0
-                    ).x ?? 0;
-                    const gap = Appearance.sizes.hyprlandGapsOut;
-                    const minX = gap;
-                    const maxX = screenWidth - popupBackground.implicitWidth - gap;
-                    if (maxX < minX) return minX;
-                    return Math.round(Math.max(minX, Math.min(targetX, maxX)));
-                }
-                return Appearance.sizes.verticalBarWidth;
-            }
-            top: {
-                if (!Config.options.bar.vertical) return Appearance.sizes.barHeight;
+        property real lockedLeftMargin: Appearance.sizes.verticalBarWidth
+        property real lockedTopMargin: Appearance.sizes.barHeight
+
+        function updateLockedMargins() {
+            if (!Config.options.bar.vertical) {
+                const screenWidth = root.QsWindow?.screen?.width ?? 1920;
+                const targetX = root.QsWindow?.mapFromItem(
+                    root.hoverTarget, 
+                    (root.hoverTarget.width - popupBackground.implicitWidth) / 2, 0
+                ).x ?? 0;
+                const gap = Appearance.sizes.hyprlandGapsOut;
+                const minX = gap;
+                const maxX = screenWidth - popupBackground.implicitWidth - gap;
+                lockedLeftMargin = (maxX < minX) ? minX : Math.round(Math.max(minX, Math.min(targetX, maxX)));
+                lockedTopMargin = Appearance.sizes.barHeight;
+            } else {
                 const screenHeight = root.QsWindow?.screen?.height ?? 1080;
                 const targetY = root.QsWindow?.mapFromItem(
                     root.hoverTarget, 
@@ -108,9 +105,26 @@ LazyLoader {
                 const gap = Appearance.sizes.hyprlandGapsOut;
                 const minY = gap;
                 const maxY = screenHeight - popupBackground.implicitHeight - gap;
-                if (maxY < minY) return minY;
-                return Math.round(Math.max(minY, Math.min(targetY, maxY)));
+                lockedLeftMargin = Appearance.sizes.verticalBarWidth;
+                lockedTopMargin = (maxY < minY) ? minY : Math.round(Math.max(minY, Math.min(targetY, maxY)));
             }
+        }
+
+        onVisibleChanged: {
+            if (visible) updateLockedMargins();
+        }
+
+        Connections {
+            target: root
+            function onActiveChanged() {
+                if (root.active) popupWindow.updateLockedMargins();
+            }
+        }
+
+        // Screen Boundary Clamping Math (D-19, Pitfall 4)
+        margins {
+            left: popupWindow.lockedLeftMargin
+            top: popupWindow.lockedTopMargin
             right: Appearance.sizes.verticalBarWidth
             bottom: Appearance.sizes.barHeight
         }
