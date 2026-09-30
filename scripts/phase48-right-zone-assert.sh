@@ -222,40 +222,44 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
     fail "S3: Media.qml missing import qs.modules.common.functions"
   fi
 
-  if grep -A 20 "StyledText" "$MEDIA_QML" 2>/dev/null | grep -q "textFormat: Text.StyledText"; then
-    pass "S3: StyledText uses textFormat: Text.StyledText"
+  if grep -q "property real useShortenedForm" "$MEDIA_QML" 2>/dev/null; then
+    pass "S3: Media.qml declares property real useShortenedForm"
   else
-    fail "S3: StyledText missing textFormat: Text.StyledText"
+    fail "S3: Media.qml missing property real useShortenedForm declaration"
   fi
 
-  if grep -A 20 "StyledText" "$MEDIA_QML" 2>/dev/null | grep -q "elide: Text.ElideRight"; then
-    pass "S3: StyledText uses elide: Text.ElideRight"
+  if grep -A 15 "id: mediaLoader" "$BAR_CONTENT" 2>/dev/null | grep -q "useShortenedForm: root.useShortenedForm"; then
+    pass "S3: BarContent.qml passes useShortenedForm to Media component"
   else
-    fail "S3: StyledText missing elide: Text.ElideRight"
+    fail "S3: BarContent.qml missing useShortenedForm pass-through to Media"
   fi
 
-  if grep -A 20 "StyledText" "$MEDIA_QML" 2>/dev/null | grep -q "Layout.fillWidth: true"; then
-    pass "S3: StyledText uses Layout.fillWidth: true"
+  if grep -A 15 "id: mediaTitleText" "$MEDIA_QML" 2>/dev/null | grep -q "Layout.fillWidth: true" && \
+     grep -A 15 "id: mediaTitleText" "$MEDIA_QML" 2>/dev/null | grep -q "elide: Text.ElideRight"; then
+    pass "S3: Media.qml declares separate mediaTitleText with Layout.fillWidth: true and Text.ElideRight"
   else
-    fail "S3: StyledText missing Layout.fillWidth: true"
+    fail "S3: Media.qml missing mediaTitleText with fillWidth: true and Text.ElideRight"
   fi
 
-  if grep -A 20 "StyledText" "$MEDIA_QML" 2>/dev/null | grep -q "StringUtils.escapeHtml"; then
-    pass "S3: StyledText text binding uses StringUtils.escapeHtml"
+  if grep -A 15 "id: mediaArtistText" "$MEDIA_QML" 2>/dev/null | grep -q "Layout.fillWidth: false" && \
+     grep -A 15 "id: mediaArtistText" "$MEDIA_QML" 2>/dev/null | grep -q "Appearance.colors.colSubtext" && \
+     grep -A 15 "id: mediaArtistText" "$MEDIA_QML" 2>/dev/null | grep -q "root.useShortenedForm === 0"; then
+    pass "S3: Media.qml declares separate mediaArtistText with colSubtext and narrow-screen gating"
   else
-    fail "S3: StyledText text binding missing StringUtils.escapeHtml"
+    fail "S3: Media.qml missing mediaArtistText with colSubtext and narrow-screen gating"
   fi
 
-  if grep -A 20 "StyledText" "$MEDIA_QML" 2>/dev/null | grep -q "Appearance.colors.colOnLayer1"; then
-    pass "S3: Title uses Appearance.colors.colOnLayer1"
+  if grep -A 15 "id: mediaTitleText" "$MEDIA_QML" 2>/dev/null | grep -q "Appearance.colors.colOnLayer1" && \
+     grep -A 15 "id: mediaArtistText" "$MEDIA_QML" 2>/dev/null | grep -q "Appearance.colors.colSubtext"; then
+    pass "S3: Media.qml styles title with colOnLayer1 and artist with colSubtext"
   else
-    fail "S3: Title missing Appearance.colors.colOnLayer1"
+    fail "S3: Media.qml missing title colOnLayer1 or artist colSubtext styling"
   fi
 
-  if grep -A 20 "StyledText" "$MEDIA_QML" 2>/dev/null | grep -q "Appearance.colors.colSubtext"; then
-    pass "S3: Artist uses Appearance.colors.colSubtext"
+  if grep -q "mediaTrackInfoText" "$MEDIA_QML" 2>/dev/null; then
+    fail "S3: Obsolete single-string mediaTrackInfoText still present in Media.qml"
   else
-    fail "S3: Artist missing Appearance.colors.colSubtext"
+    pass "S3: Obsolete single-string mediaTrackInfoText removed from Media.qml"
   fi
 
   if grep -A 20 "StyledText" "$MEDIA_QML" 2>/dev/null | grep -q "CircularProgress.size"; then
