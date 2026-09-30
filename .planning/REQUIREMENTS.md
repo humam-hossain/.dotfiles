@@ -64,7 +64,7 @@ Scoped requirements for Milestone v0.9 (Top Status Bar Resource Components & Har
 
 - [x] **AUDIT-01**: Baseline Resource Measurement — Empirical capture of system idle metrics without Quickshell (kill all QS processes, assert idle GPU <= 10%) and upstream default Quickshell baseline.
 - [x] **AUDIT-02**: Component-by-Component & Interactive Popup Profiling — Incremental measurement of each status bar component and popup under idle and active hover/open states using cursor automation/control.
-- [ ] **AUDIT-03**: Targeted Optimization & Performance Audit Report — Identification and optimization of high-GPU/CPU components and comprehensive, human-readable comparative resource report.
+- [x] **AUDIT-03**: Targeted Optimization & Performance Audit Report — Identification and optimization of high-GPU/CPU components and comprehensive, human-readable comparative resource report.
 
 ## Future Requirements
 
@@ -124,4 +124,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RGHT-03 | Phase 48 | Complete |
 | AUDIT-01 | Phase 49 | Complete |
 | AUDIT-02 | Phase 49 | Complete |
-| AUDIT-03 | Phase 49 | In Progress |
+| AUDIT-03 | Phase 49 | Complete |
