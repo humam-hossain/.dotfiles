@@ -908,78 +908,155 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Section 2: Subshell Elimination Audit
+# Section 2: Quiescent Idle Telemetry & Timer Coalescing (Wave 1: OPT-01, D-50-01)
 # ---------------------------------------------------------------------------
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
-  info "--- Section 2: Subshell Elimination Audit ---"
+  info "--- Section 2: Quiescent Idle Telemetry & Timer Coalescing ---"
+  SERVICES_DIR="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/services"
+
+  # HardwareTelemetry idle timer 5000ms
+  if grep -q "interval: root\.fastPolling ? 1000 : 5000" "$SERVICES_DIR/HardwareTelemetry.qml" 2>/dev/null; then
+    pass "S2: HardwareTelemetry.qml idle interval coalesced to 5000ms"
+  else
+    fail "S2: HardwareTelemetry.qml idle interval not 5000ms"
+  fi
+
+  # ResourceUsage idle timer 5000ms
+  if grep -q "interval:.*1000 : 5000" "$SERVICES_DIR/ResourceUsage.qml" 2>/dev/null; then
+    pass "S2: ResourceUsage.qml idle interval coalesced to 5000ms"
+  else
+    fail "S2: ResourceUsage.qml idle interval not 5000ms"
+  fi
+
+  # StorageUsage ioPollTimer 5000ms
+  if grep -q "interval: 5000" "$SERVICES_DIR/StorageUsage.qml" 2>/dev/null; then
+    pass "S2: StorageUsage.qml ioPollTimer coalesced to 5000ms"
+  else
+    fail "S2: StorageUsage.qml ioPollTimer not 5000ms"
+  fi
+
+  # GlobalStates fastTelemetryRate coordination bridge
+  if grep -q "fastTelemetryRate" "$REPO_ROOT/restow/quickshell/.config/quickshell/ii/GlobalStates.qml" 2>/dev/null; then
+    pass "S2: GlobalStates.qml defines fastTelemetryRate bridge"
+  else
+    fail "S2: GlobalStates.qml missing fastTelemetryRate bridge"
+  fi
+
+  # BarContent barHoverHandler
+  if grep -q "GlobalStates\.barHovered" "$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml" 2>/dev/null; then
+    pass "S2: BarContent.qml contains bar hover detection"
+  else
+    fail "S2: BarContent.qml missing bar hover detection"
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# Section 3: Subshell Elimination Audit & Network/Ping (Wave 2: OPT-03, D-50-02, D-50-07, D-50-08)
+# ---------------------------------------------------------------------------
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
+  info "--- Section 3: Subshell Elimination Audit & Network/Ping ---"
   SERVICES_DIR="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/services"
 
   # Grep for bash -c across services
   if grep -rn "bash.*-c" "$SERVICES_DIR" 2>/dev/null; then
-    fail "S2: Found recurring bash -c subshells in services directory"
+    fail "S3: Found recurring bash -c subshells in services directory"
   else
-    pass "S2: Zero bash -c subshell invocations across services"
+    pass "S3: Zero bash -c subshell invocations across services"
   fi
 
   # Check ResourceUsage for lscpu
   if grep -q "lscpu" "$SERVICES_DIR/ResourceUsage.qml" 2>/dev/null; then
-    fail "S2: ResourceUsage.qml still references lscpu"
+    fail "S3: ResourceUsage.qml still references lscpu"
   else
-    pass "S2: ResourceUsage.qml eliminated lscpu subshell"
+    pass "S3: ResourceUsage.qml eliminated lscpu subshell"
   fi
 
   # Check StorageUsage for bash -c df
   if grep -q "bash.*df" "$SERVICES_DIR/StorageUsage.qml" 2>/dev/null; then
-    fail "S2: StorageUsage.qml still spawns df via shell"
+    fail "S3: StorageUsage.qml still spawns df via shell"
   else
-    pass "S2: StorageUsage.qml invokes df directly via argument array"
+    pass "S3: StorageUsage.qml invokes df directly via argument array"
+  fi
+
+  # Check PingService in-flight guard
+  if grep -q "_requestInFlight" "$SERVICES_DIR/PingService.qml" 2>/dev/null; then
+    pass "S3: PingService.qml implements in-flight concurrency guard"
+  else
+    fail "S3: PingService.qml missing in-flight guard"
+  fi
+
+  # Check NetworkPingPopup layout fixes
+  NETPING_POPUP="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/NetworkPingPopup.qml"
+  if [[ -f "$NETPING_POPUP" ]]; then
+    if grep -q "allowWrap: false" "$NETPING_POPUP" 2>/dev/null && grep -q "implicitHeight: 68" "$NETPING_POPUP" 2>/dev/null; then
+      pass "S3: NetworkPingPopup.qml has fixed card geometry and no-wrap labels"
+    else
+      fail "S3: NetworkPingPopup.qml missing layout stabilization"
+    fi
+  else
+    fail "S3: Missing NetworkPingPopup.qml"
   fi
 fi
 
 # ---------------------------------------------------------------------------
-# Section 3: Timer Coalescing, FBO Elimination & Scenegraph Rules
+# Section 4: Multimedia, Canvas Clamping & Popup Scenegraph (Wave 2: OPT-02, OPT-04, D-50-03, D-50-04, D-50-05, D-50-06)
 # ---------------------------------------------------------------------------
-if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
-  info "--- Section 3: Timer Coalescing, FBO Elimination & Scenegraph Rules ---"
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
+  info "--- Section 4: Multimedia, Canvas Clamping & Popup Scenegraph ---"
 
   PLAYER_QML="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/mediaControls/PlayerControl.qml"
-  [[ -f "$PLAYER_QML" ]] && pass "S3: PlayerControl.qml exists as stowed override" || fail "S3: Missing PlayerControl.qml override in restow/"
+  [[ -f "$PLAYER_QML" ]] && pass "S4: PlayerControl.qml exists as stowed override" || fail "S4: Missing PlayerControl.qml override in restow/"
 
   if grep -q "OpacityMask" "$PLAYER_QML" 2>/dev/null; then
-    fail "S3: PlayerControl.qml contains OpacityMask FBO pass"
+    fail "S4: PlayerControl.qml contains OpacityMask FBO pass"
   else
-    pass "S3: PlayerControl.qml eliminated OpacityMask"
+    pass "S4: PlayerControl.qml eliminated OpacityMask"
   fi
 
   if grep -q "StyledBlurEffect" "$PLAYER_QML" 2>/dev/null; then
-    fail "S3: PlayerControl.qml contains StyledBlurEffect live Gaussian blur"
+    fail "S4: PlayerControl.qml contains StyledBlurEffect live Gaussian blur"
   else
-    pass "S3: PlayerControl.qml eliminated live Gaussian blur"
+    pass "S4: PlayerControl.qml eliminated live Gaussian blur"
   fi
 
   GRAPH_QML="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/common/widgets/Graph.qml"
-  [[ -f "$GRAPH_QML" ]] && pass "S3: Graph.qml exists as stowed override" || fail "S3: Missing Graph.qml override in restow/"
+  [[ -f "$GRAPH_QML" ]] && pass "S4: Graph.qml exists as stowed override" || fail "S4: Missing Graph.qml override in restow/"
 
   if grep -q "paintThrottleTimer" "$GRAPH_QML" 2>/dev/null || grep -q "lastPaintTime" "$GRAPH_QML" 2>/dev/null; then
-    pass "S3: Graph.qml implements Canvas repaint throttling"
+    pass "S4: Graph.qml implements Canvas repaint throttling"
   else
-    fail "S3: Graph.qml missing repaint throttling logic"
+    fail "S4: Graph.qml missing repaint throttling logic"
+  fi
+
+  # StyledPopup shadow caching
+  STYLED_POPUP="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/StyledPopup.qml"
+  if grep -q "layer.enabled: true" "$STYLED_POPUP" 2>/dev/null; then
+    pass "S4: StyledPopup.qml enables layer caching for drop shadow"
+  else
+    fail "S4: StyledPopup.qml missing shadow layer caching"
+  fi
+
+  # Zero infinite pulse animations
+  if grep -rn "loops: Animation.Infinite" "$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/CpuGpuPopup.qml" "$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/MemoryStoragePopup.qml" 2>/dev/null; then
+    fail "S4: Found unbounded loops: Animation.Infinite in inspector popups"
+  else
+    pass "S4: Inspector popups have bounded animation loops"
   fi
 fi
 
 # ---------------------------------------------------------------------------
-# Section 4: Empirical Benchmark Ceilings
+# Section 5: Empirical Benchmark Ceilings & Strict Repository Verification (Wave 3: OPT-01, OPT-02, OPT-03, OPT-05, D-50-09, D-50-10)
 # ---------------------------------------------------------------------------
-if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
-  info "--- Section 4: Empirical Benchmark Ceilings ---"
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
+  info "--- Section 5: Empirical Benchmark Ceilings & Strict Repository Verification ---"
   if [[ -f "$BENCH_JSON" ]] && jq empty "$BENCH_JSON" 2>/dev/null; then
     # Idle CPU <= 2.0%
     IDLE_CPU="$(jq -r '.stages.custom_idle.cpu_pct_avg // empty' "$BENCH_JSON")"
     if [[ -n "$IDLE_CPU" ]]; then
       if (( $(awk -v c="$IDLE_CPU" 'BEGIN { print (c <= 2.0) }') )); then
-        pass "S4: Idle CPU <= 2.0% (${IDLE_CPU}%)"
+        pass "S5: Idle CPU <= 2.0% (${IDLE_CPU}%)"
       else
-        fail "S4: Idle CPU exceeded 2.0% (${IDLE_CPU}%)"
+        fail "S5: Idle CPU exceeded 2.0% (${IDLE_CPU}%)"
       fi
     fi
 
@@ -987,9 +1064,9 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
     CTX_SW="$(jq -r '.stages.custom_idle.ctx_switches_per_sec // empty' "$BENCH_JSON")"
     if [[ -n "$CTX_SW" ]]; then
       if (( $(awk -v c="$CTX_SW" 'BEGIN { print (c < 100.0) }') )); then
-        pass "S4: Idle Context Switches < 100/s (${CTX_SW}/s)"
+        pass "S5: Idle Context Switches < 100/s (${CTX_SW}/s)"
       else
-        fail "S4: Idle Context Switches exceeded 100/s (${CTX_SW}/s)"
+        fail "S5: Idle Context Switches exceeded 100/s (${CTX_SW}/s)"
       fi
     fi
 
@@ -997,33 +1074,27 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
     MEDIA_CPU="$(jq -r '.stages.popup_mediacontrols.cpu_pct_avg // empty' "$BENCH_JSON")"
     MEDIA_GPU="$(jq -r '.stages.popup_mediacontrols.gpu_busy_pct // empty' "$BENCH_JSON")"
     if [[ -n "$MEDIA_CPU" && -n "$MEDIA_GPU" ]]; then
-      (( $(awk -v c="$MEDIA_CPU" 'BEGIN { print (c <= 10.0) }') )) && pass "S4: MediaControls CPU <= 10.0% (${MEDIA_CPU}%)" || fail "S4: MediaControls CPU exceeded 10.0% (${MEDIA_CPU}%)"
-      (( $(awk -v g="$MEDIA_GPU" 'BEGIN { print (g <= 12.0) }') )) && pass "S4: MediaControls iGPU <= 12.0% (${MEDIA_GPU}%)" || fail "S4: MediaControls iGPU exceeded 12.0% (${MEDIA_GPU}%)"
+      (( $(awk -v c="$MEDIA_CPU" 'BEGIN { print (c <= 10.0) }') )) && pass "S5: MediaControls CPU <= 10.0% (${MEDIA_CPU}%)" || fail "S5: MediaControls CPU exceeded 10.0% (${MEDIA_CPU}%)"
+      (( $(awk -v g="$MEDIA_GPU" 'BEGIN { print (g <= 12.0) }') )) && pass "S5: MediaControls iGPU <= 12.0% (${MEDIA_GPU}%)" || fail "S5: MediaControls iGPU exceeded 12.0% (${MEDIA_GPU}%)"
     fi
 
     # NetPing GPU Boost Lock Check (act freq == 0.0 MHz)
     NETPING_FREQ="$(jq -r '.stages.popup_netping.gpu_act_freq_mhz // empty' "$BENCH_JSON")"
     if [[ -n "$NETPING_FREQ" ]]; then
       if (( $(awk -v f="$NETPING_FREQ" 'BEGIN { print (f == 0.0) }') )); then
-        pass "S4: NetPing GPU boost clock lock eliminated (${NETPING_FREQ} MHz)"
+        pass "S5: NetPing GPU boost clock lock eliminated (${NETPING_FREQ} MHz)"
       else
-        fail "S4: NetPing GPU clock locked at boost frequency (${NETPING_FREQ} MHz)"
+        fail "S5: NetPing GPU clock locked at boost frequency (${NETPING_FREQ} MHz)"
       fi
     fi
   else
-    if [[ "$RUN_SECTION" -eq 4 ]]; then
-      fail "S4: benchmark-latest.json missing or invalid JSON ($BENCH_JSON)"
+    if [[ "$RUN_SECTION" -eq 5 ]]; then
+      fail "S5: benchmark-latest.json missing or invalid JSON ($BENCH_JSON)"
     else
-      finding "S4: benchmark-latest.json pending benchmarking run"
+      finding "S5: benchmark-latest.json pending benchmarking run"
     fi
   fi
-fi
 
-# ---------------------------------------------------------------------------
-# Section 5: Strict Repository Verification & Zero Stow Drift
-# ---------------------------------------------------------------------------
-if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
-  info "--- Section 5: Strict Repository Verification & Zero Stow Drift ---"
   if [[ "$QUICK_MODE" -eq 0 && -x "$REPO_ROOT/arch/dots-hyprland.sh" ]]; then
     info "Running ./arch/dots-hyprland.sh verify --strict..."
     "$REPO_ROOT/arch/dots-hyprland.sh" verify --strict && pass "S5: dots-hyprland.sh verify --strict clean" || fail "S5: dots-hyprland.sh verify --strict failed"

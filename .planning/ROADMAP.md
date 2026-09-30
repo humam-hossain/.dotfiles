@@ -36,7 +36,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 - [x] **Phase 47: Center-Zone Layout Reorganization** (0 plans) (completed 2026-09-29)
 - [x] **Phase 48: Right-Zone Media Expansion & System Tray Empty State Gating** (0 plans) (completed 2026-09-30)
 - [x] **Phase 49: Quickshell Resource Profiling & Component Performance Audit** (0 plans) (completed 2026-09-30)
-- [ ] **Phase 50: Quickshell Deep Performance Optimization & Overhead Reduction** (0 plans)
+- [ ] **Phase 50: Quickshell Deep Performance Optimization & Overhead Reduction** (4 plans)
 
 ## Phase Details
 
@@ -362,14 +362,14 @@ Plans:
 | 47. Center-Zone Layout Reorganization | v0.9 | 3/3 | Complete    | 2026-09-29 |
 | 48. Right-Zone Media Expansion & System Tray Empty State Gating | v0.9 | 3/3 | Complete    | 2026-09-30 |
 | 49. Quickshell Resource Profiling & Component Performance Audit | v0.9 | 4/4 | Complete    | 2026-09-30 |
-| 50. Quickshell Deep Performance Optimization & Overhead Reduction | v0.9 | 0 plans | Planned     | - |
+| 50. Quickshell Deep Performance Optimization & Overhead Reduction | v0.9 | 0/4 | Planned     | - |
 
 ### Phase 50: Quickshell Deep Performance Optimization & Overhead Reduction
 
 **Goal:** Execute prioritized optimizations across Quickshell singletons, MediaControls, NetworkUsage, and popup scenegraph components to drive down the +4.78% idle CPU delta towards upstream baseline (target <= 2.0%), reduce context switch and syscall churn by >75%, eliminate the 1550 MHz GPU boost lock and excessive media overhead, and empirically re-benchmark all stages.  
 **Depends on:** Phase 49  
 **Requirements**: OPT-01, OPT-02, OPT-03, OPT-04, OPT-05  
-**Plans:** 0 plans
+**Plans:** 4 plans (50-01, 50-02, 50-03, 50-04)
 
 Success criteria:
 
@@ -380,5 +380,15 @@ Success criteria:
 5. Full 8-stage + idle benchmarking suite executed via `scripts/profile-quickshell.sh`, automated assertion harness verifying all optimization invariants, and `BENCHMARK.md` updated with pre- vs post-optimization attribution matrices.
 
 Plans:
+**Wave 1**
 
-- [ ] TBD (run /gsd-plan-phase 50 to break down)
+- [ ] 50-01-PLAN.md — Wave 1: Assertion Test Harness Scaffold (Wave 0) & Quiescent Idle Footprint / Coalesced 5s Heartbeat
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 50-02-PLAN.md — Wave 2: Subshell Elimination Across Singletons & NetworkPingPopup GPU Boost Lock Elimination
+- [ ] 50-03-PLAN.md — Wave 2: MediaControls / PlayerControl Overlay & Popup Canvas Graph / Drop Shadow Optimizations
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 50-04-PLAN.md — Wave 3: Comprehensive Re-Benchmarking, Empirical Verification & Performance Report
