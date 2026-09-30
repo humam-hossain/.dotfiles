@@ -64,4 +64,8 @@ kde-material-you-colors/
 *.socket
 !stow/systemd/**
 *.lock
+rclone.conf
+*.rclone.conf
+.config/rclone/
+stow/rclone/.config/rclone/
 

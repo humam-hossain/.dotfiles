@@ -1,0 +1,5 @@
+# Ignore rclone credentials from AI indexing and tools
+rclone.conf
+*.rclone.conf
+.config/rclone/
+stow/rclone/.config/rclone/
