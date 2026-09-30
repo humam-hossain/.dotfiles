@@ -1,11 +1,11 @@
 ---
-status: complete
+status: diagnosed
 phase: 48-right-zone-media-expansion-system-tray-empty-state-gating
 source:
   - 48-01-SUMMARY.md
   - 48-02-SUMMARY.md
 started: 2026-09-30T09:37:00+06:00
-updated: 2026-09-30T10:04:00+06:00
+updated: 2026-09-30T10:04:30+06:00
 ---
 
 ## Current Test
@@ -44,9 +44,16 @@ skipped: 0
   reason: "User reported: cannot see artist because single-line right-elision elides artist at end of string first; title should elide before artist; narrow screen threshold handling needed."
   severity: major
   test: 2
+  root_cause: "In Media.qml, single StyledText element concatenates title and artist with Text.ElideRight; right-side elision chops off artist first when title is long. Narrow screens lack threshold-based artist suppression."
   artifacts:
-    - restow/quickshell/.config/quickshell/ii/modules/ii/bar/Media.qml
-    - restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml
+    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/bar/Media.qml"
+      issue: "Single StyledText with Text.ElideRight elides artist instead of title"
+    - path: "restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml"
+      issue: "Need to pass or coordinate useShortenedForm / narrow screen threshold to Media item"
+    - path: "scripts/phase48-right-zone-assert.sh"
+      issue: "Assertions check old single StyledText concatenation rather than separate elision layout"
   missing:
-    - "Layout where artist is always preserved and title elides"
-    - "Narrow screen threshold handling"
+    - "Separate title and artist elements in Media.qml allowing title to elide while artist remains fixed"
+    - "Narrow screen threshold gating (e.g. useShortenedForm > 0) to suppress artist on constrained screens"
+    - "Update test harness assertions to validate new layout invariants and narrow-screen fallback"
+  debug_session: .planning/debug/media-artist-visibility.md
