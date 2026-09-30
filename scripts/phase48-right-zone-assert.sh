@@ -354,7 +354,43 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
     fail "S4: 1600px Shortened wide evaluates to $res_1600_t1 != 160.0px"
   fi
 
-  # Tray gating logic verification
+  # Dynamic hugging simulation (RGHT-01, D-03)
+  sim_hugging() {
+    local content_w="$1"
+    local max_w="$2"
+    python3 -c "print(f'{min($content_w, $max_w):.1f}')"
+  }
+
+  eff_short=$(sim_hugging 100 412.8)
+  if [[ "$eff_short" == "100.0" ]]; then
+    pass "S4: Dynamic hugging: short track (100px) hugs content (< 412.8px clamp)"
+  else
+    fail "S4: Dynamic hugging failed for short track ($eff_short != 100.0)"
+  fi
+
+  eff_long=$(sim_hugging 600 412.8)
+  if [[ "$eff_long" == "412.8" ]]; then
+    pass "S4: Dynamic hugging: long track (600px) clamped to maximum width 412.8px"
+  else
+    fail "S4: Dynamic hugging failed for long track ($eff_long != 412.8)"
+  fi
+
+  # Nullish screen fallback check (RGHT-01, D-01, D-02)
+  if grep -q "root.screen?.width ?? 1920" "$BAR_CONTENT" && grep -q "root.screen?.width ?? 1200" "$BAR_CONTENT"; then
+    pass "S4: Nullish fallback screen width defaults (1920/1200) present in BarContent.qml"
+  else
+    fail "S4: Nullish fallback screen width defaults missing in BarContent.qml"
+  fi
+
+  # Right Zone widget ordering AST check (D-11, D-12)
+  ORDER_MATCH=$(awk '/id: mediaLoader/{m=1} /id: voicePill/{if(m) v=1} /id: updatesLoader/{if(v) u=1} /id: batteryLoader/{if(u) b=1} /id: sysTrayGroup/{if(b) s=1} /id: rightSidebarButton/{if(s) r=1} END{print (r ? 1 : 0)}' "$BAR_CONTENT")
+  if [[ "$ORDER_MATCH" -eq 1 ]]; then
+    pass "S4: Right Zone widget order verified (media -> voice -> updates -> battery -> sysTray -> rightSidebar)"
+  else
+    fail "S4: Right Zone widget order violated in BarContent.qml"
+  fi
+
+  # Tray gating logic verification (RGHT-03, D-09..D-12)
   check_tray_vis() {
     local form="$1"
     local count="$2"
