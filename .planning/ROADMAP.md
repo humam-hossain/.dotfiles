@@ -34,7 +34,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 - [x] **Phase 45: Network & Multi-Target Ping Component (Pill & Popup)** (3 plans) (completed 2026-09-29)
 - [x] **Phase 46: Left-Zone Integration, Verification & Repository Integrity** (2 plans) (completed 2026-09-29)
 - [x] **Phase 47: Center-Zone Layout Reorganization** (0 plans) (completed 2026-09-29)
-- [ ] **Phase 48: Right-Zone Media Expansion & System Tray Empty State Gating** (0 plans)
+- [x] **Phase 48: Right-Zone Media Expansion & System Tray Empty State Gating** (0 plans) (completed 2026-09-30)
 
 ## Phase Details
 
@@ -298,7 +298,7 @@ Plans:
 **Goal:** Calibrate Right-Zone media player length dynamically using a responsive equation proportional to physical screen width across multi-monitor setups, ensure both track title and artist metadata are displayed without premature truncation, and dynamically gate the system tray pill so it completely hides when no tray icons/apps are active.  
 **Depends on:** Phase 47  
 **Requirements**: RGHT-01, RGHT-02, RGHT-03  
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Success criteria:
 
@@ -310,7 +310,7 @@ Success criteria:
 Plans:
 
 - [x] 48-01-PLAN.md
-- [ ] 48-02-PLAN.md
+- [x] 48-02-PLAN.md
 
 - [ ] TBD (run /gsd-plan-phase 48 to break down)
 
@@ -335,4 +335,4 @@ Plans:
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 3/3 | Complete    | 2026-09-29 |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 2/2 | Complete    | 2026-09-29 |
 | 47. Center-Zone Layout Reorganization | v0.9 | 3/3 | Complete    | 2026-09-29 |
-| 48. Right-Zone Media Expansion & System Tray Empty State Gating | v0.9 | 1/2 | In Progress|  |
+| 48. Right-Zone Media Expansion & System Tray Empty State Gating | v0.9 | 2/2 | Complete    | 2026-09-30 |

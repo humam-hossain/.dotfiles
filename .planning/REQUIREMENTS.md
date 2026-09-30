@@ -113,6 +113,6 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CNTR-01 | Phase 47 | Complete |
 | CNTR-02 | Phase 47 | Complete |
 | CNTR-03 | Phase 47 | Complete |
-| RGHT-01 | Phase 48 | Planned |
-| RGHT-02 | Phase 48 | Planned |
-| RGHT-03 | Phase 48 | Planned |
+| RGHT-01 | Phase 48 | Complete |
+| RGHT-02 | Phase 48 | Complete |
+| RGHT-03 | Phase 48 | Complete |
