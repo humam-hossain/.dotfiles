@@ -298,7 +298,7 @@ Plans:
 **Goal:** Calibrate Right-Zone media player length dynamically using a responsive equation proportional to physical screen width across multi-monitor setups, ensure both track title and artist metadata are displayed without premature truncation, and dynamically gate the system tray pill so it completely hides when no tray icons/apps are active.  
 **Depends on:** Phase 47  
 **Requirements**: RGHT-01, RGHT-02, RGHT-03  
-**Plans:** 0 plans
+**Plans:** 1/2 plans executed
 
 Success criteria:
 
@@ -308,6 +308,9 @@ Success criteria:
 4. Preserved visual layout and alignment: Ensure the Right Zone in `BarContent.qml` smoothly reflows when the system tray appears/disappears and when the media pill expands or contracts, maintaining clean spacing and zero layout collisions.
 
 Plans:
+
+- [x] 48-01-PLAN.md
+- [ ] 48-02-PLAN.md
 
 - [ ] TBD (run /gsd-plan-phase 48 to break down)
 
@@ -332,4 +335,4 @@ Plans:
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 3/3 | Complete    | 2026-09-29 |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 2/2 | Complete    | 2026-09-29 |
 | 47. Center-Zone Layout Reorganization | v0.9 | 3/3 | Complete    | 2026-09-29 |
-| 48. Right-Zone Media Expansion & System Tray Empty State Gating | v0.9 | 0 plans | Not started | - |
+| 48. Right-Zone Media Expansion & System Tray Empty State Gating | v0.9 | 1/2 | In Progress|  |
