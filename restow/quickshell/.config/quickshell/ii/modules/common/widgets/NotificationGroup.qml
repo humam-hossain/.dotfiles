@@ -17,10 +17,14 @@ MouseArea { // Notification group area
     property var notifications: notificationGroup?.notifications ?? []
     property int notificationCount: notifications.length
     property bool multipleNotifications: notificationCount > 1
-    property bool expanded: false
+    property bool expanded: !multipleNotifications
     property bool popup: false
     property real padding: 10
     implicitHeight: background.implicitHeight
+
+    onMultipleNotificationsChanged: {
+        root.expanded = !root.multipleNotifications;
+    }
 
     property real dragConfirmThreshold: 70 // Drag further to discard notification
     property real dismissOvershoot: 20 // Account for gaps and bouncy animations
@@ -242,6 +246,12 @@ MouseArea { // Notification group area
                             font.pixelSize: topRow.fontSize
                             color: Appearance.colors.colSubtext
                         }
+                    }
+                    MouseArea {
+                        anchors.fill: topTextRow
+                        enabled: root.multipleNotifications && root.expanded
+                        cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                        onClicked: { root.toggleExpanded(); }
                     }
                     NotificationGroupExpandButton {
                         id: expandButton

@@ -15,9 +15,15 @@ Item { // Notification item area
     property string otpCode: NotificationUtils.extractOtpCode(notificationObject?.body, notificationObject?.summary)
     property bool groupExpanded: false
     property bool onlyNotification: false
-    property bool itemExpanded: false
-    property bool expanded: onlyNotification ? groupExpanded : itemExpanded
+    property bool itemExpanded: true
+    property bool expanded: onlyNotification ? groupExpanded : (groupExpanded && itemExpanded)
     property bool initialized: false
+
+    onGroupExpandedChanged: {
+        if (groupExpanded) {
+            itemExpanded = true;
+        }
+    }
     property real fontSize: Appearance.font.pixelSize.small
     property real padding: onlyNotification ? 0 : 8
     property real summaryElideRatio: 0.85
@@ -98,7 +104,7 @@ Item { // Notification item area
         id: dragManager
         anchors.fill: root
         anchors.leftMargin: root.expanded ? -notificationIcon.implicitWidth : 0
-        interactive: expanded
+        interactive: root.onlyNotification ? expanded : root.groupExpanded
         automaticallyReset: false
         acceptedButtons: Qt.LeftButton | Qt.MiddleButton
 
@@ -106,7 +112,11 @@ Item { // Notification item area
             if (mouse.button === Qt.MiddleButton) {
                 root.destroyWithAnimation();
             } else if (mouse.button === Qt.LeftButton) {
-                root.activateNotification();
+                if (!root.expanded) {
+                    root.itemExpanded = true;
+                } else {
+                    root.activateNotification();
+                }
             }
         }
 
