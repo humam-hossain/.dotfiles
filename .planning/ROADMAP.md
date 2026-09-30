@@ -3,7 +3,7 @@
 ## Milestones
 
 - ✅ **v0.8 Notification Experience & Shell Interaction Polish** — Phases 38–41 (shipped 2026-09-25) — [Archive](milestones/v0.8-ROADMAP.md)
-- 📋 **v0.9 Top Status Bar Resource Components & Hardware Telemetry** — Phases 42–47 (in progress)
+- 📋 **v0.9 Top Status Bar Resource Components & Hardware Telemetry** — Phases 42–48 (in progress)
 
 ## Phases
 
@@ -20,7 +20,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 
 </details>
 
-### 📋 v0.9 Top Status Bar Resource Components & Hardware Telemetry (Phases 42–47)
+### 📋 v0.9 Top Status Bar Resource Components & Hardware Telemetry (Phases 42–48)
 
 - [x] **Phase 42: Telemetry Services & Sensor Infrastructure** (4 plans) (completed 2026-09-25)
 - [x] **Phase 43: CPU & GPU Component (Pill & Popup)** (4 plans) (completed 2026-09-26)
@@ -34,6 +34,7 @@ See full archived phase details in [milestones/v0.8-ROADMAP.md](milestones/v0.8-
 - [x] **Phase 45: Network & Multi-Target Ping Component (Pill & Popup)** (3 plans) (completed 2026-09-29)
 - [x] **Phase 46: Left-Zone Integration, Verification & Repository Integrity** (2 plans) (completed 2026-09-29)
 - [x] **Phase 47: Center-Zone Layout Reorganization** (0 plans) (completed 2026-09-29)
+- [ ] **Phase 48: Right-Zone Media Expansion & System Tray Empty State Gating** (0 plans)
 
 ## Phase Details
 
@@ -288,12 +289,27 @@ Success criteria:
 
 Plans:
 
-- [x] 47-03-PLAN.md
-
 - [x] 47-01-PLAN.md
 - [x] 47-02-PLAN.md
+- [x] 47-03-PLAN.md
 
-- [ ] TBD (run /gsd-plan-phase 47 to break down)
+### Phase 48: Right-Zone Media Expansion & System Tray Empty State Gating
+
+**Goal:** Calibrate Right-Zone media player length dynamically using a responsive equation proportional to physical screen width across multi-monitor setups, ensure both track title and artist metadata are displayed without premature truncation, and dynamically gate the system tray pill so it completely hides when no tray icons/apps are active.  
+**Depends on:** Phase 47  
+**Requirements**: RGHT-01, RGHT-02, RGHT-03  
+**Plans:** 0 plans
+
+Success criteria:
+
+1. Dynamic / proportional media pill length: Derive and apply a responsive sizing relationship/equation based on physical screen width (`screen.width` or monitor dimensions) so that the media player pill is adequately sized across multi-monitor configurations without prematurely truncating content.
+2. Complete media track & artist metadata: Ensure both the currently playing track title and the artist/author name are displayed clearly in the media player pill.
+3. System tray empty state gating: When no applications or tray items are present in the system tray (`SystemTray`), hide/remove the empty pill component completely. Only display the system tray pill when at least one active tray app is running.
+4. Preserved visual layout and alignment: Ensure the Right Zone in `BarContent.qml` smoothly reflows when the system tray appears/disappears and when the media pill expands or contracts, maintaining clean spacing and zero layout collisions.
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 48 to break down)
 
 ## Progress
 
@@ -316,3 +332,4 @@ Plans:
 | 45. Network & Multi-Target Ping Component (Pill & Popup) | v0.9 | 3/3 | Complete    | 2026-09-29 |
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 2/2 | Complete    | 2026-09-29 |
 | 47. Center-Zone Layout Reorganization | v0.9 | 3/3 | Complete    | 2026-09-29 |
+| 48. Right-Zone Media Expansion & System Tray Empty State Gating | v0.9 | 0 plans | Not started | - |
