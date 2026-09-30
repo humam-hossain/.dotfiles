@@ -547,6 +547,14 @@ Milestone v0.9 complete — all 23 requirements validated. Ready for milestone c
 | Phase 46: Storage-First metric and inspector column layout | Storage displayed first on left, RAM on right in `MemoryStoragePill`; Storage card in Left 320px column and Memory card in Right 320px column in `MemoryStoragePopup` (D-02, D-03) | ✓ INTG-01, Section 3 FAIL=0 |
 | Phase 46: Permanent retirement of legacy Resource.qml/Resources.qml | Deleted legacy monolithic resource meters from git, unlinked live symlinks, restored upstream .bak stubs without broken symlinks into repo (D-08, D-09) | ✓ INTG-02, Section 1 FAIL=0 |
 | Phase 46: Consolidated 6-section milestone assertion suite | `scripts/phase46-telemetry-assert.sh` orchestrates all Milestone v0.9 sub-harnesses (`phase42`, `phase43.6`, `phase43-perf`, `phase44`, `phase45`) and `./arch/dots-hyprland.sh verify --strict` with zero git churn (D-10, D-11) | ✓ INTG-03, Section 6 FAIL=0 FINDINGS=0 |
+| Phase 47: Weather and Clock flanking Workspaces | Anchors Weather to left of Workspaces with 8px margin and Clock & Date to right in Center zone; Workspaces remains dead-centered (CNTR-01, CNTR-02, CNTR-03) | ✓ Section 2, 3 FAIL=0 |
+| Phase 47: 5-section assertion harness | `scripts/phase47-center-zone-assert.sh` validates geometry, layout hierarchy, visual symmetry, and strict repository verification (FAIL=0 FINDINGS=0) | ✓ 47-03 Complete |
+| Phase 48: Responsive media player max-width scaling equation | `Math.min(Math.max(screen.width * 0.12, 220), 450)` on full screens and clamp [140, 180] on shortened screens hugging content up to ceiling (RGHT-01) | ✓ 48-02 Complete |
+| Phase 48: Track title and artist styling hierarchy & narrow-screen gating | Primary `colOnLayer1` title with `Text.ElideRight` eliding before muted `colSubtext` artist; hides artist on narrow displays (RGHT-02) | ✓ 48-03 Complete |
+| Phase 48: Reactive system tray empty-state gating | `sysTrayGroup.visible` bound to `(root.useShortenedForm === 0) && ((SystemTray.items?.values?.length ?? 0) > 0)` collapsing to 0px width when empty (RGHT-03) | ✓ 48-02 Complete |
+| Phase 49: Baseline resource measurement & media preflight | Pauses MPRIS players before sampling to eliminate external GPU decode noise; asserts idle GPU $\le 10\%$ without QS and upstream baseline $\le 5\%$ CPU, $\le 10\%$ GPU (AUDIT-01) | ✓ 49-01 Complete |
+| Phase 49: Automated interactive popup profiling engine | Calibrated Wayland $2\times$ uinput coordinates on DP-1 (`Y=10`) and QS IPC triggers profiling 8 popups with layer shell verification and neutral center teardown (AUDIT-02) | ✓ 49-02 Complete |
+| Phase 49: Targeted component optimizations & master report | Gated cava behind playback state and downsampled 3x (60->20 FPS); bounded ping pulse animation to 3 cycles; memoized DNS model; relaxed idle polling; generated `BENCHMARK.md` (AUDIT-03) | ✓ 49-03 Complete |
 
 ## Evolution
 
@@ -566,7 +574,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-29 after Phase 46*
+*Last updated: 2026-09-30 after Phase 49 (Milestone v0.9 100% Complete)*
 
 
 
