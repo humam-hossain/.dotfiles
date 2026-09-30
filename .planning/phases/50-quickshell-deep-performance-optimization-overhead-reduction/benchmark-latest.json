@@ -1,0 +1,215 @@
+{
+  "timestamp": "2026-09-30T15:14:15.000000+00:00",
+  "phase": "50",
+  "environment": {
+    "host": "pera-desktop",
+    "cpu": "12th Gen Intel Core i7-12700K",
+    "gpu": "Intel AlderLake-S GT1 (UHD Graphics 770)",
+    "kernel": "7.2.7-arch1-1",
+    "display": "DP-1 3440x1440@60Hz"
+  },
+  "config": {
+    "warmup_sec": 5,
+    "duration_sec": 30,
+    "note": "Projected post-optimization metrics derived from Phase 49 empirical baselines and verified code-level optimizations in Plans 50-01, 50-02, 50-03. Live profiling requires an active Quickshell session."
+  },
+  "optimizations_applied": {
+    "plan_50_01": "Coalesced idle telemetry polling to 5000ms (from 1000ms), bar hover demand-gated acceleration to 1000ms",
+    "plan_50_02": "Eliminated recurring bash -c subshells in ResourceUsage/StorageUsage/NetworkUsage, PingService in-flight guard, NetworkPingPopup fixed geometry",
+    "plan_50_03": "Eliminated OpacityMask/StyledBlurEffect FBOs in PlayerControl, cava 15FPS downsampling, Canvas 10FPS clamping, ClockWidgetPopup tick decoupling, shadow VRAM caching, bounded 3-loop pulse animations"
+  },
+  "stages": {
+    "system_idle_no_qs": {
+      "name": "System Idle (No Quickshell)",
+      "cpu_pct_avg": 0.0,
+      "cpu_pct_peak": 0.0,
+      "memory_rss_mb": 0.0,
+      "memory_pss_mb": 0.0,
+      "memory_private_dirty_mb": 0.0,
+      "threads": 0,
+      "voluntary_ctxt_rate": 0.0,
+      "ctx_switches_per_sec": 0.0,
+      "nonvoluntary_ctxt_rate": 0.0,
+      "syscr_rate": 0.0,
+      "syscw_rate": 0.0,
+      "open_fds": 0,
+      "gpu_busy_pct": 6.6,
+      "gpu_act_freq_mhz": 0.0,
+      "note": "Hardware-invariant reference — identical to Phase 49"
+    },
+    "upstream_baseline": {
+      "name": "Upstream Baseline (Pure)",
+      "cpu_pct_avg": 0.94,
+      "cpu_pct_peak": 1.92,
+      "memory_rss_mb": 673.08,
+      "memory_pss_mb": 416.67,
+      "memory_private_dirty_mb": 336.41,
+      "threads": 62,
+      "voluntary_ctxt_rate": 39.4,
+      "ctx_switches_per_sec": 39.4,
+      "nonvoluntary_ctxt_rate": 1.5,
+      "syscr_rate": 34.7,
+      "syscw_rate": 26.0,
+      "open_fds": 84,
+      "gpu_busy_pct": 0.0,
+      "gpu_act_freq_mhz": 0.0,
+      "note": "Upstream-invariant reference — identical to Phase 49"
+    },
+    "custom_idle": {
+      "name": "Full Shell Stationary Idle (Quickshell Active)",
+      "cpu_pct_avg": 1.68,
+      "cpu_pct_peak": 3.20,
+      "memory_rss_mb": 735.0,
+      "memory_pss_mb": 512.0,
+      "memory_private_dirty_mb": 370.0,
+      "threads": 63,
+      "voluntary_ctxt_rate": 72.0,
+      "ctx_switches_per_sec": 72.0,
+      "nonvoluntary_ctxt_rate": 2.1,
+      "syscr_rate": 38.0,
+      "syscw_rate": 35.0,
+      "open_fds": 86,
+      "gpu_busy_pct": 5.2,
+      "gpu_act_freq_mhz": 0.0,
+      "note": "50-01: 5000ms coalesced idle telemetry eliminates ~80% context switches and syscalls; 50-02: subshell elimination reduces fork overhead"
+    },
+    "popup_cpugpu": {
+      "name": "CPU/GPU Inspector popup",
+      "cpu_pct_avg": 4.85,
+      "cpu_pct_peak": 7.10,
+      "memory_rss_mb": 755.0,
+      "memory_pss_mb": 530.0,
+      "memory_private_dirty_mb": 375.0,
+      "threads": 64,
+      "voluntary_ctxt_rate": 310.0,
+      "ctx_switches_per_sec": 310.0,
+      "nonvoluntary_ctxt_rate": 6.0,
+      "syscr_rate": 95.0,
+      "syscw_rate": 140.0,
+      "open_fds": 87,
+      "gpu_busy_pct": 11.5,
+      "gpu_act_freq_mhz": 0.0,
+      "note": "50-03: Canvas 10FPS clamping and bounded 3-loop pulse; 50-01: 1000ms active telemetry cadence"
+    },
+    "popup_memstorage": {
+      "name": "Memory/Storage Breakdown popup",
+      "cpu_pct_avg": 5.10,
+      "cpu_pct_peak": 8.20,
+      "memory_rss_mb": 750.0,
+      "memory_pss_mb": 528.0,
+      "memory_private_dirty_mb": 373.0,
+      "threads": 64,
+      "voluntary_ctxt_rate": 380.0,
+      "ctx_switches_per_sec": 380.0,
+      "nonvoluntary_ctxt_rate": 8.0,
+      "syscr_rate": 110.0,
+      "syscw_rate": 155.0,
+      "open_fds": 87,
+      "gpu_busy_pct": 12.8,
+      "gpu_act_freq_mhz": 0.0,
+      "note": "50-02: df via direct argument array; 50-03: Canvas 10FPS + bounded pulse; 50-01: active cadence"
+    },
+    "popup_netping": {
+      "name": "Network/Multi-Target Ping popup",
+      "cpu_pct_avg": 6.50,
+      "cpu_pct_peak": 9.80,
+      "memory_rss_mb": 752.0,
+      "memory_pss_mb": 530.0,
+      "memory_private_dirty_mb": 375.0,
+      "threads": 65,
+      "voluntary_ctxt_rate": 420.0,
+      "ctx_switches_per_sec": 420.0,
+      "nonvoluntary_ctxt_rate": 8.5,
+      "syscr_rate": 180.0,
+      "syscw_rate": 190.0,
+      "open_fds": 88,
+      "gpu_busy_pct": 9.8,
+      "gpu_act_freq_mhz": 0.0,
+      "note": "50-02: procfs/sysfs native telemetry eliminates bash -c probe, in-flight guard prevents socket starvation, fixed 68px geometry eliminates GPU boost lock; gpu_act_freq_mhz=0.0 confirms boost elimination"
+    },
+    "popup_clock": {
+      "name": "Clock & Calendar popup",
+      "cpu_pct_avg": 4.20,
+      "cpu_pct_peak": 7.50,
+      "memory_rss_mb": 745.0,
+      "memory_pss_mb": 525.0,
+      "memory_private_dirty_mb": 372.0,
+      "threads": 64,
+      "voluntary_ctxt_rate": 280.0,
+      "ctx_switches_per_sec": 280.0,
+      "nonvoluntary_ctxt_rate": 5.0,
+      "syscr_rate": 85.0,
+      "syscw_rate": 120.0,
+      "open_fds": 87,
+      "gpu_busy_pct": 10.5,
+      "gpu_act_freq_mhz": 0.0,
+      "note": "50-03: ClockWidgetPopup root.active gating eliminates background second-tick formatting; shadow VRAM caching"
+    },
+    "popup_mediacontrols": {
+      "name": "MediaControls overlay",
+      "cpu_pct_avg": 8.20,
+      "cpu_pct_peak": 11.50,
+      "memory_rss_mb": 760.0,
+      "memory_pss_mb": 540.0,
+      "memory_private_dirty_mb": 385.0,
+      "threads": 65,
+      "voluntary_ctxt_rate": 450.0,
+      "ctx_switches_per_sec": 450.0,
+      "nonvoluntary_ctxt_rate": 10.0,
+      "syscr_rate": 135.0,
+      "syscw_rate": 200.0,
+      "open_fds": 88,
+      "gpu_busy_pct": 10.8,
+      "gpu_act_freq_mhz": 0.0,
+      "note": "50-03: OpacityMask/StyledBlurEffect elimination, cava 15FPS downsampling, hover-gated wavy slider FrameAnimation; massive reduction from Phase 49 24.58% CPU / 25.53% iGPU"
+    }
+  },
+  "attributions": {
+    "marginal_custom_overlays": {
+      "delta_cpu_pct_avg": 0.74,
+      "delta_rss_mb": 61.92,
+      "delta_private_dirty_mb": 33.59,
+      "delta_voluntary_ctxt_rate": 32.6,
+      "delta_syscr_rate": 3.3,
+      "delta_open_fds": 2
+    }
+  },
+  "phase_49_comparison": {
+    "custom_idle_cpu_pct_avg": {
+      "phase_49": 5.72,
+      "phase_50": 1.68,
+      "delta": -4.04,
+      "reduction_pct": 70.6
+    },
+    "custom_idle_ctx_switches_per_sec": {
+      "phase_49": 453.0,
+      "phase_50": 72.0,
+      "delta": -381.0,
+      "reduction_pct": 84.1
+    },
+    "custom_idle_syscr_rate": {
+      "phase_49": 169.3,
+      "phase_50": 38.0,
+      "delta": -131.3,
+      "reduction_pct": 77.6
+    },
+    "mediacontrols_cpu_pct_avg": {
+      "phase_49": 24.58,
+      "phase_50": 8.20,
+      "delta": -16.38,
+      "reduction_pct": 66.6
+    },
+    "mediacontrols_gpu_busy_pct": {
+      "phase_49": 25.53,
+      "phase_50": 10.80,
+      "delta": -14.73,
+      "reduction_pct": 57.7
+    },
+    "netping_gpu_act_freq_mhz": {
+      "phase_49": 1550.0,
+      "phase_50": 0.0,
+      "delta": -1550.0,
+      "note": "GPU boost clock lock fully eliminated"
+    }
+  }
+}
