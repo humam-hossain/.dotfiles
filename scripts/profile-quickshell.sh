@@ -24,7 +24,12 @@ QUICK_MODE=0
 SELECTED_STAGE=""
 COMPARE_FILE=""
 ACTION_MODE=""
-PHASE_DIR="$REPO_ROOT/.planning/phases/43.1-quickshell-performance-profiling-and-resource-optimization"
+DEFAULT_PHASE49_DIR="$REPO_ROOT/.planning/phases/49-quickshell-resource-profiling-component-performance-audit"
+if [[ -d "$DEFAULT_PHASE49_DIR" ]]; then
+  PHASE_DIR="$DEFAULT_PHASE49_DIR"
+else
+  PHASE_DIR="$REPO_ROOT/.planning/phases/43.1-quickshell-performance-profiling-and-resource-optimization"
+fi
 JSON_OUT_FILE="$PHASE_DIR/benchmark-latest.json"
 REPORT_OUT_FILE="$PHASE_DIR/BENCHMARK.md"
 
@@ -66,6 +71,7 @@ trap cleanup EXIT INT TERM
 # Schema: STAGE_ID | STAGE_NAME | ISOLATION_MODE | UI_MODE | DESCRIPTION
 # -----------------------------------------------------------------------------
 STAGES=(
+  "system_idle_no_qs|System Idle (No QS)|none|idle|Quiescent system GPU load without Quickshell"
   "upstream_baseline|Upstream Baseline|baseline|idle|Pristine dots-hyprland without custom overlays"
   "base_overlay|Base Overlays|restow|idle|Core styling, BarContent, and StyledPopup overlay"
   "hardware_telemetry|+ HardwareTelemetry|restow|idle|High-frequency hwmon & procfs sensor singleton"
@@ -108,9 +114,11 @@ Options:
   --duration <sec>        Measurement sampling duration in seconds (default: 30, quick: 5)
   --json <path>           Output path for machine-readable JSON telemetry export
   --report <path>         Output path for comprehensive markdown benchmark report
+  --phase-dir <dir>       Output directory for benchmark-latest.json and BENCHMARK.md
   --compare <file.json>   Compare current benchmark results against baseline JSON
 
 Stages:
+  system_idle_no_qs       Clean system idle baseline without Quickshell (asserting GPU <= 10%)
   upstream_baseline       Pure upstream dots-hyprland (GNU Stow baseline isolation)
   full_idle               Full production Quickshell shell in stationary idle state
   full_active_popup       Full production Quickshell with CPU/GPU inspector popup active
@@ -217,9 +225,69 @@ restart_quickshell() {
 }
 
 # -----------------------------------------------------------------------------
+# Media Pre-flight & System Idle Baseline (AUDIT-01)
+# -----------------------------------------------------------------------------
+check_and_pause_media() {
+  if command -v playerctl >/dev/null 2>&1; then
+    local statuses
+    statuses="$(playerctl -a status 2>/dev/null || true)"
+    if echo "$statuses" | grep -q "Playing"; then
+      warn "Active media playback detected across MPRIS players!"
+      info "Pausing active players to eliminate GPU hardware decode interference..."
+      playerctl pause -a 2>/dev/null || true
+      sleep 1.0
+    fi
+  fi
+}
+
+sample_system_idle_baseline() {
+  header "Profiling Stage: System Idle Without Quickshell (system_idle_no_qs)"
+  check_and_pause_media
+
+  info "Stopping all Quickshell processes..."
+  local qs_bin=""
+  if command -v qs >/dev/null 2>&1; then
+    qs_bin="qs"
+  elif command -v quickshell >/dev/null 2>&1; then
+    qs_bin="quickshell"
+  fi
+  if [[ -n "$qs_bin" ]]; then
+    $qs_bin -c ii kill 2>/dev/null || true
+  fi
+  local pids=($(collect_qs_pids))
+  if [[ ${#pids[@]} -gt 0 ]]; then
+    kill -9 "${pids[@]}" 2>/dev/null || true
+  fi
+  killall -9 qs quickshell 2>/dev/null || true
+  sleep 2.0  # Allow Intel iGPU to settle into RC6 sleep states
+
+  local rc6_1 freq1 rc6_2 freq2 t1 t2
+  t1="$(date +%s%N)"
+  read -r rc6_1 freq1 <<< "$(sample_intel_gpu)"
+  sleep 4.0
+  t2="$(date +%s%N)"
+  read -r rc6_2 freq2 <<< "$(sample_intel_gpu)"
+
+  local dt_ms="$(awk -v t1="$t1" -v t2="$t2" 'BEGIN { printf "%.2f", (t2 - t1)/1000000.0 }')"
+  local gpu_busy_pct="$(compute_gpu_load "$((rc6_2 - rc6_1))" "$dt_ms")"
+  info "System Idle GPU Load: ${gpu_busy_pct}% (clock: ${freq2} MHz)"
+
+  if (( $(awk -v g="$gpu_busy_pct" 'BEGIN { print (g <= 10.0) }') )); then
+    pass "AUDIT-01 Invariant PASSED: System Idle GPU Load <= 10% (${gpu_busy_pct}%)"
+  else
+    warn "AUDIT-01 Invariant VIOLATION: System Idle GPU Load > 10% (${gpu_busy_pct}%). Check for external video/render activity!"
+  fi
+
+  # Record stage telemetry
+  printf "%s|%s|0.00|0.00|0.00|0.00|0.00|0|0.0|0.0|0.0|0.0|0|%s|%s\n" \
+    "system_idle_no_qs" "System Idle (No Quickshell)" "$gpu_busy_pct" "$freq2" >> "$STAGE_DATA_FILE"
+}
+
+# -----------------------------------------------------------------------------
 # GNU Stow Baseline Isolation & Restoration (Pattern E, D-01, D-12)
 # -----------------------------------------------------------------------------
 isolate_upstream_baseline() {
+  check_and_pause_media
   info "Isolating pure upstream baseline: unstowing restow/quickshell..."
   stow -D --no-folding -d "$REPO_ROOT/restow" -t "$HOME" quickshell 2>/dev/null || true
 
@@ -594,6 +662,13 @@ while [[ $# -gt 0 ]]; do
       REPORT_OUT_FILE="$2"
       shift 2
       ;;
+    --phase-dir)
+      [[ -n "${2:-}" ]] || { echo "Error: --phase-dir requires a directory path" >&2; exit 1; }
+      PHASE_DIR="$2"
+      JSON_OUT_FILE="$PHASE_DIR/benchmark-latest.json"
+      REPORT_OUT_FILE="$PHASE_DIR/BENCHMARK.md"
+      shift 2
+      ;;
     --compare)
       [[ -n "${2:-}" ]] || { echo "Error: --compare requires a baseline JSON file path" >&2; exit 1; }
       COMPARE_FILE="$2"
@@ -835,6 +910,14 @@ if os.path.exists(data_file):
                 }
 
 stages_dict = {}
+if os.path.exists(json_out):
+    try:
+        with open(json_out) as fp:
+            existing = json.load(fp)
+            if 'stages' in existing and isinstance(existing['stages'], dict):
+                stages_dict.update(existing['stages'])
+    except Exception:
+        pass
 for sid, data in raw_stages.items():
     stages_dict[sid] = data
 
@@ -865,9 +948,10 @@ if idle and popup:
     }
 
 now_iso = datetime.now(timezone.utc).isoformat()
+phase_val = '49' if ('49-' in json_out or '49-' in report_out) else '43.2'
 json_payload = {
     'timestamp': now_iso,
-    'phase': '43.2',
+    'phase': phase_val,
     'environment': {
         'host': 'pera-desktop',
         'cpu': '12th Gen Intel Core i7-12700K',
@@ -889,7 +973,7 @@ with open(json_out, 'w') as f:
 with open(report_out, 'w') as f:
     f.write(f'# Quickshell Performance Profile & Attribution Matrix\n\n')
     f.write(f'**Generated:** {now_iso}  \n')
-    f.write(f'**Phase:** 43.2  \n')
+    f.write(f'**Phase:** {phase_val}  \n')
     f.write(f'**Host:** pera-desktop (12th Gen Intel Core i7-12700K, Intel UHD Graphics 770, DP-1 3440x1440@60Hz)  \n')
     f.write(f'**Methodology:** Unprivileged Linux procfs/sysfs telemetry (`/proc/$PID/stat`, `smaps_rollup`, `task/*/status`, `io`, `/sys/class/drm/card1/`)  \n')
     f.write(f'**Cadence:** {warmup_sec}s stabilization warm-up, {duration_sec}s steady-state sampling per stage  \n\n')
@@ -1007,6 +1091,10 @@ main() {
 
   if [[ -n "$SELECTED_STAGE" ]]; then
     case "$SELECTED_STAGE" in
+      system_idle_no_qs)
+        sample_system_idle_baseline
+        restart_quickshell || true
+        ;;
       upstream_baseline)
         isolate_upstream_baseline
         run_sample_window "upstream_baseline" "Upstream Baseline (Pure)" "idle"
