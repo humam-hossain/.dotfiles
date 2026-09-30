@@ -211,4 +211,5 @@ yazi
 yt-dlp
 zathura
 zathura-pdf-poppler
+zram-generator
 zsh
