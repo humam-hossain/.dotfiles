@@ -165,7 +165,7 @@ Singleton {
 
     Process {
         id: dfProc
-        command: ["bash", "-c", "timeout 3 df -k -P"]
+        command: ["timeout", "3", "df", "-k", "-P"]
         stdout: StdioCollector {
             onStreamFinished: {
                 root.lastDfTime = Date.now();

@@ -113,6 +113,11 @@ Singleton {
 
     Component.onCompleted: {
         root.pollMetrics();
+        fileCpuMaxFreq.reload();
+        const rawKhz = parseInt(fileCpuMaxFreq.text().trim(), 10);
+        if (!isNaN(rawKhz) && rawKhz > 0) {
+            root.maxAvailableCpuString = (rawKhz / 1000000).toFixed(0) + " GHz";
+        }
     }
 
     Connections {
@@ -137,19 +142,10 @@ Singleton {
     FileView { id: fileMeminfo; path: "/proc/meminfo"; printErrors: false; blockLoading: true }
     FileView { id: fileStat; path: "/proc/stat"; printErrors: false; blockLoading: true }
 
-    Process {
-        id: findCpuMaxFreqProc
-        environment: ({
-            LANG: "C",
-            LC_ALL: "C"
-        })
-        command: ["bash", "-c", "lscpu | grep 'CPU max MHz' | awk '{print $4}'"]
-        running: true
-        stdout: StdioCollector {
-            id: outputCollector
-            onStreamFinished: {
-                root.maxAvailableCpuString = (parseFloat(outputCollector.text) / 1000).toFixed(0) + " GHz";
-            }
-        }
+    FileView {
+        id: fileCpuMaxFreq
+        path: "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
+        printErrors: false
+        blockLoading: true
     }
 }

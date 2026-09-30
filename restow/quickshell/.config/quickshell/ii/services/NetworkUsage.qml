@@ -1,6 +1,7 @@
 pragma Singleton
 pragma ComponentBehavior: Bound
 
+import qs
 import qs.modules.common
 import qs.services
 import QtQuick
@@ -55,17 +56,17 @@ Singleton {
     property int txDrops: 0
 
     // Internal state
-    property string hwmonNicPath: ""
+    property string hwmonNicPath: "/sys/class/hwmon/hwmon4"
     property real lastSampleTime: 0
     property real prevRxBytes: -1
     property real prevTxBytes: -1
 
     // =========================================================================
-    // Adaptive Polling Cadence (D-12)
+    // Adaptive Polling Cadence (D-12, D-50-01)
     // =========================================================================
     Timer {
         id: pollTimer
-        interval: root.isInspectorActive ? 1000 : 2000
+        interval: (root.isInspectorActive || GlobalStates.fastTelemetryRate) ? 1000 : 5000
         repeat: true
         running: true
         onTriggered: root.pollMetrics()
@@ -100,6 +101,13 @@ Singleton {
         printErrors: false
         blockLoading: true
     }
+
+    FileView { id: fileRoute; path: "/proc/net/route"; printErrors: false; blockLoading: true }
+    FileView { id: fileResolv; path: "/etc/resolv.conf"; printErrors: false; blockLoading: true }
+    FileView { id: fileIfaceOperstate; path: root.activeInterface ? `/sys/class/net/${root.activeInterface}/operstate` : ""; printErrors: false; blockLoading: true }
+    FileView { id: fileIfaceCarrier; path: root.activeInterface ? `/sys/class/net/${root.activeInterface}/carrier` : ""; printErrors: false; blockLoading: true }
+    FileView { id: fileIfaceAddress; path: root.activeInterface ? `/sys/class/net/${root.activeInterface}/address` : ""; printErrors: false; blockLoading: true }
+    FileView { id: fileIfaceSpeed; path: root.activeInterface ? `/sys/class/net/${root.activeInterface}/speed` : ""; printErrors: false; blockLoading: true }
 
     // =========================================================================
     // Telemetry Polling (Procfs Throughput Deltas & NIC Temp)
@@ -178,136 +186,62 @@ Singleton {
     // Carrier Priority Interface Detection & System Info (D-13)
     // =========================================================================
     function refreshConfig() {
-        if (!probeProcess.running) {
-            probeProcess.running = true;
+        fileRoute.reload();
+        const textRoute = fileRoute.text();
+        if (textRoute) {
+            const lines = textRoute.trim().split("\n");
+            for (let i = 1; i < lines.length; i++) {
+                const parts = lines[i].trim().split(/\s+/);
+                if (parts.length >= 3 && parts[1] === "00000000") { // Default route destination
+                    root.activeInterface = parts[0];
+                    const hexGw = parts[2];
+                    // Convert hex little-endian IP to dotted-decimal
+                    root.gatewayIp = `${parseInt(hexGw.slice(6, 8), 16)}.${parseInt(hexGw.slice(4, 6), 16)}.${parseInt(hexGw.slice(2, 4), 16)}.${parseInt(hexGw.slice(0, 2), 16)}`;
+                    break;
+                }
+            }
+        }
+
+        if (root.activeInterface) {
+            fileIfaceAddress.reload();
+            root.macAddress = fileIfaceAddress.text().trim() || "--";
+            fileIfaceSpeed.reload();
+            const spd = fileIfaceSpeed.text().trim();
+            root.linkSpeed = (spd && spd !== "-1") ? `${spd} Mbps` : "--";
+            root.isEthernet = root.activeInterface.startsWith("en") || root.activeInterface.startsWith("eth");
+            root.isWireless = root.activeInterface.startsWith("wl");
+            root.connectionType = root.isEthernet ? "Ethernet" : (root.isWireless ? "Wi-Fi" : "Connected");
+            root.materialSymbol = root.isEthernet ? "lan" : (root.isWireless ? (Network.materialSymbol || "wifi") : "cloud_off");
+        }
+
+        fileResolv.reload();
+        const textResolv = fileResolv.text();
+        if (textResolv) {
+            const matches = [...textResolv.matchAll(/^nameserver\s+(\S+)/gm)].map(m => m[1]);
+            root.dnsServers = matches.join(", ") || "--";
+        }
+
+        // Trigger one-shot IP discovery directly without subshell wrapper
+        if (!ipAddrProc.running) {
+            ipAddrProc.running = true;
         }
     }
 
     Process {
-        id: probeProcess
-        environment: ({
-            LANG: "C",
-            LC_ALL: "C"
-        })
-        command: [
-            "bash", "-c",
-            `IFACE=""
-            CONN_TYPE="Disconnected"
-
-            # 1. Ethernet check: prioritize physical Ethernet (en*/eth*) if carrier=1 and operstate=up
-            for ifc in /sys/class/net/{en*,eth*}; do
-              [ -d "$ifc" ] || continue
-              carrier=$(cat "$ifc/carrier" 2>/dev/null || echo 0)
-              state=$(cat "$ifc/operstate" 2>/dev/null || echo down)
-              if [ "$carrier" = "1" ] && [ "$state" = "up" ]; then
-                IFACE=$(basename "$ifc")
-                CONN_TYPE="Ethernet"
-                break
-              fi
-            done
-
-            # 2. Wireless check: fallback to Wi-Fi (wl*) if carrier=1 or operstate=up
-            if [ -z "$IFACE" ]; then
-              for ifc in /sys/class/net/wl*; do
-                [ -d "$ifc" ] || continue
-                carrier=$(cat "$ifc/carrier" 2>/dev/null || echo 0)
-                state=$(cat "$ifc/operstate" 2>/dev/null || echo down)
-                if [ "$carrier" = "1" ] || [ "$state" = "up" ]; then
-                  IFACE=$(basename "$ifc")
-                  CONN_TYPE="Wi-Fi"
-                  break
-                fi
-              done
-            fi
-
-            # 3. Default route fallback
-            if [ -z "$IFACE" ]; then
-              def_ifc=$(ip -4 route show default 2>/dev/null | awk '{print $5}' | head -1)
-              if [ -n "$def_ifc" ] && [ -d "/sys/class/net/$def_ifc" ]; then
-                IFACE="$def_ifc"
-                if [[ "$IFACE" =~ ^(en|eth) ]]; then
-                  CONN_TYPE="Ethernet"
-                elif [[ "$IFACE" =~ ^wl ]]; then
-                  CONN_TYPE="Wi-Fi"
-                else
-                  CONN_TYPE="Other"
-                fi
-              fi
-            fi
-
-            if [ -z "$IFACE" ]; then
-              echo '{"connected":false,"interface":"","type":"Disconnected"}'
-              exit 0
-            fi
-
-            IP_ADDR=$(ip -4 addr show dev "$IFACE" 2>/dev/null | awk '/inet / {print $2}' | head -1)
-            [ -z "$IP_ADDR" ] && IP_ADDR="--"
-
-            GATEWAY=$(ip -4 route show default 2>/dev/null | awk '/default via/ {print $3}' | head -1)
-            [ -z "$GATEWAY" ] && GATEWAY="--"
-
-            DNS=$(awk '/^nameserver/ {print $2}' /etc/resolv.conf 2>/dev/null | paste -sd, -)
-            [ -z "$DNS" ] && DNS="--"
-
-            MAC=$(cat "/sys/class/net/$IFACE/address" 2>/dev/null || echo "--")
-
-            SPEED="--"
-            if [ "$CONN_TYPE" = "Ethernet" ]; then
-              raw_speed=$(cat "/sys/class/net/$IFACE/speed" 2>/dev/null || echo "")
-              duplex=$(cat "/sys/class/net/$IFACE/duplex" 2>/dev/null || echo "full")
-              if [ -n "$raw_speed" ] && [ "$raw_speed" -gt 0 ] 2>/dev/null; then
-                SPEED="\${raw_speed} Mbps (\${duplex})"
-              fi
-            elif [ "$CONN_TYPE" = "Wi-Fi" ]; then
-              raw_speed=$(iw dev "$IFACE" link 2>/dev/null | awk -F': ' '/tx bitrate/ {print $2}' | head -1)
-              if [ -n "$raw_speed" ]; then
-                SPEED="$raw_speed"
-              else
-                SPEED="Wi-Fi Link"
-              fi
-            fi
-
-            HWMON_NIC=""
-            for d in /sys/class/hwmon/hwmon*; do
-              if grep -q "r8169" "$d/name" 2>/dev/null; then
-                HWMON_NIC="$d"
-                break
-              fi
-            done
-
-            jq -n \\
-              --arg iface "$IFACE" \\
-              --arg type "$CONN_TYPE" \\
-              --arg ip "$IP_ADDR" \\
-              --arg gw "$GATEWAY" \\
-              --arg dns "$DNS" \\
-              --arg mac "$MAC" \\
-              --arg speed "$SPEED" \\
-              --arg hwmon "$HWMON_NIC" \\
-              '{connected: true, interface: $iface, type: $type, ip: $ip, gateway: $gw, dns: $dns, mac: $mac, speed: $speed, hwmonNic: $hwmon}'`
-        ]
+        id: ipAddrProc
+        command: ["ip", "-j", "-4", "addr", "show"]
         stdout: StdioCollector {
-            id: probeCollector
             onStreamFinished: {
                 try {
-                    const data = JSON.parse(probeCollector.text.trim());
-                    root.isConnected = Boolean(data.connected);
-                    root.activeInterface = data.interface || "";
-                    root.connectionType = data.type || "Disconnected";
-                    root.isEthernet = (data.type === "Ethernet");
-                    root.isWireless = (data.type === "Wi-Fi");
-                    root.ipAddress = data.ip || "--";
-                    root.gatewayIp = data.gateway || "--";
-                    root.dnsServers = data.dns || "--";
-                    root.linkSpeed = data.speed || "--";
-                    root.macAddress = data.mac || "--";
-                    if (data.hwmonNic) {
-                        root.hwmonNicPath = data.hwmonNic;
+                    const data = JSON.parse(text);
+                    for (const item of data) {
+                        if (item.ifname === root.activeInterface && item.addr_info?.length > 0) {
+                            root.ipAddress = item.addr_info[0].local || "--";
+                            root.isConnected = true;
+                            break;
+                        }
                     }
-                    root.materialSymbol = root.isEthernet ? "lan" : (root.isWireless ? (Network.materialSymbol || "wifi") : "cloud_off");
-                } catch (e) {
-                    // Fallback on JSON parse error
-                }
+                } catch (e) {}
             }
         }
     }
