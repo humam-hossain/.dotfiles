@@ -340,6 +340,25 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
   else
     fail "S4: Missing file: $STORAGE_QML"
   fi
+
+  # Status Bar Pills AST checks (AUDIT-03 / G-49-1, G-49-3)
+  BAR_PILLS=(
+    "$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/NetworkPingPill.qml"
+    "$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/CpuGpuPill.qml"
+    "$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/MemoryStoragePill.qml"
+  )
+  for pill in "${BAR_PILLS[@]}"; do
+    pname="$(basename "$pill")"
+    if [[ -f "$pill" ]]; then
+      if grep -q "loops: Animation.Infinite" "$pill"; then
+        fail "S4: Status bar pill $pname still contains unbounded infinite animation loop (loops: Animation.Infinite)"
+      else
+        pass "S4: Status bar pill $pname de-escalates infinite pulse loops (finite loops <= 3)"
+      fi
+    else
+      fail "S4: Missing file: $pill"
+    fi
+  done
 fi
 
 # ===========================================================================

@@ -86,9 +86,10 @@ BarGroup {
                 SequentialAnimation {
                     id: cpuPulseAnimation
                     running: root.cpuCritical
-                    loops: Animation.Infinite
-                    onRunningChanged: { if (!running) cpuIcon.opacity = 1.0;
+                    loops: 3
+                    onRunningChanged: {
                         if (!running) {
+                            cpuIcon.opacity = 1.0;
                             cpuCircProg.opacity = 1.0;
                             cpuText.opacity = 1.0;
                             tempText.opacity = 1.0;
@@ -180,9 +181,10 @@ BarGroup {
                 SequentialAnimation {
                     id: gpuPulseAnimation
                     running: root.gpuCritical
-                    loops: Animation.Infinite
-                    onRunningChanged: { if (!running) gpuIcon.opacity = 1.0;
+                    loops: 3
+                    onRunningChanged: {
                         if (!running) {
+                            gpuIcon.opacity = 1.0;
                             gpuCircProg.opacity = 1.0;
                             gpuText.opacity = 1.0;
                         }

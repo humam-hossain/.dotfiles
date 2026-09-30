@@ -78,7 +78,7 @@ BarGroup {
                 SequentialAnimation {
                     id: storagePulseAnimation
                     running: root.storageCritical
-                    loops: Animation.Infinite
+                    loops: 3
                     onRunningChanged: {
                         if (!running) {
                             storageIcon.opacity = 1.0;
@@ -157,7 +157,7 @@ BarGroup {
                 SequentialAnimation {
                     id: ramPulseAnimation
                     running: root.ramCritical
-                    loops: Animation.Infinite
+                    loops: 3
                     onRunningChanged: {
                         if (!running) {
                             ramIcon.opacity = 1.0;

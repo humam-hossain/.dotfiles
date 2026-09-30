@@ -121,7 +121,7 @@ BarGroup {
         SequentialAnimation {
             id: pingPulseAnimation
             running: root.isCritical
-            loops: Animation.Infinite
+            loops: 3
             onRunningChanged: {
                 if (!running) {
                     wanIcon.opacity = 1.0;
