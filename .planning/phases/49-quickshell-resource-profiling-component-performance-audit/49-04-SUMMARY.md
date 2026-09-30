@@ -108,13 +108,13 @@ Closed UAT gaps G-49-1, G-49-2, and G-49-3 by de-escalating unbounded infinite p
    - Updated `.planning/phases/49-quickshell-resource-profiling-component-performance-audit/BENCHMARK.md` documenting root causes and empirical resolutions for G-49-1, G-49-2, and G-49-3.
 
 4. **Verification & Repository Integrity**:
-   - `bash scripts/phase49-audit-assert.sh` executed across all 5 sections: passed with `FAIL=0, FINDINGS=0`.
+   - `scripts/phase49-audit-assert.sh` executed across all 5 sections: passed with `FAIL=0, FINDINGS=0`.
    - `./arch/dots-hyprland.sh verify --strict` executed: passed cleanly with zero GNU Stow drift and pristine vendor submodule.
 
 ## Verification Results
 
-- `bash scripts/phase49-audit-assert.sh -s 4`: PASSED (FAIL=0, FINDINGS=0)
-- `bash scripts/phase49-audit-assert.sh`: PASSED (all 5 sections, FAIL=0, FINDINGS=0)
+- `scripts/phase49-audit-assert.sh -s 4`: PASSED (FAIL=0, FINDINGS=0)
+- `scripts/phase49-audit-assert.sh`: PASSED (all 5 sections, FAIL=0, FINDINGS=0)
 - `./arch/dots-hyprland.sh verify --strict`: PASSED (zero stow drift, pristine submodule)
 
 ## Self-Check: PASSED

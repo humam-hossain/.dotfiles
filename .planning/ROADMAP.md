@@ -320,7 +320,7 @@ Plans:
 **Goal:** Conduct an exhaustive, component-by-component empirical resource audit (CPU, GPU, RAM) of Quickshell and top bar components. Establish a clean baseline without Quickshell (target <=10% GPU idle vs current 30-60%), test upstream default behavior, and measure resource footprint incrementally component-by-component and popup-by-popup via cursor hover/interaction (top bar, swipers, popups, system tray, media, etc.) to pinpoint resource hogs and implement targeted optimizations.  
 **Depends on:** Phase 48  
 **Requirements**: AUDIT-01, AUDIT-02, AUDIT-03  
-**Plans:** 3/3 plans complete
+**Plans:** 4/4 plans complete
 
 Success criteria:
 
@@ -360,4 +360,4 @@ Plans:
 | 46. Left-Zone Integration, Verification & Repository Integrity | v0.9 | 2/2 | Complete    | 2026-09-29 |
 | 47. Center-Zone Layout Reorganization | v0.9 | 3/3 | Complete    | 2026-09-29 |
 | 48. Right-Zone Media Expansion & System Tray Empty State Gating | v0.9 | 3/3 | Complete    | 2026-09-30 |
-| 49. Quickshell Resource Profiling & Component Performance Audit | v0.9 | 3/3 | Complete    | 2026-09-30 |
+| 49. Quickshell Resource Profiling & Component Performance Audit | v0.9 | 4/4 | Complete    | 2026-09-30 |
