@@ -1,6 +1,7 @@
 pragma Singleton
 pragma ComponentBehavior: Bound
 
+import qs
 import qs.modules.common
 import QtQuick
 import Quickshell
@@ -114,9 +115,18 @@ Singleton {
         root.pollMetrics();
     }
 
+    Connections {
+        target: GlobalStates
+        function onFastTelemetryRateChanged() {
+            if (GlobalStates.fastTelemetryRate) {
+                root.pollMetrics();
+            }
+        }
+    }
+
     Timer {
         id: pollTimer
-        interval: root.isInspectorActive ? 1000 : (Config?.options?.resources?.updateInterval ?? 3000)
+        interval: (root.isInspectorActive || GlobalStates.fastTelemetryRate) ? 1000 : 5000
         running: true 
         repeat: true
         onTriggered: {

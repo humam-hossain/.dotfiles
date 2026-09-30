@@ -35,6 +35,11 @@ Singleton {
     property bool wallpaperSelectorOpen: false
     property bool workspaceShowNumbers: false
 
+    // Phase 50: Coordinated Quiescent Idle & Demand-Gated Fast Telemetry (D-50-01)
+    property bool barHovered: false
+    property int activeInspectorCount: 0
+    readonly property bool fastTelemetryRate: barHovered || activeInspectorCount > 0
+
     onSidebarRightOpenChanged: {
         if (GlobalStates.sidebarRightOpen) {
             Notifications.timeoutAll();

@@ -52,6 +52,11 @@ Item { // Bar content region
         function onXChanged() { root.updateMediaPillCoords(); }
     }
 
+    // Phase 50: Bar Hover Detection for Fast Telemetry Coalescing (D-50-01)
+    HoverHandler {
+        id: barHoverHandler
+        onHoveredChanged: GlobalStates.barHovered = hovered
+    }
 
     // Background shadow
     Loader {

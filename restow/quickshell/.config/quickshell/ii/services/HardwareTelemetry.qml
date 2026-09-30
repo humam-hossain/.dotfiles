@@ -1,6 +1,7 @@
 pragma Singleton
 pragma ComponentBehavior: Bound
 
+import qs
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -9,10 +10,10 @@ Singleton {
     id: root
 
     // =========================================================================
-    // D-01: Adaptive Polling Cadence (1000ms active / 3000ms idle)
+    // D-01: Adaptive Polling Cadence (1000ms active / 5000ms idle)
     // =========================================================================
     property int fastPollingRequests: 0
-    readonly property bool fastPolling: fastPollingRequests > 0 || overallCpuLoad > 0.50
+    readonly property bool fastPolling: fastPollingRequests > 0 || overallCpuLoad > 0.50 || GlobalStates.fastTelemetryRate
 
     onFastPollingRequestsChanged: {
         if (fastPollingRequests < 0) fastPollingRequests = 0;
@@ -21,9 +22,15 @@ Singleton {
         }
     }
 
+    onFastPollingChanged: {
+        if (fastPolling) {
+            root.pollTier2();
+        }
+    }
+
     Timer {
         id: pollTimer
-        interval: root.fastPolling ? 1000 : 3000
+        interval: root.fastPolling ? 1000 : 5000
         repeat: true
         running: true
         onTriggered: root.pollAll()

@@ -53,7 +53,7 @@ Singleton {
 
     Timer {
         id: ioPollTimer
-        interval: 3000 // 3s relaxed diskstats tracking
+        interval: 5000 // 5s relaxed diskstats tracking coalesced with other singletons
         repeat: true
         running: true
         onTriggered: root.updateDiskIo()
