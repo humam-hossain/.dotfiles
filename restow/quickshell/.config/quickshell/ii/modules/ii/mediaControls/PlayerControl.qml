@@ -96,7 +96,7 @@ Item { // Player instance
     StyledRectangularShadow {
         target: background
     }
-    Rectangle { // Background with native rounded clipping (NO OpacityMask FBO - D-50-03)
+    Rectangle { // Background with native rounded clipping (NO offscreen mask FBO - D-50-03)
         id: background
         anchors.fill: parent
         anchors.margins: Appearance.sizes.elevationMargin
@@ -136,7 +136,7 @@ Item { // Player instance
             anchors.margins: 13
             spacing: 15
 
-            Rectangle { // Art background with native clipping (NO OpacityMask FBO - D-50-03)
+            Rectangle { // Art background with native clipping (NO offscreen mask FBO - D-50-03)
                 id: artBackground
                 Layout.fillHeight: true
                 implicitWidth: height

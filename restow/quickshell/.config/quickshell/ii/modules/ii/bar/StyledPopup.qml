@@ -128,6 +128,8 @@ LazyLoader {
 
         StyledRectangularShadow {
             target: popupBackground
+            layer.enabled: true
+            layer.smooth: true
         }
 
         Rectangle {

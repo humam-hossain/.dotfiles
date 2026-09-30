@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 
+import qs
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
@@ -14,14 +15,18 @@ StyledPopup {
     onActiveChanged: {
         ResourceUsage.isInspectorActive = active;
         if (active) {
+            GlobalStates.activeInspectorCount++;
             ResourceUsage.pollMetrics();
             StorageUsage.refresh();
+        } else {
+            GlobalStates.activeInspectorCount = Math.max(0, GlobalStates.activeInspectorCount - 1);
         }
     }
 
     Component.onDestruction: {
         if (active) {
             ResourceUsage.isInspectorActive = false;
+            GlobalStates.activeInspectorCount = Math.max(0, GlobalStates.activeInspectorCount - 1);
         }
     }
 
@@ -147,7 +152,7 @@ StyledPopup {
         SequentialAnimation {
             id: popupCriticalPulse
             running: root.active && root.isCritical
-            loops: Animation.Infinite
+            loops: 3
             onRunningChanged: {
                 if (!running) root.criticalPulseOpacity = 1.0;
             }
