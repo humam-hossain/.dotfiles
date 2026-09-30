@@ -3,8 +3,8 @@ status: complete
 subsystem: ui
 key_files:
   - scripts/phase48-right-zone-assert.sh
-  - ~/.config/quickshell/ii/modules/ii/bar/Media.qml
-  - ~/.config/quickshell/ii/modules/ii/bar/Media.qml.bak
+  - restow/quickshell/.config/quickshell/ii/modules/ii/bar/Media.qml
+  - restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml
 patterns:
   - "Mathematical scaling simulation confirms 3440px -> 412.8px, 2560px -> 307.2px, 1920px -> 230.4px, 1366px -> 220.0px floor clamp, and 1200px/1080px -> 140.0px floor clamp"
   - "Dynamic content hugging verifies implicitWidth scales with content up to maximum responsive width clamp"
