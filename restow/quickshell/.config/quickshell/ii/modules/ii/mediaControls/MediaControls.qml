@@ -66,9 +66,9 @@ Scope {
         command: ["cava", "-p", `${FileUtils.trimFileProtocol(Directories.scriptPath)}/cava/raw_output_config.txt`]
         stdout: SplitParser {
             onRead: data => {
-                // Downsample cava frames: skip 2 out of 3 frames (60 FPS -> 20 FPS)
+                // Downsample cava frames: skip 3 out of 4 frames (60 FPS -> 15 FPS) (D-50-04)
                 root._cavaFrameSkip++;
-                if (root._cavaFrameSkip % 3 !== 0) return;
+                if (root._cavaFrameSkip % 4 !== 0) return;
                 let points = data.split(";").map(p => parseFloat(p.trim())).filter(p => !isNaN(p));
                 root.visualizerPoints = points;
             }
