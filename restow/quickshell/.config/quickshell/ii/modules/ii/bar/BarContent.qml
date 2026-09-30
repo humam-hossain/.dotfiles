@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Services.UPower
+import Quickshell.Services.SystemTray
 import qs
 import qs.services
 import qs.modules.common
@@ -233,7 +234,9 @@ Item { // Bar content region
                     Media {
                         visible: root.useShortenedForm < 2
                         Layout.fillWidth: true
-                        Layout.maximumWidth: (root.useShortenedForm === 1) ? 140 : 200
+                        Layout.maximumWidth: (root.useShortenedForm === 1)
+                            ? Math.min(Math.max((root.screen?.width ?? 1200) * 0.10, 140), 180)
+                            : Math.min(Math.max((root.screen?.width ?? 1920) * 0.12, 220), 450)
                     }
                 }
             }
@@ -269,7 +272,7 @@ Item { // Bar content region
             BarGroup {
                 id: sysTrayGroup
                 Layout.alignment: Qt.AlignVCenter
-                visible: root.useShortenedForm === 0
+                visible: (root.useShortenedForm === 0) && ((SystemTray.items?.values?.length ?? 0) > 0)
 
                 SysTray {
                     showSeparator: false
