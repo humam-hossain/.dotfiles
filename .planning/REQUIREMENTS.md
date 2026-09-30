@@ -54,6 +54,12 @@ Scoped requirements for Milestone v0.9 (Top Status Bar Resource Components & Har
 - [x] **CNTR-02**: Workspaces widget (`middleCenterGroup`) preserves dead-center alignment on the bar (`anchors.horizontalCenter: parent.horizontalCenter`) with uniform 4px margins on both sides.
 - [x] **CNTR-03**: `middleSection` wrapper boundary anchors, right sidebar click toggle on ClockWidget, and responsive shortening rules are preserved with zero layout overlap and zero git churn.
 
+### Right-Zone Media Expansion & System Tray Empty State Gating
+
+- [ ] **RGHT-01**: Media player pill dynamically calibrates length using responsive screen width equations: `Math.min(Math.max((root.screen?.width ?? 1920) * 0.12, 220), 450)` on full screens and `* 0.10` [140, 180] on shortened screens, hugging content via `implicitWidth` with 250ms M3 width animation.
+- [ ] **RGHT-02**: Complete track title and artist metadata rendered with visual hierarchy (primary `colOnLayer1` title, muted `colSubtext` artist, bullet separator, clean fallback when artist absent, right elision `Text.ElideRight` via `Text.StyledText`).
+- [ ] **RGHT-03**: System tray empty-state reactive gating (`visible: (root.useShortenedForm === 0) && ((SystemTray.items?.values?.length ?? 0) > 0)`) completely hides empty tray pill and reflows adjacent Right Zone modules with zero empty border artifacts.
+
 ## Future Requirements
 
 Deferred to future release. Tracked but not in current roadmap.
@@ -107,3 +113,6 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CNTR-01 | Phase 47 | Complete |
 | CNTR-02 | Phase 47 | Complete |
 | CNTR-03 | Phase 47 | Complete |
+| RGHT-01 | Phase 48 | Planned |
+| RGHT-02 | Phase 48 | Planned |
+| RGHT-03 | Phase 48 | Planned |
