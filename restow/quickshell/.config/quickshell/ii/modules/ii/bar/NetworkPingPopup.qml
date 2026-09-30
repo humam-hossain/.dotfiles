@@ -1,5 +1,6 @@
 pragma ComponentBehavior: Bound
 
+import qs
 import qs.modules.common
 import qs.modules.common.widgets
 import qs.services
@@ -18,20 +19,24 @@ StyledPopup {
     id: root
 
     // =========================================================================
-    // Lifecycle Demand-Gated Fast Polling (D-12)
+    // Lifecycle Demand-Gated Fast Polling (D-12, D-50-01, D-50-08)
     // =========================================================================
     onActiveChanged: {
         NetworkUsage.isInspectorActive = active;
         if (active) {
-            NetworkUsage.pollMetrics();
+            GlobalStates.activeInspectorCount++;
             NetworkUsage.refreshConfig();
+            NetworkUsage.pollMetrics();
             PingService.fetchStatus();
+        } else {
+            GlobalStates.activeInspectorCount = Math.max(0, GlobalStates.activeInspectorCount - 1);
         }
     }
 
     Component.onDestruction: {
         if (active) {
             NetworkUsage.isInspectorActive = false;
+            GlobalStates.activeInspectorCount = Math.max(0, GlobalStates.activeInspectorCount - 1);
         }
     }
 
@@ -100,7 +105,7 @@ StyledPopup {
         readonly property bool isCritical: card.statusClass === "critical" || card.statusClass === "dead" || PingService.isOffline
 
         Layout.fillWidth: true
-        implicitHeight: cardLayout.implicitHeight + 16
+        implicitHeight: 68
         radius: Appearance.rounding.small
         color: Appearance.m3colors.m3surfaceContainerHigh
         border.color: root.getStatusColor(card.statusClass)
@@ -134,7 +139,9 @@ StyledPopup {
 
         ColumnLayout {
             id: cardLayout
-            anchors.fill: parent
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
             anchors.margins: 8
             spacing: 6
 
@@ -252,7 +259,9 @@ StyledPopup {
 
                 ColumnLayout {
                     id: cardContent
-                    anchors.fill: parent
+                    anchors.top: parent.top
+                    anchors.left: parent.left
+                    anchors.right: parent.right
                     anchors.margins: 8
                     spacing: 4
 
@@ -307,7 +316,7 @@ StyledPopup {
                     NetworkDetailRow {
                         label: "Drops / Errors"
                         value: `Rx: ${NetworkUsage.rxDrops}d / ${NetworkUsage.rxErrors}e  Tx: ${NetworkUsage.txDrops}d / ${NetworkUsage.txErrors}e`
-                        allowWrap: true
+                        allowWrap: false
                     }
                 }
             }

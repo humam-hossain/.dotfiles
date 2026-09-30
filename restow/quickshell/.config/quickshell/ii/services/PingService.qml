@@ -1,6 +1,7 @@
 pragma Singleton
 pragma ComponentBehavior: Bound
 
+import qs
 import QtQuick
 import Quickshell
 
@@ -10,6 +11,7 @@ Singleton {
     // =========================================================================
     // D-14: Target Metrics & Status Properties
     // =========================================================================
+    property bool isRequestInFlight: false
     property var targets: []
     property var wanTarget: ({ host: "8.8.8.8", ms: null, text_value: "-- ms", class: "dead", quality: "offline" })
     property var gatewayTarget: ({ host: "192.168.0.1", ms: null, text_value: "-- ms", class: "dead", quality: "offline" })
@@ -29,11 +31,11 @@ Singleton {
     readonly property string endpointUrl: "http://127.0.0.1:8765/api/status"
 
     // =========================================================================
-    // D-13: Polling Cadence (5s online, 15s offline backoff)
+    // D-13, D-50-08: Polling Cadence (2s active / 5s idle / 15s offline backoff)
     // =========================================================================
     Timer {
         id: pollTimer
-        interval: root.isOffline ? 15000 : 5000
+        interval: root.isOffline ? 15000 : (GlobalStates.fastTelemetryRate ? 2000 : 5000)
         repeat: true
         running: true
         onTriggered: root.fetchStatus()
@@ -44,12 +46,16 @@ Singleton {
     }
 
     function fetchStatus() {
+        if (root.isRequestInFlight) return;
+        root.isRequestInFlight = true;
+
         const xhr = new XMLHttpRequest();
         xhr.open("GET", root.endpointUrl);
-        xhr.timeout = 2500;
+        xhr.timeout = 2000;
 
         xhr.onreadystatechange = function() {
             if (xhr.readyState === XMLHttpRequest.DONE) {
+                root.isRequestInFlight = false;
                 if (xhr.status === 200) {
                     try {
                         const data = JSON.parse(xhr.responseText);
@@ -76,8 +82,8 @@ Singleton {
             }
         };
 
-        xhr.ontimeout = function() { root.handleOffline(); };
-        xhr.onerror = function() { root.handleOffline(); };
+        xhr.ontimeout = function() { root.isRequestInFlight = false; root.handleOffline(); };
+        xhr.onerror = function() { root.isRequestInFlight = false; root.handleOffline(); };
         xhr.send();
     }
 
