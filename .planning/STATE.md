@@ -2,34 +2,32 @@
 gsd_state_version: "1.0"
 milestone: v0.9
 milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–50)
-current_phase: 50
-current_plan: Not started
-status: completed
+status: Awaiting next milestone
 stopped_at: Phase 50 complete — all phases complete
-last_updated: "2026-10-01T08:53:36.960Z"
+last_updated: "2026-10-01T12:09:28.151Z"
 last_activity: 2026-10-01
-last_activity_desc: Phase 50 complete
-state_head: eb126316790cef01a300d906049952e69064ea53
+last_activity_desc: Milestone v0.9 completed and archived
+state_head: 7e33a9f40c0b5177c2cfbe8bf0499153c1dd0275
 progress:
   total_phases: 15
-  completed_phases: 11
+  completed_phases: 15
   total_plans: 47
   completed_plans: 47
-  percent: 73
+  percent: 100
+current_phase: 50
 ---
 
 Total Phases: 15 (Phases 42–50 + 43.1–43.6)
-Progress: [██████████] 15/15 phases ([███████░░░] 73%)
+Progress: [██████████] 15/15 phases ([██████████] 100%)
 
 # Project State
 
 ## Current Position
 
-Phase: 50
-Current Plan: Not started
-Total Plans in Phase: 4
-Status: All phases complete
-Last activity: 2026-10-01 — Phase 50 complete
+Phase: Milestone v0.9 complete
+Plan: —
+Status: Awaiting next milestone
+Last activity: 2026-10-01 — Milestone v0.9 completed and archived
 
 ## Session
 
@@ -39,10 +37,10 @@ Last activity: 2026-10-01 — Phase 50 complete
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-09-29 after Phase 46)
+See: .planning/PROJECT.md (updated 2026-10-01 after v0.9 milestone)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 50 complete — Quickshell Deep Performance Optimization & Overhead Reduction (all 4 plans, 5 requirements verified)
+**Current focus:** Planning next milestone
 
 ## Deferred Items
 
@@ -163,7 +161,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 
 ## Operator Next Steps
 
-- Run `/gsd-plan-phase 47` to break down and plan Phase 47
+- Start the next milestone with /gsd-new-milestone
 
 ## Performance Metrics
 

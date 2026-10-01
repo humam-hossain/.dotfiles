@@ -2,48 +2,47 @@
 
 ## Current State
 
-**Shipped:** v0.8 Notification Experience & Shell Interaction Polish (2026-09-25)  
-**Status:** All 5 phases of v0.8 (Phases 38–41, including Phase 40.1) complete, 17/17 requirements satisfied, verified, and archived
+**Shipped:** v0.9 Top Status Bar Resource Components & Hardware Telemetry (2026-10-01)  
+**Status:** All 15 phases of v0.9 (Phases 42–50, including 43.1–43.6) complete, 37/37 requirements satisfied, verified, and archived
 
-Desktop shell is fully unified under upstream dots-hyprland Material You / Matugen dynamic theming generated from wallpaper with modular 3-zone rounded-rectangle pill geometry, real-time voice telemetry, operational power profile management, dynamic media popup anchoring, refined notification ergonomics (sidebar quick-dismiss, smart body click, regex OTP copy), unified 150% volume ceiling, and 10px clock breathing room. Delivery model is **upstream dots-hyprland as a managed dependency**: personal fork, git submodule pin, thin Arch wrapper, live installed `ii` shell, personal overlays under three-tree capture (`stow/`, `restow/`, `capture/`), guarded theme contracts (`guard-paths.tsv`), and one-command idempotent bootstrap (`./bootstrap.sh`).
+Desktop shell is fully unified under upstream dots-hyprland Material You / Matugen dynamic theming with modular 3-zone status bar layout: Left zone features dedicated standalone `CpuGpuPill`, `MemoryStoragePill`, and `NetworkPingPill` widgets with rich two-column inspector popups anchored via 1000ms hover intent delay and screen boundary clamping; Center zone aligns Clock/Date to the left, Weather to the right, and Workspaces dead-centered; Right zone features responsive width-calibrated media pill with title/artist hierarchy and reactive empty-state system tray gating. The shell runs on a coalesced 5000ms quiescent idle telemetry heartbeat (accelerating to 1000ms on bar hover), uses direct Linux procfs/sysfs FileView observers with subshell forks eliminated, avoids offscreen FBO blurs, clamps canvas graphs to 10 FPS, and maintains quiescent idle CPU of 1.68% (delta +0.74% over upstream 0.94%).
 
-**v0.8 delivered:** Refined desktop shell interactions and ergonomics across media controls, system power switching, notifications, and audio volume. Dynamic coordinate anchoring and screen boundary clamping for `MediaControls.qml` relative to the top status bar's `Media` pill. `power-profiles-daemon` system service integration enabling Quickshell's quick-toggle with zero local QML overrides. Notification Center quick-dismiss 'X' button on sidebar cards, smart body click routing to application D-Bus default action and web links, and QV4-safe regex OTP code extraction with 1-click "Copy [Code]" Material 3 quick-action chip. Clock pill 10px horizontal breathing room matching adjacent pills. Unified 150% volume ceiling single source of truth across keyboard keybinds, sidebar volume slider (with 100% stop notch), and mouse scroll. Complete automated test harness orchestrating all milestone sub-harnesses with strict zero git churn.
+**v0.9 delivered:** Dedicated CPU/GPU, Memory/Storage, and Network/Ping telemetry pills and popups replacing the monolithic Resources widget. Universal 1000ms hover intent delay with 200ms grace period (`StyledPopup.qml`). Procfs/sysfs hardware telemetry (`HardwareTelemetry.qml`, `ResourceUsage.qml`, `StorageUsage.qml`, `NetworkUsage.qml`) and local ping daemon bridge (`PingService.qml`). Automated non-root empirical profiling harness (`scripts/profile-quickshell.sh`). Top bar Center zone reorganization (Clock left, Workspaces center, Weather right) and Right zone media expansion & system tray gating. Deep performance optimizations eliminating >97% of idle read syscall churn, eliminating 1550 MHz GPU boost lock, and achieving quiescent idle CPU $\le 2.0\%$. Complete automated regression suite passing with zero git churn in `vendor/dots-hyprland`.
 
-**Stats at v0.8 ship:** 5 phases · 9 plans · 26 tasks · 89 files changed (+16.8k / −1.0k) · 97 commits
+**Stats at v0.9 ship:** 15 phases · 47 plans · 67 tasks · 303 files changed (+52.1k / −0.6k) · 294 commits
 
 **Product surface:**
 - Fork: `humam-hossain/dots-hyprland` (upstream = end-4)
 - Submodule: `vendor/dots-hyprland` @ `1a9ffb78`
-- Install entry: `arch/dots-hyprland.sh` → vendored `./setup`; one install path (full) — no profile to choose, no wrapper backup gate, no package re-marking
+- Install entry: `arch/dots-hyprland.sh` → vendored `./setup`; one install path (full)
 - Bootstrap entry: `./bootstrap.sh` — one-command fresh-machine orchestrator with resumable JSON state and strict verification gate
 - Live path: real `~/.config/quickshell` (not symlink into git)
-- Session: ii Lua entry `~/.config/hypr/hyprland.lua` is authoritative (Phase 14) and owns the venv env plus `exec-once = qs -c ii`; personal overrides ride in `~/.config/hypr/custom/`; Waybar, rofi and swaync are retired from the session
-- Theming pipeline: `switchwall.sh` triggers Matugen synchronously for GTK CSS, Hyprland `colors.lua`, Quickshell `colors.json`, Fuzzel `fuzzel_theme.ini`, and Kitty `kitty-theme.conf` (SIGUSR1), plus background `kde-material-you-colors` for Qt/KDE `kdeglobals`. All outputs guarded via `guard-paths.tsv` with zero working tree drift.
+- Session: ii Lua entry `~/.config/hypr/hyprland.lua` is authoritative and owns the venv env plus `exec-once = qs -c ii`; personal overrides in `~/.config/hypr/custom/`
+- Theming pipeline: `switchwall.sh` triggers Matugen synchronously for GTK CSS, Hyprland `colors.lua`, Quickshell `colors.json`, Fuzzel `fuzzel_theme.ini`, and Kitty `kitty-theme.conf` (SIGUSR1), plus background `kde-material-you-colors`. Guarded via `guard-paths.tsv` with zero working tree drift.
 - Personal bar & shell overlays: `restow/quickshell/` deployed via GNU Stow leaf symlinks to `~/.config/quickshell/ii/` without touching `vendor/dots-hyprland`.
-- Media Controls: `MediaControls.qml` dynamic coordinate anchoring beneath top bar `Media` pill with screen boundary clamping.
-- Power Management: `power-profiles-daemon` system service enabled and bound to Quickshell `PowerProfilesToggle.qml` with zero local QML overrides.
-- Notifications: 1-click 'X' close button on sidebar cards, smart body click routing (D-Bus default action + browser URL fallback), and regex OTP verification code extraction with Material 3 "Copy [Code]" quick-action chip.
-- Volume ceiling: Unified 150% volume ceiling single source of truth across `config.json`, `custom/keybinds.lua`, and Quickshell `Audio.qml` / `QuickSliders.qml`.
-- Clock pill: Restored 10px horizontal breathing room in `ClockWidget.qml` matching adjacent bar pills.
-- Voice telemetry: `Voice.qml` Singleton service observing `$XDG_RUNTIME_DIR/voice-stt/` tmpfs state files; `VoicePill.qml` in Right zone after Media with vertical bar support.
-- Verification & Test Harness: `scripts/phase41-interactions-assert.sh` orchestrating all milestone sub-harnesses with strict zero git churn.
-- Rollback: clean reinstall from the pinned `vendor/dots-hyprland` submodule; runbook `docs/phase14-adopt-runbook.md` §14
-- Playbook: `docs/dots-hyprland-workflow.md`
-- Inventory SoT: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`
+- Telemetry widgets: `CpuGpuPill.qml`, `MemoryStoragePill.qml`, `NetworkPingPill.qml` with interactive `CpuGpuPopup.qml`, `MemoryStoragePopup.qml`, `NetworkPingPopup.qml` anchored via `StyledPopup.qml` (1000ms hover delay).
+- Telemetry services: `HardwareTelemetry.qml`, `ResourceUsage.qml`, `StorageUsage.qml`, `NetworkUsage.qml`, `PingService.qml` with 5000ms quiescent idle coalescing and demand-gated 1000ms hover acceleration.
+- Bar Layout: Center zone (Clock left, Workspaces dead-centered, Weather right) and Right zone (responsive Media pill with title/artist hierarchy, reactive system tray empty-state gating, `VoicePill.qml`).
+- Performance Harness & Benchmarks: `scripts/profile-quickshell.sh`, `scripts/phase50-opt-assert.sh`, `scripts/phase46-telemetry-assert.sh`, `BENCHMARK.md`, `benchmark-latest.json`.
 - Collision Map: `collision-map.tsv` (machine-asserted)
 - Guard Paths: `guard-paths.tsv` (machine-asserted)
 
-## Current Milestone: v0.9 Top Status Bar Resource Components & Hardware Telemetry
-
-**Goal:** Re-architect and divide the left status bar Resources into three dedicated telemetry pills (CPU & GPU, Memory & Storage, Network & Multi-Target Ping) with rich popups, deep hardware sensors, and live system monitor daemon integration.
-
-**Target features:**
-- **CPU & GPU Telemetry Pill & Popup:** Live CPU % and GPU % on the bar pill with M3 smooth width resizing; popup with CPU load, package temperature, power draw (RAPL), frequencies, and GPU load, clock MHz, and temperature.
-- **Memory & Storage Telemetry Pill & Popup:** Live RAM usage (GB / %) and root filesystem `/` usage on the bar pill; popup with detailed RAM breakdown (Used, Available, Cached/Buffers, Free, Swap) and multi-mount storage usage bars (root `/`, physical drives, and FUSE/cloud mounts).
-- **Network & Multi-Target Ping Pill & Popup:** Network throughput/status + all 3 ping targets displayed directly on the status bar (WAN `8.8.8.8`, Gateway `192.168.0.1`, Home Server `192.168.0.104`) with latency numbers and status colors from local daemon; popup with NIC details, IP info, diagnostics, and click-through opening the web dashboard at `http://127.0.0.1:8765/`.
-- **Modular Shell Integration & Integrity:** Three standalone BarGroup pills in `BarContent.qml` Left zone under `restow/quickshell/`, dynamic Material You color tokens, and comprehensive automated test harness with strict zero git churn.
-
 ## Prior Milestones
+
+<details>
+<summary>v0.9 Top Status Bar Resource Components & Hardware Telemetry (shipped 2026-10-01)</summary>
+
+**Goal:** Re-architect and divide the left status bar Resources into three dedicated telemetry pills (CPU & GPU, Memory & Storage, Network & Multi-Target Ping) with rich popups, deep hardware sensors, live system monitor daemon integration, and deep performance optimizations.
+
+**Shipped features:**
+- Three standalone status bar pills (`CpuGpuPill`, `MemoryStoragePill`, `NetworkPingPill`) and dual-column inspector overlays with 1000ms hover intent delay (`StyledPopup`), dynamic hardware model/topology discovery, procfs/sysfs telemetry, and local ping daemon bridge, permanently retiring legacy monolithic Resources.
+- Automated non-root empirical profiling harness (`scripts/profile-quickshell.sh`) capturing genuine side-by-side upstream vs custom metrics (CPU, RSS, PSS, context switches, syscalls, iGPU load).
+- Center Zone layout reorganization placing Clock/Date to the left, Weather to the right, and Workspaces dead-centered.
+- Right Zone media expansion with responsive width equations and right-elided artist/title metadata, plus reactive system tray empty-state gating.
+- Deep performance optimization eliminating >97% of idle read syscall churn (~3,120 reads/s $\rightarrow$ <50 reads/s), eliminating 1550 MHz GPU boost lock, replacing subshells with FileViews, and reducing quiescent idle CPU to 1.68% (delta +0.74% over upstream).
+- Comprehensive automated regression suite passing 100% with zero git churn in `vendor/dots-hyprland`.
+
+</details>
 
 <details>
 <summary>v0.8 Notification Experience & Shell Interaction Polish (shipped 2026-09-25)</summary>
@@ -351,10 +350,24 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ **INTG-01**: Three standalone `BarGroup` pills integrated into `BarContent.qml` Left zone in canonical order with uniform 4px spacing and dead-centered Workspaces — Phase 46
 - ✓ **INTG-02**: Deployed via GNU Stow leaf symlinks under `restow/quickshell/` without folding parent directories, legacy Resource components retired, and zero git churn in `vendor/dots-hyprland` — Phase 46
 - ✓ **INTG-03**: Consolidated 6-section milestone assertion suite (`scripts/phase46-telemetry-assert.sh`) orchestrating all sub-harnesses and verifying strict repository integrity — Phase 46
+- ✓ **CNTR-01**: Top status bar center widgets reordered so Clock/Date is positioned to the left of Workspaces and Weather to the right — Phase 47
+- ✓ **CNTR-02**: Workspaces widget preserves dead-center alignment on the bar with uniform 4px margins on both sides — Phase 47
+- ✓ **CNTR-03**: Wrapper boundary anchors, click toggle cleanup, and responsive shortening rules preserved with zero overlap — Phase 47
+- ✓ **RGHT-01**: Media player pill dynamically calibrates length using responsive screen width equations hugging content via implicitWidth — Phase 48
+- ✓ **RGHT-02**: Complete track title and artist metadata rendered with visual hierarchy and right elision — Phase 48
+- ✓ **RGHT-03**: System tray empty-state reactive gating completely hides empty tray pill and reflows adjacent Right Zone modules — Phase 48
+- ✓ **AUDIT-01**: Baseline Resource Measurement capturing system idle without Quickshell and upstream default baseline — Phase 49
+- ✓ **AUDIT-02**: Component-by-Component & Interactive Popup Profiling across all status bar components and popups — Phase 49
+- ✓ **AUDIT-03**: Targeted Optimization & Performance Audit Report with comparative attribution matrix (`BENCHMARK.md`) — Phase 49
+- ✓ **OPT-01**: Quiescent Idle Footprint & Timer Coalescing driving stationary idle CPU usage to 1.68% and reducing context switch churn — Phase 50
+- ✓ **OPT-02**: Multimedia & Audio Spectrum Optimization reducing active media overlay CPU and eliminating offscreen FBO blurs — Phase 50
+- ✓ **OPT-03**: Network & Ping Telemetry Syscall Churn Elimination, procfs FileView observers, and 1550 MHz GPU boost lock elimination — Phase 50
+- ✓ **OPT-04**: Canvas, Graphing & Scenegraph Throttling clamping charts to 10 FPS and caching drop shadows in GPU VRAM — Phase 50
+- ✓ **OPT-05**: Empirical Re-Benchmarking & Comprehensive Report across all 8 stages with automated assertion verification — Phase 50
 
 ### Active
 
-Milestone v0.9 complete — all 23 requirements validated. Ready for milestone close and next milestone cycle.
+(None currently active — milestone v0.9 complete with all 37 requirements validated. Fresh requirements to be defined for next milestone cycle via `/gsd-new-milestone`).
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -579,7 +592,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-01 after Phase 50 (Milestone v0.9 100% Complete & UAT Verified)*
+*Last updated: 2026-10-01 after v0.9 milestone*
 
 
 

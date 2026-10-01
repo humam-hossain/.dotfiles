@@ -1,5 +1,31 @@
 # Milestones
 
+## v0.9 Top Status Bar Resource Components & Hardware Telemetry (Shipped: 2026-10-01)
+
+**Closeout type:** `verified_closeout`  
+**Phases completed:** 15 phases, 47 plans, 67 tasks (Phases 42–50, including 43.1–43.6)  
+**Git range:** `fa1d6be` → `7e33a9f` (2025-07-01 → 2026-10-01) · 294 commits  
+**Diffstat:** 303 files changed, +52,088 / −573  
+
+**Delivered:** Comprehensive telemetry services, status bar resource pills, and interactive overlay popups across CPU/GPU, Memory/Storage, and Network/Ping with deep performance profiling and optimization. Built dedicated `CpuGpuPill`, `MemoryStoragePill`, and `NetworkPingPill` status bar components with interactive inspector popups anchored via 1000ms hover intent delay and screen boundary clamping. Integrated procfs/sysfs hardware telemetry and local ping daemon bridge, permanently replacing the legacy monolithic Resources widget. Built an automated non-root empirical profiling harness (`scripts/profile-quickshell.sh`), conducted systematic performance audits, eliminated >97% of idle read syscall churn, coalesced idle polling to 5000ms, and achieved quiescent idle CPU usage of 1.68% (delta +0.74% over upstream 0.94%). Reorganized the top bar Center Zone (Clock left, Workspaces center, Weather right) and Right Zone (dynamic media sizing, system tray empty-state gating), passing all verification suites with zero git churn in `vendor/dots-hyprland`.
+
+### Key accomplishments
+
+1. **Hardware Telemetry Infrastructure & Left-Zone Integration (Phases 42–46 / CPUGPU-01..07, MEMDSK-01..04, NETPING-01..05, INTG-01..03):** Built standalone status bar pills and dual-column inspector overlays with 1000ms hover intent delay, dynamic hardware model/topology discovery, procfs/sysfs telemetry, and local ping daemon bridge with zero vendor drift.
+2. **Empirical Resource Profiling Harness & Baseline Calibration (Phases 43.1–43.4, 49 / PERF-01..03, AUDIT-01..03):** Developed automated non-root profiling harness measuring CPU, deep memory (RSS/PSS), context switch rates, syscall churn, and Intel UHD 770 iGPU activity across upstream and layered shell states, eliminating >97% of idle read syscall churn (~3,120 reads/s -> <50 reads/s).
+3. **Center Zone Layout Reorganization (Phase 47 / CNTR-01..03):** Swapped Clock and Weather positions around dead-centered Workspaces (Clock on left, Workspaces in middle, Weather on right) with uniform margins and responsive shortening rules.
+4. **Right Zone Media Expansion & System Tray Gating (Phase 48 / RGHT-01..03):** Built dynamic width-calibrated media player pill with visual hierarchy and right-elided artist/title metadata, plus reactive empty-state gating that hides the system tray pill when empty with zero border artifacts.
+5. **Deep Performance Optimization & Overhead Reduction (Phase 50 / OPT-01..05):** Coalesced quiescent idle telemetry polling (5000ms idle vs 1000ms hover), replaced subprocess forks with procfs FileViews, eliminated offscreen FBO blurs and GPU boost lock, clamped canvas animations to 10 FPS, and drove stationary idle CPU usage down to 1.68% (delta +0.74% over upstream).
+
+**Known verification overrides:** 0 (all 15 phases verified, 37/37 requirements satisfied, verified closeout)
+
+**Archives:**
+- Roadmap: [milestones/v0.9-ROADMAP.md](milestones/v0.9-ROADMAP.md)
+- Requirements: [milestones/v0.9-REQUIREMENTS.md](milestones/v0.9-REQUIREMENTS.md)
+- Audit: [milestones/v0.9-MILESTONE-AUDIT.md](milestones/v0.9-MILESTONE-AUDIT.md)
+
+---
+
 ## v0.8 Notification Experience & Shell Interaction Polish (Shipped: 2026-09-25)
 
 **Closeout type:** `verified_closeout`  

@@ -366,6 +366,55 @@
 
 ---
 
+## Milestone: v0.9 — Top Status Bar Resource Components & Hardware Telemetry
+
+**Shipped:** 2026-10-01  
+**Phases:** 15 | **Plans:** 47 | **Tasks:** 67  
+**Closeout:** verified_closeout (milestone audit passed with 37/37 requirements satisfied, 15/15 phases verified, 37/37 integrations verified, 5/5 flows verified, and all open debug sessions resolved)
+
+### What Was Built
+
+- Three dedicated standalone status bar pills (`CpuGpuPill`, `MemoryStoragePill`, `NetworkPingPill`) and dual-column inspector overlays with 1000ms hover intent delay (`StyledPopup`), dynamic hardware model/topology discovery, procfs/sysfs telemetry, and local ping daemon bridge, permanently retiring legacy monolithic Resources.
+- Automated non-root empirical profiling harness (`scripts/profile-quickshell.sh`) capturing genuine side-by-side upstream vs custom metrics (CPU, RSS, PSS, context switches, syscalls, iGPU load).
+- Center Zone layout reorganization placing Clock/Date to the left, Weather to the right, and Workspaces dead-centered.
+- Right Zone media expansion with responsive width equations and right-elided artist/title metadata, plus reactive system tray empty-state gating.
+- Deep performance optimization eliminating >97% of idle read syscall churn (~3,120 reads/s $\rightarrow$ <50 reads/s), eliminating 1550 MHz GPU boost lock, replacing subshells with FileViews, and reducing quiescent idle CPU to 1.68% (delta +0.74% over upstream).
+- Comprehensive automated regression suite passing 100% with zero git churn in `vendor/dots-hyprland`.
+
+### What Worked
+
+- **Empirical baseline profiling before optimization** — building `scripts/profile-quickshell.sh` early with genuine upstream isolation enabled pinpointing real system bottlenecks (like `Privacy.qml` 1000ms `pgrep` driving ~3,120 reads/s) rather than guessing.
+- **Event-driven IPC over polling** — replacing recurring subshells and process polling with native IPC targets (e.g. `record.sh` signaling `Privacy.qml`) eliminated 97%+ of syscall overhead.
+- **Quiescent idle coalescing** — slowing down telemetry poll timers from 1000ms to 5000ms during bar idle and accelerating only on hover brought idle CPU usage down to 1.68%.
+- **Streamlined cluster summaries over micro-threads** — replacing 20 individual CPU thread meters in `CpuGpuPopup.qml` with 3 cluster summaries significantly reduced scenegraph allocation and rendering overhead.
+- **Pre-close debug session resolution** — reviewing and updating all 13 open debug sessions to resolved status allowed a true clean `verified_closeout`.
+
+### What Was Inefficient
+
+- Initial telemetry services relied on subshells (`bash -c`, `lscpu`, `df`) which incurred unnecessary process spawning and context switch churn until Phase 50 replaced them with direct procfs/sysfs FileViews.
+- Initial complex process tree attribution engine in Phase 43.5 introduced excessive overhead and was appropriately streamlined and removed in Phase 43.6 per user guidance.
+
+### Patterns Established
+
+- Quiescent idle heartbeat: bind background poll intervals to `GlobalStates.barHovered` (5000ms quiescent idle, 1000ms active hover).
+- Zero-subprocess telemetry: use QtQuick `FileView` observers directly on `/proc` and `/sys` rather than subshell command execution.
+- 10 FPS canvas graph throttling: apply 100ms deadband checks on Canvas/WaveVisualizer redraw loops to protect GPU framerates.
+- Screen boundary clamping: clamp layer-shell popup coordinates using `Math.max(min, Math.min(target, max))` to prevent multi-monitor offscreen overflow.
+
+### Key Lessons
+
+1. **Avoid subshell polling in UI loops** — recurring `bash -c` executions quickly accumulate thousands of context switches and read syscalls per second; procfs FileViews are virtually free.
+2. **Coalesce timers around user attention** — status bars spend 99% of time unhovered; relaxing poll intervals when quiescent yields major energy and CPU savings with zero noticeable latency when the user interacts.
+3. **Keep popups lightweight** — complex per-thread or top-process tree views in QML bloat the scenegraph; high-level cluster summaries offer superior ergonomics and performance.
+
+### Cost Observations
+
+- Model mix: Gemini 3.8 Flash (High)
+- Timeline: 6 calendar days (2026-09-25 definition → 2026-10-01 ship)
+- Notable: 15 phases, 47 plans, 67 tasks completed with full empirical profiling, zero working tree drift, and clean repository verification.
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -379,6 +428,7 @@
 | v0.6 | 4 | 12 | Shipped modular 3-zone status bar with rounded pill geometry and verified closeout |
 | v0.7 | 3 | 4 | Voice telemetry service + status bar pill with tmpfs IPC, procfs liveness, and dual-bar integration |
 | v0.8 | 5 | 9 | Integrated power-profiles-daemon, dynamic media anchoring, notification quick-dismiss & smart routing, unified volume ceiling, and consolidated test harness |
+| v0.9 | 15 | 47 | Dedicated resource pills, empirical profiling harness, Center/Right bar reorganization, and deep performance optimization |
 
 ### Cumulative Quality
 
@@ -391,6 +441,7 @@
 | v0.6 | All 4 phases passed (audit passed) | 0 gaps (5 legacy debug carried forward) | verified_closeout |
 | v0.7 | All 3 phases passed (audit passed) | 0 gaps (7 debug acknowledged: 5 legacy + 2 resolved) | override_closeout |
 | v0.8 | All 5 phases passed (audit passed) | 0 gaps (all debug sessions resolved) | verified_closeout |
+| v0.9 | All 15 phases passed (audit passed) | 0 gaps (all debug sessions resolved) | verified_closeout |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -404,5 +455,8 @@
 8. Use restow with leaf symlinks (`--no-folding`) for third-party QML shell modifications to maintain live hot-reload without submodule forks
 9. Tmpfs IPC + procfs liveness is a lightweight, daemon-free pattern for desktop service status integration
 10. Quickshell QV4 engine requires avoiding regex lookbehinds and gating initial layout animations to prevent visual stutter
+11. Avoid subshell command spawning inside UI/telemetry loops; direct kernel procfs/sysfs FileViews preserve low idle CPU and prevent syscall churn
+12. Coalesce polling intervals during quiescent idle and accelerate on hover to balance background efficiency with interactive responsiveness
+
 
 
