@@ -2,6 +2,7 @@ import qs.modules.common
 import qs.modules.common.functions
 import QtQuick
 import QtQuick.Shapes
+import Qt5Compat.GraphicalEffects
 
 Item {
     id: root
@@ -51,7 +52,7 @@ Item {
         anchors.fill: parent
         radius: implicitSize / 2
         color: root.colSecondary
-        visible: true
+        visible: false
         layer.enabled: true
         layer.smooth: true
 
@@ -87,9 +88,10 @@ Item {
         }
     }
 
-    // Direct overlay of textMask children without multi-pass offscreen FBO
-    Item {
+    OpacityMask {
         anchors.fill: parent
-        children: [root.textMask]
+        source: contentItem
+        invert: true
+        maskSource: root.textMask
     }
 }
