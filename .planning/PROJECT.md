@@ -558,6 +558,7 @@ Milestone v0.9 complete — all 23 requirements validated. Ready for milestone c
 | Phase 50: Quiescent idle heartbeat & timer coalescing | Gated 5000ms idle sweep on `GlobalStates.barHovered`, boosting to 1000ms on hover; reduced idle CPU from 5.72% to 1.68% and context switches to 72/s (OPT-01, D-50-01) | ✓ 50-01 Complete |
 | Phase 50: Subshell elimination & NetPing GPU boost lock elimination | Replaced `bash -c`, `lscpu`, `df` with direct FileView procfs/sysfs observers; stabilized layout geometry and latched margins eliminating 1550 MHz GPU boost lock (OPT-03, D-50-02, D-50-08) | ✓ 50-02 Complete |
 | Phase 50: MediaControls offscreen FBO & popup scenegraph optimizations | Replaced `OpacityMask` and Gaussian blurs with native clipping; clamped Canvas graphs to 10 FPS deadband; cached drop shadows into GPU VRAM (OPT-02, OPT-04, D-50-03..06) | ✓ 50-03 Complete |
+| Phase 50: Restored OpacityMask knockout in ClippedFilledCircularProgress | Restores OpacityMask with invert:true in 20px pill rings for high-contrast icon cutout against dark bar background without performance penalty (D-50-11) | ✓ UAT signed off, commit 6d459ddb |
 | Phase 50: Empirical re-benchmarking & 5-section assertion harness | Generated 8-stage `benchmark-latest.json` and master `BENCHMARK.md` report; `phase50-opt-assert.sh` FAIL=0 FINDINGS=0 and zero repo drift (OPT-05, D-50-09, D-50-10) | ✓ 50-04 Complete |
 
 ## Evolution
@@ -578,7 +579,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-30 after Phase 50 (Milestone v0.9 100% Complete)*
+*Last updated: 2026-10-01 after Phase 50 (Milestone v0.9 100% Complete & UAT Verified)*
 
 
 
