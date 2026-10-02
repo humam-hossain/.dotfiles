@@ -14,3 +14,4 @@ StandardError=journal
 SyslogIdentifier=wwo-fetcher
 RuntimeDirectory=weather
 RuntimeDirectoryMode=0755
+RuntimeDirectoryPreserve=yes
