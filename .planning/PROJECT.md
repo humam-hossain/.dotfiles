@@ -27,6 +27,18 @@ Desktop shell is fully unified under upstream dots-hyprland Material You / Matug
 - Collision Map: `collision-map.tsv` (machine-asserted)
 - Guard Paths: `guard-paths.tsv` (machine-asserted)
 
+## Current Milestone: v0.10 Weather Station & WWO Telemetry
+
+**Goal:** Build a robust, rate-limited weather telemetry service and rich visualization interface powered by WorldWeatherOnline (WWO), featuring a design-harmonized top status bar pill and a multi-modal inspector popup with interactive time-series Canvas graphs, progress gauges, and parameter cards.
+
+**Target features:**
+- **Decoupled WWO API Service & Local Cache:** Standalone background fetcher updating a local JSON payload in `$XDG_RUNTIME_DIR/weather/weather.json` every 15–20 minutes (~72–96 calls/day vs 500 free-tier limit) with reactive `FileView` consumption in Quickshell, fully isolating shell reloads from API calls.
+- **Design-Matched Iconography & Glyph Mapping:** Comprehensive Material Symbols / Fluent glyph mapping for every WWO weather code and condition state (`weatherCode`, day vs night `isdaytime`, precipitation, wind, severe alerts), perfectly harmonious with the Material You / M3 desktop shell aesthetic.
+- **Top Status Bar Weather Pill:** Content-driven, fluidly resizing status bar component (`WeatherPill.qml` / `WeatherBar.qml`) displaying current temperature (°C), dynamic condition glyph, and context-sensitive indicators (e.g. rain/severe alerts).
+- **Systematic Parameter Evaluation & Multi-Modal Popup Inspector:** Rich popup (`WeatherPopup.qml`) evaluating and visualizing each logical group from `WEATHER_PARAMETERS.md` (Thermal/Comfort, Atmospheric & Wind, Air Quality AQI/PM2.5, Hourly Probabilities, Astronomy, Active Alerts) using appropriate UI representations (Canvas time-series graphs, progress bars, directional compass needle, color-coded health badges, and info cards).
+- **Interactive Time-Series Canvas Graphs:** Multi-graph interactive time-series plots (e.g., 24h temperature/feels-like curve, hourly rain probability % and precipitation volume) with mouse hover scrub readout, building upon the prototype in `TestPopup.qml`.
+- **Overlay Architecture & Verification:** Deployed cleanly via GNU Stow leaf symlinks in `restow/quickshell/` without vendor churn, verified with an automated test harness and strict repository verification.
+
 ## Prior Milestones
 
 <details>
@@ -367,7 +379,14 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 ### Active
 
-(None currently active — milestone v0.9 complete with all 37 requirements validated. Fresh requirements to be defined for next milestone cycle via `/gsd-new-milestone`).
+- [ ] **WWO-01**: Standalone background weather service fetching WorldWeatherOnline data with local cache file in `$XDG_RUNTIME_DIR/weather/weather.json` (15–20 min cadence, rate-limited under 500 calls/day free tier)
+- [ ] **WWO-02**: Quickshell `WeatherService.qml` singleton consuming local cache via reactive `FileView` observer with offline resilience and zero API calls on shell reloads
+- [ ] **GLYPH-01**: Design-matched weather iconography and glyph mapping for all WWO condition codes, day vs. night (`isdaytime`), precipitation, wind, and severe alert states aligned to Material You / Material Symbols
+- [ ] **BAR-01**: Top status bar `WeatherPill.qml` component in Center Zone with fluid M3 width resizing, dynamic condition glyph, temperature (°C), and alert indicators
+- [ ] **PARAM-01**: Systematic parameter evaluation and UI representation mapping across all categories in `WEATHER_PARAMETERS.md` (Thermal/Comfort, Atmospheric, Wind, Air Quality AQI/PM2.5, Astronomy, Severe Alerts)
+- [ ] **POPUP-01**: Multi-modal `WeatherPopup.qml` inspector anchored with 1000ms hover intent delay and screen boundary clamping (`StyledPopup`)
+- [ ] **GRAPH-01**: Interactive Canvas time-series graphs in popup (24-hour temperature/feels-like trendline and hourly precipitation/rain probability bars) with hover scrub inspection
+- [ ] **INTG-01**: Personal overlay deployment under `restow/quickshell/` via GNU Stow leaf symlinks, zero git churn in `vendor/dots-hyprland`, and automated regression test suite
 
 ### Carry-forward candidates (not yet committed requirements)
 
@@ -592,7 +611,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-01 after v0.9 milestone*
+*Last updated: 2026-10-02 starting v0.10 milestone*
 
 
 

@@ -1,20 +1,16 @@
 ---
 gsd_state_version: "1.0"
-milestone: v0.9
-milestone_name: Top Status Bar Resource Components & Hardware Telemetry (Phases 42–50)
-status: Awaiting next milestone
-stopped_at: Phase 50 complete — all phases complete
-last_updated: "2026-10-01T12:09:28.151Z"
-last_activity: 2026-10-01
-last_activity_desc: Milestone v0.9 completed and archived
-state_head: 7e33a9f40c0b5177c2cfbe8bf0499153c1dd0275
+milestone: v0.10
+milestone_name: Weather Station & WWO Telemetry
+status: planning
+last_updated: "2026-10-02T11:53:47.627Z"
+last_activity: 2026-10-02
 progress:
-  total_phases: 15
-  completed_phases: 15
-  total_plans: 47
-  completed_plans: 47
-  percent: 100
-current_phase: 50
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 Total Phases: 15 (Phases 42–50 + 43.1–43.6)
@@ -24,10 +20,10 @@ Progress: [██████████] 15/15 phases ([███████�
 
 ## Current Position
 
-Phase: Milestone v0.9 complete
+Phase: Not started (defining requirements)
 Plan: —
-Status: Awaiting next milestone
-Last activity: 2026-10-01 — Milestone v0.9 completed and archived
+Status: Defining requirements
+Last activity: 2026-10-02 — Milestone v0.10 started
 
 ## Session
 
