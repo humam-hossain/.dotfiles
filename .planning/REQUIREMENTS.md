@@ -9,10 +9,10 @@ Requirements for Milestone v0.10. Each maps to roadmap phases.
 
 ### WorldWeatherOnline API & Local Cache Service (WWO)
 
-- [ ] **WWO-01**: Standalone background Python fetcher queries WorldWeatherOnline Local Weather API (`premium/v1/weather.ashx` with `format=json`, `tp=1`, `num_of_days=3`, `aqi=yes`, `alerts=yes`) using API key from secure `.env` configuration.
-- [ ] **WWO-02**: Scheduled cadence execution via Systemd user timer (every 15–20 minutes) strictly enforcing a rate-limited cap ($\le 96$ calls/day) safely within the 500 free-tier daily quota.
-- [ ] **WWO-03**: Atomic JSON cache file replacement writing to `$XDG_RUNTIME_DIR/weather/weather.json` via unique temporary file rename (`os.replace`) to eliminate partial read race conditions in Quickshell.
-- [ ] **WWO-04**: Offline resilience preserving cached forecast data during network outages, recording error metadata and setting an `is_stale: true` flag without crashing or deleting the cache.
+- [x] **WWO-01**: Standalone background Python fetcher queries WorldWeatherOnline Local Weather API (`premium/v1/weather.ashx` with `format=json`, `tp=1`, `num_of_days=3`, `aqi=yes`, `alerts=yes`) using API key from secure `.env` configuration.
+- [x] **WWO-02**: Scheduled cadence execution via Systemd user timer (every 15–20 minutes) strictly enforcing a rate-limited cap ($\le 96$ calls/day) safely within the 500 free-tier daily quota.
+- [x] **WWO-03**: Atomic JSON cache file replacement writing to `$XDG_RUNTIME_DIR/weather/weather.json` via unique temporary file rename (`os.replace`) to eliminate partial read race conditions in Quickshell.
+- [x] **WWO-04**: Offline resilience preserving cached forecast data during network outages, recording error metadata and setting an `is_stale: true` flag without crashing or deleting the cache.
 
 ### Weather Service Singleton & Iconography (GLYPH)
 
@@ -73,10 +73,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| WWO-01 | Phase 51 | Pending |
-| WWO-02 | Phase 51 | Pending |
-| WWO-03 | Phase 51 | Pending |
-| WWO-04 | Phase 51 | Pending |
+| WWO-01 | Phase 51 | Complete |
+| WWO-02 | Phase 51 | Complete |
+| WWO-03 | Phase 51 | Complete |
+| WWO-04 | Phase 51 | Complete |
 | GLYPH-01 | Phase 52 | Pending |
 | GLYPH-02 | Phase 52 | Pending |
 | GLYPH-03 | Phase 52 | Pending |
@@ -102,6 +102,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INTG-04 | Phase 56 | Pending |
 
 **Coverage:**
+
 - v0.10 requirements: 27 total
 - Mapped to phases: 27
 - Unmapped: 0 ✓

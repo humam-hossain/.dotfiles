@@ -46,7 +46,7 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
 
 ### Milestone v0.10 Phases
 
-- [ ] **Phase 51: WWO Fetcher Service & Local Cache Architecture** - Standalone Python fetcher and systemd user timer with rate-limiting and atomic JSON caching
+- [x] **Phase 51: WWO Fetcher Service & Local Cache Architecture** - Standalone Python fetcher and systemd user timer with rate-limiting and atomic JSON caching (completed 2026-10-03)
 - [ ] **Phase 52: Weather Service Singleton & Material Glyph Mapping** - Reactive FileView observer service, complete WWO code dictionary, and day/night glyph mapper
 - [ ] **Phase 53: Top Status Bar Weather Pill Component** - Status bar WeatherPill in Center Zone with temperature display, condition glyph, and fluid M3 width resizing
 - [ ] **Phase 54: Interactive Time-Series Canvas Graphs** - 24-hour temperature/feels-like spline curve and hourly rain probability/precipitation volume chart with hover scrub
@@ -56,54 +56,68 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
 ## Phase Details
 
 ### Phase 51: WWO Fetcher Service & Local Cache Architecture
+
 **Goal**: Build a decoupled background Python fetcher and systemd timer that securely queries WorldWeatherOnline and atomically writes `$XDG_RUNTIME_DIR/weather/weather.json` under the 500 calls/day budget.  
 **Depends on**: Nothing (first phase of v0.10)  
 **Requirements**: WWO-01, WWO-02, WWO-03, WWO-04  
 **Success Criteria** (what must be TRUE):
+
   1. Standalone Python fetcher queries WWO API using `.env` credentials and generates a complete JSON cache file in `$XDG_RUNTIME_DIR/weather/weather.json`.
   2. Systemd user timer executes every 15–20 minutes, enforcing a daily call rate $\le 96$ calls/day, safely under the 500 free-tier limit.
   3. File write operations use atomic tempfile replacement (`os.replace`) to prevent Quickshell reading partial or truncated JSON data.
   4. Network drops or API timeouts preserve existing cached data with `is_stale: true` and error metadata without deleting or corrupting the cache.  
+
 **Plans**: TBD
 
 ### Phase 52: Weather Service Singleton & Material Glyph Mapping
+
 **Goal**: Create `WeatherService.qml` singleton consuming the cache via reactive `FileView` and `WeatherGlyphs.qml` mapping all 40+ WWO codes to Material Symbols with day/night awareness.  
 **Depends on**: Phase 51  
 **Requirements**: GLYPH-01, GLYPH-02, GLYPH-03, GLYPH-04  
 **Success Criteria** (what must be TRUE):
+
   1. `WeatherService.qml` parses local cache into structured reactive properties (`current`, `hourly`, `aqi`, `astronomy`, `alerts`) via `Quickshell.Io.FileView` with 0 network calls on shell reload.
   2. All 40+ WWO weather codes (113–395) map deterministically to valid Material Symbols ligature glyphs.
   3. Dynamic day vs. night glyph switching works reliably based on the `isdaytime` field across all weather conditions.
   4. Air quality (US-EPA 1–6) and severe weather alert levels map cleanly to Material You theme colors (`Appearance.colors.*`).  
+
 **Plans**: TBD
 
 ### Phase 53: Top Status Bar Weather Pill Component
+
 **Goal**: Build `WeatherPill.qml` in the Center Zone of the status bar with temperature, condition glyph, fluid M3 width resizing, and alert indicators.  
 **Depends on**: Phase 52  
 **Requirements**: BAR-01, BAR-02, BAR-03, BAR-04  
 **Success Criteria** (what must be TRUE):
+
   1. `WeatherPill.qml` renders in `BarContent.qml` Center Zone to the right of Workspaces with uniform 4px margins and zero visual overlap.
   2. Displays current temperature in Celsius (`XX°C`) alongside active dynamic condition glyph.
   3. Displays subtle warning indicator for imminent rain (probability > 50%) or active severe weather warnings.
   4. Clicking or hovering pill toggles `WeatherPopup` with smooth scale transitions and hover intent delay anchoring (`StyledPopup`).  
+
 **Plans**: TBD
 
 ### Phase 54: Interactive Time-Series Canvas Graphs
+
 **Goal**: Build production `WeatherGraph.qml` providing an interactive 24-hour temperature/feels-like curve and hourly rain probability/precipitation volume chart with hover scrub readout.  
 **Depends on**: Phase 52  
 **Requirements**: GRAPH-01, GRAPH-02, GRAPH-03, GRAPH-04  
 **Success Criteria** (what must be TRUE):
+
   1. Canvas 2D renders 24-hour temperature and feels-like curve with smooth Bezier spline interpolation, min/max gridlines, and gradient fills.
   2. Hourly precipitation volume (mm) and rain probability (%) render as clear bars/columns across the 24-hour forecast strip.
   3. Mouse hover scrub across graph displays dynamic time, temperature, and rain chance readout at the nearest hourly slot.
   4. Canvas repainting is strictly event-driven (gated by popup visibility and discrete hover index shifts) to maintain quiescent idle CPU $\le 1.68\%$.  
+
 **Plans**: TBD
 
 ### Phase 55: Multi-Modal Popup Inspector
+
 **Goal**: Construct `WeatherPopup.qml` incorporating hero overview, atmospheric grid, AQI card, wind compass, astronomy card, and severe alert banner.  
 **Depends on**: Phase 53, Phase 54  
 **Requirements**: POPUP-01, POPUP-02, POPUP-03, POPUP-04, POPUP-05, POPUP-06, POPUP-07  
 **Success Criteria** (what must be TRUE):
+
   1. Popup anchors under `WeatherPill` with 1000ms hover delay and screen boundary clamping via `StyledPopup`.
   2. Hero card displays location name, observation time, large temperature readout, and human condition description.
   3. Atmospheric grid displays Humidity, Pressure, UV Index, and Visibility.
@@ -111,17 +125,21 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
   5. Wind card displays rotating directional compass needle (`winddirDegree`), 16-point direction, and wind/gust speed.
   6. Astronomy card displays sunrise, sunset, and lunar illumination phase.
   7. Severe weather banner renders prominently when official alerts are active.  
+
 **Plans**: TBD
 
 ### Phase 56: System Integration, Retirement & Verification
+
 **Goal**: Retire prototype test files (`TestPill.qml`, `TestPopup.qml`), deploy via GNU Stow leaf symlinks, create automated regression harness, and verify repository cleanliness.  
 **Depends on**: Phase 55  
 **Requirements**: INTG-01, INTG-02, INTG-03, INTG-04  
 **Success Criteria** (what must be TRUE):
+
   1. Temporary test artifacts (`TestPill.qml`, `TestPopup.qml`) cleanly removed from `BarContent.qml` and git.
   2. All weather QML files deployed under `restow/quickshell/` via leaf symlinks without modifying `vendor/dots-hyprland`.
   3. Automated regression harness `scripts/phase51-weather-assert.sh` passes 100% of assertion checks.
   4. `arch/dots-hyprland.sh verify --strict` passes with 0 findings and zero git churn.  
+
 **Plans**: TBD
 
 ## Progress
@@ -131,7 +149,7 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 55 → 56
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 51. WWO Fetcher Service & Local Cache Architecture | 0/TBD | Not started | - |
+| 51. WWO Fetcher Service & Local Cache Architecture | 3/3 | Complete    | 2026-10-03 |
 | 52. Weather Service Singleton & Material Glyph Mapping | 0/TBD | Not started | - |
 | 53. Top Status Bar Weather Pill Component | 0/TBD | Not started | - |
 | 54. Interactive Time-Series Canvas Graphs | 0/TBD | Not started | - |
