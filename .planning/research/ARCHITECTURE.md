@@ -1,94 +1,119 @@
 # Architecture Research
 
-**Domain:** Modular Top Status Bar Resource Telemetry & Hardware Inspector (Quickshell ii)  
-**Researched:** 2026-09-25  
+**Domain:** Desktop Shell Weather Telemetry & Visualization (Quickshell / Qt 6 / Linux)  
+**Researched:** 2026-10-02  
 **Confidence:** HIGH  
 
-## Architecture Overview
+## Standard Architecture
 
-Milestone v0.9 replaces the single monolithic `Resources.qml` component with a decoupled three-pill architecture in the Left zone of `BarContent.qml`. Each component functions as an autonomous, self-contained `BarGroup` pill with a dedicated `StyledPopup` inspector.
-
-```
-+--------------------------------------------------------------------------------------------------+
-| Top Status Bar (BarContent.qml Left Zone)                                                        |
-|                                                                                                  |
-| [SidebarBtn]  [CPU & GPU Pill]       [Memory & Disk Pill]     [Network & Ping Pill]     [Utils]  |
-|                      |                        |                         |                        |
-+----------------------|------------------------|-------------------------|------------------------+
-                       v                        v                         v
-              +------------------+     +------------------+      +------------------+
-              |   CpuGpuPopup    |     | MemoryDiskPopup  |      | NetworkPingPopup |
-              | - CPU Load/Temp  |     | - RAM: Used/Free |      | - IP & NIC stats |
-              | - CPU Watts/Freq |     |   Cached/Buffers |      | - WAN: 27ms      |
-              | - GPU Load/Freq  |     | - Mounts: /,     |      | - GW: 2ms        |
-              |   and Temp       |     |   /mnt/windows,  |      | - Srv: 1.6ms     |
-              |                  |     |   /mnt/hdd, FUSE |      | - Open Web UI    |
-              +------------------+     +------------------+      +------------------+
-```
-
-## Component Breakdown
-
-### 1. Telemetry Services Layer (`services/`)
-
-Decouples data acquisition from UI rendering so that multiple consumers (top bar, vertical bar, popups, sidebar) access shared reactive properties without redundant polling.
-
-- **`ResourceUsage.qml` (Extended):**
-  - Manages RAM, Swap, and CPU load via `/proc/meminfo` and `/proc/stat`.
-  - Extends memory metrics to expose `memoryAvailable`, `memoryBuffers`, `memoryCached`.
-- **`HardwareTelemetry.qml` (New Singleton):**
-  - CPU package & core temperatures via `/sys/class/hwmon/hwmon5/temp1_input`.
-  - CPU frequency (MHz) via `/proc/cpuinfo` or `/sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq`.
-  - CPU power (Watts) via `/sys/class/powercap/intel-rapl/intel-rapl:0/energy_uj` (with fallback).
-  - Intel iGPU clock frequency via `/sys/class/drm/card1/gt_act_freq_mhz`.
-  - Intel iGPU load via `/sys/class/drm/card1/gt/gt0/rc6_residency_ms` delta calculation.
-- **`StorageUsage.qml` (New Singleton):**
-  - Periodic asynchronous execution of `df -k -x tmpfs -x devtmpfs -x efivarfs` via `Quickshell.Io.Process`.
-  - Parses storage partitions into a reactive model list of objects: `{ mount, totalBytes, usedBytes, availBytes, usePercent, isRoot, isPhysical, isFuse }`.
-  - Polling interval: 15–30 seconds.
-- **`PingService.qml` (New Singleton):**
-  - Fetches status from `http://127.0.0.1:8765/api/status?format=%1|%2|%3` (or raw status) via `curl` / `Process`.
-  - Exposes reactive properties: `wanLatency`, `gatewayLatency`, `serverLatency`, `overallClass` (`good`, `medium`, `bad`, `critical`, `dead`).
-  - Polling interval: 5 seconds.
-
-### 2. Bar Pill Components (`modules/ii/bar/`)
-
-Each pill extends `BarGroup` or wraps a `MouseArea` to provide the standardized 12–16px rounded rectangle styling, hover states, and smooth 250ms M3 emphasized deceleration resizing.
-
-- **`CpuGpuPill.qml`:**
-  - Displays CPU usage badge and GPU usage badge with distinct Material Symbols icons.
-  - Hover / click opens `CpuGpuPopup`.
-- **`MemoryStoragePill.qml`:**
-  - Displays RAM usage (`X.X/Y.Y GB` or `%`) and Root filesystem `/` usage (`ZZ%`).
-  - Hover / click opens `MemoryStoragePopup`.
-- **`NetworkPingPill.qml`:**
-  - Displays network throughput rates (Rx/Tx) and **all 3 ping latency values** (`WAN`, `GW`, `SRV`) with colored quality indicators.
-  - Hover opens `NetworkPingPopup`.
-  - Left-click triggers `Qt.openUrlExternally("http://127.0.0.1:8765/")` to launch the full ping visualization dashboard.
-
-### 3. Popups Layer (`modules/ii/bar/popups/` or inlined)
-
-Extends `StyledPopup` with consistent coordinate mapping relative to each pill's parent screen:
-- **`CpuGpuPopup.qml`:** Columnar layout displaying CPU section (load gauge, temperature, power draw in Watts, frequencies) and GPU section (load, frequency MHz, temperature).
-- **`MemoryStoragePopup.qml`:** Section 1: Detailed RAM breakdown table (Used, Avail, Cached, Buffers, Free, Swap); Section 2: Clean horizontal progress bars for each mounted partition showing Mount point, Size, Used, Free, and % bar.
-- **`NetworkPingPopup.qml`:** Section 1: Interface details (Active device name, IPv4 address, Rx/Tx totals); Section 2: Detailed 3-target ping diagnostic cards with latency thresholds; Section 3: "Open Web Dashboard" action button.
-
-## Layout & Directory Architecture
-
-All files live under `restow/quickshell/` to preserve `vendor/dots-hyprland` without modification:
+### System Data Flow
 
 ```
-restow/quickshell/.config/quickshell/ii/
-├── services/
-│   ├── ResourceUsage.qml          # Memory & CPU core metrics
-│   ├── HardwareTelemetry.qml      # CPU/GPU temperatures, power, clocks
-│   ├── StorageUsage.qml           # Multi-mount disk capacity
-│   └── PingService.qml            # Local ping daemon bridge
-└── modules/ii/bar/
-    ├── BarContent.qml             # Left zone layout mounting the 3 pills
-    ├── CpuGpuPill.qml             # CPU & GPU bar pill
-    ├── CpuGpuPopup.qml            # CPU & GPU popup inspector
-    ├── MemoryStoragePill.qml      # RAM & Root storage pill
-    ├── MemoryStoragePopup.qml     # RAM & multi-mount storage popup
-    ├── NetworkPingPill.qml        # Network throughput & 3-target ping pill
-    └── NetworkPingPopup.qml       # Network details & ping inspector
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       External Meteorological Source                         │
+│                    WorldWeatherOnline API (WWO Premium)                     │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │ HTTP GET (every 15–20 min)
+                                       │ Protected under 500 calls/day budget
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│               Decoupled Background Service Layer (Systemd / Python)         │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │ scripts/weather-fetch.py (Standard Library: urllib + json + os.replace)│  │
+│  │ - Reads credentials from secure configuration                         │  │
+│  │ - Queries WWO: format=json, tp=1, num_of_days=3, aqi=yes, alerts=yes  │  │
+│  │ - Performs atomic file rename to prevent partial JSON read            │  │
+│  └───────────────────────────────────┬───────────────────────────────────┘  │
+└──────────────────────────────────────┼──────────────────────────────────────┘
+                                       │ Atomic Write (${tmpfs}/weather.json.tmp -> weather.json)
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                 Linux In-Memory IPC Cache ($XDG_RUNTIME_DIR)                │
+│                 $XDG_RUNTIME_DIR/weather/weather.json                       │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │ Inotify File-Watch Trigger
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                   Quickshell Presentation Layer (Qt 6 / QML)                │
+│                                                                             │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │ WeatherService.qml (Singleton Service)                                │  │
+│  │ - Quickshell.Io.FileView watching weather.json synchronously          │  │
+│  │ - Parses raw JSON into structured models (current, hourly, aqi, etc.) │  │
+│  │ - WeatherGlyphs.qml: Maps weatherCode + isDayTime -> Material Symbol  │  │
+│  └──────────────────┬─────────────────────────────────┬──────────────────┘  │
+│                     │                                 │                     │
+│                     ▼                                 ▼                     │
+│  ┌────────────────────────────────────┐ ┌────────────────────────────────┐  │
+│  │ WeatherPill.qml (Status Bar)       │ │ WeatherPopup.qml (Inspector)   │  │
+│  │ - BarGroup in Center Zone          │ │ - StyledPopup (1000ms delay)   │  │
+│  │ - Dynamic condition glyph          │ │ - Hero card (Temp, condition)  │  │
+│  │ - Current temperature (°C)         │ │ - Interactive Canvas Graph     │  │
+│  │ - Rain/severe alert badge          │ │ - Atmospheric Metrics Grid     │  │
+│  │ - M3 fluid width resizing          │ │ - AQI card & Astronomy Card    │  │
+│  └────────────────────────────────────┘ └────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+### Component Responsibilities
+
+| Component | Responsibility | Implementation Details |
+|-----------|----------------|------------------------|
+| `scripts/weather-fetch.py` | API client & cache generator | Standalone Python 3 script using `urllib.request`. Enforces timeout, error handling, rate-limiting, and atomic file write. |
+| `stow/systemd/.../wwo-weather.timer` | Scheduled cadence execution | Systemd user timer triggering every 15 minutes, with `Persistent=true` to fetch on boot/wake. |
+| `WeatherService.qml` | Desktop shell state provider | Singleton instantiated once. Holds parsed reactive objects for `current`, `hourly24h`, `aqi`, `astronomy`, `alerts`, and `meta`. |
+| `WeatherGlyphs.qml` | Meteorological iconography mapper | Pure JavaScript/QML function dictionary mapping WWO `weatherCode` (113–395) and `isdaytime` to Material Symbol ligature strings. |
+| `WeatherPill.qml` | Status bar component | Placed in `BarContent.qml` Center Zone. Inherits `BarGroup` for standard pill styling, 12–16px radius, and fluid width transitions. |
+| `WeatherPopup.qml` | Rich multi-modal inspector | Derived from `StyledPopup.qml`. Displays dual-column or tabbed views with interactive graphs, metrics, and alerts. |
+| `WeatherGraph.qml` | Interactive time-series plot | Canvas 2D component with 24-slot data points, Bezier spline curves, linear gradient fills, and hover scrub detection. |
+
+## Recommended Project File Layout
+
+```
+.
+├── test_wwo_api/                                        # Reference & sandbox scripts
+│   ├── WEATHER_PARAMETERS.md                            # Complete API parameter catalog
+│   ├── raw_response.json                                # Mock payload fixture for test suites
+│   └── test_wwo.py                                      # Standalone test runner
+├── scripts/
+│   ├── weather-fetch.py                                 # Production WWO fetcher & cache generator
+│   └── phase51-weather-assert.sh                        # CI/regression test assertion harness
+├── stow/
+│   └── systemd/
+│       └── .config/systemd/user/
+│           ├── wwo-weather.service                      # Oneshot service executing weather-fetch.py
+│           └── wwo-weather.timer                        # 15-minute scheduled timer unit
+└── restow/
+    └── quickshell/
+        └── .config/quickshell/ii/
+            ├── services/
+            │   ├── WeatherService.qml                   # Primary weather singleton
+            │   └── WeatherGlyphs.qml                    # Icon/glyph lookup helper
+            └── modules/ii/bar/
+                ├── BarContent.qml                       # Center Zone bar mount
+                ├── weather/
+                │   ├── WeatherPill.qml                  # Top status bar pill
+                │   ├── WeatherPopup.qml                 # Main inspector popup (StyledPopup)
+                │   ├── WeatherGraph.qml                 # Interactive Canvas time-series plot
+                │   ├── WeatherMetricsGrid.qml           # Humidity, Pressure, Wind, UV grid
+                │   ├── WeatherAqiCard.qml               # US-EPA air quality badge & PM2.5
+                │   └── WeatherAstronomyCard.qml         # Sunrise/Sunset & Moon phase
+```
+
+## Architectural Patterns & Guarantees
+
+1. **Strict Quota Isolation:**  
+   Quickshell UI components *never* initiate external HTTP requests. They communicate exclusively with the local cache file in `$XDG_RUNTIME_DIR`. UI development, rapid code changes, and shell restarts cause 0 external network requests.
+
+2. **Atomic Cache File Swaps:**  
+   The background fetcher writes to a temporary file (`weather.json.tmp.<PID>`) and uses POSIX atomic rename (`os.replace`). This guarantees `Quickshell.Io.FileView` never reads a partially written or corrupt JSON document.
+
+3. **Event-Driven UI Painting (No Render Loop Churn):**  
+   `WeatherGraph.qml` executes `plotCanvas.requestPaint()` *only* when the popup opens, data arrives, or mouse cursor moves across the chart area. There are no continuous timers or idle render loops.
+
+4. **Zero Upstream Submodule Drift:**  
+   All QML components reside in `restow/quickshell/` and deploy as leaf symlinks via GNU Stow (`stow --no-folding`). Upstream `vendor/dots-hyprland` remains 100% untouched.
+
+---
+*Architecture research for: Desktop Shell Weather Telemetry & Visualization*  
+*Researched: 2026-10-02*  

@@ -1,54 +1,69 @@
 # Stack Research
 
-**Domain:** Linux Desktop Shell Telemetry & Hardware Monitoring (Quickshell ii / Arch Linux)  
-**Researched:** 2026-09-25  
+**Domain:** Desktop Shell Weather Telemetry & Visualization (Quickshell / Qt 6 / Linux)  
+**Researched:** 2026-10-02  
 **Confidence:** HIGH  
 
 ## Recommended Stack
 
 ### Core Technologies
 
-| Technology | Version / Path | Purpose | Why Recommended |
-|------------|----------------|---------|-----------------|
-| Quickshell QML | 0.0.1+ / Qt 6.11 | UI presentation, animation, and reactive property binding | Native high-performance Wayland layer-shell runtime integrated into dots-hyprland. |
-| Linux `procfs` | `/proc` | CPU metrics, memory details, network throughput | Kernel-direct virtual filesystem offering microsecond reads with zero process fork overhead. |
-| Linux `sysfs` hwmon | `/sys/class/hwmon/hwmon5` (`coretemp`) | CPU package and per-core temperatures | Kernel driver reporting unprivileged millidegree Celsius telemetry (`temp1_input`). |
-| Linux `sysfs` drm | `/sys/class/drm/card1/` | Intel iGPU frequency and RC6 residency | Native Intel Alder Lake-S GT1 telemetry (`rps_act_freq_mhz`, `rc6_residency_ms`) readable unprivileged. |
-| Local Ping Monitor Daemon | `http://127.0.0.1:8765/` | Multi-target ping aggregation and history | Pre-existing SQLite-backed Python service providing sub-second status via `GET /api/status`. |
+| Technology | Version | Purpose | Why Recommended |
+|------------|---------|---------|-----------------|
+| WorldWeatherOnline (WWO) API | v1 (premium/v1/weather.ashx) | Weather data provider | Rich parameter set (hourly breakdown `tp=1`, AQI EPA/PM2.5, official alerts, astronomy, 16-point wind, thermal indices). Reliable single-endpoint payload. |
+| Python 3 (`urllib.request` / `json`) | 3.12+ (system python) | Decoupled background caching fetcher | Zero external dependency (standard library only), low overhead (<15MB RSS), fast execution (<500ms), safe atomic JSON file writing. |
+| Systemd User Timer (`systemd --user`) | Systemd 256+ | Cadence scheduler (15–20 min) | Native Linux service management, handles suspend/resume cleanly, runs independently of compositor or Quickshell lifecycle. |
+| Quickshell `FileView` | Quickshell 0.0.12+ / Qt 6.8 | Reactive inotify file observer | Zero IPC socket daemon overhead, non-blocking asynchronous file watching over tmpfs, auto-reloads state on file change without subshell spawning. |
+| QtQuick Canvas (HTML5 2D API) | Qt 6.8 | Time-series curve & bar rendering | Native high-performance 2D drawing in QML for smooth Bezier/cardinal spline curves, linear gradient fills, gridlines, and hover scrubbers without heavy third-party plotting libraries. |
+| Material Symbols Rounded | Variable font | Weather & diagnostic iconography | Matches existing desktop shell design language (`Appearance.font`, `MaterialSymbol`), scalable vector glyphs, dynamic palette coloring. |
 
-### Supporting Libraries & APIs
+### Supporting Libraries & System Services
 
-| Library / Tool | Path / API | Purpose | When to Use |
-|----------------|------------|---------|-------------|
-| `Quickshell.Io` `FileView` | QML Type | Non-blocking reactive file polling | For all continuous `procfs` and `sysfs` sensor polling (CPU load, temp, RAM, net dev). |
-| `Quickshell.Io` `Process` | QML Type | Asynchronous sub-process execution | For periodic storage mount discovery (`df -k`) and HTTP ping status polling (`curl`). |
-| Material 3 Motion Tokens | `Appearance.animation.elementMoveFast` | Width and opacity transitions | For pill resizing (250ms emphasized deceleration) matching the rest of the status bar. |
-| Material You Color Scheme | `Appearance.colors.*` | Dynamic thematic coloring | Automatically adapts pill backgrounds, alert badges, and progress bars to active wallpaper. |
+| Library | Version | Purpose | When to Use |
+|---------|---------|---------|-------------|
+| Python `tempfile` + `os.replace` | Stdlib | Atomic file replacement | Writing `$XDG_RUNTIME_DIR/weather/weather.json.tmp.$$` -> `weather.json` to prevent partial reads by Quickshell `FileView`. |
+| GNU Stow | 2.4+ (`--no-folding`) | Symlink deployment | Overlaying `restow/quickshell/` into `~/.config/quickshell/ii/` without modifying `vendor/dots-hyprland`. |
+| `jq` | 1.7+ | CLI test & JSON validation | Asserting schema validity in test harnesses (`scripts/phase51-weather-assert.sh`). |
 
-### Hardware Telemetry Sources (Machine Specific)
+### Development & Test Tools
 
-On this host (Intel Core i5-13500 + Intel UHD Graphics 770):
-1. **CPU Temperature:** `/sys/class/hwmon/hwmon5/temp1_input` (Package temperature in m°C, unprivileged 0444).
-2. **CPU Frequency:** `/proc/cpuinfo` (`cpu MHz` per logical core) or `/sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq`.
-3. **CPU Power Draw (Wattage):** `/sys/class/powercap/intel-rapl/intel-rapl:0/energy_uj` (root-restricted 0400). Requires graceful fallback to `-- W` or an optional udev helper rule.
-4. **GPU Active Frequency:** `/sys/class/drm/card1/gt_act_freq_mhz` (readable unprivileged, e.g. 1550 MHz).
-5. **GPU Load:** Computed from `/sys/class/drm/card1/gt/gt0/rc6_residency_ms` delta vs wall clock time (`1 - delta_rc6 / delta_time`).
-6. **RAM Breakdown:** `/proc/meminfo` (`MemTotal`, `MemAvailable`, `MemFree`, `Buffers`, `Cached`, `SwapTotal`, `SwapFree`).
-7. **Storage Disks:** `df -k -x tmpfs -x devtmpfs -x efivarfs --output=target,size,used,avail,pcent`.
-8. **Network Throughput:** `/proc/net/dev` (`bytes received` / `bytes transmitted` on active default route interface).
-9. **Ping Monitor:** `http://127.0.0.1:8765/api/status` (WAN `8.8.8.8`, Gateway `192.168.0.1`, Server `192.168.0.104`).
+| Tool | Purpose | Notes |
+|------|---------|-------|
+| `test_wwo_api/test_wwo.py` | Local API validation & sandbox testing | Test harness validating query params, token handling, and raw response structure. |
+| `scripts/phase51-weather-assert.sh` | Automated CI/regression harness | Verifies atomic caching, schema conformance, `FileView` reactivity, and zero git churn. |
 
 ## Alternatives Considered
 
 | Recommended | Alternative | When to Use Alternative |
 |-------------|-------------|-------------------------|
-| `FileView` on `/proc/net/dev` | `ip` or `vnstat` CLI subprocesses | Only if long-term historical billing quotas are needed; `FileView` is zero-overhead for live rates. |
-| RC6 residency delta for iGPU | `intel_gpu_top` via `perf` | `intel_gpu_top` requires `CAP_PERFMON` / root; RC6 residency is readable by standard users without privileges. |
-| HTTP GET `/api/status` | Direct SQLite queries from QML | SQLite requires C++/QML plugin or python subshell; HTTP daemon is already running and lightweight. |
+| Decoupled Python fetcher + tmpfs cache | In-QML `Quickshell.Io.Process` / `curl` | Acceptable only if no background timer is available, but risks exceeding the 500 calls/day free-tier limit whenever Quickshell is reloaded during development or testing. |
+| Decoupled Python fetcher | Upstream `wttr.in` curl pipeline | `wttr.in` is heavily rate-limited, frequently times out or returns HTML errors, and lacks fine-grained hourly AQI and official severe weather alerts. |
+| Native Canvas 2D graphing | QtGraphs / QML Charts module | QtCharts requires extra C++ plugin packages that are not consistently bundled or styled with Material You dynamic palettes. |
 
 ## What NOT to Use
 
-- **`ddcutil` or I2C polling:** Proven to cause iGPU hangs and kernel display crashes (see `issues/2026-07-16_igpu-flickering-hang-no-display.md`).
-- **Synchronous blocking commands in QML:** Running synchronous shell commands blocks the Qt event loop, freezing animations and cursor interactions.
-- **Hardcoded interface names (e.g. assuming `eth0`):** Machine uses `wlp0s20f0u7`; interface must be dynamically resolved from `/proc/net/route` or config.
-- **Hardcoded hex colors:** Violates dots-hyprland Material You theming contract.
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| Polling WWO API directly inside QML `Timer` | Quickshell reloads on file save; rapid iteration will quickly exhaust the 500 free-tier daily call limit (40 reloads = 40 wasted calls). | Decoupled background cache in `$XDG_RUNTIME_DIR/weather/weather.json` read via `FileView`. |
+| Unthrottled continuous Canvas animation loops | Renders at 60–140 FPS and consumes 5–15% CPU, regressing Milestone v0.9 performance gains. | Event-driven painting: only paint on `onDataChanged`, popup `onActiveChanged`, or mouse hover scrub. |
+| Hardcoded hex colors in QML weather widgets | Breaks Material You dynamic theming across wallpaper transitions. | Bind strictly to `Appearance.colors.col*` tokens. |
+| External HTTP requests in test suites | Exceeds API quota and introduces flaky network dependencies. | Mock JSON fixtures (`test_wwo_api/raw_response.json`) in test assertions. |
+
+## Stack Patterns by Variant
+
+**If offline or network drops:**
+- The background fetcher catches `URLError` / timeout and preserves the existing cached `weather.json`, marking `is_stale: true` and recording `last_attempt_error`.
+- Quickshell continues rendering the cached forecast seamlessly while showing a subtle offline/stale status dot.
+
+**If severe weather alert is returned (`alerts.alert.length > 0`):**
+- Dynamic badge/marquee color transitions to `Appearance.colors.colError` or warning tone matching severity level (`Extreme`, `Severe`, `Moderate`).
+
+## Sources
+
+- WorldWeatherOnline Local Weather API documentation (`https://www.worldweatheronline.com/developer/api/docs/local-city-town-weather-api.aspx`)
+- Quickshell Io documentation (`Quickshell.Io.FileView`, `Quickshell.Io.Process`)
+- Local validation: `test_wwo_api/WEATHER_PARAMETERS.md` and `test_wwo_api/raw_response.json`
+
+---
+*Stack research for: Desktop Shell Weather Telemetry & Visualization*  
+*Researched: 2026-10-02*  

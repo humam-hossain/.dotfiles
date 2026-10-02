@@ -1,59 +1,109 @@
-# Domain Pitfalls Research
+# Pitfalls Research
 
-**Domain:** Top Status Bar Telemetry & Hardware Sensors (Quickshell ii / Arch Linux)  
-**Researched:** 2026-09-25  
+**Domain:** Desktop Shell Weather Telemetry & Visualization (Quickshell / Qt 6 / Linux)  
+**Researched:** 2026-10-02  
 **Confidence:** HIGH  
 
 ## Critical Pitfalls
 
-### Pitfall 1: Root Permission Restrictions on Intel RAPL Powercap
+### Pitfall 1: Free-Tier API Quota Exhaustion (500 calls/24 hours)
 
-**Warning Signs:** `/sys/class/powercap/intel-rapl/intel-rapl:0/energy_uj` returns empty or permission denied (0400 root-only). Wattage display shows `NaN` or crashes parsing logic.  
-**Root Cause:** Due to Linux kernel security mitigation for CVE-2020-8694 (PLATYPUS side-channel attack), energy counters are restricted to root by default.  
-**Prevention Strategy:**
-1. Code must verify read accessibility before parsing.
-2. If inaccessible, display graceful placeholder `-- W` rather than failing.
-3. Provide an optional systemd/udev rule tracked in `arch/` (e.g. `/etc/udev/rules.d/99-rapl.rules`) that allows unprivileged read access for the local wheel/user group if desired.
+**What goes wrong:**  
+WorldWeatherOnline returns HTTP 429 Too Many Requests or cuts off API access for 24 hours. The weather pill and popup show blank or error states.
 
----
+**Why it happens:**  
+Placing API fetch logic directly inside QML (e.g. `Timer` or `Component.onCompleted`). In development, every time a QML file is saved, Quickshell reloads the entire process tree. 30 reloads in an hour can burn 30 calls. Add multi-monitor bars or multiple `Weather.qml` instances and the 500-call daily quota is exhausted in a single afternoon.
 
-### Pitfall 2: UI Stutter from Synchronous Subprocess Execution
+**How to avoid:**  
+1. Decouple network fetching entirely from Quickshell. Run an external background timer (e.g. Systemd user timer or Python cron) at a fixed 15–20 minute interval (72–96 calls/day max, well under the 500 limit).  
+2. Quickshell only observes the local file `$XDG_RUNTIME_DIR/weather/weather.json` using `Quickshell.Io.FileView`.  
+3. Quickshell reloads read from local cache with 0 API calls.
 
-**Warning Signs:** Status bar animations stutter, clock skips seconds, or mouse clicks feel sluggish whenever disk usage or ping status updates.  
-**Root Cause:** Synchronous execution (`Quickshell.execDetached` or blocking subshells) runs on the main Qt Quick event loop. Slow FUSE cloud mounts (`GoogleDrive`) or network timeouts block UI rendering.  
-**Prevention Strategy:**
-1. Direct memory, CPU load, and network throughput MUST use `Quickshell.Io.FileView` over `/proc/meminfo`, `/proc/stat`, and `/proc/net/dev`. These are virtual in-RAM filesystem reads taking < 50 microseconds.
-2. Multi-mount disk enumeration (`df`) must use `Quickshell.Io.Process` asynchronously with a relaxed 15–30s interval.
-3. Ping queries must use asynchronous `curl` via `Process` or consume the existing daemon's HTTP JSON response with a strict 2-second timeout.
+**Warning signs:**  
+API call counter exceeding 100 in logs; HTTP 429 in fetcher output; `test_wwo.py` failing with unauthorized or rate-limit message.
 
----
-
-### Pitfall 3: Popup Screen Boundary Clipping on Multi-Monitor Displays
-
-**Warning Signs:** Popups for pills located near screen edges or across secondary monitors render partially off-screen or jump coordinates when adjacent pills resize.  
-**Root Cause:** Hardcoding popup `x` coordinates or relying on unmapped local item coordinates causes incorrect placement on secondary screens or left-aligned layouts.  
-**Prevention Strategy:**
-1. Implement dynamic coordinate anchoring via `mapToItem(null, item.width / 2, item.height / 2)`.
-2. Apply horizontal clamping formula: `Math.max(screenX + margin, Math.min(centerX - popupWidth / 2, screenX + screenWidth - popupWidth - margin))` as proven in Phase 39 (`MediaControls.qml`).
+**Phase to address:**  
+Phase 1 (Decoupled Background Service & Local Cache).
 
 ---
 
-### Pitfall 4: Top Status Bar Left-Zone Crowding on Narrow Screens
+### Pitfall 2: Partial File Read Race Conditions in `FileView`
 
-**Warning Signs:** 3 expanded pills push the dead-center Workspaces widget to the right, causing visual asymmetry or overlapping the Center and Right zones.  
-**Root Cause:** Left-side pill widths expanding beyond the available width buffer on 1080p displays (minimum 180px gap required between Left and Center zones).  
-**Prevention Strategy:**
-1. Implement `useShortenedForm` responsive tiers:
-   - Standard width: Full labels (`350/958 GB`, `WAN 27ms | GW 2ms | SRV 1.6ms`).
-   - Shortened (`useShortenedForm >= 1`): Compact icon + percentage or latency numbers only.
-2. Maintain `BarGroup` 250ms emphasized deceleration width resizing to prevent layout snapping.
+**What goes wrong:**  
+`WeatherService.qml` crashes or logs `SyntaxError: Unexpected end of JSON input` when reading the weather cache, setting weather properties to `undefined` and breaking UI bindings.
+
+**Why it happens:**  
+`Quickshell.Io.FileView` triggers an inotify event immediately when a file is modified. If the fetcher script writes data directly using `open('weather.json', 'w')`, `FileView` attempts to read while the write is still buffered in memory or half-flushed, reading an incomplete JSON payload.
+
+**How to avoid:**  
+Always perform **atomic file replacement**:  
+Write the full payload to a temporary file on the same filesystem (e.g. `$XDG_RUNTIME_DIR/weather/weather.json.tmp.<PID>`), flush and close it, then call POSIX `os.replace()` / `mv`. Inotify will only fire on the atomic inode swap when the file is 100% complete and valid.
+
+**Warning signs:**  
+Intermittent JSON parse errors in `journalctl -u quickshell` or stderr right after the fetcher runs.
+
+**Phase to address:**  
+Phase 1 & Phase 2.
 
 ---
 
-### Pitfall 5: Directory Folding in `restow/quickshell/`
+### Pitfall 3: Canvas Graph Over-Rendering & Idle CPU Churn
 
-**Warning Signs:** Symlinks point to whole directories rather than leaf files, modifying `vendor/dots-hyprland` or triggering `arch/dots-hyprland.sh verify --strict` failures.  
-**Root Cause:** Running GNU Stow without `--no-folding` or failing to pre-create target subdirectories causes Stow to fold directories into single symlinks.  
-**Prevention Strategy:**
-1. Ensure all new files under `restow/quickshell/` follow the leaf symlink overlay topology.
-2. Verify with `arch/dots-hyprland.sh verify --strict` before closing each phase.
+**What goes wrong:**  
+Quickshell's quiescent idle CPU usage spikes back up to 5–15%, undoing the major optimization achievements of Milestone v0.9 (which drove quiescent CPU down to 1.68%).
+
+**Why it happens:**  
+Using continuous animation timers on Canvas plots, repainting while the popup is closed, or calling `requestPaint()` on every tiny mouse hover position change without integer/index quantization.
+
+**How to avoid:**  
+1. Gate Canvas painting strictly behind `root.active` (only paint when the popup is actually visible).  
+2. Clamp graph hover scrub resolution to the discrete data points (24 hourly slots), requesting paint only when `hoveredIndex !== newIndex`.  
+3. Clamping Canvas FPS (deadband 10 FPS max) as established in Phase 50 (`OPT-04`).
+
+**Warning signs:**  
+`scripts/profile-quickshell.sh` reporting CPU > 2.5% during stationary bar idle or popup inspection.
+
+**Phase to address:**  
+Phase 4 (Canvas Graph Components) & Phase 6 (Performance Regression).
+
+---
+
+### Pitfall 4: Missing or Misaligned WWO Weather Code Mappings
+
+**What goes wrong:**  
+Weather pill or popup displays a blank space, broken icon box, or fallback error icon for specific regional conditions (e.g. "Patchy light drizzle", "Blowing snow", or "Heavy freezing drizzle").
+
+**Why it happens:**  
+WWO defines over 40 distinct numeric `weatherCode` values (from 113 to 395). Relying on a small naive lookup table misses edge-case codes, especially when combined with daytime vs nighttime variants (`isdaytime: "no"`).
+
+**How to avoid:**  
+Construct a comprehensive dictionary mapper in `WeatherGlyphs.qml` covering all 40+ documented WWO weather codes, paired with explicit `isdaytime` day/night Material Symbol ligature mappings, and a verified graceful fallback (e.g. `cloud` or `partly_cloudy_day`).
+
+**Warning signs:**  
+Undefined icon properties or empty MaterialSymbol labels when testing against diverse mock weather conditions.
+
+**Phase to address:**  
+Phase 2 (Iconography & Glyph Mapping).
+
+---
+
+### Pitfall 5: Hardcoded Colors Breaking Material You / Matugen Theming
+
+**What goes wrong:**  
+Graph curves, grid lines, or text labels become invisible (e.g. dark gray on dark background) or visually jarring when switching wallpapers with Matugen dynamic palette generation.
+
+**Why it happens:**  
+Using hardcoded CSS color strings (e.g. `#A8C7FA`, `#FFFFFF`, `rgba(255, 255, 255, 0.08)`) inside Canvas 2D contexts or QML text labels.
+
+**How to avoid:**  
+Always derive Canvas stroke, fill, and text colors from `Appearance.colors` (e.g. `Appearance.colors.colPrimary`, `Appearance.colors.colSurface`, `Appearance.colors.colSubtext`). For alpha transparencies in Canvas, use helper functions to apply alpha dynamically: `Qt.rgba(c.r, c.g, c.b, alpha)`.
+
+**Warning signs:**  
+Testing wallpaper change (`switchwall.sh`) leaves graph text unreadable against the new background color scheme.
+
+**Phase to address:**  
+Phase 3, Phase 4, and Phase 5.
+
+---
+*Pitfalls research for: Desktop Shell Weather Telemetry & Visualization*  
+*Researched: 2026-10-02*  
