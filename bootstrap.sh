@@ -539,6 +539,7 @@ run_stow_step() {
              "$target/.config/quickshell/ii/modules/ii/bar" \
              "$target/.config/quickshell/ii/services" \
              "$target/.config/quickshell/ii/scripts/videos" \
+             "$target/.config/weather" \
              "$target/.config/systemd/user"
   fi
 
@@ -770,6 +771,13 @@ step_verify() {
       echo "[WARN] dotfiles-capture.timer is not active (user D-Bus session may be unavailable)." >&2
     else
       echo "[PASS] dotfiles-capture.timer is active."
+    fi
+    echo "[SYSTEMD] Enabling and starting wwo-fetcher.timer..."
+    systemctl --user --now enable wwo-fetcher.timer 2>/dev/null || true
+    if ! systemctl --user is-active --quiet wwo-fetcher.timer 2>/dev/null; then
+      echo "[WARN] wwo-fetcher.timer is not active (user D-Bus session may be unavailable)." >&2
+    else
+      echo "[PASS] wwo-fetcher.timer is active."
     fi
   fi
 

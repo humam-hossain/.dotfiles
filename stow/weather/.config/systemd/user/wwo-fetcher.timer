@@ -1,0 +1,11 @@
+[Unit]
+Description=WorldWeatherOnline periodic weather fetch timer
+Documentation=file://%h/.config/weather/wwo-fetcher.py
+
+[Timer]
+OnStartupSec=1m
+OnUnitActiveSec=3m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

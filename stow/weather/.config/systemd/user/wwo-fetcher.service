@@ -1,0 +1,16 @@
+[Unit]
+Description=WorldWeatherOnline weather telemetry fetcher
+Documentation=file://%h/.config/weather/wwo-fetcher.py
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.config/weather/wwo-fetcher.py
+Nice=19
+TimeoutStartSec=30s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=wwo-fetcher
+RuntimeDirectory=weather
+RuntimeDirectoryMode=0755
