@@ -81,7 +81,7 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
   3. Dynamic day vs. night glyph switching works reliably based on the `isdaytime` field across all weather conditions.
   4. Air quality (US-EPA 1–6) and severe weather alert levels map cleanly to Material You theme colors (`Appearance.colors.*`).  
 
-**Plans**: TBD
+**Plans**: 3/3 plans complete
 
 ### Phase 53: Top Status Bar Weather Pill Component
 

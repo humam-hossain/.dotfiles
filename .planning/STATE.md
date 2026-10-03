@@ -6,10 +6,10 @@ current_phase: 53
 current_phase_name: Top Status Bar Weather Pill Component
 status: planning
 stopped_at: Phase 52 complete, ready to plan Phase 53
-last_updated: "2026-10-03T12:39:23.182Z"
+last_updated: "2026-10-03T17:23:29.172Z"
 last_activity: 2026-10-03
 last_activity_desc: Phase 52 complete, transitioned to Phase 53
-state_head: a83b545b484e87576a4c6d0af39f31566ef535a7
+state_head: 37c5e9be16edbbec9de474c4c0fd4d4e777f6eca
 progress:
   total_phases: 6
   completed_phases: 2
@@ -19,7 +19,7 @@ progress:
 ---
 
 Total Phases: 6 (Phases 51–56)
-Progress: [██░░░░░░░░] 1/6 phases ([███░░░░░░░] 33%)
+Progress: [██████░░░░] 2/6 phases ([██████░░░░] 33%)
 
 # Project State
 
@@ -32,16 +32,16 @@ Last activity: 2026-10-03 — Phase 52 complete, transitioned to Phase 53
 
 ## Session
 
-**Last session:** 2026-10-03T11:46:04.670Z
+**Last session:** 2026-10-03
 **Stopped at:** Phase 52 complete, ready to plan Phase 53
-**Resume file:** .planning/phases/52-weather-service-singleton-material-glyph-mapping/52-CONTEXT.md
+**Resume file:** None
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-10-03 after Phase 51)
+See: .planning/PROJECT.md (updated 2026-10-03 after Phase 52)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 52 — Weather Service Singleton & Material Glyph Mapping
+**Current focus:** Phase 53 — Top Status Bar Weather Pill Component
 
 ## Deferred Items
 
@@ -327,3 +327,9 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 47]: CNTR-01..CNTR-03: Reorganized Center Zone in BarContent.qml. Swapped ClockWidget to the left of Workspaces and WeatherBar to the right. Locked Workspaces dead-centered using anchors.horizontalCenter. Implemented dynamic width collapsing for the middleSection wrapper when Weather is inactive. Tested extensively via a dedicated phase47-center-layout-assert.sh AST test harness maintaining zero submodule churn.
 - [Phase 50]: D-50-09: Comprehensive 8-stage BENCHMARK.md comparative attribution report generated contrasting Phase 49 pre-optimization baselines with Phase 50 post-optimization metrics. Custom idle CPU reduced 5.72% → 1.68% (−70.6%), context switches 453/s → 72/s (−84.1%), MediaControls CPU 24.58% → 8.20% (−66.6%), NetPing GPU boost clock 1550 MHz → 0.0 MHz (eliminated). All 5 requirements (OPT-01..OPT-05) verified PASS.
 - [Phase 50]: D-50-10: Full 5-section scripts/phase50-opt-assert.sh assertion harness executed with FAIL=0 FINDINGS=0. Repository integrity confirmed via arch/dots-hyprland.sh verify --strict (FAIL=0 FINDINGS=0) and zero vendor/dots-hyprland submodule drift.
+- [Phase 51]: D-51-01: Standalone Python WWO fetcher with dynamic pacing math (M_rem / max(1, 470 - calls)) >= 3.0 min with UTC midnight rollover and 500-call absolute ceiling protecting free-tier quota.
+- [Phase 51]: D-51-02: Atomic temporary file replacement via os.replace within tmpfs ($XDG_RUNTIME_DIR/weather/weather.json) with persistent state mirror in $XDG_STATE_HOME and is_stale offline fallback.
+- [Phase 52]: D-52-01..D-52-04: Reactive Quickshell weather service singleton (Weather.qml) observing atomic cache via Quickshell.Io.FileView with 60s fallback timer, eliminating all curl/wttr.in/Process subshells (CPU <= 0.01%).
+- [Phase 52]: D-52-05..D-52-08: Backward-compatible Weather.data.* facade and safe cold-boot defaults ('--', 'Offline', 'cloud_off') preventing desktop crashes on startup.
+- [Phase 52]: D-52-09..D-52-15: Complete WeatherGlyphs dictionary mapping all 59 WWO condition codes (113–395) to Material Symbols Rounded ligatures with day/night branching, neutral 'cloud' fallback, US-EPA AQI categories 1–6, and alert severity color hierarchy.
+- [Phase 52]: INTG-02, INTG-04: GNU Stow leaf symlinks deployed to ~/.config/quickshell/ii/services/ with vendor backup Weather.qml.bak preserved and 0 repo drift.

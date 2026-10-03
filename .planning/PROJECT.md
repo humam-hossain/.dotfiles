@@ -377,11 +377,11 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ **OPT-04**: Canvas, Graphing & Scenegraph Throttling clamping charts to 10 FPS and caching drop shadows in GPU VRAM — Phase 50
 - ✓ **OPT-05**: Empirical Re-Benchmarking & Comprehensive Report across all 8 stages with automated assertion verification — Phase 50
 - ✓ **WWO-01**: Standalone background weather service fetching WorldWeatherOnline data with local cache file in `$XDG_RUNTIME_DIR/weather/weather.json` (dynamic pacing, rate-limited under 500 calls/day free tier) — Phase 51
+- ✓ **WWO-02**: Quickshell `WeatherService.qml` singleton consuming local cache via reactive `FileView` observer with offline resilience and zero API calls on shell reloads — Phase 52
+- ✓ **GLYPH-01**: Design-matched weather iconography and glyph mapping for all WWO condition codes, day vs. night (`isdaytime`), precipitation, wind, and severe alert states aligned to Material You / Material Symbols — Phase 52
 
 ### Active
 
-- [ ] **WWO-02**: Quickshell `WeatherService.qml` singleton consuming local cache via reactive `FileView` observer with offline resilience and zero API calls on shell reloads
-- [ ] **GLYPH-01**: Design-matched weather iconography and glyph mapping for all WWO condition codes, day vs. night (`isdaytime`), precipitation, wind, and severe alert states aligned to Material You / Material Symbols
 - [ ] **BAR-01**: Top status bar `WeatherPill.qml` component in Center Zone with fluid M3 width resizing, dynamic condition glyph, temperature (°C), and alert indicators
 - [ ] **PARAM-01**: Systematic parameter evaluation and UI representation mapping across all categories in `WEATHER_PARAMETERS.md` (Thermal/Comfort, Atmospheric, Wind, Air Quality AQI/PM2.5, Astronomy, Severe Alerts)
 - [ ] **POPUP-01**: Multi-modal `WeatherPopup.qml` inspector anchored with 1000ms hover intent delay and screen boundary clamping (`StyledPopup`)
@@ -592,6 +592,13 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 50: MediaControls offscreen FBO & popup scenegraph optimizations | Replaced `OpacityMask` and Gaussian blurs with native clipping; clamped Canvas graphs to 10 FPS deadband; cached drop shadows into GPU VRAM (OPT-02, OPT-04, D-50-03..06) | ✓ 50-03 Complete |
 | Phase 50: Restored OpacityMask knockout in ClippedFilledCircularProgress | Restores OpacityMask with invert:true in 20px pill rings for high-contrast icon cutout against dark bar background without performance penalty (D-50-11) | ✓ UAT signed off, commit 6d459ddb |
 | Phase 50: Empirical re-benchmarking & 5-section assertion harness | Generated 8-stage `benchmark-latest.json` and master `BENCHMARK.md` report; `phase50-opt-assert.sh` FAIL=0 FINDINGS=0 and zero repo drift (OPT-05, D-50-09, D-50-10) | ✓ 50-04 Complete |
+| Phase 51: Standalone Python WWO fetcher with dynamic pacing | Strict rate limiting <=96 calls/day with UTC midnight rollover and 500-call absolute ceiling protects free tier quota (D-51-01, WWO-01, WWO-02) | ✓ 51-01 Complete |
+| Phase 51: Atomic JSON cache with offline fallback | Atomic os.replace write to $XDG_RUNTIME_DIR/weather/weather.json and persistent mirror in $XDG_STATE_HOME with is_stale flag (D-51-02, WWO-03, WWO-04) | ✓ 51-02 Complete |
+| Phase 52: WeatherGlyphs condition code & day/night mapping | Complete dictionary mapping all 59 WWO codes to Material Symbols with day/night branching and 'cloud' fallback (D-52-09..D-52-12, GLYPH-02, GLYPH-03) | ✓ 52-01 Complete |
+| Phase 52: EPA AQI categories and alert severity color tokens | Maps EPA 1–6 indices and alert levels to high-contrast Material You hex colors and Appearance.m3colors tokens (D-52-13..D-52-15, GLYPH-04) | ✓ 52-01 Complete |
+| Phase 52: Reactive FileView weather service singleton | Non-blocking Quickshell.Io.FileView disk observer with 60s inotify fallback timer, eliminating all curl/Process subshells (D-52-01..D-52-04, GLYPH-01) | ✓ 52-02 Complete |
+| Phase 52: Backward-compatibility facade and safe cold-boot defaults | Weather.data.* facade and safe defaults ('--', 'Offline', 'cloud_off') prevent desktop crashes (D-52-05..D-52-08, D-52-16) | ✓ 52-02 Complete |
+| Phase 52: Restow overlay deployment & vendor backup preservation | GNU Stow leaf symlinks deployed to ~/.config/quickshell/ii/services/ with Weather.qml.bak preserved and 0 repo drift (INTG-02, INTG-04) | ✓ 52-03 Complete |
 
 ## Evolution
 
@@ -611,7 +618,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-03 after Phase 51*
+*Last updated: 2026-10-03 after Phase 52*
 
 
 
