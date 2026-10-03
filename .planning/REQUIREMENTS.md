@@ -16,10 +16,10 @@ Requirements for Milestone v0.10. Each maps to roadmap phases.
 
 ### Weather Service Singleton & Iconography (GLYPH)
 
-- [ ] **GLYPH-01**: `WeatherService.qml` singleton observes the local cache file via reactive `Quickshell.Io.FileView` with non-blocking updates and zero external API calls on desktop shell reload.
-- [ ] **GLYPH-02**: Comprehensive `WeatherGlyphs.qml` dictionary mapper converts all 40+ WWO condition codes (`weatherCode` 113–395) to Material Symbols ligature strings with verified fallbacks.
-- [ ] **GLYPH-03**: Daytime vs. nighttime glyph switching dynamically driven by WWO `isdaytime` field across all weather conditions.
-- [ ] **GLYPH-04**: Health and severity color mapping assigning Material You palette tokens (`Appearance.colors.*`) to air quality levels (US-EPA) and severe weather alerts.
+- [x] **GLYPH-01**: `WeatherService.qml` singleton observes the local cache file via reactive `Quickshell.Io.FileView` with non-blocking updates and zero external API calls on desktop shell reload.
+- [x] **GLYPH-02**: Comprehensive `WeatherGlyphs.qml` dictionary mapper converts all 40+ WWO condition codes (`weatherCode` 113–395) to Material Symbols ligature strings with verified fallbacks.
+- [x] **GLYPH-03**: Daytime vs. nighttime glyph switching dynamically driven by WWO `isdaytime` field across all weather conditions.
+- [x] **GLYPH-04**: Health and severity color mapping assigning Material You palette tokens (`Appearance.colors.*`) to air quality levels (US-EPA) and severe weather alerts.
 
 ### Top Status Bar Weather Pill (BAR)
 
@@ -77,10 +77,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | WWO-02 | Phase 51 | Complete |
 | WWO-03 | Phase 51 | Complete |
 | WWO-04 | Phase 51 | Complete |
-| GLYPH-01 | Phase 52 | Pending |
-| GLYPH-02 | Phase 52 | Pending |
-| GLYPH-03 | Phase 52 | Pending |
-| GLYPH-04 | Phase 52 | Pending |
+| GLYPH-01 | Phase 52 | Complete |
+| GLYPH-02 | Phase 52 | Complete |
+| GLYPH-03 | Phase 52 | Complete |
+| GLYPH-04 | Phase 52 | Complete |
 | BAR-01 | Phase 53 | Pending |
 | BAR-02 | Phase 53 | Pending |
 | BAR-03 | Phase 53 | Pending |
