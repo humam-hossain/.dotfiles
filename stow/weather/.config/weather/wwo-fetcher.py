@@ -72,7 +72,7 @@ def resolve_api_key() -> str:
     return env_vars.get("WWO_API_KEY", "").strip()
 
 
-def resolve_city() -> str:
+def resolve_city() -> str | None:
     config_home = os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")
     config_path = os.path.join(config_home, "illogical-impulse", "config.json")
     if os.path.isfile(config_path):
@@ -84,7 +84,7 @@ def resolve_city() -> str:
                     return city.strip()
         except Exception:
             pass
-    return "Dhaka"
+    return None
 
 
 def load_quota_state(state_file: str) -> dict:
@@ -307,6 +307,21 @@ def main():
             "fetched_epoch": int(now_utc.timestamp()),
             "is_stale": True,
             "error": "Missing WWO_API_KEY in ~/.config/weather/.env",
+            "quota": quota_info,
+            "data": None
+        }
+        atomic_write_json(cache_path, err_envelope)
+        sys.exit(1)
+
+    # Check configured city
+    if not city:
+        sys.stderr.write("Error: Weather city not configured in ~/.config/illogical-impulse/config.json\n")
+        err_envelope = {
+            "status": "error",
+            "fetched_at": datetime.now().astimezone().isoformat(),
+            "fetched_epoch": int(now_utc.timestamp()),
+            "is_stale": True,
+            "error": "Weather city not configured in ~/.config/illogical-impulse/config.json",
             "quota": quota_info,
             "data": None
         }

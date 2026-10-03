@@ -270,15 +270,15 @@ def resolve_city(config_path):
                     return city.strip()
         except Exception:
             pass
-    return "Dhaka"
+    return None
 
-# Test 1: Missing file -> Dhaka
-assert resolve_city("/nonexistent/config.json") == "Dhaka"
+# Test 1: Missing file -> None
+assert resolve_city("/nonexistent/config.json") is None
 print("OK_DEFAULT")
 ' 2>&1 || echo "ERROR")
 
   if [[ "$CITY_DEFAULT" == "OK_DEFAULT" ]]; then
-    pass "S2: City resolution defaults to 'Dhaka' when config is absent or empty per D-51-09"
+    pass "S2: City resolution defaults to None when config is absent or empty per D-51-09"
   else
     fail "S2: City resolution default check failed: $CITY_DEFAULT"
   fi
@@ -308,7 +308,7 @@ def resolve_city(config_path):
                     return city.strip()
         except Exception:
             pass
-    return "Dhaka"
+    return None
 
 assert resolve_city(sys.argv[1]) == "Tokyo"
 print("OK_CONFIGURED")
