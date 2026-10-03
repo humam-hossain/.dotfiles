@@ -376,10 +376,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ **OPT-03**: Network & Ping Telemetry Syscall Churn Elimination, procfs FileView observers, and 1550 MHz GPU boost lock elimination — Phase 50
 - ✓ **OPT-04**: Canvas, Graphing & Scenegraph Throttling clamping charts to 10 FPS and caching drop shadows in GPU VRAM — Phase 50
 - ✓ **OPT-05**: Empirical Re-Benchmarking & Comprehensive Report across all 8 stages with automated assertion verification — Phase 50
+- ✓ **WWO-01**: Standalone background weather service fetching WorldWeatherOnline data with local cache file in `$XDG_RUNTIME_DIR/weather/weather.json` (dynamic pacing, rate-limited under 500 calls/day free tier) — Phase 51
 
 ### Active
 
-- [ ] **WWO-01**: Standalone background weather service fetching WorldWeatherOnline data with local cache file in `$XDG_RUNTIME_DIR/weather/weather.json` (15–20 min cadence, rate-limited under 500 calls/day free tier)
 - [ ] **WWO-02**: Quickshell `WeatherService.qml` singleton consuming local cache via reactive `FileView` observer with offline resilience and zero API calls on shell reloads
 - [ ] **GLYPH-01**: Design-matched weather iconography and glyph mapping for all WWO condition codes, day vs. night (`isdaytime`), precipitation, wind, and severe alert states aligned to Material You / Material Symbols
 - [ ] **BAR-01**: Top status bar `WeatherPill.qml` component in Center Zone with fluid M3 width resizing, dynamic condition glyph, temperature (°C), and alert indicators
@@ -611,7 +611,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-02 starting v0.10 milestone*
+*Last updated: 2026-10-03 after Phase 51*
 
 
 
