@@ -95,7 +95,7 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
   3. Displays subtle warning indicator for imminent rain (probability > 50%) or active severe weather warnings.
   4. Clicking or hovering pill toggles `WeatherPopup` with smooth scale transitions and hover intent delay anchoring (`StyledPopup`).  
 
-**Plans**: TBD
+**Plans**: 2/2 plans complete
 
 - [x] 53-01-PLAN.md
 - [x] 53-02-PLAN.md
@@ -161,4 +161,4 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 55 → 56
 
 ---
 *Roadmap defined: 2026-10-02*  
-*Last updated: 2026-10-03 for Phase 51 completion*
+*Last updated: 2026-10-05 for Phase 53 completion*
