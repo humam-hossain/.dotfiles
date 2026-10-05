@@ -3,32 +3,32 @@ gsd_state_version: "1.0"
 milestone: v0.10
 milestone_name: Phases
 current_phase: 54
-current_phase_name: Interactive Time-Series Canvas Graphs
+current_phase_name: Multi-Modal Popup Inspector & Interactive Graphs
 status: planning
 stopped_at: Phase 53 complete, ready to plan Phase 54
-last_updated: "2026-10-05T11:37:14.139Z"
+last_updated: "2026-10-05T18:02:00.000Z"
 last_activity: 2026-10-05
-last_activity_desc: Phase 53 complete, transitioned to Phase 54
+last_activity_desc: Merged Phase 54 and Phase 55 into unified visual popup sprint
 state_head: c549135a83601fa1893db1a92b1e956ea5405bef
 progress:
-  total_phases: 6
+  total_phases: 5
   completed_phases: 3
   total_plans: 8
   completed_plans: 8
-  percent: 50
+  percent: 60
 ---
 
-Total Phases: 6 (Phases 51–56)
-Progress: [██████████░░░░░░░░░░] 3/6 phases ([█████░░░░░] 50%)
+Total Phases: 5 (Phases 51–55)
+Progress: [████████████░░░░░░░░] 3/5 phases ([██████░░░░] 60%)
 
 # Project State
 
 ## Current Position
 
-Phase: 54 — Interactive Time-Series Canvas Graphs
+Phase: 54 — Multi-Modal Popup Inspector & Interactive Graphs
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-10-05 — Phase 53 complete, transitioned to Phase 54
+Last activity: 2026-10-05 — Merged Phase 54 and Phase 55 into unified visual popup sprint
 
 ## Session
 
@@ -41,7 +41,7 @@ Last activity: 2026-10-05 — Phase 53 complete, transitioned to Phase 54
 See: .planning/PROJECT.md (updated 2026-10-05 after Phase 53)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 54 — Interactive Time-Series Canvas Graphs
+**Current focus:** Phase 54 — Multi-Modal Popup Inspector & Interactive Graphs
 
 ## Deferred Items
 

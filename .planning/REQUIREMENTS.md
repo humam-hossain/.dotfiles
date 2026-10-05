@@ -89,17 +89,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GRAPH-02 | Phase 54 | Pending |
 | GRAPH-03 | Phase 54 | Pending |
 | GRAPH-04 | Phase 54 | Pending |
-| POPUP-01 | Phase 55 | Pending |
-| POPUP-02 | Phase 55 | Pending |
-| POPUP-03 | Phase 55 | Pending |
-| POPUP-04 | Phase 55 | Pending |
-| POPUP-05 | Phase 55 | Pending |
-| POPUP-06 | Phase 55 | Pending |
-| POPUP-07 | Phase 55 | Pending |
-| INTG-01 | Phase 56 | Pending |
-| INTG-02 | Phase 56 | Pending |
-| INTG-03 | Phase 56 | Pending |
-| INTG-04 | Phase 56 | Pending |
+| POPUP-01 | Phase 54 | Pending |
+| POPUP-02 | Phase 54 | Pending |
+| POPUP-03 | Phase 54 | Pending |
+| POPUP-04 | Phase 54 | Pending |
+| POPUP-05 | Phase 54 | Pending |
+| POPUP-06 | Phase 54 | Pending |
+| POPUP-07 | Phase 54 | Pending |
+| INTG-01 | Phase 55 | Pending |
+| INTG-02 | Phase 55 | Pending |
+| INTG-03 | Phase 55 | Pending |
+| INTG-04 | Phase 55 | Pending |
 
 **Coverage:**
 
@@ -109,4 +109,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-10-02*  
-*Last updated: 2026-10-02 after initial milestone definition*  
+*Last updated: 2026-10-05 after merging Phase 54 and Phase 55*  

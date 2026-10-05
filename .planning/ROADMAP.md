@@ -49,9 +49,8 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
 - [x] **Phase 51: WWO Fetcher Service & Local Cache Architecture** - Standalone Python fetcher and systemd user timer with rate-limiting and atomic JSON caching (completed 2026-10-03)
 - [x] **Phase 52: Weather Service Singleton & Material Glyph Mapping** - Reactive FileView observer service, complete WWO code dictionary, and day/night glyph mapper (completed 2026-10-03)
 - [x] **Phase 53: Top Status Bar Weather Pill Component** - Status bar WeatherPill in Center Zone with temperature display, condition glyph, and fluid M3 width resizing (completed 2026-10-05)
-- [ ] **Phase 54: Interactive Time-Series Canvas Graphs** - 24-hour temperature/feels-like spline curve and hourly rain probability/precipitation volume chart with hover scrub
-- [ ] **Phase 55: Multi-Modal Popup Inspector** - Rich popup with 1000ms hover delay, atmospheric grid, AQI card, wind compass, astronomy timeline, and severe alert banner
-- [ ] **Phase 56: System Integration, Retirement & Verification** - Prototype retirement, leaf symlink deployment, automated regression harness, and zero git churn
+- [ ] **Phase 54: Multi-Modal Popup Inspector & Interactive Graphs** - Production WeatherPopup with 24-hour temperature/feels-like spline curve, rain probability bars, hover scrub, atmospheric grid, AQI card, wind compass, astronomy card, and severe alert banner
+- [ ] **Phase 55: System Integration, Retirement & Verification** - Prototype retirement, leaf symlink deployment, automated regression harness, and zero git churn
 
 ## Phase Details
 
@@ -100,41 +99,30 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
 - [x] 53-01-PLAN.md
 - [x] 53-02-PLAN.md
 
-### Phase 54: Interactive Time-Series Canvas Graphs
+### Phase 54: Multi-Modal Popup Inspector & Interactive Graphs
 
-**Goal**: Build production `WeatherGraph.qml` providing an interactive 24-hour temperature/feels-like curve and hourly rain probability/precipitation volume chart with hover scrub readout.  
-**Depends on**: Phase 52  
-**Requirements**: GRAPH-01, GRAPH-02, GRAPH-03, GRAPH-04  
+**Goal**: Build production `WeatherPopup.qml` and `WeatherGraph.qml`, delivering the complete interactive visual popup inspector with 24-hour temperature/precipitation spline graphs, hover scrub, hero overview, atmospheric grid, AQI card, wind compass, astronomy timeline, and severe alert banner.  
+**Depends on**: Phase 53  
+**Requirements**: GRAPH-01, GRAPH-02, GRAPH-03, GRAPH-04, POPUP-01, POPUP-02, POPUP-03, POPUP-04, POPUP-05, POPUP-06, POPUP-07  
 **Success Criteria** (what must be TRUE):
 
-  1. Canvas 2D renders 24-hour temperature and feels-like curve with smooth Bezier spline interpolation, min/max gridlines, and gradient fills.
-  2. Hourly precipitation volume (mm) and rain probability (%) render as clear bars/columns across the 24-hour forecast strip.
-  3. Mouse hover scrub across graph displays dynamic time, temperature, and rain chance readout at the nearest hourly slot.
-  4. Canvas repainting is strictly event-driven (gated by popup visibility and discrete hover index shifts) to maintain quiescent idle CPU $\le 1.68\%$.  
+  1. Popup anchors under `WeatherBar` with 1000ms hover delay and screen boundary clamping via `StyledPopup`.
+  2. Canvas 2D renders 24-hour temperature and feels-like curve with smooth Bezier spline interpolation, min/max gridlines, and gradient fills.
+  3. Hourly precipitation volume (mm) and rain probability (%) render as clear bars/columns across the 24-hour forecast strip with interactive mouse scrub readout.
+  4. Canvas repainting is strictly event-driven (gated by popup visibility `root.active` and discrete hover index shifts) to maintain quiescent idle CPU $\le 1.68\%$.
+  5. Hero card displays location name, observation time, large temperature readout, and human condition description.
+  6. Atmospheric grid displays Humidity, Pressure, UV Index, and Visibility.
+  7. Air Quality card renders US-EPA colored health badge and PM2.5 / PM10 metrics.
+  8. Wind card displays rotating directional compass needle (`winddirDegree`), 16-point direction, and wind/gust speed.
+  9. Astronomy card displays sunrise, sunset, and lunar illumination phase.
+  10. Severe weather banner renders prominently when official alerts are active.
 
 **Plans**: TBD
 
-### Phase 55: Multi-Modal Popup Inspector
-
-**Goal**: Construct `WeatherPopup.qml` incorporating hero overview, atmospheric grid, AQI card, wind compass, astronomy card, and severe alert banner.  
-**Depends on**: Phase 53, Phase 54  
-**Requirements**: POPUP-01, POPUP-02, POPUP-03, POPUP-04, POPUP-05, POPUP-06, POPUP-07  
-**Success Criteria** (what must be TRUE):
-
-  1. Popup anchors under `WeatherPill` with 1000ms hover delay and screen boundary clamping via `StyledPopup`.
-  2. Hero card displays location name, observation time, large temperature readout, and human condition description.
-  3. Atmospheric grid displays Humidity, Pressure, UV Index, and Visibility.
-  4. Air Quality card renders US-EPA colored health badge and PM2.5 / PM10 metrics.
-  5. Wind card displays rotating directional compass needle (`winddirDegree`), 16-point direction, and wind/gust speed.
-  6. Astronomy card displays sunrise, sunset, and lunar illumination phase.
-  7. Severe weather banner renders prominently when official alerts are active.  
-
-**Plans**: TBD
-
-### Phase 56: System Integration, Retirement & Verification
+### Phase 55: System Integration, Retirement & Verification
 
 **Goal**: Retire prototype test files (`TestPill.qml`, `TestPopup.qml`), deploy via GNU Stow leaf symlinks, create automated regression harness, and verify repository cleanliness.  
-**Depends on**: Phase 55  
+**Depends on**: Phase 54  
 **Requirements**: INTG-01, INTG-02, INTG-03, INTG-04  
 **Success Criteria** (what must be TRUE):
 
@@ -148,16 +136,15 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 51 → 52 → 53 → 54 → 55 → 56
+Phases execute in numeric order: 51 → 52 → 53 → 54 → 55
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 51. WWO Fetcher Service & Local Cache Architecture | 3/3 | Complete    | 2026-10-03 |
 | 52. Weather Service Singleton & Material Glyph Mapping | 3/3 | Complete    | 2026-10-03 |
 | 53. Top Status Bar Weather Pill Component | 2/2 | Complete    | 2026-10-05 |
-| 54. Interactive Time-Series Canvas Graphs | 0/TBD | Not started | - |
-| 55. Multi-Modal Popup Inspector | 0/TBD | Not started | - |
-| 56. System Integration, Retirement & Verification | 0/TBD | Not started | - |
+| 54. Multi-Modal Popup Inspector & Interactive Graphs | 0/TBD | Not started | - |
+| 55. System Integration, Retirement & Verification | 0/TBD | Not started | - |
 
 ---
 *Roadmap defined: 2026-10-02*  
