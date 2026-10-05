@@ -2,7 +2,7 @@
 phase: "53"
 slug: "top-status-bar-weather-pill-component"
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: "2026-10-05"
 ---
@@ -38,13 +38,10 @@ created: "2026-10-05"
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 53-01-01 | 01 | 1 | BAR-01 | — | Shadow upstream via personal overlay; non-destructive backup | integration | `test -f restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather/WeatherBar.qml` | ❌ W0 | ⬜ pending |
-| 53-01-02 | 01 | 1 | BAR-01 | — | Pristine vendor hygiene; zero git submodule churn | integration | `./arch/dots-hyprland.sh verify --strict` | ✅ | ⬜ pending |
-| 53-01-03 | 01 | 1 | BAR-02 | — | Celsius integer formatting with unit, dimmed offline state | unit | `node -e '/* test temp format and fallback */'` | ❌ W0 | ⬜ pending |
-| 53-01-04 | 01 | 1 | BAR-03 | — | Imminent rain badge reveal (>50%), alert precedence | unit | `node -e '/* test rain calculation and alert precedence */'` | ❌ W0 | ⬜ pending |
-| 53-01-05 | 01 | 1 | BAR-04 | — | MouseArea click absorption, StyledPopup hover anchoring | integration | `grep -q "acceptedButtons: Qt.AllButtons" restow/.../WeatherBar.qml` | ❌ W0 | ⬜ pending |
-| 53-02-01 | 02 | 2 | BAR-01..04 | ASVS L1 | Fails closed on root execution (EUID 0 check) | security | `./scripts/phase53-weather-assert.sh` | ❌ W0 | ⬜ pending |
-| 53-02-02 | 02 | 2 | BAR-01..04 | — | All 5 sections green, 0 findings | smoke/e2e | `./scripts/phase53-weather-assert.sh && ./arch/dots-hyprland.sh verify --strict` | ❌ W0 | ⬜ pending |
+| 53-01-01 | 01 | 1 | BAR-01, BAR-02, BAR-03, BAR-04 | T-53-02, T-53-03 | Authors WeatherBar.qml with MouseArea root, temp parsing, rain revealer, alert pulse, popup anchoring | integration | `test -s restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather/WeatherBar.qml && qmlformat -n restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather/WeatherBar.qml` | ❌ W0 | ⬜ pending |
+| 53-01-02 | 01 | 1 | BAR-01 | T-53-04 | Deploys Stow leaf symlink, preserves .bak backup, pristine vendor hygiene | integration | `test -L "$HOME/.config/quickshell/ii/modules/ii/bar/weather/WeatherBar.qml" && test -f "$HOME/.config/quickshell/ii/modules/ii/bar/weather/WeatherBar.qml.bak" && git status --porcelain vendor/dots-hyprland \| wc -l \| grep -q "^0$" && ./arch/dots-hyprland.sh verify --strict` | ✅ | ⬜ pending |
+| 53-02-01 | 02 | 2 | BAR-01..04 | T-53-01 (ASVS L1) | Fails closed on root execution (EUID 0 check), syntax check passes | security | `chmod +x scripts/phase53-weather-assert.sh && ./scripts/phase53-weather-assert.sh --syntax` | ❌ W0 | ⬜ pending |
+| 53-02-02 | 02 | 2 | BAR-01..04 | T-53-04 | All 5 sections green, FAIL=0, FINDINGS=0, dots-hyprland strict verify | smoke/e2e | `./scripts/phase53-weather-assert.sh && ./arch/dots-hyprland.sh verify --strict` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -68,11 +65,11 @@ created: "2026-10-05"
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 10s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 10s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved (verified by gsd-plan-checker)
