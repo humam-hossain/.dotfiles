@@ -23,10 +23,10 @@ Requirements for Milestone v0.10. Each maps to roadmap phases.
 
 ### Top Status Bar Weather Pill (BAR)
 
-- [ ] **BAR-01**: `WeatherPill.qml` component integrated into `BarContent.qml` Center Zone to the right of Workspaces, inheriting `BarGroup` with fluid M3 width resizing animation.
-- [ ] **BAR-02**: Status bar pill displays current ambient temperature in integer Celsius (`XX°C`) alongside the active dynamic condition glyph.
-- [ ] **BAR-03**: Context-sensitive warning indicators on the pill for imminent rain (probability > 50%) or active severe weather warnings.
-- [ ] **BAR-04**: Interactive mouse click toggles `WeatherPopup` with smooth scale behavior and hover intent delay anchoring (`StyledPopup`).
+- [x] **BAR-01**: `WeatherPill.qml` component integrated into `BarContent.qml` Center Zone to the right of Workspaces, inheriting `BarGroup` with fluid M3 width resizing animation.
+- [x] **BAR-02**: Status bar pill displays current ambient temperature in integer Celsius (`XX°C`) alongside the active dynamic condition glyph.
+- [x] **BAR-03**: Context-sensitive warning indicators on the pill for imminent rain (probability > 50%) or active severe weather warnings.
+- [x] **BAR-04**: Interactive mouse click toggles `WeatherPopup` with smooth scale behavior and hover intent delay anchoring (`StyledPopup`).
 
 ### Interactive Time-Series Canvas Graphs (GRAPH)
 
@@ -81,10 +81,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GLYPH-02 | Phase 52 | Complete |
 | GLYPH-03 | Phase 52 | Complete |
 | GLYPH-04 | Phase 52 | Complete |
-| BAR-01 | Phase 53 | Pending |
-| BAR-02 | Phase 53 | Pending |
-| BAR-03 | Phase 53 | Pending |
-| BAR-04 | Phase 53 | Pending |
+| BAR-01 | Phase 53 | Complete |
+| BAR-02 | Phase 53 | Complete |
+| BAR-03 | Phase 53 | Complete |
+| BAR-04 | Phase 53 | Complete |
 | GRAPH-01 | Phase 54 | Pending |
 | GRAPH-02 | Phase 54 | Pending |
 | GRAPH-03 | Phase 54 | Pending |

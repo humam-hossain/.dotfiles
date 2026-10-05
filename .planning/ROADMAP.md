@@ -48,7 +48,7 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
 
 - [x] **Phase 51: WWO Fetcher Service & Local Cache Architecture** - Standalone Python fetcher and systemd user timer with rate-limiting and atomic JSON caching (completed 2026-10-03)
 - [x] **Phase 52: Weather Service Singleton & Material Glyph Mapping** - Reactive FileView observer service, complete WWO code dictionary, and day/night glyph mapper (completed 2026-10-03)
-- [ ] **Phase 53: Top Status Bar Weather Pill Component** - Status bar WeatherPill in Center Zone with temperature display, condition glyph, and fluid M3 width resizing
+- [x] **Phase 53: Top Status Bar Weather Pill Component** - Status bar WeatherPill in Center Zone with temperature display, condition glyph, and fluid M3 width resizing (completed 2026-10-05)
 - [ ] **Phase 54: Interactive Time-Series Canvas Graphs** - 24-hour temperature/feels-like spline curve and hourly rain probability/precipitation volume chart with hover scrub
 - [ ] **Phase 55: Multi-Modal Popup Inspector** - Rich popup with 1000ms hover delay, atmospheric grid, AQI card, wind compass, astronomy timeline, and severe alert banner
 - [ ] **Phase 56: System Integration, Retirement & Verification** - Prototype retirement, leaf symlink deployment, automated regression harness, and zero git churn
@@ -154,7 +154,7 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 55 → 56
 |-------|----------------|--------|-----------|
 | 51. WWO Fetcher Service & Local Cache Architecture | 3/3 | Complete    | 2026-10-03 |
 | 52. Weather Service Singleton & Material Glyph Mapping | 3/3 | Complete    | 2026-10-03 |
-| 53. Top Status Bar Weather Pill Component | 2/2 | In Progress|  |
+| 53. Top Status Bar Weather Pill Component | 2/2 | Complete    | 2026-10-05 |
 | 54. Interactive Time-Series Canvas Graphs | 0/TBD | Not started | - |
 | 55. Multi-Modal Popup Inspector | 0/TBD | Not started | - |
 | 56. System Integration, Retirement & Verification | 0/TBD | Not started | - |
