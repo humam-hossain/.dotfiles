@@ -598,7 +598,15 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 52: EPA AQI categories and alert severity color tokens | Maps EPA 1–6 indices and alert levels to high-contrast Material You hex colors and Appearance.m3colors tokens (D-52-13..D-52-15, GLYPH-04) | ✓ 52-01 Complete |
 | Phase 52: Reactive FileView weather service singleton | Non-blocking Quickshell.Io.FileView disk observer with 60s inotify fallback timer, eliminating all curl/Process subshells (D-52-01..D-52-04, GLYPH-01) | ✓ 52-02 Complete |
 | Phase 52: Backward-compatibility facade and safe cold-boot defaults | Weather.data.* facade and safe defaults ('--', 'Offline', 'cloud_off') prevent desktop crashes (D-52-05..D-52-08, D-52-16) | ✓ 52-02 Complete |
-| Phase 52: Restow overlay deployment & vendor backup preservation | GNU Stow leaf symlinks deployed to ~/.config/quickshell/ii/services/ with Weather.qml.bak preserved and 0 repo drift (INTG-02, INTG-04) | ✓ 52-03 Complete |
+| Phase 53: Pristine BarContent.qml preservation | Leaves BarContent.qml 100% UNTOUCHED, mounting WeatherBar via existing Center Zone loader to preserve upstream updates (D-53-01, BAR-01) | ✓ 53-01 Complete |
+| Phase 53: Stow leaf symlink overlay & .bak backup | Deploys WeatherBar.qml via restow overlay leaf symlink with WeatherBar.qml.bak preserved and zero vendor drift (D-53-02, BAR-01) | ✓ 53-01 Complete |
+| Phase 53: MouseArea root container | Uses MouseArea root eliminating double-nested BarGroup padding while inheriting outer pill geometry (D-53-03, BAR-01) | ✓ 53-01 Complete |
+| Phase 53: Integer Celsius formatting & responsive tiers | Formats Math.round tempC as XX°C in Tiers 0/1 and XX° in Tier 2 with safe '--' cold-boot fallback (D-53-18, D-53-19, D-53-28, BAR-02) | ✓ 53-01 Complete |
+| Phase 53: Stale dimming & neutral temperature styling | Dims to m3onSurfaceVariant when stale/offline; preserves neutral colOnLayer1 across freezing and extreme heat (D-53-06, D-53-27, BAR-02) | ✓ 53-01 Complete |
+| Phase 53: Imminent rain chance badge | Evaluates upcoming 3-hour window in Weather.hourly, revealing water_drop + % in Revealer when chance > 50% (D-53-11..13, BAR-03) | ✓ 53-01 Complete |
+| Phase 53: Severe alert precedence & breathing pulse | Active alert warning icon takes precedence over rain badge; triggers 3-loop breathing pulse (1.0 ↔ 0.4) settling at 1.0 (D-53-14..17, BAR-03) | ✓ 53-01 Complete |
+| Phase 53: WeatherPopup hover anchoring & lifecycle gating | Anchors WeatherPopup with 1000ms hover delay, absorbs clicks (accepted = true), and exposes popupActive (D-53-29..33, BAR-04) | ✓ 53-01 Complete |
+| Phase 53: Comprehensive 5-section assertion test harness | `scripts/phase53-weather-assert.sh` validates symlinks, BarContent non-mutation, temp parsing, alert logic, and popup anchoring (D-53-10) | ✓ 53-02 Complete |
 
 ## Evolution
 
@@ -618,7 +626,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-03 after Phase 52*
+*Last updated: 2026-10-05 after Phase 53*
 
 
 
