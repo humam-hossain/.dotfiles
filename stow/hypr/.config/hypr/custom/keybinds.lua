@@ -45,6 +45,7 @@ hl.unbind("SUPER + SHIFT + M") -- upstream volume mute (conflicting)
 hl.unbind("SUPER + SUPER_L") -- upstream bare super search trigger
 hl.unbind("SUPER + SUPER_R") -- upstream bare super search trigger
 hl.unbind("Print") -- upstream fullscreen screenshot
+hl.unbind("SUPER + X") -- upstream text editor
 hl.unbind("SUPER + SHIFT + S") -- upstream screen snip (reassigned to SHIFT + Print)
 hl.unbind("SUPER + SHIFT + L") -- upstream sleep (reassigned to SUPER + Scroll_Lock)
 
