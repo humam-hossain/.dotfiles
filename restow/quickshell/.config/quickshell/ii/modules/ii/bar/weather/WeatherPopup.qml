@@ -59,6 +59,42 @@ StyledPopup {
                 Layout.fillWidth: true
                 popupActive: root.active
             }
+
+            // 4. Paired Domain Grid 1: Atmospheric & Wind (POPUP-03, POPUP-05, D-54-10)
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                WeatherAtmosphericCard {
+                    id: atmosphericCard
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                }
+
+                WeatherWindCard {
+                    id: windCard
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                }
+            }
+
+            // 5. Paired Domain Grid 2: Air Quality & Astronomy (POPUP-04, POPUP-06, D-54-10)
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 8
+
+                WeatherAqiCard {
+                    id: aqiCard
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                }
+
+                WeatherAstronomyCard {
+                    id: astronomyCard
+                    Layout.fillWidth: true
+                    Layout.preferredWidth: 1
+                }
+            }
         }
     }
 }

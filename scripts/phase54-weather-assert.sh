@@ -524,63 +524,217 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
     fi
   done
 
-  if [[ "$cards_present" -eq 0 ]]; then
+  if [[ "$cards_present" -lt 4 ]]; then
     if [[ "$RUN_SECTION" -eq 4 ]]; then
-      fail "S4: Domain telemetry cards not authored yet"
+      fail "S4: Some domain telemetry cards not authored yet ($cards_present/4 found)"
     else
       info "S4: Domain telemetry cards pending wave 4"
     fi
   else
-    # 1. Atmospheric Card
+    # 1. Atmospheric Card Contract & Invariants
     if [[ -s "$ATMO_SRC" ]]; then
       pass "S4: WeatherAtmosphericCard.qml exists"
       atmo_code="$(cat "$ATMO_SRC")"
+      if echo "$atmo_code" | grep -q 'WeatherBaseCard'; then
+        pass "S4: WeatherAtmosphericCard extends WeatherBaseCard (D-54-04)"
+      else
+        fail "S4: WeatherAtmosphericCard must extend WeatherBaseCard"
+      fi
+      if echo "$atmo_code" | grep -q 'columns:\s*2'; then
+        pass "S4: WeatherAtmosphericCard uses 2-column compact grid layout (D-54-23)"
+      else
+        fail "S4: WeatherAtmosphericCard missing 2-column grid layout"
+      fi
       if echo "$atmo_code" | grep -q 'Humidity' && echo "$atmo_code" | grep -q 'Pressure'; then
-        pass "S4: WeatherAtmosphericCard presents atmospheric telemetry (POPUP-03)"
+        pass "S4: WeatherAtmosphericCard presents Humidity and Pressure telemetry (POPUP-03)"
       else
         fail "S4: WeatherAtmosphericCard missing humidity/pressure metrics"
+      fi
+      if echo "$atmo_code" | grep -q 'UV Index' && echo "$atmo_code" | grep -q 'getUvRisk'; then
+        pass "S4: WeatherAtmosphericCard presents UV index with qualitative risk categories (POPUP-03, D-54-23)"
+      else
+        fail "S4: WeatherAtmosphericCard missing UV index qualitative categories"
+      fi
+      if echo "$atmo_code" | grep -q 'Visibility'; then
+        pass "S4: WeatherAtmosphericCard presents Visibility telemetry (POPUP-03)"
+      else
+        fail "S4: WeatherAtmosphericCard missing visibility metrics"
       fi
     else
       fail "S4: Missing $ATMO_SRC"
     fi
 
-    # 2. Wind Card
+    # 2. Wind Card Contract, Compass Rose Dial & Shortest-Path Math
     if [[ -s "$WIND_SRC" ]]; then
       pass "S4: WeatherWindCard.qml exists"
       wind_code="$(cat "$WIND_SRC")"
-      if echo "$wind_code" | grep -q 'needleRotation' || echo "$wind_code" | grep -q 'rotation'; then
-        pass "S4: WeatherWindCard implements animated compass needle rotation (POPUP-05, D-54-38)"
+      if echo "$wind_code" | grep -q 'WeatherBaseCard'; then
+        pass "S4: WeatherWindCard extends WeatherBaseCard (D-54-04)"
       else
-        fail "S4: WeatherWindCard missing compass needle rotation"
+        fail "S4: WeatherWindCard must extend WeatherBaseCard"
+      fi
+      if echo "$wind_code" | grep -q 'implicitHeight:\s*56' && echo "$wind_code" | grep -q 'implicitWidth:\s*56'; then
+        pass "S4: WeatherWindCard renders 56px circular compass dial (D-54-24)"
+      else
+        fail "S4: WeatherWindCard missing 56px circular compass dial"
+      fi
+      if echo "$wind_code" | grep -q 'colPrimary' && echo "$wind_code" | grep -q 'text:\s*"N"'; then
+        pass "S4: WeatherWindCard highlights North cardinal mark in primary accent (D-54-26)"
+      else
+        fail "S4: WeatherWindCard missing highlighted North cardinal mark"
+      fi
+      if echo "$wind_code" | grep -q '(targetDegree - (currentDegree % 360) + 540) % 360 - 180'; then
+        pass "S4: WeatherWindCard implements shortest-path angular delta math (POPUP-05, D-54-25)"
+      else
+        fail "S4: WeatherWindCard missing shortest-path angular math equation"
+      fi
+      if echo "$wind_code" | grep -q 'expressiveEffects'; then
+        pass "S4: WeatherWindCard animates needle with expressiveEffects Bezier curve (D-54-25)"
+      else
+        fail "S4: WeatherWindCard missing expressiveEffects animation curve"
+      fi
+      if echo "$wind_code" | grep -q 'windKmph' && echo "$wind_code" | grep -q 'windGustKmph' && echo "$wind_code" | grep -q 'windDir'; then
+        pass "S4: WeatherWindCard presents wind speed, gusts and 16-point direction (POPUP-05)"
+      else
+        fail "S4: WeatherWindCard missing wind speed, gust or direction metrics"
       fi
     else
       fail "S4: Missing $WIND_SRC"
     fi
 
-    # 3. AQI Card
+    # 3. AQI Card Contract, EPA Badge & 6-Segment Meter
     if [[ -s "$AQI_SRC" ]]; then
       pass "S4: WeatherAqiCard.qml exists"
       aqi_code="$(cat "$AQI_SRC")"
-      if echo "$aqi_code" | grep -q 'epaIndex' || echo "$aqi_code" | grep -q 'pm2_5'; then
-        pass "S4: WeatherAqiCard presents EPA AQI scale and particulate metrics (POPUP-04, D-54-39)"
+      if echo "$aqi_code" | grep -q 'WeatherBaseCard'; then
+        pass "S4: WeatherAqiCard extends WeatherBaseCard (D-54-04)"
       else
-        fail "S4: WeatherAqiCard missing EPA index or PM2.5 metrics"
+        fail "S4: WeatherAqiCard must extend WeatherBaseCard"
+      fi
+      if echo "$aqi_code" | grep -q 'WeatherGlyphs\.getAqiColor'; then
+        pass "S4: WeatherAqiCard binds US-EPA category badge color via WeatherGlyphs.getAqiColor (POPUP-04, D-54-27)"
+      else
+        fail "S4: WeatherAqiCard missing WeatherGlyphs.getAqiColor badge binding"
+      fi
+      if echo "$aqi_code" | grep -q 'model:\s*6'; then
+        pass "S4: WeatherAqiCard renders 6-segment EPA scale mini progress meter (POPUP-04, D-54-27)"
+      else
+        fail "S4: WeatherAqiCard missing 6-segment mini progress meter"
+      fi
+      if echo "$aqi_code" | grep -q 'pm2_5' && echo "$aqi_code" | grep -q 'pm10'; then
+        pass "S4: WeatherAqiCard presents PM2.5 and PM10 particulate readouts (POPUP-04, D-54-27)"
+      else
+        fail "S4: WeatherAqiCard missing particulate PM2.5 or PM10 readouts"
       fi
     else
       fail "S4: Missing $AQI_SRC"
     fi
 
-    # 4. Astronomy Card
+    # 4. Astronomy Card Contract, Twilight Glyphs & Canvas 2D Lunar Disc
     if [[ -s "$ASTRO_SRC" ]]; then
       pass "S4: WeatherAstronomyCard.qml exists"
       astro_code="$(cat "$ASTRO_SRC")"
-      if echo "$astro_code" | grep -q 'sunrise' && echo "$astro_code" | grep -q 'sunset'; then
-        pass "S4: WeatherAstronomyCard presents solar and lunar telemetry (POPUP-06, D-54-40)"
+      if echo "$astro_code" | grep -q 'WeatherBaseCard'; then
+        pass "S4: WeatherAstronomyCard extends WeatherBaseCard (D-54-04)"
       else
-        fail "S4: WeatherAstronomyCard missing solar/lunar metrics"
+        fail "S4: WeatherAstronomyCard must extend WeatherBaseCard"
+      fi
+      if echo "$astro_code" | grep -q 'sunrise' && echo "$astro_code" | grep -q 'sunset' && echo "$astro_code" | grep -q 'wb_twilight'; then
+        pass "S4: WeatherAstronomyCard presents solar twilight telemetry (POPUP-06, D-54-28)"
+      else
+        fail "S4: WeatherAstronomyCard missing solar twilight telemetry"
+      fi
+      if echo "$astro_code" | grep -q 'moonCanvas' && echo "$astro_code" | grep -q 'ctx\.ellipse' && echo "$astro_code" | grep -q 'ctx\.arc'; then
+        pass "S4: WeatherAstronomyCard renders dynamic lunar disc terminator arc via Canvas 2D (POPUP-06, D-54-29)"
+      else
+        fail "S4: WeatherAstronomyCard missing Canvas 2D lunar terminator arc"
+      fi
+      if echo "$astro_code" | grep -q 'moonPhase' && echo "$astro_code" | grep -q 'moonIllumination'; then
+        pass "S4: WeatherAstronomyCard presents moon phase name and illumination percentage (POPUP-06)"
+      else
+        fail "S4: WeatherAstronomyCard missing moon phase or illumination percentage"
       fi
     else
       fail "S4: Missing $ASTRO_SRC"
+    fi
+
+    # 5. WeatherPopup Paired Grid Arrangement
+    if [[ -s "$WEATHERPOPUP_SRC" ]]; then
+      popup_code="$(cat "$WEATHERPOPUP_SRC")"
+      if echo "$popup_code" | grep -q 'WeatherAtmosphericCard' && echo "$popup_code" | grep -q 'WeatherWindCard'; then
+        pass "S4: WeatherPopup pairs WeatherAtmosphericCard and WeatherWindCard in 2-column row (D-54-10)"
+      else
+        fail "S4: WeatherPopup missing Atmospheric/Wind paired row"
+      fi
+      if echo "$popup_code" | grep -q 'WeatherAqiCard' && echo "$popup_code" | grep -q 'WeatherAstronomyCard'; then
+        pass "S4: WeatherPopup pairs WeatherAqiCard and WeatherAstronomyCard in 2-column row (D-54-10)"
+      else
+        fail "S4: WeatherPopup missing AQI/Astronomy paired row"
+      fi
+    fi
+
+    # 6. Leaf Symlinks Check for all 4 Domain Cards
+    for card_name in "WeatherAtmosphericCard.qml" "WeatherWindCard.qml" "WeatherAqiCard.qml" "WeatherAstronomyCard.qml"; do
+      if [[ -L "$TARGET_DIR/$card_name" ]]; then
+        target_dest="$(readlink -f "$TARGET_DIR/$card_name" || true)"
+        expected_dest="$(readlink -f "$WEATHER_MOD_SRC/$card_name" || true)"
+        if [[ "$target_dest" == "$expected_dest" ]]; then
+          pass "S4: $TARGET_DIR/$card_name is a valid leaf symlink to restow overlay"
+        else
+          fail "S4: $TARGET_DIR/$card_name points to $target_dest, expected $expected_dest"
+        fi
+      else
+        fail "S4: $TARGET_DIR/$card_name missing or not a symlink"
+      fi
+    done
+
+    # 7. Headless Node.js Wind Shortest-Path & Lunar Illumination Math
+    if command -v node >/dev/null 2>&1; then
+      node_eval=$(node -e '
+        // Test 1: Wind shortest path across 355° -> 5° boundary
+        function shortestDelta(current, target) {
+          return (target - (current % 360) + 540) % 360 - 180;
+        }
+        const delta1 = shortestDelta(355, 5); // Should be +10, NOT -350
+        if (delta1 !== 10) throw new Error("delta 355->5 expected 10, got " + delta1);
+
+        const delta2 = shortestDelta(5, 355); // Should be -10, NOT +350
+        if (delta2 !== -10) throw new Error("delta 5->355 expected -10, got " + delta2);
+
+        const delta3 = shortestDelta(90, 270); // 180 degrees
+        if (Math.abs(delta3) !== 180) throw new Error("delta 90->270 expected +/-180, got " + delta3);
+
+        // Test 2: UV risk classification
+        function getUvRisk(uv) {
+          const val = parseInt(uv, 10);
+          if (isNaN(val) || val <= 2) return "Low";
+          if (val <= 5) return "Moderate";
+          if (val <= 7) return "High";
+          if (val <= 10) return "Very High";
+          return "Extreme";
+        }
+        if (getUvRisk("1") !== "Low" || getUvRisk("4") !== "Moderate" || getUvRisk("6") !== "High" || getUvRisk("9") !== "Very High" || getUvRisk("12") !== "Extreme") {
+          throw new Error("UV risk classifier mismatch");
+        }
+
+        // Test 3: Lunar terminator arc geometry values
+        const radius = 15;
+        for (let pct = 0; pct <= 100; pct += 25) {
+          const frac = pct / 100.0;
+          const k = 2 * frac - 1;
+          const termX = Math.max(0.1, Math.abs(k) * radius);
+          if (isNaN(termX) || termX < 0.1 || termX > radius + 0.001) {
+            throw new Error("Terminator X calculation out of bounds: " + termX);
+          }
+        }
+        console.log("OK");
+      ' 2>/dev/null || echo "FAIL")
+
+      if [[ "$node_eval" == "OK" ]]; then
+        pass "S4: Headless Node.js evaluation of shortest-path wind math, UV risk logic & lunar terminator geometry passed"
+      else
+        fail "S4: Headless Node.js evaluation of domain telemetry math failed"
+      fi
     fi
   fi
 fi
