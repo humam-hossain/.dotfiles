@@ -40,6 +40,18 @@ StyledPopup {
             id: contentColumn
             width: parent.width
             spacing: 8
+
+            // 1. Severe Weather Alert Banner (collapses when empty per D-54-07, D-54-10)
+            WeatherAlertBanner {
+                id: alertBanner
+                Layout.fillWidth: true
+            }
+
+            // 2. Primary Desktop Overview Hero Card (D-54-10)
+            WeatherHeroCard {
+                id: heroCard
+                Layout.fillWidth: true
+            }
         }
     }
 }
