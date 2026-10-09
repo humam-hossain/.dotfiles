@@ -27,6 +27,8 @@ fi
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 cd "$REPO_ROOT"
 
+export PYTHONDONTWRITEBYTECODE=1
+
 FAIL=0
 FINDINGS=0
 
@@ -109,7 +111,7 @@ if [[ "$SYNTAX_ONLY" -eq 1 ]]; then
   bash -n "$0"
   pass "Assert harness bash syntax check passed (bash -n verified)"
   if [[ -f "$FETCHER_SCRIPT" ]]; then
-    python3 -m py_compile "$FETCHER_SCRIPT"
+    python3 -c "import ast, sys; ast.parse(open(sys.argv[1]).read())" "$FETCHER_SCRIPT"
     pass "wwo-fetcher.py python compile check passed"
   else
     info "wwo-fetcher.py not yet present (pending Wave 2)"
@@ -165,7 +167,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
       fail "S1: wwo-fetcher.py exists but is not executable (expected 0755)"
     fi
 
-    if python3 -m py_compile "$FETCHER_SCRIPT" >/dev/null 2>&1; then
+    if python3 -c "import ast, sys; ast.parse(open(sys.argv[1]).read())" "$FETCHER_SCRIPT" >/dev/null 2>&1; then
       pass "S1: wwo-fetcher.py compiles cleanly under Python 3"
     else
       fail "S1: wwo-fetcher.py failed python3 compilation check"
