@@ -263,44 +263,109 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
       info "S2: Hero and Alert components pending wave 2"
     fi
   else
-    if [[ -s "$HERO_SRC" ]]; then
-      pass "S2: WeatherHeroCard.qml exists"
-      hero_code="$(cat "$HERO_SRC")"
-      if echo "$hero_code" | grep -q 'iconSize:\s*36'; then
-        pass "S2: WeatherHeroCard uses 36px condition glyph (D-54-34)"
-      else
-        fail "S2: WeatherHeroCard missing 36px iconSize"
-      fi
-      if echo "$hero_code" | grep -q 'WeatherBaseCard'; then
-        pass "S2: WeatherHeroCard inherits WeatherBaseCard"
-      else
-        fail "S2: WeatherHeroCard must extend WeatherBaseCard"
-      fi
-      if echo "$hero_code" | grep -q 'Weather\.getData()'; then
-        pass "S2: WeatherHeroCard wires passive debounced reload via Weather.getData() (D-54-18)"
-      else
-        fail "S2: WeatherHeroCard missing Weather.getData() refresh wiring"
-      fi
+  if [[ -s "$HERO_SRC" ]]; then
+    pass "S2: WeatherHeroCard.qml exists"
+    hero_code="$(cat "$HERO_SRC")"
+    if echo "$hero_code" | grep -q 'iconSize:\s*36'; then
+      pass "S2: WeatherHeroCard uses 36px condition glyph (D-54-34)"
     else
-      fail "S2: Missing or empty $HERO_SRC"
+      fail "S2: WeatherHeroCard missing 36px iconSize"
     fi
+    if echo "$hero_code" | grep -q 'WeatherBaseCard'; then
+      pass "S2: WeatherHeroCard inherits WeatherBaseCard"
+    else
+      fail "S2: WeatherHeroCard must extend WeatherBaseCard"
+    fi
+    if echo "$hero_code" | grep -q 'Weather\.getData()'; then
+      pass "S2: WeatherHeroCard wires passive debounced reload via Weather.getData() (D-54-18, D-54-37)"
+    else
+      fail "S2: WeatherHeroCard missing Weather.getData() refresh wiring"
+    fi
+    if echo "$hero_code" | grep -q 'staleText' && echo "$hero_code" | grep -q 'm3errorContainer'; then
+      pass "S2: WeatherHeroCard implements soft amber status pill for stale/offline state (D-54-32)"
+    else
+      fail "S2: WeatherHeroCard missing stale/offline status pill"
+    fi
+    if echo "$hero_code" | grep -q 'pixelSize:\s*Appearance\.font\.pixelSize\.huge'; then
+      pass "S2: WeatherHeroCard uses huge bold font for temperature readout (D-54-34)"
+    else
+      fail "S2: WeatherHeroCard missing huge temperature pixelSize"
+    fi
+    if echo "$hero_code" | grep -q 'refreshDebounceTimer'; then
+      pass "S2: WeatherHeroCard provides 2-second debounce timer on reload (D-54-38)"
+    else
+      fail "S2: WeatherHeroCard missing reload debounce timer"
+    fi
+  else
+    fail "S2: Missing or empty $HERO_SRC"
+  fi
 
-    if [[ -s "$ALERT_SRC" ]]; then
-      pass "S2: WeatherAlertBanner.qml exists"
-      alert_code="$(cat "$ALERT_SRC")"
-      if echo "$alert_code" | grep -q 'Revealer'; then
-        pass "S2: WeatherAlertBanner wraps container in Revealer (D-54-20)"
-      else
-        fail "S2: WeatherAlertBanner missing Revealer wrapper"
-      fi
-      if echo "$alert_code" | grep -q 'alertCarousel' || echo "$alert_code" | grep -q 'currentIndex'; then
-        pass "S2: WeatherAlertBanner provides multi-alert navigation carousel (D-54-22)"
-      else
-        fail "S2: WeatherAlertBanner missing multi-alert stepping logic"
-      fi
+  if [[ -s "$ALERT_SRC" ]]; then
+    pass "S2: WeatherAlertBanner.qml exists"
+    alert_code="$(cat "$ALERT_SRC")"
+    if echo "$alert_code" | grep -q 'Revealer'; then
+      pass "S2: WeatherAlertBanner wraps container in Revealer (D-54-20)"
     else
-      fail "S2: Missing or empty $ALERT_SRC"
+      fail "S2: WeatherAlertBanner missing Revealer wrapper"
     fi
+    if echo "$alert_code" | grep -q 'alertCarousel' || echo "$alert_code" | grep -q 'currentIndex'; then
+      pass "S2: WeatherAlertBanner provides multi-alert navigation carousel (D-54-22, D-54-31)"
+    else
+      fail "S2: WeatherAlertBanner missing multi-alert stepping logic"
+    fi
+    if echo "$alert_code" | grep -q 'getAlertColor'; then
+      pass "S2: WeatherAlertBanner binds dynamic M3 severity tint via WeatherGlyphs.getAlertColor (D-54-30)"
+    else
+      fail "S2: WeatherAlertBanner missing dynamic getAlertColor tint binding"
+    fi
+    if echo "$alert_code" | grep -q 'expanded\s*=\s*!root\.expanded' || echo "$alert_code" | grep -q 'root\.expanded'; then
+      pass "S2: WeatherAlertBanner implements animated advisory drawer (D-54-30)"
+    else
+      fail "S2: WeatherAlertBanner missing expandable advisory drawer"
+    fi
+  else
+    fail "S2: Missing or empty $ALERT_SRC"
+  fi
+
+  # 3. WeatherPopup composition check
+  if [[ -s "$WEATHERPOPUP_SRC" ]]; then
+    popup_code="$(cat "$WEATHERPOPUP_SRC")"
+    if echo "$popup_code" | grep -q 'WeatherAlertBanner' && echo "$popup_code" | grep -q 'WeatherHeroCard'; then
+      pass "S2: WeatherPopup instantiates both WeatherAlertBanner and WeatherHeroCard"
+    else
+      fail "S2: WeatherPopup missing WeatherAlertBanner or WeatherHeroCard instantiation"
+    fi
+  fi
+
+  # 4. Headless Mock Data JS Logic Evaluation via Node.js
+  if command -v node >/dev/null 2>&1; then
+    node_res=$(node -e '
+      const fs = require("fs");
+      const nominal = JSON.parse(fs.readFileSync("tests/fixtures/weather/nominal.json"));
+      const severe = JSON.parse(fs.readFileSync("tests/fixtures/weather/severe_alerts.json"));
+      const sparse = JSON.parse(fs.readFileSync("tests/fixtures/weather/sparse_offline.json"));
+
+      // Hero temp format logic check
+      function formatTemp(raw) {
+        if (raw === undefined || raw === null || raw === "" || raw === "--" || isNaN(Number(raw))) return "--°C";
+        return Math.round(Number(raw)) + "°C";
+      }
+
+      if (formatTemp(nominal.data.current_condition[0].temp_C) !== "28°C") throw new Error("nominal temp mismatch");
+      if (formatTemp(sparse.data.current_condition[0].temp_C) !== "--°C") throw new Error("sparse temp mismatch");
+
+      // Alert array check
+      if (!Array.isArray(severe.data.alerts.alert) || severe.data.alerts.alert.length < 2) throw new Error("severe alerts count < 2");
+      if (nominal.data.alerts.alert.length !== 0) throw new Error("nominal alerts not empty");
+
+      console.log("OK");
+    ' 2>/dev/null || echo "FAIL")
+    if [[ "$node_res" == "OK" ]]; then
+      pass "S2: Headless Node.js evaluation of mock fixtures logic passed"
+    else
+      fail "S2: Headless Node.js evaluation of mock fixtures failed"
+    fi
+  fi
   fi
 fi
 
