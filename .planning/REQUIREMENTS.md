@@ -38,12 +38,12 @@ Requirements for Milestone v0.10. Each maps to roadmap phases.
 ### Multi-Modal Popup Inspector (POPUP)
 
 - [x] **POPUP-01**: `WeatherPopup.qml` anchored via `StyledPopup` with 1000ms hover intent delay and horizontal screen boundary clamping.
-- [ ] **POPUP-02**: Hero header card presenting location name (`nearest_area`), local observation time, large temperature readout, and human condition description (`weatherDesc`).
+- [x] **POPUP-02**: Hero header card presenting location name (`nearest_area`), local observation time, large temperature readout, and human condition description (`weatherDesc`).
 - [ ] **POPUP-03**: Atmospheric metrics grid displaying Humidity (%), Barometric Pressure (hPa), UV Index, and Visibility (km).
 - [ ] **POPUP-04**: Air Quality Index (AQI) card displaying US-EPA index (1–6) color-coded health badge and fine particulate PM2.5 / PM10 concentrations.
 - [ ] **POPUP-05**: Dynamic wind compass card displaying rotating needle angle (`winddirDegree`), 16-point direction (`winddir16Point`), wind speed (km/h), and peak gusts.
 - [ ] **POPUP-06**: Astronomy card displaying local sunrise, sunset times, and lunar phase illumination fraction (`moon_phase` + `moon_illumination`).
-- [ ] **POPUP-07**: Severe weather alert banner dynamically rendered only when active meteorological alerts exist in `alerts.alert`, glowing with severity color.
+- [x] **POPUP-07**: Severe weather alert banner dynamically rendered only when active meteorological alerts exist in `alerts.alert`, glowing with severity color.
 
 ### System Integration, Retirement & Verification (INTG)
 
@@ -90,12 +90,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GRAPH-03 | Phase 54 | Pending |
 | GRAPH-04 | Phase 54 | Pending |
 | POPUP-01 | Phase 54 | Complete |
-| POPUP-02 | Phase 54 | Pending |
+| POPUP-02 | Phase 54 | Complete |
 | POPUP-03 | Phase 54 | Pending |
 | POPUP-04 | Phase 54 | Pending |
 | POPUP-05 | Phase 54 | Pending |
 | POPUP-06 | Phase 54 | Pending |
-| POPUP-07 | Phase 54 | Pending |
+| POPUP-07 | Phase 54 | Complete |
 | INTG-01 | Phase 55 | Pending |
 | INTG-02 | Phase 55 | Pending |
 | INTG-03 | Phase 55 | Pending |
