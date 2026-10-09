@@ -30,10 +30,10 @@ Requirements for Milestone v0.10. Each maps to roadmap phases.
 
 ### Interactive Time-Series Canvas Graphs (GRAPH)
 
-- [ ] **GRAPH-01**: 24-hour hourly temperature & feels-like curve rendered via QtQuick Canvas 2D with smooth Bezier spline interpolation and min/max gridlines.
-- [ ] **GRAPH-02**: Hourly rain probability (%) and precipitation volume (mm) column/bar visualization for the 24-hour forecast window.
-- [ ] **GRAPH-03**: Interactive mouse hover scrub inspection with dynamic readout of time, temperature, and rain chance at the nearest hourly slot.
-- [ ] **GRAPH-04**: Event-driven Canvas rendering with repaint requests gated strictly behind popup visibility (`root.active`) and discrete hover changes to prevent idle CPU churn.
+- [x] **GRAPH-01**: 24-hour hourly temperature & feels-like curve rendered via QtQuick Canvas 2D with smooth Bezier spline interpolation and min/max gridlines.
+- [x] **GRAPH-02**: Hourly rain probability (%) and precipitation volume (mm) column/bar visualization for the 24-hour forecast window.
+- [x] **GRAPH-03**: Interactive mouse hover scrub inspection with dynamic readout of time, temperature, and rain chance at the nearest hourly slot.
+- [x] **GRAPH-04**: Event-driven Canvas rendering with repaint requests gated strictly behind popup visibility (`root.active`) and discrete hover changes to prevent idle CPU churn.
 
 ### Multi-Modal Popup Inspector (POPUP)
 
@@ -85,10 +85,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BAR-02 | Phase 53 | Complete |
 | BAR-03 | Phase 53 | Complete |
 | BAR-04 | Phase 53 | Complete |
-| GRAPH-01 | Phase 54 | Pending |
-| GRAPH-02 | Phase 54 | Pending |
-| GRAPH-03 | Phase 54 | Pending |
-| GRAPH-04 | Phase 54 | Pending |
+| GRAPH-01 | Phase 54 | Complete |
+| GRAPH-02 | Phase 54 | Complete |
+| GRAPH-03 | Phase 54 | Complete |
+| GRAPH-04 | Phase 54 | Complete |
 | POPUP-01 | Phase 54 | Complete |
 | POPUP-02 | Phase 54 | Complete |
 | POPUP-03 | Phase 54 | Pending |
