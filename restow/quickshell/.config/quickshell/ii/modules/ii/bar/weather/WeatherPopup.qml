@@ -28,8 +28,8 @@ StyledPopup {
 
     StyledFlickable {
         id: flickable
-        implicitWidth: 440
-        implicitHeight: Math.min(contentColumn.implicitHeight, (root.QsWindow?.window?.screen?.height ?? 1080) * 0.8)
+        implicitWidth: 880
+        implicitHeight: Math.min(contentColumn.implicitHeight, (root.QsWindow?.window?.screen?.height ?? 1080) * 0.85)
         contentWidth: width
         contentHeight: contentColumn.implicitHeight
         clip: true
@@ -37,7 +37,7 @@ StyledPopup {
         ColumnLayout {
             id: contentColumn
             width: parent.width
-            spacing: 8
+            spacing: 12
 
             // 1. Severe Weather Alert Banner (collapses when empty per D-54-07, D-54-10)
             WeatherAlertBanner {
@@ -61,7 +61,7 @@ StyledPopup {
             // 4. Paired Domain Grid 1: Atmospheric & Wind (POPUP-03, POPUP-05, D-54-10)
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 8
+                spacing: 12
 
                 WeatherAtmosphericCard {
                     id: atmosphericCard
@@ -79,7 +79,7 @@ StyledPopup {
             // 5. Paired Domain Grid 2: Air Quality & Astronomy (POPUP-04, POPUP-06, D-54-10)
             RowLayout {
                 Layout.fillWidth: true
-                spacing: 8
+                spacing: 12
 
                 WeatherAqiCard {
                     id: aqiCard

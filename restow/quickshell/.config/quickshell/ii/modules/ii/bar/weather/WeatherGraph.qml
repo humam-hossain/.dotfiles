@@ -25,7 +25,7 @@ WeatherBaseCard {
     }
 
     icon: "show_chart"
-    implicitHeight: 220
+    implicitHeight: 400
     Layout.fillWidth: true
     title: "24-Hour Forecast"
 

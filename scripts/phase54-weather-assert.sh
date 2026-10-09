@@ -230,10 +230,10 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
   # 7. WeatherPopup contract checks (D-54-08, D-54-09, D-54-12, D-54-13)
   if [[ -f "$WEATHERPOPUP_SRC" ]]; then
     popup_code="$(cat "$WEATHERPOPUP_SRC")"
-    if echo "$popup_code" | grep -q 'implicitWidth:\s*440'; then
-      pass "S1: WeatherPopup sets implicitWidth: 440"
+    if echo "$popup_code" | grep -qE 'implicitWidth:\s*(440|880)'; then
+      pass "S1: WeatherPopup sets implicitWidth (440 or 880 expanded)"
     else
-      fail "S1: WeatherPopup missing implicitWidth: 440 (D-54-08)"
+      fail "S1: WeatherPopup missing implicitWidth: 440/880 (D-54-08)"
     fi
     if echo "$popup_code" | grep -q 'StyledFlickable'; then
       pass "S1: WeatherPopup encapsulates content in StyledFlickable container (D-54-09)"
