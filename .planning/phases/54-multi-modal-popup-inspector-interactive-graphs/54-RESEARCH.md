@@ -517,11 +517,10 @@ Behavior on currentDegree {
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **How should multi-day forecast slots be exposed in future phases?**
-   - *What we know:* Phase 51 fetches 3 days of forecast (`num_of_days: 3`), but Phase 54 focuses strictly on the 24-hour hourly inspection window.
-   - *Recommendation:* Keep Phase 54 focused strictly on the 24-hour timeline per GRAPH-01..04. Multi-day tab switching is deferred to future milestones (CUST/MULTICITY).
+   - RESOLVED: Keep Phase 54 focused strictly on the 24-hour timeline per GRAPH-01..04. Multi-day tab switching is deferred to future milestones (CUST/MULTICITY).
 
 ---
 
