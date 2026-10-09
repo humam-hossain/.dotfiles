@@ -37,7 +37,7 @@ Requirements for Milestone v0.10. Each maps to roadmap phases.
 
 ### Multi-Modal Popup Inspector (POPUP)
 
-- [ ] **POPUP-01**: `WeatherPopup.qml` anchored via `StyledPopup` with 1000ms hover intent delay and horizontal screen boundary clamping.
+- [x] **POPUP-01**: `WeatherPopup.qml` anchored via `StyledPopup` with 1000ms hover intent delay and horizontal screen boundary clamping.
 - [ ] **POPUP-02**: Hero header card presenting location name (`nearest_area`), local observation time, large temperature readout, and human condition description (`weatherDesc`).
 - [ ] **POPUP-03**: Atmospheric metrics grid displaying Humidity (%), Barometric Pressure (hPa), UV Index, and Visibility (km).
 - [ ] **POPUP-04**: Air Quality Index (AQI) card displaying US-EPA index (1–6) color-coded health badge and fine particulate PM2.5 / PM10 concentrations.
@@ -89,7 +89,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GRAPH-02 | Phase 54 | Pending |
 | GRAPH-03 | Phase 54 | Pending |
 | GRAPH-04 | Phase 54 | Pending |
-| POPUP-01 | Phase 54 | Pending |
+| POPUP-01 | Phase 54 | Complete |
 | POPUP-02 | Phase 54 | Pending |
 | POPUP-03 | Phase 54 | Pending |
 | POPUP-04 | Phase 54 | Pending |
