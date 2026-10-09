@@ -52,6 +52,13 @@ StyledPopup {
                 id: heroCard
                 Layout.fillWidth: true
             }
+
+            // 3. 24-Hour Forecast Splines & Rain Graph (GRAPH-01..04, D-54-10)
+            WeatherGraph {
+                id: weatherGraph
+                Layout.fillWidth: true
+                popupActive: root.active
+            }
         }
     }
 }

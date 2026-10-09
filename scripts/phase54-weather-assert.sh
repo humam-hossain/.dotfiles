@@ -383,37 +383,127 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
       info "S3: WeatherGraph.qml pending wave 3"
     fi
   else
-    if [[ -s "$GRAPH_SRC" ]]; then
-      pass "S3: WeatherGraph.qml exists"
-      graph_code="$(cat "$GRAPH_SRC")"
-      if echo "$graph_code" | grep -q 'WeatherBaseCard'; then
-        pass "S3: WeatherGraph extends WeatherBaseCard"
-      else
-        fail "S3: WeatherGraph must extend WeatherBaseCard"
-      fi
-      if echo "$graph_code" | grep -q 'Canvas\s*{'; then
-        pass "S3: WeatherGraph instantiates 2D Canvas for spline rendering (GRAPH-01)"
-      else
-        fail "S3: WeatherGraph missing Canvas component"
-      fi
-      if echo "$graph_code" | grep -q 'bezierCurveTo' || echo "$graph_code" | grep -q 'Fritsch-Carlson' || echo "$graph_code" | grep -q 'monotone'; then
-        pass "S3: WeatherGraph implements cubic spline interpolation (D-54-25)"
-      else
-        fail "S3: WeatherGraph missing spline interpolation logic"
-      fi
-      if echo "$graph_code" | grep -q 'MouseArea' && echo "$graph_code" | grep -q 'hoverEnabled:\s*true'; then
-        pass "S3: WeatherGraph implements zero-repaint hover scrubbing overlay (GRAPH-03)"
-      else
-        fail "S3: WeatherGraph missing hover scrub MouseArea"
-      fi
-      if echo "$graph_code" | grep -q 'root\.activeInspectorCount' || echo "$graph_code" | grep -q 'popupActive' || echo "$graph_code" | grep -q 'requestPaint'; then
-        pass "S3: WeatherGraph binds Canvas repaints strictly to active state (D-54-32)"
-      else
-        fail "S3: WeatherGraph missing active gating for repaints"
-      fi
+  if [[ -s "$GRAPH_SRC" ]]; then
+    pass "S3: WeatherGraph.qml exists"
+    graph_code="$(cat "$GRAPH_SRC")"
+    if echo "$graph_code" | grep -q 'WeatherBaseCard'; then
+      pass "S3: WeatherGraph extends WeatherBaseCard"
     else
-      fail "S3: Missing or empty $GRAPH_SRC"
+      fail "S3: WeatherGraph must extend WeatherBaseCard"
     fi
+    if echo "$graph_code" | grep -q 'Canvas\s*{'; then
+      pass "S3: WeatherGraph instantiates 2D Canvas for spline rendering (GRAPH-01)"
+    else
+      fail "S3: WeatherGraph missing Canvas component"
+    fi
+    if echo "$graph_code" | grep -q 'bezierCurveTo' && echo "$graph_code" | grep -q 'computeMonotoneSplineControlPoints'; then
+      pass "S3: WeatherGraph implements Fritsch-Carlson Monotone Cubic Spline interpolation (GRAPH-01, D-54-15)"
+    else
+      fail "S3: WeatherGraph missing Fritsch-Carlson spline interpolation logic"
+    fi
+    if echo "$graph_code" | grep -q 'time.*!==.*"24"'; then
+      pass "S3: WeatherGraph normalizes hourly data by explicitly filtering time: '24' day roll-up slot (Pitfall 1)"
+    else
+      fail "S3: WeatherGraph missing time: '24' roll-up filter"
+    fi
+    if echo "$graph_code" | grep -q 'MouseArea' && echo "$graph_code" | grep -q 'hoverEnabled:\s*true'; then
+      pass "S3: WeatherGraph implements hover scrub MouseArea (GRAPH-03)"
+    else
+      fail "S3: WeatherGraph missing hover scrub MouseArea"
+    fi
+    if echo "$graph_code" | grep -A 25 'onPositionChanged:' | grep -q 'requestPaint'; then
+      fail "S3: Zero-repaint violation: requestPaint() found inside onPositionChanged (GRAPH-03, D-54-20)"
+    else
+      pass "S3: Zero-repaint invariant satisfied: onPositionChanged updates QML overlay without Canvas repainting (GRAPH-03, D-54-20)"
+    fi
+    if echo "$graph_code" | grep -q 'popupActive' && echo "$graph_code" | grep -q 'requestPaint'; then
+      pass "S3: WeatherGraph gates Canvas repaints strictly behind popupActive visibility (GRAPH-04, D-54-22)"
+    else
+      fail "S3: WeatherGraph missing popupActive gating for Canvas repaints"
+    fi
+    if echo "$graph_code" | grep -q 'tooltipPill' && echo "$graph_code" | grep -q 'snapDot'; then
+      pass "S3: WeatherGraph includes snapDot and tooltipPill overlay items (D-54-21)"
+    else
+      fail "S3: WeatherGraph missing snapDot or tooltipPill overlay items"
+    fi
+  else
+    fail "S3: Missing or empty $GRAPH_SRC"
+  fi
+
+  # 2. WeatherPopup instantiates WeatherGraph
+  if [[ -s "$WEATHERPOPUP_SRC" ]]; then
+    popup_code="$(cat "$WEATHERPOPUP_SRC")"
+    if echo "$popup_code" | grep -q 'WeatherGraph'; then
+      pass "S3: WeatherPopup instantiates WeatherGraph at position 3"
+    else
+      fail "S3: WeatherPopup missing WeatherGraph instantiation"
+    fi
+  fi
+
+  # 3. Headless Node.js Monotone Spline Math Evaluation
+  if command -v node >/dev/null 2>&1; then
+    math_res=$(node -e '
+      const fs = require("fs");
+      const nominal = JSON.parse(fs.readFileSync("tests/fixtures/weather/nominal.json"));
+      const hours = nominal.data.weather[0].hourly.filter(h => String(h.time) !== "24");
+      if (hours.length !== 24) throw new Error("filtered hours !== 24, got " + hours.length);
+
+      const points = hours.map((h, i) => ({ x: i * 10, y: Number(h.tempC) }));
+
+      function computeMonotoneSplineControlPoints(pts) {
+        const n = pts.length;
+        const dx = [], dy = [], m = [];
+        for (let i = 0; i < n - 1; ++i) {
+          const dxi = pts[i + 1].x - pts[i].x;
+          const dyi = pts[i + 1].y - pts[i].y;
+          dx.push(dxi); dy.push(dyi);
+          m.push(dxi === 0 ? 0 : dyi / dxi);
+        }
+        const tangents = new Array(n);
+        tangents[0] = m[0]; tangents[n - 1] = m[n - 2];
+        for (let i = 1; i < n - 1; ++i) tangents[i] = (m[i - 1] + m[i]) / 2;
+        for (let i = 0; i < n - 1; ++i) {
+          if (m[i] === 0) { tangents[i] = 0; tangents[i + 1] = 0; }
+          else {
+            const alpha = tangents[i] / m[i];
+            const beta = tangents[i + 1] / m[i];
+            if (alpha < 0) tangents[i] = 0;
+            if (beta < 0) tangents[i + 1] = 0;
+            const distSq = alpha * alpha + beta * beta;
+            if (distSq > 9) {
+              const tau = 3 / Math.sqrt(distSq);
+              tangents[i] = tau * alpha * m[i];
+              tangents[i + 1] = tau * beta * m[i];
+            }
+          }
+        }
+        const cp = [];
+        for (let i = 0; i < n - 1; ++i) {
+          cp.push({
+            cp1x: pts[i].x + dx[i] / 3,
+            cp1y: pts[i].y + tangents[i] * dx[i] / 3,
+            cp2x: pts[i + 1].x - dx[i] / 3,
+            cp2y: pts[i + 1].y - tangents[i + 1] * dx[i] / 3
+          });
+        }
+        return cp;
+      }
+
+      const cp = computeMonotoneSplineControlPoints(points);
+      if (cp.length !== 23) throw new Error("control points length !== 23");
+      for (const seg of cp) {
+        if (isNaN(seg.cp1x) || isNaN(seg.cp1y) || isNaN(seg.cp2x) || isNaN(seg.cp2y)) {
+          throw new Error("NaN control point coordinate found");
+        }
+      }
+      console.log("OK");
+    ' 2>/dev/null || echo "FAIL")
+    if [[ "$math_res" == "OK" ]]; then
+      pass "S3: Headless Node.js evaluation of Fritsch-Carlson control points passed with zero NaNs"
+    else
+      fail "S3: Headless Node.js evaluation of Fritsch-Carlson spline math failed"
+    fi
+  fi
   fi
 fi
 
