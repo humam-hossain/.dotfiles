@@ -12,8 +12,6 @@ import qs.services
 StyledPopup {
     id: root
 
-    implicitWidth: 440
-
     onActiveChanged: {
         if (active) {
             GlobalStates.activeInspectorCount++;
