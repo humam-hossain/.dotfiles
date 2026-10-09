@@ -91,10 +91,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GRAPH-04 | Phase 54 | Complete |
 | POPUP-01 | Phase 54 | Complete |
 | POPUP-02 | Phase 54 | Complete |
-| POPUP-03 | Phase 54 | Pending |
-| POPUP-04 | Phase 54 | Pending |
-| POPUP-05 | Phase 54 | Pending |
-| POPUP-06 | Phase 54 | Pending |
+| POPUP-03 | Phase 54 | Complete |
+| POPUP-04 | Phase 54 | Complete |
+| POPUP-05 | Phase 54 | Complete |
+| POPUP-06 | Phase 54 | Complete |
 | POPUP-07 | Phase 54 | Complete |
 | INTG-01 | Phase 55 | Pending |
 | INTG-02 | Phase 55 | Pending |
