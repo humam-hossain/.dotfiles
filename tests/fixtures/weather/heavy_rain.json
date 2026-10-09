@@ -1,0 +1,683 @@
+{
+  "status": "ok",
+  "fetched_at": "2026-10-10T12:00:00+06:00",
+  "fetched_epoch": 1760076000,
+  "is_stale": false,
+  "error": null,
+  "quota": {
+    "calls_today": 12,
+    "calls_remaining": 458,
+    "resets_at_utc": "2026-10-11T00:00:00Z"
+  },
+  "data": {
+    "request": [
+      {
+        "type": "City",
+        "query": "Dhaka, Bangladesh"
+      }
+    ],
+    "nearest_area": [
+      {
+        "areaName": [
+          {
+            "value": "Dhaka"
+          }
+        ],
+        "country": [
+          {
+            "value": "Bangladesh"
+          }
+        ],
+        "region": [
+          {
+            "value": "Dhaka"
+          }
+        ],
+        "latitude": "23.710",
+        "longitude": "90.407"
+      }
+    ],
+    "time_zone": [
+      {
+        "localtime": "2026-10-10 12:00",
+        "utcOffset": "6.0",
+        "zone": "Asia/Dhaka"
+      }
+    ],
+    "current_condition": [
+      {
+        "observation_time": "12:00 PM",
+        "localObsDateTime": "2026-10-10 12:00 PM",
+        "isdaytime": "yes",
+        "temp_C": "22",
+        "temp_F": "82",
+        "weatherCode": "308",
+        "weatherDesc": [
+          {
+            "value": "Heavy Rain"
+          }
+        ],
+        "windspeedKmph": "14",
+        "winddirDegree": "200",
+        "winddir16Point": "SSW",
+        "precipMM": "14.2",
+        "humidity": "98",
+        "visibility": "10",
+        "pressure": "1012",
+        "cloudcover": "15",
+        "FeelsLikeC": "22",
+        "FeelsLikeF": "88",
+        "uvIndex": "7",
+        "air_quality": {
+          "co": "280.5",
+          "no2": "12.4",
+          "o3": "45.0",
+          "so2": "5.2",
+          "pm2_5": "18.4",
+          "pm10": "32.1",
+          "us-epa-index": "2",
+          "gb-defra-index": "2"
+        }
+      }
+    ],
+    "weather": [
+      {
+        "date": "2026-10-10",
+        "astronomy": [
+          {
+            "sunrise": "05:48 AM",
+            "sunset": "05:32 PM",
+            "moonrise": "04:15 PM",
+            "moonset": "04:45 AM",
+            "moon_phase": "Waxing Gibbous",
+            "moon_illumination": "82"
+          }
+        ],
+        "maxtempC": "32",
+        "mintempC": "24",
+        "avgtempC": "28",
+        "hourly": [
+          {
+            "time": "0",
+            "tempC": "22",
+            "tempF": "77",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "80",
+            "windspeedKmph": "12",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "308",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "12.5",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "0",
+            "isdaytime": "no"
+          },
+          {
+            "time": "100",
+            "tempC": "22",
+            "tempF": "75",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "78",
+            "windspeedKmph": "13",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "359",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "14.6",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "0",
+            "isdaytime": "no"
+          },
+          {
+            "time": "200",
+            "tempC": "22",
+            "tempF": "75",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "78",
+            "windspeedKmph": "14",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "308",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "16.7",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "0",
+            "isdaytime": "no"
+          },
+          {
+            "time": "300",
+            "tempC": "22",
+            "tempF": "75",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "78",
+            "windspeedKmph": "15",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "359",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "18.8",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "0",
+            "isdaytime": "no"
+          },
+          {
+            "time": "400",
+            "tempC": "22",
+            "tempF": "77",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "80",
+            "windspeedKmph": "16",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "308",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "12.5",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "0",
+            "isdaytime": "no"
+          },
+          {
+            "time": "500",
+            "tempC": "22",
+            "tempF": "78",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "82",
+            "windspeedKmph": "12",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "359",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "14.6",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "0",
+            "isdaytime": "no"
+          },
+          {
+            "time": "600",
+            "tempC": "22",
+            "tempF": "80",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "86",
+            "windspeedKmph": "13",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "308",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "16.7",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "2",
+            "isdaytime": "yes"
+          },
+          {
+            "time": "700",
+            "tempC": "22",
+            "tempF": "82",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "87",
+            "windspeedKmph": "14",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "359",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "18.8",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "3",
+            "isdaytime": "yes"
+          },
+          {
+            "time": "800",
+            "tempC": "22",
+            "tempF": "84",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "91",
+            "windspeedKmph": "15",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "308",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "12.5",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "4",
+            "isdaytime": "yes"
+          },
+          {
+            "time": "900",
+            "tempC": "22",
+            "tempF": "86",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "93",
+            "windspeedKmph": "16",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "359",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "14.6",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "5",
+            "isdaytime": "yes"
+          },
+          {
+            "time": "1000",
+            "tempC": "22",
+            "tempF": "87",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "95",
+            "windspeedKmph": "12",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "308",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "16.7",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "6",
+            "isdaytime": "yes"
+          },
+          {
+            "time": "1100",
+            "tempC": "22",
+            "tempF": "89",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "96",
+            "windspeedKmph": "13",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "359",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "18.8",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "7",
+            "isdaytime": "yes"
+          },
+          {
+            "time": "1200",
+            "tempC": "22",
+            "tempF": "89",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "96",
+            "windspeedKmph": "14",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "308",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "12.5",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "8",
+            "isdaytime": "yes"
+          },
+          {
+            "time": "1300",
+            "tempC": "22",
+            "tempF": "87",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "95",
+            "windspeedKmph": "15",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "359",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "14.6",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "7",
+            "isdaytime": "yes"
+          },
+          {
+            "time": "1400",
+            "tempC": "22",
+            "tempF": "86",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "91",
+            "windspeedKmph": "16",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "308",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "16.7",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "6",
+            "isdaytime": "yes"
+          },
+          {
+            "time": "1500",
+            "tempC": "22",
+            "tempF": "84",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "89",
+            "windspeedKmph": "12",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "359",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "18.8",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "5",
+            "isdaytime": "yes"
+          },
+          {
+            "time": "1600",
+            "tempC": "22",
+            "tempF": "82",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "87",
+            "windspeedKmph": "13",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "308",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "12.5",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "4",
+            "isdaytime": "yes"
+          },
+          {
+            "time": "1700",
+            "tempC": "22",
+            "tempF": "80",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "84",
+            "windspeedKmph": "14",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "359",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "14.6",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "3",
+            "isdaytime": "yes"
+          },
+          {
+            "time": "1800",
+            "tempC": "22",
+            "tempF": "78",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "82",
+            "windspeedKmph": "15",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "308",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "16.7",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "0",
+            "isdaytime": "no"
+          },
+          {
+            "time": "1900",
+            "tempC": "22",
+            "tempF": "78",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "82",
+            "windspeedKmph": "16",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "359",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "18.8",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "0",
+            "isdaytime": "no"
+          },
+          {
+            "time": "2000",
+            "tempC": "22",
+            "tempF": "77",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "80",
+            "windspeedKmph": "12",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "308",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "12.5",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "0",
+            "isdaytime": "no"
+          },
+          {
+            "time": "2100",
+            "tempC": "22",
+            "tempF": "77",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "80",
+            "windspeedKmph": "13",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "359",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "14.6",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "0",
+            "isdaytime": "no"
+          },
+          {
+            "time": "2200",
+            "tempC": "22",
+            "tempF": "77",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "80",
+            "windspeedKmph": "14",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "308",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "16.7",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "0",
+            "isdaytime": "no"
+          },
+          {
+            "time": "2300",
+            "tempC": "22",
+            "tempF": "75",
+            "FeelsLikeC": "22",
+            "FeelsLikeF": "78",
+            "windspeedKmph": "15",
+            "winddir16Point": "SSW",
+            "winddirDegree": "200",
+            "weatherCode": "359",
+            "weatherDesc": [
+              {
+                "value": "Heavy Rain"
+              }
+            ],
+            "precipMM": "18.8",
+            "humidity": "98",
+            "visibility": "10",
+            "pressure": "1012",
+            "cloudcover": "15",
+            "chanceofrain": "100",
+            "uvIndex": "0",
+            "isdaytime": "no"
+          }
+        ]
+      }
+    ],
+    "alerts": {
+      "alert": []
+    }
+  }
+}

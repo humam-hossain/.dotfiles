@@ -1,0 +1,79 @@
+{
+  "status": "offline",
+  "fetched_at": null,
+  "fetched_epoch": 0,
+  "is_stale": true,
+  "error": "Network unreachable",
+  "quota": {
+    "calls_today": 0,
+    "calls_remaining": 470,
+    "resets_at_utc": "2026-10-11T00:00:00Z"
+  },
+  "data": {
+    "request": [],
+    "nearest_area": [
+      {
+        "areaName": [
+          {
+            "value": ""
+          }
+        ],
+        "country": [
+          {
+            "value": ""
+          }
+        ],
+        "region": [
+          {
+            "value": ""
+          }
+        ]
+      }
+    ],
+    "time_zone": [],
+    "current_condition": [
+      {
+        "observation_time": "--:--",
+        "localObsDateTime": "",
+        "isdaytime": "yes",
+        "temp_C": "--",
+        "temp_F": "--",
+        "weatherCode": "",
+        "weatherDesc": [
+          {
+            "value": "Offline"
+          }
+        ],
+        "windspeedKmph": "--",
+        "winddirDegree": "0",
+        "winddir16Point": "--",
+        "precipMM": "--",
+        "humidity": "--",
+        "visibility": "--",
+        "pressure": "--",
+        "cloudcover": "--",
+        "FeelsLikeC": "--",
+        "FeelsLikeF": "--",
+        "uvIndex": "0",
+        "air_quality": null
+      }
+    ],
+    "weather": [
+      {
+        "date": "",
+        "astronomy": [
+          {
+            "sunrise": "--:--",
+            "sunset": "--:--",
+            "moon_phase": "--",
+            "moon_illumination": "--"
+          }
+        ],
+        "hourly": []
+      }
+    ],
+    "alerts": {
+      "alert": []
+    }
+  }
+}
