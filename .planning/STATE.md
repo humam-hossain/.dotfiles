@@ -2,46 +2,46 @@
 gsd_state_version: "1.0"
 milestone: v0.10
 milestone_name: Phases
-current_phase: 54
-current_phase_name: Multi-Modal Popup Inspector & Interactive Graphs
-status: complete
-stopped_at: Phase 54 completed
-last_updated: "2026-10-10T01:37:00.000Z"
+current_phase: "54.1"
+current_phase_name: Top Status Bar Weather Component Polish
+status: ready_to_plan
+stopped_at: Phase 54.1 context gathered
+last_updated: "2026-10-10T11:17:54.168Z"
 last_activity: 2026-10-10
-last_activity_desc: Phase 54 complete - Multi-Modal Popup Inspector & Interactive Graphs delivered
-state_head: ec1717565985860d5bfa780d64a026e632b70f07
+last_activity_desc: Roadmap updated with Phases 54.1-54.4 for modular weather overhaul
+state_head: f048eb349807db9257302fdaa9b5cab61afb2112
 progress:
-  total_phases: 5
+  total_phases: 9
   completed_phases: 4
   total_plans: 12
   completed_plans: 12
-  percent: 80
+  percent: 44
 ---
 
-Total Phases: 5 (Phases 51–55)
-Progress: [████████████████░░░░] 4/5 phases ([████████░░] 80%)
+Total Phases: 9 (Phases 51–55 with 54.1–54.4 inserted)
+Progress: [████████░░░░░░░░░░] 4/9 phases ([████░░░░░░] 44%)
 
 # Project State
 
 ## Current Position
 
-Phase: 54 (Multi-Modal Popup Inspector & Interactive Graphs) — COMPLETE
-Plan: 4 of 4
-Status: Complete
-Last activity: 2026-10-10 — Phase 54 completed
+Phase: 54.1 (Top Status Bar Weather Component Polish) — READY TO PLAN
+Plan: 0 of TBD
+Status: ready_to_plan
+Last activity: 2026-10-10 — Inserted Phases 54.1–54.4 for modular weather overhaul
 
 ## Session
 
-**Last session:** 2026-10-10T01:37:00.000Z
-**Stopped at:** Phase 54 completed
-**Resume file:** .planning/phases/54-multi-modal-popup-inspector-interactive-graphs/54-04-SUMMARY.md
+**Last session:** 2026-10-10T11:17:53.886Z
+**Stopped at:** Phase 54.1 context gathered
+**Resume file:** .planning/phases/54.1-top-status-bar-weather-component-polish/54.1-CONTEXT.md
 
 ## Project Reference
 
 See: .planning/PROJECT.md (updated 2026-10-05 after Phase 53)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 54 — Multi-Modal Popup Inspector & Interactive Graphs
+**Current focus:** Phase 54.1 — Top Status Bar Weather Component Polish
 
 ## Deferred Items
 
@@ -66,6 +66,7 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 50 added: Quickshell Deep Performance Optimization & Overhead Reduction — address remaining idle CPU delta (+4.78%), context switch and syscall churn, MediaControls overhead, and popup scenegraph throttling based on Phase 49 empirical audit.
 - Phase 49 added: Quickshell Resource Profiling & Component Performance Audit — comprehensive component-by-component and popup-by-popup resource measurement (GPU idle baseline <=10% vs 30-60%), upstream comparison, and targeted optimization.
 - Phase 48 added: Right-Zone Media Expansion & System Tray Empty State Gating — responsive screen-width media player sizing, track & artist metadata display, and empty system tray pill hiding.
+- Phase 54.1 inserted after Phase 54: Top Status Bar Weather Component Polish (URGENT)
 
 ### Decisions (carry-forward)
 
