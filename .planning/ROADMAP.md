@@ -136,9 +136,16 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
 **Plans:** 3 plans
 
 Plans:
+**Wave 1**
 
 - [ ] 54.1-01-PLAN.md
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 54.1-02-PLAN.md
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 54.1-03-PLAN.md
 
 ### Phase 54.2: Hourly Parameter Modeling and Rolling Cache Service (INSERTED)
