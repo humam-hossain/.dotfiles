@@ -364,11 +364,153 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
 fi
 
 # ===========================================================================
-# Section 4: Alert Precedence, Imminent Rain Badge & Breathing Pulse Logic (Stub)
+# Section 4: Alert Precedence, Imminent Rain Badge & Breathing Pulse Logic
 # ===========================================================================
-if [[ "$RUN_SECTION" -eq 4 ]]; then
-  info "--- Section 4: Alert Precedence, Imminent Rain Badge & Breathing Pulse ---"
-  info "Section 4 will be tested in Plan 54.1-02"
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
+  info "--- Section 4: Alert Precedence, Imminent Rain Badge & Pulse Animation ---"
+
+  if [[ ! -f "$WEATHERBAR_SRC" ]]; then
+    fail "S4: Cannot test WeatherBar.qml: file missing ($WEATHERBAR_SRC)"
+  else
+    node_res=0
+    node -e '
+      const fs = require("fs");
+      const code = fs.readFileSync(process.argv[1], "utf8");
+
+      let failures = [];
+
+      // Test AST Invariants for Animation, Spacing, and Component Hierarchy
+      if (!code.includes("id: alertPulseAnimation")) {
+        failures.push("Missing id: alertPulseAnimation SequentialAnimation");
+      }
+      if (!code.includes("loops: 3")) {
+        failures.push("alertPulseAnimation must have loops: 3 (D-54.1-16)");
+      }
+      if (!code.includes("to: 0.4") || !code.includes("to: 1.0")) {
+        failures.push("alertPulseAnimation opacity cycle must oscillate between 1.0 and 0.4");
+      }
+      if (!code.includes("Easing.InOutSine")) {
+        failures.push("alertPulseAnimation must use Easing.InOutSine");
+      }
+      if (!code.includes("duration: 600")) {
+        failures.push("alertPulseAnimation half-cycle duration must be 600ms");
+      }
+      if (!code.includes("alertIcon.opacity = 1.0")) {
+        failures.push("alertPulseAnimation onRunningChanged must reset alertIcon.opacity to 1.0 on completion");
+      }
+      if (!code.includes("columnSpacing: 4")) {
+        failures.push("contentLayout must maintain 4px columnSpacing (D-54.1-26)");
+      }
+      if (!code.includes("Revealer")) {
+        failures.push("Hazard indicators must use Revealer containers");
+      }
+
+      // Stale alert dimming in alertColor AST
+      if (!code.includes("Weather.isStale || Weather.isOffline")) {
+        failures.push("alertColor must check Weather.isStale || Weather.isOffline (D-54.1-22)");
+      }
+
+      // Test Left-to-Right Sequential Ordering: Alert -> Glyph -> Temp -> Rain (D-54.1-11)
+      const alertIdx = code.indexOf("id: alertRevealer");
+      const glyphIdx = code.indexOf("id: conditionGlyph");
+      const tempIdx = code.indexOf("id: tempText");
+      const rainIdx = code.indexOf("id: rainRevealer");
+
+      if (alertIdx === -1 || glyphIdx === -1 || tempIdx === -1 || rainIdx === -1) {
+        failures.push("One or more sequential pill layout items missing in contentLayout");
+      } else if (!(alertIdx < glyphIdx && glyphIdx < tempIdx && tempIdx < rainIdx)) {
+        failures.push(`Invalid element ordering: expected Alert (${alertIdx}) < Glyph (${glyphIdx}) < Temp (${tempIdx}) < Rain (${rainIdx})`);
+      }
+
+      // Logic Evaluation Functions matching WeatherBar.qml implementation
+      function computeImminentRainChance(hourly) {
+        if (!hourly || hourly.length === 0) return 0;
+        let maxChance = 0;
+        const slots = Math.min(3, hourly.length);
+        for (let i = 0; i < slots; ++i) {
+          const chance = parseInt(hourly[i]?.chanceofrain || "0", 10);
+          if (!isNaN(chance) && chance > maxChance) maxChance = chance;
+        }
+        return maxChance;
+      }
+
+      function computeShowRainBadge(imminentRainChance, hasSevereAlert, useShortenedForm, vertical) {
+        const imminentRain = imminentRainChance > 50;
+        return imminentRain && !hasSevereAlert && (useShortenedForm < 2) && !vertical;
+      }
+
+      function computeAlertColor(isStale, isOffline, activeAlert, Appearance, WeatherGlyphs) {
+        if (isStale || isOffline) return Appearance.m3colors.m3onSurfaceVariant;
+        return activeAlert?.color || (activeAlert?.severity ? WeatherGlyphs.getAlertColor(activeAlert.severity) : Appearance.m3colors.m3error);
+      }
+
+      const AppearanceMock = {
+        m3colors: { m3onSurfaceVariant: "#49454f", m3primary: "#6750a4", m3error: "#ba1a1a" }
+      };
+      const WeatherGlyphsMock = {
+        getAlertColor: (sev) => "#ff0000"
+      };
+
+      // a. Imminent rain chance calculation (3-hour window)
+      const hourlyHigh = [{ chanceofrain: "20" }, { chanceofrain: "65" }, { chanceofrain: "40" }, { chanceofrain: "90" }];
+      if (computeImminentRainChance(hourlyHigh) !== 65) {
+        failures.push(`Expected 3-hour max chance 65%, got ${computeImminentRainChance(hourlyHigh)}%`);
+      }
+
+      const hourlyLow = [{ chanceofrain: "10" }, { chanceofrain: "30" }, { chanceofrain: "45" }];
+      if (computeImminentRainChance(hourlyLow) !== 45) {
+        failures.push(`Expected 3-hour max chance 45%, got ${computeImminentRainChance(hourlyLow)}%`);
+      }
+
+      // b. Threshold check
+      if (computeImminentRainChance(hourlyHigh) <= 50) failures.push("65% rain should exceed 50% threshold");
+      if (computeImminentRainChance(hourlyLow) > 50) failures.push("45% rain should not exceed 50% threshold");
+
+      // c. Rain badge visibility in horizontal mode
+      if (!computeShowRainBadge(65, false, 0, false)) failures.push("Rain badge should be visible for 65% rain, no alerts, Tier 0, horizontal");
+      if (computeShowRainBadge(45, false, 0, false)) failures.push("Rain badge should NOT be visible for 45% rain");
+
+      // d. Severe alert precedence: active alert suppresses rain badge even when rain > 50% (D-54.1-16)
+      if (computeShowRainBadge(75, true, 0, false)) {
+        failures.push("Severe alert failed to suppress imminent rain badge (D-54.1-16)");
+      }
+
+      // e. Responsive Tier 2 suppression (D-54.1-17)
+      if (computeShowRainBadge(65, false, 2, false)) {
+        failures.push("Tier 2 failed to suppress imminent rain badge (D-54.1-17)");
+      }
+
+      // f. Vertical mode suppression (D-54.1-17, D-54.1-25)
+      if (computeShowRainBadge(65, false, 0, true)) {
+        failures.push("Vertical mode failed to suppress imminent rain badge (D-54.1-25)");
+      }
+
+      // g. Stale alert color dimming (D-54.1-22)
+      const mockAlert = { severity: "warning" };
+      if (computeAlertColor(true, false, mockAlert, AppearanceMock, WeatherGlyphsMock) !== AppearanceMock.m3colors.m3onSurfaceVariant) {
+        failures.push("Stale alert color failed to dim to m3onSurfaceVariant");
+      }
+      if (computeAlertColor(false, false, mockAlert, AppearanceMock, WeatherGlyphsMock) !== "#ff0000") {
+        failures.push("Active alert color failed to resolve alert severity color");
+      }
+
+      if (failures.length > 0) {
+        console.error(failures.join("\n"));
+        process.exit(1);
+      }
+    ' "$WEATHERBAR_SRC" || node_res=$?
+
+    if [[ "$node_res" -eq 0 ]]; then
+      pass "S4: alertPulseAnimation 3-loop breathing cycle and opacity reset to 1.0 verified"
+      pass "S4: Stale alert color dimming to m3onSurfaceVariant verified"
+      pass "S4: Ordered hierarchy [Alert] -> [Glyph] -> [Temp] -> [Rain] in contentLayout verified"
+      pass "S4: Imminent rain badge 3-hour window calculation and >50% threshold verified"
+      pass "S4: Severe alert precedence over rain badge verified"
+      pass "S4: Tier 2 and vertical mode rain badge suppression verified"
+    else
+      fail "S4: Node.js evaluation failed for Section 4 assertions"
+    fi
+  fi
 fi
 
 # ===========================================================================

@@ -69,9 +69,9 @@ MouseArea {
 
     readonly property bool hasSevereAlert: (Weather.alerts !== undefined && Weather.alerts !== null && Weather.alerts.length > 0)
     readonly property var activeAlert: hasSevereAlert ? Weather.alerts[0] : null
-    readonly property color alertColor: activeAlert?.color ?? (activeAlert?.severity ? WeatherGlyphs.getAlertColor(activeAlert.severity) : Appearance.m3colors.m3error)
+    readonly property color alertColor: (Weather.isStale || Weather.isOffline) ? Appearance.m3colors.m3onSurfaceVariant : (activeAlert?.color ?? (activeAlert?.severity ? WeatherGlyphs.getAlertColor(activeAlert.severity) : Appearance.m3colors.m3error))
 
-    readonly property bool showRainBadge: imminentRain && !hasSevereAlert && (root.useShortenedForm < 2)
+    readonly property bool showRainBadge: imminentRain && !hasSevereAlert && (root.useShortenedForm < 2) && !root.vertical
 
     SequentialAnimation {
         id: alertPulseAnimation
