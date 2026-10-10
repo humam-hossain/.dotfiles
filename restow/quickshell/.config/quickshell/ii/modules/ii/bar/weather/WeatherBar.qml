@@ -32,13 +32,13 @@ MouseArea {
     readonly property string formattedTemp: {
         const raw = Weather.current?.tempC;
         if (raw === undefined || raw === null || raw === "" || raw === "--") {
-            return root.useShortenedForm === 2 ? "--°" : "--°C";
+            return (root.useShortenedForm === 2 || root.vertical) ? "--°" : "--°C";
         }
         const num = Math.round(Number(raw));
         if (isNaN(num)) {
-            return root.useShortenedForm === 2 ? "--°" : "--°C";
+            return (root.useShortenedForm === 2 || root.vertical) ? "--°" : "--°C";
         }
-        return num + (root.useShortenedForm === 2 ? "°" : "°C");
+        return num + ((root.useShortenedForm === 2 || root.vertical) ? "°" : "°C");
     }
 
     readonly property color contentColor: (Weather.isStale || Weather.isOffline) ? Appearance.m3colors.m3onSurfaceVariant : Appearance.colors.colOnLayer1

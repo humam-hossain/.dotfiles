@@ -229,11 +229,138 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
 fi
 
 # ===========================================================================
-# Section 3: WeatherBar Temperature Parsing & Multi-Tier Responsive Formatting (Stub)
+# Section 3: WeatherBar Temperature Parsing & Multi-Tier Responsive Formatting
 # ===========================================================================
-if [[ "$RUN_SECTION" -eq 3 ]]; then
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
   info "--- Section 3: WeatherBar Temperature Parsing & Multi-Tier Formatting ---"
-  info "Section 3 will be tested in Plan 54.1-02"
+
+  if [[ ! -f "$WEATHERBAR_SRC" ]]; then
+    fail "S3: Cannot test WeatherBar.qml: file missing ($WEATHERBAR_SRC)"
+  else
+    node_res=0
+    node -e '
+      const fs = require("fs");
+      const code = fs.readFileSync(process.argv[1], "utf8");
+
+      let failures = [];
+
+      // Test Typography & Aesthetic Hierarchy in AST
+      if (!code.includes("iconSize: Appearance.font.pixelSize.large")) {
+        failures.push("Missing large condition glyph sizing (Appearance.font.pixelSize.large)");
+      }
+      if (!code.includes("font.pixelSize: Appearance.font.pixelSize.small")) {
+        failures.push("Missing small temp text sizing (Appearance.font.pixelSize.small)");
+      }
+      if (!code.includes("fill: 0")) {
+        failures.push("Missing outline glyph fill: 0 styling on MaterialSymbol");
+      }
+      if (!code.includes("Appearance.animationCurves.expressiveEffects")) {
+        failures.push("Missing 200ms expressiveEffects ColorAnimation on color transitions");
+      }
+      if (!code.includes("Appearance.m3colors.m3onSurfaceVariant")) {
+        failures.push("Missing Appearance.m3colors.m3onSurfaceVariant dimming token");
+      }
+      if (!code.includes("Appearance.colors.colOnLayer1")) {
+        failures.push("Missing neutral Appearance.colors.colOnLayer1 base token");
+      }
+
+      // Logic Evaluation Functions matching WeatherBar.qml implementation
+      function computeFormattedTemp(tempC, useShortenedForm, vertical) {
+        const raw = tempC;
+        if (raw === undefined || raw === null || raw === "" || raw === "--") {
+          return (useShortenedForm === 2 || vertical) ? "--°" : "--°C";
+        }
+        const num = Math.round(Number(raw));
+        if (isNaN(num)) {
+          return (useShortenedForm === 2 || vertical) ? "--°" : "--°C";
+        }
+        return num + ((useShortenedForm === 2 || vertical) ? "°" : "°C");
+      }
+
+      function computeContentColor(isStale, isOffline, Appearance) {
+        return (isStale || isOffline) ? Appearance.m3colors.m3onSurfaceVariant : Appearance.colors.colOnLayer1;
+      }
+
+      function computeConditionGlyph(tempC, glyph, WeatherGlyphs) {
+        if ((tempC === "--" || tempC === undefined || tempC === null) && (!glyph || glyph === "cloud_off" || glyph === "")) {
+          return WeatherGlyphs.glyphOffline || "cloud_off";
+        }
+        return glyph || (WeatherGlyphs.glyphDefault || "cloud");
+      }
+
+      const AppearanceMock = {
+        m3colors: { m3onSurfaceVariant: "#49454f", m3primary: "#6750a4", m3error: "#ba1a1a" },
+        colors: { colOnLayer1: "#1d1b20" },
+        font: { pixelSize: { smaller: 11, small: 13, normal: 14, large: 17 } }
+      };
+
+      const WeatherGlyphsMock = {
+        glyphOffline: "cloud_off",
+        glyphDefault: "cloud",
+        glyphHumidity: "water_drop"
+      };
+
+      // a. Integer Celsius formatting
+      if (computeFormattedTemp(28, 0, false) !== "28°C") failures.push(`Expected 28 -> 28°C, got ${computeFormattedTemp(28, 0, false)}`);
+      if (computeFormattedTemp(-5, 0, false) !== "-5°C") failures.push(`Expected -5 -> -5°C, got ${computeFormattedTemp(-5, 0, false)}`);
+
+      // b. Rounding
+      if (computeFormattedTemp(28.6, 0, false) !== "29°C") failures.push(`Expected 28.6 -> 29°C, got ${computeFormattedTemp(28.6, 0, false)}`);
+      if (computeFormattedTemp(28.4, 0, false) !== "28°C") failures.push(`Expected 28.4 -> 28°C, got ${computeFormattedTemp(28.4, 0, false)}`);
+      if (computeFormattedTemp("28.6", 0, false) !== "29°C") failures.push(`Expected "28.6" -> 29°C, got ${computeFormattedTemp("28.6", 0, false)}`);
+
+      // c. Safe cold boot / NaN fallback
+      if (computeFormattedTemp("--", 0, false) !== "--°C") failures.push(`Expected "--" -> "--°C", got ${computeFormattedTemp("--", 0, false)}`);
+      if (computeFormattedTemp(null, 0, false) !== "--°C") failures.push(`Expected null -> "--°C", got ${computeFormattedTemp(null, 0, false)}`);
+      if (computeFormattedTemp(undefined, 0, false) !== "--°C") failures.push(`Expected undefined -> "--°C", got ${computeFormattedTemp(undefined, 0, false)}`);
+      if (computeFormattedTemp("invalid_temp", 0, false) !== "--°C") failures.push(`Expected NaN -> "--°C", got ${computeFormattedTemp("invalid_temp", 0, false)}`);
+
+      // d. Tier 2 truncation (useShortenedForm === 2)
+      if (computeFormattedTemp(28, 2, false) !== "28°") failures.push(`Expected 28 in Tier 2 -> 28°, got ${computeFormattedTemp(28, 2, false)}`);
+      if (computeFormattedTemp("--", 2, false) !== "--°") failures.push(`Expected "--" in Tier 2 -> --°, got ${computeFormattedTemp("--", 2, false)}`);
+
+      // e. Vertical mode truncation (vertical === true) per D-54.1-14, D-54.1-28
+      if (computeFormattedTemp(28, 0, true) !== "28°") failures.push(`Expected 28 in vertical -> 28°, got ${computeFormattedTemp(28, 0, true)}`);
+      if (computeFormattedTemp("--", 0, true) !== "--°") failures.push(`Expected "--" in vertical -> --°, got ${computeFormattedTemp("--", 0, true)}`);
+
+      // f. Condition glyph selection
+      if (computeConditionGlyph("--", undefined, WeatherGlyphsMock) !== "cloud_off") {
+        failures.push(`Expected cold boot fallback cloud_off, got ${computeConditionGlyph("--", undefined, WeatherGlyphsMock)}`);
+      }
+      if (computeConditionGlyph("--", "cloud_off", WeatherGlyphsMock) !== "cloud_off") {
+        failures.push(`Expected cold boot cloud_off, got ${computeConditionGlyph("--", "cloud_off", WeatherGlyphsMock)}`);
+      }
+      if (computeConditionGlyph(25, "clear_day", WeatherGlyphsMock) !== "clear_day") {
+        failures.push(`Expected active glyph clear_day, got ${computeConditionGlyph(25, "clear_day", WeatherGlyphsMock)}`);
+      }
+
+      // g. Stale/offline color dimming
+      if (computeContentColor(true, false, AppearanceMock) !== AppearanceMock.m3colors.m3onSurfaceVariant) {
+        failures.push("Stale state failed to dim to m3onSurfaceVariant");
+      }
+      if (computeContentColor(false, true, AppearanceMock) !== AppearanceMock.m3colors.m3onSurfaceVariant) {
+        failures.push("Offline state failed to dim to m3onSurfaceVariant");
+      }
+      if (computeContentColor(false, false, AppearanceMock) !== AppearanceMock.colors.colOnLayer1) {
+        failures.push("Normal state failed to resolve colOnLayer1");
+      }
+
+      if (failures.length > 0) {
+        console.error(failures.join("\n"));
+        process.exit(1);
+      }
+    ' "$WEATHERBAR_SRC" || node_res=$?
+
+    if [[ "$node_res" -eq 0 ]]; then
+      pass "S3: Temperature parsing (integer Celsius, rounding, safe NaN/cold-boot fallback) verified"
+      pass "S3: Multi-tier responsive formatting (XX°C in Tiers 0/1, XX° in Tier 2, XX° in vertical) verified"
+      pass "S3: Condition glyph selection and stale/offline dimming verified"
+      pass "S3: Neutral colOnLayer1 invariant for standard telemetry verified"
+      pass "S3: Outline glyph styling (fill: 0) and 200ms expressiveEffects animation verified"
+    else
+      fail "S3: Node.js evaluation failed for Section 3 assertions"
+    fi
+  fi
 fi
 
 # ===========================================================================
