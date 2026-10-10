@@ -133,12 +133,12 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
 **Goal:** Refine WeatherBar pill in Center Zone to achieve pixel-perfect visual alignment, consistent M3 surface styling, interactive hover/active states, and fluid responsive sizing matching neighboring status bar modules.
 **Requirements**: BAR-01, BAR-02, BAR-03, BAR-04
 **Depends on:** Phase 53
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 **Wave 1**
 
-- [ ] 54.1-01-PLAN.md
+- [x] 54.1-01-PLAN.md
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -206,7 +206,7 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 | 52. Weather Service Singleton & Material Glyph Mapping | 3/3 | Complete | 2026-10-03 |
 | 53. Top Status Bar Weather Pill Component | 2/2 | Complete | 2026-10-05 |
 | 54. Multi-Modal Popup Inspector & Interactive Graphs | 4/4 | Redesigned | 2026-10-10 |
-| 54.1. Top Status Bar Weather Component Polish | 0/TBD | Not started | - |
+| 54.1. Top Status Bar Weather Component Polish | 1/3 | In Progress|  |
 | 54.2. Hourly Parameter Modeling and Rolling Cache Service | 0/TBD | Not started | - |
 | 54.3. Interactive Multi-Metric Hourly Graph Component | 0/TBD | Not started | - |
 | 54.4. Modular Popup Inspector and Clean Card Layout | 0/TBD | Not started | - |
