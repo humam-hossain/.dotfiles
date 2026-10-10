@@ -49,7 +49,11 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
 - [x] **Phase 51: WWO Fetcher Service & Local Cache Architecture** - Standalone Python fetcher and systemd user timer with rate-limiting and atomic JSON caching (completed 2026-10-03)
 - [x] **Phase 52: Weather Service Singleton & Material Glyph Mapping** - Reactive FileView observer service, complete WWO code dictionary, and day/night glyph mapper (completed 2026-10-03)
 - [x] **Phase 53: Top Status Bar Weather Pill Component** - Status bar WeatherPill in Center Zone with temperature display, condition glyph, and fluid M3 width resizing (completed 2026-10-05)
-- [ ] **Phase 54: Multi-Modal Popup Inspector & Interactive Graphs** - Production WeatherPopup with 24-hour temperature/feels-like spline curve, rain probability bars, hover scrub, atmospheric grid, AQI card, wind compass, astronomy card, and severe alert banner
+- [x] **Phase 54: Multi-Modal Popup Inspector & Interactive Graphs** - Initial prototype; UAT rejected monolithic design in favor of modular breakdown (completed 2026-10-10)
+- [ ] **Phase 54.1: Top Status Bar Weather Component Polish (INSERTED)** - Visual alignment, M3 styling, interactive hover/active cues, and pill responsiveness
+- [ ] **Phase 54.2: Hourly Parameter Modeling and Rolling Cache Service (INSERTED)** - [-12h .. NOW .. +12h] rolling window, 0-cost midnight cache rollover, and structured QML datasets
+- [ ] **Phase 54.3: Interactive Multi-Metric Hourly Graph Component (INSERTED)** - Multi-metric graph (Thermal, Moisture, Wind, AQI, Atmosphere, Rain volume, UV) with scrub inspection
+- [ ] **Phase 54.4: Modular Popup Inspector and Clean Card Layout (INSERTED)** - Clean non-overlapping M3 layout, hero summary, text stats, astronomy card, and multi-day forecast strip
 - [ ] **Phase 55: System Integration, Retirement & Verification** - Prototype retirement, leaf symlink deployment, automated regression harness, and zero git churn
 
 ## Phase Details
@@ -124,10 +128,56 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
 - [x] 54-03-PLAN.md
 - [x] 54-04-PLAN.md
 
+### Phase 54.1: Top Status Bar Weather Component Polish (INSERTED)
+
+**Goal:** Refine WeatherBar pill in Center Zone to achieve pixel-perfect visual alignment, consistent M3 surface styling, interactive hover/active states, and fluid responsive sizing matching neighboring status bar modules.
+**Requirements**: BAR-01, BAR-02, BAR-03, BAR-04
+**Depends on:** Phase 53
+**Plans:** 3 plans
+
+Plans:
+
+- [ ] 54.1-01-PLAN.md
+- [ ] 54.1-02-PLAN.md
+- [ ] 54.1-03-PLAN.md
+
+### Phase 54.2: Hourly Parameter Modeling and Rolling Cache Service (INSERTED)
+
+**Goal:** Model the continuous [-12h .. NOW .. +12h] rolling timeline across past and future forecast slots, implement 0-cost midnight cache rollover in wwo-fetcher.py for full 24/7 historical coverage, and expose structured typed datasets in WeatherService.qml for all selected metric groups (Thermal, Moisture, Wind, AQI, Atmosphere, Solar).
+**Requirements**: DATA-01, DATA-02, DATA-03
+**Depends on:** Phase 54.1
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 54.2 to break down)
+
+### Phase 54.3: Interactive Multi-Metric Hourly Graph Component (INSERTED)
+
+**Goal:** Build dedicated interactive WeatherGraph component supporting metric selection across agreed groups (Thermal dual splines, Moisture/Cloud cover, Precipitation odds/volume, Wind dynamics with compass dial, Air quality with EPA tiers, Atmosphere/Pressure, Solar/UV) with a centered "NOW" hairline and zero-repaint hover scrubbing.
+**Requirements**: GRAPH-01, GRAPH-02, GRAPH-03, GRAPH-04
+**Depends on:** Phase 54.2
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 54.3 to break down)
+
+### Phase 54.4: Modular Popup Inspector and Clean Card Layout (INSERTED)
+
+**Goal:** Assemble the complete WeatherPopup with clean M3 spacing, modular non-overlapping card hierarchy, hero location/observation header, daily text stat pills (Min/Avg/Max, Sun hours), astronomy sun/moon card, and multi-day forecast trend strip.
+**Requirements**: POPUP-01, POPUP-02, POPUP-03, POPUP-04
+**Depends on:** Phase 54.3
+**Plans:** 0 plans
+
+Plans:
+
+- [ ] TBD (run /gsd-plan-phase 54.4 to break down)
+
 ### Phase 55: System Integration, Retirement & Verification
 
 **Goal**: Retire prototype test files (`TestPill.qml`, `TestPopup.qml`), deploy via GNU Stow leaf symlinks, create automated regression harness, and verify repository cleanliness.  
-**Depends on**: Phase 54  
+**Depends on**: Phase 54.4  
 **Requirements**: INTG-01, INTG-02, INTG-03, INTG-04  
 **Success Criteria** (what must be TRUE):
 
@@ -141,16 +191,20 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 51 → 52 → 53 → 54 → 55
+Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 54.3 → 54.4 → 55
 
 | Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 51. WWO Fetcher Service & Local Cache Architecture | 3/3 | Complete    | 2026-10-03 |
-| 52. Weather Service Singleton & Material Glyph Mapping | 3/3 | Complete    | 2026-10-03 |
-| 53. Top Status Bar Weather Pill Component | 2/2 | Complete    | 2026-10-05 |
-| 54. Multi-Modal Popup Inspector & Interactive Graphs | 4/4 | Complete    | 2026-10-10 |
+|---|---|---|---|
+| 51. WWO Fetcher Service & Local Cache Architecture | 3/3 | Complete | 2026-10-03 |
+| 52. Weather Service Singleton & Material Glyph Mapping | 3/3 | Complete | 2026-10-03 |
+| 53. Top Status Bar Weather Pill Component | 2/2 | Complete | 2026-10-05 |
+| 54. Multi-Modal Popup Inspector & Interactive Graphs | 4/4 | Redesigned | 2026-10-10 |
+| 54.1. Top Status Bar Weather Component Polish | 0/TBD | Not started | - |
+| 54.2. Hourly Parameter Modeling and Rolling Cache Service | 0/TBD | Not started | - |
+| 54.3. Interactive Multi-Metric Hourly Graph Component | 0/TBD | Not started | - |
+| 54.4. Modular Popup Inspector and Clean Card Layout | 0/TBD | Not started | - |
 | 55. System Integration, Retirement & Verification | 0/TBD | Not started | - |
 
 ---
 *Roadmap defined: 2026-10-02*  
-*Last updated: 2026-10-05 for Phase 53 completion*
+*Last updated: 2026-10-10 for Phase 54.1–54.4 roadmap expansion*
