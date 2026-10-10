@@ -18,6 +18,15 @@ MouseArea {
 
     property bool vertical: (parent && parent.vertical !== undefined) ? parent.vertical : (Config.options?.bar?.vertical ?? false)
 
+    property bool startupSettled: false
+    Timer {
+        id: startupDampenTimer
+        interval: 350
+        running: true
+        repeat: false
+        onTriggered: root.startupSettled = true
+    }
+
     implicitWidth: root.vertical ? Appearance.sizes.baseVerticalBarWidth : contentLayout.implicitWidth
     implicitHeight: root.vertical ? contentLayout.implicitHeight : Appearance.sizes.baseBarHeight
 
@@ -111,6 +120,28 @@ MouseArea {
         }
     }
 
+    Rectangle {
+        id: hoverHighlight
+        anchors {
+            fill: parent
+            topMargin: root.vertical ? 0 : 4
+            bottomMargin: root.vertical ? 0 : 4
+            leftMargin: root.vertical ? 0 : -5
+            rightMargin: root.vertical ? 0 : -5
+        }
+        radius: Appearance.rounding.small
+        color: Appearance.colors.colLayer1Hover
+        opacity: (root.hovered || root.popupActive) ? 1.0 : 0.0
+
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 150
+                easing.type: Easing.BezierSpline
+                easing.bezierCurve: Appearance.animationCurves.expressiveEffects
+            }
+        }
+    }
+
     GridLayout {
         id: contentLayout
         anchors.centerIn: parent
@@ -198,9 +229,17 @@ MouseArea {
 
     WeatherPopup {
         id: weatherPopup
+        hoverOpenDelayMs: 300
         hoverTarget: root
     }
 
+    readonly property alias hoverHighlight: hoverHighlight
+    readonly property alias contentLayout: contentLayout
+    readonly property alias alertRevealer: alertRevealer
+    readonly property alias alertIcon: alertIcon
+    readonly property alias conditionGlyphItem: conditionGlyph
+    readonly property alias tempTextItem: tempText
+    readonly property alias rainRevealer: rainRevealer
     readonly property alias popup: weatherPopup
     readonly property bool popupActive: weatherPopup.active ?? false
 }

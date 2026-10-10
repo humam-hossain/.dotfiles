@@ -514,11 +514,99 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
 fi
 
 # ===========================================================================
-# Section 5: Pure Hover Trigger, M3 Surface Highlight & Pointer Ergonomics (Stub)
+# Section 5: Pure Hover Trigger, M3 Surface Highlight & Pointer Ergonomics
 # ===========================================================================
-if [[ "$RUN_SECTION" -eq 5 ]]; then
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
   info "--- Section 5: Pure Hover Trigger, M3 Surface Highlight & Pointer Ergonomics ---"
-  info "Section 5 will be tested in Plan 54.1-03"
+
+  if [[ ! -f "$WEATHERBAR_SRC" ]]; then
+    fail "S5: Cannot test WeatherBar.qml: file missing ($WEATHERBAR_SRC)"
+  else
+    wb_code="$(cat "$WEATHERBAR_SRC")"
+
+    # a. Root component is MouseArea
+    if echo "$wb_code" | grep -E -A 2 '^MouseArea\s*\{' | grep -q 'id:\s*root'; then
+      pass "S5: WeatherBar root component is MouseArea (eliminating nested BarGroup padding per D-54.1-09)"
+    else
+      fail "S5: WeatherBar root component must be MouseArea"
+    fi
+
+    # b. MouseArea parameters: acceptedButtons, cursorShape, hoverEnabled
+    if echo "$wb_code" | grep -q 'acceptedButtons:\s*Qt\.AllButtons' && echo "$wb_code" | grep -q 'cursorShape:\s*Qt\.ArrowCursor' && echo "$wb_code" | grep -q 'hoverEnabled:\s*true'; then
+      pass "S5: MouseArea configured with Qt.AllButtons, Qt.ArrowCursor, and hoverEnabled: true (D-54.1-02, D-54.1-03)"
+    else
+      fail "S5: MouseArea missing acceptedButtons: Qt.AllButtons, cursorShape: Qt.ArrowCursor, or hoverEnabled: true"
+    fi
+
+    # c. onPressed and onClicked call event.accepted = true (D-54.1-02)
+    if echo "$wb_code" | grep -q 'onPressed:\s*event\s*=>\s*event\.accepted\s*=\s*true' && echo "$wb_code" | grep -q 'onClicked:\s*event\s*=>\s*event\.accepted\s*=\s*true'; then
+      pass "S5: MouseArea absorbs all click/press events to prevent bubbling (event.accepted = true per D-54.1-02)"
+    else
+      fail "S5: MouseArea missing click absorption (event.accepted = true)"
+    fi
+
+    # d. Double padding elimination
+    if echo "$wb_code" | grep -F -q '+ 10 * 2'; then
+      fail "S5: Redundant double-padding (+ 10 * 2) detected in WeatherBar.qml (D-54.1-09)"
+    else
+      pass "S5: Double-padding (+ 10 * 2) eliminated; implicitWidth delegates to contentLayout (D-54.1-09)"
+    fi
+
+    # e. WeatherPopup instantiated with hoverOpenDelayMs: 300 and hoverTarget: root (D-54.1-01)
+    if echo "$wb_code" | grep -A 6 'WeatherPopup {' | grep -q 'hoverOpenDelayMs:\s*300' && echo "$wb_code" | grep -A 6 'WeatherPopup {' | grep -q 'hoverTarget:\s*root'; then
+      pass "S5: WeatherPopup instantiated with hoverOpenDelayMs: 300 and hoverTarget: root (D-54.1-01)"
+    else
+      fail "S5: Missing WeatherPopup with hoverOpenDelayMs: 300 and hoverTarget: root"
+    fi
+
+    # f. Material 3 Inner Surface Hover Highlight (D-54.1-05..08)
+    if echo "$wb_code" | grep -A 25 'id:\s*hoverHighlight' | grep -q 'color:\s*Appearance\.colors\.colLayer1Hover' \
+       && echo "$wb_code" | grep -A 25 'id:\s*hoverHighlight' | grep -q 'radius:\s*Appearance\.rounding\.small' \
+       && echo "$wb_code" | grep -A 25 'id:\s*hoverHighlight' | grep -q 'duration:\s*150'; then
+      pass "S5: hoverHighlight Rectangle configured with colLayer1Hover, rounding.small, and 150ms transition (D-54.1-05..08)"
+    else
+      fail "S5: hoverHighlight missing colLayer1Hover color, rounding.small radius, or 150ms duration"
+    fi
+
+    # g. Startup animation dampening timer (D-54.1-31)
+    if echo "$wb_code" | grep -q 'id:\s*startupDampenTimer' && echo "$wb_code" | grep -q 'interval:\s*350' && echo "$wb_code" | grep -q 'property\s*bool\s*startupSettled'; then
+      pass "S5: startupDampenTimer configured with 350ms interval and startupSettled property (D-54.1-31)"
+    else
+      fail "S5: Missing startupDampenTimer (interval: 350) or startupSettled property"
+    fi
+
+    # h. Public property aliases (Section 4.2 Research)
+    aliases=(
+      "hoverHighlight:\s*hoverHighlight"
+      "contentLayout:\s*contentLayout"
+      "alertRevealer:\s*alertRevealer"
+      "alertIcon:\s*alertIcon"
+      "conditionGlyphItem:\s*conditionGlyph"
+      "tempTextItem:\s*tempText"
+      "rainRevealer:\s*rainRevealer"
+      "popup:\s*weatherPopup"
+      "popupActive:\s*weatherPopup\.active"
+    )
+    all_aliases_ok=1
+    for a in "${aliases[@]}"; do
+      if ! echo "$wb_code" | grep -Eq "$a"; then
+        fail "S5: Missing public property alias: $a"
+        all_aliases_ok=0
+      fi
+    done
+    if [[ "$all_aliases_ok" -eq 1 ]]; then
+      pass "S5: All 9 public property aliases cleanly exposed for testing & integration"
+    fi
+
+    # i. Vertical layout configuration (D-54.1-24, D-54.1-27)
+    if echo "$wb_code" | grep -q 'columns:\s*root\.vertical\s*?\s*1\s*:\s*-1' \
+       && echo "$wb_code" | grep -q 'implicitWidth:\s*root\.vertical\s*?\s*Appearance\.sizes\.baseVerticalBarWidth\s*:\s*contentLayout\.implicitWidth' \
+       && echo "$wb_code" | grep -q 'implicitHeight:\s*root\.vertical\s*?\s*contentLayout\.implicitHeight\s*:\s*Appearance\.sizes\.baseBarHeight'; then
+      pass "S5: Vertical mode dimensions and columns toggle correctly bound (D-54.1-24, D-54.1-27)"
+    else
+      fail "S5: Vertical mode geometry or columns binding missing"
+    fi
+  fi
 fi
 
 info "=== Summary: FAIL=$FAIL, FINDINGS=$FINDINGS ==="
