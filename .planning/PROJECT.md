@@ -379,10 +379,10 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ **WWO-01**: Standalone background weather service fetching WorldWeatherOnline data with local cache file in `$XDG_RUNTIME_DIR/weather/weather.json` (dynamic pacing, rate-limited under 500 calls/day free tier) — Phase 51
 - ✓ **WWO-02**: Quickshell `WeatherService.qml` singleton consuming local cache via reactive `FileView` observer with offline resilience and zero API calls on shell reloads — Phase 52
 - ✓ **GLYPH-01**: Design-matched weather iconography and glyph mapping for all WWO condition codes, day vs. night (`isdaytime`), precipitation, wind, and severe alert states aligned to Material You / Material Symbols — Phase 52
+- ✓ **BAR-01**: Top status bar `WeatherBar.qml` component integrated into `BarContent.qml` Center Zone with fluid M3 width resizing, double padding eliminated, integer Celsius formatting, imminent rain badge, 3-loop breathing pulse animation, 300ms hover delay, and M3 inner surface highlight — Phase 53, Phase 54.1
 
 ### Active
 
-- [ ] **BAR-01**: Top status bar `WeatherPill.qml` component in Center Zone with fluid M3 width resizing, dynamic condition glyph, temperature (°C), and alert indicators
 - [ ] **PARAM-01**: Systematic parameter evaluation and UI representation mapping across all categories in `WEATHER_PARAMETERS.md` (Thermal/Comfort, Atmospheric, Wind, Air Quality AQI/PM2.5, Astronomy, Severe Alerts)
 - [ ] **POPUP-01**: Multi-modal `WeatherPopup.qml` inspector anchored with 1000ms hover intent delay and screen boundary clamping (`StyledPopup`)
 - [ ] **GRAPH-01**: Interactive Canvas time-series graphs in popup (24-hour temperature/feels-like trendline and hourly precipitation/rain probability bars) with hover scrub inspection
@@ -626,7 +626,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-05 after Phase 53*
+*Last updated: 2026-10-10 after Phase 54.1*
 
 
 
