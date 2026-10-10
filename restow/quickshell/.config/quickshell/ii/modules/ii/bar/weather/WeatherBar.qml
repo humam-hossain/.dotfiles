@@ -18,8 +18,8 @@ MouseArea {
 
     property bool vertical: (parent && parent.vertical !== undefined) ? parent.vertical : (Config.options?.bar?.vertical ?? false)
 
-    implicitWidth: root.vertical ? Appearance.sizes.baseVerticalBarWidth : (contentLayout.implicitWidth + 10 * 2)
-    implicitHeight: root.vertical ? (contentLayout.implicitHeight + 10 * 2) : Appearance.sizes.barHeight
+    implicitWidth: root.vertical ? Appearance.sizes.baseVerticalBarWidth : contentLayout.implicitWidth
+    implicitHeight: root.vertical ? contentLayout.implicitHeight : Appearance.sizes.baseBarHeight
 
     acceptedButtons: Qt.AllButtons
     cursorShape: Qt.ArrowCursor
@@ -52,7 +52,8 @@ MouseArea {
 
     // Imminent Rain & Severe Alert Hazard Indicators (D-53-11, D-53-12, D-53-13, D-53-14, D-53-15, D-53-16, D-53-17)
     readonly property int imminentRainChance: {
-        if (!Weather.hourly || Weather.hourly.length === 0) return 0;
+        if (!Weather.hourly || Weather.hourly.length === 0)
+            return 0;
         let maxChance = 0;
         const slots = Math.min(3, Weather.hourly.length);
         for (let i = 0; i < slots; ++i) {
