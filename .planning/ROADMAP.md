@@ -153,11 +153,20 @@ Plans:
 **Goal:** Model the continuous [-12h .. NOW .. +12h] rolling timeline across past and future forecast slots, implement 0-cost midnight cache rollover in wwo-fetcher.py for full 24/7 historical coverage, and expose structured typed datasets in WeatherService.qml for all selected metric groups (Thermal, Moisture, Wind, AQI, Atmosphere, Solar).
 **Requirements**: DATA-01, DATA-02, DATA-03
 **Depends on:** Phase 54.1
-**Plans:** 0 plans
+**Plans:** 3 plans
 
 Plans:
+**Wave 1**
 
-- [ ] TBD (run /gsd-plan-phase 54.2 to break down)
+- [ ] 54.2-01-PLAN.md — Backend Fetcher Historical Cache Rollover & Downtime Invalidation
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 54.2-02-PLAN.md — WeatherService 25-Point Rolling Timeline, Metric Groups & Series Getter
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 54.2-03-PLAN.md — Verification Test Harness (phase54.2-weather-assert.sh) & Zero-Churn Integrity Gate
 
 ### Phase 54.3: Interactive Multi-Metric Hourly Graph Component (INSERTED)
 
