@@ -153,7 +153,7 @@ Plans:
 **Goal:** Model the continuous [-12h .. NOW .. +12h] rolling timeline across past and future forecast slots, implement 0-cost midnight cache rollover in wwo-fetcher.py for full 24/7 historical coverage, and expose structured typed datasets in WeatherService.qml for all selected metric groups (Thermal, Moisture, Wind, AQI, Atmosphere, Solar).
 **Requirements**: DATA-01, DATA-02, DATA-03
 **Depends on:** Phase 54.1
-**Plans:** 3/3 plans complete
+**Plans:** 4/4 plans complete
 
 Plans:
 **Wave 1**
@@ -216,7 +216,7 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 | 53. Top Status Bar Weather Pill Component | 2/2 | Complete | 2026-10-05 |
 | 54. Multi-Modal Popup Inspector & Interactive Graphs | 4/4 | Redesigned | 2026-10-10 |
 | 54.1. Top Status Bar Weather Component Polish | 3/3 | Complete    | 2026-10-10 |
-| 54.2. Hourly Parameter Modeling and Rolling Cache Service | 3/3 | Complete    | 2026-10-11 |
+| 54.2. Hourly Parameter Modeling and Rolling Cache Service | 4/4 | Complete    | 2026-10-11 |
 | 54.3. Interactive Multi-Metric Hourly Graph Component | 0/TBD | Not started | - |
 | 54.4. Modular Popup Inspector and Clean Card Layout | 0/TBD | Not started | - |
 | 55. System Integration, Retirement & Verification | 0/TBD | Not started | - |
