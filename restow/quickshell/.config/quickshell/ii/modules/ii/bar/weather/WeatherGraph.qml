@@ -7,14 +7,19 @@ import qs.services
 WeatherBaseCard {
     id: root
 
-    property int activeSlotIndex: 0
+    property int activeSlotIndex: 12
     property real activeScrubX: 0
     property real activeScrubY: 0
-    property var model: Weather.hourly
+    property var model: (Weather.timeline && Weather.timeline.length === 25) ? Weather.timeline : Weather.hourly
     property bool popupActive: true
+
+    readonly property bool isTimeline25: (root.model && root.model.length === 25 && root.model[12] && root.model[12].isNow !== undefined)
 
     readonly property var validHours: {
         const raw = root.model || [];
+        if (root.isTimeline25) {
+            return raw;
+        }
         const filtered = [];
         for (let i = 0; i < raw.length; ++i) {
             if (raw[i] && String(raw[i].time) !== "24") {
@@ -27,7 +32,7 @@ WeatherBaseCard {
     icon: "show_chart"
     implicitHeight: 400
     Layout.fillWidth: true
-    title: "24-Hour Forecast"
+    title: isTimeline25 ? "25-Hour Rolling Timeline ([-12h .. NOW .. +12h])" : "24-Hour Forecast"
 
     function computeMonotoneSplineControlPoints(points) {
         const n = points.length;
@@ -113,7 +118,7 @@ WeatherBaseCard {
                 const n = hours.length;
                 const slotW = plotW / n;
 
-                const tempAreaTop = 16;
+                const tempAreaTop = 18;
                 const tempAreaBottom = height * 0.62;
                 const precipAreaTop = height * 0.68;
                 const precipAreaBottom = height - 20;
@@ -122,8 +127,16 @@ WeatherBaseCard {
                 let minT = 999;
                 let maxT = -999;
                 for (let i = 0; i < n; ++i) {
-                    const t = Number(hours[i].tempC ?? 20);
-                    const f = Number(hours[i].FeelsLikeC ?? t);
+                    const h = hours[i];
+                    let t = 20;
+                    let f = 20;
+                    if (root.isTimeline25) {
+                        t = (h.thermal && h.thermal.tempC !== null) ? h.thermal.tempC : (Number(h.tempC ?? 20));
+                        f = (h.thermal && h.thermal.feelsLikeC !== null) ? h.thermal.feelsLikeC : (Number(h.FeelsLikeC ?? t));
+                    } else {
+                        t = Number(h.tempC ?? 20);
+                        f = Number(h.FeelsLikeC ?? t);
+                    }
                     if (t < minT)
                         minT = t;
                     if (t > maxT)
@@ -170,13 +183,54 @@ WeatherBaseCard {
                 ctx.fillText(Math.round(minT) + "°", plotLeft - 10, yLow + 3);
                 ctx.restore();
 
-                // 3. Coordinate Generation
+                // 3. NOW Center Hairline & Badge (Index 12 in 25-Point Timeline)
+                if (root.isTimeline25) {
+                    const nowIdx = 12;
+                    const nowX = plotLeft + (nowIdx + 0.5) * slotW;
+
+                    ctx.save();
+                    ctx.strokeStyle = Appearance.colors.colPrimary || "#4fc3f7";
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([3, 3]);
+                    ctx.beginPath();
+                    ctx.moveTo(nowX, tempAreaTop);
+                    ctx.lineTo(nowX, precipAreaBottom);
+                    ctx.stroke();
+
+                    // "NOW" Pill Badge
+                    ctx.setLineDash([]);
+                    const badgeW = 32;
+                    const badgeH = 14;
+                    const badgeX = nowX - badgeW / 2;
+                    const badgeY = tempAreaTop - 14;
+                    ctx.fillStyle = Appearance.colors.colPrimary || "#4fc3f7";
+                    ctx.beginPath();
+                    ctx.rect(badgeX, badgeY, badgeW, badgeH);
+                    ctx.fill();
+
+                    ctx.fillStyle = Appearance.colors.colOnPrimary || "#000000";
+                    ctx.font = "bold 9px sans-serif";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText("NOW", nowX, badgeY + badgeH / 2);
+                    ctx.restore();
+                }
+
+                // 4. Coordinate Generation
                 const actualPoints = [];
                 const feelsPoints = [];
                 for (let i = 0; i < n; ++i) {
                     const cx = plotLeft + (i + 0.5) * slotW;
-                    const tVal = Number(hours[i].tempC ?? 20);
-                    const fVal = Number(hours[i].FeelsLikeC ?? tVal);
+                    const h = hours[i];
+                    let tVal = 20;
+                    let fVal = 20;
+                    if (root.isTimeline25) {
+                        tVal = (h.thermal && h.thermal.tempC !== null) ? h.thermal.tempC : (Number(h.tempC ?? minT));
+                        fVal = (h.thermal && h.thermal.feelsLikeC !== null) ? h.thermal.feelsLikeC : (Number(h.FeelsLikeC ?? tVal));
+                    } else {
+                        tVal = Number(h.tempC ?? 20);
+                        fVal = Number(h.FeelsLikeC ?? tVal);
+                    }
                     actualPoints.push({
                         x: cx,
                         y: getY(tVal)
@@ -190,7 +244,7 @@ WeatherBaseCard {
                 const actualCP = root.computeMonotoneSplineControlPoints(actualPoints);
                 const feelsCP = root.computeMonotoneSplineControlPoints(feelsPoints);
 
-                // 4. Gradient Fill under Actual Temp Spline (D-54-14)
+                // 5. Gradient Fill under Actual Temp Spline (D-54-14)
                 if (actualCP.length > 0) {
                     ctx.save();
                     const grad = ctx.createLinearGradient(0, tempAreaTop, 0, tempAreaBottom);
@@ -211,7 +265,7 @@ WeatherBaseCard {
                     ctx.restore();
                 }
 
-                // 5. Solid Actual Temperature Spline Stroke (D-54-14)
+                // 6. Solid Actual Temperature Spline Stroke (D-54-14)
                 if (actualCP.length > 0) {
                     ctx.save();
                     ctx.strokeStyle = Appearance.colors.colPrimary || "#4fc3f7";
@@ -225,7 +279,7 @@ WeatherBaseCard {
                     ctx.restore();
                 }
 
-                // 6. Dashed Feels-Like Temperature Spline Stroke (D-54-14)
+                // 7. Dashed Feels-Like Temperature Spline Stroke (D-54-14)
                 if (feelsCP.length > 0) {
                     ctx.save();
                     ctx.strokeStyle = Appearance.colors.colSecondary || "#81c784";
@@ -240,12 +294,20 @@ WeatherBaseCard {
                     ctx.restore();
                 }
 
-                // 7. Lower Tier Hourly Rain Columns (GRAPH-02, D-54-18, D-54-19)
+                // 8. Lower Tier Hourly Rain Columns (GRAPH-02, D-54-18, D-54-19)
                 const precipH = precipAreaBottom - precipAreaTop;
                 ctx.save();
                 for (let i = 0; i < n; ++i) {
-                    const chance = Math.max(0, Math.min(100, parseInt(hours[i].chanceofrain ?? 0, 10)));
-                    const precipMM = parseFloat(hours[i].precipMM ?? 0);
+                    const h = hours[i];
+                    let chance = 0;
+                    let precipMM = 0.0;
+                    if (root.isTimeline25) {
+                        chance = h.moisture?.rainProb ?? 0;
+                        precipMM = h.moisture?.precipMM ?? 0.0;
+                    } else {
+                        chance = Math.max(0, Math.min(100, parseInt(h.chanceofrain ?? 0, 10)));
+                        precipMM = parseFloat(h.precipMM ?? 0);
+                    }
                     const barH = (chance / 100) * precipH;
                     const barW = Math.max(2, slotW - 3);
                     const barX = plotLeft + (i + 0.5) * slotW - barW / 2;
@@ -257,20 +319,41 @@ WeatherBaseCard {
                 }
                 ctx.restore();
 
-                // 8. X-Axis Timestamps (3-Hour Increments) (D-54-17)
+                // 9. X-Axis Timestamps (Relative/Absolute Labels) (D-54-17, D-54.2-24)
                 ctx.save();
                 ctx.fillStyle = Appearance.colors.colOnSurfaceVariant || "#888";
                 ctx.font = "9px sans-serif";
                 ctx.textAlign = "center";
-                for (let i = 0; i < n; i += 3) {
+                ctx.textBaseline = "bottom";
+
+                const step = root.isTimeline25 ? 4 : 3;
+                for (let i = 0; i < n; i += step) {
                     const cx = plotLeft + (i + 0.5) * slotW;
-                    const rawTime = String(hours[i].time ?? "0");
-                    let timeLabel = "Now";
-                    if (i > 0) {
-                        const hr = rawTime.length > 2 ? rawTime.slice(0, -2) : (rawTime === "0" ? "00" : rawTime);
-                        timeLabel = hr.padStart(2, "0") + ":00";
+                    const h = hours[i];
+                    let timeLabel = "";
+                    if (root.isTimeline25) {
+                        const rel = i - 12;
+                        if (rel === 0) {
+                            timeLabel = "Now (" + (h.timeStr || "Now") + ")";
+                        } else {
+                            const sign = rel > 0 ? "+" : "";
+                            timeLabel = sign + rel + "h (" + (h.timeStr || "") + ")";
+                        }
+                    } else {
+                        const rawTime = String(h.time ?? "0");
+                        if (i === 0) {
+                            timeLabel = "Now";
+                        } else {
+                            const hr = rawTime.length > 2 ? rawTime.slice(0, -2) : (rawTime === "0" ? "00" : rawTime);
+                            timeLabel = hr.padStart(2, "0") + ":00";
+                        }
                     }
-                    ctx.fillText(timeLabel, cx, height - 5);
+                    ctx.fillText(timeLabel, cx, height - 3);
+                }
+                // Ensure index 12 is explicitly labeled in timeline mode if not reached by step
+                if (root.isTimeline25 && (12 % step !== 0)) {
+                    const cx12 = plotLeft + (12 + 0.5) * slotW;
+                    ctx.fillText("Now (" + (hours[12]?.timeStr || "") + ")", cx12, height - 3);
                 }
                 ctx.restore();
             }
@@ -316,7 +399,7 @@ WeatherBaseCard {
                 border.width: 1
                 color: Appearance.m3colors.m3surfaceContainerHigh || Appearance.colors.colLayer1
                 implicitHeight: tooltipRow.implicitHeight + 8
-                implicitWidth: tooltipRow.implicitWidth + 12
+                implicitWidth: tooltipRow.implicitWidth + 14
                 radius: Appearance.rounding.verysmall
                 x: Math.max(4, Math.min(parent.width - implicitWidth - 4, root.activeScrubX - implicitWidth / 2))
                 y: Math.max(2, root.activeScrubY - implicitHeight - 8)
@@ -325,7 +408,7 @@ WeatherBaseCard {
                     id: tooltipRow
 
                     anchors.centerIn: parent
-                    spacing: 4
+                    spacing: 5
 
                     StyledText {
                         color: Appearance.colors.colOnLayer1
@@ -335,6 +418,11 @@ WeatherBaseCard {
                             const h = root.validHours[root.activeSlotIndex];
                             if (!h)
                                 return "--:--";
+                            if (root.isTimeline25) {
+                                const rel = root.activeSlotIndex - 12;
+                                const tag = (rel === 0) ? "NOW" : (rel < 0 ? `${rel}h Past` : `+${rel}h Future`);
+                                return `${tag} (${h.timeStr || h.timeLabel || "--"})`;
+                            }
                             const rawTime = String(h.time ?? "0");
                             const hr = rawTime.length > 2 ? rawTime.slice(0, -2) : (rawTime === "0" ? "00" : rawTime);
                             return hr.padStart(2, "0") + ":00";
@@ -355,8 +443,17 @@ WeatherBaseCard {
                             const h = root.validHours[root.activeSlotIndex];
                             if (!h)
                                 return "--°C";
-                            const t = h.tempC ?? "--";
-                            const f = h.FeelsLikeC ?? t;
+                            if (root.isTimeline25 && h.isHistoricalUnavailable)
+                                return "History N/A";
+                            let t = "--";
+                            let f = "--";
+                            if (root.isTimeline25) {
+                                t = h.thermal?.tempC ?? (h.tempC ?? "--");
+                                f = h.thermal?.feelsLikeC ?? (h.FeelsLikeC ?? t);
+                            } else {
+                                t = h.tempC ?? "--";
+                                f = h.FeelsLikeC ?? t;
+                            }
                             return `${t}°C (Feels ${f}°C)`;
                         }
                     }
@@ -374,8 +471,15 @@ WeatherBaseCard {
                             const h = root.validHours[root.activeSlotIndex];
                             if (!h)
                                 return "0%";
-                            const chance = h.chanceofrain ?? "0";
-                            const mm = h.precipMM ?? "0.0";
+                            let chance = 0;
+                            let mm = "0.0";
+                            if (root.isTimeline25) {
+                                chance = h.moisture?.rainProb ?? 0;
+                                mm = h.moisture?.precipMM ?? 0.0;
+                            } else {
+                                chance = h.chanceofrain ?? "0";
+                                mm = h.precipMM ?? "0.0";
+                            }
                             return `${chance}% (${mm}mm)`;
                         }
                     }
@@ -405,13 +509,21 @@ WeatherBaseCard {
                 root.activeScrubX = plotLeft + (idx + 0.5) * slotW;
 
                 // Derive Y coordinate directly without canvas paint
-                const tempAreaTop = 16;
+                const tempAreaTop = 18;
                 const tempAreaBottom = height * 0.62;
                 let minT = 999;
                 let maxT = -999;
                 for (let i = 0; i < n; ++i) {
-                    const t = Number(hours[i].tempC ?? 20);
-                    const f = Number(hours[i].FeelsLikeC ?? t);
+                    const h = hours[i];
+                    let t = 20;
+                    let f = 20;
+                    if (root.isTimeline25) {
+                        t = (h.thermal && h.thermal.tempC !== null) ? h.thermal.tempC : (Number(h.tempC ?? 20));
+                        f = (h.thermal && h.thermal.feelsLikeC !== null) ? h.thermal.feelsLikeC : (Number(h.FeelsLikeC ?? t));
+                    } else {
+                        t = Number(h.tempC ?? 20);
+                        f = Number(h.FeelsLikeC ?? t);
+                    }
                     if (t < minT)
                         minT = t;
                     if (t > maxT)
@@ -428,7 +540,14 @@ WeatherBaseCard {
                 const padMin = minT - 1;
                 const padMax = maxT + 1;
                 const rangeT = Math.max(1, padMax - padMin);
-                const val = Number(hours[idx].tempC ?? 20);
+
+                const curH = hours[idx];
+                let val = 20;
+                if (root.isTimeline25) {
+                    val = (curH.thermal && curH.thermal.tempC !== null) ? curH.thermal.tempC : (Number(curH.tempC ?? minT));
+                } else {
+                    val = Number(curH.tempC ?? 20);
+                }
                 root.activeScrubY = tempAreaBottom - ((val - padMin) / rangeT) * (tempAreaBottom - tempAreaTop);
             }
         }
@@ -436,12 +555,19 @@ WeatherBaseCard {
 
     // Event-driven Canvas rendering strictly gated behind visibility and data updates (GRAPH-04, D-54-22)
     Connections {
+        target: Weather
+
         function onHourlyChanged() {
             if (root.popupActive) {
                 graphCanvas.requestPaint();
             }
         }
-        target: Weather
+
+        function onTimelineChanged() {
+            if (root.popupActive) {
+                graphCanvas.requestPaint();
+            }
+        }
     }
 
     onPopupActiveChanged: {
