@@ -153,7 +153,7 @@ Plans:
 **Goal:** Model the continuous [-12h .. NOW .. +12h] rolling timeline across past and future forecast slots, implement 0-cost midnight cache rollover in wwo-fetcher.py for full 24/7 historical coverage, and expose structured typed datasets in WeatherService.qml for all selected metric groups (Thermal, Moisture, Wind, AQI, Atmosphere, Solar).
 **Requirements**: DATA-01, DATA-02, DATA-03
 **Depends on:** Phase 54.1
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans executed
 
 Plans:
 **Wave 1**
@@ -166,7 +166,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 54.2-03-PLAN.md — Verification Test Harness (phase54.2-weather-assert.sh) & Zero-Churn Integrity Gate
+- [x] 54.2-03-PLAN.md — Verification Test Harness (phase54.2-weather-assert.sh) & Zero-Churn Integrity Gate
 
 ### Phase 54.3: Interactive Multi-Metric Hourly Graph Component (INSERTED)
 
@@ -216,7 +216,7 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 | 53. Top Status Bar Weather Pill Component | 2/2 | Complete | 2026-10-05 |
 | 54. Multi-Modal Popup Inspector & Interactive Graphs | 4/4 | Redesigned | 2026-10-10 |
 | 54.1. Top Status Bar Weather Component Polish | 3/3 | Complete    | 2026-10-10 |
-| 54.2. Hourly Parameter Modeling and Rolling Cache Service | 2/3 | In Progress|  |
+| 54.2. Hourly Parameter Modeling and Rolling Cache Service | 3/3 | In Progress|  |
 | 54.3. Interactive Multi-Metric Hourly Graph Component | 0/TBD | Not started | - |
 | 54.4. Modular Popup Inspector and Clean Card Layout | 0/TBD | Not started | - |
 | 55. System Integration, Retirement & Verification | 0/TBD | Not started | - |

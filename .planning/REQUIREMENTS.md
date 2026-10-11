@@ -43,11 +43,12 @@ Requirements for Milestone v0.10. Each maps to roadmap phases.
 - [ ] **POPUP-04**: Air Quality Index (AQI) card displaying US-EPA index (1–6) color-coded health badge and fine particulate PM2.5 / PM10 concentrations.
 - [ ] **POPUP-05**: Dynamic wind compass card displaying rotating needle angle (`winddirDegree`), 16-point direction (`winddir16Point`), wind speed (km/h), and peak gusts.
 - [ ] **POPUP-06**: Astronomy card displaying local sunrise, sunset times, and lunar phase illumination fraction (`moon_phase` + `moon_illumination`).
+
 ### Hourly Parameter Modeling & Rolling Cache (DATA)
 
-- [ ] **DATA-01**: `Weather.qml` models a continuous invariant 25-point rolling timeline `[-12h .. NOW .. +12h]` anchored to local wall-clock completed hour with center NOW slot at index 12 (`normalizedX = 0.5`).
-- [ ] **DATA-02**: Background fetcher `wwo-fetcher.py` implements 0-cost midnight historical cache rollover promoting previous day's `weather[0]` into top-level `"history"` array, with multi-day downtime invalidation (`day_diff > 1`) and cold-boot restoration.
-- [ ] **DATA-03**: `Weather.qml` exposes typed domain sub-objects (`thermal`, `moisture`, `wind`, `aqi`, `atmosphere`, `solar`) on each timeline slot with native numeric parsing and memoized series accessor `Weather.getSeries(metricPath)`.
+- [x] **DATA-01**: `Weather.qml` models a continuous invariant 25-point rolling timeline `[-12h .. NOW .. +12h]` anchored to local wall-clock completed hour with center NOW slot at index 12 (`normalizedX = 0.5`).
+- [x] **DATA-02**: Background fetcher `wwo-fetcher.py` implements 0-cost midnight historical cache rollover promoting previous day's `weather[0]` into top-level `"history"` array, with multi-day downtime invalidation (`day_diff > 1`) and cold-boot restoration.
+- [x] **DATA-03**: `Weather.qml` exposes typed domain sub-objects (`thermal`, `moisture`, `wind`, `aqi`, `atmosphere`, `solar`) on each timeline slot with native numeric parsing and memoized series accessor `Weather.getSeries(metricPath)`.
 
 ### System Integration, Retirement & Verification (INTG)
 
@@ -100,9 +101,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | POPUP-05 | Phase 54 | Complete |
 | POPUP-06 | Phase 54 | Complete |
 | POPUP-07 | Phase 54 | Complete |
-| DATA-01 | Phase 54.2 | Pending |
-| DATA-02 | Phase 54.2 | Pending |
-| DATA-03 | Phase 54.2 | Pending |
+| DATA-01 | Phase 54.2 | Complete |
+| DATA-02 | Phase 54.2 | Complete |
+| DATA-03 | Phase 54.2 | Complete |
 | INTG-01 | Phase 55 | Pending |
 | INTG-02 | Phase 55 | Pending |
 | INTG-03 | Phase 55 | Pending |
