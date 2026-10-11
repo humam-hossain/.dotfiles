@@ -51,7 +51,7 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
 - [x] **Phase 53: Top Status Bar Weather Pill Component** - Status bar WeatherPill in Center Zone with temperature display, condition glyph, and fluid M3 width resizing (completed 2026-10-05)
 - [x] **Phase 54: Multi-Modal Popup Inspector & Interactive Graphs** - Initial prototype; UAT rejected monolithic design in favor of modular breakdown (completed 2026-10-10)
 - [x] **Phase 54.1: Top Status Bar Weather Component Polish (INSERTED)** - Visual alignment, M3 styling, interactive hover/active cues, and pill responsiveness (completed 2026-10-10)
-- [ ] **Phase 54.2: Hourly Parameter Modeling and Rolling Cache Service (INSERTED)** - [-12h .. NOW .. +12h] rolling window, 0-cost midnight cache rollover, and structured QML datasets
+- [x] **Phase 54.2: Hourly Parameter Modeling and Rolling Cache Service (INSERTED)** - [-12h .. NOW .. +12h] rolling window, 0-cost midnight cache rollover, and structured QML datasets (completed 2026-10-11)
 - [ ] **Phase 54.3: Interactive Multi-Metric Hourly Graph Component (INSERTED)** - Multi-metric graph (Thermal, Moisture, Wind, AQI, Atmosphere, Rain volume, UV) with scrub inspection
 - [ ] **Phase 54.4: Modular Popup Inspector and Clean Card Layout (INSERTED)** - Clean non-overlapping M3 layout, hero summary, text stats, astronomy card, and multi-day forecast strip
 - [ ] **Phase 55: System Integration, Retirement & Verification** - Prototype retirement, leaf symlink deployment, automated regression harness, and zero git churn
@@ -153,7 +153,7 @@ Plans:
 **Goal:** Model the continuous [-12h .. NOW .. +12h] rolling timeline across past and future forecast slots, implement 0-cost midnight cache rollover in wwo-fetcher.py for full 24/7 historical coverage, and expose structured typed datasets in WeatherService.qml for all selected metric groups (Thermal, Moisture, Wind, AQI, Atmosphere, Solar).
 **Requirements**: DATA-01, DATA-02, DATA-03
 **Depends on:** Phase 54.1
-**Plans:** 3/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 **Wave 1**
@@ -216,7 +216,7 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 | 53. Top Status Bar Weather Pill Component | 2/2 | Complete | 2026-10-05 |
 | 54. Multi-Modal Popup Inspector & Interactive Graphs | 4/4 | Redesigned | 2026-10-10 |
 | 54.1. Top Status Bar Weather Component Polish | 3/3 | Complete    | 2026-10-10 |
-| 54.2. Hourly Parameter Modeling and Rolling Cache Service | 3/3 | In Progress|  |
+| 54.2. Hourly Parameter Modeling and Rolling Cache Service | 3/3 | Complete    | 2026-10-11 |
 | 54.3. Interactive Multi-Metric Hourly Graph Component | 0/TBD | Not started | - |
 | 54.4. Modular Popup Inspector and Clean Card Layout | 0/TBD | Not started | - |
 | 55. System Integration, Retirement & Verification | 0/TBD | Not started | - |
