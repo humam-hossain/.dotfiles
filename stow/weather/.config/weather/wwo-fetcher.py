@@ -157,6 +157,57 @@ def build_quota_dict(calls_today: int, midnight_utc: datetime) -> dict:
     }
 
 
+def resolve_history_rollover(prev_cache: dict | None, new_wwo_data: dict) -> list:
+    if not prev_cache or not isinstance(prev_cache, dict):
+        return []
+    if not new_wwo_data or not isinstance(new_wwo_data, dict):
+        return []
+
+    weather_list = new_wwo_data.get("weather", [])
+    if not weather_list or not isinstance(weather_list, list):
+        return []
+    new_date_str = weather_list[0].get("date")
+    if not new_date_str:
+        return []
+
+    prev_data = prev_cache.get("data") or {}
+    prev_weather = prev_data.get("weather", []) if isinstance(prev_data, dict) else []
+    prev_weather_0 = prev_weather[0] if (prev_weather and isinstance(prev_weather, list)) else None
+    prev_date_str = prev_weather_0.get("date") if isinstance(prev_weather_0, dict) else None
+    prev_history = prev_cache.get("history", [])
+    if not isinstance(prev_history, list):
+        prev_history = []
+
+    try:
+        new_d = datetime.strptime(new_date_str, "%Y-%m-%d").date()
+        yesterday_str = (new_d - timedelta(days=1)).strftime("%Y-%m-%d")
+
+        if prev_date_str:
+            prev_d = datetime.strptime(prev_date_str, "%Y-%m-%d").date()
+            day_diff = (new_d - prev_d).days
+
+            if day_diff == 1:
+                # Midnight Rollover (D-54.2-10, D-54.2-11):
+                # Calendar advanced by exactly 1 day. Promote previous day's forecast at 0 API cost.
+                return [prev_weather_0]
+            elif day_diff == 0:
+                # Same Day Update (D-54.2-10):
+                # Retain existing history entry if its date matches yesterday_str.
+                return [h for h in prev_history if isinstance(h, dict) and h.get("date") == yesterday_str]
+            elif day_diff > 1:
+                # Multi-Day Downtime Invalidation (D-54.2-15):
+                # Machine was offline for >1 day; stale data must not masquerade as yesterday.
+                return []
+            else:  # day_diff < 0
+                # Clock Anomaly: local clock moved backward; invalidate history.
+                return []
+        elif prev_history:
+            return [h for h in prev_history if isinstance(h, dict) and h.get("date") == yesterday_str]
+        return []
+    except Exception:
+        return []
+
+
 def ensure_fallback_cache(cache_path: str, persist_path: str, quota_info: dict):
     if os.path.isfile(cache_path):
         return
@@ -170,12 +221,32 @@ def ensure_fallback_cache(cache_path: str, persist_path: str, quota_info: dict):
             saved["is_stale"] = True
             saved["error"] = "Restored from persistent storage on startup"
             saved["quota"] = quota_info
+
+            # Downtime invalidation check on cold boot (D-54.2-14, D-54.2-15)
+            weather_data = saved.get("data", {}).get("weather", []) if isinstance(saved.get("data"), dict) else []
+            if weather_data and isinstance(weather_data, list):
+                cached_date_str = weather_data[0].get("date")
+                if cached_date_str:
+                    try:
+                        cached_d = datetime.strptime(cached_date_str, "%Y-%m-%d").date()
+                        downtime_days = (datetime.now().date() - cached_d).days
+                        if downtime_days > 1:
+                            saved["history"] = []
+                        else:
+                            saved["history"] = saved.get("history", [])
+                    except Exception:
+                        saved["history"] = []
+                else:
+                    saved["history"] = saved.get("history", [])
+            else:
+                saved["history"] = saved.get("history", [])
+
             atomic_write_json(cache_path, saved)
             return
         except Exception:
             pass
 
-    # Cold boot skeleton
+    # Cold boot skeleton (D-54.2-14)
     skeleton = {
         "status": "offline",
         "fetched_at": None,
@@ -183,7 +254,8 @@ def ensure_fallback_cache(cache_path: str, persist_path: str, quota_info: dict):
         "is_stale": True,
         "error": "Initial startup: awaiting network connection...",
         "quota": quota_info,
-        "data": None
+        "data": None,
+        "history": []
     }
     atomic_write_json(cache_path, skeleton)
 
