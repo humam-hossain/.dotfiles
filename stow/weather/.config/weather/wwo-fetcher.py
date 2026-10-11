@@ -328,8 +328,32 @@ def main():
     # Ensure runtime cache file exists before attempting network (avoids UI ENOENT)
     ensure_fallback_cache(cache_path, persist_path, quota_info)
 
+    # Load previous cache before API fetch (for rollover & error preservation, D-54.2-10)
+    prev_cache = None
+    if os.path.isfile(cache_path):
+        try:
+            with open(cache_path, "r", encoding="utf-8") as f:
+                prev_cache = json.load(f)
+        except Exception:
+            pass
+    if prev_cache is None and os.path.isfile(persist_path):
+        try:
+            with open(persist_path, "r", encoding="utf-8") as f:
+                prev_cache = json.load(f)
+        except Exception:
+            pass
+
     if args.status:
         elapsed_min = (now_utc.timestamp() - last_call_epoch) / 60.0 if last_call_epoch > 0 else float("inf")
+        hist_status_str = "None (awaiting midnight rollover)"
+        if prev_cache and isinstance(prev_cache, dict):
+            history_list = prev_cache.get("history", [])
+            if history_list and isinstance(history_list, list) and len(history_list) > 0:
+                h0 = history_list[0]
+                hist_date = h0.get("date", "unknown") if isinstance(h0, dict) else "unknown"
+                hist_count = len(h0.get("hourly", [])) if isinstance(h0, dict) and isinstance(h0.get("hourly"), list) else 0
+                hist_status_str = f"1 day cached ({hist_date}, {hist_count} hourly slots)"
+
         print("=== WWO Weather Fetcher Status ===")
         print(f"Date (UTC):             {quota_state.get('date_utc')}")
         print(f"Calls Today:            {calls_today} / {DAILY_BUDGET} (Ceiling: {ABSOLUTE_CEILING})")
@@ -338,6 +362,7 @@ def main():
         print(f"Dynamic Pacing Interval: {pacing_interval:.2f} min" if pacing_interval != float("inf") else "Dynamic Pacing Interval: Throttled (Budget reached)")
         print(f"Elapsed Since Last Call:{elapsed_min:.2f} min" if last_call_epoch > 0 else "Elapsed Since Last Call: None")
         print(f"Location Configured:    {resolve_city()}")
+        print(f"Historical Cache:       {hist_status_str}")
         print(f"Cache File:             {cache_path} ({'Exists' if os.path.exists(cache_path) else 'Missing'})")
         print(f"Persistent Mirror:      {persist_path} ({'Exists' if os.path.exists(persist_path) else 'Missing'})")
         sys.exit(0)
@@ -380,7 +405,8 @@ def main():
             "is_stale": True,
             "error": "Missing WWO_API_KEY in ~/.config/weather/.env",
             "quota": quota_info,
-            "data": None
+            "data": None,
+            "history": prev_cache.get("history", []) if prev_cache else []
         }
         atomic_write_json(cache_path, err_envelope)
         sys.exit(1)
@@ -395,7 +421,8 @@ def main():
             "is_stale": True,
             "error": "Weather city not configured in ~/.config/illogical-impulse/config.json",
             "quota": quota_info,
-            "data": None
+            "data": None,
+            "history": prev_cache.get("history", []) if prev_cache else []
         }
         atomic_write_json(cache_path, err_envelope)
         sys.exit(1)
@@ -415,6 +442,8 @@ def main():
 
         updated_quota_info = build_quota_dict(calls_today, midnight_utc)
 
+        history_data = resolve_history_rollover(prev_cache, wwo_data)
+
         envelope = {
             "status": "ok",
             "fetched_at": now_local_iso,
@@ -422,7 +451,8 @@ def main():
             "is_stale": False,
             "error": None,
             "quota": updated_quota_info,
-            "data": wwo_data
+            "data": wwo_data,
+            "history": history_data
         }
 
         # Atomic writes to runtime cache and persistent mirror
@@ -430,24 +460,10 @@ def main():
         atomic_write_json(persist_path, envelope)
 
     except Exception as e:
-        # Network outage / API error resilience (D-51-05)
-        # Preserve existing forecast data with is_stale: true without burning quota
-        existing_data = None
-        if os.path.isfile(cache_path):
-            try:
-                with open(cache_path, "r", encoding="utf-8") as f:
-                    prev = json.load(f)
-                    existing_data = prev.get("data")
-            except Exception:
-                pass
-
-        if existing_data is None and os.path.isfile(persist_path):
-            try:
-                with open(persist_path, "r", encoding="utf-8") as f:
-                    prev = json.load(f)
-                    existing_data = prev.get("data")
-            except Exception:
-                pass
+        # Network outage / API error resilience (D-51-05, D-54.2-12)
+        # Preserve existing forecast data and history with is_stale: true without burning quota
+        existing_data = prev_cache.get("data") if prev_cache else None
+        existing_history = prev_cache.get("history", []) if prev_cache else []
 
         err_envelope = {
             "status": "error",
@@ -456,7 +472,8 @@ def main():
             "is_stale": True,
             "error": str(e),
             "quota": quota_info,
-            "data": existing_data
+            "data": existing_data,
+            "history": existing_history
         }
         atomic_write_json(cache_path, err_envelope)
         quota_state["last_status"] = "error"
