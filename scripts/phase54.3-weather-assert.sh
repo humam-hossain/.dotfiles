@@ -164,17 +164,16 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
   info "--- Section 2: Metric Selector Tab Bar Architecture & Styling Contracts ---"
-  graph_code="$(cat "$GRAPH_SRC")"
 
   # Default activeMetric: "temp" property
-  if echo "$graph_code" | grep -qE 'property\s+string\s+activeMetric:\s*"temp"'; then
+  if grep -qE 'property\s+string\s+activeMetric:\s*"temp"' "$GRAPH_SRC"; then
     pass "S2: activeMetric property defaults to 'temp' (D-54.3-05)"
   else
     fail "S2: Missing property string activeMetric: \"temp\" default"
   fi
 
   # Single-row tabBarContainer
-  if echo "$graph_code" | grep -q 'id:\s*tabBarContainer'; then
+  if grep -q 'id:\s*tabBarContainer' "$GRAPH_SRC"; then
     pass "S2: Single-row tabBarContainer present directly beneath card header (D-54.3-01)"
   else
     fail "S2: Missing id: tabBarContainer tab row definition"
@@ -182,7 +181,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
 
   # 6-pill keys: temp, rain, wind, aqi, baro, uv
   for metric in temp rain wind aqi baro uv; do
-    if echo "$graph_code" | grep -qE "(id:\s*\"$metric\"|\"id\":\s*\"$metric\")"; then
+    if grep -qE "(id:\s*\"$metric\"|\"id\":\s*\"$metric\")" "$GRAPH_SRC"; then
       pass "S2: Tab bar includes metric pill key '$metric' (D-54.3-02)"
     else
       fail "S2: Tab bar missing metric pill key '$metric' (D-54.3-02)"
@@ -191,13 +190,13 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
 
   # Labels: Temp, Rain, Wind, AQI, Baro, UV with pixelSize.smallest and bold
   for label in Temp Rain Wind AQI Baro UV; do
-    if echo "$graph_code" | grep -qE "(label:\s*\"$label\"|\"label\":\s*\"$label\")"; then
+    if grep -qE "(label:\s*\"$label\"|\"label\":\s*\"$label\")" "$GRAPH_SRC"; then
       pass "S2: Tab bar includes label '$label'"
     else
       fail "S2: Tab bar missing label '$label'"
     fi
   done
-  if echo "$graph_code" | grep -q 'pixelSize\.smallest' && echo "$graph_code" | grep -qE '(Font\.Bold|font\.bold:\s*true)'; then
+  if grep -q 'pixelSize\.smallest' "$GRAPH_SRC" && grep -qE '(Font\.Bold|font\.bold:\s*true)' "$GRAPH_SRC"; then
     pass "S2: Tab pills use pixelSize.smallest and bold font weight"
   else
     fail "S2: Tab pills missing pixelSize.smallest or bold weight"
@@ -205,34 +204,34 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
 
   # Material Symbols outline icons (thermostat, water_drop, air, eco, speed, wb_sunny) with fill: 0, iconSize: 14
   for icon in thermostat water_drop air eco speed wb_sunny; do
-    if echo "$graph_code" | grep -qE "(icon:\s*\"$icon\"|\"icon\":\s*\"$icon\")"; then
+    if grep -qE "(icon:\s*\"$icon\"|\"icon\":\s*\"$icon\")" "$GRAPH_SRC"; then
       pass "S2: Tab bar includes outline icon '$icon' (D-54.3-04)"
     else
       fail "S2: Tab bar missing outline icon '$icon' (D-54.3-04)"
     fi
   done
-  if echo "$graph_code" | grep -qE 'fill:\s*0' && echo "$graph_code" | grep -qE 'iconSize:\s*14'; then
+  if grep -qE 'fill:\s*0' "$GRAPH_SRC" && grep -qE 'iconSize:\s*14' "$GRAPH_SRC"; then
     pass "S2: Tab pills enforce Material Symbols outline aesthetic (fill: 0, iconSize: 14)"
   else
     fail "S2: Tab pills missing fill: 0 or iconSize: 14 outline icon styling"
   fi
 
   # Sliding highlight animation with colPrimary and expressiveEffects
-  if echo "$graph_code" | grep -q 'tabHighlight' && echo "$graph_code" | grep -q 'Appearance\.animationCurves\.expressiveEffects'; then
+  if grep -q 'tabHighlight' "$GRAPH_SRC" && grep -q 'Appearance\.animationCurves\.expressiveEffects' "$GRAPH_SRC"; then
     pass "S2: Tab highlight rectangle uses Appearance.animationCurves.expressiveEffects Bezier easing (D-54.3-03)"
   else
     fail "S2: Tab highlight missing tabHighlight or expressiveEffects animation curve (D-54.3-03)"
   fi
 
   # Tab click sets activeMetric and invokes requestPaint()
-  if echo "$graph_code" | grep -A 10 -E 'onClicked:' | grep -q 'graphCanvas\.requestPaint()'; then
+  if grep -A 10 -E 'onClicked:' "$GRAPH_SRC" | grep -q 'graphCanvas\.requestPaint()'; then
     pass "S2: Tab click invokes single-shot graphCanvas.requestPaint() (D-54.3-06)"
   else
     fail "S2: Tab click missing graphCanvas.requestPaint() invocation (D-54.3-06)"
   fi
 
   # Default to Temp tab on popupActive
-  if echo "$graph_code" | grep -A 8 'onPopupActiveChanged:' | grep -qE 'activeMetric\s*=\s*"temp"'; then
+  if grep -A 8 'onPopupActiveChanged:' "$GRAPH_SRC" | grep -qE 'activeMetric\s*=\s*"temp"'; then
     pass "S2: WeatherGraph resets activeMetric to 'temp' on popup open (D-54.3-05)"
   else
     fail "S2: WeatherGraph does not reset activeMetric to 'temp' on popup open (D-54.3-05)"
@@ -244,38 +243,37 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
   info "--- Section 3: Multi-Metric Visualizations, Dual-Tier Canvas & Scaling Math ---"
-  graph_code="$(cat "$GRAPH_SRC")"
 
   # Unified single Canvas
-  if echo "$graph_code" | grep -q 'id:\s*graphCanvas'; then
+  if grep -q 'id:\s*graphCanvas' "$GRAPH_SRC"; then
     pass "S3: Unified single Canvas item multiplexing metric groups present (D-54.3-07)"
   else
     fail "S3: Missing id: graphCanvas"
   fi
 
   # Dual-tier layout geometry
-  if echo "$graph_code" | grep -q 'plotUpperBottom' && echo "$graph_code" | grep -q 'plotLowerTop' && echo "$graph_code" | grep -q 'plotLowerBottom'; then
+  if grep -q 'plotUpperBottom' "$GRAPH_SRC" && grep -q 'plotLowerTop' "$GRAPH_SRC" && grep -q 'plotLowerBottom' "$GRAPH_SRC"; then
     pass "S3: Standardized dual-tier layout coordinates defined (D-54.3-08)"
   else
     fail "S3: Standardized dual-tier layout coordinates missing (D-54.3-08)"
   fi
 
   # Fritsch-Carlson Monotone Cubic Spline generator
-  if echo "$graph_code" | grep -q 'computeMonotoneSplineControlPoints'; then
+  if grep -q 'computeMonotoneSplineControlPoints' "$GRAPH_SRC"; then
     pass "S3: Fritsch-Carlson Monotone Cubic Spline generator present (GRAPH-01)"
   else
     fail "S3: computeMonotoneSplineControlPoints missing from WeatherGraph"
   fi
 
   # Symmetrical getMetricY helper
-  if echo "$graph_code" | grep -qE 'function\s+getMetricY\s*\('; then
+  if grep -qE 'function\s+getMetricY\s*\(' "$GRAPH_SRC"; then
     pass "S3: Symmetrical getMetricY() helper present (D-54.3-17)"
   else
     fail "S3: Symmetrical getMetricY() helper missing from WeatherGraph"
   fi
 
   # Cold-boot past data hatch fallback
-  if echo "$graph_code" | grep -q 'isHistoricalUnavailable' && echo "$graph_code" | grep -q 'Past data unavailable'; then
+  if grep -q 'isHistoricalUnavailable' "$GRAPH_SRC" && grep -q 'Past data unavailable' "$GRAPH_SRC"; then
     pass "S3: Cold-boot past data hatch fallback with 'Past data unavailable' present (D-54.3-18)"
   else
     fail "S3: Cold-boot past data hatch fallback missing or lacking 'Past data unavailable' (D-54.3-18)"
@@ -349,10 +347,9 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
   info "--- Section 4: Palette Tokens & Zero-Repaint Hover Scrub Overlay ---"
-  graph_code="$(cat "$GRAPH_SRC")"
 
   # Zero-repaint invariant: verify NO requestPaint inside scrubMouseArea onPositionChanged
-  if echo "$graph_code" | grep -A 35 -E 'id:\s*scrubMouseArea' | grep -A 25 -E 'onPositionChanged:' | grep -q 'requestPaint'; then
+  if grep -A 35 -E 'id:\s*scrubMouseArea' "$GRAPH_SRC" | grep -A 25 -E 'onPositionChanged:' | grep -q 'requestPaint'; then
     fail "S4: Zero-repaint violation: requestPaint() found inside onPositionChanged (GRAPH-04, D-54.3-06)"
   else
     pass "S4: Zero-repaint invariant satisfied: onPositionChanged updates QML overlay without Canvas repainting (GRAPH-04, D-54.3-06)"
@@ -360,7 +357,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
 
   # QML overlay items: scrubHairline, snapDot, tooltipPill
   for item in scrubHairline snapDot tooltipPill; do
-    if echo "$graph_code" | grep -qE "id:\s*$item"; then
+    if grep -qE "id:\s*$item" "$GRAPH_SRC"; then
       pass "S4: QML overlay item '$item' present (D-54.3-21)"
     else
       fail "S4: Missing QML overlay item '$item' (D-54.3-21)"
@@ -368,42 +365,42 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
   done
 
   # Smart vertical flip when Y < 60px
-  if echo "$graph_code" | grep -qE 'activeScrubY\s*<\s*60'; then
+  if grep -qE 'activeScrubY\s*<\s*60' "$GRAPH_SRC"; then
     pass "S4: Tooltip pill implements smart vertical flip when Y < 60px (D-54.3-22)"
   else
     fail "S4: Tooltip pill missing Y < 60px vertical flip condition (D-54.3-22)"
   fi
 
   # Horizontal edge clamping
-  if echo "$graph_code" | grep -qE 'Math\.max\(\s*6,\s*Math\.min'; then
+  if grep -qE 'Math\.max\(\s*6,\s*Math\.min' "$GRAPH_SRC"; then
     pass "S4: Tooltip pill clamps horizontally 6px from card edges (D-54.3-22)"
   else
     fail "S4: Tooltip pill missing 6px horizontal edge clamping (D-54.3-22)"
   fi
 
   # Dynamic curve tracking snap dot tracks activeScrubY calculated from getMetricY
-  if echo "$graph_code" | grep -q 'snapDot' && echo "$graph_code" | grep -q 'activeScrubY'; then
+  if grep -q 'snapDot' "$GRAPH_SRC" && grep -q 'activeScrubY' "$GRAPH_SRC"; then
     pass "S4: Snap dot tracks activeScrubY (D-54.3-21)"
   else
     fail "S4: Snap dot missing activeScrubY tracking"
   fi
 
   # Context-adaptive tooltip readouts via formatTooltipMetric
-  if echo "$graph_code" | grep -qE 'function\s+formatTooltipMetric\s*\('; then
+  if grep -qE 'function\s+formatTooltipMetric\s*\(' "$GRAPH_SRC"; then
     pass "S4: Context-adaptive formatTooltipMetric helper present (D-54.3-19)"
   else
     fail "S4: Context-adaptive formatTooltipMetric helper missing (D-54.3-19)"
   fi
 
   # Full temporal context via formatTemporalLabel
-  if echo "$graph_code" | grep -qE 'function\s+formatTemporalLabel\s*\('; then
+  if grep -qE 'function\s+formatTemporalLabel\s*\(' "$GRAPH_SRC"; then
     pass "S4: Full temporal context formatTemporalLabel helper present (D-54.3-20)"
   else
     fail "S4: formatTemporalLabel helper missing (D-54.3-20)"
   fi
 
   # Smooth fade-out on cursor exit via Behavior on opacity (150ms)
-  if echo "$graph_code" | grep -B 2 -A 5 'Behavior on opacity' | grep -qE '150'; then
+  if grep -B 2 -A 5 'Behavior on opacity' "$GRAPH_SRC" | grep -qE '150'; then
     pass "S4: Hover overlay implements smooth fade-out (Behavior on opacity ~150ms) (D-54.3-23)"
   else
     fail "S4: Hover overlay missing 150ms Behavior on opacity (D-54.3-23)"
@@ -411,7 +408,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
 
   # Material 3 tokens
   for token in colPrimary colSecondary colTertiary colOutlineVariant; do
-    if echo "$graph_code" | grep -q "Appearance\.colors\.$token"; then
+    if grep -q "Appearance\.colors\.$token" "$GRAPH_SRC"; then
       pass "S4: WeatherGraph uses M3 theme token Appearance.colors.$token (D-54.3-16)"
     else
       fail "S4: WeatherGraph missing Appearance.colors.$token (D-54.3-16)"
@@ -424,31 +421,30 @@ fi
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
   info "--- Section 5: Day/Night Shading, Date Boundaries & Submodule Verification ---"
-  graph_code="$(cat "$GRAPH_SRC")"
 
   # Nocturnal shading
-  if echo "$graph_code" | grep -qE '(!hours\[i\]\.isDay|!h\.isDay|!isDay)'; then
+  if grep -qE '(!hours\[i\]\.isDay|!h\.isDay|!isDay)' "$GRAPH_SRC"; then
     pass "S5: Canvas renders nocturnal background shading for night slots (D-54.3-24)"
   else
     fail "S5: Canvas missing nocturnal background shading (D-54.3-24)"
   fi
 
   # Midnight date divider with dotted stroke and compact date chip
-  if echo "$graph_code" | grep -q 'isDayBoundary' && echo "$graph_code" | grep -qE '(setLineDash|formatDateChip)'; then
+  if grep -q 'isDayBoundary' "$GRAPH_SRC" && (grep -q 'setLineDash' "$GRAPH_SRC" || grep -q 'formatDateChip' "$GRAPH_SRC"); then
     pass "S5: Canvas renders vertical dotted divider at midnight date boundary (D-54.3-25)"
   else
     fail "S5: Canvas missing midnight date boundary divider with setLineDash or formatDateChip (D-54.3-25)"
   fi
 
   # X-axis timestamps with index 12 "NOW" highlighted
-  if echo "$graph_code" | grep -qE '("NOW"|NOW)' && echo "$graph_code" | grep -q 'colPrimary'; then
+  if grep -qE '("NOW"|NOW)' "$GRAPH_SRC" && grep -q 'colPrimary' "$GRAPH_SRC"; then
     pass "S5: X-axis center slot 12 NOW highlighted in colPrimary (D-54.3-26)"
   else
     fail "S5: X-axis missing NOW highlight in colPrimary (D-54.3-26)"
   fi
 
   # Mini outline condition glyphs (12px, fill: 0, colOnSurfaceVariant)
-  if echo "$graph_code" | grep -q 'WeatherGlyphs' || echo "$graph_code" | grep -q 'glyph'; then
+  if grep -q 'WeatherGlyphs' "$GRAPH_SRC" || grep -q 'glyph' "$GRAPH_SRC"; then
     pass "S5: Mini condition glyph rendering supported in bottom axis band (D-54.3-27)"
   else
     fail "S5: Missing condition glyph references in bottom axis band (D-54.3-27)"
