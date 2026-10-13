@@ -173,7 +173,7 @@ Plans:
 **Goal:** Build dedicated interactive WeatherGraph component supporting metric selection across agreed groups (Thermal dual splines, Moisture/Cloud cover, Precipitation odds/volume, Wind dynamics with compass dial, Air quality with EPA tiers, Atmosphere/Pressure, Solar/UV) with a centered "NOW" hairline and zero-repaint hover scrubbing.
 **Requirements**: GRAPH-01, GRAPH-02, GRAPH-03, GRAPH-04
 **Depends on:** Phase 54.2
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans executed
 
 Plans:
 **Wave 1**
@@ -186,7 +186,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 54.3-03-PLAN.md — Zero-Repaint Hover Scrub Overlay, Day/Night Shading & Submodule Verification
+- [x] 54.3-03-PLAN.md — Zero-Repaint Hover Scrub Overlay, Day/Night Shading & Submodule Verification
 
 ### Phase 54.4: Modular Popup Inspector and Clean Card Layout (INSERTED)
 
@@ -226,7 +226,7 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 | 54. Multi-Modal Popup Inspector & Interactive Graphs | 4/4 | Redesigned | 2026-10-10 |
 | 54.1. Top Status Bar Weather Component Polish | 3/3 | Complete    | 2026-10-10 |
 | 54.2. Hourly Parameter Modeling and Rolling Cache Service | 4/4 | Complete    | 2026-10-11 |
-| 54.3. Interactive Multi-Metric Hourly Graph Component | 2/3 | In Progress|  |
+| 54.3. Interactive Multi-Metric Hourly Graph Component | 3/3 | In Progress|  |
 | 54.4. Modular Popup Inspector and Clean Card Layout | 0/TBD | Not started | - |
 | 55. System Integration, Retirement & Verification | 0/TBD | Not started | - |
 
