@@ -1096,10 +1096,11 @@ WeatherBaseCard {
                             color: root.getActiveMetricColor()
                             font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: Font.DemiBold
-                            text: root.formatTooltipTempLine(root.validHours[root.activeSlotIndex])
+                            text: (root.activeMetric === "temp") ? root.formatTooltipTempLine(root.validHours[root.activeSlotIndex]) : root.formatTooltipMetric(root.activeMetric, root.validHours[root.activeSlotIndex])
                         }
 
                         StyledText {
+                            visible: root.activeMetric === "temp"
                             color: Appearance.colors.colOnSurfaceVariant
                             font.pixelSize: Appearance.font.pixelSize.smaller
                             text: root.formatTooltipRainLine(root.validHours[root.activeSlotIndex])
