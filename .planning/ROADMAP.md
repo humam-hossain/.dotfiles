@@ -188,6 +188,12 @@ Plans:
 
 - [x] 54.3-03-PLAN.md — Zero-Repaint Hover Scrub Overlay, Day/Night Shading & Submodule Verification
 
+**Gap closure (UAT 2026-10-13, 4 gaps):**
+
+- [ ] 54.3-04-PLAN.md — Tab-less composite essentials canvas + stale-session deploy discipline (G-54.3-1)
+- [ ] 54.3-05-PLAN.md — Legend row, distinct series palette, canvas text geometry, QML icon axis strip, tooltip type (G-54.3-2, G-54.3-3, G-54.3-5 canvas half)
+- [ ] 54.3-06-PLAN.md — Card scaffold layout-driven sizing, clipping fail-safe, full strict verification (G-54.3-5)
+
 ### Phase 54.4: Modular Popup Inspector and Clean Card Layout (INSERTED)
 
 **Goal:** Assemble the complete WeatherPopup with clean M3 spacing, modular non-overlapping card hierarchy, hero location/observation header, daily text stat pills (Min/Avg/Max, Sun hours), astronomy sun/moon card, and multi-day forecast trend strip.
