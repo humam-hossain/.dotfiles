@@ -749,10 +749,10 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
     fail "S6: WeatherGraph or WeatherPopup source missing; cannot verify stacked-instances contracts (fail-closed)"
   else
     instance_count="$(grep -c 'WeatherGraph {' "$POPUP_SRC" || true)"
-    if [[ "$instance_count" -ge 5 ]]; then
-      pass "S6: WeatherPopup stacks ${instance_count} locked WeatherGraph instances (G-54.3-4)"
+    if [[ "$instance_count" -eq 5 ]]; then
+      pass "S6: WeatherPopup stacks exactly 5 locked WeatherGraph instances (G-54.3-4)"
     else
-      fail "S6: Expected at least 5 stacked WeatherGraph instances, found ${instance_count} (G-54.3-4)"
+      fail "S6: Expected exactly 5 stacked WeatherGraph instances, found ${instance_count} (G-54.3-4)"
     fi
 
     for chrome_id in tabBarContainer tabsRepeater tabHighlight activeTabPill; do

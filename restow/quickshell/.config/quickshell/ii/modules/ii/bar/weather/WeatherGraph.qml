@@ -767,8 +767,6 @@ WeatherBaseCard {
                         ctx.textAlign = "right";
                         ctx.setLineDash([2, 3]);
 
-                        const yMax = root.getMetricY("temp", -1, plotTop, plotUpperBottom);
-                        const yMin = plotUpperBottom - ((bounds.min - bounds.min) / Math.max(1, bounds.max - bounds.min)) * (plotUpperBottom - plotTop);
                         const yHigh = plotUpperBottom - ((bounds.max - 1 - bounds.min) / Math.max(1, bounds.max - bounds.min)) * (plotUpperBottom - plotTop);
                         const yLow = plotUpperBottom - ((bounds.min + 1 - bounds.min) / Math.max(1, bounds.max - bounds.min)) * (plotUpperBottom - plotTop);
 
@@ -1060,7 +1058,7 @@ WeatherBaseCard {
                     implicitWidth: tooltipColumn.implicitWidth + 20
                     radius: Appearance.rounding.verysmall
                     x: Math.max(6, Math.min(parent.width - implicitWidth - 6, root.activeScrubX - implicitWidth / 2))
-                    y: (root.activeScrubY < 60) ? (root.activeScrubY + 14) : (root.activeScrubY - implicitHeight - 8)
+                    y: Math.max(0, (root.activeScrubY < 60) ? (root.activeScrubY + 14) : (root.activeScrubY - implicitHeight - 8))
 
                     Rectangle {
                         id: tooltipBackground
