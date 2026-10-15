@@ -241,3 +241,13 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 ---
 *Roadmap defined: 2026-10-02*  
 *Last updated: 2026-10-10 for Phase 54.1–54.4 roadmap expansion*
+
+## Backlog
+
+### Phase 999.1: Follow-up — Phase 54.3 deferred UAT follow-up: Test 4 (BACKLOG)
+
+**Goal:** Resolve the UAT checkpoint deferred during Phase 54.3 verification
+**Source phase:** 54.3
+**Deferred at:** 2026-10-15 during /gsd-verify-work 54.3 session completion
+**Follow-ups:**
+- [ ] Test 4: user confirms five stacked graphs work, but wants a future phase to redesign into 2-3 compact graphs (possibly horizontal, smaller) with no scrolling (deferred 2026-10-15)
