@@ -14,7 +14,7 @@ WeatherBaseCard {
     title: "Air Quality"
 
     ColumnLayout {
-        anchors.fill: parent
+        Layout.fillWidth: true
         spacing: 6
 
         // Category Badge Row

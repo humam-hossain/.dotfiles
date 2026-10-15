@@ -15,7 +15,7 @@ WeatherBaseCard {
     property string observationTime: Weather.lastRefresh
 
     RowLayout {
-        anchors.fill: parent
+        Layout.fillWidth: true
         spacing: 12
 
         // Large Temperature & Glyph

@@ -14,7 +14,7 @@ WeatherBaseCard {
     title: "Astronomy"
 
     RowLayout {
-        anchors.fill: parent
+        Layout.fillWidth: true
         spacing: 12
 
         // Solar Telemetry (Left)

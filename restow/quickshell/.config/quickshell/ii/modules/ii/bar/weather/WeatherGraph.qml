@@ -484,7 +484,8 @@ WeatherBaseCard {
 
     ColumnLayout {
         id: contentColumn
-        anchors.fill: parent
+        Layout.fillWidth: true
+        Layout.fillHeight: true
         spacing: 6
 
         RowLayout {

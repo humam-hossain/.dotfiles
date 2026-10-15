@@ -16,6 +16,7 @@ Rectangle {
     color: Appearance.colors.colLayer2
     border.width: 1
     border.color: Appearance.colors.colOutlineVariant
+    clip: true
 
     implicitWidth: layout.implicitWidth + 20
     implicitHeight: layout.implicitHeight + 20
@@ -50,7 +51,7 @@ Rectangle {
             }
         }
 
-        Item {
+        ColumnLayout {
             id: cardContent
             Layout.fillWidth: true
             Layout.fillHeight: true

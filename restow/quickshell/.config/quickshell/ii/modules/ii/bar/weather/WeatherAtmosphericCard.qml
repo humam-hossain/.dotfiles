@@ -27,7 +27,7 @@ WeatherBaseCard {
     }
 
     GridLayout {
-        anchors.fill: parent
+        Layout.fillWidth: true
         columnSpacing: 10
         columns: 2
         rowSpacing: 8

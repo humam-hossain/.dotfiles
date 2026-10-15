@@ -29,7 +29,7 @@ WeatherBaseCard {
     }
 
     RowLayout {
-        anchors.fill: parent
+        Layout.fillWidth: true
         spacing: 12
 
         // 56px Compass Rose Dial (POPUP-05, D-54-24, D-54-26)
