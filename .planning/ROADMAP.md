@@ -193,6 +193,7 @@ Plans:
 - [ ] 54.3-04-PLAN.md — Tab-less composite essentials canvas + stale-session deploy discipline (G-54.3-1)
 - [ ] 54.3-05-PLAN.md — Legend row, distinct series palette, canvas text geometry, QML icon axis strip, tooltip type (G-54.3-2, G-54.3-3, G-54.3-5 canvas half)
 - [ ] 54.3-06-PLAN.md — Card scaffold layout-driven sizing, clipping fail-safe, full strict verification (G-54.3-5)
+- [ ] 54.3-07-PLAN.md — Y-axis gutter unclip plus tooltip stacked 3-line opacity plus single-graph scope decision (G-54.3-1, G-54.3-3, G-54.3-4)
 
 ### Phase 54.4: Modular Popup Inspector and Clean Card Layout (INSERTED)
 
