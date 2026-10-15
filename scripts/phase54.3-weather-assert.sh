@@ -749,10 +749,10 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
     fail "S6: WeatherGraph or WeatherPopup source missing; cannot verify stacked-instances contracts (fail-closed)"
   else
     instance_count="$(grep -c 'WeatherGraph {' "$POPUP_SRC" || true)"
-    if [[ "$instance_count" -ge 2 ]]; then
+    if [[ "$instance_count" -ge 5 ]]; then
       pass "S6: WeatherPopup stacks ${instance_count} locked WeatherGraph instances (G-54.3-4)"
     else
-      fail "S6: Expected at least 2 stacked WeatherGraph instances, found ${instance_count} (G-54.3-4)"
+      fail "S6: Expected at least 5 stacked WeatherGraph instances, found ${instance_count} (G-54.3-4)"
     fi
 
     for chrome_id in tabBarContainer tabsRepeater tabHighlight activeTabPill; do
@@ -771,6 +771,15 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
     else
       fail "S6: Missing locked activeMetric wind declarative binding in WeatherPopup (G-54.3-4)"
     fi
+
+    for locked_metric in temp wind aqi baro uv; do
+      binding_count="$(grep -cE "activeMetric:[[:space:]]*\"$locked_metric\"" "$POPUP_SRC" || true)"
+      if [[ "$binding_count" -eq 1 ]]; then
+        pass "S6: Locked activeMetric '$locked_metric' bound exactly once in WeatherPopup (G-54.3-4)"
+      else
+        fail "S6: Expected exactly 1 locked activeMetric '$locked_metric' binding, found ${binding_count} (G-54.3-4)"
+      fi
+    done
 
     writes_graph="$(grep -v '^[[:space:]]*//' "$GRAPH_SRC" | grep -cE 'activeMetric[[:space:]]*=[^=]' || true)"
     writes_popup="$(grep -v '^[[:space:]]*//' "$POPUP_SRC" | grep -cE 'activeMetric[[:space:]]*=[^=]' || true)"

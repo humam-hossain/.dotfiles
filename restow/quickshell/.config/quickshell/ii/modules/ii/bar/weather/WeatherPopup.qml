@@ -55,6 +55,7 @@ StyledPopup {
             WeatherGraph {
                 id: weatherGraph
                 Layout.fillWidth: true
+                activeMetric: "temp"
                 popupActive: root.active
             }
 
@@ -64,6 +65,33 @@ StyledPopup {
                 Layout.fillWidth: true
                 title: "Hourly Wind Speed and Direction"
                 activeMetric: "wind"
+                popupActive: root.active
+            }
+
+            // 3c. Locked Air Quality Graph Instance (G-54.3-4 stack-instances, no tab chrome)
+            WeatherGraph {
+                id: aqiGraph
+                Layout.fillWidth: true
+                title: "Hourly Air Quality"
+                activeMetric: "aqi"
+                popupActive: root.active
+            }
+
+            // 3d. Locked Pressure Graph Instance (G-54.3-4 stack-instances, no tab chrome)
+            WeatherGraph {
+                id: baroGraph
+                Layout.fillWidth: true
+                title: "Hourly Pressure and Visibility"
+                activeMetric: "baro"
+                popupActive: root.active
+            }
+
+            // 3e. Locked UV Graph Instance (G-54.3-4 stack-instances, no tab chrome)
+            WeatherGraph {
+                id: uvGraph
+                Layout.fillWidth: true
+                title: "Hourly UV and Solar Radiation"
+                activeMetric: "uv"
                 popupActive: root.active
             }
 

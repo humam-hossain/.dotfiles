@@ -786,6 +786,43 @@ WeatherBaseCard {
                         ctx.restore();
                     }
 
+                    if (root.activeMetric === "baro") {
+                        const baroBounds = root.calcBaroBounds();
+                        const baroRange = Math.max(4, baroBounds.max - baroBounds.min);
+                        ctx.save();
+                        ctx.strokeStyle = Appearance.colors.colOutlineVariant;
+                        ctx.fillStyle = Appearance.colors.colOnSurfaceVariant;
+                        ctx.font = "9px sans-serif";
+                        ctx.textAlign = "right";
+                        ctx.setLineDash([2, 3]);
+
+                        const bHigh = plotUpperBottom - ((baroBounds.max - 1 - baroBounds.min) / baroRange) * (plotUpperBottom - plotTop);
+                        const bLow = plotUpperBottom - ((baroBounds.min + 1 - baroBounds.min) / baroRange) * (plotUpperBottom - plotTop);
+
+                        ctx.beginPath();
+                        ctx.moveTo(plotLeft, bHigh);
+                        ctx.lineTo(plotRight, bHigh);
+                        ctx.stroke();
+                        ctx.fillText(Math.round(baroBounds.max - 1) + " hPa", plotLeft - 4, bHigh + 3);
+
+                        ctx.beginPath();
+                        ctx.moveTo(plotLeft, bLow);
+                        ctx.lineTo(plotRight, bLow);
+                        ctx.stroke();
+                        ctx.fillText(Math.round(baroBounds.min + 1) + " hPa", plotLeft - 4, bLow + 3);
+                        ctx.restore();
+
+                        const refY = plotUpperBottom - ((1013.25 - baroBounds.min) / baroRange) * (plotUpperBottom - plotTop);
+                        ctx.save();
+                        ctx.strokeStyle = Appearance.colors.colSecondary;
+                        ctx.setLineDash([4, 3]);
+                        ctx.beginPath();
+                        ctx.moveTo(plotLeft, refY);
+                        ctx.lineTo(plotRight, refY);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
+
                     // Gradient fill under primary curve
                     if (primaryCP.length > 0) {
                         ctx.save();
@@ -840,6 +877,19 @@ WeatherBaseCard {
 
                     // 6. Lower Tier Context Bars (plotLowerTop to plotLowerBottom)
                     const lowerH = plotLowerBottom - plotLowerTop;
+                    let solarMax = 1;
+                    if (root.activeMetric === "uv") {
+                        for (let m = 0; m < n; ++m) {
+                            const mh = hours[m];
+                            let mr = 0;
+                            if (mh.solar && mh.solar.shortRad !== undefined && mh.solar.shortRad !== null) {
+                                mr = Number(mh.solar.shortRad);
+                            }
+                            if (mr > solarMax) {
+                                solarMax = mr;
+                            }
+                        }
+                    }
                     ctx.save();
                     for (let i = 0; i < n; ++i) {
                         const h = hours[i];
@@ -877,6 +927,51 @@ WeatherBaseCard {
                             }
                             ctx.globalAlpha = 0.85;
                             ctx.fillRect(barX, plotLowerBottom - Math.max(1, lowerH), barW, Math.max(1, lowerH));
+                        } else if (root.activeMetric === "aqi") {
+                            let epaVal = 1;
+                            let p25 = 0.0;
+                            let p10 = 0.0;
+                            if (h.aqi) {
+                                epaVal = (h.aqi.epaIndex !== undefined && h.aqi.epaIndex !== null) ? Number(h.aqi.epaIndex) : 1;
+                                p25 = (h.aqi.pm2_5 !== undefined && h.aqi.pm2_5 !== null) ? Number(h.aqi.pm2_5) : 0.0;
+                                p10 = (h.aqi.pm10 !== undefined && h.aqi.pm10 !== null) ? Number(h.aqi.pm10) : 0.0;
+                            } else if (h.air_quality) {
+                                epaVal = parseInt(h.air_quality["us-epa-index"] || 1, 10) || 1;
+                                p25 = parseFloat(h.air_quality.pm2_5 || 0) || 0.0;
+                                p10 = parseFloat(h.air_quality.pm10 || 0) || 0.0;
+                            }
+                            const halfW = Math.max(1, barW / 2 - 0.5);
+                            const p25H = (Math.max(0, Math.min(150, p25)) / 150) * lowerH;
+                            const p10H = (Math.max(0, Math.min(250, p10)) / 250) * lowerH;
+                            ctx.globalAlpha = 0.9;
+                            ctx.fillStyle = WeatherGlyphs.getAqiColor(epaVal) || Appearance.colors.colPrimary;
+                            ctx.fillRect(barX, plotLowerBottom - Math.max(1, p25H), halfW, Math.max(1, p25H));
+                            ctx.fillStyle = Appearance.colors.colOutlineVariant;
+                            ctx.fillRect(barX + halfW + 1, plotLowerBottom - Math.max(1, p10H), halfW, Math.max(1, p10H));
+                        } else if (root.activeMetric === "baro") {
+                            let vis = 10;
+                            if (h.atmosphere && h.atmosphere.visibilityKm !== undefined && h.atmosphere.visibilityKm !== null) {
+                                vis = Number(h.atmosphere.visibilityKm);
+                            } else if (h.visibility !== undefined && h.visibility !== null) {
+                                vis = parseFloat(h.visibility) || 0;
+                            }
+                            const visH = (Math.max(0, Math.min(20, vis)) / 20) * lowerH;
+                            ctx.fillStyle = Appearance.colors.colSecondary;
+                            ctx.globalAlpha = 0.9;
+                            ctx.fillRect(barX, plotLowerBottom - Math.max(1, visH), barW, Math.max(1, visH));
+                        } else if (root.activeMetric === "uv") {
+                            let rad = 0.0;
+                            let uvVal = 0;
+                            if (h.solar) {
+                                rad = (h.solar.shortRad !== undefined && h.solar.shortRad !== null) ? Number(h.solar.shortRad) : 0.0;
+                                uvVal = (h.solar.uvIndex !== undefined && h.solar.uvIndex !== null) ? Number(h.solar.uvIndex) : 0;
+                            } else if (h.uvIndex !== undefined && h.uvIndex !== null) {
+                                uvVal = parseInt(h.uvIndex, 10) || 0;
+                            }
+                            const radH = (Math.max(0, rad) / solarMax) * lowerH;
+                            ctx.fillStyle = (uvVal >= 8) ? (Appearance.m3colors.m3error || Appearance.colors.colPrimary) : Appearance.colors.colPrimary;
+                            ctx.globalAlpha = 0.9;
+                            ctx.fillRect(barX, plotLowerBottom - Math.max(1, radH), barW, Math.max(1, radH));
                         }
                     }
                     ctx.restore();
