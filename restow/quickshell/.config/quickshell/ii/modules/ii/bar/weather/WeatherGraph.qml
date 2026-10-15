@@ -7,6 +7,7 @@ import qs.services
 WeatherBaseCard {
     id: root
 
+    // Composite essentials view is fixed (temp spline + feels-like + rain bars); no tab switching per G-54.3-1 tab-less preference.
     property string activeMetric: "temp"
     property int activeSlotIndex: 12
     property real activeScrubX: 0
@@ -33,7 +34,7 @@ WeatherBaseCard {
     icon: "show_chart"
     implicitHeight: 400
     Layout.fillWidth: true
-    title: isTimeline25 ? "25-Hour Rolling Timeline ([-12h .. NOW .. +12h])" : "24-Hour Forecast"
+    title: "Hourly Temperature and Rain Outlook"
 
     function computeMonotoneSplineControlPoints(points) {
         const n = points.length;
@@ -108,10 +109,14 @@ WeatherBaseCard {
                 t = Number(h.tempC !== undefined ? h.tempC : 20);
                 f = Number(h.FeelsLikeC !== undefined ? h.FeelsLikeC : t);
             }
-            if (t < minT) minT = t;
-            if (t > maxT) maxT = t;
-            if (f < minT) minT = f;
-            if (f > maxT) maxT = f;
+            if (t < minT)
+                minT = t;
+            if (t > maxT)
+                maxT = t;
+            if (f < minT)
+                minT = f;
+            if (f > maxT)
+                maxT = f;
         }
         if (minT === 999) {
             minT = 15;
@@ -139,8 +144,10 @@ WeatherBaseCard {
                 spd = parseInt(h.windspeedKmph !== undefined ? h.windspeedKmph : 0, 10) || 0;
                 gst = parseInt(h.WindGustKmph !== undefined ? h.WindGustKmph : spd, 10) || spd;
             }
-            if (spd > maxSpd) maxSpd = spd;
-            if (gst > maxSpd) maxSpd = gst;
+            if (spd > maxSpd)
+                maxSpd = spd;
+            if (gst > maxSpd)
+                maxSpd = gst;
         }
         return Math.max(20, Math.ceil((maxSpd + 5) / 5) * 5);
     }
@@ -159,8 +166,10 @@ WeatherBaseCard {
             } else {
                 p = parseInt(h.pressure !== undefined ? h.pressure : 1013, 10) || 1013;
             }
-            if (p < minP) minP = p;
-            if (p > maxP) maxP = p;
+            if (p < minP)
+                minP = p;
+            if (p > maxP)
+                maxP = p;
         }
         if (minP === 9999) {
             minP = 1010;
@@ -185,7 +194,8 @@ WeatherBaseCard {
             } else {
                 uv = parseInt(h.uvIndex !== undefined ? h.uvIndex : 0, 10) || 0;
             }
-            if (uv > maxUV) maxUV = uv;
+            if (uv > maxUV)
+                maxUV = uv;
         }
         return Math.max(11, maxUV + 1);
     }
@@ -206,7 +216,8 @@ WeatherBaseCard {
         const plotHeight = plotBottom - plotTop;
 
         switch (metricKey) {
-            case "temp": {
+        case "temp":
+            {
                 const bounds = root.calcTempBounds();
                 const range = Math.max(1, bounds.max - bounds.min);
                 let val = 20;
@@ -217,7 +228,8 @@ WeatherBaseCard {
                 }
                 return plotBottom - ((val - bounds.min) / range) * plotHeight;
             }
-            case "rain": {
+        case "rain":
+            {
                 let prob = 0;
                 if (h.moisture && h.moisture.rainProb !== null && h.moisture.rainProb !== undefined) {
                     prob = Number(h.moisture.rainProb);
@@ -227,7 +239,8 @@ WeatherBaseCard {
                 const clamped = Math.max(0, Math.min(100, prob));
                 return plotBottom - (clamped / 100.0) * plotHeight;
             }
-            case "wind": {
+        case "wind":
+            {
                 const maxSpeed = root.calcWindMax();
                 let val = 0;
                 if (h.wind && h.wind.speedKmph !== null && h.wind.speedKmph !== undefined) {
@@ -238,7 +251,8 @@ WeatherBaseCard {
                 const clamped = Math.max(0, val);
                 return plotBottom - (clamped / maxSpeed) * plotHeight;
             }
-            case "aqi": {
+        case "aqi":
+            {
                 let epa = 1;
                 if (h.aqi && h.aqi.epaIndex !== null && h.aqi.epaIndex !== undefined) {
                     epa = Number(h.aqi.epaIndex);
@@ -248,7 +262,8 @@ WeatherBaseCard {
                 const clamped = Math.max(1, Math.min(6, epa));
                 return plotBottom - ((clamped - 1) / 5.0) * plotHeight;
             }
-            case "baro": {
+        case "baro":
+            {
                 const bounds = root.calcBaroBounds();
                 const range = Math.max(4, bounds.max - bounds.min);
                 let val = 1013;
@@ -259,7 +274,8 @@ WeatherBaseCard {
                 }
                 return plotBottom - ((val - bounds.min) / range) * plotHeight;
             }
-            case "uv": {
+        case "uv":
+            {
                 const maxUV = root.calcUvMax();
                 let val = 0;
                 if (h.solar && h.solar.uvIndex !== null && h.solar.uvIndex !== undefined) {
@@ -270,42 +286,48 @@ WeatherBaseCard {
                 const clamped = Math.max(0, val);
                 return plotBottom - (clamped / maxUV) * plotHeight;
             }
-            default:
-                return plotBottom;
+        default:
+            return plotBottom;
         }
     }
 
     function getActiveMetricColor() {
         switch (root.activeMetric) {
-            case "temp":
-                return Appearance.colors.colPrimary;
-            case "rain":
-                return Appearance.m3colors.m3primary || Appearance.colors.colSecondary;
-            case "wind":
-                return Appearance.colors.colTertiary;
-            case "aqi": {
+        case "temp":
+            return Appearance.colors.colPrimary;
+        case "rain":
+            return Appearance.m3colors.m3primary || Appearance.colors.colSecondary;
+        case "wind":
+            return Appearance.colors.colTertiary;
+        case "aqi":
+            {
                 const h = root.validHours[root.activeSlotIndex];
                 const epa = (h && h.aqi) ? h.aqi.epaIndex : 1;
                 return WeatherGlyphs.getAqiColor(epa) || Appearance.colors.colPrimary;
             }
-            case "baro":
-                return Appearance.colors.colOutlineVariant;
-            case "uv": {
+        case "baro":
+            return Appearance.colors.colOutlineVariant;
+        case "uv":
+            {
                 const h = root.validHours[root.activeSlotIndex];
                 const uv = (h && h.solar) ? h.solar.uvIndex : 0;
-                if (uv >= 8) return Appearance.m3colors.m3error || "#E53935";
-                if (uv >= 6) return Appearance.colors.colTertiary || "#FF9800";
+                if (uv >= 8)
+                    return Appearance.m3colors.m3error || "#E53935";
+                if (uv >= 6)
+                    return Appearance.colors.colTertiary || "#FF9800";
                 return Appearance.colors.colPrimary;
             }
-            default:
-                return Appearance.colors.colPrimary;
+        default:
+            return Appearance.colors.colPrimary;
         }
     }
 
     function formatDateChip(dateStr) {
-        if (!dateStr) return "";
+        if (!dateStr)
+            return "";
         const parts = String(dateStr).split("-");
-        if (parts.length < 3) return dateStr;
+        if (parts.length < 3)
+            return dateStr;
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const mIdx = parseInt(parts[1], 10) - 1;
         const day = parseInt(parts[2], 10);
@@ -314,11 +336,13 @@ WeatherBaseCard {
     }
 
     function formatTemporalLabel(slotIndex, slot) {
-        if (!slot) return "--:--";
+        if (!slot)
+            return "--:--";
         if (root.isTimeline25) {
             const rel = slotIndex - 12;
             const timeStr = slot.timeStr || slot.timeLabel || "";
-            if (rel === 0) return "NOW (" + (timeStr ? timeStr : "12:00") + ")";
+            if (rel === 0)
+                return "NOW (" + (timeStr ? timeStr : "12:00") + ")";
             if (rel < 0) {
                 if (slot.dayOffset !== undefined && slot.dayOffset < 0) {
                     return "Yesterday " + timeStr + " (" + rel + "h)";
@@ -337,13 +361,15 @@ WeatherBaseCard {
     }
 
     function formatTooltipMetric(metricKey, slot) {
-        if (!slot) return "--";
+        if (!slot)
+            return "--";
         if (root.isTimeline25 && slot.isHistoricalUnavailable) {
             return "Past data unavailable";
         }
 
         switch (metricKey) {
-            case "temp": {
+        case "temp":
+            {
                 let t = "--";
                 let f = "--";
                 if (slot.thermal && slot.thermal.tempC !== null && slot.thermal.tempC !== undefined) {
@@ -364,7 +390,8 @@ WeatherBaseCard {
                 }
                 return t + "°C (Feels " + f + "°C) • Rain " + prob + "% (" + mm + "mm)";
             }
-            case "rain": {
+        case "rain":
+            {
                 let prob = 0;
                 let mm = 0.0;
                 let cloud = 0;
@@ -379,7 +406,8 @@ WeatherBaseCard {
                 }
                 return "Rain " + prob + "% • Precip " + mm + "mm • Cloud " + cloud + "%";
             }
-            case "wind": {
+        case "wind":
+            {
                 let spd = 0;
                 let gst = "--";
                 let dir = "N";
@@ -397,7 +425,8 @@ WeatherBaseCard {
                 }
                 return spd + " km/h • Gust " + gst + " km/h • " + dir + " (" + deg + "°)";
             }
-            case "aqi": {
+        case "aqi":
+            {
                 let epa = 1;
                 let p25 = 0.0;
                 let p10 = 0.0;
@@ -413,7 +442,8 @@ WeatherBaseCard {
                 const cat = WeatherGlyphs.getAqiCategory(epa);
                 return "EPA " + epa + " (" + cat + ") • PM2.5: " + p25 + " µg/m³ • PM10: " + p10 + " µg/m³";
             }
-            case "baro": {
+        case "baro":
+            {
                 let press = 1013;
                 let vis = 10;
                 if (slot.atmosphere) {
@@ -425,7 +455,8 @@ WeatherBaseCard {
                 }
                 return press + " hPa • Vis " + vis + " km";
             }
-            case "uv": {
+        case "uv":
+            {
                 let uv = 0;
                 let rad = 0.0;
                 if (slot.solar) {
@@ -435,14 +466,18 @@ WeatherBaseCard {
                     uv = slot.uvIndex !== undefined ? slot.uvIndex : 0;
                 }
                 let tier = "Low";
-                if (uv > 10) tier = "Extreme";
-                else if (uv >= 8) tier = "Very High";
-                else if (uv >= 6) tier = "High";
-                else if (uv >= 3) tier = "Moderate";
+                if (uv > 10)
+                    tier = "Extreme";
+                else if (uv >= 8)
+                    tier = "Very High";
+                else if (uv >= 6)
+                    tier = "High";
+                else if (uv >= 3)
+                    tier = "Moderate";
                 return "UV " + uv + " (" + tier + ") • Solar " + rad + " W/m²";
             }
-            default:
-                return "--";
+        default:
+            return "--";
         }
     }
 
@@ -450,105 +485,6 @@ WeatherBaseCard {
         id: contentColumn
         anchors.fill: parent
         spacing: 6
-
-        Item {
-            id: tabBarContainer
-            Layout.fillWidth: true
-            implicitHeight: 32
-
-            readonly property var metrics: [
-                { id: "temp", label: "Temp", icon: "thermostat" },
-                { id: "rain", label: "Rain", icon: "water_drop" },
-                { id: "wind", label: "Wind", icon: "air" },
-                { id: "aqi",  label: "AQI",  icon: "eco" },
-                { id: "baro", label: "Baro", icon: "speed" },
-                { id: "uv",   label: "UV",   icon: "wb_sunny" }
-            ]
-
-            readonly property int activeMetricIndex: {
-                for (let i = 0; i < metrics.length; ++i) {
-                    if (metrics[i].id === root.activeMetric) return i;
-                }
-                return 0;
-            }
-
-            readonly property var activeTabPill: tabsRepeater.itemAt(activeMetricIndex)
-
-            Rectangle {
-                id: tabHighlight
-                x: activeTabPill ? activeTabPill.x : 0
-                y: activeTabPill ? activeTabPill.y : 0
-                width: activeTabPill ? activeTabPill.width : 0
-                height: activeTabPill ? activeTabPill.height : 0
-                radius: Appearance.rounding.verysmall
-                color: Appearance.colors.colPrimary
-                visible: activeTabPill !== null
-
-                Behavior on x {
-                    NumberAnimation {
-                        duration: 200
-                        easing.bezierCurve: Appearance.animationCurves.expressiveEffects
-                    }
-                }
-                Behavior on width {
-                    NumberAnimation {
-                        duration: 200
-                        easing.bezierCurve: Appearance.animationCurves.expressiveEffects
-                    }
-                }
-            }
-
-            RowLayout {
-                id: tabsRow
-                anchors.fill: parent
-                spacing: 4
-
-                Repeater {
-                    id: tabsRepeater
-                    model: tabBarContainer.metrics
-
-                    Rectangle {
-                        id: tabPill
-                        Layout.fillWidth: true
-                        Layout.fillHeight: true
-                        color: "transparent"
-                        radius: Appearance.rounding.verysmall
-
-                        readonly property bool isActive: root.activeMetric === modelData.id
-
-                        RowLayout {
-                            anchors.centerIn: parent
-                            spacing: 4
-
-                            MaterialSymbol {
-                                iconSize: 14
-                                fill: 0
-                                text: modelData.icon
-                                color: tabPill.isActive ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSurfaceVariant
-                            }
-
-                            StyledText {
-                                text: modelData.label
-                                font.pixelSize: Appearance.font.pixelSize.smallest
-                                font.weight: Font.Bold
-                                color: tabPill.isActive ? Appearance.colors.colOnPrimary : Appearance.colors.colOnSurfaceVariant
-                            }
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                if (root.activeMetric !== modelData.id) {
-                                    root.activeMetric = modelData.id;
-                                    graphCanvas.requestPaint();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
 
         Item {
             id: graphArea
@@ -670,7 +606,10 @@ WeatherBaseCard {
                     for (let i = firstValidIdx; i < n; ++i) {
                         const cx = plotLeft + (i + 0.5) * slotW;
                         const cy = root.getMetricY(root.activeMetric, i, plotTop, plotUpperBottom);
-                        primaryPoints.push({ x: cx, y: cy });
+                        primaryPoints.push({
+                            x: cx,
+                            y: cy
+                        });
 
                         if (root.activeMetric === "temp") {
                             const bounds = root.calcTempBounds();
@@ -683,7 +622,10 @@ WeatherBaseCard {
                                 fVal = Number(h.FeelsLikeC);
                             }
                             const fy = plotUpperBottom - ((fVal - bounds.min) / range) * (plotUpperBottom - plotTop);
-                            secondaryPoints.push({ x: cx, y: fy });
+                            secondaryPoints.push({
+                                x: cx,
+                                y: fy
+                            });
                         } else if (root.activeMetric === "wind") {
                             const maxSpeed = root.calcWindMax();
                             const h = hours[i];
@@ -694,7 +636,10 @@ WeatherBaseCard {
                                 gst = parseInt(h.WindGustKmph, 10) || 0;
                             }
                             const gy = plotUpperBottom - (Math.max(0, gst) / maxSpeed) * (plotUpperBottom - plotTop);
-                            secondaryPoints.push({ x: cx, y: gy });
+                            secondaryPoints.push({
+                                x: cx,
+                                y: gy
+                            });
                         }
                     }
 
@@ -726,52 +671,6 @@ WeatherBaseCard {
                         ctx.lineTo(plotRight, yLow);
                         ctx.stroke();
                         ctx.fillText(Math.round(bounds.min + 1) + "°", plotLeft - 10, yLow + 3);
-                        ctx.restore();
-                    } else if (root.activeMetric === "rain") {
-                        ctx.save();
-                        ctx.strokeStyle = Appearance.colors.colOutlineVariant || "#444";
-                        ctx.fillStyle = Appearance.colors.colOnSurfaceVariant || "#888";
-                        ctx.font = "9px sans-serif";
-                        ctx.setLineDash([2, 3]);
-                        const y50 = plotUpperBottom - 0.5 * (plotUpperBottom - plotTop);
-                        ctx.beginPath();
-                        ctx.moveTo(plotLeft, y50);
-                        ctx.lineTo(plotRight, y50);
-                        ctx.stroke();
-                        ctx.fillText("50%", plotLeft - 10, y50 + 3);
-                        ctx.restore();
-                    } else if (root.activeMetric === "baro") {
-                        ctx.save();
-                        ctx.strokeStyle = Appearance.colors.colOutlineVariant || "#444";
-                        ctx.fillStyle = Appearance.colors.colOnSurfaceVariant || "#888";
-                        ctx.font = "9px sans-serif";
-                        ctx.setLineDash([2, 3]);
-                        const bounds = root.calcBaroBounds();
-                        const range = Math.max(4, bounds.max - bounds.min);
-                        const y1013 = plotUpperBottom - ((1013.25 - bounds.min) / range) * (plotUpperBottom - plotTop);
-                        if (y1013 >= plotTop && y1013 <= plotUpperBottom) {
-                            ctx.beginPath();
-                            ctx.moveTo(plotLeft, y1013);
-                            ctx.lineTo(plotRight, y1013);
-                            ctx.stroke();
-                            ctx.fillText("1013 hPa", plotLeft - 12, y1013 + 3);
-                        }
-                        ctx.restore();
-                    } else if (root.activeMetric === "uv") {
-                        ctx.save();
-                        ctx.strokeStyle = Appearance.colors.colOutlineVariant || "#444";
-                        ctx.fillStyle = Appearance.colors.colOnSurfaceVariant || "#888";
-                        ctx.font = "9px sans-serif";
-                        ctx.setLineDash([2, 3]);
-                        const maxUV = root.calcUvMax();
-                        const y6 = plotUpperBottom - (6.0 / maxUV) * (plotUpperBottom - plotTop);
-                        if (y6 >= plotTop && y6 <= plotUpperBottom) {
-                            ctx.beginPath();
-                            ctx.moveTo(plotLeft, y6);
-                            ctx.lineTo(plotRight, y6);
-                            ctx.stroke();
-                            ctx.fillText("UV 6 High", plotLeft - 12, y6 + 3);
-                        }
                         ctx.restore();
                     }
 
@@ -848,50 +747,6 @@ WeatherBaseCard {
                             const barH = (Math.max(0, Math.min(100, prob)) / 100.0) * lowerH;
                             ctx.fillStyle = (precipMM > 2.5) ? "#1976D2" : (Appearance.colors.colPrimary || "#4fc3f7");
                             ctx.globalAlpha = (prob > 0) ? 0.75 : 0.15;
-                            ctx.fillRect(barX, plotLowerBottom - Math.max(1, barH), barW, Math.max(1, barH));
-                        } else if (root.activeMetric === "wind") {
-                            let dir = "N";
-                            let deg = 0;
-                            if (h.wind) {
-                                dir = h.wind.dir16 !== undefined ? h.wind.dir16 : "N";
-                                deg = h.wind.degree !== undefined ? h.wind.degree : 0;
-                            }
-                            let barColor = "#9E9E9E";
-                            if (deg >= 315 || deg < 45) {
-                                barColor = "#42A5F5";
-                            } else if (deg >= 135 && deg < 225) {
-                                barColor = "#FFA726";
-                            }
-                            ctx.fillStyle = barColor;
-                            ctx.globalAlpha = 0.65;
-                            const barH = lowerH * 0.7;
-                            ctx.fillRect(barX, plotLowerBottom - barH, barW, barH);
-                        } else if (root.activeMetric === "aqi") {
-                            let p25 = 0.0;
-                            if (h.aqi) {
-                                p25 = h.aqi.pm2_5 !== undefined ? h.aqi.pm2_5 : 0.0;
-                            }
-                            const barH = (Math.min(100, p25) / 100.0) * lowerH;
-                            ctx.fillStyle = Appearance.colors.colSecondary || "#81c784";
-                            ctx.globalAlpha = 0.75;
-                            ctx.fillRect(barX, plotLowerBottom - Math.max(1, barH), barW, Math.max(1, barH));
-                        } else if (root.activeMetric === "baro") {
-                            let vis = 10;
-                            if (h.atmosphere) {
-                                vis = h.atmosphere.visibilityKm !== undefined ? h.atmosphere.visibilityKm : 10;
-                            }
-                            const barH = (Math.min(20, vis) / 20.0) * lowerH;
-                            ctx.fillStyle = Appearance.colors.colOutlineVariant || "#888";
-                            ctx.globalAlpha = 0.55;
-                            ctx.fillRect(barX, plotLowerBottom - Math.max(1, barH), barW, Math.max(1, barH));
-                        } else if (root.activeMetric === "uv") {
-                            let rad = 0.0;
-                            if (h.solar) {
-                                rad = h.solar.shortRad !== undefined ? h.solar.shortRad : 0.0;
-                            }
-                            const barH = (Math.min(1000, rad) / 1000.0) * lowerH;
-                            ctx.fillStyle = Appearance.colors.colTertiary || "#FFA726";
-                            ctx.globalAlpha = 0.70;
                             ctx.fillRect(barX, plotLowerBottom - Math.max(1, barH), barW, Math.max(1, barH));
                         }
                     }
@@ -1076,7 +931,6 @@ WeatherBaseCard {
 
     onPopupActiveChanged: {
         if (root.popupActive) {
-            root.activeMetric = "temp";
             graphCanvas.requestPaint();
         }
     }
