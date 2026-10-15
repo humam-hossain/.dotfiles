@@ -362,6 +362,65 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
   else
     finding "S3: Node.js not found on PATH; skipped headless math evaluation"
   fi
+
+  # Legend row presence with three explanatory entries (G-54.3-2)
+  if [[ ! -s "$GRAPH_SRC" ]]; then
+    fail "S3: WeatherGraph source missing; cannot verify legend contracts (fail-closed)"
+  else
+    if grep -qE 'id:\s*legendRow' "$GRAPH_SRC"; then
+      pass "S3: Legend row present above canvas (G-54.3-2)"
+    else
+      fail "S3: Missing legend row id: legendRow (G-54.3-2)"
+    fi
+
+    for legend_label in "Actual temp" "Feels-like" "Rain chance"; do
+      if grep -qF "$legend_label" "$GRAPH_SRC"; then
+        pass "S3: Legend entry '$legend_label' present (G-54.3-2)"
+      else
+        fail "S3: Legend entry '$legend_label' missing (G-54.3-2)"
+      fi
+    done
+
+    # Distinct series palette: dashed stroke on tertiary, bars on secondary (G-54.3-2)
+    if grep -q 'strokeStyle = Appearance\.colors\.colTertiary' "$GRAPH_SRC"; then
+      pass "S3: Dashed feels-like stroke uses tertiary token (distinct palette G-54.3-2)"
+    else
+      fail "S3: Dashed stroke missing tertiary token (distinct palette G-54.3-2)"
+    fi
+
+    if grep -q 'fillStyle = Appearance\.colors\.colSecondary' "$GRAPH_SRC"; then
+      pass "S3: Rain bars use secondary token with opacity-driven depth (G-54.3-2)"
+    else
+      fail "S3: Rain bars missing secondary token (G-54.3-2)"
+    fi
+
+    static_blue="$(grep -v '^[[:space:]]*//' "$GRAPH_SRC" | grep -c '#1976D2' || true)"
+    if [[ "$static_blue" -eq 0 ]]; then
+      pass "S3: Static blue volume hex absent from non-comment code (single-hue bars G-54.3-2)"
+    else
+      fail "S3: Static blue hex #1976D2 still present ${static_blue}x in non-comment code"
+    fi
+
+    # Lowered tier-bottom constant reserves the icon-strip band (G-54.3-5)
+    if grep -qF 'plotLowerBottom = height - 46' "$GRAPH_SRC"; then
+      pass "S3: Lower tier bottom reserves icon-strip band at height - 46 (G-54.3-5)"
+    else
+      fail "S3: Lower tier bottom not at height - 46 (icon-strip band G-54.3-5)"
+    fi
+
+    # Card-level stride property shared by canvas loop and QML strip (T-54.3-08)
+    if grep -qE 'property\s+int\s+axisStride' "$GRAPH_SRC"; then
+      pass "S3: Card-level axisStride property present (T-54.3-08)"
+    else
+      fail "S3: Missing card-level axisStride property (T-54.3-08)"
+    fi
+
+    if grep -q 'root\.axisStride' "$GRAPH_SRC"; then
+      pass "S3: Canvas timestamp loop reads shared root.axisStride (T-54.3-08)"
+    else
+      fail "S3: Canvas timestamp loop does not read root.axisStride (T-54.3-08)"
+    fi
+  fi
 fi
 
 # ===========================================================================
@@ -436,6 +495,30 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
       fail "S4: WeatherGraph missing Appearance.colors.$token (D-54.3-16)"
     fi
   done
+
+  # Tooltip legibility: floor token absent from pill region (G-54.3-3)
+  if [[ ! -s "$GRAPH_SRC" ]]; then
+    fail "S4: WeatherGraph source missing; cannot verify tooltip contracts (fail-closed)"
+  else
+    pill_floor="$(sed -n '/id: tooltipPill/,/id: scrubMouseArea/p' "$GRAPH_SRC" | grep -c 'pixelSize\.smallest' || true)"
+    if [[ "$pill_floor" -eq 0 ]]; then
+      pass "S4: Floor type token absent from tooltip pill region (legible tooltip G-54.3-3)"
+    else
+      fail "S4: Floor type token still used ${pill_floor}x inside tooltip pill region (G-54.3-3)"
+    fi
+
+    if sed -n '/id: tooltipPill/,/id: scrubMouseArea/p' "$GRAPH_SRC" | grep -q 'pixelSize\.smaller'; then
+      pass "S4: Tooltip temporal label and separators use raised 12px token (G-54.3-3)"
+    else
+      fail "S4: Tooltip missing raised pixelSize.smaller text (G-54.3-3)"
+    fi
+
+    if sed -n '/id: tooltipPill/,/id: scrubMouseArea/p' "$GRAPH_SRC" | grep -qE 'pixelSize\.small([^er]|$)'; then
+      pass "S4: Tooltip metric readout uses raised 15px token (G-54.3-3)"
+    else
+      fail "S4: Tooltip readout missing raised pixelSize.small text (G-54.3-3)"
+    fi
+  fi
 fi
 
 # ===========================================================================
@@ -470,6 +553,42 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
     pass "S5: Mini condition glyph rendering supported in bottom axis band (D-54.3-27)"
   else
     fail "S5: Missing condition glyph references in bottom axis band (D-54.3-27)"
+  fi
+
+  # QML icon strip replaces canvas ligature words (G-54.3-5 canvas half)
+  if [[ ! -s "$GRAPH_SRC" ]]; then
+    fail "S5: WeatherGraph source missing; cannot verify icon-strip contracts (fail-closed)"
+  else
+    if grep -qE 'id:\s*axisIconStrip' "$GRAPH_SRC"; then
+      pass "S5: QML axis icon strip present (G-54.3-5)"
+    else
+      fail "S5: Missing QML axis icon strip id: axisIconStrip (G-54.3-5)"
+    fi
+
+    if grep -qF '% root.axisStride' "$GRAPH_SRC"; then
+      pass "S5: Icon strip visibility driven by shared stride (T-54.3-08)"
+    else
+      fail "S5: Icon strip visibility not driven by root.axisStride (T-54.3-08)"
+    fi
+
+    if grep -qF 'cx, height - 8' "$GRAPH_SRC"; then
+      pass "S5: Timestamp baseline sits 8px above canvas base (G-54.3-5)"
+    else
+      fail "S5: Timestamp baseline not at height - 8 (G-54.3-5)"
+    fi
+
+    if grep -q 'chipDrawX' "$GRAPH_SRC"; then
+      pass "S5: Date chip draws at collision-offset clamped position (G-54.3-5)"
+    else
+      fail "S5: Missing chipDrawX collision-avoidance position (G-54.3-5)"
+    fi
+
+    ligature_paint="$(grep -v '^[[:space:]]*//' "$GRAPH_SRC" | grep -c 'glyphText' || true)"
+    if [[ "$ligature_paint" -eq 0 ]]; then
+      pass "S5: No canvas call paints raw glyph-name strings (G-54.3-5)"
+    else
+      fail "S5: Canvas still paints raw glyph-name strings ${ligature_paint}x (G-54.3-5)"
+    fi
   fi
 
   # Zero vendor git churn

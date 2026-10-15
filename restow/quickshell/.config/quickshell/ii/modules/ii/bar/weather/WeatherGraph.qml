@@ -16,6 +16,7 @@ WeatherBaseCard {
     property bool popupActive: true
 
     readonly property bool isTimeline25: (root.model && root.model.length === 25 && root.model[12] && root.model[12].isNow !== undefined)
+    property int axisStride: root.isTimeline25 ? 4 : 3
 
     readonly property var validHours: {
         const raw = root.model || [];
@@ -602,7 +603,7 @@ WeatherBaseCard {
                     const plotTop = 20;
                     const plotUpperBottom = height * 0.60;
                     const plotLowerTop = height * 0.66;
-                    const plotLowerBottom = height - 28;
+                    const plotLowerBottom = height - 46;
 
                     // 1. Nocturnal background shading (D-54.3-24)
                     ctx.save();
@@ -632,7 +633,16 @@ WeatherBaseCard {
                             ctx.fillStyle = Appearance.colors.colOnSurfaceVariant || "#888";
                             ctx.textAlign = "center";
                             const dateChip = root.formatDateChip(hours[i].dateStr);
-                            ctx.fillText(dateChip, midX, plotTop - 4);
+                            let chipDrawX = midX;
+                            if (root.isTimeline25) {
+                                const nowX = plotLeft + (12 + 0.5) * slotW;
+                                const clearance = 36;
+                                if (Math.abs(midX - nowX) < clearance) {
+                                    chipDrawX = nowX + (midX < nowX ? -clearance : clearance);
+                                    chipDrawX = Math.max(plotLeft + 20, Math.min(plotRight - 20, chipDrawX));
+                                }
+                            }
+                            ctx.fillText(dateChip, chipDrawX, plotTop - 4);
                             ctx.restore();
                         }
                     }
@@ -741,6 +751,7 @@ WeatherBaseCard {
                         ctx.strokeStyle = Appearance.colors.colOutlineVariant || "#444";
                         ctx.fillStyle = Appearance.colors.colOnSurfaceVariant || "#888";
                         ctx.font = "9px sans-serif";
+                        ctx.textAlign = "right";
                         ctx.setLineDash([2, 3]);
 
                         const yMax = root.getMetricY("temp", -1, plotTop, plotUpperBottom);
@@ -752,13 +763,13 @@ WeatherBaseCard {
                         ctx.moveTo(plotLeft, yHigh);
                         ctx.lineTo(plotRight, yHigh);
                         ctx.stroke();
-                        ctx.fillText(Math.round(bounds.max - 1) + "°", plotLeft - 10, yHigh + 3);
+                        ctx.fillText(Math.round(bounds.max - 1) + "°", plotLeft - 4, yHigh + 3);
 
                         ctx.beginPath();
                         ctx.moveTo(plotLeft, yLow);
                         ctx.lineTo(plotRight, yLow);
                         ctx.stroke();
-                        ctx.fillText(Math.round(bounds.min + 1) + "°", plotLeft - 10, yLow + 3);
+                        ctx.fillText(Math.round(bounds.min + 1) + "°", plotLeft - 4, yLow + 3);
                         ctx.restore();
                     }
 
@@ -840,20 +851,14 @@ WeatherBaseCard {
                     }
                     ctx.restore();
 
-                    // 7. Bottom Axis Band (Condition glyphs + Timestamps)
+                    // 7. Bottom Axis Band (Timestamps; condition icons live in the QML strip below)
                     ctx.save();
                     ctx.textAlign = "center";
 
-                    const step = root.isTimeline25 ? 4 : 3;
+                    const step = root.axisStride;
                     for (let i = 0; i < n; i += step) {
                         const cx = plotLeft + (i + 0.5) * slotW;
                         const h = hours[i];
-
-                        // Condition glyph symbol in 12px
-                        ctx.font = "12px sans-serif";
-                        ctx.fillStyle = Appearance.colors.colOnSurfaceVariant || "#888";
-                        const glyphText = (h && h.glyph) ? h.glyph : "cloud";
-                        ctx.fillText(glyphText, cx, height - 14);
 
                         // Timestamps
                         const isNowSlot = (root.isTimeline25 && i === 12);
@@ -874,14 +879,14 @@ WeatherBaseCard {
                             const hr = rawTime.length > 2 ? rawTime.slice(0, -2) : (rawTime === "0" ? "00" : rawTime);
                             timeLabel = hr.padStart(2, "0") + ":00";
                         }
-                        ctx.fillText(timeLabel, cx, height - 2);
+                        ctx.fillText(timeLabel, cx, height - 8);
                     }
 
                     if (root.isTimeline25 && (12 % step !== 0)) {
                         const cx12 = plotLeft + (12 + 0.5) * slotW;
                         ctx.font = "bold 9px sans-serif";
                         ctx.fillStyle = Appearance.colors.colPrimary || "#4fc3f7";
-                        ctx.fillText("NOW", cx12, height - 2);
+                        ctx.fillText("NOW", cx12, height - 8);
                     }
                     ctx.restore();
                 }
@@ -926,8 +931,8 @@ WeatherBaseCard {
                     border.color: Appearance.colors.colOutlineVariant
                     border.width: 1
                     color: Appearance.m3colors.m3surfaceContainerHigh || Appearance.colors.colLayer1
-                    implicitHeight: tooltipRow.implicitHeight + 8
-                    implicitWidth: tooltipRow.implicitWidth + 14
+                    implicitHeight: tooltipRow.implicitHeight + 12
+                    implicitWidth: tooltipRow.implicitWidth + 20
                     radius: Appearance.rounding.verysmall
                     x: Math.max(6, Math.min(parent.width - implicitWidth - 6, root.activeScrubX - implicitWidth / 2))
                     y: (root.activeScrubY < 60) ? (root.activeScrubY + 14) : (root.activeScrubY - implicitHeight - 8)
@@ -935,23 +940,23 @@ WeatherBaseCard {
                     RowLayout {
                         id: tooltipRow
                         anchors.centerIn: parent
-                        spacing: 5
+                        spacing: 6
 
                         StyledText {
                             color: Appearance.colors.colOnLayer1
-                            font.pixelSize: Appearance.font.pixelSize.smallest
+                            font.pixelSize: Appearance.font.pixelSize.smaller
                             font.weight: Font.Bold
                             text: root.formatTemporalLabel(root.activeSlotIndex, root.validHours[root.activeSlotIndex])
                         }
 
                         StyledText {
                             color: Appearance.colors.colOnSurfaceVariant
-                            font.pixelSize: Appearance.font.pixelSize.smallest
+                            font.pixelSize: Appearance.font.pixelSize.smaller
                             text: "•"
                         }
 
                         MaterialSymbol {
-                            iconSize: 12
+                            iconSize: 14
                             fill: 0
                             color: Appearance.colors.colOnSurfaceVariant
                             text: (root.validHours[root.activeSlotIndex] && root.validHours[root.activeSlotIndex].glyph) ? root.validHours[root.activeSlotIndex].glyph : "cloud"
@@ -959,15 +964,46 @@ WeatherBaseCard {
 
                         StyledText {
                             color: Appearance.colors.colOnSurfaceVariant
-                            font.pixelSize: Appearance.font.pixelSize.smallest
+                            font.pixelSize: Appearance.font.pixelSize.smaller
                             text: "•"
                         }
 
                         StyledText {
                             color: root.getActiveMetricColor()
-                            font.pixelSize: Appearance.font.pixelSize.smallest
+                            font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: Font.DemiBold
                             text: root.formatTooltipMetric(root.activeMetric, root.validHours[root.activeSlotIndex])
+                        }
+                    }
+                }
+            }
+
+            RowLayout {
+                id: axisIconStrip
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 16
+                anchors.left: parent.left
+                anchors.leftMargin: 14
+                anchors.right: parent.right
+                anchors.rightMargin: 14
+                height: 18
+                spacing: 0
+
+                Repeater {
+                    id: axisIconRepeater
+                    model: root.validHours
+
+                    delegate: Item {
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+
+                        MaterialSymbol {
+                            anchors.centerIn: parent
+                            color: Appearance.colors.colOnSurfaceVariant
+                            fill: 0
+                            iconSize: 14
+                            text: (modelData && modelData.glyph) ? modelData.glyph : "cloud"
+                            visible: (index % root.axisStride === 0)
                         }
                     }
                 }
