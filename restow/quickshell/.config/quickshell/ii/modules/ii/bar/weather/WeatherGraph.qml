@@ -860,6 +860,23 @@ WeatherBaseCard {
                             ctx.fillStyle = Appearance.colors.colSecondary || "#81c784";
                             ctx.globalAlpha = (precipMM > 2.5) ? 1.0 : ((prob > 0) ? 0.75 : 0.15);
                             ctx.fillRect(barX, plotLowerBottom - Math.max(1, barH), barW, Math.max(1, barH));
+                        } else if (root.activeMetric === "wind") {
+                            let deg = 0;
+                            if (h.wind && h.wind.degree !== undefined && h.wind.degree !== null) {
+                                deg = Number(h.wind.degree);
+                            } else if (h.winddirDegree !== undefined && h.winddirDegree !== null) {
+                                deg = parseInt(h.winddirDegree, 10) || 0;
+                            }
+                            const normDeg = ((deg % 360) + 360) % 360;
+                            if (normDeg >= 315 || normDeg < 45) {
+                                ctx.fillStyle = Appearance.colors.colPrimary;
+                            } else if (normDeg >= 135 && normDeg < 225) {
+                                ctx.fillStyle = Appearance.colors.colTertiary;
+                            } else {
+                                ctx.fillStyle = Appearance.colors.colOutlineVariant;
+                            }
+                            ctx.globalAlpha = 0.85;
+                            ctx.fillRect(barX, plotLowerBottom - Math.max(1, lowerH), barW, Math.max(1, lowerH));
                         }
                     }
                     ctx.restore();

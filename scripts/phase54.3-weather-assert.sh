@@ -5,10 +5,10 @@
 # Decisions: D-54.3-01 through D-54.3-27
 #
 # Usage (from REPO_ROOT):
-#   ./scripts/phase54.3-weather-assert.sh [1-5] [OPTIONS]
+#   ./scripts/phase54.3-weather-assert.sh [1-6] [OPTIONS]
 #
 # Options:
-#   -s, --section <1-5>    Execute only the specified section (1-5)
+#   -s, --section <1-6>    Execute only the specified section (1-6)
 #   -q, --quick            Run fast static checks only (skips dots-hyprland.sh)
 #       --standalone       Alias for --quick
 #   -c, --syntax           Execute static bash syntax checks only
@@ -55,13 +55,13 @@ SYNTAX_ONLY=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    1|2|3|4|5)
+    1|2|3|4|5|6)
       RUN_SECTION="$1"
       shift
       ;;
     --section|-s)
-      if [[ -z "${2:-}" ]] || ! [[ "$2" =~ ^[1-5]$ ]]; then
-        echo "Error: --section requires an integer from 1 to 5" >&2
+      if [[ -z "${2:-}" ]] || ! [[ "$2" =~ ^[1-6]$ ]]; then
+        echo "Error: --section requires an integer from 1 to 6" >&2
         exit 1
       fi
       RUN_SECTION="$2"
@@ -84,9 +84,10 @@ while [[ $# -gt 0 ]]; do
       echo "  3: Multi-Metric Visualizations, Dual-Tier Canvas & Scaling Math (GRAPH-01, GRAPH-02, D-54.3-07..15, D-54.3-17..18)"
       echo "  4: Palette Tokens, Unified Scaling Architecture & Zero-Repaint Hover Scrub Overlay (GRAPH-03, GRAPH-04, D-54.3-16, D-54.3-19..23)"
       echo "  5: Day/Night Shading, Date Boundaries & Submodule Verification (D-54.3-24..27, ASVS L1)"
+      echo "  6: Stacked Locked Graph Instances, Zero Tab Chrome & Locked Metric Bindings (G-54.3-4)"
       echo ""
       echo "Options:"
-      echo "  -s, --section <1-5>    Execute only the specified section (1-5)"
+      echo "  -s, --section <1-6>    Execute only the specified section (1-6)"
       echo "  -q, --quick            Run fast static checks only (skips dots-hyprland.sh)"
       echo "      --standalone       Alias for --quick"
       echo "  -c, --syntax           Execute static bash syntax checks only"
@@ -101,6 +102,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 GRAPH_SRC="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather/WeatherGraph.qml"
+POPUP_SRC="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather/WeatherPopup.qml"
 WEATHER_DIR="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather"
 BASE_CARD="$WEATHER_DIR/WeatherBaseCard.qml"
 TARGET_GRAPH="$HOME/.config/quickshell/ii/modules/ii/bar/weather/WeatherGraph.qml"
@@ -734,6 +736,50 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 5 ]]; then
     fi
   else
     info "S5: Quick mode active; skipped full dots-hyprland.sh verify"
+  fi
+fi
+
+# ===========================================================================
+# Section 6: Stacked Locked Graph Instances (G-54.3-4, scope_decision_54_3_07)
+# ===========================================================================
+if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
+  info "--- Section 6: Stacked Locked Graph Instances ---"
+
+  if [[ ! -s "$GRAPH_SRC" || ! -s "$POPUP_SRC" ]]; then
+    fail "S6: WeatherGraph or WeatherPopup source missing; cannot verify stacked-instances contracts (fail-closed)"
+  else
+    instance_count="$(grep -c 'WeatherGraph {' "$POPUP_SRC" || true)"
+    if [[ "$instance_count" -ge 2 ]]; then
+      pass "S6: WeatherPopup stacks ${instance_count} locked WeatherGraph instances (G-54.3-4)"
+    else
+      fail "S6: Expected at least 2 stacked WeatherGraph instances, found ${instance_count} (G-54.3-4)"
+    fi
+
+    for chrome_id in tabBarContainer tabsRepeater tabHighlight activeTabPill; do
+      chrome_graph="$(grep -v '^[[:space:]]*//' "$GRAPH_SRC" | grep -c "$chrome_id" || true)"
+      chrome_popup="$(grep -v '^[[:space:]]*//' "$POPUP_SRC" | grep -c "$chrome_id" || true)"
+      chrome_total=$((chrome_graph + chrome_popup))
+      if [[ "$chrome_total" -eq 0 ]]; then
+        pass "S6: Tab chrome identifier '$chrome_id' absent across stacked files (tab-less G-54.3-4)"
+      else
+        fail "S6: Tab chrome identifier '$chrome_id' present ${chrome_total}x across stacked files (tab-less G-54.3-4)"
+      fi
+    done
+
+    if grep -qE 'activeMetric:[[:space:]]*"wind"' "$POPUP_SRC"; then
+      pass "S6: Locked activeMetric wind declarative binding present in WeatherPopup (G-54.3-4)"
+    else
+      fail "S6: Missing locked activeMetric wind declarative binding in WeatherPopup (G-54.3-4)"
+    fi
+
+    writes_graph="$(grep -v '^[[:space:]]*//' "$GRAPH_SRC" | grep -cE 'activeMetric[[:space:]]*=[^=]' || true)"
+    writes_popup="$(grep -v '^[[:space:]]*//' "$POPUP_SRC" | grep -cE 'activeMetric[[:space:]]*=[^=]' || true)"
+    writes_total=$((writes_graph + writes_popup))
+    if [[ "$writes_total" -eq 0 ]]; then
+      pass "S6: Zero activeMetric runtime writes across stacked files (locked T-54.3-15)"
+    else
+      fail "S6: Found ${writes_total} activeMetric runtime write(s) across stacked files (locked T-54.3-15)"
+    fi
   fi
 fi
 

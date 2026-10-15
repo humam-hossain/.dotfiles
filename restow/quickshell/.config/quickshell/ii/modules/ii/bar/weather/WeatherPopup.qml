@@ -58,6 +58,15 @@ StyledPopup {
                 popupActive: root.active
             }
 
+            // 3b. Locked Wind Graph Instance (G-54.3-4 stack-instances, no tab chrome)
+            WeatherGraph {
+                id: windGraph
+                Layout.fillWidth: true
+                title: "Hourly Wind Speed and Direction"
+                activeMetric: "wind"
+                popupActive: root.active
+            }
+
             // 4. Paired Domain Grid 1: Atmospheric & Wind (POPUP-03, POPUP-05, D-54-10)
             RowLayout {
                 Layout.fillWidth: true
