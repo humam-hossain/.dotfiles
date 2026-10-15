@@ -2,38 +2,38 @@
 gsd_state_version: "1.0"
 milestone: v0.10
 milestone_name: Phases
-current_phase: "54.4"
-current_phase_name: Modular Popup Inspector and Clean Card Layout
-status: planning
-stopped_at: Phase 54.3 complete, ready to plan Phase 54.4
-last_updated: "2026-10-15T11:21:26.891Z"
+current_phase: "54.3"
+current_phase_name: Interactive Multi-Metric Hourly Graph Component (INSERTED)
+status: executing
+stopped_at: Phase 54.3 plan 09 complete, G-54.3-1 closed
+last_updated: "2026-10-15T12:33:21Z"
 last_activity: 2026-10-15
-last_activity_desc: Phase 54.3 complete, transitioned to Phase 54.4
-state_head: 41cf209cede34d13f01df152cf69b1e73ecae5b8
+last_activity_desc: Phase 54.3 plan 09 complete, G-54.3-1 closed
+state_head: e58758a3f299bc7d39bad6fd61a6de31e3ad7d7f
 progress:
   total_phases: 9
   completed_phases: 7
-  total_plans: 27
-  completed_plans: 27
-  percent: 67
+  total_plans: 29
+  completed_plans: 28
+  percent: 97
 ---
 
 Total Phases: 9 (Phases 51–55 with 54.1–54.4 inserted)
-Progress: [████████░░░░░░░░░░] 4/9 phases ([███████░░░] 67%)
+Progress: [████████░░░░░░░░░░] 4/9 phases ([██████████] 97%)
 
 # Project State
 
 ## Current Position
 
-Phase: 54.4 — Modular Popup Inspector and Clean Card Layout
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-10-15 — Phase 54.3 complete, transitioned to Phase 54.4
+Phase: 54.3 (Interactive Multi-Metric Hourly Graph Component (INSERTED)) — EXECUTING
+Plan: 9 of 10
+Status: Executing Phase 54.3
+Last activity: 2026-10-15 — Phase 54.3 plan 09 complete, G-54.3-1 closed
 
 ## Session
 
-**Last session:** 2026-10-15T11:13:34.000Z
-**Stopped at:** Phase 54.3 complete, ready to plan Phase 54.4
+**Last session:** 2026-10-15T12:33:21.000Z
+**Stopped at:** Phase 54.3 plan 09 complete, G-54.3-1 closed
 **Resume file:** None
 
 ## Project Reference
@@ -243,6 +243,7 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 | Phase 54.3 P02 | 6 min | 2 tasks | 1 files |
 | Phase 54.3 P03 | 4 min | 2 tasks | 1 files |
 | Phase 54.3 P08 | 4 min | 3 tasks | 4 files |
+| Phase 54.3 P09 | 3 min | 2 tasks | 2 files |
 
 ## Decisions
 
@@ -348,3 +349,5 @@ Phase 16 sweep record: `.planning/phases/16-retire-the-safe-profile-full-only-wr
 - [Phase 52]: INTG-02, INTG-04: GNU Stow leaf symlinks deployed to ~/.config/quickshell/ii/services/ with vendor backup Weather.qml.bak preserved and 0 repo drift.
 - [Phase 54.3-08]: Five stacked locked WeatherGraph instances (temp composite first plus Wind, AQI, Baro, UV) close G-54.3-4 per scope_decision_54_3_07; per-metric lower bars plus baro guidelines with dashed 1013.25 hPa reference; harness Section 6 exact-invariant gates; UAT Test 4 stacked truth with pass
 - [Phase 54.3-08]: Explicit activeMetric temp binding on the first instance is a no-op restatement of its default, required for the uniform exactly-once locked-binding gate; zero tab chrome and zero activeMetric runtime writes across stacked files
+- [Phase 54.3-09]: Centered unanchored StyledFlickable with anchors.centerIn: parent (single-line diff, sizing chain byte-identical) so the StyledPopup margin*2 surplus splits evenly; StyledPopup.qml left untouched in the restow overlay
+- [Phase 54.3-09]: Housed the popup-chrome anchoring gate inside harness Section 6 (anchor + sizing lines + margin-times-2 formula, all fail-closed) to preserve the 1-6 section contract
