@@ -79,7 +79,7 @@ while [[ $# -gt 0 ]]; do
       echo "Usage: $0 [1-5] [OPTIONS]"
       echo ""
       echo "Sections:"
-      echo "  1: Stow Leaf Symlink Topology, Packaging Integrity & QML Syntax"
+      echo "  1: Stow Leaf Symlink Topology, Packaging Integrity, QML Syntax & Card-Layout Structure"
       echo "  2: Tab-Less Composite Essentials Architecture Contracts (G-54.3-1)"
       echo "  3: Multi-Metric Visualizations, Dual-Tier Canvas & Scaling Math (GRAPH-01, GRAPH-02, D-54.3-07..15, D-54.3-17..18)"
       echo "  4: Palette Tokens, Unified Scaling Architecture & Zero-Repaint Hover Scrub Overlay (GRAPH-03, GRAPH-04, D-54.3-16, D-54.3-19..23)"
@@ -101,6 +101,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 GRAPH_SRC="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather/WeatherGraph.qml"
+WEATHER_DIR="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather"
+BASE_CARD="$WEATHER_DIR/WeatherBaseCard.qml"
 TARGET_GRAPH="$HOME/.config/quickshell/ii/modules/ii/bar/weather/WeatherGraph.qml"
 
 # Syntax-only mode
@@ -116,7 +118,7 @@ fi
 # Section 1: Stow Leaf Symlink Topology, Packaging Integrity & QML Syntax
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
-  info "--- Section 1: Stow Leaf Symlink Topology, Packaging Integrity & QML Syntax ---"
+  info "--- Section 1: Stow Leaf Symlink Topology, Packaging Integrity, QML Syntax & Card-Layout Structure ---"
 
   if [[ -s "$GRAPH_SRC" ]]; then
     pass "S1: $GRAPH_SRC exists and is non-empty"
@@ -147,12 +149,24 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
     fi
   done
 
-  # QML AST formatting check
+  # QML AST formatting check over every weather overlay file (G-54.3-5 card-layout gate)
   if command -v qmlformat >/dev/null 2>&1; then
-    if qmlformat -n "$GRAPH_SRC" >/dev/null 2>&1; then
-      pass "S1: qmlformat -n passed for WeatherGraph.qml"
+    if [[ ! -d "$WEATHER_DIR" ]]; then
+      fail "S1: Weather overlay directory missing: $WEATHER_DIR (fail-closed)"
     else
-      fail "S1: qmlformat -n reported syntax or style errors for WeatherGraph.qml"
+      qml_count=0
+      for qml_file in "$WEATHER_DIR"/*.qml; do
+        [[ -e "$qml_file" ]] || continue
+        qml_count=$((qml_count + 1))
+        if qmlformat -n "$qml_file" >/dev/null 2>&1; then
+          pass "S1: qmlformat -n passed for $(basename "$qml_file")"
+        else
+          fail "S1: qmlformat -n reported syntax or style errors for $(basename "$qml_file")"
+        fi
+      done
+      if [[ "$qml_count" -eq 0 ]]; then
+        fail "S1: No QML files found in $WEATHER_DIR (fail-closed)"
+      fi
     fi
   else
     finding "S1: qmlformat not found on PATH; skipped static QML ast formatting check"
@@ -184,6 +198,42 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
       pass "S1: Quickshell session is fresh (PID $qs_pid started after last graph modification)"
     fi
   fi
+
+  # Card-layout structure gates (G-54.3-5): every popup card must report its
+  # true content height via layout-driven sizing, with clipping as fail-safe.
+  # All gates are fail-closed with explicit file-existence guards.
+  if [[ ! -s "$BASE_CARD" ]]; then
+    fail "S1: Base card source missing; cannot verify card-layout structure (fail-closed)"
+  else
+    if grep -q 'clip: true' "$BASE_CARD"; then
+      pass "S1: Base card enables clipping fail-safe (G-54.3-5)"
+    else
+      fail "S1: Base card missing clip: true fail-safe (G-54.3-5)"
+    fi
+
+    if grep -q 'default property alias content: cardContent\.data' "$BASE_CARD"; then
+      pass "S1: Base card exposes content host through default-property alias (G-54.3-5)"
+    else
+      fail "S1: Base card missing default property alias content: cardContent.data (G-54.3-5)"
+    fi
+
+    if grep -B1 'id: cardContent' "$BASE_CARD" | grep -q 'ColumnLayout'; then
+      pass "S1: Base card content host is a size-propagating layout container (G-54.3-5)"
+    else
+      fail "S1: Base card content host is not a layout container; anchored children report zero implicit size (G-54.3-5)"
+    fi
+  fi
+
+  for consumer in WeatherHeroCard WeatherAtmosphericCard WeatherWindCard WeatherAqiCard WeatherAstronomyCard WeatherGraph; do
+    consumer_src="$WEATHER_DIR/${consumer}.qml"
+    if [[ ! -s "$consumer_src" ]]; then
+      fail "S1: Consumer source missing: ${consumer}.qml (fail-closed)"
+    elif grep -q 'Layout\.fillWidth' "$consumer_src"; then
+      pass "S1: ${consumer} content uses width-filling layout attachment (G-54.3-5)"
+    else
+      fail "S1: ${consumer} content missing Layout.fillWidth; card collapses to header height (G-54.3-5)"
+    fi
+  done
 fi
 
 # ===========================================================================
