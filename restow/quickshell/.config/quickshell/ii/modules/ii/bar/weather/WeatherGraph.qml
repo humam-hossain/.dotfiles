@@ -486,6 +486,94 @@ WeatherBaseCard {
         anchors.fill: parent
         spacing: 6
 
+        RowLayout {
+            id: legendRow
+            Layout.fillWidth: true
+            Layout.preferredHeight: 22
+            spacing: 14
+
+            Row {
+                id: legendActualEntry
+                Layout.alignment: Qt.AlignVCenter
+                spacing: 6
+
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: Appearance.colors.colPrimary
+                    height: 3
+                    radius: 1.5
+                    width: 18
+                }
+
+                StyledText {
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: Appearance.colors.colOnSurfaceVariant
+                    font.pixelSize: Appearance.font.pixelSize.smaller
+                    text: "Actual temp"
+                }
+            }
+
+            Row {
+                id: legendFeelsEntry
+                Layout.alignment: Qt.AlignVCenter
+                spacing: 6
+
+                Row {
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 2
+
+                    Rectangle {
+                        color: Appearance.colors.colTertiary
+                        height: 3
+                        radius: 1.5
+                        width: 7
+                    }
+
+                    Rectangle {
+                        color: Appearance.colors.colTertiary
+                        height: 3
+                        radius: 1.5
+                        width: 7
+                    }
+
+                    Rectangle {
+                        color: Appearance.colors.colTertiary
+                        height: 3
+                        radius: 1.5
+                        width: 7
+                    }
+                }
+
+                StyledText {
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: Appearance.colors.colOnSurfaceVariant
+                    font.pixelSize: Appearance.font.pixelSize.smaller
+                    text: "Feels-like"
+                }
+            }
+
+            Row {
+                id: legendRainEntry
+                Layout.alignment: Qt.AlignVCenter
+                spacing: 6
+
+                Rectangle {
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: Appearance.colors.colSecondary
+                    height: 10
+                    radius: 2
+                    width: 10
+                }
+
+                StyledText {
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: Appearance.colors.colOnSurfaceVariant
+                    font.pixelSize: Appearance.font.pixelSize.smaller
+                    text: "Rain chance (darker = heavier)"
+                }
+            }
+        }
+
         Item {
             id: graphArea
             Layout.fillWidth: true
@@ -713,7 +801,7 @@ WeatherBaseCard {
                     // Secondary dashed curve (feels-like temp or wind gust)
                     if (secondaryCP.length > 0) {
                         ctx.save();
-                        ctx.strokeStyle = Appearance.colors.colSecondary || "#81c784";
+                        ctx.strokeStyle = Appearance.colors.colTertiary || "#81c784";
                         ctx.setLineDash([3, 3]);
                         ctx.lineWidth = 1.5;
                         ctx.beginPath();
@@ -745,8 +833,8 @@ WeatherBaseCard {
                                 precipMM = parseFloat(h.precipMM !== undefined ? h.precipMM : 0);
                             }
                             const barH = (Math.max(0, Math.min(100, prob)) / 100.0) * lowerH;
-                            ctx.fillStyle = (precipMM > 2.5) ? "#1976D2" : (Appearance.colors.colPrimary || "#4fc3f7");
-                            ctx.globalAlpha = (prob > 0) ? 0.75 : 0.15;
+                            ctx.fillStyle = Appearance.colors.colSecondary || "#81c784";
+                            ctx.globalAlpha = (precipMM > 2.5) ? 1.0 : ((prob > 0) ? 0.75 : 0.15);
                             ctx.fillRect(barX, plotLowerBottom - Math.max(1, barH), barW, Math.max(1, barH));
                         }
                     }
