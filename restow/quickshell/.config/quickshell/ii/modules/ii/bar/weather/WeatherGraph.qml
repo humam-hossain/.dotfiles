@@ -494,6 +494,99 @@ WeatherBaseCard {
         }
     }
 
+    function legendSolidLabel(metricKey) {
+        switch (metricKey) {
+        case "rain":
+            return "Rain probability";
+        case "wind":
+            return "Wind speed";
+        case "aqi":
+            return "EPA index";
+        case "baro":
+            return "Pressure";
+        case "uv":
+            return "UV index";
+        case "temp":
+        default:
+            return "Actual temp";
+        }
+    }
+
+    function legendDashedLabel(metricKey) {
+        switch (metricKey) {
+        case "wind":
+            return "Peak gusts";
+        case "baro":
+            return "1013 hPa reference";
+        case "temp":
+            return "Feels-like";
+        default:
+            return "No dashed series";
+        }
+    }
+
+    function legendBarLabel(metricKey) {
+        switch (metricKey) {
+        case "rain":
+            return "Precip volume (mm)";
+        case "wind":
+            return "Direction (N blue, S warm)";
+        case "aqi":
+            return "PM2.5 (left), PM10 (right)";
+        case "baro":
+            return "Visibility (km)";
+        case "uv":
+            return "Solar radiation";
+        case "temp":
+        default:
+            return "Rain chance (darker = heavier)";
+        }
+    }
+
+    function legendSolidColor(metricKey) {
+        if (metricKey === "aqi" || metricKey === "uv") {
+            return root.getActiveMetricColor();
+        }
+        switch (metricKey) {
+        case "rain":
+            return Appearance.m3colors.m3primary || Appearance.colors.colSecondary;
+        case "wind":
+            return Appearance.colors.colTertiary;
+        case "baro":
+            return Appearance.colors.colOutlineVariant;
+        case "temp":
+        default:
+            return Appearance.colors.colPrimary;
+        }
+    }
+
+    function legendDashedColor(metricKey) {
+        switch (metricKey) {
+        case "temp":
+        case "wind":
+            return Appearance.colors.colTertiary;
+        case "baro":
+            return Appearance.colors.colSecondary;
+        default:
+            return Appearance.colors.colOutlineVariant;
+        }
+    }
+
+    function legendBarColor(metricKey) {
+        if (metricKey === "aqi" || metricKey === "uv") {
+            return root.getActiveMetricColor();
+        }
+        switch (metricKey) {
+        case "wind":
+            return Appearance.colors.colPrimary;
+        case "temp":
+        case "rain":
+        case "baro":
+        default:
+            return Appearance.colors.colSecondary;
+        }
+    }
+
     ColumnLayout {
         id: contentColumn
         Layout.fillWidth: true
@@ -513,7 +606,7 @@ WeatherBaseCard {
 
                 Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
-                    color: Appearance.colors.colPrimary
+                    color: root.legendSolidColor(root.activeMetric)
                     height: 3
                     radius: 1.5
                     width: 18
@@ -523,7 +616,7 @@ WeatherBaseCard {
                     anchors.verticalCenter: parent.verticalCenter
                     color: Appearance.colors.colOnSurfaceVariant
                     font.pixelSize: Appearance.font.pixelSize.smaller
-                    text: "Actual temp"
+                    text: root.legendSolidLabel(root.activeMetric)
                 }
             }
 
@@ -537,21 +630,21 @@ WeatherBaseCard {
                     spacing: 2
 
                     Rectangle {
-                        color: Appearance.colors.colTertiary
+                        color: root.legendDashedColor(root.activeMetric)
                         height: 3
                         radius: 1.5
                         width: 7
                     }
 
                     Rectangle {
-                        color: Appearance.colors.colTertiary
+                        color: root.legendDashedColor(root.activeMetric)
                         height: 3
                         radius: 1.5
                         width: 7
                     }
 
                     Rectangle {
-                        color: Appearance.colors.colTertiary
+                        color: root.legendDashedColor(root.activeMetric)
                         height: 3
                         radius: 1.5
                         width: 7
@@ -562,7 +655,7 @@ WeatherBaseCard {
                     anchors.verticalCenter: parent.verticalCenter
                     color: Appearance.colors.colOnSurfaceVariant
                     font.pixelSize: Appearance.font.pixelSize.smaller
-                    text: "Feels-like"
+                    text: root.legendDashedLabel(root.activeMetric)
                 }
             }
 
@@ -573,7 +666,7 @@ WeatherBaseCard {
 
                 Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
-                    color: Appearance.colors.colSecondary
+                    color: root.legendBarColor(root.activeMetric)
                     height: 10
                     radius: 2
                     width: 10
@@ -583,7 +676,7 @@ WeatherBaseCard {
                     anchors.verticalCenter: parent.verticalCenter
                     color: Appearance.colors.colOnSurfaceVariant
                     font.pixelSize: Appearance.font.pixelSize.smaller
-                    text: "Rain chance (darker = heavier)"
+                    text: root.legendBarLabel(root.activeMetric)
                 }
             }
         }
@@ -801,13 +894,15 @@ WeatherBaseCard {
                         ctx.moveTo(plotLeft, bHigh);
                         ctx.lineTo(plotRight, bHigh);
                         ctx.stroke();
-                        ctx.fillText(Math.round(baroBounds.max - 1) + " hPa", plotLeft - 4, bHigh + 3);
+                        ctx.fillText(String(Math.round(baroBounds.max - 1)), plotLeft - 4, bHigh + 3);
 
                         ctx.beginPath();
                         ctx.moveTo(plotLeft, bLow);
                         ctx.lineTo(plotRight, bLow);
                         ctx.stroke();
-                        ctx.fillText(Math.round(baroBounds.min + 1) + " hPa", plotLeft - 4, bLow + 3);
+                        ctx.fillText(String(Math.round(baroBounds.min + 1)), plotLeft - 4, bLow + 3);
+                        ctx.font = "8px sans-serif";
+                        ctx.fillText("hPa", plotLeft - 4, bHigh - 7);
                         ctx.restore();
 
                         const refY = plotUpperBottom - ((1013.25 - baroBounds.min) / baroRange) * (plotUpperBottom - plotTop);
@@ -818,6 +913,89 @@ WeatherBaseCard {
                         ctx.moveTo(plotLeft, refY);
                         ctx.lineTo(plotRight, refY);
                         ctx.stroke();
+                        ctx.restore();
+                    }
+
+                    if (root.activeMetric === "wind") {
+                        const windMax = root.calcWindMax();
+                        ctx.save();
+                        ctx.strokeStyle = Appearance.colors.colOutlineVariant;
+                        ctx.fillStyle = Appearance.colors.colOnSurfaceVariant;
+                        ctx.font = "9px sans-serif";
+                        ctx.textAlign = "right";
+                        ctx.setLineDash([2, 3]);
+
+                        const wHigh = plotTop;
+                        const wLow = plotUpperBottom;
+
+                        ctx.beginPath();
+                        ctx.moveTo(plotLeft, wHigh);
+                        ctx.lineTo(plotRight, wHigh);
+                        ctx.stroke();
+                        ctx.fillText(String(Math.round(windMax)), plotLeft - 4, wHigh + 3);
+
+                        ctx.beginPath();
+                        ctx.moveTo(plotLeft, wLow);
+                        ctx.lineTo(plotRight, wLow);
+                        ctx.stroke();
+                        ctx.fillText("0", plotLeft - 4, wLow + 3);
+                        ctx.font = "8px sans-serif";
+                        ctx.fillText("km/h", plotLeft - 4, wHigh - 7);
+                        ctx.restore();
+                    }
+
+                    if (root.activeMetric === "aqi") {
+                        ctx.save();
+                        ctx.strokeStyle = Appearance.colors.colOutlineVariant;
+                        ctx.fillStyle = Appearance.colors.colOnSurfaceVariant;
+                        ctx.font = "9px sans-serif";
+                        ctx.textAlign = "right";
+                        ctx.setLineDash([2, 3]);
+
+                        const aHigh = plotTop;
+                        const aLow = plotUpperBottom;
+
+                        ctx.beginPath();
+                        ctx.moveTo(plotLeft, aHigh);
+                        ctx.lineTo(plotRight, aHigh);
+                        ctx.stroke();
+                        ctx.fillText("6", plotLeft - 4, aHigh + 3);
+
+                        ctx.beginPath();
+                        ctx.moveTo(plotLeft, aLow);
+                        ctx.lineTo(plotRight, aLow);
+                        ctx.stroke();
+                        ctx.fillText("1", plotLeft - 4, aLow + 3);
+                        ctx.font = "8px sans-serif";
+                        ctx.fillText("EPA", plotLeft - 4, aHigh - 7);
+                        ctx.restore();
+                    }
+
+                    if (root.activeMetric === "uv") {
+                        const uvMax = root.calcUvMax();
+                        ctx.save();
+                        ctx.strokeStyle = Appearance.colors.colOutlineVariant;
+                        ctx.fillStyle = Appearance.colors.colOnSurfaceVariant;
+                        ctx.font = "9px sans-serif";
+                        ctx.textAlign = "right";
+                        ctx.setLineDash([2, 3]);
+
+                        const uHigh = plotTop;
+                        const uLow = plotUpperBottom;
+
+                        ctx.beginPath();
+                        ctx.moveTo(plotLeft, uHigh);
+                        ctx.lineTo(plotRight, uHigh);
+                        ctx.stroke();
+                        ctx.fillText(String(Math.round(uvMax)), plotLeft - 4, uHigh + 3);
+
+                        ctx.beginPath();
+                        ctx.moveTo(plotLeft, uLow);
+                        ctx.lineTo(plotRight, uLow);
+                        ctx.stroke();
+                        ctx.fillText("0", plotLeft - 4, uLow + 3);
+                        ctx.font = "8px sans-serif";
+                        ctx.fillText("UV", plotLeft - 4, uHigh - 7);
                         ctx.restore();
                     }
 
