@@ -385,7 +385,7 @@ Existing infrastructure the shell builds on (not replaced by this project):
 
 - [ ] **PARAM-01**: Systematic parameter evaluation and UI representation mapping across all categories in `WEATHER_PARAMETERS.md` (Thermal/Comfort, Atmospheric, Wind, Air Quality AQI/PM2.5, Astronomy, Severe Alerts)
 - [ ] **POPUP-01**: Multi-modal `WeatherPopup.qml` inspector anchored with 1000ms hover intent delay and screen boundary clamping (`StyledPopup`)
-- [ ] **GRAPH-01**: Interactive Canvas time-series graphs in popup (24-hour temperature/feels-like trendline and hourly precipitation/rain probability bars) with hover scrub inspection
+- ✓ **GRAPH-01**: Interactive Canvas time-series graphs in popup (24-hour temperature/feels-like trendline and hourly precipitation/rain probability bars) with hover scrub inspection — Phase 54, stacked locked instances (temp + Wind + AQI + Baro + UV, no tab chrome) fulfilled in Phase 54.3 per scope_decision_54_3_07
 - [ ] **INTG-01**: Personal overlay deployment under `restow/quickshell/` via GNU Stow leaf symlinks, zero git churn in `vendor/dots-hyprland`, and automated regression test suite
 
 ### Carry-forward candidates (not yet committed requirements)
@@ -626,7 +626,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-10 after Phase 54.1*
+*Last updated: 2026-10-15 after Phase 54.3*
 
 
 
