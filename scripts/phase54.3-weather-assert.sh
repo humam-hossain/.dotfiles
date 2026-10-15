@@ -470,6 +470,49 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
     else
       fail "S3: Canvas timestamp loop does not read root.axisStride (T-54.3-08)"
     fi
+
+    # Gutter-overflow gate (G-54.3-1, T-54.3-11): paint and scrub gutter
+    # constants must both read 34 and match, the Y-label anchor must derive
+    # from the gutter constant minus 4, the computed anchor x minus a
+    # conservative 24px label width must stay at or above zero, and the icon
+    # strip left margin must track the gutter. All fail-closed.
+    if [[ ! -s "$GRAPH_SRC" ]]; then
+      fail "S3: WeatherGraph source missing; cannot verify gutter-overflow contracts (fail-closed)"
+    else
+      paint_gutter="$(grep -c 'const plotLeft = 34;' "$GRAPH_SRC" || true)"
+      if [[ "$paint_gutter" -ge 2 ]]; then
+        pass "S3: Paint and scrub gutter constants both read 34 (G-54.3-1)"
+      else
+        fail "S3: Expected 2 gutter constants with value 34 (paint + scrub), found ${paint_gutter} (G-54.3-1)"
+      fi
+
+      if grep -q 'const plotLeft = 14;' "$GRAPH_SRC"; then
+        fail "S3: Stale 14px gutter constant still present; paint/scrub misaligned (T-54.3-11)"
+      else
+        pass "S3: No stale 14px gutter constant remains (T-54.3-11)"
+      fi
+
+      if grep -q 'plotLeft - 4' "$GRAPH_SRC"; then
+        pass "S3: Y-label anchor derives from gutter constant minus 4 (G-54.3-1)"
+      else
+        fail "S3: Y-label anchor no longer references gutter constant minus 4 (G-54.3-1)"
+      fi
+
+      gutter_val=34
+      anchor_x=$((gutter_val - 4))
+      clearance=$((anchor_x - 24))
+      if [[ "$clearance" -ge 0 ]]; then
+        pass "S3: Anchor x=${anchor_x} minus 24px label width stays at or above zero (clearance=${clearance}) (G-54.3-1)"
+      else
+        fail "S3: Anchor x=${anchor_x} minus 24px label width goes negative (clearance=${clearance}) (G-54.3-1)"
+      fi
+
+      if grep -q 'anchors.leftMargin: 34' "$GRAPH_SRC"; then
+        pass "S3: Axis icon strip left margin tracks gutter value 34 (G-54.3-1)"
+      else
+        fail "S3: Axis icon strip left margin does not track gutter value 34 (G-54.3-1)"
+      fi
+    fi
   fi
 fi
 
@@ -567,6 +610,37 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
       pass "S4: Tooltip metric readout uses raised 15px token (G-54.3-3)"
     else
       fail "S4: Tooltip readout missing raised pixelSize.small text (G-54.3-3)"
+    fi
+
+    # Tooltip-structure gate (G-54.3-3, T-54.3-12): stacked 3-row layout with
+    # per-line helpers and background-only alpha. All fail-closed.
+    if [[ ! -s "$GRAPH_SRC" ]]; then
+      fail "S4: WeatherGraph source missing; cannot verify tooltip structure (fail-closed)"
+    else
+      if sed -n '/id: tooltipPill/,/id: scrubMouseArea/p' "$GRAPH_SRC" | grep -q 'ColumnLayout'; then
+        pass "S4: Tooltip pill contains stacked vertical ColumnLayout (G-54.3-3)"
+      else
+        fail "S4: Tooltip pill missing stacked ColumnLayout; single-line layout regressed (G-54.3-3)"
+      fi
+
+      if grep -qE 'function\s+formatTooltipTempLine\s*\(' "$GRAPH_SRC" && grep -qE 'function\s+formatTooltipRainLine\s*\(' "$GRAPH_SRC"; then
+        pass "S4: Per-line tooltip helpers formatTooltipTempLine/formatTooltipRainLine present (G-54.3-3)"
+      else
+        fail "S4: Per-line tooltip helpers missing (G-54.3-3)"
+      fi
+
+      if sed -n '/id: tooltipBackground/,/id: tooltipColumn/p' "$GRAPH_SRC" | grep -q 'opacity: 0.75'; then
+        pass "S4: Pill background element carries 0.75 opacity with text at full opacity (T-54.3-12)"
+      else
+        fail "S4: 0.75 opacity not on pill background element; legibility at risk (T-54.3-12)"
+      fi
+
+      pill_metric_calls="$(sed -n '/id: tooltipPill/,/id: scrubMouseArea/p' "$GRAPH_SRC" | grep -c 'formatTooltipMetric' || true)"
+      if [[ "$pill_metric_calls" -eq 0 ]]; then
+        pass "S4: Pill region no longer routes readout through single fused string alone (G-54.3-3)"
+      else
+        fail "S4: Pill region still routes readout through formatTooltipMetric ${pill_metric_calls}x (G-54.3-3)"
+      fi
     fi
   fi
 fi

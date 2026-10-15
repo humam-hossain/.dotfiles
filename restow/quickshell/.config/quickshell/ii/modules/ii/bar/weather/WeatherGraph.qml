@@ -361,6 +361,36 @@ WeatherBaseCard {
         return hr.padStart(2, "0") + ":00";
     }
 
+    function formatTooltipTempLine(slot) {
+        if (!slot)
+            return "--";
+        let t = "--";
+        let f = "--";
+        if (slot.thermal && slot.thermal.tempC !== null && slot.thermal.tempC !== undefined) {
+            t = slot.thermal.tempC;
+            f = (slot.thermal.feelsLikeC !== null && slot.thermal.feelsLikeC !== undefined) ? slot.thermal.feelsLikeC : t;
+        } else {
+            t = slot.tempC !== undefined ? slot.tempC : "--";
+            f = slot.FeelsLikeC !== undefined ? slot.FeelsLikeC : t;
+        }
+        return t + "°C (Feels " + f + "°C)";
+    }
+
+    function formatTooltipRainLine(slot) {
+        if (!slot)
+            return "--";
+        let prob = 0;
+        let mm = 0.0;
+        if (slot.moisture) {
+            prob = slot.moisture.rainProb !== undefined ? slot.moisture.rainProb : 0;
+            mm = slot.moisture.precipMM !== undefined ? slot.moisture.precipMM : 0.0;
+        } else {
+            prob = slot.chanceofrain !== undefined ? slot.chanceofrain : 0;
+            mm = slot.precipMM !== undefined ? slot.precipMM : 0.0;
+        }
+        return "Rain " + prob + "% (" + mm + "mm)";
+    }
+
     function formatTooltipMetric(metricKey, slot) {
         if (!slot)
             return "--";
@@ -371,25 +401,7 @@ WeatherBaseCard {
         switch (metricKey) {
         case "temp":
             {
-                let t = "--";
-                let f = "--";
-                if (slot.thermal && slot.thermal.tempC !== null && slot.thermal.tempC !== undefined) {
-                    t = slot.thermal.tempC;
-                    f = (slot.thermal.feelsLikeC !== null && slot.thermal.feelsLikeC !== undefined) ? slot.thermal.feelsLikeC : t;
-                } else {
-                    t = slot.tempC !== undefined ? slot.tempC : "--";
-                    f = slot.FeelsLikeC !== undefined ? slot.FeelsLikeC : t;
-                }
-                let prob = 0;
-                let mm = 0.0;
-                if (slot.moisture) {
-                    prob = slot.moisture.rainProb !== undefined ? slot.moisture.rainProb : 0;
-                    mm = slot.moisture.precipMM !== undefined ? slot.moisture.precipMM : 0.0;
-                } else {
-                    prob = slot.chanceofrain !== undefined ? slot.chanceofrain : 0;
-                    mm = slot.precipMM !== undefined ? slot.precipMM : 0.0;
-                }
-                return t + "°C (Feels " + f + "°C) • Rain " + prob + "% (" + mm + "mm)";
+                return root.formatTooltipTempLine(slot) + " • " + root.formatTooltipRainLine(slot);
             }
         case "rain":
             {
@@ -595,13 +607,13 @@ WeatherBaseCard {
                     if (!hours || hours.length < 2)
                         return;
 
-                    const plotLeft = 14;
+                    const plotLeft = 34;
                     const plotRight = width - 14;
                     const plotW = Math.max(10, plotRight - plotLeft);
                     const n = hours.length;
                     const slotW = plotW / n;
 
-                    const plotTop = 20;
+                    const plotTop = 30;
                     const plotUpperBottom = height * 0.60;
                     const plotLowerTop = height * 0.66;
                     const plotLowerBottom = height - 46;
@@ -664,7 +676,7 @@ WeatherBaseCard {
                         const badgeW = 32;
                         const badgeH = 14;
                         const badgeX = nowX - badgeW / 2;
-                        const badgeY = plotTop - 14;
+                        const badgeY = plotTop - 16;
                         ctx.fillStyle = Appearance.colors.colPrimary || "#4fc3f7";
                         ctx.beginPath();
                         ctx.rect(badgeX, badgeY, badgeW, badgeH);
@@ -931,49 +943,56 @@ WeatherBaseCard {
                     id: tooltipPill
                     border.color: Appearance.colors.colOutlineVariant
                     border.width: 1
-                    color: Appearance.m3colors.m3surfaceContainerHigh || Appearance.colors.colLayer1
-                    implicitHeight: tooltipRow.implicitHeight + 12
-                    implicitWidth: tooltipRow.implicitWidth + 20
+                    color: "transparent"
+                    implicitHeight: tooltipColumn.implicitHeight + 12
+                    implicitWidth: tooltipColumn.implicitWidth + 20
                     radius: Appearance.rounding.verysmall
                     x: Math.max(6, Math.min(parent.width - implicitWidth - 6, root.activeScrubX - implicitWidth / 2))
                     y: (root.activeScrubY < 60) ? (root.activeScrubY + 14) : (root.activeScrubY - implicitHeight - 8)
 
-                    RowLayout {
-                        id: tooltipRow
+                    Rectangle {
+                        id: tooltipBackground
+                        anchors.fill: parent
+                        radius: parent.radius
+                        color: Appearance.m3colors.m3surfaceContainerHigh || Appearance.colors.colLayer1
+                        opacity: 0.75
+                    }
+
+                    ColumnLayout {
+                        id: tooltipColumn
                         anchors.centerIn: parent
-                        spacing: 6
+                        spacing: 2
 
-                        StyledText {
-                            color: Appearance.colors.colOnLayer1
-                            font.pixelSize: Appearance.font.pixelSize.smaller
-                            font.weight: Font.Bold
-                            text: root.formatTemporalLabel(root.activeSlotIndex, root.validHours[root.activeSlotIndex])
-                        }
+                        RowLayout {
+                            id: tooltipHeaderRow
+                            spacing: 6
 
-                        StyledText {
-                            color: Appearance.colors.colOnSurfaceVariant
-                            font.pixelSize: Appearance.font.pixelSize.smaller
-                            text: "•"
-                        }
+                            MaterialSymbol {
+                                iconSize: 14
+                                fill: 0
+                                color: Appearance.colors.colOnSurfaceVariant
+                                text: (root.validHours[root.activeSlotIndex] && root.validHours[root.activeSlotIndex].glyph) ? root.validHours[root.activeSlotIndex].glyph : "cloud"
+                            }
 
-                        MaterialSymbol {
-                            iconSize: 14
-                            fill: 0
-                            color: Appearance.colors.colOnSurfaceVariant
-                            text: (root.validHours[root.activeSlotIndex] && root.validHours[root.activeSlotIndex].glyph) ? root.validHours[root.activeSlotIndex].glyph : "cloud"
-                        }
-
-                        StyledText {
-                            color: Appearance.colors.colOnSurfaceVariant
-                            font.pixelSize: Appearance.font.pixelSize.smaller
-                            text: "•"
+                            StyledText {
+                                color: Appearance.colors.colOnLayer1
+                                font.pixelSize: Appearance.font.pixelSize.smaller
+                                font.weight: Font.Bold
+                                text: root.formatTemporalLabel(root.activeSlotIndex, root.validHours[root.activeSlotIndex])
+                            }
                         }
 
                         StyledText {
                             color: root.getActiveMetricColor()
                             font.pixelSize: Appearance.font.pixelSize.small
                             font.weight: Font.DemiBold
-                            text: root.formatTooltipMetric(root.activeMetric, root.validHours[root.activeSlotIndex])
+                            text: root.formatTooltipTempLine(root.validHours[root.activeSlotIndex])
+                        }
+
+                        StyledText {
+                            color: Appearance.colors.colOnSurfaceVariant
+                            font.pixelSize: Appearance.font.pixelSize.smaller
+                            text: root.formatTooltipRainLine(root.validHours[root.activeSlotIndex])
                         }
                     }
                 }
@@ -984,7 +1003,7 @@ WeatherBaseCard {
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 16
                 anchors.left: parent.left
-                anchors.leftMargin: 14
+                anchors.leftMargin: 34
                 anchors.right: parent.right
                 anchors.rightMargin: 14
                 height: 18
@@ -1020,7 +1039,7 @@ WeatherBaseCard {
                     if (!hours || hours.length === 0)
                         return;
 
-                    const plotLeft = 14;
+                    const plotLeft = 34;
                     const plotRight = width - 14;
                     const plotW = Math.max(10, plotRight - plotLeft);
                     const n = hours.length;
@@ -1030,7 +1049,7 @@ WeatherBaseCard {
                     root.activeSlotIndex = idx;
                     root.activeScrubX = plotLeft + (idx + 0.5) * slotW;
 
-                    const plotTop = 20;
+                    const plotTop = 30;
                     const plotUpperBottom = height * 0.60;
                     root.activeScrubY = root.getMetricY(root.activeMetric, idx, plotTop, plotUpperBottom);
                 }
