@@ -28,6 +28,7 @@ StyledPopup {
 
     StyledFlickable {
         id: flickable
+        anchors.centerIn: parent
         implicitWidth: 880
         implicitHeight: Math.min(contentColumn.implicitHeight, (root.QsWindow?.window?.screen?.height ?? 1080) * 0.85)
         contentWidth: width
