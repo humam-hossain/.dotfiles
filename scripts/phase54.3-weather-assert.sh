@@ -789,6 +789,41 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
     else
       fail "S6: Found ${writes_total} activeMetric runtime write(s) across stacked files (locked T-54.3-15)"
     fi
+
+    # Popup-chrome anchoring gate (G-54.3-1): the StyledFlickable content
+    # must be centered in popupBackground so the margin*2 surplus splits
+    # evenly on all four sides, while the implicit-size chain stays
+    # byte-identical so the window sizes exactly as before. All fail-closed.
+    STYLED_POPUP_SRC="$REPO_ROOT/restow/quickshell/.config/quickshell/ii/modules/ii/bar/StyledPopup.qml"
+    if [[ ! -s "$POPUP_SRC" ]]; then
+      fail "S6: WeatherPopup source missing; cannot verify popup-chrome anchoring (fail-closed)"
+    elif [[ ! -s "$STYLED_POPUP_SRC" ]]; then
+      fail "S6: StyledPopup source missing; cannot verify margin-times-2 formula (fail-closed)"
+    else
+      if sed -n '/id: flickable/,/contentHeight/p' "$POPUP_SRC" | grep -q 'anchors\.centerIn'; then
+        pass "S6: StyledFlickable region carries centering anchor (even padding G-54.3-1)"
+      else
+        fail "S6: StyledFlickable region missing centering anchor; margin surplus lands as dead strip (G-54.3-1)"
+      fi
+
+      if grep -qE 'implicitWidth:[[:space:]]*880' "$POPUP_SRC"; then
+        pass "S6: implicitWidth 880 sizing line still present (window sizing unchanged)"
+      else
+        fail "S6: implicitWidth 880 sizing line missing or altered (window sizing changed)"
+      fi
+
+      if grep -qF 'contentHeight: contentColumn.implicitHeight' "$POPUP_SRC"; then
+        pass "S6: contentHeight binding still present (window sizing unchanged)"
+      else
+        fail "S6: contentHeight binding missing or altered (window sizing changed)"
+      fi
+
+      if grep -qF 'implicitWidth: root.contentItem.implicitWidth + margin * 2' "$STYLED_POPUP_SRC" && grep -qF 'implicitHeight: root.contentItem.implicitHeight + margin * 2' "$STYLED_POPUP_SRC"; then
+        pass "S6: StyledPopup margin-times-2 implicit-size formula untouched"
+      else
+        fail "S6: StyledPopup margin-times-2 implicit-size formula altered"
+      fi
+    fi
   fi
 fi
 
