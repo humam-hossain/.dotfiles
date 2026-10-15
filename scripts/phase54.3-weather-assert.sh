@@ -637,11 +637,25 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
         fail "S4: 0.75 opacity not on pill background element; legibility at risk (T-54.3-12)"
       fi
 
-      pill_metric_calls="$(sed -n '/id: tooltipPill/,/id: scrubMouseArea/p' "$GRAPH_SRC" | grep -c 'formatTooltipMetric' || true)"
-      if [[ "$pill_metric_calls" -eq 0 ]]; then
-        pass "S4: Pill region no longer routes readout through single fused string alone (G-54.3-3)"
+      pill_metric_calls="$(sed -n '/id: tooltipPill/,/id: axisIconStrip/p' "$GRAPH_SRC" | grep -c 'formatTooltipMetric' || true)"
+      if [[ "$pill_metric_calls" -ge 1 ]]; then
+        pass "S4: Pill region routes per-card readout through formatTooltipMetric keyed on activeMetric (G-54.3-2/G-54.3-3)"
       else
-        fail "S4: Pill region still routes readout through formatTooltipMetric ${pill_metric_calls}x (G-54.3-3)"
+        fail "S4: Pill region missing formatTooltipMetric wiring; every card repeats the temp composite (G-54.3-2/G-54.3-3)"
+      fi
+
+      temp_line_kept="$(sed -n '/id: tooltipPill/,/id: axisIconStrip/p' "$GRAPH_SRC" | grep -c 'formatTooltipTempLine' || true)"
+      if [[ "$temp_line_kept" -ge 1 ]]; then
+        pass "S4: Pill middle row preserves temp-composite line for the temp card (G-54.3-3)"
+      else
+        fail "S4: Pill middle row lost the temp-composite line (G-54.3-3)"
+      fi
+
+      rain_gated="$(sed -n '/id: tooltipPill/,/id: axisIconStrip/p' "$GRAPH_SRC" | grep -c 'visible: root.activeMetric === "temp"' || true)"
+      if [[ "$rain_gated" -ge 1 ]]; then
+        pass "S4: Pill rain row visible only on the temp composite card (G-54.3-3)"
+      else
+        fail "S4: Pill rain row not gated on the temp card; leaks rain readout onto other metrics (G-54.3-3)"
       fi
     fi
   fi
@@ -822,6 +836,89 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 6 ]]; then
         pass "S6: StyledPopup margin-times-2 implicit-size formula untouched"
       else
         fail "S6: StyledPopup margin-times-2 implicit-size formula altered"
+      fi
+    fi
+
+    # Per-metric wiring gate (G-54.3-2/G-54.3-3, plan 54.3-10): legend,
+    # tooltip, and Y-axis branches must key off the card metric so no card
+    # repeats the temperature composite. All fail-closed with file guards.
+    if [[ ! -s "$GRAPH_SRC" ]]; then
+      fail "S6: WeatherGraph source missing; cannot verify per-metric wiring (fail-closed)"
+    else
+      if grep -qE 'function[^({]*legendSolidLabel' "$GRAPH_SRC" && grep -qE 'function[^({]*legendDashedLabel' "$GRAPH_SRC" && grep -qE 'function[^({]*legendBarLabel' "$GRAPH_SRC"; then
+        pass "S6: Per-metric legend label helpers present for all three entries (G-54.3-2)"
+      else
+        fail "S6: Per-metric legend label helpers missing (G-54.3-2)"
+      fi
+
+      if grep -qE 'function[^({]*legendSolidColor' "$GRAPH_SRC" && grep -qE 'function[^({]*legendDashedColor' "$GRAPH_SRC" && grep -qE 'function[^({]*legendBarColor' "$GRAPH_SRC"; then
+        pass "S6: Per-metric legend color helpers present for all three entries (G-54.3-2)"
+      else
+        fail "S6: Per-metric legend color helpers missing (G-54.3-2)"
+      fi
+
+      legend_keyed="$(sed -n '/legendRow/,/axisIconStrip/p' "$GRAPH_SRC" | grep -c 'root.activeMetric' || true)"
+      if [[ "$legend_keyed" -ge 1 ]]; then
+        pass "S6: Legend region keys swatches and labels off the card metric (G-54.3-2)"
+      else
+        fail "S6: Legend region not keyed on card metric; repeats temp composite (G-54.3-2)"
+      fi
+
+      legend_hex="$(sed -n '/function legendSolidLabel/,/id: contentColumn/p' "$GRAPH_SRC" | grep -cE '#[0-9a-fA-F]{3,8}' || true)"
+      if [[ "$legend_hex" -eq 0 ]]; then
+        pass "S6: Legend helpers bind M3 tokens or WeatherGlyphs helpers only, zero static hex (T-54.3-18)"
+      else
+        fail "S6: Legend helpers contain ${legend_hex} static hex literal(s) (T-54.3-18)"
+      fi
+
+      for axis_metric in wind aqi uv; do
+        if grep -q "root.activeMetric === \"$axis_metric\"" "$GRAPH_SRC"; then
+          pass "S6: Y-axis guideline branch for '$axis_metric' present (G-54.3-2)"
+        else
+          fail "S6: Y-axis guideline branch for '$axis_metric' missing (G-54.3-2)"
+        fi
+      done
+
+      baro_region="$(sed -n '/root.activeMetric === "baro"/,/root.activeMetric === "wind"/p' "$GRAPH_SRC")"
+      if printf '%s' "$baro_region" | grep -q '+ " hPa"'; then
+        fail "S6: Baro guideline labels still carry unit suffix; gutter clipping risk (G-54.3-2)"
+      else
+        pass "S6: Baro guideline labels are number-only (G-54.3-2)"
+      fi
+      if printf '%s' "$baro_region" | grep -q 'fillText("hPa"'; then
+        pass "S6: Baro unit painted once as separate caption (G-54.3-2)"
+      else
+        fail "S6: Baro unit caption missing (G-54.3-2)"
+      fi
+
+      pill_wired="$(sed -n '/id: tooltipPill/,/id: axisIconStrip/p' "$GRAPH_SRC" | grep -c 'formatTooltipMetric' || true)"
+      if [[ "$pill_wired" -ge 1 ]]; then
+        pass "S6: Tooltip pill region routes readout through the per-metric helper (G-54.3-3)"
+      else
+        fail "S6: Tooltip pill region missing per-metric helper wiring (G-54.3-3)"
+      fi
+
+      chrome_left=0
+      for chrome_id in tabBarContainer tabsRepeater tabHighlight activeTabPill; do
+        chrome_left=$((chrome_left + $(grep -v '^[[:space:]]*//' "$GRAPH_SRC" | grep -c "$chrome_id" || true)))
+      done
+      if [[ "$chrome_left" -eq 0 ]]; then
+        pass "S6: Zero tab chrome in touched graph file (per-metric wiring gate)"
+      else
+        fail "S6: Tab chrome present ${chrome_left}x in touched graph file (per-metric wiring gate)"
+      fi
+
+      if grep -A 35 -E 'id:\s*scrubMouseArea' "$GRAPH_SRC" | grep -A 25 -E 'onPositionChanged:' | grep -q 'requestPaint'; then
+        fail "S6: requestPaint inside scrub handler breaks zero-repaint invariant (per-metric wiring gate)"
+      else
+        pass "S6: Zero requestPaint in scrub handlers (per-metric wiring gate)"
+      fi
+
+      wire_writes="$(grep -v '^[[:space:]]*//' "$GRAPH_SRC" | grep -cE 'activeMetric[[:space:]]*=[^=]' || true)"
+      if [[ "$wire_writes" -eq 0 ]]; then
+        pass "S6: Zero activeMetric runtime writes in touched graph file (per-metric wiring gate)"
+      else
+        fail "S6: Found ${wire_writes} activeMetric runtime write(s) in touched graph file"
       fi
     fi
   fi
