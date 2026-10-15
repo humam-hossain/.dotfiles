@@ -196,6 +196,11 @@ Plans:
 - [x] 54.3-07-PLAN.md — Y-axis gutter unclip plus tooltip stacked 3-line opacity plus single-graph scope decision (G-54.3-1, G-54.3-3, G-54.3-4)
 - [x] 54.3-08-PLAN.md — Stacked locked Wind/AQI/Baro/UV graph instances plus per-metric paint branches plus Test 4 truth rewrite (G-54.3-4)
 
+**Gap closure (UAT 2026-10-15, 3 gaps):**
+
+- [ ] 54.3-09-PLAN.md — Popup-chrome centering plus anchoring harness gate (G-54.3-1)
+- [ ] 54.3-10-PLAN.md — Per-metric legend, axis labels, baro shortening, tooltip rewire plus wiring gates (G-54.3-2, G-54.3-3)
+
 ### Phase 54.4: Modular Popup Inspector and Clean Card Layout (INSERTED)
 
 **Goal:** Assemble the complete WeatherPopup with clean M3 spacing, modular non-overlapping card hierarchy, hero location/observation header, daily text stat pills (Min/Avg/Max, Sun hours), astronomy sun/moon card, and multi-day forecast trend strip.
