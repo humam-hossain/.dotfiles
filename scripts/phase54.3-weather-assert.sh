@@ -80,7 +80,7 @@ while [[ $# -gt 0 ]]; do
       echo ""
       echo "Sections:"
       echo "  1: Stow Leaf Symlink Topology, Packaging Integrity & QML Syntax"
-      echo "  2: Metric Selector Tab Bar Architecture & Styling Contracts (D-54.3-01..06)"
+      echo "  2: Tab-Less Composite Essentials Architecture Contracts (G-54.3-1)"
       echo "  3: Multi-Metric Visualizations, Dual-Tier Canvas & Scaling Math (GRAPH-01, GRAPH-02, D-54.3-07..15, D-54.3-17..18)"
       echo "  4: Palette Tokens, Unified Scaling Architecture & Zero-Repaint Hover Scrub Overlay (GRAPH-03, GRAPH-04, D-54.3-16, D-54.3-19..23)"
       echo "  5: Day/Night Shading, Date Boundaries & Submodule Verification (D-54.3-24..27, ASVS L1)"
@@ -157,84 +157,106 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
   else
     finding "S1: qmlformat not found on PATH; skipped static QML ast formatting check"
   fi
+
+  # Quickshell session freshness guard (T-54.3-05): QML loads once at process
+  # start, so a running quickshell older than the restow graph file is hosting
+  # pre-fix UI. Fail-soft FINDING only — never FAIL — plus INFO skips.
+  qs_pid="$(pgrep -o -f '[q]uickshell' 2>/dev/null || true)"
+  if [[ -z "$qs_pid" ]]; then
+    info "S1: No quickshell process found; skipped session freshness check (headless CI)"
+  elif ! command -v date >/dev/null 2>&1; then
+    info "S1: date utility unavailable; skipped session freshness check"
+  else
+    qs_elapsed="$(ps -o etimes= -p "$qs_pid" 2>/dev/null | tr -d '[:space:]' || true)"
+    qs_epoch=""
+    if [[ "$qs_elapsed" =~ ^[0-9]+$ ]]; then
+      qs_now="$(date +%s 2>/dev/null || true)"
+      if [[ "$qs_now" =~ ^[0-9]+$ ]]; then
+        qs_epoch=$((qs_now - qs_elapsed))
+      fi
+    fi
+    graph_mtime="$(stat -c %Y "$GRAPH_SRC" 2>/dev/null || true)"
+    if [[ -z "$qs_epoch" || -z "$graph_mtime" ]]; then
+      info "S1: Could not determine quickshell start epoch or graph mtime; skipped session freshness check"
+    elif [[ "$graph_mtime" -gt "$qs_epoch" ]]; then
+      finding "S1: STALE SESSION — quickshell PID $qs_pid started before restow WeatherGraph.qml was modified; restart with 'qs -c ii' (or 'systemctl --user restart quickshell') before any visual UAT claim"
+    else
+      pass "S1: Quickshell session is fresh (PID $qs_pid started after last graph modification)"
+    fi
+  fi
 fi
 
 # ===========================================================================
-# Section 2: Metric Selector Tab Bar Architecture & Styling Contracts (D-54.3-01..06)
+# Section 2: Tab-Less Composite Essentials Architecture Contracts (G-54.3-1)
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
-  info "--- Section 2: Metric Selector Tab Bar Architecture & Styling Contracts ---"
+  info "--- Section 2: Tab-Less Composite Essentials Architecture Contracts ---"
 
-  # Default activeMetric: "temp" property
+  # Tab chrome absence: the four removed selector identifiers must not appear on non-comment lines
+  for chrome_id in tabBarContainer tabsRepeater tabHighlight activeTabPill; do
+    chrome_count="$(grep -v '^[[:space:]]*//' "$GRAPH_SRC" | grep -c "$chrome_id" || true)"
+    if [[ "$chrome_count" -eq 0 ]]; then
+      pass "S2: Tab chrome identifier '$chrome_id' absent (tab-less G-54.3-1)"
+    else
+      fail "S2: Tab chrome identifier '$chrome_id' still present ${chrome_count}x (tab-less G-54.3-1)"
+    fi
+  done
+
+  # Locked visible metric: declaration defaults to the thermal key
   if grep -qE 'property\s+string\s+activeMetric:\s*"temp"' "$GRAPH_SRC"; then
-    pass "S2: activeMetric property defaults to 'temp' (D-54.3-05)"
+    pass "S2: activeMetric property defaults to 'temp' (locked composite view)"
   else
     fail "S2: Missing property string activeMetric: \"temp\" default"
   fi
 
-  # Single-row tabBarContainer
-  if grep -q 'id:\s*tabBarContainer' "$GRAPH_SRC"; then
-    pass "S2: Single-row tabBarContainer present directly beneath card header (D-54.3-01)"
+  # Locked visible metric: zero runtime writes across non-comment lines
+  metric_writes="$(grep -v '^[[:space:]]*//' "$GRAPH_SRC" | grep -cE 'activeMetric\s*=[^=]' || true)"
+  if [[ "$metric_writes" -eq 0 ]]; then
+    pass "S2: No runtime write to locked activeMetric remains (tab-less G-54.3-1)"
   else
-    fail "S2: Missing id: tabBarContainer tab row definition"
+    fail "S2: Found ${metric_writes} runtime write(s) to locked activeMetric"
   fi
 
-  # 6-pill keys: temp, rain, wind, aqi, baro, uv
-  for metric in temp rain wind aqi baro uv; do
-    if grep -qE "(id:\s*\"$metric\"|\"id\":\s*\"$metric\")" "$GRAPH_SRC"; then
-      pass "S2: Tab bar includes metric pill key '$metric' (D-54.3-02)"
-    else
-      fail "S2: Tab bar missing metric pill key '$metric' (D-54.3-02)"
-    fi
-  done
-
-  # Labels: Temp, Rain, Wind, AQI, Baro, UV with pixelSize.smallest and bold
-  for label in Temp Rain Wind AQI Baro UV; do
-    if grep -qE "(label:\s*\"$label\"|\"label\":\s*\"$label\")" "$GRAPH_SRC"; then
-      pass "S2: Tab bar includes label '$label'"
-    else
-      fail "S2: Tab bar missing label '$label'"
-    fi
-  done
-  if grep -q 'pixelSize\.smallest' "$GRAPH_SRC" && grep -qE '(Font\.Bold|font\.bold:\s*true)' "$GRAPH_SRC"; then
-    pass "S2: Tab pills use pixelSize.smallest and bold font weight"
+  # No popup-active reset handler may reassign the metric
+  if grep -A 8 'onPopupActiveChanged:' "$GRAPH_SRC" | grep -qE 'activeMetric\s*=[^=]'; then
+    fail "S2: Popup-open handler still reassigns activeMetric (must stay locked)"
   else
-    fail "S2: Tab pills missing pixelSize.smallest or bold weight"
+    pass "S2: No popup-active reset handler reassigns activeMetric"
   fi
 
-  # Material Symbols outline icons (thermostat, water_drop, air, eco, speed, wb_sunny) with fill: 0, iconSize: 14
-  for icon in thermostat water_drop air eco speed wb_sunny; do
-    if grep -qE "(icon:\s*\"$icon\"|\"icon\":\s*\"$icon\")" "$GRAPH_SRC"; then
-      pass "S2: Tab bar includes outline icon '$icon' (D-54.3-04)"
-    else
-      fail "S2: Tab bar missing outline icon '$icon' (D-54.3-04)"
-    fi
-  done
-  if grep -qE 'fill:\s*0' "$GRAPH_SRC" && grep -qE 'iconSize:\s*14' "$GRAPH_SRC"; then
-    pass "S2: Tab pills enforce Material Symbols outline aesthetic (fill: 0, iconSize: 14)"
+  # Composite essentials presence: solid primary stroke via active-metric color helper
+  if grep -q 'getActiveMetricColor' "$GRAPH_SRC" && grep -q 'strokeStyle = root\.getActiveMetricColor()' "$GRAPH_SRC"; then
+    pass "S2: Solid primary stroke driven by getActiveMetricColor() (composite essentials)"
   else
-    fail "S2: Tab pills missing fill: 0 or iconSize: 14 outline icon styling"
+    fail "S2: Solid primary stroke via getActiveMetricColor() missing"
   fi
 
-  # Sliding highlight animation with colPrimary and expressiveEffects
-  if grep -q 'tabHighlight' "$GRAPH_SRC" && grep -q 'Appearance\.animationCurves\.expressiveEffects' "$GRAPH_SRC"; then
-    pass "S2: Tab highlight rectangle uses Appearance.animationCurves.expressiveEffects Bezier easing (D-54.3-03)"
+  # Composite essentials presence: dashed feels-like secondary curve
+  if grep -q 'setLineDash(\[3, 3\])' "$GRAPH_SRC"; then
+    pass "S2: Dashed secondary curve present (feels-like essentials)"
   else
-    fail "S2: Tab highlight missing tabHighlight or expressiveEffects animation curve (D-54.3-03)"
+    fail "S2: Dashed secondary curve via setLineDash missing"
   fi
 
-  # Tab click sets activeMetric and invokes requestPaint()
-  if grep -A 10 -E 'onClicked:' "$GRAPH_SRC" | grep -q 'graphCanvas\.requestPaint()'; then
-    pass "S2: Tab click invokes single-shot graphCanvas.requestPaint() (D-54.3-06)"
+  # Composite essentials presence: lower rain bars referencing probability and volume fields
+  if grep -q 'rainProb' "$GRAPH_SRC" && grep -q 'precipMM' "$GRAPH_SRC"; then
+    pass "S2: Lower rain bars reference probability and volume fields (composite essentials)"
   else
-    fail "S2: Tab click missing graphCanvas.requestPaint() invocation (D-54.3-06)"
+    fail "S2: Lower rain bars missing rainProb/precipMM field references"
   fi
 
-  # Default to Temp tab on popupActive
-  if grep -A 8 'onPopupActiveChanged:' "$GRAPH_SRC" | grep -qE 'activeMetric\s*=\s*"temp"'; then
-    pass "S2: WeatherGraph resets activeMetric to 'temp' on popup open (D-54.3-05)"
+  # Composite essentials presence: thermal high/low guideline labels
+  if grep -qE 'bounds\.max - 1' "$GRAPH_SRC" && grep -qE 'bounds\.min \+ 1' "$GRAPH_SRC"; then
+    pass "S2: Thermal high/low guideline labels present (composite essentials)"
   else
-    fail "S2: WeatherGraph does not reset activeMetric to 'temp' on popup open (D-54.3-05)"
+    fail "S2: Thermal high/low guideline labels missing"
+  fi
+
+  # Static composite card title
+  if grep -q 'title: "Hourly Temperature and Rain Outlook"' "$GRAPH_SRC"; then
+    pass "S2: Static composite card title present (tab-less G-54.3-1)"
+  else
+    fail "S2: Static card title 'Hourly Temperature and Rain Outlook' missing"
   fi
 fi
 
