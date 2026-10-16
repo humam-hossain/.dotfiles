@@ -1156,7 +1156,8 @@ ok(rle.length >= 1 && rle[0].label === "Rain%" && rle[0].style === "solid" && rl
    "S4: legendEntries(rainwind)[0] is Rain%, solid, dot, colour #42a5f5, swatch RAIN_COLORS");
 ok(rle.map(function (e) { return e.label; }).join(",") === "Rain%,mm,Wind,Gust,Vis", "S4: legendEntries(rainwind) labels are Rain%, mm, Wind, Gust, Vis in order (D-54.4-25)");
 ok(same(rle.map(function (e) { return e.style; }), ["solid", "bar", "solid", "dashed", "dotted"]), "S4: legendEntries(rainwind) styles are solid, bar, solid, dashed, dotted (D-54.4-09)");
-ok(rle.length === 5 && rle.every(function (e) { return e.dot === true && HEX7.test(e.color) && (e.colors || []).every(function (c) { return HEX7.test(c); }); }),
+const RW_HEX = /^#[0-9a-fA-F]{6}$/;
+ok(rle.length === 5 && rle.every(function (e) { return e.dot === true && RW_HEX.test(e.color) && (e.colors || []).every(function (c) { return RW_HEX.test(c); }); }),
    "S4: every legendEntries(rainwind) entry has a colour dot and 7-character hex colours (PA-15)");
 ok(rle.length === 5 && rle[1].color === "#26c6da" && rle[2].color === "#ffffff" && rle[3].color === "#ffffff" && rle[4].color === "#66bb6a" && same(rle[4].colors, G.VIS_COLORS),
    "S4: legend colours: mm #26c6da, Wind and Gust #ffffff, Vis #66bb6a with the VIS_COLORS swatch");

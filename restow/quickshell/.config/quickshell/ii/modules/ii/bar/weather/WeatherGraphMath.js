@@ -34,6 +34,18 @@ var DASH_DOTTED = [2, 3];
 var RAIN_EDGES = [30, 60];
 var RAIN_COLORS = ["#90caf9", "#42a5f5", "#2979ff"];
 
+// Graph 2 visibility tiers (D-54.4-23/26): <1 km Fog, 1-4 Poor, 4-10 Moderate, >=10 Good.
+var VIS_EDGES = [1, 4, 10];
+var VIS_COLORS = ["#ef5350", "#ffa726", "#ffee58", "#66bb6a"];
+
+// Graph 2 wind and gust lines, and the rain mm bars (D-54.4-23, PA-13).
+var WIND_COLOR = "#ffffff";
+var WIND_ALPHA = 0.9;
+var MM_COLOR = "#26c6da";
+var MM_ALPHA = 0.6;
+// Bars use at most this share of the plot height (PA-13, mirrors D-54.4-29).
+var BAR_CAP = 0.4;
+
 var Y_LABEL_FONT = "10px sans-serif";
 var LABEL_FONT = "bold 10px sans-serif";
 
@@ -308,8 +320,31 @@ function tempScale(slots) {
 function computeScales(kind, slots) {
     if (kind === "temp")
         return { temp: tempScale(slots) };
-    if (kind === "rainwind")
-        return { rain: { min: 0, max: 100 } };
+    if (kind === "rainwind") {
+        // D-54.4-22: rain % on its own 0..100 scale; wind, gust and visibility share one invisible
+        // 0..max scale (floored at 1 so it is never flat); mm bars have their own 0..max scale.
+        var windMax = 1;
+        var mmMax = 0;
+        var list = (slots && typeof slots.length === "number") ? slots : [];
+        for (var i = 0; i < list.length; ++i) {
+            var s = list[i];
+            if (!isAvailable(s))
+                continue;
+            var vals = [_speedOf(s), _gustOf(s), _visOf(s)];
+            for (var k = 0; k < vals.length; ++k) {
+                if (isNum(vals[k]) && vals[k] > windMax)
+                    windMax = vals[k];
+            }
+            var p = _mmOf(s);
+            if (isNum(p) && p > mmMax)
+                mmMax = p;
+        }
+        return {
+            rain: { min: 0, max: 100 },
+            wind: { min: 0, max: windMax },
+            mm: { min: 0, max: mmMax }
+        };
+    }
     return {};
 }
 
@@ -393,6 +428,38 @@ function rainColor(v) {
     if (v <= RAIN_EDGES[1])
         return RAIN_COLORS[1];
     return RAIN_COLORS[2];
+}
+
+// Visibility km -> tier word (D-54.4-26): >=10 Good, >=4 Moderate, >=1 Poor, else Fog.
+function visibilityTier(km) {
+    if (!isNum(km))
+        return "";
+    if (km >= VIS_EDGES[2])
+        return "Good";
+    if (km >= VIS_EDGES[1])
+        return "Moderate";
+    if (km >= VIS_EDGES[0])
+        return "Poor";
+    return "Fog";
+}
+
+// Visibility km -> tier colour, on the visibilityTier boundaries (D-54.4-23).
+function visColor(km) {
+    if (!isNum(km) || km >= VIS_EDGES[2])
+        return VIS_COLORS[3];
+    if (km >= VIS_EDGES[1])
+        return VIS_COLORS[2];
+    if (km >= VIS_EDGES[0])
+        return VIS_COLORS[1];
+    return VIS_COLORS[0];
+}
+
+// Visibility km as text: an integer when whole, otherwise one decimal.
+function formatKm(km) {
+    var r = Math.round(Number(km) * 10) / 10;
+    if (!isFinite(r))
+        return "";
+    return r === Math.round(r) ? String(r) : r.toFixed(1);
 }
 
 // Hard-edged tier gradient stops (PA-10). A start stop at 0 with colorAt(vTop); for each edge
@@ -611,21 +678,77 @@ function _rainOf(s) {
     return s.moisture ? s.moisture.rainProb : undefined;
 }
 
+function _mmOf(s) {
+    return s.moisture ? s.moisture.precipMM : undefined;
+}
+
+function _speedOf(s) {
+    return s.wind ? s.wind.speedKmph : undefined;
+}
+
+function _gustOf(s) {
+    return s.wind ? s.wind.gustKmph : undefined;
+}
+
+function _visOf(s) {
+    return s.atmosphere ? s.atmosphere.visibilityKm : undefined;
+}
+
 // Graph 2 scales, falling back to computeScales for any piece the caller did not pass.
 function _rainwindScales(slots, scales) {
     var sc = scales || {};
     var full = computeScales("rainwind", slots);
     return {
-        rain: sc.rain ? sc.rain : full.rain
+        rain: sc.rain ? sc.rain : full.rain,
+        wind: sc.wind ? sc.wind : full.wind,
+        mm: sc.mm ? sc.mm : full.mm
     };
 }
 
-// Rain probability: monotone spline on its own 0..100 scale (D-54.4-22), stroked with the hard
-// RAIN tier gradient (D-54.4-23), lineWidth 2, solid. No y-axis labels or units.
+// mm bar rects {i, p, x, y, w, h}: only available slots with precipMM > 0 (D-54.4-21), centred on
+// the slot, max(2, slotW*0.6) wide, height precipMM / mm.max * BAR_CAP of the plot, standing on
+// plotBottom (PA-13). mm.max > 0 whenever a bar exists, so there is no 0/0 (T-54.4-15).
+function mmBarRects(geom, slots, mmScale) {
+    var out = [];
+    if (!geom || !slots || typeof slots.length !== "number" || !mmScale || !isNum(mmScale.max) || mmScale.max <= 0)
+        return out;
+    var plotH = geom.plotBottom - geom.plotTop;
+    var w = Math.max(2, geom.slotW * 0.6);
+    for (var i = 0; i < slots.length; ++i) {
+        var s = slots[i];
+        if (!isAvailable(s))
+            continue;
+        var p = _mmOf(s);
+        if (!isNum(p) || p <= 0)
+            continue;
+        var h = Math.min(p, mmScale.max) / mmScale.max * BAR_CAP * plotH;
+        out.push({ i: i, p: p, x: slotCenterX(geom, i) - w / 2, y: geom.plotBottom - h, w: w, h: h });
+    }
+    return out;
+}
+
+// Graph 2 (D-54.4-21..24), drawn in this order, each inside save/restore:
+// (a) mm bars under the lines, MM_COLOR at MM_ALPHA;
+// (b) rain probability: monotone spline on its own 0..100 scale, stroked with the hard RAIN tier
+//     gradient, lineWidth 2, solid;
+// (c) wind: solid WIND_COLOR at WIND_ALPHA, lineWidth 1.5, on the shared wind scale;
+// (d) gust: the same colour and alpha, DASH_DASHED, lineWidth 1.2;
+// (e) visibility: VIS tier gradient over the wind scale, DASH_DOTTED, lineWidth 1.5.
+// No y-axis labels or units.
 function drawRainWind(ctx, geom, slots, scales) {
     if (!ctx || !geom || !slots || typeof slots.length !== "number" || slots.length < 1)
         return;
     var sc = _rainwindScales(slots, scales);
+
+    var bars = mmBarRects(geom, slots, sc.mm);
+    if (bars.length > 0) {
+        ctx.save();
+        ctx.fillStyle = MM_COLOR;
+        ctx.globalAlpha = MM_ALPHA;
+        for (var b = 0; b < bars.length; ++b)
+            ctx.fillRect(bars[b].x, bars[b].y, bars[b].w, bars[b].h);
+        ctx.restore();
+    }
 
     var rainRuns = seriesRuns(slots, _rainOf, geom, sc.rain);
     if (_hasStrokableRun(rainRuns)) {
@@ -636,6 +759,43 @@ function drawRainWind(ctx, geom, slots, scales) {
         ctx.lineCap = "round";
         ctx.setLineDash([]);
         strokeRuns(ctx, rainRuns);
+        ctx.restore();
+    }
+
+    var windRuns = seriesRuns(slots, _speedOf, geom, sc.wind);
+    if (_hasStrokableRun(windRuns)) {
+        ctx.save();
+        ctx.strokeStyle = WIND_COLOR;
+        ctx.globalAlpha = WIND_ALPHA;
+        ctx.lineWidth = 1.5;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.setLineDash([]);
+        strokeRuns(ctx, windRuns);
+        ctx.restore();
+    }
+
+    var gustRuns = seriesRuns(slots, _gustOf, geom, sc.wind);
+    if (_hasStrokableRun(gustRuns)) {
+        ctx.save();
+        ctx.strokeStyle = WIND_COLOR;
+        ctx.globalAlpha = WIND_ALPHA;
+        ctx.lineWidth = 1.2;
+        ctx.lineJoin = "round";
+        ctx.setLineDash(DASH_DASHED.slice());
+        strokeRuns(ctx, gustRuns);
+        ctx.restore();
+    }
+
+    var visRuns = seriesRuns(slots, _visOf, geom, sc.wind);
+    if (_hasStrokableRun(visRuns)) {
+        ctx.save();
+        ctx.strokeStyle = _verticalGradient(ctx, geom, tierStops(VIS_EDGES, visColor, sc.wind.max, sc.wind.min));
+        ctx.lineWidth = 1.5;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.setLineDash(DASH_DOTTED.slice());
+        strokeRuns(ctx, visRuns);
         ctx.restore();
     }
 }
@@ -665,7 +825,11 @@ function legendEntries(kind) {
     if (kind === "rainwind") {
         // D-54.4-25 short names with a colour dot, then the D-54.4-09 line-style swatch (PA-15).
         return [
-            { label: "Rain%", style: "solid", color: RAIN_COLORS[1], colors: RAIN_COLORS.slice(), dot: true }
+            { label: "Rain%", style: "solid", color: RAIN_COLORS[1], colors: RAIN_COLORS.slice(), dot: true },
+            { label: "mm", style: "bar", color: MM_COLOR, colors: [MM_COLOR], dot: true },
+            { label: "Wind", style: "solid", color: WIND_COLOR, colors: [WIND_COLOR], dot: true },
+            { label: "Gust", style: "dashed", color: WIND_COLOR, colors: [WIND_COLOR], dot: true },
+            { label: "Vis", style: "dotted", color: VIS_COLORS[3], colors: VIS_COLORS.slice(), dot: true }
         ];
     }
     return [];
@@ -831,6 +995,9 @@ function _labelOffsets(c) {
     var centre = c.x - c.w / 2;
     var left = c.x - c.w - g;
     var right = c.x + g;
+    // A bar value is written above its bar only, never beside or inside it (D-54.4-24).
+    if (c.anchor === "bar-top")
+        return [[centre, above]];
     if (c.anchor === "below")
         return [[centre, below], [left, below], [right, below], [centre, above]];
     return [[centre, above], [left, above], [right, above], [centre, below]];
@@ -955,6 +1122,48 @@ function peakCandidates(kind, ctx, geom, slots, scales) {
                 rank: rpk.v,
                 color: rainColor(rpk.v),
                 anchor: "above"
+            });
+        }
+        var lineSeries = [
+            { get: _speedOf, priority: 3, text: function (v) { return String(Math.round(v)); }, color: function () { return WIND_COLOR; } },
+            { get: _gustOf, priority: 3, text: function (v) { return "G" + Math.round(v); }, color: function () { return WIND_COLOR; } },
+            { get: _visOf, priority: 4, text: function (v) { return formatKm(v) + " km"; }, color: visColor }
+        ];
+        for (var ls = 0; ls < lineSeries.length; ++ls) {
+            var ser = lineSeries[ls];
+            var lpk = _peakOf(slots, ser.get);
+            if (!lpk || lpk.v <= 0)
+                continue;
+            var ltext = ser.text(lpk.v);
+            out.push({
+                text: ltext,
+                x: slotCenterX(geom, lpk.i),
+                y: valueToY(lpk.v, rsc.wind.min, rsc.wind.max, geom.plotTop, geom.plotBottom),
+                w: ctx.measureText(ltext).width,
+                h: 10,
+                priority: ser.priority,
+                rank: lpk.v,
+                color: ser.color(lpk.v),
+                anchor: "above"
+            });
+        }
+        // One mm value per bar, written above its bar and never inside it (D-54.4-24, PA-11).
+        // The "bar-top" anchor offers only the above-centre spot, so when neighbouring values
+        // collide the larger (placed first by rank) is kept and the smaller one is dropped; its
+        // exact value stays in tooltip line 2.
+        var mmBars = mmBarRects(geom, slots, rsc.mm);
+        for (var mb = 0; mb < mmBars.length; ++mb) {
+            var mtext = Number(mmBars[mb].p).toFixed(1);
+            out.push({
+                text: mtext,
+                x: slotCenterX(geom, mmBars[mb].i),
+                y: mmBars[mb].y,
+                w: ctx.measureText(mtext).width,
+                h: 10,
+                priority: 7,
+                rank: mmBars[mb].p,
+                color: MM_COLOR,
+                anchor: "bar-top"
             });
         }
         ctx.restore();
@@ -1085,6 +1294,22 @@ function tooltipLines(kind, slots, i) {
         ]);
         if (rl2.length > 0)
             lines.push({ lead: "", icon: "water_drop", text: rl2 });
+        // Line 3 "<speed> km/h · G<gust> · <dir16> <deg>°"; line 4 "<km> km <tier>" (D-54.4-26).
+        var wi = slot.wind || {};
+        if (isNum(wi.speedKmph)) {
+            var l3 = Math.round(wi.speedKmph) + " km/h";
+            if (isNum(wi.gustKmph))
+                l3 += " · G" + Math.round(wi.gustKmph);
+            var dirPart = [wi.dir16 ? String(wi.dir16) : "", isNum(wi.degree) ? Math.round(wi.degree) + "°" : ""].filter(function (x) {
+                return x.length > 0;
+            }).join(" ");
+            if (dirPart.length > 0)
+                l3 += " · " + dirPart;
+            lines.push({ lead: "", icon: "air", text: l3 });
+        }
+        var vis = slot.atmosphere ? slot.atmosphere.visibilityKm : null;
+        if (isNum(vis))
+            lines.push({ lead: "", icon: "visibility", text: formatKm(vis) + " km " + visibilityTier(vis) });
     }
     return lines;
 }
@@ -1117,6 +1342,15 @@ function markerPoints(kind, slots, i, geom, scales) {
         var rp = _rainOf(slot);
         if (isNum(rp))
             pts.push({ y: valueToY(rp, rsc.rain.min, rsc.rain.max, geom.plotTop, geom.plotBottom), color: rainColor(rp) });
+        var wv = [[_speedOf(slot), WIND_COLOR], [_gustOf(slot), WIND_COLOR], [_visOf(slot), null]];
+        for (var w = 0; w < wv.length; ++w) {
+            if (!isNum(wv[w][0]))
+                continue;
+            pts.push({
+                y: valueToY(wv[w][0], rsc.wind.min, rsc.wind.max, geom.plotTop, geom.plotBottom),
+                color: wv[w][1] !== null ? wv[w][1] : visColor(wv[w][0])
+            });
+        }
     }
     return pts;
 }
