@@ -925,6 +925,42 @@ for (const kind of ["rainwind", "airuv"]) {
   const t = G.tooltipLines(kind, ttl, 12);
   ok(t.length >= 1 && t[0].lead === "Now" && t[0].text.indexOf(s12.desc) === 0, "S3: tooltipLines(" + kind + ") starts with the shared header line");
 }
+
+// Graph 2 rain palette and tiers (D-54.4-23)
+ok(same(G.RAIN_EDGES, [30, 60]) && same(G.RAIN_COLORS, ["#90caf9", "#42a5f5", "#2979ff"]),
+   "S3: RAIN_EDGES 30,60 and RAIN_COLORS #90caf9, #42a5f5, #2979ff exactly (D-54.4-23)");
+const rainCases = [[0, "#90caf9"], [29.9, "#90caf9"], [30, "#42a5f5"], [45, "#42a5f5"], [60, "#42a5f5"], [60.1, "#2979ff"], [100, "#2979ff"]];
+for (const [v, want] of rainCases) {
+  ok(typeof G.rainColor === "function" && G.rainColor(v) === want, "S3: rainColor(" + v + ") = " + want + " (D-54.4-23)");
+}
+
+// Graph 2 tooltip lines 1-2 (D-54.4-26, D-54.4-36)
+const rw = G.tooltipLines("rainwind", ttl, 12);
+const cloudSfx = " · Cloud " + Math.round(s12.moisture.cloudCover) + "%";
+ok(rw.length >= 1 && rw[0].text === s12.desc + cloudSfx, "S3: tooltipLines(rainwind) line 1 is '" + s12.desc + cloudSfx + "' (D-54.4-36, got " + JSON.stringify(rw[0] && rw[0].text) + ")");
+ok(rw.length >= 2 && rw[1].icon === "water_drop" && /^\d+% · \d+\.\d mm$/.test(rw[1].text),
+   "S3: tooltipLines(rainwind) line 2 is water_drop '<rain>% · <mm> mm' with no Thunder/Snow at 0 (got " + JSON.stringify(rw[1] && rw[1].text) + ")");
+ok(rw.length >= 2 && rw[1].text === Math.round(s12.moisture.rainProb) + "% · " + Number(s12.moisture.precipMM).toFixed(1) + " mm",
+   "S3: tooltipLines(rainwind) line 2 values come from the slot rainProb and precipMM");
+function withMoisture(extra) {
+  const c = ttl.slice();
+  c[12] = Object.assign({}, s12, { moisture: Object.assign({}, s12.moisture, extra) });
+  return G.tooltipLines("rainwind", c, 12);
+}
+const th20 = withMoisture({ thunderProb: 20, snowProb: 0 });
+ok(th20.length >= 2 && / · Thunder 20%$/.test(th20[1].text) && th20[1].text.indexOf("Snow") < 0,
+   "S3: thunderProb 20, snowProb 0: line 2 ends ' · Thunder 20%' with no Snow (D-54.4-36, got " + JSON.stringify(th20[1] && th20[1].text) + ")");
+const th20s5 = withMoisture({ thunderProb: 20, snowProb: 5 });
+ok(th20s5.length >= 2 && / · Thunder 20% · Snow 5%$/.test(th20s5[1].text),
+   "S3: thunderProb 20, snowProb 5: line 2 ends ' · Thunder 20% · Snow 5%' (Thunder before Snow)");
+const sn5 = withMoisture({ thunderProb: 0, snowProb: 5 });
+ok(sn5.length >= 2 && / · Snow 5%$/.test(sn5[1].text) && sn5[1].text.indexOf("Thunder") < 0, "S3: snowProb 5 alone: line 2 ends ' · Snow 5%' with no Thunder");
+const cl75 = withMoisture({ cloudCover: 75 });
+ok(cl75.length >= 1 && / · Cloud 75%$/.test(cl75[0].text), "S3: cloudCover 75 reads 'Cloud 75%' on line 1");
+const cl0 = withMoisture({ cloudCover: 0 });
+ok(cl0.length >= 1 && / · Cloud 0%$/.test(cl0[0].text), "S3: cloud cover is always shown on line 1, even at 0% (D-54.4-36)");
+const rwUn = G.tooltipLines("rainwind", ttl, 0);
+ok(rwUn.length === 1 && rwUn[0].text === "No data", "S3: tooltipLines(rainwind) on an unavailable slot is one No data line");
 JS
   run_node_section "S3" "$S3_JS"
 
@@ -1020,7 +1056,74 @@ ok(fx.min === 25 && fx.max === 36 && !fx.empty, "S4: tempScale over the 25-slot 
 ok(G.valueToY(10, 0, 10, 16, 260) === 16 && G.valueToY(0, 0, 10, 16, 260) === 260, "S4: valueToY maps hi to top and lo to bottom");
 ok(G.valueToY(5, 0, 0, 16, 260) === 260, "S4: valueToY on a flat zero scale draws at the bottom");
 ok(G.valueToY(5, 5, 5, 16, 260) === 138, "S4: valueToY on a flat non-zero scale draws at the vertical centre");
-ok(same(G.computeScales("rainwind", tl), {}) && same(G.computeScales("airuv", tl), {}), "S4: computeScales returns an empty object for kinds owned by plans 06/07");
+ok(same(G.computeScales("airuv", tl), {}), "S4: computeScales returns an empty object for the kind owned by plan 07");
+ok(same(G.computeScales("rainwind", tl).rain, { min: 0, max: 100 }), "S4: computeScales(rainwind).rain is {min:0, max:100} (D-54.4-22)");
+
+// tierStops (PA-10, Pitfalls 1/2): hard-edged tier stops for rain % and visibility
+const HAS_TIER = typeof G.tierStops === "function" && typeof G.rainColor === "function";
+ok(HAS_TIER, "S4: tierStops and rainColor exist");
+// Colour of a gradient at offset o: the colour between the bracketing stops (lerp inside an EPS band).
+function sampleStops(stops, o) {
+  for (let i = 1; i < stops.length; ++i) {
+    if (o <= stops[i].offset) {
+      const a = stops[i - 1];
+      const b = stops[i];
+      if (a.color === b.color || b.offset === a.offset) return b.color;
+      return G.lerpColor(a.color, b.color, (o - a.offset) / (b.offset - a.offset));
+    }
+  }
+  return stops[stops.length - 1].color;
+}
+function tierOk(stops) {
+  if (!Array.isArray(stops) || stops.length < 2) return false;
+  if (stops[0].offset !== 0 || stops[stops.length - 1].offset !== 1) return false;
+  for (let i = 0; i < stops.length; ++i) {
+    const o = stops[i].offset;
+    if (!(o >= 0 && o <= 1)) return false;
+    if (i > 0 && o < stops[i - 1].offset) return false;
+    if (!/^#[0-9a-f]{6}$/i.test(stops[i].color)) return false;
+  }
+  return true;
+}
+if (HAS_TIER) {
+  const rs = G.tierStops(G.RAIN_EDGES, G.rainColor, 100, 0);
+  ok(rs.length === 6 && tierOk(rs), "S4: tierStops(RAIN_EDGES, rainColor, 100, 0) gives 6 in-range non-decreasing stops (start, two per edge, end)");
+  ok(rs.length === 6 && near(rs[1].offset, 0.4) && near(rs[2].offset, 0.4 + G.EPS) && near(rs[3].offset, 0.7) && near(rs[4].offset, 0.7 + G.EPS),
+     "S4: each rain edge (60 at 0.4, 30 at 0.7) contributes two stops EPS apart (Pitfall 2)");
+  ok(rs.length === 6 && rs[0].color === "#2979ff" && rs[1].color === "#2979ff" && rs[2].color === "#42a5f5" && rs[3].color === "#42a5f5" && rs[4].color === "#90caf9" && rs[5].color === "#90caf9",
+     "S4: tierStops colours are hard-edged: deep blue above 60, blue 30-60, light blue below 30");
+  let sampOk = true;
+  let sampBad = "";
+  for (let v = 0; v <= 100; v += 0.5) {
+    if (Math.abs(v - 30) <= 1 || Math.abs(v - 60) <= 1) continue;
+    const got = sampleStops(rs, G.valueOffset(v, 100, 0));
+    if (got !== G.rainColor(v)) {
+      sampOk = false;
+      sampBad = sampBad || (v + " -> " + got + " want " + G.rainColor(v));
+    }
+  }
+  ok(sampOk, "S4: tierStops sampled at every value more than 1 unit from an edge equals rainColor(value)" + (sampOk ? "" : " " + sampBad));
+  const tr = rng(5406);
+  let tierAll = true;
+  let tierBad = "";
+  const tierPairs = [[100, 0], [0, 100], [50, 50], [29, 0], [100, 61], [45, 35]];
+  for (let k = 0; k < 200 - 6; ++k) tierPairs.push([Math.round(-20 + tr() * 160), Math.round(-20 + tr() * 160)]);
+  for (const [top, bottom] of tierPairs) {
+    const s = G.tierStops(G.RAIN_EDGES, G.rainColor, top, bottom);
+    if (!tierOk(s)) {
+      tierAll = false;
+      tierBad = tierBad || JSON.stringify({ top, bottom, s });
+    }
+  }
+  ok(tierAll, "S4: tierStops over 200 random (vTop, vBottom) pairs incl. inverted and flat: offsets in [0,1], non-decreasing, 0..1" + (tierAll ? "" : " " + tierBad));
+  const close = G.tierStops([10, 10.00001], function (v) { return v < 10 ? "#000000" : "#ffffff"; }, 20, 0);
+  ok(tierOk(close), "S4: tierStops stays non-decreasing when two edges lie within EPS of each other");
+}
+
+// legendEntries(rainwind) first entry (D-54.4-25, PA-15)
+const rle = G.legendEntries("rainwind");
+ok(rle.length >= 1 && rle[0].label === "Rain%" && rle[0].style === "solid" && rle[0].dot === true && rle[0].color === "#42a5f5" && same(rle[0].colors, G.RAIN_COLORS),
+   "S4: legendEntries(rainwind)[0] is Rain%, solid, dot, colour #42a5f5, swatch RAIN_COLORS");
 ok(G.computeScales("temp", tl).temp.max === 36, "S4: computeScales(temp) carries tempScale");
 
 // legendEntries (D-54.4-09/18)
@@ -1338,8 +1441,27 @@ if (HAS_PEAK) {
   ok(pp.length === 2 && pp[0].text === Math.round(tMax) + "°" && pp[1].text === Math.round(fMax) + "°", "S5: a historical-unavailable slot never yields a peak candidate");
   const noData = mkTimeline({ unavailable: 25 });
   ok(same(G.peakCandidates("temp", mockCtx().ctx, geomFor(25), noData, G.computeScales("temp", noData)), []), "S5: an all-unavailable timeline yields no peak candidate");
-  ok(same(G.peakCandidates("rainwind", mockCtx().ctx, geom, tl, {}), []) && same(G.peakCandidates("bogus", mockCtx().ctx, geom, tl, {}), []),
-     "S5: peakCandidates returns [] for kinds owned by plans 06/07 and unknown kinds");
+  ok(same(G.peakCandidates("airuv", mockCtx().ctx, geom, tl, {}), []) && same(G.peakCandidates("bogus", mockCtx().ctx, geom, tl, {}), []),
+     "S5: peakCandidates returns [] for the kind owned by plan 07 and unknown kinds");
+
+  // Rain % peak (Graph 2): priority 2, tier colour, skipped when the max is 0
+  let rMax = -Infinity, rIdx = -1;
+  tl.forEach(function (s, i) {
+    if (G.isAvailable(s) && s.moisture.rainProb > rMax) { rMax = s.moisture.rainProb; rIdx = i; }
+  });
+  const rwScales = G.computeScales("rainwind", tl);
+  const rpc = G.peakCandidates("rainwind", mockCtx().ctx, geom, tl, rwScales);
+  const rainPk = rpc.find(function (c) { return c.text === Math.round(rMax) + "%"; });
+  ok(!!rainPk && rainPk.priority === 2 && rainPk.color === G.rainColor(rMax) && rainPk.anchor === "above" && near(rainPk.x, G.slotCenterX(geom, rIdx))
+     && near(rainPk.y, G.valueToY(rMax, 0, 100, geom.plotTop, geom.plotBottom)),
+     "S5: peakCandidates(rainwind) labels the rain max '" + Math.round(rMax) + "%' at priority 2 in rainColor, on the 0..100 scale");
+  const dry = mkTimeline().map(function (s) { return Object.assign({}, s, { moisture: Object.assign({}, s.moisture, { rainProb: 0 }) }); });
+  ok(!G.peakCandidates("rainwind", mockCtx().ctx, geom, dry, G.computeScales("rainwind", dry)).some(function (c) { return /%$/.test(c.text); }),
+     "S5: an all-zero rain series gets no rain peak label (nothing peaks)");
+  const rpoison = mkTimeline();
+  rpoison[1] = Object.assign({}, rpoison[1], { moisture: Object.assign({}, rpoison[1].moisture, { rainProb: 99 }) });
+  ok(!G.peakCandidates("rainwind", mockCtx().ctx, geom, rpoison, G.computeScales("rainwind", rpoison)).some(function (c) { return c.text === "99%"; }),
+     "S5: a historical-unavailable slot never yields a rain peak label");
 
   const dl = mockCtx();
   dl.ctx.globalAlpha = 0.45;
@@ -1409,6 +1531,37 @@ ok(mp.every(function (p) { return /^#[0-9a-f]{6}$/i.test(p.color); }), "S5: mark
 ok(same(G.markerPoints("temp", tl, 0, geom, scales), []), "S5: markerPoints at the unavailable index 0 is []");
 ok(same(G.markerPoints("temp", tl, -1, geom, scales), []) && same(G.markerPoints("temp", tl, 25, geom, scales), []), "S5: markerPoints out of range is []");
 ok(same(G.markerPoints("temp", tl, 12, null, scales), []), "S5: markerPoints without geometry is []");
+
+// Graph 2: rain-probability tier spline (D-54.4-21..23)
+const rwSc = G.computeScales("rainwind", tl);
+const rk = mockCtx();
+let rkThrew = null;
+try { G.drawKind(rk.ctx, "rainwind", geom, tl, rwSc, THEME); } catch (e) { rkThrew = e; }
+ok(rkThrew === null, "S5: drawKind(rainwind) on the fixture does not throw" + (rkThrew ? " (" + rkThrew + ")" : ""));
+ok(calls(rk.log, "bezierCurveTo").length >= 1, "S5: drawKind(rainwind) records at least one bezierCurveTo (rain spline)");
+ok(calls(rk.log, "createLinearGradient").length >= 1, "S5: drawKind(rainwind) creates a linear gradient for the rain tiers");
+const rkStops = rk.log.filter(function (e) { return e[0] === "stop"; });
+ok(rkStops.length >= 2 && rkStops.every(function (e) { return e[1] >= 0 && e[1] <= 1; }), "S5: drawKind(rainwind) adds no colour stop outside [0,1] (Pitfall 1)");
+ok(calls(rk.log, "save").length === calls(rk.log, "restore").length, "S5: drawKind(rainwind) save/restore calls are balanced");
+const rr = mockCtx();
+G.drawRainWind(rr.ctx, geom, tl, rwSc);
+const rrGrad = calls(rr.log, "createLinearGradient");
+ok(rrGrad.length >= 1 && rrGrad[0][2] === geom.plotTop && rrGrad[0][4] === geom.plotBottom, "S5: the rain gradient runs vertically from plotTop to plotBottom");
+const rrStops = rr.log.filter(function (e) { return e[0] === "stop"; }).slice(0, 6).map(function (e) { return e[2]; });
+ok(same(rrStops, ["#2979ff", "#2979ff", "#42a5f5", "#42a5f5", "#90caf9", "#90caf9"]), "S5: the rain gradient carries the six hard-edged tier stops (" + JSON.stringify(rrStops) + ")");
+const rrAnn = annotate(rr.log);
+const rainStroke = rrAnn.find(function (c) { return c.name === "stroke"; });
+ok(!!rainStroke && rainStroke.st.lineWidth === 2, "S5: the rain spline is stroked at lineWidth 2");
+let rxOk = true;
+for (const e of rr.log) {
+  if (e[0] === "moveTo" && e[1] < minX) rxOk = false;
+  if (e[0] === "bezierCurveTo" && (e[1] < minX || e[3] < minX || e[5] < minX)) rxOk = false;
+}
+ok(rxOk, "S5: the rain spline never enters the unavailable columns (T-54.4-20)");
+const rmp = G.markerPoints("rainwind", tl, 12, geom, rwSc);
+ok(rmp.some(function (p) { return p.color === G.rainColor(tl[12].moisture.rainProb) && near(p.y, G.valueToY(tl[12].moisture.rainProb, 0, 100, geom.plotTop, geom.plotBottom)); }),
+   "S5: markerPoints(rainwind, fixture, 12) has the rain point in rainColor(rainProb) on the 0..100 scale");
+ok(same(G.markerPoints("rainwind", tl, 0, geom, rwSc), []), "S5: markerPoints(rainwind) at the unavailable index 0 is []");
 JS
   run_node_section "S5" "$S5_JS"
 

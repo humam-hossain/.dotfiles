@@ -30,6 +30,10 @@ var FEELS_ALPHA = 0.7;
 var DASH_DASHED = [4, 3];
 var DASH_DOTTED = [2, 3];
 
+// Graph 2 rain-probability tiers (D-54.4-23): <30% light blue, 30-60% blue, >60% deep blue.
+var RAIN_EDGES = [30, 60];
+var RAIN_COLORS = ["#90caf9", "#42a5f5", "#2979ff"];
+
 var Y_LABEL_FONT = "10px sans-serif";
 var LABEL_FONT = "bold 10px sans-serif";
 
@@ -300,10 +304,12 @@ function tempScale(slots) {
     return { min: min, max: max, empty: false };
 }
 
-// Scales computed once per timeline change. Plans 06 and 07 own the rainwind and airuv branches.
+// Scales computed once per timeline change. Plan 07 owns the airuv branch.
 function computeScales(kind, slots) {
     if (kind === "temp")
         return { temp: tempScale(slots) };
+    if (kind === "rainwind")
+        return { rain: { min: 0, max: 100 } };
     return {};
 }
 
@@ -378,6 +384,59 @@ function smoothRampStops(anchors, vTop, vBottom) {
         return a.offset - b.offset;
     });
     return stops;
+}
+
+// Rain probability -> tier colour (D-54.4-23): below 30, 30..60 inclusive, above 60.
+function rainColor(v) {
+    if (!isNum(v) || v < RAIN_EDGES[0])
+        return RAIN_COLORS[0];
+    if (v <= RAIN_EDGES[1])
+        return RAIN_COLORS[1];
+    return RAIN_COLORS[2];
+}
+
+// Hard-edged tier gradient stops (PA-10). A start stop at 0 with colorAt(vTop); for each edge
+// strictly between vBottom and vTop, in ascending offset order, a stop at the edge offset with the
+// colour on the vTop side and a second stop EPS further with the colour on the vBottom side (equal
+// offsets would replace each other, Pitfall 2); an end stop at 1 with colorAt(vBottom). Offsets
+// are clamped to [0,1] and forced non-decreasing, so addColorStop never throws (Pitfall 1).
+function tierStops(edges, colorAt, vTop, vBottom) {
+    var stops = [{ offset: 0, color: colorAt(vTop) }];
+    if (edges && isNum(vTop) && isNum(vBottom) && vTop !== vBottom) {
+        var lo = Math.min(vTop, vBottom);
+        var hi = Math.max(vTop, vBottom);
+        var toward = vTop > vBottom ? 1e-6 : -1e-6;
+        var inner = [];
+        for (var i = 0; i < edges.length; ++i) {
+            var e = edges[i];
+            if (isNum(e) && e > lo && e < hi)
+                inner.push({ v: e, offset: valueOffset(e, vTop, vBottom) });
+        }
+        inner.sort(function (a, b) {
+            return a.offset - b.offset;
+        });
+        for (var k = 0; k < inner.length; ++k) {
+            var off = clamp01(inner[k].offset);
+            stops.push({ offset: off, color: colorAt(inner[k].v + toward) });
+            stops.push({ offset: Math.min(1, off + EPS), color: colorAt(inner[k].v - toward) });
+        }
+    }
+    stops.push({ offset: 1, color: colorAt(vBottom) });
+    var prev = 0;
+    for (var j = 0; j < stops.length; ++j) {
+        var o = Math.max(prev, clamp01(stops[j].offset));
+        stops[j].offset = o;
+        prev = o;
+    }
+    return stops;
+}
+
+// Vertical gradient from plotTop to plotBottom carrying the given stops.
+function _verticalGradient(ctx, geom, stops) {
+    var grad = ctx.createLinearGradient(0, geom.plotTop, 0, geom.plotBottom);
+    for (var i = 0; i < stops.length; ++i)
+        grad.addColorStop(clamp01(stops[i].offset), stops[i].color);
+    return grad;
 }
 
 // ---------------------------------------------------------------------------
@@ -545,6 +604,43 @@ function drawTemp(ctx, geom, slots, scales) {
 }
 
 // ---------------------------------------------------------------------------
+// Draw: rain, wind and visibility card (D-54.4-21..24)
+// ---------------------------------------------------------------------------
+
+function _rainOf(s) {
+    return s.moisture ? s.moisture.rainProb : undefined;
+}
+
+// Graph 2 scales, falling back to computeScales for any piece the caller did not pass.
+function _rainwindScales(slots, scales) {
+    var sc = scales || {};
+    var full = computeScales("rainwind", slots);
+    return {
+        rain: sc.rain ? sc.rain : full.rain
+    };
+}
+
+// Rain probability: monotone spline on its own 0..100 scale (D-54.4-22), stroked with the hard
+// RAIN tier gradient (D-54.4-23), lineWidth 2, solid. No y-axis labels or units.
+function drawRainWind(ctx, geom, slots, scales) {
+    if (!ctx || !geom || !slots || typeof slots.length !== "number" || slots.length < 1)
+        return;
+    var sc = _rainwindScales(slots, scales);
+
+    var rainRuns = seriesRuns(slots, _rainOf, geom, sc.rain);
+    if (_hasStrokableRun(rainRuns)) {
+        ctx.save();
+        ctx.strokeStyle = _verticalGradient(ctx, geom, tierStops(RAIN_EDGES, rainColor, sc.rain.max, sc.rain.min));
+        ctx.lineWidth = 2;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.setLineDash([]);
+        strokeRuns(ctx, rainRuns);
+        ctx.restore();
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Legend (D-54.4-09/18)
 // ---------------------------------------------------------------------------
 
@@ -564,6 +660,12 @@ function legendEntries(kind) {
         return [
             { label: "Temp", style: "solid", color: "#ffb300", colors: _rampColors(TEMP_RAMP), dot: false },
             { label: "Feels", style: "dashed", color: "#ffb300", colors: _rampColors(TEMP_RAMP), dot: false }
+        ];
+    }
+    if (kind === "rainwind") {
+        // D-54.4-25 short names with a colour dot, then the D-54.4-09 line-style swatch (PA-15).
+        return [
+            { label: "Rain%", style: "solid", color: RAIN_COLORS[1], colors: RAIN_COLORS.slice(), dot: true }
         ];
     }
     return [];
@@ -835,6 +937,28 @@ function peakCandidates(kind, ctx, geom, slots, scales) {
         }
         ctx.restore();
     }
+    if (kind === "rainwind") {
+        var rsc = _rainwindScales(slots, scales);
+        ctx.save();
+        ctx.font = LABEL_FONT;
+        // A series whose max is 0 or less peaks nowhere, so it gets no label.
+        var rpk = _peakOf(slots, _rainOf);
+        if (rpk && rpk.v > 0) {
+            var rtext = Math.round(rpk.v) + "%";
+            out.push({
+                text: rtext,
+                x: slotCenterX(geom, rpk.i),
+                y: valueToY(rpk.v, rsc.rain.min, rsc.rain.max, geom.plotTop, geom.plotBottom),
+                w: ctx.measureText(rtext).width,
+                h: 10,
+                priority: 2,
+                rank: rpk.v,
+                color: rainColor(rpk.v),
+                anchor: "above"
+            });
+        }
+        ctx.restore();
+    }
     return out;
 }
 
@@ -866,6 +990,8 @@ function drawKind(ctx, kind, geom, slots, scales, theme) {
         drawTempAxis(ctx, geom, scale, theme);
         drawTemp(ctx, geom, slots, scales);
     }
+    if (kind === "rainwind")
+        drawRainWind(ctx, geom, slots, scales);
     if (!geom || !slots || typeof slots.length !== "number")
         return;
     drawLabels(ctx, placeLabels(peakCandidates(kind, ctx, geom, slots, scales), {
@@ -946,6 +1072,20 @@ function tooltipLines(kind, slots, i) {
             lines.push({ lead: "", icon: "thermostat", text: l2 });
         }
     }
+    if (kind === "rainwind") {
+        // D-54.4-26 amended by D-54.4-36: line 1 always ends with cloud cover; line 2 is
+        // "<rain>% · <mm> mm", then Thunder and Snow only when above 0, in that order.
+        var mo = slot.moisture || {};
+        header.text = _joinDot([header.text, isNum(mo.cloudCover) ? "Cloud " + Math.round(mo.cloudCover) + "%" : ""]);
+        var rl2 = _joinDot([
+            isNum(mo.rainProb) ? Math.round(mo.rainProb) + "%" : "",
+            isNum(mo.precipMM) ? Number(mo.precipMM).toFixed(1) + " mm" : "",
+            isNum(mo.thunderProb) && mo.thunderProb > 0 ? "Thunder " + Math.round(mo.thunderProb) + "%" : "",
+            isNum(mo.snowProb) && mo.snowProb > 0 ? "Snow " + Math.round(mo.snowProb) + "%" : ""
+        ]);
+        if (rl2.length > 0)
+            lines.push({ lead: "", icon: "water_drop", text: rl2 });
+    }
     return lines;
 }
 
@@ -971,6 +1111,12 @@ function markerPoints(kind, slots, i, geom, scales) {
                 color: rampColorAt(TEMP_RAMP, vals[k])
             });
         }
+    }
+    if (kind === "rainwind") {
+        var rsc = _rainwindScales(slots, scales);
+        var rp = _rainOf(slot);
+        if (isNum(rp))
+            pts.push({ y: valueToY(rp, rsc.rain.min, rsc.rain.max, geom.plotTop, geom.plotBottom), color: rainColor(rp) });
     }
     return pts;
 }
