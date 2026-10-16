@@ -1051,6 +1051,84 @@ ok(typeof G.tempGridPlan === "function" && G.tempGridPlan({ min: 0, max: 10 }, 1
    "S4: tempGridPlan at 11.9px rows gives labelStep 2");
 ok(typeof G.tempGridPlan === "function" && G.tempGridPlan({ min: 5, max: 5 }, 100).step === 1 && G.tempGridPlan(null, 100).labelStep === 1,
    "S4: tempGridPlan tolerates a flat or missing scale");
+
+// placeLabels: greedy collision-free peak-label placement (D-54.4-10, RESEARCH Pattern 6)
+const HAS_PLACE = typeof G.placeLabels === "function" && typeof G.rectsIntersect === "function";
+const BND = { left: 24, right: 292, top: 0, bottom: 260 };
+function inside(p, b) {
+  return p.x >= b.left && p.x + p.w <= b.right && p.y >= b.top && p.y + p.h <= b.bottom;
+}
+function cand(text, x, y, pr, rank, anchor, w) {
+  return { text: text, x: x, y: y, w: w === undefined ? 18 : w, h: 10, priority: pr, rank: rank, color: "#ffb300", anchor: anchor || "above" };
+}
+ok(HAS_PLACE && same(G.placeLabels([], BND, []), []), "S4: placeLabels([], bounds, []) = []");
+ok(HAS_PLACE && G.rectsIntersect({ x: 0, y: 0, w: 10, h: 10 }, { x: 5, y: 5, w: 10, h: 10 }) && !G.rectsIntersect({ x: 0, y: 0, w: 10, h: 10 }, { x: 10, y: 0, w: 10, h: 10 }),
+   "S4: rectsIntersect detects overlap and treats touching edges as clear");
+if (HAS_PLACE) {
+  const co = G.placeLabels([cand("34°", 100, 40, 0, 34), cand("36°", 100, 40, 1, 36)], BND, []);
+  ok(co.length >= 1 && !(co.length === 2 && G.rectsIntersect(co[0], co[1])) && co[0].text === "34°",
+     "S4: two coincident candidates never give intersecting rects; the priority-0 label is kept (" + JSON.stringify(co) + ")");
+  ok(co.every(function (p) { return inside(p, BND); }), "S4: coincident candidates stay inside bounds");
+  const ac = G.placeLabels([cand("34°", 100, 40, 0, 34)], BND, []);
+  ok(ac.length === 1 && near(ac[0].x, 91) && near(ac[0].y, 27) && ac[0].w === 18 && ac[0].h === 10 && ac[0].color === "#ffb300",
+     "S4: an unobstructed 'above' candidate sits above-centre with a 3px gap, x/y as the top-left corner");
+  const bc = G.placeLabels([cand("1.2", 100, 40, 0, 1, "below")], BND, []);
+  ok(bc.length === 1 && near(bc[0].x, 91) && near(bc[0].y, 43), "S4: an unobstructed 'below' candidate sits below-centre with a 3px gap");
+  const edge = G.placeLabels([cand("34°", BND.left, 40, 0, 34)], BND, []);
+  ok(edge.length === 1 && edge[0].x >= BND.left && near(edge[0].x, BND.left + 3) && near(edge[0].y, 27),
+     "S4: a candidate at plotLeft is shifted inside the bounds (above-right), not clipped");
+  const redge = G.placeLabels([cand("34°", BND.right, 40, 0, 34)], BND, []);
+  ok(redge.length === 1 && inside(redge[0], BND) && near(redge[0].x, BND.right - 18 - 3), "S4: a candidate at plotRight is shifted inside (above-left)");
+  const topEdge = G.placeLabels([cand("34°", 100, 5, 0, 34)], BND, []);
+  ok(topEdge.length === 1 && near(topEdge[0].y, 8), "S4: a candidate with no room above falls back to below-centre");
+  const reserved = [{ x: 91, y: 27, w: 18, h: 10 }];
+  const rv = G.placeLabels([cand("34°", 100, 40, 0, 34)], BND, reserved);
+  ok(rv.every(function (p) { return !G.rectsIntersect(p, reserved[0]); }), "S4: a candidate overlapping a reserved rect is moved off it or dropped (" + JSON.stringify(rv) + ")");
+  const tight = { left: 90, right: 112, top: 26, bottom: 39 };
+  const tg = G.placeLabels([cand("A", 100, 40, 1, 1), cand("B", 100, 40, 0, 1), cand("C", 100, 40, 2, 1)], tight, []);
+  ok(tg.length === 1 && tg[0].text === "B", "S4: when only one slot fits, the highest-priority label is kept and the rest are dropped");
+  const rk = G.placeLabels([cand("low", 100, 40, 3, 10), cand("high", 100, 40, 3, 20)], tight, []);
+  ok(rk.length === 1 && rk[0].text === "high", "S4: equal priority ties break on the larger rank");
+  const junk = G.placeLabels([cand("nan", NaN, 40, 0, 1), null, cand("ok", 100, 40, 1, 1)], BND, null);
+  ok(junk.length === 1 && junk[0].text === "ok", "S4: non-finite or null candidates are skipped, a null reserved list is tolerated");
+  ok(same(G.placeLabels(null, BND, []), []), "S4: placeLabels(null) = []");
+
+  // Property test: 300 random candidate sets
+  const pr = rng(5410);
+  let propOk = true;
+  let propBad = "";
+  let totalPlaced = 0;
+  for (let k = 0; k < 300; ++k) {
+    const n = 2 + Math.floor(pr() * 11);
+    const cs = [];
+    for (let j = 0; j < n; ++j) {
+      cs.push({
+        text: "L" + j, x: BND.left + pr() * (BND.right - BND.left), y: pr() * BND.bottom,
+        w: 10 + Math.round(pr() * 50), h: 10, priority: Math.floor(pr() * 8), rank: Math.round(pr() * 100),
+        color: "#ef5350", anchor: pr() < 0.5 ? "above" : "below"
+      });
+    }
+    const placed = G.placeLabels(cs, BND, []);
+    totalPlaced += placed.length;
+    const seen = {};
+    for (let a = 0; a < placed.length; ++a) {
+      const p = placed[a];
+      const src = cs.find(function (c) { return c.text === p.text; });
+      if (!inside(p, BND) || !src || seen[p.text] || p.w !== src.w || p.h !== src.h) {
+        propOk = false;
+        propBad = propBad || JSON.stringify({ k: k, p: p });
+      }
+      seen[p.text] = true;
+      for (let b = a + 1; b < placed.length; ++b) {
+        if (G.rectsIntersect(p, placed[b])) {
+          propOk = false;
+          propBad = propBad || JSON.stringify({ k: k, a: p, b: placed[b] });
+        }
+      }
+    }
+  }
+  ok(propOk && totalPlaced > 0, "S4: placeLabels property test over 300 random sets: inside bounds, zero intersections, placed is a subset of the input (" + totalPlaced + " placed)" + (propOk ? "" : " " + propBad));
+}
 JS
   run_node_section "S4" "$S4_JS"
 fi
@@ -1228,6 +1306,61 @@ const firstShade = koAnn.findIndex(function (c) { return c.name === "fillRect" &
 const firstLabel = koAnn.findIndex(function (c) { return c.name === "fillText" && /°$/.test(String(c.args[0])); });
 const firstBez = koAnn.findIndex(function (c) { return c.name === "bezierCurveTo"; });
 ok(firstShade >= 0 && firstLabel > firstShade && firstBez > firstLabel, "S5: drawKind(temp) draws the backdrop, then the y axis, then the series (" + [firstShade, firstLabel, firstBez].join(",") + ")");
+// peakCandidates (temp) and drawLabels (D-54.4-10, Pitfall 11)
+const HAS_PEAK = typeof G.peakCandidates === "function" && typeof G.drawLabels === "function";
+ok(HAS_PEAK, "S5: peakCandidates and drawLabels exist");
+if (HAS_PEAK) {
+  const pm = mockCtx();
+  const pc = G.peakCandidates("temp", pm.ctx, geom, tl, scales);
+  let tMax = -Infinity, tIdx = -1, fMax = -Infinity, fIdx = -1;
+  tl.forEach(function (s, i) {
+    if (!G.isAvailable(s)) return;
+    if (s.thermal.tempC > tMax) { tMax = s.thermal.tempC; tIdx = i; }
+    if (s.thermal.feelsLikeC > fMax) { fMax = s.thermal.feelsLikeC; fIdx = i; }
+  });
+  ok(pc.length === 2, "S5: peakCandidates(temp) gives 2 candidates (temperature max and feels-like max)");
+  ok(pc.length === 2 && pc[0].text === Math.round(tMax) + "°" && pc[0].priority === 0 && pc[1].text === Math.round(fMax) + "°" && pc[1].priority === 1,
+     "S5: temperature max '" + Math.round(tMax) + "°' is priority 0 and feels-like max '" + Math.round(fMax) + "°' is priority 1");
+  ok(pc.length === 2 && near(pc[0].x, G.slotCenterX(geom, tIdx)) && near(pc[1].x, G.slotCenterX(geom, fIdx))
+     && near(pc[0].y, G.valueToY(tMax, scales.temp.min, scales.temp.max, geom.plotTop, geom.plotBottom))
+     && near(pc[1].y, G.valueToY(fMax, scales.temp.min, scales.temp.max, geom.plotTop, geom.plotBottom)),
+     "S5: each peak candidate sits at the first slot holding the max, at valueToY on scales.temp");
+  ok(pc.length === 2 && pc[0].color === G.rampColorAt(G.TEMP_RAMP, tMax) && pc[1].color === G.rampColorAt(G.TEMP_RAMP, fMax),
+     "S5: peak candidate colours come from rampColorAt(TEMP_RAMP, value)");
+  ok(pc.every(function (c) { return c.h === 10 && c.w === String(c.text).length * 6 && c.anchor === "above" && c.rank !== undefined; }),
+     "S5: peak candidates measure width with ctx.measureText, h 10, anchor above");
+  const fontBeforeMeasure = annotate(pm.log).filter(function (c) { return c.name === "measureText"; });
+  ok(fontBeforeMeasure.length >= 2 && fontBeforeMeasure.every(function (c) { return c.st.font === G.LABEL_FONT; }), "S5: LABEL_FONT is set before every measureText");
+  // Unavailable slots never yield a candidate, even with a bigger value (T-54.4-14)
+  const poisoned = mkTimeline();
+  poisoned[1] = Object.assign({}, poisoned[1], { thermal: { tempC: 60, feelsLikeC: 70, dewPointC: 0 } });
+  const pp = G.peakCandidates("temp", mockCtx().ctx, geom, poisoned, G.computeScales("temp", poisoned));
+  ok(pp.length === 2 && pp[0].text === Math.round(tMax) + "°" && pp[1].text === Math.round(fMax) + "°", "S5: a historical-unavailable slot never yields a peak candidate");
+  ok(same(G.peakCandidates("temp", mockCtx().ctx, geomFor(25), allUn, G.computeScales("temp", allUn)), []), "S5: an all-unavailable timeline yields no peak candidate");
+  ok(same(G.peakCandidates("rainwind", mockCtx().ctx, geom, tl, {}), []) && same(G.peakCandidates("bogus", mockCtx().ctx, geom, tl, {}), []),
+     "S5: peakCandidates returns [] for kinds owned by plans 06/07 and unknown kinds");
+
+  const dl = mockCtx();
+  dl.ctx.globalAlpha = 0.45;
+  dl.ctx.font = "7px serif";
+  G.drawLabels(dl.ctx, [{ text: "34°", x: 91, y: 27, w: 18, h: 10, color: "#ef5350" }, { text: "36°", x: 91, y: 43, w: 18, h: 10, color: "#ffb300" }]);
+  const dlTexts = annotate(dl.log).filter(function (c) { return c.name === "fillText"; });
+  ok(dlTexts.length === 2 && dlTexts.every(function (c) { return c.st.globalAlpha === 1 && c.st.font === G.LABEL_FONT && c.st.textBaseline === "top" && c.st.textAlign === "left"; }),
+     "S5: drawLabels sets globalAlpha 1, LABEL_FONT, top baseline and left align before every fillText (Pitfall 11)");
+  ok(dlTexts.length === 2 && dlTexts[0].st.fillStyle === "#ef5350" && dlTexts[1].st.fillStyle === "#ffb300" && dlTexts[0].args[1] === 91 && dlTexts[0].args[2] === 27,
+     "S5: drawLabels fills each label in its colour at its top-left corner");
+  ok(calls(dl.log, "save").length === 1 && calls(dl.log, "restore").length === 1, "S5: drawLabels wraps its drawing in save/restore");
+
+  const kl = mockCtx();
+  G.drawKind(kl.ctx, "temp", geom, tl, scales, THEME);
+  const klAnn = annotate(kl.log);
+  const lastBez = klAnn.map(function (c) { return c.name; }).lastIndexOf("bezierCurveTo");
+  const peakTexts = klAnn.filter(function (c, i) { return i > lastBez && c.name === "fillText"; });
+  ok(peakTexts.length >= 1 && peakTexts.every(function (c) { return c.st.globalAlpha === 1 && c.st.font === G.LABEL_FONT; }),
+     "S5: drawKind(temp) draws the peak labels after the series at full opacity (" + peakTexts.map(function (c) { return c.args[0]; }).join(",") + ")");
+  ok(peakTexts.map(function (c) { return c.args[0]; }).indexOf(Math.round(tMax) + "°") >= 0, "S5: drawKind(temp) labels the temperature maximum");
+}
+
 for (const kind of ["rainwind", "airuv"]) {
   const kk = mockCtx();
   G.drawKind(kk.ctx, kind, geom, tl, {}, THEME);
