@@ -46,6 +46,31 @@ var MM_ALPHA = 0.6;
 // Bars use at most this share of the plot height (PA-13, mirrors D-54.4-29).
 var BAR_CAP = 0.4;
 
+// Graph 3 UV index WHO tiers (D-54.4-30/33): <3 Low green, 3-5 Moderate yellow, 6-7 High orange,
+// 8-10 Very High red, 11+ Extreme violet. The violet is #ce93d8 (A4), not the EPA violet.
+var UV_EDGES = [3, 6, 8, 11];
+var UV_COLORS = ["#66bb6a", "#ffee58", "#ffa726", "#ef5350", "#ce93d8"];
+// Height in px of the EPA tier ribbon along the bottom of the Graph 3 plot (D-54.4-27).
+var RIBBON_H = 6;
+
+// Graph 3 EPA tier ribbon (D-54.4-28), indexed by the API us-epa-index 1..6; index 0 is unused.
+// Very Unhealthy and Hazardous sit below 3:1 on the card surface and are kept as locked (PA-3).
+// Not the WeatherGlyphs AQI palette, which differs from the locked one.
+var EPA_COLORS = [null, "#66bb6a", "#ffee58", "#ffa726", "#ef5350", "#ab47bc", "#c2185b"];
+var EPA_NAMES = [null, "Good", "Moderate", "Unhealthy for Sensitive", "Unhealthy", "Very Unhealthy", "Hazardous"];
+
+// Graph 3 solar radiation bars (D-54.4-29): amber at 45%, capped at BAR_CAP of the plot.
+var SOLAR_COLOR = "#ffb300";
+var SOLAR_ALPHA = 0.45;
+
+// Graph 3 pressure (D-54.4-31): dashed light grey at 80%, shown in atm (hPa / 1013.25).
+var PRESSURE_COLOR = "#b0bec5";
+var PRESSURE_ALPHA = 0.8;
+var STD_ATM_HPA = 1013.25;
+// Trend threshold in hPa (PA-2): pressureHpa is an integer, so a change below 1 hPa (no change)
+// reads Steady and any other change reads Rising or Falling (D-54.4-34 "~1 hPa").
+var PRESSURE_STEADY_HPA = 1;
+
 var Y_LABEL_FONT = "10px sans-serif";
 var LABEL_FONT = "bold 10px sans-serif";
 
@@ -316,7 +341,7 @@ function tempScale(slots) {
     return { min: min, max: max, empty: false };
 }
 
-// Scales computed once per timeline change. Plan 07 owns the airuv branch.
+// Scales computed once per timeline change.
 function computeScales(kind, slots) {
     if (kind === "temp")
         return { temp: tempScale(slots) };
@@ -343,6 +368,40 @@ function computeScales(kind, slots) {
             rain: { min: 0, max: 100 },
             wind: { min: 0, max: windMax },
             mm: { min: 0, max: mmMax }
+        };
+    }
+    if (kind === "airuv") {
+        // D-54.4-29/30: the UV index on its own 0..max scale (floored at 1 so it is never flat);
+        // solar bars on their own 0..max scale. D-54.4-31: pressure on its own invisible scale
+        // fitted to the exact min..max hPa; a flat window draws at the vertical centre through
+        // valueToY (Pitfall 7). Historical-unavailable slots and a pressure of 0 never enter.
+        var uvMax = 1;
+        var radMax = 0;
+        var pLo = Infinity;
+        var pHi = -Infinity;
+        var alist = (slots && typeof slots.length === "number") ? slots : [];
+        for (var a = 0; a < alist.length; ++a) {
+            var as = alist[a];
+            if (!isAvailable(as))
+                continue;
+            var uv = _uvOf(as);
+            if (isNum(uv) && uv > uvMax)
+                uvMax = uv;
+            var rad = _radOf(as);
+            if (isNum(rad) && rad > radMax)
+                radMax = rad;
+            var pr = _validPressure(as);
+            if (pr !== null) {
+                if (pr < pLo)
+                    pLo = pr;
+                if (pr > pHi)
+                    pHi = pr;
+            }
+        }
+        return {
+            uv: { min: 0, max: uvMax },
+            solar: { min: 0, max: radMax },
+            pressure: pLo === Infinity ? { min: 0, max: 0, empty: true } : { min: pLo, max: pHi }
         };
     }
     return {};
@@ -460,6 +519,103 @@ function formatKm(km) {
     if (!isFinite(r))
         return "";
     return r === Math.round(r) ? String(r) : r.toFixed(1);
+}
+
+// UV index -> WHO tier word (D-54.4-33): >=11 Extreme, >=8 Very High, >=6 High, >=3 Moderate,
+// else Low. Non-finite input gives "".
+function uvTier(uv) {
+    if (!isNum(uv))
+        return "";
+    if (uv >= UV_EDGES[3])
+        return "Extreme";
+    if (uv >= UV_EDGES[2])
+        return "Very High";
+    if (uv >= UV_EDGES[1])
+        return "High";
+    if (uv >= UV_EDGES[0])
+        return "Moderate";
+    return "Low";
+}
+
+// UV index -> WHO tier colour, on the uvTier boundaries (D-54.4-30).
+function uvColor(uv) {
+    if (!isNum(uv) || uv < UV_EDGES[0])
+        return UV_COLORS[0];
+    if (uv < UV_EDGES[1])
+        return UV_COLORS[1];
+    if (uv < UV_EDGES[2])
+        return UV_COLORS[2];
+    if (uv < UV_EDGES[3])
+        return UV_COLORS[3];
+    return UV_COLORS[4];
+}
+
+// True only for an integer EPA index 1..6. Anything else (0, 7, 2.5, null, a string) is missing
+// data and gets no ribbon segment and no tier word (T-54.4-17).
+function _epaValid(idx) {
+    return isNum(idx) && Math.floor(idx) === idx && idx >= 1 && idx <= 6;
+}
+
+// EPA index -> locked tier colour (D-54.4-28), or null when the index is not 1..6.
+function epaColor(idx) {
+    return _epaValid(idx) ? EPA_COLORS[idx] : null;
+}
+
+// EPA index -> tier name, or "--" when the index is not 1..6.
+function epaName(idx) {
+    return _epaValid(idx) ? EPA_NAMES[idx] : "--";
+}
+
+function hpaToAtm(h) {
+    return h / STD_ATM_HPA;
+}
+
+// hPa -> atm text with exactly three decimals (D-54.4-31); a missing pressure (0, negative or
+// non-finite) gives "--", never a made-up reading (T-54.4-21).
+function formatAtm(h) {
+    if (!isNum(h) || h <= 0)
+        return "--";
+    return hpaToAtm(h).toFixed(3);
+}
+
+// Pressure of an available slot when it is a real reading (> 0), else null.
+function _validPressure(s) {
+    if (!isAvailable(s) || !s.atmosphere)
+        return null;
+    var p = s.atmosphere.pressureHpa;
+    return isNum(p) && p > 0 ? p : null;
+}
+
+// Pressure trend at slot i (D-54.4-34, PA-2, PA-14): {word, arrow}. The reference is slot i-3
+// when it holds a real reading, otherwise the earlier slot with a real reading nearest to i-3
+// (the earlier one on a tie). |change| below PRESSURE_STEADY_HPA is Steady, otherwise Rising ↗
+// or Falling ↘. No reading at i, or no earlier reading at all, gives no trend word.
+function pressureTrend(slots, i) {
+    var none = { word: "", arrow: "" };
+    if (!slots || typeof slots.length !== "number" || !isNum(i) || i < 0 || i >= slots.length)
+        return none;
+    var p = _validPressure(slots[i]);
+    if (p === null)
+        return none;
+    var target = i - 3;
+    var ref = null;
+    var best = Infinity;
+    for (var j = 0; j < i; ++j) {
+        var pj = _validPressure(slots[j]);
+        if (pj === null)
+            continue;
+        var d = Math.abs(j - target);
+        if (d < best) {
+            best = d;
+            ref = pj;
+        }
+    }
+    if (ref === null)
+        return none;
+    var delta = p - ref;
+    if (Math.abs(delta) < PRESSURE_STEADY_HPA)
+        return { word: "Steady", arrow: "" };
+    return delta > 0 ? { word: "Rising", arrow: "↗" } : { word: "Falling", arrow: "↘" };
 }
 
 // Hard-edged tier gradient stops (PA-10). A start stop at 0 with colorAt(vTop); for each edge
@@ -709,8 +865,15 @@ function _rainwindScales(slots, scales) {
 // the slot, max(2, slotW*0.6) wide, height precipMM / mm.max * BAR_CAP of the plot, standing on
 // plotBottom (PA-13). mm.max > 0 whenever a bar exists, so there is no 0/0 (T-54.4-15).
 function mmBarRects(geom, slots, mmScale) {
+    return _barRects(geom, slots, _mmOf, mmScale);
+}
+
+// Shared bar geometry for the mm and solar bars: only available slots whose value is above 0,
+// centred, max(2, slotW*0.6) wide, value / scale.max * BAR_CAP of the plot (geom.plotTop to
+// geom.plotBottom) tall, standing on geom.plotBottom.
+function _barRects(geom, slots, getter, scale) {
     var out = [];
-    if (!geom || !slots || typeof slots.length !== "number" || !mmScale || !isNum(mmScale.max) || mmScale.max <= 0)
+    if (!geom || !slots || typeof slots.length !== "number" || !scale || !isNum(scale.max) || scale.max <= 0)
         return out;
     var plotH = geom.plotBottom - geom.plotTop;
     var w = Math.max(2, geom.slotW * 0.6);
@@ -718,10 +881,10 @@ function mmBarRects(geom, slots, mmScale) {
         var s = slots[i];
         if (!isAvailable(s))
             continue;
-        var p = _mmOf(s);
+        var p = getter(s);
         if (!isNum(p) || p <= 0)
             continue;
-        var h = Math.min(p, mmScale.max) / mmScale.max * BAR_CAP * plotH;
+        var h = Math.min(p, scale.max) / scale.max * BAR_CAP * plotH;
         out.push({ i: i, p: p, x: slotCenterX(geom, i) - w / 2, y: geom.plotBottom - h, w: w, h: h });
     }
     return out;
@@ -801,6 +964,124 @@ function drawRainWind(ctx, geom, slots, scales) {
 }
 
 // ---------------------------------------------------------------------------
+// Draw: air, UV and pressure card (D-54.4-27..34)
+// ---------------------------------------------------------------------------
+
+function _uvOf(s) {
+    return s.solar ? s.solar.uvIndex : undefined;
+}
+
+function _radOf(s) {
+    return s.solar ? s.solar.shortRad : undefined;
+}
+
+function _epaOf(s) {
+    return s.aqi ? s.aqi.epaIndex : undefined;
+}
+
+// Graph 3 scales, falling back to computeScales for any piece the caller did not pass.
+function _airuvScales(slots, scales) {
+    var sc = scales || {};
+    var full = computeScales("airuv", slots);
+    return {
+        uv: sc.uv ? sc.uv : full.uv,
+        solar: sc.solar ? sc.solar : full.solar,
+        pressure: sc.pressure ? sc.pressure : full.pressure
+    };
+}
+
+// Graph 3 series geometry: the lines and bars live between plotTop and the top of the EPA
+// ribbon, so nothing is drawn over the ribbon (D-54.4-27/29).
+function airuvRibbonTop(geom) {
+    return geom.plotBottom - RIBBON_H;
+}
+
+function _airuvGeom(geom) {
+    return Object.assign({}, geom, { plotBottom: airuvRibbonTop(geom) });
+}
+
+// Solar bar rects {i, p, x, y, w, h} on the Graph 3 geometry: bars stand on the ribbon top and
+// use at most BAR_CAP of the height above it (D-54.4-29). Only shortRad > 0, so no 0/0 (T-54.4-16).
+function solarBarRects(geom, slots, solarScale) {
+    if (!geom)
+        return [];
+    return _barRects(_airuvGeom(geom), slots, _radOf, solarScale);
+}
+
+// Graph 3 (D-54.4-27..31), drawn in this order, each inside save/restore:
+// (a) EPA tier ribbon: one RIBBON_H strip per available slot whose epaIndex is 1..6, in the locked
+//     tier colour at full opacity, along the bottom of the plot;
+// (b) solar bars: SOLAR_COLOR at SOLAR_ALPHA, standing on the ribbon top;
+// (c) UV index: monotone spline over the full height above the ribbon, stroked with the hard WHO
+//     tier gradient, lineWidth 2, solid;
+// (d) pressure: dashed PRESSURE_COLOR spline at PRESSURE_ALPHA, lineWidth 1.5, on its exact-fit
+//     scale. A pressure of 0 breaks the line; a window with no reading draws no line.
+// PM2.5, PM10, diffRad and DEFRA are never drawn (D-54.4-27).
+function drawAirUv(ctx, geom, slots, scales) {
+    if (!ctx || !geom || !slots || typeof slots.length !== "number" || slots.length < 1)
+        return;
+    var sc = _airuvScales(slots, scales);
+    var ug = _airuvGeom(geom);
+    var ribbonTop = airuvRibbonTop(geom);
+
+    ctx.save();
+    ctx.globalAlpha = 1;
+    for (var i = 0; i < slots.length; ++i) {
+        var s = slots[i];
+        if (!isAvailable(s))
+            continue;
+        var col = epaColor(_epaOf(s));
+        if (col === null)
+            continue;
+        ctx.fillStyle = col;
+        ctx.fillRect(geom.plotLeft + i * geom.slotW, ribbonTop, geom.slotW, RIBBON_H);
+    }
+    ctx.restore();
+
+    var bars = solarBarRects(geom, slots, sc.solar);
+    if (bars.length > 0) {
+        ctx.save();
+        ctx.fillStyle = SOLAR_COLOR;
+        ctx.globalAlpha = SOLAR_ALPHA;
+        for (var b = 0; b < bars.length; ++b)
+            ctx.fillRect(bars[b].x, bars[b].y, bars[b].w, bars[b].h);
+        ctx.restore();
+    }
+
+    var uvRuns = seriesRuns(slots, _uvOf, ug, sc.uv);
+    if (_hasStrokableRun(uvRuns)) {
+        ctx.save();
+        ctx.strokeStyle = _verticalGradient(ctx, ug, tierStops(UV_EDGES, uvColor, sc.uv.max, sc.uv.min));
+        ctx.lineWidth = 2;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.setLineDash([]);
+        strokeRuns(ctx, uvRuns);
+        ctx.restore();
+    }
+
+    if (sc.pressure && !sc.pressure.empty) {
+        var prRuns = seriesRuns(slots, _pressureLineOf, ug, sc.pressure);
+        if (_hasStrokableRun(prRuns)) {
+            ctx.save();
+            ctx.strokeStyle = PRESSURE_COLOR;
+            ctx.globalAlpha = PRESSURE_ALPHA;
+            ctx.lineWidth = 1.5;
+            ctx.lineJoin = "round";
+            ctx.setLineDash(DASH_DASHED.slice());
+            strokeRuns(ctx, prRuns);
+            ctx.restore();
+        }
+    }
+}
+
+// Pressure getter for the spline: a pressure of 0 or less is missing data and breaks the run.
+function _pressureLineOf(s) {
+    var p = s.atmosphere ? s.atmosphere.pressureHpa : undefined;
+    return isNum(p) && p > 0 ? p : null;
+}
+
+// ---------------------------------------------------------------------------
 // Legend (D-54.4-09/18)
 // ---------------------------------------------------------------------------
 
@@ -814,7 +1095,7 @@ function _rampColors(anchors) {
 // Legend entries for one card, drawn by the WeatherGraph.qml legend row: an array of
 // {label, style, color, colors, dot}. style is one of "solid", "dashed", "dotted", "bar" or
 // "ribbon"; color is the label colour; colors (optional) are the swatch parts in order; dot adds a
-// colour dot before the swatch. Plan 07 adds the "airuv" entries.
+// colour dot before the swatch.
 function legendEntries(kind) {
     if (kind === "temp") {
         return [
@@ -830,6 +1111,15 @@ function legendEntries(kind) {
             { label: "Wind", style: "solid", color: WIND_COLOR, colors: [WIND_COLOR], dot: true },
             { label: "Gust", style: "dashed", color: WIND_COLOR, colors: [WIND_COLOR], dot: true },
             { label: "Vis", style: "dotted", color: VIS_COLORS[3], colors: VIS_COLORS.slice(), dot: true }
+        ];
+    }
+    if (kind === "airuv") {
+        // D-54.4-32 order: UV, Solar, AQI, Pressure.
+        return [
+            { label: "UV", style: "solid", color: UV_COLORS[1], colors: UV_COLORS.slice(), dot: false },
+            { label: "Solar", style: "bar", color: SOLAR_COLOR, colors: [SOLAR_COLOR], dot: false },
+            { label: "AQI", style: "ribbon", color: EPA_COLORS[1], colors: EPA_COLORS.slice(1, 4), dot: false },
+            { label: "Pressure", style: "dashed", color: PRESSURE_COLOR, colors: [PRESSURE_COLOR], dot: false }
         ];
     }
     return [];
@@ -1073,7 +1363,7 @@ function _peakOf(slots, getter) {
 }
 
 // Peak-label candidates for one card. Historical-unavailable slots never yield one (T-54.4-14).
-// Plan 07 adds the "airuv" candidates here.
+// Each kind owns its candidates: temp (D-54.4-10), rainwind (D-54.4-24) and airuv (D-54.4-29/31).
 function peakCandidates(kind, ctx, geom, slots, scales) {
     if (!ctx || !geom || !slots || typeof slots.length !== "number")
         return [];
@@ -1168,6 +1458,85 @@ function peakCandidates(kind, ctx, geom, slots, scales) {
         }
         ctx.restore();
     }
+    if (kind === "airuv") {
+        var asc = _airuvScales(slots, scales);
+        var ag = _airuvGeom(geom);
+        ctx.save();
+        ctx.font = LABEL_FONT;
+        // UV max at its high point in its tier colour; a UV that never rises above 0 gets none.
+        var upk = _peakOf(slots, _uvOf);
+        if (upk && upk.v > 0) {
+            var utext = String(Math.round(upk.v));
+            out.push({
+                text: utext,
+                x: slotCenterX(geom, upk.i),
+                y: valueToY(upk.v, asc.uv.min, asc.uv.max, ag.plotTop, ag.plotBottom),
+                w: ctx.measureText(utext).width,
+                h: 10,
+                priority: 4,
+                rank: upk.v,
+                color: uvColor(upk.v),
+                anchor: "above"
+            });
+        }
+        // Solar peak W/m² written above the tallest bar (D-54.4-29). The "bar-top" anchor offers
+        // only the above-centre spot, so the value is never drawn inside its bar.
+        var sbars = solarBarRects(geom, slots, asc.solar);
+        var tallest = null;
+        for (var sb = 0; sb < sbars.length; ++sb) {
+            if (tallest === null || sbars[sb].p > tallest.p)
+                tallest = sbars[sb];
+        }
+        if (tallest !== null && tallest.p > 0) {
+            var stext = Math.round(tallest.p) + " W/m²";
+            out.push({
+                text: stext,
+                x: slotCenterX(geom, tallest.i),
+                y: tallest.y,
+                w: ctx.measureText(stext).width,
+                h: 10,
+                priority: 6,
+                rank: tallest.p,
+                color: SOLAR_COLOR,
+                anchor: "bar-top"
+            });
+        }
+        // Pressure high (above the first max slot) and low (below the first min slot) in atm
+        // (D-54.4-31). A flat window has one label. A 0 pressure never yields one (T-54.4-21).
+        if (asc.pressure && !asc.pressure.empty) {
+            var hiP = null;
+            var loP = null;
+            for (var pi = 0; pi < slots.length; ++pi) {
+                var pval = _validPressure(slots[pi]);
+                if (pval === null)
+                    continue;
+                if (hiP === null || pval > hiP.v)
+                    hiP = { v: pval, i: pi };
+                if (loP === null || pval < loP.v)
+                    loP = { v: pval, i: pi };
+            }
+            var ends = [];
+            if (hiP !== null)
+                ends.push({ pk: hiP, anchor: "above" });
+            if (loP !== null && hiP !== null && loP.v < hiP.v)
+                ends.push({ pk: loP, anchor: "below" });
+            for (var pe = 0; pe < ends.length; ++pe) {
+                var ptext = formatAtm(ends[pe].pk.v);
+                out.push({
+                    text: ptext,
+                    x: slotCenterX(geom, ends[pe].pk.i),
+                    y: valueToY(ends[pe].pk.v, asc.pressure.min, asc.pressure.max, ag.plotTop, ag.plotBottom),
+                    w: ctx.measureText(ptext).width,
+                    h: 10,
+                    priority: 5,
+                    rank: ends[pe].anchor === "above" ? 1 : 0,
+                    color: PRESSURE_COLOR,
+                    anchor: ends[pe].anchor
+                });
+            }
+        }
+        ctx.restore();
+    }
     return out;
 }
 
@@ -1191,7 +1560,7 @@ function drawLabels(ctx, placed) {
 }
 
 // Per-kind dispatch: the shared backdrop first, then the per-kind furniture and series, then the
-// collision-free peak labels. Plan 07 adds the "airuv" branch.
+// collision-free peak labels.
 function drawKind(ctx, kind, geom, slots, scales, theme) {
     drawBackdrop(ctx, geom, slots, theme);
     if (kind === "temp") {
@@ -1201,6 +1570,8 @@ function drawKind(ctx, kind, geom, slots, scales, theme) {
     }
     if (kind === "rainwind")
         drawRainWind(ctx, geom, slots, scales);
+    if (kind === "airuv")
+        drawAirUv(ctx, geom, slots, scales);
     if (!geom || !slots || typeof slots.length !== "number")
         return;
     drawLabels(ctx, placeLabels(peakCandidates(kind, ctx, geom, slots, scales), {
@@ -1246,7 +1617,7 @@ function _joinDot(parts) {
 
 // Tooltip lines for one graph at slot i: an array of {lead, icon, text}. The popup renders each
 // line as "<lead> · <icon> <text>". Plain strings only; the QML side renders them as PlainText.
-// Plan 07 appends the "airuv" lines here.
+// Graph 1 has 2 lines (D-54.4-19/35), Graph 2 has 4 (D-54.4-26/36) and Graph 3 has 5 (D-54.4-33).
 function tooltipLines(kind, slots, i) {
     if (!slots || typeof slots.length !== "number" || !isNum(i) || i < 0 || i >= slots.length)
         return [];
@@ -1311,11 +1682,48 @@ function tooltipLines(kind, slots, i) {
         if (isNum(vis))
             lines.push({ lead: "", icon: "visibility", text: formatKm(vis) + " km " + visibilityTier(vis) });
     }
+    if (kind === "airuv") {
+        // D-54.4-33 line 2 "<light_mode> UV <n> <WHO tier> · <shortRad> W/m²". The tier word is
+        // taken from the rounded index, so the number and the word always agree.
+        var so = slot.solar || {};
+        var uvR = isNum(so.uvIndex) ? Math.round(so.uvIndex) : null;
+        var al2 = _joinDot([
+            uvR !== null ? "UV " + uvR + " " + uvTier(uvR) : "",
+            isNum(so.shortRad) ? Math.round(so.shortRad) + " W/m²" : ""
+        ]);
+        if (al2.length > 0)
+            lines.push({ lead: "", icon: "light_mode", text: al2 });
+        // Line 3 "<masks> AQI <EPA tier> · PM2.5 <n> · PM10 <n>" (an index outside 1..6 reads
+        // "AQI --"); line 4 "CO <n> · NO₂ <n> · O₃ <n> · SO₂ <n>" in µg/m³, with no icon.
+        var aq = slot.aqi || {};
+        var al3 = _joinDot([
+            "AQI " + epaName(aq.epaIndex),
+            isNum(aq.pm2_5) ? "PM2.5 " + Math.round(aq.pm2_5) : "",
+            isNum(aq.pm10) ? "PM10 " + Math.round(aq.pm10) : ""
+        ]);
+        lines.push({ lead: "", icon: "masks", text: al3 });
+        var al4 = _joinDot([
+            isNum(aq.co) ? "CO " + Math.round(aq.co) : "",
+            isNum(aq.no2) ? "NO₂ " + Math.round(aq.no2) : "",
+            isNum(aq.o3) ? "O₃ " + Math.round(aq.o3) : "",
+            isNum(aq.so2) ? "SO₂ " + Math.round(aq.so2) : ""
+        ]);
+        if (al4.length > 0)
+            lines.push({ lead: "", icon: "", text: al4 });
+        // Line 5 "<compress> 0.998 atm ↘ Falling" (D-54.4-33/34). A missing pressure reads
+        // "-- atm" and never carries a trend word (T-54.4-21).
+        var ph = slot.atmosphere ? slot.atmosphere.pressureHpa : null;
+        var tr = pressureTrend(slots, i);
+        var al5 = formatAtm(ph) + " atm";
+        if (tr.word.length > 0)
+            al5 += " " + (tr.arrow ? tr.arrow + " " : "") + tr.word;
+        lines.push({ lead: "", icon: "compress", text: al5 });
+    }
     return lines;
 }
 
 // Marker points {y, color} for slot i, in graph-area coordinates. Empty for an invalid or
-// unavailable slot. Plan 07 appends the "airuv" series here.
+// unavailable slot.
 function markerPoints(kind, slots, i, geom, scales) {
     if (!geom || !slots || typeof slots.length !== "number" || !isNum(i) || i < 0 || i >= slots.length)
         return [];
@@ -1351,6 +1759,16 @@ function markerPoints(kind, slots, i, geom, scales) {
                 color: wv[w][1] !== null ? wv[w][1] : visColor(wv[w][0])
             });
         }
+    }
+    if (kind === "airuv") {
+        var asc = _airuvScales(slots, scales);
+        var ag = _airuvGeom(geom);
+        var uvv = _uvOf(slot);
+        if (isNum(uvv))
+            pts.push({ y: valueToY(uvv, asc.uv.min, asc.uv.max, ag.plotTop, ag.plotBottom), color: uvColor(uvv) });
+        var pv = _validPressure(slot);
+        if (pv !== null && asc.pressure && !asc.pressure.empty)
+            pts.push({ y: valueToY(pv, asc.pressure.min, asc.pressure.max, ag.plotTop, ag.plotBottom), color: PRESSURE_COLOR });
     }
     return pts;
 }
