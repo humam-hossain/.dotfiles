@@ -608,6 +608,34 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
     else
       pass "S1: WeatherGraph.qml contains no scrolling element"
     fi
+
+    # Legend row (D-54.4-09): fixed 18px height on every card, entries from GM.legendEntries
+    legend_block="$(awk '
+      /id: legendRow$/ { inb = 1 }
+      inb { print }
+      inb && /^    \}$/ { exit }' "$GRAPH_SRC")"
+    if [[ -n "$legend_block" ]]; then
+      pass "S1: WeatherGraph.qml contains id: legendRow"
+    else
+      fail "S1: WeatherGraph.qml is missing id: legendRow"
+    fi
+    if grep -qF 'Layout.preferredHeight: 18' <<<"$legend_block" && grep -qF 'Layout.maximumHeight: 18' <<<"$legend_block"; then
+      pass "S1: legendRow has a fixed 18px height (preferred and maximum, D-54.4-09)"
+    else
+      fail "S1: legendRow lacks Layout.preferredHeight: 18 / Layout.maximumHeight: 18"
+    fi
+    if grep -qE 'Repeater[[:space:]]*\{' <<<"$legend_block" && grep -qF 'model: GM.legendEntries(root.graphKind)' <<<"$legend_block"; then
+      pass "S1: legendRow holds a Repeater over GM.legendEntries(root.graphKind)"
+    else
+      fail "S1: legendRow Repeater model is not GM.legendEntries(root.graphKind)"
+    fi
+    legend_ln="$(grep -n 'id: legendRow' "$GRAPH_SRC" | head -1 | cut -d: -f1 || true)"
+    area_ln="$(grep -n 'id: graphArea' "$GRAPH_SRC" | head -1 | cut -d: -f1 || true)"
+    if [[ -n "$legend_ln" && -n "$area_ln" && "$legend_ln" -lt "$area_ln" ]]; then
+      pass "S1: legendRow is declared above graphArea (first card-content child)"
+    else
+      fail "S1: legendRow is not declared above graphArea (legend=$legend_ln graphArea=$area_ln)"
+    fi
   fi
 
   # Read-only sizing: no runtime config writes from weather QML (D-54.4-04, T-54.4-09)
@@ -967,6 +995,23 @@ ok(G.valueToY(5, 0, 0, 16, 260) === 260, "S4: valueToY on a flat zero scale draw
 ok(G.valueToY(5, 5, 5, 16, 260) === 138, "S4: valueToY on a flat non-zero scale draws at the vertical centre");
 ok(same(G.computeScales("rainwind", tl), {}) && same(G.computeScales("airuv", tl), {}), "S4: computeScales returns an empty object for kinds owned by plans 06/07");
 ok(G.computeScales("temp", tl).temp.max === 36, "S4: computeScales(temp) carries tempScale");
+
+// legendEntries (D-54.4-09/18)
+const le = G.legendEntries("temp");
+ok(same(le.map(function (e) { return e.label; }), ["Temp", "Feels"]), "S4: legendEntries(temp) labels are Temp, Feels (D-54.4-18)");
+ok(same(le.map(function (e) { return e.style; }), ["solid", "dashed"]), "S4: legendEntries(temp) styles are solid, dashed (D-54.4-18)");
+const HEX7 = /^#[0-9a-fA-F]{6}$/;
+let leHex = le.length > 0;
+for (const e of le) {
+  if (!HEX7.test(e.color)) leHex = false;
+  for (const c of (e.colors || [])) if (!HEX7.test(c)) leHex = false;
+}
+ok(leHex, "S4: every legendEntries(temp) colour is a 7-character hex");
+ok(le.every(function (e) { return same(e.colors, G.TEMP_RAMP.map(function (a) { return a.color; })); }), "S4: legendEntries(temp) swatches use the three TEMP_RAMP colours");
+const STYLES = ["solid", "dashed", "dotted", "bar", "ribbon"];
+ok(le.every(function (e) { return STYLES.indexOf(e.style) >= 0 && typeof e.dot === "boolean"; }), "S4: legendEntries(temp) styles are known and dot is a boolean");
+ok(Array.isArray(G.legendEntries("rainwind")) && Array.isArray(G.legendEntries("airuv")) && same(G.legendEntries("bogus"), []),
+   "S4: legendEntries returns an array for every kind and [] for an unknown kind");
 JS
   run_node_section "S4" "$S4_JS"
 fi

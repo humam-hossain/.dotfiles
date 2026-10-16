@@ -544,6 +544,31 @@ function drawTemp(ctx, geom, slots, scales) {
     ctx.restore();
 }
 
+// ---------------------------------------------------------------------------
+// Legend (D-54.4-09/18)
+// ---------------------------------------------------------------------------
+
+function _rampColors(anchors) {
+    var out = [];
+    for (var i = 0; i < anchors.length; ++i)
+        out.push(anchors[i].color);
+    return out;
+}
+
+// Legend entries for one card, drawn by the WeatherGraph.qml legend row: an array of
+// {label, style, color, colors, dot}. style is one of "solid", "dashed", "dotted", "bar" or
+// "ribbon"; color is the label colour; colors (optional) are the swatch parts in order; dot adds a
+// colour dot before the swatch. Plans 06 and 07 add the "rainwind" and "airuv" entries.
+function legendEntries(kind) {
+    if (kind === "temp") {
+        return [
+            { label: "Temp", style: "solid", color: "#ffb300", colors: _rampColors(TEMP_RAMP), dot: false },
+            { label: "Feels", style: "dashed", color: "#ffb300", colors: _rampColors(TEMP_RAMP), dot: false }
+        ];
+    }
+    return [];
+}
+
 // Per-kind dispatch. Plans 06 and 07 add the "rainwind" and "airuv" branches.
 function drawKind(ctx, kind, geom, slots, scales) {
     if (kind === "temp")

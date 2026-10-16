@@ -92,6 +92,140 @@ WeatherBaseCard {
     icon: ""
     Layout.fillWidth: true
 
+    // Legend row: the same fixed height on every card so the three plot tops align (D-54.4-09).
+    // Entries and colours come from GM; this file carries no colour literal (D-54.4-11).
+    Row {
+        id: legendRow
+        Layout.fillWidth: true
+        Layout.preferredHeight: 18
+        Layout.maximumHeight: 18
+        spacing: 10
+
+        Repeater {
+            model: GM.legendEntries(root.graphKind)
+
+            delegate: Row {
+                id: entry
+
+                required property var modelData
+                readonly property var swatchColors: (entry.modelData.colors && entry.modelData.colors.length > 0) ? entry.modelData.colors : [entry.modelData.color]
+
+                function partColor(k, parts) {
+                    const n = entry.swatchColors.length;
+                    return entry.swatchColors[Math.min(n - 1, Math.floor(k * n / parts))];
+                }
+
+                height: legendRow.height
+                spacing: 4
+
+                Rectangle {
+                    visible: entry.modelData.dot === true
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 6
+                    height: 6
+                    radius: 3
+                    color: entry.modelData.color
+                }
+
+                Item {
+                    id: swatch
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 14
+                    height: 10
+
+                    // solid: a 3px bar split into equal parts
+                    Row {
+                        visible: entry.modelData.style === "solid"
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        Repeater {
+                            model: entry.swatchColors
+
+                            delegate: Rectangle {
+                                required property var modelData
+                                width: swatch.width / entry.swatchColors.length
+                                height: 3
+                                color: modelData
+                            }
+                        }
+                    }
+
+                    // dashed: three 3px segments with 2px gaps
+                    Row {
+                        visible: entry.modelData.style === "dashed"
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 2
+
+                        Repeater {
+                            model: 3
+
+                            delegate: Rectangle {
+                                required property int index
+                                width: 3
+                                height: 2
+                                color: entry.partColor(index, 3)
+                            }
+                        }
+                    }
+
+                    // dotted: four 2px dots
+                    Row {
+                        visible: entry.modelData.style === "dotted"
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 2
+
+                        Repeater {
+                            model: 4
+
+                            delegate: Rectangle {
+                                required property int index
+                                width: 2
+                                height: 2
+                                radius: 1
+                                color: entry.partColor(index, 4)
+                            }
+                        }
+                    }
+
+                    // bar: an 8 x 8 square
+                    Rectangle {
+                        visible: entry.modelData.style === "bar"
+                        anchors.centerIn: parent
+                        width: 8
+                        height: 8
+                        color: entry.modelData.color
+                    }
+
+                    // ribbon: three 4px blocks in the first three colours
+                    Row {
+                        visible: entry.modelData.style === "ribbon"
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 1
+
+                        Repeater {
+                            model: 3
+
+                            delegate: Rectangle {
+                                required property int index
+                                width: 4
+                                height: 4
+                                color: entry.swatchColors[Math.min(index, entry.swatchColors.length - 1)]
+                            }
+                        }
+                    }
+                }
+
+                StyledText {
+                    anchors.verticalCenter: parent.verticalCenter
+                    textFormat: Text.PlainText
+                    font.pixelSize: Appearance.font.pixelSize.smaller
+                    color: entry.modelData.color
+                    text: entry.modelData.label
+                }
+            }
+        }
+    }
+
     Item {
         id: graphArea
         Layout.fillWidth: true
