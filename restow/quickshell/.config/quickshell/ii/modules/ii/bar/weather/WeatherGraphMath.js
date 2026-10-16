@@ -569,10 +569,152 @@ function legendEntries(kind) {
     return [];
 }
 
-// Per-kind dispatch. Plans 06 and 07 add the "rainwind" and "airuv" branches.
-function drawKind(ctx, kind, geom, slots, scales) {
-    if (kind === "temp")
+// ---------------------------------------------------------------------------
+// Card furniture: temperature y axis (D-54.4-05/16) and the shared backdrop (PA-4)
+// ---------------------------------------------------------------------------
+
+// Neutral stand-ins used only when a caller passes no theme (QML always passes theme()).
+var THEME_FALLBACK = { grid: "#5f6368", text: "#c4c7c5", shade: "#000000", now: "#a8c7fa" };
+
+function _theme(theme) {
+    var t = theme || {};
+    return {
+        grid: t.grid !== undefined && t.grid !== null ? t.grid : THEME_FALLBACK.grid,
+        text: t.text !== undefined && t.text !== null ? t.text : THEME_FALLBACK.text,
+        shade: t.shade !== undefined && t.shade !== null ? t.shade : THEME_FALLBACK.shade,
+        now: t.now !== undefined && t.now !== null ? t.now : THEME_FALLBACK.now
+    };
+}
+
+// Gridline every 1 degree; labels every 1 degree when rows are at least 12px apart, otherwise
+// every 2 degrees (D-54.4-16).
+function tempGridPlan(scale, plotH) {
+    if (!scale || !isNum(scale.min) || !isNum(scale.max) || scale.max <= scale.min || !isNum(plotH))
+        return { step: 1, labelStep: 1 };
+    var rowPx = plotH / (scale.max - scale.min);
+    return { step: 1, labelStep: rowPx >= 12 ? 1 : 2 };
+}
+
+// Horizontal gridline per integer degree and right-aligned "<v>°" labels in the left gutter.
+// The gutter is sized from the "-88°" text width plus 6 (plan 01), so labels fit (D-54.4-05).
+// The loop is bounded by the integer scale range from tempScale (T-54.4-13).
+function drawTempAxis(ctx, geom, scale, theme) {
+    if (!ctx || !geom || !scale || scale.empty || !isNum(scale.min) || !isNum(scale.max) || scale.max < scale.min)
+        return;
+    var th = _theme(theme);
+    var lo = Math.ceil(scale.min);
+    var hi = Math.floor(scale.max);
+    var plan = tempGridPlan(scale, geom.plotBottom - geom.plotTop);
+
+    ctx.save();
+    ctx.strokeStyle = th.grid;
+    ctx.globalAlpha = 0.35;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([]);
+    for (var v = lo; v <= hi; v += plan.step) {
+        var y = valueToY(v, scale.min, scale.max, geom.plotTop, geom.plotBottom);
+        ctx.beginPath();
+        ctx.moveTo(geom.plotLeft, y);
+        ctx.lineTo(geom.plotRight, y);
+        ctx.stroke();
+    }
+
+    ctx.globalAlpha = 1;
+    ctx.font = Y_LABEL_FONT;
+    ctx.fillStyle = th.text;
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    for (var w = lo; w <= hi; w += plan.step) {
+        if ((w - scale.min) % plan.labelStep !== 0)
+            continue;
+        ctx.fillText(w + "°", geom.plotLeft - 4, valueToY(w, scale.min, scale.max, geom.plotTop, geom.plotBottom));
+    }
+    ctx.restore();
+}
+
+// Shared backdrop for every card (PA-4): night shading, dotted midnight divider, dashed Now
+// hairline and the past-data hatch. No NOW badge and no date chip.
+function drawBackdrop(ctx, geom, slots, theme) {
+    if (!ctx || !geom || !slots || typeof slots.length !== "number")
+        return;
+    var th = _theme(theme);
+    var n = slots.length;
+    var top = geom.plotTop;
+    var bottom = geom.plotBottom;
+    var h = Math.max(0, bottom - top);
+
+    ctx.save();
+
+    // Night shading
+    ctx.fillStyle = th.shade;
+    ctx.globalAlpha = 0.12;
+    for (var i = 0; i < n; ++i) {
+        var s = slots[i];
+        if (s && typeof s === "object" && s.isDay === false)
+            ctx.fillRect(geom.plotLeft + i * geom.slotW, top, geom.slotW, h);
+    }
+    ctx.globalAlpha = 1;
+
+    // Midnight divider
+    ctx.strokeStyle = th.grid;
+    ctx.lineWidth = 1;
+    ctx.setLineDash(DASH_DOTTED.slice());
+    for (var j = 1; j < n; ++j) {
+        var m = slots[j];
+        if (m && typeof m === "object" && (m.isDayBoundary === true || m.hourNum === 0)) {
+            var mx = geom.plotLeft + j * geom.slotW;
+            ctx.beginPath();
+            ctx.moveTo(mx, top);
+            ctx.lineTo(mx, bottom);
+            ctx.stroke();
+        }
+    }
+
+    // Now hairline at the centre slot of the 25-slot timeline
+    if (geom.isTimeline25 && n > 12) {
+        var nx = slotCenterX(geom, 12);
+        ctx.strokeStyle = th.now;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(nx, top);
+        ctx.lineTo(nx, bottom);
+        ctx.stroke();
+    }
+    ctx.setLineDash([]);
+
+    // Past-data hatch over the leading run of unavailable slots
+    var run = 0;
+    while (run < n && !isAvailable(slots[run]))
+        ++run;
+    if (run > 0) {
+        var hatchW = run * geom.slotW;
+        ctx.fillStyle = th.shade;
+        ctx.globalAlpha = 0.25;
+        ctx.fillRect(geom.plotLeft, top, hatchW, h);
+        ctx.globalAlpha = 1;
+        ctx.font = "italic 9px sans-serif";
+        var tw = ctx.measureText("No data").width;
+        if (isNum(tw) && hatchW >= tw + 4) {
+            ctx.fillStyle = th.text;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText("No data", geom.plotLeft + hatchW / 2, (top + bottom) / 2);
+        }
+    }
+
+    ctx.restore();
+}
+
+// Per-kind dispatch: the shared backdrop first, then the per-kind furniture and series.
+// Plans 06 and 07 add the "rainwind" and "airuv" branches.
+function drawKind(ctx, kind, geom, slots, scales, theme) {
+    drawBackdrop(ctx, geom, slots, theme);
+    if (kind === "temp") {
+        var scale = (scales && scales.temp) ? scales.temp : tempScale(slots);
+        drawTempAxis(ctx, geom, scale, theme);
         drawTemp(ctx, geom, slots, scales);
+    }
 }
 
 // ---------------------------------------------------------------------------

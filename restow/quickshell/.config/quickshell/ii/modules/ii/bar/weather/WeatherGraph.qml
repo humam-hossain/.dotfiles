@@ -244,7 +244,7 @@ WeatherBaseCard {
                 const ctx = getContext("2d");
                 ctx.clearRect(0, 0, width, height);
                 try {
-                    GM.drawKind(ctx, root.graphKind, root.geom(), root.validHours, root.scales);
+                    GM.drawKind(ctx, root.graphKind, root.geom(), root.validHours, root.scales, root.theme());
                 } catch (e) {
                     if (!root._paintErrorLogged) {
                         root._paintErrorLogged = true;
