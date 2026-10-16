@@ -63,6 +63,14 @@ var EPA_NAMES = [null, "Good", "Moderate", "Unhealthy for Sensitive", "Unhealthy
 var SOLAR_COLOR = "#ffb300";
 var SOLAR_ALPHA = 0.45;
 
+// Graph 3 pressure (D-54.4-31): dashed light grey at 80%, shown in atm (hPa / 1013.25).
+var PRESSURE_COLOR = "#b0bec5";
+var PRESSURE_ALPHA = 0.8;
+var STD_ATM_HPA = 1013.25;
+// Trend threshold in hPa (PA-2): pressureHpa is an integer, so a change below 1 hPa (no change)
+// reads Steady and any other change reads Rising or Falling (D-54.4-34 "~1 hPa").
+var PRESSURE_STEADY_HPA = 1;
+
 var Y_LABEL_FONT = "10px sans-serif";
 var LABEL_FONT = "bold 10px sans-serif";
 
@@ -364,9 +372,13 @@ function computeScales(kind, slots) {
     }
     if (kind === "airuv") {
         // D-54.4-29/30: the UV index on its own 0..max scale (floored at 1 so it is never flat);
-        // solar bars on their own 0..max scale. Historical-unavailable slots never enter a scale.
+        // solar bars on their own 0..max scale. D-54.4-31: pressure on its own invisible scale
+        // fitted to the exact min..max hPa; a flat window draws at the vertical centre through
+        // valueToY (Pitfall 7). Historical-unavailable slots and a pressure of 0 never enter.
         var uvMax = 1;
         var radMax = 0;
+        var pLo = Infinity;
+        var pHi = -Infinity;
         var alist = (slots && typeof slots.length === "number") ? slots : [];
         for (var a = 0; a < alist.length; ++a) {
             var as = alist[a];
@@ -378,10 +390,18 @@ function computeScales(kind, slots) {
             var rad = _radOf(as);
             if (isNum(rad) && rad > radMax)
                 radMax = rad;
+            var pr = _validPressure(as);
+            if (pr !== null) {
+                if (pr < pLo)
+                    pLo = pr;
+                if (pr > pHi)
+                    pHi = pr;
+            }
         }
         return {
             uv: { min: 0, max: uvMax },
-            solar: { min: 0, max: radMax }
+            solar: { min: 0, max: radMax },
+            pressure: pLo === Infinity ? { min: 0, max: 0, empty: true } : { min: pLo, max: pHi }
         };
     }
     return {};
@@ -544,6 +564,58 @@ function epaColor(idx) {
 // EPA index -> tier name, or "--" when the index is not 1..6.
 function epaName(idx) {
     return _epaValid(idx) ? EPA_NAMES[idx] : "--";
+}
+
+function hpaToAtm(h) {
+    return h / STD_ATM_HPA;
+}
+
+// hPa -> atm text with exactly three decimals (D-54.4-31); a missing pressure (0, negative or
+// non-finite) gives "--", never a made-up reading (T-54.4-21).
+function formatAtm(h) {
+    if (!isNum(h) || h <= 0)
+        return "--";
+    return hpaToAtm(h).toFixed(3);
+}
+
+// Pressure of an available slot when it is a real reading (> 0), else null.
+function _validPressure(s) {
+    if (!isAvailable(s) || !s.atmosphere)
+        return null;
+    var p = s.atmosphere.pressureHpa;
+    return isNum(p) && p > 0 ? p : null;
+}
+
+// Pressure trend at slot i (D-54.4-34, PA-2, PA-14): {word, arrow}. The reference is slot i-3
+// when it holds a real reading, otherwise the earlier slot with a real reading nearest to i-3
+// (the earlier one on a tie). |change| below PRESSURE_STEADY_HPA is Steady, otherwise Rising ↗
+// or Falling ↘. No reading at i, or no earlier reading at all, gives no trend word.
+function pressureTrend(slots, i) {
+    var none = { word: "", arrow: "" };
+    if (!slots || typeof slots.length !== "number" || !isNum(i) || i < 0 || i >= slots.length)
+        return none;
+    var p = _validPressure(slots[i]);
+    if (p === null)
+        return none;
+    var target = i - 3;
+    var ref = null;
+    var best = Infinity;
+    for (var j = 0; j < i; ++j) {
+        var pj = _validPressure(slots[j]);
+        if (pj === null)
+            continue;
+        var d = Math.abs(j - target);
+        if (d < best) {
+            best = d;
+            ref = pj;
+        }
+    }
+    if (ref === null)
+        return none;
+    var delta = p - ref;
+    if (Math.abs(delta) < PRESSURE_STEADY_HPA)
+        return { word: "Steady", arrow: "" };
+    return delta > 0 ? { word: "Rising", arrow: "↗" } : { word: "Falling", arrow: "↘" };
 }
 
 // Hard-edged tier gradient stops (PA-10). A start stop at 0 with colorAt(vTop); for each edge
@@ -913,7 +985,8 @@ function _airuvScales(slots, scales) {
     var full = computeScales("airuv", slots);
     return {
         uv: sc.uv ? sc.uv : full.uv,
-        solar: sc.solar ? sc.solar : full.solar
+        solar: sc.solar ? sc.solar : full.solar,
+        pressure: sc.pressure ? sc.pressure : full.pressure
     };
 }
 
@@ -940,7 +1013,9 @@ function solarBarRects(geom, slots, solarScale) {
 //     tier colour at full opacity, along the bottom of the plot;
 // (b) solar bars: SOLAR_COLOR at SOLAR_ALPHA, standing on the ribbon top;
 // (c) UV index: monotone spline over the full height above the ribbon, stroked with the hard WHO
-//     tier gradient, lineWidth 2, solid.
+//     tier gradient, lineWidth 2, solid;
+// (d) pressure: dashed PRESSURE_COLOR spline at PRESSURE_ALPHA, lineWidth 1.5, on its exact-fit
+//     scale. A pressure of 0 breaks the line; a window with no reading draws no line.
 // PM2.5, PM10, diffRad and DEFRA are never drawn (D-54.4-27).
 function drawAirUv(ctx, geom, slots, scales) {
     if (!ctx || !geom || !slots || typeof slots.length !== "number" || slots.length < 1)
@@ -984,6 +1059,26 @@ function drawAirUv(ctx, geom, slots, scales) {
         strokeRuns(ctx, uvRuns);
         ctx.restore();
     }
+
+    if (sc.pressure && !sc.pressure.empty) {
+        var prRuns = seriesRuns(slots, _pressureLineOf, ug, sc.pressure);
+        if (_hasStrokableRun(prRuns)) {
+            ctx.save();
+            ctx.strokeStyle = PRESSURE_COLOR;
+            ctx.globalAlpha = PRESSURE_ALPHA;
+            ctx.lineWidth = 1.5;
+            ctx.lineJoin = "round";
+            ctx.setLineDash(DASH_DASHED.slice());
+            strokeRuns(ctx, prRuns);
+            ctx.restore();
+        }
+    }
+}
+
+// Pressure getter for the spline: a pressure of 0 or less is missing data and breaks the run.
+function _pressureLineOf(s) {
+    var p = s.atmosphere ? s.atmosphere.pressureHpa : undefined;
+    return isNum(p) && p > 0 ? p : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -1023,7 +1118,8 @@ function legendEntries(kind) {
         return [
             { label: "UV", style: "solid", color: UV_COLORS[1], colors: UV_COLORS.slice(), dot: false },
             { label: "Solar", style: "bar", color: SOLAR_COLOR, colors: [SOLAR_COLOR], dot: false },
-            { label: "AQI", style: "ribbon", color: EPA_COLORS[1], colors: EPA_COLORS.slice(1, 4), dot: false }
+            { label: "AQI", style: "ribbon", color: EPA_COLORS[1], colors: EPA_COLORS.slice(1, 4), dot: false },
+            { label: "Pressure", style: "dashed", color: PRESSURE_COLOR, colors: [PRESSURE_COLOR], dot: false }
         ];
     }
     return [];
@@ -1405,6 +1501,40 @@ function peakCandidates(kind, ctx, geom, slots, scales) {
                 anchor: "bar-top"
             });
         }
+        // Pressure high (above the first max slot) and low (below the first min slot) in atm
+        // (D-54.4-31). A flat window has one label. A 0 pressure never yields one (T-54.4-21).
+        if (asc.pressure && !asc.pressure.empty) {
+            var hiP = null;
+            var loP = null;
+            for (var pi = 0; pi < slots.length; ++pi) {
+                var pval = _validPressure(slots[pi]);
+                if (pval === null)
+                    continue;
+                if (hiP === null || pval > hiP.v)
+                    hiP = { v: pval, i: pi };
+                if (loP === null || pval < loP.v)
+                    loP = { v: pval, i: pi };
+            }
+            var ends = [];
+            if (hiP !== null)
+                ends.push({ pk: hiP, anchor: "above" });
+            if (loP !== null && hiP !== null && loP.v < hiP.v)
+                ends.push({ pk: loP, anchor: "below" });
+            for (var pe = 0; pe < ends.length; ++pe) {
+                var ptext = formatAtm(ends[pe].pk.v);
+                out.push({
+                    text: ptext,
+                    x: slotCenterX(geom, ends[pe].pk.i),
+                    y: valueToY(ends[pe].pk.v, asc.pressure.min, asc.pressure.max, ag.plotTop, ag.plotBottom),
+                    w: ctx.measureText(ptext).width,
+                    h: 10,
+                    priority: 5,
+                    rank: ends[pe].anchor === "above" ? 1 : 0,
+                    color: PRESSURE_COLOR,
+                    anchor: ends[pe].anchor
+                });
+            }
+        }
         ctx.restore();
     }
     return out;
@@ -1580,6 +1710,14 @@ function tooltipLines(kind, slots, i) {
         ]);
         if (al4.length > 0)
             lines.push({ lead: "", icon: "", text: al4 });
+        // Line 5 "<compress> 0.998 atm ↘ Falling" (D-54.4-33/34). A missing pressure reads
+        // "-- atm" and never carries a trend word (T-54.4-21).
+        var ph = slot.atmosphere ? slot.atmosphere.pressureHpa : null;
+        var tr = pressureTrend(slots, i);
+        var al5 = formatAtm(ph) + " atm";
+        if (tr.word.length > 0)
+            al5 += " " + (tr.arrow ? tr.arrow + " " : "") + tr.word;
+        lines.push({ lead: "", icon: "compress", text: al5 });
     }
     return lines;
 }
@@ -1628,6 +1766,9 @@ function markerPoints(kind, slots, i, geom, scales) {
         var uvv = _uvOf(slot);
         if (isNum(uvv))
             pts.push({ y: valueToY(uvv, asc.uv.min, asc.uv.max, ag.plotTop, ag.plotBottom), color: uvColor(uvv) });
+        var pv = _validPressure(slot);
+        if (pv !== null && asc.pressure && !asc.pressure.empty)
+            pts.push({ y: valueToY(pv, asc.pressure.min, asc.pressure.max, ag.plotTop, ag.plotBottom), color: PRESSURE_COLOR });
     }
     return pts;
 }
