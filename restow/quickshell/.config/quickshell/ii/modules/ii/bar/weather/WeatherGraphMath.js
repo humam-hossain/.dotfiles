@@ -706,8 +706,159 @@ function drawBackdrop(ctx, geom, slots, theme) {
     ctx.restore();
 }
 
-// Per-kind dispatch: the shared backdrop first, then the per-kind furniture and series.
-// Plans 06 and 07 add the "rainwind" and "airuv" branches.
+// ---------------------------------------------------------------------------
+// Peak labels (D-54.4-10, RESEARCH Pattern 6)
+// ---------------------------------------------------------------------------
+
+var LABEL_GAP = 3;
+
+// Strict overlap of two {x, y, w, h} rects; rects that only touch at an edge do not intersect.
+function rectsIntersect(a, b) {
+    return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+}
+
+function _rectInside(r, b) {
+    return r.x >= b.left && r.x + r.w <= b.right && r.y >= b.top && r.y + r.h <= b.bottom;
+}
+
+// Top-left corners to try for one candidate, in order (Planner Assumptions, plan 05).
+function _labelOffsets(c) {
+    var g = LABEL_GAP;
+    var above = c.y - c.h - g;
+    var below = c.y + g;
+    var centre = c.x - c.w / 2;
+    var left = c.x - c.w - g;
+    var right = c.x + g;
+    if (c.anchor === "below")
+        return [[centre, below], [left, below], [right, below], [centre, above]];
+    return [[centre, above], [left, above], [right, above], [centre, below]];
+}
+
+// Greedy placement. Candidates {text, x, y, w, h, priority, rank, color, anchor} are sorted
+// stably by priority ascending (0 first), then rank descending. Each takes the first offset whose
+// rect lies inside bounds {left, right, top, bottom} and intersects neither an accepted label nor
+// a reserved rect; a candidate with no such offset is dropped, never drawn overlapping. Returns
+// [{text, x, y, w, h, color}] with x, y the top-left corner. Bounded work: four offsets per
+// candidate, no retry loop (T-54.4-13).
+function placeLabels(cands, bounds, reserved) {
+    if (!cands || typeof cands.length !== "number" || !bounds)
+        return [];
+    var res = (reserved && typeof reserved.length === "number") ? reserved : [];
+    var list = [];
+    for (var i = 0; i < cands.length; ++i) {
+        var c = cands[i];
+        if (!c || typeof c !== "object" || !isNum(c.x) || !isNum(c.y) || !isNum(c.w) || !isNum(c.h) || c.w < 0 || c.h < 0)
+            continue;
+        list.push({ c: c, order: i });
+    }
+    list.sort(function (a, b) {
+        var pa = isNum(a.c.priority) ? a.c.priority : 0;
+        var pb = isNum(b.c.priority) ? b.c.priority : 0;
+        if (pa !== pb)
+            return pa - pb;
+        var ra = isNum(a.c.rank) ? a.c.rank : 0;
+        var rb = isNum(b.c.rank) ? b.c.rank : 0;
+        if (ra !== rb)
+            return rb - ra;
+        return a.order - b.order;
+    });
+
+    var placed = [];
+    for (var k = 0; k < list.length; ++k) {
+        var cand = list[k].c;
+        var offs = _labelOffsets(cand);
+        for (var o = 0; o < offs.length; ++o) {
+            var r = { text: cand.text, x: offs[o][0], y: offs[o][1], w: cand.w, h: cand.h, color: cand.color };
+            if (!_rectInside(r, bounds))
+                continue;
+            var clear = true;
+            for (var p = 0; clear && p < placed.length; ++p) {
+                if (rectsIntersect(r, placed[p]))
+                    clear = false;
+            }
+            for (var q = 0; clear && q < res.length; ++q) {
+                if (res[q] && rectsIntersect(r, res[q]))
+                    clear = false;
+            }
+            if (clear) {
+                placed.push(r);
+                break;
+            }
+        }
+    }
+    return placed;
+}
+
+// First available slot holding the maximum finite value of getter, or null.
+function _peakOf(slots, getter) {
+    var best = null;
+    for (var i = 0; i < slots.length; ++i) {
+        var s = slots[i];
+        if (!isAvailable(s))
+            continue;
+        var v = getter(s);
+        if (isNum(v) && (best === null || v > best.v))
+            best = { v: v, i: i };
+    }
+    return best;
+}
+
+// Peak-label candidates for one card. Historical-unavailable slots never yield one (T-54.4-14).
+// Plans 06 and 07 add the "rainwind" and "airuv" candidates here.
+function peakCandidates(kind, ctx, geom, slots, scales) {
+    if (!ctx || !geom || !slots || typeof slots.length !== "number")
+        return [];
+    var out = [];
+    if (kind === "temp") {
+        var scale = (scales && scales.temp) ? scales.temp : tempScale(slots);
+        if (!scale || scale.empty)
+            return [];
+        var series = [_tempOf, _feelsOf];
+        ctx.save();
+        ctx.font = LABEL_FONT;
+        for (var k = 0; k < series.length; ++k) {
+            var pk = _peakOf(slots, series[k]);
+            if (!pk)
+                continue;
+            var text = Math.round(pk.v) + "°";
+            out.push({
+                text: text,
+                x: slotCenterX(geom, pk.i),
+                y: valueToY(pk.v, scale.min, scale.max, geom.plotTop, geom.plotBottom),
+                w: ctx.measureText(text).width,
+                h: 10,
+                priority: k,
+                rank: pk.v,
+                color: rampColorAt(TEMP_RAMP, pk.v),
+                anchor: "above"
+            });
+        }
+        ctx.restore();
+    }
+    return out;
+}
+
+// Draws placed labels at full opacity: text is never drawn at a bar alpha (Pitfall 11).
+function drawLabels(ctx, placed) {
+    if (!ctx || !placed || typeof placed.length !== "number")
+        return;
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.font = LABEL_FONT;
+    ctx.textBaseline = "top";
+    ctx.textAlign = "left";
+    for (var i = 0; i < placed.length; ++i) {
+        var p = placed[i];
+        if (!p)
+            continue;
+        ctx.fillStyle = p.color;
+        ctx.fillText(p.text, p.x, p.y);
+    }
+    ctx.restore();
+}
+
+// Per-kind dispatch: the shared backdrop first, then the per-kind furniture and series, then the
+// collision-free peak labels. Plans 06 and 07 add the "rainwind" and "airuv" branches.
 function drawKind(ctx, kind, geom, slots, scales, theme) {
     drawBackdrop(ctx, geom, slots, theme);
     if (kind === "temp") {
@@ -715,6 +866,14 @@ function drawKind(ctx, kind, geom, slots, scales, theme) {
         drawTempAxis(ctx, geom, scale, theme);
         drawTemp(ctx, geom, slots, scales);
     }
+    if (!geom || !slots || typeof slots.length !== "number")
+        return;
+    drawLabels(ctx, placeLabels(peakCandidates(kind, ctx, geom, slots, scales), {
+        left: geom.plotLeft,
+        right: geom.plotRight,
+        top: 0,
+        bottom: geom.plotBottom
+    }, []));
 }
 
 // ---------------------------------------------------------------------------

@@ -1336,7 +1336,8 @@ if (HAS_PEAK) {
   poisoned[1] = Object.assign({}, poisoned[1], { thermal: { tempC: 60, feelsLikeC: 70, dewPointC: 0 } });
   const pp = G.peakCandidates("temp", mockCtx().ctx, geom, poisoned, G.computeScales("temp", poisoned));
   ok(pp.length === 2 && pp[0].text === Math.round(tMax) + "°" && pp[1].text === Math.round(fMax) + "°", "S5: a historical-unavailable slot never yields a peak candidate");
-  ok(same(G.peakCandidates("temp", mockCtx().ctx, geomFor(25), allUn, G.computeScales("temp", allUn)), []), "S5: an all-unavailable timeline yields no peak candidate");
+  const noData = mkTimeline({ unavailable: 25 });
+  ok(same(G.peakCandidates("temp", mockCtx().ctx, geomFor(25), noData, G.computeScales("temp", noData)), []), "S5: an all-unavailable timeline yields no peak candidate");
   ok(same(G.peakCandidates("rainwind", mockCtx().ctx, geom, tl, {}), []) && same(G.peakCandidates("bogus", mockCtx().ctx, geom, tl, {}), []),
      "S5: peakCandidates returns [] for kinds owned by plans 06/07 and unknown kinds");
 
