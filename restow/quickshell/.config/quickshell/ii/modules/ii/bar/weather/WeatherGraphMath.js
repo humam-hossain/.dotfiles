@@ -53,6 +53,16 @@ var UV_COLORS = ["#66bb6a", "#ffee58", "#ffa726", "#ef5350", "#ce93d8"];
 // Height in px of the EPA tier ribbon along the bottom of the Graph 3 plot (D-54.4-27).
 var RIBBON_H = 6;
 
+// Graph 3 EPA tier ribbon (D-54.4-28), indexed by the API us-epa-index 1..6; index 0 is unused.
+// Very Unhealthy and Hazardous sit below 3:1 on the card surface and are kept as locked (PA-3).
+// Not the WeatherGlyphs AQI palette, which differs from the locked one.
+var EPA_COLORS = [null, "#66bb6a", "#ffee58", "#ffa726", "#ef5350", "#ab47bc", "#c2185b"];
+var EPA_NAMES = [null, "Good", "Moderate", "Unhealthy for Sensitive", "Unhealthy", "Very Unhealthy", "Hazardous"];
+
+// Graph 3 solar radiation bars (D-54.4-29): amber at 45%, capped at BAR_CAP of the plot.
+var SOLAR_COLOR = "#ffb300";
+var SOLAR_ALPHA = 0.45;
+
 var Y_LABEL_FONT = "10px sans-serif";
 var LABEL_FONT = "bold 10px sans-serif";
 
@@ -353,9 +363,10 @@ function computeScales(kind, slots) {
         };
     }
     if (kind === "airuv") {
-        // D-54.4-29/30: the UV index on its own 0..max scale (floored at 1 so it is never flat).
-        // Historical-unavailable slots never enter a scale.
+        // D-54.4-29/30: the UV index on its own 0..max scale (floored at 1 so it is never flat);
+        // solar bars on their own 0..max scale. Historical-unavailable slots never enter a scale.
         var uvMax = 1;
+        var radMax = 0;
         var alist = (slots && typeof slots.length === "number") ? slots : [];
         for (var a = 0; a < alist.length; ++a) {
             var as = alist[a];
@@ -364,9 +375,13 @@ function computeScales(kind, slots) {
             var uv = _uvOf(as);
             if (isNum(uv) && uv > uvMax)
                 uvMax = uv;
+            var rad = _radOf(as);
+            if (isNum(rad) && rad > radMax)
+                radMax = rad;
         }
         return {
-            uv: { min: 0, max: uvMax }
+            uv: { min: 0, max: uvMax },
+            solar: { min: 0, max: radMax }
         };
     }
     return {};
@@ -513,6 +528,22 @@ function uvColor(uv) {
     if (uv < UV_EDGES[3])
         return UV_COLORS[3];
     return UV_COLORS[4];
+}
+
+// True only for an integer EPA index 1..6. Anything else (0, 7, 2.5, null, a string) is missing
+// data and gets no ribbon segment and no tier word (T-54.4-17).
+function _epaValid(idx) {
+    return isNum(idx) && Math.floor(idx) === idx && idx >= 1 && idx <= 6;
+}
+
+// EPA index -> locked tier colour (D-54.4-28), or null when the index is not 1..6.
+function epaColor(idx) {
+    return _epaValid(idx) ? EPA_COLORS[idx] : null;
+}
+
+// EPA index -> tier name, or "--" when the index is not 1..6.
+function epaName(idx) {
+    return _epaValid(idx) ? EPA_NAMES[idx] : "--";
 }
 
 // Hard-edged tier gradient stops (PA-10). A start stop at 0 with colorAt(vTop); for each edge
@@ -762,8 +793,15 @@ function _rainwindScales(slots, scales) {
 // the slot, max(2, slotW*0.6) wide, height precipMM / mm.max * BAR_CAP of the plot, standing on
 // plotBottom (PA-13). mm.max > 0 whenever a bar exists, so there is no 0/0 (T-54.4-15).
 function mmBarRects(geom, slots, mmScale) {
+    return _barRects(geom, slots, _mmOf, mmScale);
+}
+
+// Shared bar geometry for the mm and solar bars: only available slots whose value is above 0,
+// centred, max(2, slotW*0.6) wide, value / scale.max * BAR_CAP of the plot (geom.plotTop to
+// geom.plotBottom) tall, standing on geom.plotBottom.
+function _barRects(geom, slots, getter, scale) {
     var out = [];
-    if (!geom || !slots || typeof slots.length !== "number" || !mmScale || !isNum(mmScale.max) || mmScale.max <= 0)
+    if (!geom || !slots || typeof slots.length !== "number" || !scale || !isNum(scale.max) || scale.max <= 0)
         return out;
     var plotH = geom.plotBottom - geom.plotTop;
     var w = Math.max(2, geom.slotW * 0.6);
@@ -771,10 +809,10 @@ function mmBarRects(geom, slots, mmScale) {
         var s = slots[i];
         if (!isAvailable(s))
             continue;
-        var p = _mmOf(s);
+        var p = getter(s);
         if (!isNum(p) || p <= 0)
             continue;
-        var h = Math.min(p, mmScale.max) / mmScale.max * BAR_CAP * plotH;
+        var h = Math.min(p, scale.max) / scale.max * BAR_CAP * plotH;
         out.push({ i: i, p: p, x: slotCenterX(geom, i) - w / 2, y: geom.plotBottom - h, w: w, h: h });
     }
     return out;
@@ -861,12 +899,21 @@ function _uvOf(s) {
     return s.solar ? s.solar.uvIndex : undefined;
 }
 
+function _radOf(s) {
+    return s.solar ? s.solar.shortRad : undefined;
+}
+
+function _epaOf(s) {
+    return s.aqi ? s.aqi.epaIndex : undefined;
+}
+
 // Graph 3 scales, falling back to computeScales for any piece the caller did not pass.
 function _airuvScales(slots, scales) {
     var sc = scales || {};
     var full = computeScales("airuv", slots);
     return {
-        uv: sc.uv ? sc.uv : full.uv
+        uv: sc.uv ? sc.uv : full.uv,
+        solar: sc.solar ? sc.solar : full.solar
     };
 }
 
@@ -880,14 +927,51 @@ function _airuvGeom(geom) {
     return Object.assign({}, geom, { plotBottom: airuvRibbonTop(geom) });
 }
 
-// Graph 3 (D-54.4-27..31), each inside save/restore:
-// UV index: monotone spline over the full height above the ribbon, stroked with the hard WHO tier
-// gradient, lineWidth 2, solid.
+// Solar bar rects {i, p, x, y, w, h} on the Graph 3 geometry: bars stand on the ribbon top and
+// use at most BAR_CAP of the height above it (D-54.4-29). Only shortRad > 0, so no 0/0 (T-54.4-16).
+function solarBarRects(geom, slots, solarScale) {
+    if (!geom)
+        return [];
+    return _barRects(_airuvGeom(geom), slots, _radOf, solarScale);
+}
+
+// Graph 3 (D-54.4-27..31), drawn in this order, each inside save/restore:
+// (a) EPA tier ribbon: one RIBBON_H strip per available slot whose epaIndex is 1..6, in the locked
+//     tier colour at full opacity, along the bottom of the plot;
+// (b) solar bars: SOLAR_COLOR at SOLAR_ALPHA, standing on the ribbon top;
+// (c) UV index: monotone spline over the full height above the ribbon, stroked with the hard WHO
+//     tier gradient, lineWidth 2, solid.
+// PM2.5, PM10, diffRad and DEFRA are never drawn (D-54.4-27).
 function drawAirUv(ctx, geom, slots, scales) {
     if (!ctx || !geom || !slots || typeof slots.length !== "number" || slots.length < 1)
         return;
     var sc = _airuvScales(slots, scales);
     var ug = _airuvGeom(geom);
+    var ribbonTop = airuvRibbonTop(geom);
+
+    ctx.save();
+    ctx.globalAlpha = 1;
+    for (var i = 0; i < slots.length; ++i) {
+        var s = slots[i];
+        if (!isAvailable(s))
+            continue;
+        var col = epaColor(_epaOf(s));
+        if (col === null)
+            continue;
+        ctx.fillStyle = col;
+        ctx.fillRect(geom.plotLeft + i * geom.slotW, ribbonTop, geom.slotW, RIBBON_H);
+    }
+    ctx.restore();
+
+    var bars = solarBarRects(geom, slots, sc.solar);
+    if (bars.length > 0) {
+        ctx.save();
+        ctx.fillStyle = SOLAR_COLOR;
+        ctx.globalAlpha = SOLAR_ALPHA;
+        for (var b = 0; b < bars.length; ++b)
+            ctx.fillRect(bars[b].x, bars[b].y, bars[b].w, bars[b].h);
+        ctx.restore();
+    }
 
     var uvRuns = seriesRuns(slots, _uvOf, ug, sc.uv);
     if (_hasStrokableRun(uvRuns)) {
@@ -937,7 +1021,9 @@ function legendEntries(kind) {
     if (kind === "airuv") {
         // D-54.4-32 order: UV, Solar, AQI, Pressure.
         return [
-            { label: "UV", style: "solid", color: UV_COLORS[1], colors: UV_COLORS.slice(), dot: false }
+            { label: "UV", style: "solid", color: UV_COLORS[1], colors: UV_COLORS.slice(), dot: false },
+            { label: "Solar", style: "bar", color: SOLAR_COLOR, colors: [SOLAR_COLOR], dot: false },
+            { label: "AQI", style: "ribbon", color: EPA_COLORS[1], colors: EPA_COLORS.slice(1, 4), dot: false }
         ];
     }
     return [];
@@ -1297,6 +1383,28 @@ function peakCandidates(kind, ctx, geom, slots, scales) {
                 anchor: "above"
             });
         }
+        // Solar peak W/m² written above the tallest bar (D-54.4-29). The "bar-top" anchor offers
+        // only the above-centre spot, so the value is never drawn inside its bar.
+        var sbars = solarBarRects(geom, slots, asc.solar);
+        var tallest = null;
+        for (var sb = 0; sb < sbars.length; ++sb) {
+            if (tallest === null || sbars[sb].p > tallest.p)
+                tallest = sbars[sb];
+        }
+        if (tallest !== null && tallest.p > 0) {
+            var stext = Math.round(tallest.p) + " W/m²";
+            out.push({
+                text: stext,
+                x: slotCenterX(geom, tallest.i),
+                y: tallest.y,
+                w: ctx.measureText(stext).width,
+                h: 10,
+                priority: 6,
+                rank: tallest.p,
+                color: SOLAR_COLOR,
+                anchor: "bar-top"
+            });
+        }
         ctx.restore();
     }
     return out;
@@ -1455,6 +1563,23 @@ function tooltipLines(kind, slots, i) {
         ]);
         if (al2.length > 0)
             lines.push({ lead: "", icon: "light_mode", text: al2 });
+        // Line 3 "<masks> AQI <EPA tier> · PM2.5 <n> · PM10 <n>" (an index outside 1..6 reads
+        // "AQI --"); line 4 "CO <n> · NO₂ <n> · O₃ <n> · SO₂ <n>" in µg/m³, with no icon.
+        var aq = slot.aqi || {};
+        var al3 = _joinDot([
+            "AQI " + epaName(aq.epaIndex),
+            isNum(aq.pm2_5) ? "PM2.5 " + Math.round(aq.pm2_5) : "",
+            isNum(aq.pm10) ? "PM10 " + Math.round(aq.pm10) : ""
+        ]);
+        lines.push({ lead: "", icon: "masks", text: al3 });
+        var al4 = _joinDot([
+            isNum(aq.co) ? "CO " + Math.round(aq.co) : "",
+            isNum(aq.no2) ? "NO₂ " + Math.round(aq.no2) : "",
+            isNum(aq.o3) ? "O₃ " + Math.round(aq.o3) : "",
+            isNum(aq.so2) ? "SO₂ " + Math.round(aq.so2) : ""
+        ]);
+        if (al4.length > 0)
+            lines.push({ lead: "", icon: "", text: al4 });
     }
     return lines;
 }
