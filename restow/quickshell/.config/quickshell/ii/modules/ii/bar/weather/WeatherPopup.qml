@@ -27,6 +27,18 @@ StyledPopup {
         }
     }
 
+    // Shared hover hour for all three graphs (D-54.4-07). The popup is its only writer.
+    property int hoverSlot: -1
+
+    // Closing the popup clears the shared hover slot. Separate block so the handler above stays intact.
+    Connections {
+        target: root
+        function onActiveChanged() {
+            if (!root.active)
+                root.hoverSlot = -1;
+        }
+    }
+
     // Non-scrolling, percent-sized content (D-54.4-03). Centred so padding stays even on all sides.
     Item {
         id: contentRoot
@@ -130,6 +142,8 @@ StyledPopup {
                     Layout.fillHeight: true
                     gutter: contentRoot.graphGutter
                     popupActive: root.active
+                    hoverSlot: root.hoverSlot
+                    onHoverRequested: idx => root.hoverSlot = idx
                 }
 
                 WeatherGraph {
@@ -139,6 +153,8 @@ StyledPopup {
                     Layout.fillHeight: true
                     gutter: contentRoot.graphGutter
                     popupActive: root.active
+                    hoverSlot: root.hoverSlot
+                    onHoverRequested: idx => root.hoverSlot = idx
                 }
 
                 WeatherGraph {
@@ -148,6 +164,116 @@ StyledPopup {
                     Layout.fillHeight: true
                     gutter: contentRoot.graphGutter
                     popupActive: root.active
+                    hoverSlot: root.hoverSlot
+                    onHoverRequested: idx => root.hoverSlot = idx
+                }
+            }
+        }
+
+        // Popup-level tooltip overlay above the cards, so a tooltip is never clipped by its own card
+        // and can float over a neighbour (D-54.4-08). No MouseArea or HoverHandler here: hover passes
+        // through to the graphs.
+        Item {
+            id: tooltipLayer
+            anchors.fill: parent
+            z: 10
+            visible: root.hoverSlot >= 0
+
+            Repeater {
+                model: [tempGraph, rainGraph, airGraph]
+
+                delegate: Rectangle {
+                    id: tip
+
+                    required property var modelData
+
+                    readonly property var lines: root.hoverSlot >= 0 ? GM.tooltipLines(tip.modelData.graphKind, tip.modelData.validHours, root.hoverSlot) : []
+
+                    // Reactive arithmetic only; item-mapping calls do not update reactively
+                    readonly property real cardX: contentColumn.x + graphRow.x + tip.modelData.x
+                    readonly property real cardY: contentColumn.y + graphRow.y + tip.modelData.y
+                    readonly property real anchorX: tip.cardX + tip.modelData.plotOriginX + tip.modelData.slotX(root.hoverSlot)
+                    readonly property real anchorY: tip.cardY + tip.modelData.plotOriginY + tip.modelData.markerTopY
+
+                    visible: tip.lines.length > 0
+                    color: "transparent"
+                    implicitWidth: tipBody.implicitWidth + 20
+                    implicitHeight: tipBody.implicitHeight + 12
+
+                    // Stay inside the own card when it fits, else float over the neighbours; always inside the layer
+                    x: {
+                        const want = tip.anchorX - tip.width / 2;
+                        if (tip.width <= tip.modelData.width)
+                            return Math.max(tip.cardX, Math.min(tip.cardX + tip.modelData.width - tip.width, want));
+                        return Math.max(0, Math.min(tooltipLayer.width - tip.width, want));
+                    }
+                    y: {
+                        const above = tip.anchorY - tip.height - 8;
+                        const want = above >= tip.cardY ? above : tip.anchorY + 14;
+                        return Math.max(0, Math.min(tooltipLayer.height - tip.height, want));
+                    }
+
+                    // Translucent background; the text above it stays fully opaque
+                    Rectangle {
+                        anchors.fill: parent
+                        color: Appearance.m3colors.m3surfaceContainerHigh
+                        opacity: 0.9
+                        radius: Appearance.rounding.verysmall
+                        border.width: 1
+                        border.color: Appearance.colors.colOutlineVariant
+                    }
+
+                    ColumnLayout {
+                        id: tipBody
+                        x: 10
+                        y: 6
+                        spacing: 2
+
+                        Repeater {
+                            model: tip.lines
+
+                            delegate: RowLayout {
+                                id: tipRow
+
+                                required property var modelData
+
+                                spacing: 4
+
+                                StyledText {
+                                    visible: tipRow.modelData.lead.length > 0
+                                    textFormat: Text.PlainText
+                                    font.pixelSize: Appearance.font.pixelSize.smaller
+                                    font.weight: Font.Bold
+                                    color: Appearance.colors.colOnLayer1
+                                    text: tipRow.modelData.lead
+                                }
+
+                                StyledText {
+                                    visible: tipRow.modelData.lead.length > 0 && (tipRow.modelData.icon.length > 0 || tipRow.modelData.text.length > 0)
+                                    textFormat: Text.PlainText
+                                    font.pixelSize: Appearance.font.pixelSize.smaller
+                                    color: Appearance.colors.colOnSurfaceVariant
+                                    text: "·"
+                                }
+
+                                MaterialSymbol {
+                                    visible: tipRow.modelData.icon.length > 0
+                                    iconSize: 14
+                                    fill: 0
+                                    color: Appearance.colors.colOnSurfaceVariant
+                                    text: tipRow.modelData.icon
+                                }
+
+                                StyledText {
+                                    visible: tipRow.modelData.text.length > 0
+                                    textFormat: Text.PlainText
+                                    font.pixelSize: Appearance.font.pixelSize.smaller
+                                    color: Appearance.colors.colOnSurfaceVariant
+                                    text: tipRow.modelData.text
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }

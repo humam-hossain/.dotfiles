@@ -811,6 +811,65 @@ for (const [name, hex] of colours) {
     }
   }
 }
+
+// comfortWord boundaries (D-54.4-20)
+const comfort = [[15, "Comfortable"], [16, "Humid"], [20, "Humid"], [21, "Muggy"], [23, "Muggy"], [24, "Oppressive"],
+                 [NaN, ""], [null, ""]];
+for (const [dew, want] of comfort) {
+  ok(G.comfortWord(dew) === want, "S3: comfortWord(" + String(dew) + ") = " + JSON.stringify(want) + " (D-54.4-20)");
+}
+
+// tooltipLines("temp") on the 25-slot fixture (D-54.4-12/19)
+const ttl = mkTimeline();
+const s12 = ttl[12];
+const tNow = G.tooltipLines("temp", ttl, 12);
+ok(tNow.length >= 1 && tNow[0].lead === "Now", "S3: tooltipLines(temp, fixture, 12) line 1 lead is Now");
+ok(tNow.length >= 1 && tNow[0].icon === s12.glyph, "S3: tooltipLines(temp) line 1 icon is the slot condition glyph");
+const tUn = G.tooltipLines("temp", ttl, 0);
+ok(tUn.length === 1 && tUn[0].text === "No data" && tUn[0].icon === "", "S3: tooltipLines(temp) on the unavailable index 0 is one No data line");
+ok(same(G.tooltipLines("temp", ttl, -1), []) && same(G.tooltipLines("temp", ttl, 25), []), "S3: tooltipLines(temp) at index -1 and 25 is []");
+ok(same(G.tooltipLines("temp", null, 3), []) && same(G.tooltipLines("temp", [null], 0), []), "S3: tooltipLines tolerates a null timeline and a null slot");
+
+// Locked D-54.4-19 lines, built from the fixture values of slot 12
+const lockedL1 = s12.desc + " · " + G.comfortWord(s12.thermal.dewPointC);
+const lockedL2 = Math.round(s12.thermal.tempC) + "° (" + Math.round(s12.thermal.feelsLikeC) + "°) · Dew " + Math.round(s12.thermal.dewPointC) + "°";
+const rh = Math.round(s12.moisture.humidity) + "% RH";
+const L2_RE = /^\d+° \(\d+°\) · Dew \d+°$/;
+const L2_RH_RE = /^\d+° \(\d+°\) · Dew \d+° · \d+% RH$/;
+
+// PA-1: the user-approved humidity placement, selected by the marker in WeatherGraphMath.js
+const gmText = fs.readFileSync(process.argv[1], "utf8");
+const markers = gmText.match(/\/\/ PA-1 option: [A-Za-z0-9-]+/g) || [];
+const optionId = markers.length === 1 ? markers[0].replace("// PA-1 option: ", "") : "";
+ok(markers.length === 1, "S3: PA-1 exactly one '// PA-1 option:' marker in WeatherGraphMath.js (found " + markers.length + ")");
+const KNOWN = ["l1-suffix", "l2-suffix", "line3"];
+ok(KNOWN.indexOf(optionId) >= 0, "S3: PA-1 option id '" + optionId + "' is one of " + KNOWN.join(", "));
+if (optionId === "l1-suffix") {
+  ok(tNow.length === 2 && tNow[0].text === lockedL1 + " · " + rh && L2_RE.test(tNow[1].text) && tNow[1].text === lockedL2,
+     "S3: PA-1 l1-suffix: 2 lines, L1 '" + lockedL1 + " · " + rh + "', L2 '" + lockedL2 + "' (got " + JSON.stringify(tNow.map(function (l) { return l.text; })) + ")");
+} else if (optionId === "l2-suffix") {
+  ok(tNow.length === 2 && tNow[0].text === lockedL1 && L2_RH_RE.test(tNow[1].text) && tNow[1].text === lockedL2 + " · " + rh,
+     "S3: PA-1 l2-suffix: 2 lines, L1 '" + lockedL1 + "', L2 '" + lockedL2 + " · " + rh + "'");
+} else if (optionId === "line3") {
+  ok(tNow.length === 3 && tNow[0].text === lockedL1 && L2_RE.test(tNow[1].text) && tNow[2].lead === "" && tNow[2].icon === "humidity_percentage" && tNow[2].text === rh,
+     "S3: PA-1 line3: 3 lines, L1 '" + lockedL1 + "', L2 '" + lockedL2 + "', L3 humidity_percentage '" + rh + "'");
+} else {
+  ok(false, "S3: PA-1 no humidity-shape assertion ran (missing, duplicate or unknown option marker)");
+}
+ok(tNow.length >= 2 && tNow[1].icon === "thermostat", "S3: tooltipLines(temp) line 2 icon is thermostat (D-54.4-19)");
+
+// Null humidity keeps exactly the locked D-54.4-19 lines
+const noRh = ttl.slice();
+noRh[12] = Object.assign({}, s12, { moisture: Object.assign({}, s12.moisture, { humidity: null }) });
+const tNoRh = G.tooltipLines("temp", noRh, 12);
+ok(tNoRh.length === 2 && tNoRh[0].text === lockedL1 && L2_RE.test(tNoRh[1].text) && tNoRh[1].text === lockedL2,
+   "S3: PA-1 null humidity gives exactly the locked D-54.4-19 lines (" + JSON.stringify(tNoRh.map(function (l) { return l.text; })) + ")");
+
+// Graphs 2 and 3 start with the shared header line (plans 06/07 append their lines)
+for (const kind of ["rainwind", "airuv"]) {
+  const t = G.tooltipLines(kind, ttl, 12);
+  ok(t.length >= 1 && t[0].lead === "Now" && t[0].text.indexOf(s12.desc) === 0, "S3: tooltipLines(" + kind + ") starts with the shared header line");
+}
 JS
   run_node_section "S3" "$S3_JS"
 
@@ -1005,8 +1064,149 @@ ok(same(G.normalizeSlots(null), []) && same(G.normalizeSlots(undefined), []), "S
 const rs = mockCtx();
 G.drawTemp(rs.ctx, geomFor(ns.length), ns, G.computeScales("temp", ns));
 ok(calls(rs.log, "bezierCurveTo").length >= 1, "S5: drawTemp draws the normalised hourly fallback");
+
+// markerPoints: hover markers are data, drawn as QML items (zero canvas repaint, D-54.4-07)
+const mp = G.markerPoints("temp", tl, 12, geom, scales);
+ok(mp.length === 2, "S5: markerPoints(temp, fixture, 12) gives 2 points (temperature and feels-like)");
+ok(mp.every(function (p) { return p.y >= geom.plotTop && p.y <= geom.plotBottom; }), "S5: markerPoints y values lie in [plotTop, plotBottom]");
+ok(mp.length === 2 && mp[0].y === G.valueToY(tl[12].thermal.tempC, scales.temp.min, scales.temp.max, geom.plotTop, geom.plotBottom),
+   "S5: markerPoints temperature y equals valueToY on scales.temp");
+ok(mp.every(function (p) { return /^#[0-9a-f]{6}$/i.test(p.color); }), "S5: markerPoints colours come from the TEMP_RAMP ramp");
+ok(same(G.markerPoints("temp", tl, 0, geom, scales), []), "S5: markerPoints at the unavailable index 0 is []");
+ok(same(G.markerPoints("temp", tl, -1, geom, scales), []) && same(G.markerPoints("temp", tl, 25, geom, scales), []), "S5: markerPoints out of range is []");
+ok(same(G.markerPoints("temp", tl, 12, null, scales), []), "S5: markerPoints without geometry is []");
 JS
   run_node_section "S5" "$S5_JS"
+
+  # Hover and tooltip-overlay contracts (D-54.4-07/08, T-54.4-03/07/11)
+  # qml_block FILE ID: prints the QML object block that declares 'id: ID', found by brace depth.
+  qml_block() {
+    awk -v id="$2" '
+      { lines[NR] = $0 }
+      END {
+        depth = 0
+        for (i = 1; i <= NR; i++) {
+          pre[i] = depth
+          t = lines[i]
+          o = gsub(/\{/, "", t)
+          c = gsub(/\}/, "", t)
+          depth += o - c
+          post[i] = depth
+        }
+        idl = 0
+        for (i = 1; i <= NR; i++) {
+          if (lines[i] ~ ("^[[:space:]]*id:[[:space:]]*" id "[[:space:]]*$")) { idl = i; break }
+        }
+        if (idl == 0) exit 0
+        d = pre[idl]
+        for (s = idl - 1; s >= 1; s--) {
+          if (pre[s] <= d - 1 && post[s] >= d) break
+        }
+        if (s < 1) exit 0
+        for (e = s; e <= NR; e++) {
+          print lines[e]
+          if (e > s && post[e] <= d - 1) break
+        }
+      }' "$1"
+  }
+  noncomment() {
+    grep -v '^[[:space:]]*//' "$1" || true
+  }
+
+  if [[ -s "$GRAPH_SRC" && -s "$POPUP_SRC" ]]; then
+    hover_block="$(qml_block "$GRAPH_SRC" hoverMouse)"
+    if [[ -z "$hover_block" ]]; then
+      fail "S5: hoverMouse block not found in WeatherGraph.qml"
+    else
+      if head -1 <<<"$hover_block" | grep -qE 'MouseArea[[:space:]]*\{'; then
+        pass "S5: hoverMouse is a MouseArea block (extracted by brace depth, $(wc -l <<<"$hover_block") lines)"
+      else
+        fail "S5: hoverMouse block does not open with 'MouseArea {'"
+      fi
+      if grep -q 'requestPaint' <<<"$hover_block"; then
+        fail "S5: hoverMouse block calls requestPaint (hover must not repaint the canvas, T-54.4-07)"
+      else
+        pass "S5: hoverMouse block contains no requestPaint (zero-repaint hover, T-54.4-07)"
+      fi
+      if grep -qE 'hoverRequested\(' <<<"$hover_block"; then
+        pass "S5: hoverMouse emits hoverRequested to the popup"
+      else
+        fail "S5: hoverMouse never emits hoverRequested"
+      fi
+    fi
+
+    tip_block="$(qml_block "$POPUP_SRC" tooltipLayer)"
+    if [[ -z "$tip_block" ]]; then
+      fail "S5: tooltipLayer block not found in WeatherPopup.qml"
+    else
+      if grep -qE 'MouseArea|HoverHandler' <<<"$tip_block"; then
+        fail "S5: tooltipLayer holds a MouseArea or HoverHandler (would block graph hover, T-54.4-11)"
+      else
+        pass "S5: tooltipLayer holds no MouseArea or HoverHandler (T-54.4-11)"
+      fi
+      st_count="$(grep -cE '^[[:space:]]*StyledText[[:space:]]*\{' <<<"$tip_block" || true)"
+      pt_count="$(grep -cF 'textFormat: Text.PlainText' <<<"$tip_block" || true)"
+      if [[ "$st_count" -ge 1 && "$pt_count" -ge "$st_count" ]]; then
+        pass "S5: tooltipLayer text uses Text.PlainText on all $st_count StyledText items (T-54.4-03)"
+      else
+        fail "S5: tooltipLayer StyledText count $st_count but Text.PlainText count $pt_count (T-54.4-03)"
+      fi
+      if grep -qF 'GM.tooltipLines(' <<<"$tip_block"; then
+        pass "S5: tooltipLayer text comes from GM.tooltipLines"
+      else
+        fail "S5: tooltipLayer does not read GM.tooltipLines"
+      fi
+    fi
+
+    graph_writes="$(noncomment "$GRAPH_SRC" | grep -cE 'hoverSlot[[:space:]]*=[^=]' || true)"
+    if [[ "$graph_writes" -eq 0 ]]; then
+      pass "S5: WeatherGraph.qml never assigns hoverSlot (popup is the only writer, D-54.4-07)"
+    else
+      fail "S5: WeatherGraph.qml assigns hoverSlot $graph_writes time(s)"
+    fi
+    popup_writes="$(noncomment "$POPUP_SRC" | grep -cE 'hoverSlot[[:space:]]*=[^=]' || true)"
+    if [[ "$popup_writes" -ge 1 ]]; then
+      pass "S5: WeatherPopup.qml assigns hoverSlot ($popup_writes site(s))"
+    else
+      fail "S5: WeatherPopup.qml never assigns hoverSlot"
+    fi
+    if grep -qF 'signal hoverRequested(int idx)' "$GRAPH_SRC"; then
+      pass "S5: WeatherGraph.qml declares signal hoverRequested(int idx)"
+    else
+      fail "S5: WeatherGraph.qml is missing signal hoverRequested(int idx)"
+    fi
+    hr_count="$(awk '/onHoverRequested/ { n++ } END { print n + 0 }' "$POPUP_SRC")"
+    if [[ "$hr_count" -eq 3 ]]; then
+      pass "S5: WeatherPopup.qml handles onHoverRequested on all 3 graph instances"
+    else
+      fail "S5: expected 3 onHoverRequested handlers in WeatherPopup.qml, found $hr_count"
+    fi
+    for src in "$GRAPH_SRC" "$POPUP_SRC"; do
+      if grep -qE 'map(To|From)(Item|Global|Scene)[[:space:]]*\(' "$src"; then
+        fail "S5: $(basename "$src") uses an item-mapping call (not reactive, D-54.4-08)"
+      else
+        pass "S5: $(basename "$src") has zero item-mapping calls (D-54.4-08)"
+      fi
+    done
+    if grep -qiE 'id:[[:space:]]*[A-Za-z0-9_]*tooltip' "$GRAPH_SRC"; then
+      fail "S5: WeatherGraph.qml owns a tooltip item (tooltips belong to the popup overlay, D-54.4-08)"
+    else
+      pass "S5: WeatherGraph.qml owns no tooltip item (D-54.4-08)"
+    fi
+    # qmlformat may wrap the if body onto its own line, so match on the joined source.
+    popup_joined="$(tr '\n' ' ' <"$POPUP_SRC" | tr -s '[:space:]' ' ')"
+    if grep -qE 'function onActiveChanged\(\) \{ if \(!root\.active\) root\.hoverSlot = -1;?' <<<"$popup_joined"; then
+      pass "S5: closing the popup resets hoverSlot (if (!root.active) root.hoverSlot = -1)"
+    else
+      fail "S5: WeatherPopup.qml lacks the onActiveChanged hoverSlot reset"
+    fi
+    if grep -qF 'GlobalStates.activeInspectorCount++;' "$POPUP_SRC" \
+      && grep -qF 'GlobalStates.activeInspectorCount = Math.max(0, GlobalStates.activeInspectorCount - 1);' "$POPUP_SRC"; then
+      pass "S5: the activeInspectorCount increment and decrement handlers are intact"
+    else
+      fail "S5: the activeInspectorCount increment or decrement handler changed"
+    fi
+  fi
 fi
 
 finish
