@@ -1095,7 +1095,7 @@ function _rampColors(anchors) {
 // Legend entries for one card, drawn by the WeatherGraph.qml legend row: an array of
 // {label, style, color, colors, dot}. style is one of "solid", "dashed", "dotted", "bar" or
 // "ribbon"; color is the label colour; colors (optional) are the swatch parts in order; dot adds a
-// colour dot before the swatch. Plan 07 adds the "airuv" entries.
+// colour dot before the swatch.
 function legendEntries(kind) {
     if (kind === "temp") {
         return [
@@ -1363,7 +1363,7 @@ function _peakOf(slots, getter) {
 }
 
 // Peak-label candidates for one card. Historical-unavailable slots never yield one (T-54.4-14).
-// Plan 07 adds the "airuv" candidates here.
+// Each kind owns its candidates: temp (D-54.4-10), rainwind (D-54.4-24) and airuv (D-54.4-29/31).
 function peakCandidates(kind, ctx, geom, slots, scales) {
     if (!ctx || !geom || !slots || typeof slots.length !== "number")
         return [];
@@ -1560,7 +1560,7 @@ function drawLabels(ctx, placed) {
 }
 
 // Per-kind dispatch: the shared backdrop first, then the per-kind furniture and series, then the
-// collision-free peak labels. Plan 07 adds the "airuv" branch.
+// collision-free peak labels.
 function drawKind(ctx, kind, geom, slots, scales, theme) {
     drawBackdrop(ctx, geom, slots, theme);
     if (kind === "temp") {
@@ -1617,7 +1617,7 @@ function _joinDot(parts) {
 
 // Tooltip lines for one graph at slot i: an array of {lead, icon, text}. The popup renders each
 // line as "<lead> · <icon> <text>". Plain strings only; the QML side renders them as PlainText.
-// Plan 07 appends the "airuv" lines here.
+// Graph 1 has 2 lines (D-54.4-19/35), Graph 2 has 4 (D-54.4-26/36) and Graph 3 has 5 (D-54.4-33).
 function tooltipLines(kind, slots, i) {
     if (!slots || typeof slots.length !== "number" || !isNum(i) || i < 0 || i >= slots.length)
         return [];
@@ -1723,7 +1723,7 @@ function tooltipLines(kind, slots, i) {
 }
 
 // Marker points {y, color} for slot i, in graph-area coordinates. Empty for an invalid or
-// unavailable slot. Plan 07 appends the "airuv" series here.
+// unavailable slot.
 function markerPoints(kind, slots, i, geom, scales) {
     if (!geom || !slots || typeof slots.length !== "number" || !isNum(i) || i < 0 || i >= slots.length)
         return [];

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ===========================================================================
 # Phase 54.4: Modular Popup Inspector and Clean Card Layout Assert Harness
-# Enforces: POPUP-01, POPUP-02, ASVS L1
+# Enforces: POPUP-01, POPUP-02, POPUP-03, POPUP-04 (Graph 3 interim), ASVS L1
 # Decisions: D-54.4-01 through D-54.4-36 (sections grow per plan: 01, 03, 05, 06, 07)
 #
 # Usage (from REPO_ROOT):
