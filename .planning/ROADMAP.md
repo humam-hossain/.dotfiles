@@ -207,7 +207,7 @@ Plans:
 **Goal:** Replace the five stacked hourly graphs in WeatherPopup with three equal side-by-side graph cards (Temperature; Rain, Wind & Visibility; Air, UV & Pressure) with synced hover and floating tooltips, inside a non-scrolling popup sized as a percentage of its screen, keeping the alert banner and hero card on top (absorbs backlog 999.1; top-section redesign moved to Phase 54.5).
 **Requirements**: POPUP-01, POPUP-02, POPUP-03, POPUP-04
 **Depends on:** Phase 54.3
-**Plans:** 5/8 plans executed
+**Plans:** 6/8 plans executed
 
 **Success Criteria** (what must be TRUE):
 
@@ -235,7 +235,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 54.4-06-PLAN.md — Graph 2: rain % tiers, wind/gust/visibility, mm bars with labels, 4-line tooltip
+- [x] 54.4-06-PLAN.md — Graph 2: rain % tiers, wind/gust/visibility, mm bars with labels, 4-line tooltip
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -283,7 +283,7 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 | 54.1. Top Status Bar Weather Component Polish | 3/3 | Complete    | 2026-10-10 |
 | 54.2. Hourly Parameter Modeling and Rolling Cache Service | 4/4 | Complete    | 2026-10-11 |
 | 54.3. Interactive Multi-Metric Hourly Graph Component | 10/10 | Complete    | 2026-10-15 |
-| 54.4. Modular Popup Inspector and Clean Card Layout | 5/8 | In Progress | - |
+| 54.4. Modular Popup Inspector and Clean Card Layout | 6/8 | In Progress | - |
 | 54.5. Popup Hero, Daily Stats, Astronomy and Forecast Cards | 0/TBD | Not started | - |
 | 55. System Integration, Retirement & Verification | 0/TBD | Not started | - |
 
