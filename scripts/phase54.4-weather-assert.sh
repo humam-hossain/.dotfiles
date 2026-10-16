@@ -340,6 +340,28 @@ function geomFor(n) {
 function calls(log, name) {
   return log.filter(function (e) { return e[0] === name; });
 }
+
+// Replays a mockCtx log and returns every method call as {name, args, st}, where st is the
+// context state (globalAlpha, font, fillStyle, ...) in force at that call, honouring save/restore.
+function annotate(log) {
+  const out = [];
+  const stack = [];
+  let st = { globalAlpha: 1 };
+  for (const e of log) {
+    if (e[0] === "set") {
+      st[e[1]] = e[2];
+      continue;
+    }
+    if (e[0] === "stop") continue;
+    if (e[0] === "save") stack.push(Object.assign({}, st));
+    if (e[0] === "restore") st = stack.length ? stack.pop() : { globalAlpha: 1 };
+    out.push({ name: e[0], args: e.slice(1), st: Object.assign({}, st) });
+  }
+  return out;
+}
+
+// Fixed theme object standing in for WeatherGraph.qml theme() (QML passes Appearance tokens).
+const THEME = { grid: "#444746", text: "#c4c7c5", shade: "#1f2020", now: "#a8c7fa" };
 JS
 
 run_node_section() {
@@ -635,6 +657,11 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
       pass "S1: legendRow is declared above graphArea (first card-content child)"
     else
       fail "S1: legendRow is not declared above graphArea (legend=$legend_ln graphArea=$area_ln)"
+    fi
+    if grep -qF 'GM.drawKind(ctx, root.graphKind, root.geom(), root.validHours, root.scales, root.theme())' "$GRAPH_SRC"; then
+      pass "S1: onPaint passes root.theme() as drawKind's fifth argument (backdrop and axis colours)"
+    else
+      fail "S1: onPaint does not pass root.theme() to GM.drawKind"
     fi
   fi
 
@@ -1012,6 +1039,18 @@ const STYLES = ["solid", "dashed", "dotted", "bar", "ribbon"];
 ok(le.every(function (e) { return STYLES.indexOf(e.style) >= 0 && typeof e.dot === "boolean"; }), "S4: legendEntries(temp) styles are known and dot is a boolean");
 ok(Array.isArray(G.legendEntries("rainwind")) && Array.isArray(G.legendEntries("airuv")) && same(G.legendEntries("bogus"), []),
    "S4: legendEntries returns an array for every kind and [] for an unknown kind");
+
+// tempGridPlan (D-54.4-16): gridline every 1 degree, labels every 1 at >= 12px rows, else every 2
+ok(typeof G.tempGridPlan === "function" && same(G.tempGridPlan({ min: 25, max: 36 }, 254), { step: 1, labelStep: 1 }),
+   "S4: tempGridPlan({25..36}, 254) = {step:1, labelStep:1} (23px rows)");
+ok(typeof G.tempGridPlan === "function" && G.tempGridPlan({ min: 10, max: 40 }, 300).labelStep === 2,
+   "S4: tempGridPlan({10..40}, 300) thins labels to every 2 degrees (10px rows)");
+ok(typeof G.tempGridPlan === "function" && G.tempGridPlan({ min: 0, max: 10 }, 120).labelStep === 1,
+   "S4: tempGridPlan at exactly 12px rows keeps labelStep 1");
+ok(typeof G.tempGridPlan === "function" && G.tempGridPlan({ min: 0, max: 10 }, 119).labelStep === 2,
+   "S4: tempGridPlan at 11.9px rows gives labelStep 2");
+ok(typeof G.tempGridPlan === "function" && G.tempGridPlan({ min: 5, max: 5 }, 100).step === 1 && G.tempGridPlan(null, 100).labelStep === 1,
+   "S4: tempGridPlan tolerates a flat or missing scale");
 JS
   run_node_section "S4" "$S4_JS"
 fi
@@ -1077,8 +1116,124 @@ for (const [label, input] of cases) {
       else if (fn === "drawKind") G.drawKind(d.ctx, "temp", geomFor(Math.max(1, input.length)), input, G.computeScales("temp", input));
       else G.computeScales("temp", input);
     } catch (e) { t = e; }
-    ok(t === null && calls(d.log, "stroke").length === 0, "S5: " + fn + " on " + label + " records no stroke and does not throw");
+    if (fn === "drawKind") {
+      // drawKind also draws the backdrop and the temperature grid, which a single available
+      // reading legitimately produces; the series spline must still be absent.
+      ok(t === null && calls(d.log, "bezierCurveTo").length === 0, "S5: drawKind on " + label + " records no series spline and does not throw");
+    } else {
+      ok(t === null && calls(d.log, "stroke").length === 0, "S5: " + fn + " on " + label + " records no stroke and does not throw");
+    }
   }
+}
+for (const [label, input] of [["an empty slot array", []], ["an all-null array", [null, null, null]]]) {
+  const d = mockCtx();
+  G.drawKind(d.ctx, "temp", geomFor(Math.max(1, input.length)), input, G.computeScales("temp", input), THEME);
+  ok(calls(d.log, "stroke").length === 0, "S5: drawKind on " + label + " records no stroke at all (no grid, divider or Now line without data)");
+}
+
+// tempGridPlan / drawTempAxis (D-54.4-05/16)
+const axisScale = { min: 25, max: 36 };
+function axisRun(g) {
+  const a = mockCtx();
+  let t = null;
+  try { G.drawTempAxis(a.ctx, g, axisScale, THEME); } catch (e) { t = e; }
+  return { log: a.log, ann: annotate(a.log), threw: t };
+}
+const ax1 = axisRun(geom);
+ok(ax1.threw === null, "S5: drawTempAxis on {25..36} does not throw" + (ax1.threw ? " (" + ax1.threw + ")" : ""));
+const gridMoves = calls(ax1.log, "moveTo");
+const gridLines = calls(ax1.log, "lineTo");
+ok(calls(ax1.log, "stroke").length === 12 && gridMoves.length === 12, "S5: drawTempAxis strokes 12 gridlines for 25..36 (one per degree, D-54.4-16)");
+let horiz = gridMoves.length === gridLines.length;
+for (let i = 0; horiz && i < gridMoves.length; ++i) {
+  if (gridMoves[i][1] !== geom.plotLeft || gridLines[i][1] !== geom.plotRight || gridMoves[i][2] !== gridLines[i][2]) horiz = false;
+}
+ok(horiz, "S5: every gridline is horizontal from plotLeft to plotRight");
+const gridYs = gridMoves.map(function (e) { return e[2]; });
+const wantYs = [];
+for (let v = 25; v <= 36; ++v) wantYs.push(G.valueToY(v, 25, 36, geom.plotTop, geom.plotBottom));
+ok(same(gridYs, wantYs), "S5: gridline y positions equal valueToY for 25..36");
+ok(ax1.ann.filter(function (c) { return c.name === "stroke"; }).every(function (c) { return c.st.globalAlpha === 0.35 && c.st.lineWidth === 1 && c.st.strokeStyle === THEME.grid; }),
+   "S5: gridlines use theme.grid at globalAlpha 0.35 and lineWidth 1");
+const lab1 = ax1.ann.filter(function (c) { return c.name === "fillText"; });
+ok(lab1.length === 12, "S5: labelStep 1 draws 12 y labels (got " + lab1.length + ")");
+ok(lab1.every(function (c) { return /°$/.test(String(c.args[0])); }), "S5: every y label ends in the degree sign");
+ok(lab1.every(function (c) { return c.st.font === G.Y_LABEL_FONT && c.st.textAlign === "right" && c.st.fillStyle === THEME.text; }),
+   "S5: y labels use Y_LABEL_FONT, textAlign right and theme.text");
+ok(lab1.every(function (c) {
+  const w = String(c.args[0]).length * 6;
+  const left = c.args[1] - w;
+  return left >= 0 && left + w <= geom.plotLeft;
+}), "S5: every y label fits the left gutter (left edge >= 0, left + width <= plotLeft, D-54.4-05)");
+const cramped = Object.assign({}, geom, { plotBottom: geom.plotTop + 120 });
+const ax2 = axisRun(cramped);
+const lab2 = ax2.ann.filter(function (c) { return c.name === "fillText"; }).map(function (c) { return c.args[0]; });
+ok(same(lab2, ["25°", "27°", "29°", "31°", "33°", "35°"]), "S5: labelStep 2 draws 6 labels at the min parity 25,27,...,35 (got " + JSON.stringify(lab2) + ")");
+ok(calls(ax2.log, "stroke").length === 12, "S5: labelStep 2 still strokes a gridline every degree");
+ok(calls(ax1.log, "save").length === calls(ax1.log, "restore").length && calls(ax1.log, "save").length >= 1, "S5: drawTempAxis wraps its drawing in save/restore");
+
+// drawBackdrop (PA-4): night shading, midnight divider, Now hairline, past-data hatch
+function backdropRun(slots, g) {
+  const b = mockCtx();
+  let t = null;
+  try { G.drawBackdrop(b.ctx, g || geom, slots, THEME); } catch (e) { t = e; }
+  return { log: b.log, ann: annotate(b.log), threw: t };
+}
+const bd = backdropRun(tl);
+ok(bd.threw === null, "S5: drawBackdrop on the fixture does not throw" + (bd.threw ? " (" + bd.threw + ")" : ""));
+const nightCount = tl.filter(function (s) { return !s.isDay; }).length;
+const shade = bd.ann.filter(function (c) { return c.name === "fillRect" && c.st.globalAlpha === 0.12; });
+ok(shade.length === nightCount && nightCount > 0, "S5: drawBackdrop fills one rect per night slot at globalAlpha 0.12 (" + shade.length + " of " + nightCount + ")");
+ok(shade.every(function (c) { return c.args[1] === geom.plotTop && near(c.args[1] + c.args[3], geom.plotBottom) && near(c.args[2], geom.slotW) && c.st.fillStyle === THEME.shade; }),
+   "S5: night shading spans plotTop..plotBottom over one slot column in theme.shade");
+const midIdx = [];
+tl.forEach(function (s, i) { if (i > 0 && (s.isDayBoundary || s.hourNum === 0)) midIdx.push(i); });
+const strokesB = bd.ann.filter(function (c) { return c.name === "stroke"; });
+const movesB = bd.ann.filter(function (c) { return c.name === "moveTo"; });
+const midMoves = movesB.filter(function (c) { return midIdx.some(function (i) { return near(c.args[0], geom.plotLeft + i * geom.slotW); }); });
+ok(midIdx.length === 1 && midMoves.length === midIdx.length, "S5: one dotted midnight divider per boundary at index > 0 (" + midMoves.length + " of " + midIdx.length + ")");
+const nowX = G.slotCenterX(geom, 12);
+const nowMoves = movesB.filter(function (c) { return near(c.args[0], nowX); });
+ok(nowMoves.length === 1, "S5: one Now hairline at slotCenterX(12) when isTimeline25");
+ok(calls(bd.log, "setLineDash").some(function (e) { return same(e[1], [3, 3]); }) && calls(bd.log, "setLineDash").some(function (e) { return same(e[1], G.DASH_DOTTED); }),
+   "S5: the Now hairline is dashed [3,3] and the midnight divider uses DASH_DOTTED");
+ok(strokesB.length === 2, "S5: drawBackdrop strokes exactly the midnight divider and the Now hairline (" + strokesB.length + ")");
+const noTl = backdropRun(tl, Object.assign({}, geom, { isTimeline25: false }));
+ok(calls(noTl.log, "moveTo").filter(function (e) { return near(e[1], nowX); }).length === 0, "S5: no Now hairline when the timeline is not the 25-slot form");
+const texts = calls(bd.log, "fillText").map(function (e) { return e[1]; });
+ok(texts.indexOf("NOW") < 0 && texts.every(function (t) { return t === "No data"; }), "S5: drawBackdrop never draws a NOW badge or a date chip (texts " + JSON.stringify(texts) + ", PA-4)");
+ok(calls(bd.log, "rect").length === 0 && calls(bd.log, "fill").length === 0, "S5: drawBackdrop draws no badge rectangle");
+const hatch = bd.ann.filter(function (c) { return c.name === "fillRect" && c.st.globalAlpha === 0.25; });
+ok(hatch.length === 1 && hatch[0].args[0] === geom.plotLeft && near(hatch[0].args[2], 3 * geom.slotW), "S5: the leading 3 unavailable slots get one past-data hatch at alpha 0.25");
+ok(texts.length === 0, "S5: a 3-slot hatch (" + (3 * geom.slotW).toFixed(1) + "px) is narrower than 'No data' + 4, so no text is drawn");
+const wide = backdropRun(mkTimeline({ unavailable: 6 }));
+const wideTexts = wide.ann.filter(function (c) { return c.name === "fillText"; });
+ok(wideTexts.length === 1 && wideTexts[0].args[0] === "No data" && near(wideTexts[0].args[1], geom.plotLeft + 3 * geom.slotW),
+   "S5: a 6-slot hatch is wide enough and centres 'No data' in it");
+ok(wideTexts.length === 1 && /italic/.test(wideTexts[0].st.font) && /9px/.test(wideTexts[0].st.font) && wideTexts[0].st.fillStyle === THEME.text,
+   "S5: 'No data' uses italic 9px in theme.text");
+const none = backdropRun(mkTimeline({ unavailable: 0 }));
+ok(none.ann.filter(function (c) { return c.name === "fillRect" && c.st.globalAlpha === 0.25; }).length === 0, "S5: no hatch when every slot is available");
+ok(calls(bd.log, "save").length === calls(bd.log, "restore").length, "S5: drawBackdrop save/restore calls are balanced");
+for (const [label, input] of [["[]", []], ["[null, slot, null]", [null, one, null]], ["null", null]]) {
+  const r2 = backdropRun(input, geomFor(3));
+  ok(r2.threw === null, "S5: drawBackdrop on " + label + " does not throw");
+}
+
+// drawKind order: backdrop first, then (temp) the y axis, then the series
+const ko = mockCtx();
+G.drawKind(ko.ctx, "temp", geom, tl, scales, THEME);
+const koAnn = annotate(ko.log);
+const firstShade = koAnn.findIndex(function (c) { return c.name === "fillRect" && c.st.globalAlpha === 0.12; });
+const firstLabel = koAnn.findIndex(function (c) { return c.name === "fillText" && /°$/.test(String(c.args[0])); });
+const firstBez = koAnn.findIndex(function (c) { return c.name === "bezierCurveTo"; });
+ok(firstShade >= 0 && firstLabel > firstShade && firstBez > firstLabel, "S5: drawKind(temp) draws the backdrop, then the y axis, then the series (" + [firstShade, firstLabel, firstBez].join(",") + ")");
+for (const kind of ["rainwind", "airuv"]) {
+  const kk = mockCtx();
+  G.drawKind(kk.ctx, kind, geom, tl, {}, THEME);
+  const kAnn = annotate(kk.log);
+  ok(kAnn.filter(function (c) { return c.name === "fillRect" && c.st.globalAlpha === 0.12; }).length === nightCount, "S5: drawKind(" + kind + ") draws the shared backdrop");
+  ok(kAnn.filter(function (c) { return c.name === "fillText" && /°$/.test(String(c.args[0])); }).length === 0, "S5: drawKind(" + kind + ") draws no temperature y labels (temp card only, D-54.4-16)");
 }
 const allUn = mkTimeline({ unavailable: 25 });
 const u = mockCtx();
