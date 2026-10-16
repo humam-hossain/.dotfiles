@@ -207,7 +207,7 @@ Plans:
 **Goal:** Replace the five stacked hourly graphs in WeatherPopup with three equal side-by-side graph cards (Temperature; Rain, Wind & Visibility; Air, UV & Pressure) with synced hover and floating tooltips, inside a non-scrolling popup sized as a percentage of its screen, keeping the alert banner and hero card on top (absorbs backlog 999.1; top-section redesign moved to Phase 54.5).
 **Requirements**: POPUP-01, POPUP-02, POPUP-03, POPUP-04
 **Depends on:** Phase 54.3
-**Plans:** 8 plans
+**Plans:** 2/8 plans executed
 
 **Success Criteria** (what must be TRUE):
 
@@ -221,8 +221,8 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 54.4-01-PLAN.md — Tracer: percent-sized non-scrolling three-card popup, temperature curve via WeatherGraphMath.js, StyledPopup re-clamp, Wave 0 harness
-- [ ] 54.4-02-PLAN.md — Scope reconciliation: re-scope 54.4 goal, insert Phase 54.5, annotate POPUP-03/04
+- [x] 54.4-01-PLAN.md — Tracer: percent-sized non-scrolling three-card popup, temperature curve via WeatherGraphMath.js, StyledPopup re-clamp, Wave 0 harness
+- [x] 54.4-02-PLAN.md — Scope reconciliation: re-scope 54.4 goal, insert Phase 54.5, annotate POPUP-03/04
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -283,7 +283,7 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 | 54.1. Top Status Bar Weather Component Polish | 3/3 | Complete    | 2026-10-10 |
 | 54.2. Hourly Parameter Modeling and Rolling Cache Service | 4/4 | Complete    | 2026-10-11 |
 | 54.3. Interactive Multi-Metric Hourly Graph Component | 10/10 | Complete    | 2026-10-15 |
-| 54.4. Modular Popup Inspector and Clean Card Layout | 0/8 | Planned | - |
+| 54.4. Modular Popup Inspector and Clean Card Layout | 2/8 | In Progress | - |
 | 54.5. Popup Hero, Daily Stats, Astronomy and Forecast Cards | 0/TBD | Not started | - |
 | 55. System Integration, Retirement & Verification | 0/TBD | Not started | - |
 
