@@ -603,11 +603,14 @@ function tooltipLines(kind, slots, i) {
     };
     var lines = [header];
 
+    // PA-1 option: l1-suffix (user-approved at 54.4-03 Task 2)
     if (kind === "temp") {
         // Locked D-54.4-19 lines: "<time> · <icon> <desc> · <comfort>" and
-        // "<thermostat> <temp>° (<feels>°) · Dew <dew>°".
+        // "<thermostat> <temp>° (<feels>°) · Dew <dew>°". POPUP-03 humidity rides on line 1
+        // after the comfort word ("· 70% RH"); a non-finite humidity adds nothing.
         var th = slot.thermal || {};
-        header.text = _joinDot([header.text, comfortWord(th.dewPointC)]);
+        var hum = slot.moisture ? slot.moisture.humidity : null;
+        header.text = _joinDot([header.text, comfortWord(th.dewPointC), isNum(hum) ? Math.round(hum) + "% RH" : ""]);
         if (isNum(th.tempC)) {
             var l2 = Math.round(th.tempC) + "°";
             if (isNum(th.feelsLikeC))
