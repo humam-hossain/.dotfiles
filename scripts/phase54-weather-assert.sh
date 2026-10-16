@@ -3,6 +3,7 @@
 # Phase 54: Multi-Modal Popup Inspector & Interactive Graphs Assert Harness
 # Enforces: POPUP-01..07, GRAPH-01..04, INTG-04, ASVS L1
 # Decisions: D-54-01 through D-54-42
+# Phase 54.4: popup width/scroll asserts superseded by D-54.4-03; greps use here-strings, not echo pipes (SIGPIPE-safe under pipefail).
 #
 # Usage (from REPO_ROOT):
 #   ./scripts/phase54-weather-assert.sh [1-5] [OPTIONS]
@@ -205,22 +206,22 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
   # 6. WeatherBaseCard contract checks (D-54-04)
   if [[ -f "$WEATHERBASE_SRC" ]]; then
     base_code="$(cat "$WEATHERBASE_SRC")"
-    if echo "$base_code" | grep -q 'Appearance\.colors\.colLayer2'; then
+    if grep -q 'Appearance\.colors\.colLayer2' <<<"$base_code"; then
       pass "S1: WeatherBaseCard uses Appearance.colors.colLayer2 M3 surface color"
     else
       fail "S1: WeatherBaseCard missing colLayer2 surface color"
     fi
-    if echo "$base_code" | grep -q 'border\.color:\s*Appearance\.colors\.colOutlineVariant'; then
+    if grep -q 'border\.color:\s*Appearance\.colors\.colOutlineVariant' <<<"$base_code"; then
       pass "S1: WeatherBaseCard uses Appearance.colors.colOutlineVariant stroke"
     else
       fail "S1: WeatherBaseCard missing colOutlineVariant stroke"
     fi
-    if echo "$base_code" | grep -q 'default\s*property\s*alias\s*content:'; then
+    if grep -q 'default\s*property\s*alias\s*content:' <<<"$base_code"; then
       pass "S1: WeatherBaseCard exports default property alias content for slot projection"
     else
       fail "S1: WeatherBaseCard missing default property alias content"
     fi
-    if echo "$base_code" | grep -q 'iconSize:\s*18'; then
+    if grep -q 'iconSize:\s*18' <<<"$base_code"; then
       pass "S1: WeatherBaseCard standardizes on 18px header iconography"
     else
       fail "S1: WeatherBaseCard missing 18px header iconSize"
@@ -230,17 +231,9 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
   # 7. WeatherPopup contract checks (D-54-08, D-54-09, D-54-12, D-54-13)
   if [[ -f "$WEATHERPOPUP_SRC" ]]; then
     popup_code="$(cat "$WEATHERPOPUP_SRC")"
-    if echo "$popup_code" | grep -qE 'implicitWidth:\s*(440|880)'; then
-      pass "S1: WeatherPopup sets implicitWidth (440 or 880 expanded)"
-    else
-      fail "S1: WeatherPopup missing implicitWidth: 440/880 (D-54-08)"
-    fi
-    if echo "$popup_code" | grep -q 'StyledFlickable'; then
-      pass "S1: WeatherPopup encapsulates content in StyledFlickable container (D-54-09)"
-    else
-      fail "S1: WeatherPopup missing StyledFlickable container"
-    fi
-    if echo "$popup_code" | grep -q 'activeInspectorCount'; then
+    # Phase 54.4: D-54-08 fixed width and D-54-09 scroll container are void (D-54.4-03).
+    info "S1: superseded by D-54.4-03: WeatherPopup sizes from popupWidthPercent/popupHeightPercent with no scrolling (was implicitWidth 440/880 plus scroll container)"
+    if grep -q 'activeInspectorCount' <<<"$popup_code"; then
       pass "S1: WeatherPopup tracks GlobalStates.activeInspectorCount lifecycle"
     else
       fail "S1: WeatherPopup missing GlobalStates.activeInspectorCount lifecycle hooks"
@@ -266,32 +259,32 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
   if [[ -s "$HERO_SRC" ]]; then
     pass "S2: WeatherHeroCard.qml exists"
     hero_code="$(cat "$HERO_SRC")"
-    if echo "$hero_code" | grep -q 'iconSize:\s*36'; then
+    if grep -q 'iconSize:\s*36' <<<"$hero_code"; then
       pass "S2: WeatherHeroCard uses 36px condition glyph (D-54-34)"
     else
       fail "S2: WeatherHeroCard missing 36px iconSize"
     fi
-    if echo "$hero_code" | grep -q 'WeatherBaseCard'; then
+    if grep -q 'WeatherBaseCard' <<<"$hero_code"; then
       pass "S2: WeatherHeroCard inherits WeatherBaseCard"
     else
       fail "S2: WeatherHeroCard must extend WeatherBaseCard"
     fi
-    if echo "$hero_code" | grep -q 'Weather\.getData()'; then
+    if grep -q 'Weather\.getData()' <<<"$hero_code"; then
       pass "S2: WeatherHeroCard wires passive debounced reload via Weather.getData() (D-54-18, D-54-37)"
     else
       fail "S2: WeatherHeroCard missing Weather.getData() refresh wiring"
     fi
-    if echo "$hero_code" | grep -q 'staleText' && echo "$hero_code" | grep -q 'm3errorContainer'; then
+    if grep -q 'staleText' <<<"$hero_code" && grep -q 'm3errorContainer' <<<"$hero_code"; then
       pass "S2: WeatherHeroCard implements soft amber status pill for stale/offline state (D-54-32)"
     else
       fail "S2: WeatherHeroCard missing stale/offline status pill"
     fi
-    if echo "$hero_code" | grep -q 'pixelSize:\s*Appearance\.font\.pixelSize\.huge'; then
+    if grep -q 'pixelSize:\s*Appearance\.font\.pixelSize\.huge' <<<"$hero_code"; then
       pass "S2: WeatherHeroCard uses huge bold font for temperature readout (D-54-34)"
     else
       fail "S2: WeatherHeroCard missing huge temperature pixelSize"
     fi
-    if echo "$hero_code" | grep -q 'refreshDebounceTimer'; then
+    if grep -q 'refreshDebounceTimer' <<<"$hero_code"; then
       pass "S2: WeatherHeroCard provides 2-second debounce timer on reload (D-54-38)"
     else
       fail "S2: WeatherHeroCard missing reload debounce timer"
@@ -303,22 +296,22 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
   if [[ -s "$ALERT_SRC" ]]; then
     pass "S2: WeatherAlertBanner.qml exists"
     alert_code="$(cat "$ALERT_SRC")"
-    if echo "$alert_code" | grep -q 'Revealer'; then
+    if grep -q 'Revealer' <<<"$alert_code"; then
       pass "S2: WeatherAlertBanner wraps container in Revealer (D-54-20)"
     else
       fail "S2: WeatherAlertBanner missing Revealer wrapper"
     fi
-    if echo "$alert_code" | grep -q 'alertCarousel' || echo "$alert_code" | grep -q 'currentIndex'; then
+    if grep -q 'alertCarousel' <<<"$alert_code" || grep -q 'currentIndex' <<<"$alert_code"; then
       pass "S2: WeatherAlertBanner provides multi-alert navigation carousel (D-54-22, D-54-31)"
     else
       fail "S2: WeatherAlertBanner missing multi-alert stepping logic"
     fi
-    if echo "$alert_code" | grep -q 'getAlertColor'; then
+    if grep -q 'getAlertColor' <<<"$alert_code"; then
       pass "S2: WeatherAlertBanner binds dynamic M3 severity tint via WeatherGlyphs.getAlertColor (D-54-30)"
     else
       fail "S2: WeatherAlertBanner missing dynamic getAlertColor tint binding"
     fi
-    if echo "$alert_code" | grep -q 'expanded\s*=\s*!root\.expanded' || echo "$alert_code" | grep -q 'root\.expanded'; then
+    if grep -q 'expanded\s*=\s*!root\.expanded' <<<"$alert_code" || grep -q 'root\.expanded' <<<"$alert_code"; then
       pass "S2: WeatherAlertBanner implements animated advisory drawer (D-54-30)"
     else
       fail "S2: WeatherAlertBanner missing expandable advisory drawer"
@@ -330,7 +323,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
   # 3. WeatherPopup composition check
   if [[ -s "$WEATHERPOPUP_SRC" ]]; then
     popup_code="$(cat "$WEATHERPOPUP_SRC")"
-    if echo "$popup_code" | grep -q 'WeatherAlertBanner' && echo "$popup_code" | grep -q 'WeatherHeroCard'; then
+    if grep -q 'WeatherAlertBanner' <<<"$popup_code" && grep -q 'WeatherHeroCard' <<<"$popup_code"; then
       pass "S2: WeatherPopup instantiates both WeatherAlertBanner and WeatherHeroCard"
     else
       fail "S2: WeatherPopup missing WeatherAlertBanner or WeatherHeroCard instantiation"
@@ -386,42 +379,42 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
   if [[ -s "$GRAPH_SRC" ]]; then
     pass "S3: WeatherGraph.qml exists"
     graph_code="$(cat "$GRAPH_SRC")"
-    if echo "$graph_code" | grep -q 'WeatherBaseCard'; then
+    if grep -q 'WeatherBaseCard' <<<"$graph_code"; then
       pass "S3: WeatherGraph extends WeatherBaseCard"
     else
       fail "S3: WeatherGraph must extend WeatherBaseCard"
     fi
-    if echo "$graph_code" | grep -q 'Canvas\s*{'; then
+    if grep -q 'Canvas\s*{' <<<"$graph_code"; then
       pass "S3: WeatherGraph instantiates 2D Canvas for spline rendering (GRAPH-01)"
     else
       fail "S3: WeatherGraph missing Canvas component"
     fi
-    if echo "$graph_code" | grep -q 'bezierCurveTo' && echo "$graph_code" | grep -q 'computeMonotoneSplineControlPoints'; then
+    if grep -q 'bezierCurveTo' <<<"$graph_code" && grep -q 'computeMonotoneSplineControlPoints' <<<"$graph_code"; then
       pass "S3: WeatherGraph implements Fritsch-Carlson Monotone Cubic Spline interpolation (GRAPH-01, D-54-15)"
     else
       fail "S3: WeatherGraph missing Fritsch-Carlson spline interpolation logic"
     fi
-    if echo "$graph_code" | grep -q 'time.*!==.*"24"'; then
+    if grep -q 'time.*!==.*"24"' <<<"$graph_code"; then
       pass "S3: WeatherGraph normalizes hourly data by explicitly filtering time: '24' day roll-up slot (Pitfall 1)"
     else
       fail "S3: WeatherGraph missing time: '24' roll-up filter"
     fi
-    if echo "$graph_code" | grep -q 'MouseArea' && echo "$graph_code" | grep -q 'hoverEnabled:\s*true'; then
+    if grep -q 'MouseArea' <<<"$graph_code" && grep -q 'hoverEnabled:\s*true' <<<"$graph_code"; then
       pass "S3: WeatherGraph implements hover scrub MouseArea (GRAPH-03)"
     else
       fail "S3: WeatherGraph missing hover scrub MouseArea"
     fi
-    if echo "$graph_code" | grep -A 25 'onPositionChanged:' | grep -q 'requestPaint'; then
+    if grep -q 'requestPaint' <<<"$(grep -A 25 'onPositionChanged:' <<<"$graph_code")"; then
       fail "S3: Zero-repaint violation: requestPaint() found inside onPositionChanged (GRAPH-03, D-54-20)"
     else
       pass "S3: Zero-repaint invariant satisfied: onPositionChanged updates QML overlay without Canvas repainting (GRAPH-03, D-54-20)"
     fi
-    if echo "$graph_code" | grep -q 'popupActive' && echo "$graph_code" | grep -q 'requestPaint'; then
+    if grep -q 'popupActive' <<<"$graph_code" && grep -q 'requestPaint' <<<"$graph_code"; then
       pass "S3: WeatherGraph gates Canvas repaints strictly behind popupActive visibility (GRAPH-04, D-54-22)"
     else
       fail "S3: WeatherGraph missing popupActive gating for Canvas repaints"
     fi
-    if echo "$graph_code" | grep -q 'tooltipPill' && echo "$graph_code" | grep -q 'snapDot'; then
+    if grep -q 'tooltipPill' <<<"$graph_code" && grep -q 'snapDot' <<<"$graph_code"; then
       pass "S3: WeatherGraph includes snapDot and tooltipPill overlay items (D-54-21)"
     else
       fail "S3: WeatherGraph missing snapDot or tooltipPill overlay items"
@@ -433,7 +426,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
   # 2. WeatherPopup instantiates WeatherGraph
   if [[ -s "$WEATHERPOPUP_SRC" ]]; then
     popup_code="$(cat "$WEATHERPOPUP_SRC")"
-    if echo "$popup_code" | grep -q 'WeatherGraph'; then
+    if grep -q 'WeatherGraph' <<<"$popup_code"; then
       pass "S3: WeatherPopup instantiates WeatherGraph at position 3"
     else
       fail "S3: WeatherPopup missing WeatherGraph instantiation"
@@ -535,27 +528,27 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
     if [[ -s "$ATMO_SRC" ]]; then
       pass "S4: WeatherAtmosphericCard.qml exists"
       atmo_code="$(cat "$ATMO_SRC")"
-      if echo "$atmo_code" | grep -q 'WeatherBaseCard'; then
+      if grep -q 'WeatherBaseCard' <<<"$atmo_code"; then
         pass "S4: WeatherAtmosphericCard extends WeatherBaseCard (D-54-04)"
       else
         fail "S4: WeatherAtmosphericCard must extend WeatherBaseCard"
       fi
-      if echo "$atmo_code" | grep -q 'columns:\s*2'; then
+      if grep -q 'columns:\s*2' <<<"$atmo_code"; then
         pass "S4: WeatherAtmosphericCard uses 2-column compact grid layout (D-54-23)"
       else
         fail "S4: WeatherAtmosphericCard missing 2-column grid layout"
       fi
-      if echo "$atmo_code" | grep -q 'Humidity' && echo "$atmo_code" | grep -q 'Pressure'; then
+      if grep -q 'Humidity' <<<"$atmo_code" && grep -q 'Pressure' <<<"$atmo_code"; then
         pass "S4: WeatherAtmosphericCard presents Humidity and Pressure telemetry (POPUP-03)"
       else
         fail "S4: WeatherAtmosphericCard missing humidity/pressure metrics"
       fi
-      if echo "$atmo_code" | grep -q 'UV Index' && echo "$atmo_code" | grep -q 'getUvRisk'; then
+      if grep -q 'UV Index' <<<"$atmo_code" && grep -q 'getUvRisk' <<<"$atmo_code"; then
         pass "S4: WeatherAtmosphericCard presents UV index with qualitative risk categories (POPUP-03, D-54-23)"
       else
         fail "S4: WeatherAtmosphericCard missing UV index qualitative categories"
       fi
-      if echo "$atmo_code" | grep -q 'Visibility'; then
+      if grep -q 'Visibility' <<<"$atmo_code"; then
         pass "S4: WeatherAtmosphericCard presents Visibility telemetry (POPUP-03)"
       else
         fail "S4: WeatherAtmosphericCard missing visibility metrics"
@@ -568,32 +561,32 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
     if [[ -s "$WIND_SRC" ]]; then
       pass "S4: WeatherWindCard.qml exists"
       wind_code="$(cat "$WIND_SRC")"
-      if echo "$wind_code" | grep -q 'WeatherBaseCard'; then
+      if grep -q 'WeatherBaseCard' <<<"$wind_code"; then
         pass "S4: WeatherWindCard extends WeatherBaseCard (D-54-04)"
       else
         fail "S4: WeatherWindCard must extend WeatherBaseCard"
       fi
-      if echo "$wind_code" | grep -q 'implicitHeight:\s*56' && echo "$wind_code" | grep -q 'implicitWidth:\s*56'; then
+      if grep -q 'implicitHeight:\s*56' <<<"$wind_code" && grep -q 'implicitWidth:\s*56' <<<"$wind_code"; then
         pass "S4: WeatherWindCard renders 56px circular compass dial (D-54-24)"
       else
         fail "S4: WeatherWindCard missing 56px circular compass dial"
       fi
-      if echo "$wind_code" | grep -q 'colPrimary' && echo "$wind_code" | grep -q 'text:\s*"N"'; then
+      if grep -q 'colPrimary' <<<"$wind_code" && grep -q 'text:\s*"N"' <<<"$wind_code"; then
         pass "S4: WeatherWindCard highlights North cardinal mark in primary accent (D-54-26)"
       else
         fail "S4: WeatherWindCard missing highlighted North cardinal mark"
       fi
-      if echo "$wind_code" | grep -q '(targetDegree - (currentDegree % 360) + 540) % 360 - 180'; then
+      if grep -q '(targetDegree - (currentDegree % 360) + 540) % 360 - 180' <<<"$wind_code"; then
         pass "S4: WeatherWindCard implements shortest-path angular delta math (POPUP-05, D-54-25)"
       else
         fail "S4: WeatherWindCard missing shortest-path angular math equation"
       fi
-      if echo "$wind_code" | grep -q 'expressiveEffects'; then
+      if grep -q 'expressiveEffects' <<<"$wind_code"; then
         pass "S4: WeatherWindCard animates needle with expressiveEffects Bezier curve (D-54-25)"
       else
         fail "S4: WeatherWindCard missing expressiveEffects animation curve"
       fi
-      if echo "$wind_code" | grep -q 'windKmph' && echo "$wind_code" | grep -q 'windGustKmph' && echo "$wind_code" | grep -q 'windDir'; then
+      if grep -q 'windKmph' <<<"$wind_code" && grep -q 'windGustKmph' <<<"$wind_code" && grep -q 'windDir' <<<"$wind_code"; then
         pass "S4: WeatherWindCard presents wind speed, gusts and 16-point direction (POPUP-05)"
       else
         fail "S4: WeatherWindCard missing wind speed, gust or direction metrics"
@@ -606,22 +599,22 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
     if [[ -s "$AQI_SRC" ]]; then
       pass "S4: WeatherAqiCard.qml exists"
       aqi_code="$(cat "$AQI_SRC")"
-      if echo "$aqi_code" | grep -q 'WeatherBaseCard'; then
+      if grep -q 'WeatherBaseCard' <<<"$aqi_code"; then
         pass "S4: WeatherAqiCard extends WeatherBaseCard (D-54-04)"
       else
         fail "S4: WeatherAqiCard must extend WeatherBaseCard"
       fi
-      if echo "$aqi_code" | grep -q 'WeatherGlyphs\.getAqiColor'; then
+      if grep -q 'WeatherGlyphs\.getAqiColor' <<<"$aqi_code"; then
         pass "S4: WeatherAqiCard binds US-EPA category badge color via WeatherGlyphs.getAqiColor (POPUP-04, D-54-27)"
       else
         fail "S4: WeatherAqiCard missing WeatherGlyphs.getAqiColor badge binding"
       fi
-      if echo "$aqi_code" | grep -q 'model:\s*6'; then
+      if grep -q 'model:\s*6' <<<"$aqi_code"; then
         pass "S4: WeatherAqiCard renders 6-segment EPA scale mini progress meter (POPUP-04, D-54-27)"
       else
         fail "S4: WeatherAqiCard missing 6-segment mini progress meter"
       fi
-      if echo "$aqi_code" | grep -q 'pm2_5' && echo "$aqi_code" | grep -q 'pm10'; then
+      if grep -q 'pm2_5' <<<"$aqi_code" && grep -q 'pm10' <<<"$aqi_code"; then
         pass "S4: WeatherAqiCard presents PM2.5 and PM10 particulate readouts (POPUP-04, D-54-27)"
       else
         fail "S4: WeatherAqiCard missing particulate PM2.5 or PM10 readouts"
@@ -634,22 +627,22 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
     if [[ -s "$ASTRO_SRC" ]]; then
       pass "S4: WeatherAstronomyCard.qml exists"
       astro_code="$(cat "$ASTRO_SRC")"
-      if echo "$astro_code" | grep -q 'WeatherBaseCard'; then
+      if grep -q 'WeatherBaseCard' <<<"$astro_code"; then
         pass "S4: WeatherAstronomyCard extends WeatherBaseCard (D-54-04)"
       else
         fail "S4: WeatherAstronomyCard must extend WeatherBaseCard"
       fi
-      if echo "$astro_code" | grep -q 'sunrise' && echo "$astro_code" | grep -q 'sunset' && echo "$astro_code" | grep -q 'wb_twilight'; then
+      if grep -q 'sunrise' <<<"$astro_code" && grep -q 'sunset' <<<"$astro_code" && grep -q 'wb_twilight' <<<"$astro_code"; then
         pass "S4: WeatherAstronomyCard presents solar twilight telemetry (POPUP-06, D-54-28)"
       else
         fail "S4: WeatherAstronomyCard missing solar twilight telemetry"
       fi
-      if echo "$astro_code" | grep -q 'moonCanvas' && echo "$astro_code" | grep -q 'ctx\.ellipse' && echo "$astro_code" | grep -q 'ctx\.arc'; then
+      if grep -q 'moonCanvas' <<<"$astro_code" && grep -q 'ctx\.ellipse' <<<"$astro_code" && grep -q 'ctx\.arc' <<<"$astro_code"; then
         pass "S4: WeatherAstronomyCard renders dynamic lunar disc terminator arc via Canvas 2D (POPUP-06, D-54-29)"
       else
         fail "S4: WeatherAstronomyCard missing Canvas 2D lunar terminator arc"
       fi
-      if echo "$astro_code" | grep -q 'moonPhase' && echo "$astro_code" | grep -q 'moonIllumination'; then
+      if grep -q 'moonPhase' <<<"$astro_code" && grep -q 'moonIllumination' <<<"$astro_code"; then
         pass "S4: WeatherAstronomyCard presents moon phase name and illumination percentage (POPUP-06)"
       else
         fail "S4: WeatherAstronomyCard missing moon phase or illumination percentage"
@@ -661,12 +654,12 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
     # 5. WeatherPopup Paired Grid Arrangement
     if [[ -s "$WEATHERPOPUP_SRC" ]]; then
       popup_code="$(cat "$WEATHERPOPUP_SRC")"
-      if echo "$popup_code" | grep -q 'WeatherAtmosphericCard' && echo "$popup_code" | grep -q 'WeatherWindCard'; then
+      if grep -q 'WeatherAtmosphericCard' <<<"$popup_code" && grep -q 'WeatherWindCard' <<<"$popup_code"; then
         pass "S4: WeatherPopup pairs WeatherAtmosphericCard and WeatherWindCard in 2-column row (D-54-10)"
       else
         fail "S4: WeatherPopup missing Atmospheric/Wind paired row"
       fi
-      if echo "$popup_code" | grep -q 'WeatherAqiCard' && echo "$popup_code" | grep -q 'WeatherAstronomyCard'; then
+      if grep -q 'WeatherAqiCard' <<<"$popup_code" && grep -q 'WeatherAstronomyCard' <<<"$popup_code"; then
         pass "S4: WeatherPopup pairs WeatherAqiCard and WeatherAstronomyCard in 2-column row (D-54-10)"
       else
         fail "S4: WeatherPopup missing AQI/Astronomy paired row"

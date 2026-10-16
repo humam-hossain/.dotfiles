@@ -159,7 +159,10 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
   fi
 
   # 4. Zero Unauthorized Hardcoded Hex Codes in restow/quickshell (D-03)
-  UNAUTH_HEX="$(grep -rnE '#[0-9a-fA-F]{3,8}' "$REPO_ROOT/restow/quickshell" | grep -v '#FFA000' || true)"
+  # The locked fixed weather palettes (D-54.4-11, PA-5) are confined to
+  # restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather/WeatherGraphMath.js;
+  # no other file is exempt.
+  UNAUTH_HEX="$(grep -rnE --exclude=WeatherGraphMath.js '#[0-9a-fA-F]{3,8}' "$REPO_ROOT/restow/quickshell" | grep -v '#FFA000' || true)"
   if [[ -z "$UNAUTH_HEX" ]]; then
     pass "S1: Zero unauthorized hardcoded hex codes in restow/quickshell (D-03)"
   else
