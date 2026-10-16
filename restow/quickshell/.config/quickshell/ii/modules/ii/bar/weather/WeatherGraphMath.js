@@ -1,0 +1,551 @@
+// WeatherGraphMath.js — Phase 54.4 pure graph, size and axis math for the weather popup.
+//
+// Plain JS resource (same form as the vendor calendar_layout.js): no .pragma, no imports.
+// Top level declares ONLY with `var` and `function` so the Node `vm` assert harness
+// (scripts/phase54.4-weather-assert.sh) sees every symbol on its sandbox. Block-scoped
+// declarations inside functions are fine.
+//
+// Draw functions take the Context2D as an argument and only call Context2D methods, so the
+// harness can drive them with a recording mock (RESEARCH Pattern 7).
+//
+// All fixed hex colours of Phase 54.4 live in this file and nowhere else (D-54.4-11).
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+var EPS = 0.001;
+
+// Fixed temperature ramp (D-54.4-14, PA-10): blue <=20°C, amber ~28°C, red >=34°C.
+// Interpolated smoothly between anchors.
+var TEMP_RAMP = [
+    { v: 20, color: "#64b5f6" },
+    { v: 28, color: "#ffb300" },
+    { v: 34, color: "#ef5350" }
+];
+
+// Feels-like dashed spline alpha (PA-12, D-54.4-15).
+var FEELS_ALPHA = 0.7;
+
+var DASH_DASHED = [4, 3];
+var DASH_DOTTED = [2, 3];
+
+var Y_LABEL_FONT = "10px sans-serif";
+var LABEL_FONT = "bold 10px sans-serif";
+
+// Minimum popup OUTER width in px (D-54.4-03): keeps each of the three graphs ~280px wide.
+var MIN_OUTER_W = 900;
+
+// ---------------------------------------------------------------------------
+// Small numeric helpers
+// ---------------------------------------------------------------------------
+
+function clamp01(v) {
+    var n = Number(v);
+    if (!isFinite(n))
+        return 0;
+    return Math.max(0, Math.min(1, n));
+}
+
+// True only for a finite number (null, undefined, NaN, Infinity and strings are rejected).
+function isNum(v) {
+    return typeof v === "number" && isFinite(v);
+}
+
+// User-editable percent from config.json -> 20..100, or dflt for garbage (T-54.4-01).
+function sanePercent(v, dflt) {
+    var fallback = isNum(dflt) ? dflt : 50;
+    if (v === null || v === undefined)
+        return fallback;
+    var n = Number(v);
+    if (!isFinite(n))
+        return fallback;
+    return Math.max(20, Math.min(100, n));
+}
+
+// ---------------------------------------------------------------------------
+// Popup size (D-54.4-03, RESEARCH Pattern 5)
+// ---------------------------------------------------------------------------
+
+// Returns the popup CONTENT size {width, height} (integers) for a screen and two percents.
+// opts: chrome (popup chrome around content, default 40), edgeGap (default 5),
+//       barHeight (default 40), minOuterW (default 900), minContentH (default 0).
+function popupContentSize(screenW, screenH, wPct, hPct, opts) {
+    var o = opts || {};
+    var chrome = isNum(o.chrome) ? o.chrome : 40;
+    var edgeGap = isNum(o.edgeGap) ? o.edgeGap : 5;
+    var barHeight = isNum(o.barHeight) ? o.barHeight : 40;
+    var minOuterW = isNum(o.minOuterW) ? o.minOuterW : MIN_OUTER_W;
+    var minContentH = isNum(o.minContentH) ? o.minContentH : 0;
+
+    var sw = (isNum(screenW) && screenW > 0) ? screenW : 1920;
+    var sh = (isNum(screenH) && screenH > 0) ? screenH : 1080;
+
+    var maxW = sw - 2 * edgeGap - chrome;
+    var maxH = sh - barHeight - 2 * edgeGap - chrome;
+
+    var width = Math.min(maxW, Math.max(minOuterW - chrome, sw * sanePercent(wPct, 50) / 100 - chrome));
+    var height = Math.min(maxH, Math.max(minContentH, sh * sanePercent(hPct, 50) / 100 - chrome));
+
+    return {
+        width: Math.max(0, Math.round(width)),
+        height: Math.max(0, Math.round(height))
+    };
+}
+
+// ---------------------------------------------------------------------------
+// Slots
+// ---------------------------------------------------------------------------
+
+function _int(v) {
+    var n = parseInt(v, 10);
+    return isNaN(n) ? 0 : n;
+}
+
+function _float(v) {
+    var n = parseFloat(v);
+    return isNaN(n) ? 0.0 : n;
+}
+
+function _rawHour(time) {
+    var t = parseInt(String(time), 10);
+    if (isNaN(t))
+        return 0;
+    return Math.floor(t / 100) % 24;
+}
+
+// Maps one raw WWO hourly item (the Weather.hourly fallback) into the timeline slot shape,
+// using the same parse rules as the future-slot branch of Weather.qml rebuildTimeline().
+function normalizeRawHour(raw, i) {
+    var r = raw || {};
+    var aq = r.air_quality || {};
+    var hr = _rawHour(r.time);
+    var t = parseInt(r.tempC, 10);
+    var f = parseInt(r.FeelsLikeC, 10);
+    var desc = "";
+    if (r.weatherDesc && r.weatherDesc[0] && r.weatherDesc[0].value !== undefined)
+        desc = String(r.weatherDesc[0].value);
+
+    return {
+        index: i,
+        isPast: false,
+        isNow: false,
+        isFuture: true,
+        isHistoricalUnavailable: false,
+        hourNum: hr,
+        isDay: hr >= 6 && hr < 18,
+        isDayBoundary: hr === 0,
+        glyph: "",
+        desc: desc,
+        dateStr: "",
+        time: r.time,
+        timeLabel: clock12(hr),
+        thermal: {
+            tempC: !isNaN(t) ? t : 0,
+            feelsLikeC: !isNaN(f) ? f : 0,
+            dewPointC: _int(r.DewPointC),
+            heatIndexC: _int(r.HeatIndexC),
+            windChillC: _int(r.WindChillC)
+        },
+        moisture: {
+            precipMM: _float(r.precipMM),
+            rainProb: _int(r.chanceofrain),
+            humidity: _int(r.humidity),
+            cloudCover: _int(r.cloudcover),
+            snowProb: _int(r.chanceofsnow),
+            thunderProb: _int(r.chanceofthunder)
+        },
+        wind: {
+            speedKmph: _int(r.windspeedKmph),
+            gustKmph: _int(r.WindGustKmph),
+            degree: _int(r.winddirDegree),
+            dir16: r.winddir16Point || "N"
+        },
+        aqi: {
+            epaIndex: _int(aq["us-epa-index"]),
+            pm2_5: _float(aq.pm2_5),
+            pm10: _float(aq.pm10),
+            co: _float(aq.co),
+            no2: _float(aq.no2),
+            o3: _float(aq.o3),
+            so2: _float(aq.so2),
+            defraIndex: _int(aq["gb-defra-index"])
+        },
+        atmosphere: {
+            pressureHpa: _int(r.pressure),
+            visibilityKm: _int(r.visibility)
+        },
+        solar: {
+            uvIndex: _int(r.uvIndex),
+            shortRad: _float(r.shortrad),
+            diffRad: _float(r.diffrad)
+        }
+    };
+}
+
+// Timeline slots (entries carry a `thermal` group) are returned as a copy. Anything else is
+// treated as raw WWO hourly items: "24" dropped, capped at 24, normalised per item.
+function normalizeSlots(model) {
+    if (!model || typeof model.length !== "number")
+        return [];
+    var arr = [];
+    var hasThermal = false;
+    for (var i = 0; i < model.length; ++i) {
+        var e = model[i];
+        arr.push(e);
+        if (e && typeof e === "object" && e.thermal)
+            hasThermal = true;
+    }
+    if (hasThermal)
+        return arr;
+
+    var out = [];
+    for (var j = 0; j < arr.length && out.length < 24; ++j) {
+        var raw = arr[j];
+        if (!raw || typeof raw !== "object")
+            continue;
+        if (String(raw.time) === "24")
+            continue;
+        out.push(normalizeRawHour(raw, out.length));
+    }
+    return out;
+}
+
+function isAvailable(slot) {
+    return !!slot && typeof slot === "object" && !slot.isHistoricalUnavailable;
+}
+
+function slotHour(slot) {
+    if (!slot || typeof slot !== "object")
+        return 0;
+    if (isNum(slot.hourNum))
+        return slot.hourNum;
+    return _rawHour(slot.time);
+}
+
+// ---------------------------------------------------------------------------
+// X axis (D-54.4-06)
+// ---------------------------------------------------------------------------
+
+// 0 -> "12AM", 12 -> "12PM", 13 -> "1PM", 23 -> "11PM". Never "0AM" (Pitfall 8).
+function clock12(h) {
+    var n = Number(h);
+    if (!isFinite(n))
+        return "";
+    var hr = ((Math.floor(n) % 24) + 24) % 24;
+    var suffix = hr < 12 ? "AM" : "PM";
+    var k = hr % 12 === 0 ? 12 : hr % 12;
+    return k + suffix;
+}
+
+function axisTicks(n, stride) {
+    var count = isNum(n) ? Math.floor(n) : 0;
+    var s = isNum(stride) && stride >= 1 ? Math.floor(stride) : 1;
+    var ticks = [];
+    for (var i = 0; i < count; i += s)
+        ticks.push(i);
+    return ticks;
+}
+
+// "Now" at the timeline centre, otherwise a 12-hour clock label. Never a relative +4h tag.
+function axisTickLabel(i, slot, isTimeline25) {
+    if (isTimeline25 && i === 12)
+        return "Now";
+    if (!slot || typeof slot !== "object")
+        return "";
+    return clock12(slotHour(slot));
+}
+
+// ---------------------------------------------------------------------------
+// Geometry and scales
+// ---------------------------------------------------------------------------
+
+function slotCenterX(geom, i) {
+    return geom.plotLeft + (i + 0.5) * geom.slotW;
+}
+
+// Linear map with hi -> top and lo -> bottom. A flat scale (hi === lo) draws at the bottom for a
+// zero-anchored scale and at the vertical centre otherwise (Pitfall 7).
+function valueToY(v, lo, hi, top, bottom) {
+    if (hi === lo)
+        return lo === 0 ? bottom : (top + bottom) / 2;
+    return bottom - (v - lo) / (hi - lo) * (bottom - top);
+}
+
+// Integer temperature scale over available slots; historical-unavailable slots never enter.
+function tempScale(slots) {
+    var lo = Infinity;
+    var hi = -Infinity;
+    var list = (slots && typeof slots.length === "number") ? slots : [];
+    for (var i = 0; i < list.length; ++i) {
+        var s = list[i];
+        if (!isAvailable(s) || !s.thermal)
+            continue;
+        var vals = [s.thermal.tempC, s.thermal.feelsLikeC];
+        for (var k = 0; k < vals.length; ++k) {
+            if (isNum(vals[k])) {
+                if (vals[k] < lo)
+                    lo = vals[k];
+                if (vals[k] > hi)
+                    hi = vals[k];
+            }
+        }
+    }
+    if (lo === Infinity)
+        return { min: 0, max: 1, empty: true };
+    var min = Math.floor(lo);
+    var max = Math.ceil(hi);
+    if (max === min)
+        max = min + 1;
+    return { min: min, max: max, empty: false };
+}
+
+// Scales computed once per timeline change. Plans 06 and 07 own the rainwind and airuv branches.
+function computeScales(kind, slots) {
+    if (kind === "temp")
+        return { temp: tempScale(slots) };
+    return {};
+}
+
+// ---------------------------------------------------------------------------
+// Colour and gradient helpers (D-54.4-14, Pitfall 1)
+// ---------------------------------------------------------------------------
+
+function _parseHex(hex) {
+    var h = String(hex || "").replace("#", "");
+    if (h.length === 3)
+        h = h.charAt(0) + h.charAt(0) + h.charAt(1) + h.charAt(1) + h.charAt(2) + h.charAt(2);
+    var n = parseInt(h.substring(0, 6), 16);
+    if (isNaN(n))
+        return [0, 0, 0];
+    return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+function _hex2(n) {
+    var s = Math.max(0, Math.min(255, Math.round(n))).toString(16);
+    return s.length < 2 ? "0" + s : s;
+}
+
+function lerpColor(a, b, t) {
+    var ca = _parseHex(a);
+    var cb = _parseHex(b);
+    var k = clamp01(t);
+    return "#" + _hex2(ca[0] + (cb[0] - ca[0]) * k) + _hex2(ca[1] + (cb[1] - ca[1]) * k) + _hex2(ca[2] + (cb[2] - ca[2]) * k);
+}
+
+// Colour of a smooth ramp at value v; v is clamped to the end anchors.
+function rampColorAt(anchors, v) {
+    if (!anchors || anchors.length === 0)
+        return "#000000";
+    var first = anchors[0];
+    var last = anchors[anchors.length - 1];
+    if (!isNum(v) || v <= first.v)
+        return isNum(v) ? first.color : last.color;
+    if (v >= last.v)
+        return last.color;
+    for (var i = 0; i < anchors.length - 1; ++i) {
+        var a = anchors[i];
+        var b = anchors[i + 1];
+        if (v >= a.v && v <= b.v)
+            return lerpColor(a.color, b.color, b.v === a.v ? 0 : (v - a.v) / (b.v - a.v));
+    }
+    return last.color;
+}
+
+// Value -> gradient offset for a vertical gradient from plotTop (offset 0 = vTop) to plotBottom
+// (offset 1 = vBottom).
+function valueOffset(v, vTop, vBottom) {
+    if (vTop === vBottom)
+        return 0.5;
+    return (vTop - v) / (vTop - vBottom);
+}
+
+// Smooth-ramp gradient stops. Endpoint stops at 0 and 1 carry the interpolated colour at vTop and
+// vBottom; interior anchors are kept only strictly inside (0,1). Every offset is clamped and the
+// result is sorted non-decreasing, because an out-of-range addColorStop throws and blanks the
+// whole paint (Pitfall 1, T-54.4-02).
+function smoothRampStops(anchors, vTop, vBottom) {
+    var stops = [{ offset: 0, color: rampColorAt(anchors, vTop) }];
+    if (anchors && vTop !== vBottom) {
+        for (var i = 0; i < anchors.length; ++i) {
+            var off = valueOffset(anchors[i].v, vTop, vBottom);
+            if (isNum(off) && off > 0 && off < 1)
+                stops.push({ offset: clamp01(off), color: anchors[i].color });
+        }
+    }
+    stops.push({ offset: 1, color: rampColorAt(anchors, vBottom) });
+    stops.sort(function (a, b) {
+        return a.offset - b.offset;
+    });
+    return stops;
+}
+
+// ---------------------------------------------------------------------------
+// Spline (D-54.4-13) — moved verbatim from the Phase 54.3 WeatherGraph.qml
+// ---------------------------------------------------------------------------
+
+function computeMonotoneSplineControlPoints(points) {
+    const n = points.length;
+    if (n < 2)
+        return [];
+
+    const dx = [];
+    const dy = [];
+    const m = [];
+    for (let i = 0; i < n - 1; ++i) {
+        const dxi = points[i + 1].x - points[i].x;
+        const dyi = points[i + 1].y - points[i].y;
+        dx.push(dxi);
+        dy.push(dyi);
+        m.push(dxi === 0 ? 0 : dyi / dxi);
+    }
+
+    const tangents = new Array(n);
+    tangents[0] = m[0];
+    tangents[n - 1] = m[n - 2];
+    for (let i = 1; i < n - 1; ++i) {
+        tangents[i] = (m[i - 1] + m[i]) / 2;
+    }
+
+    for (let i = 0; i < n - 1; ++i) {
+        if (m[i] === 0) {
+            tangents[i] = 0;
+            tangents[i + 1] = 0;
+        } else {
+            const alpha = tangents[i] / m[i];
+            const beta = tangents[i + 1] / m[i];
+            if (alpha < 0)
+                tangents[i] = 0;
+            if (beta < 0)
+                tangents[i + 1] = 0;
+            const distSq = alpha * alpha + beta * beta;
+            if (distSq > 9) {
+                const tau = 3 / Math.sqrt(distSq);
+                tangents[i] = tau * alpha * m[i];
+                tangents[i + 1] = tau * beta * m[i];
+            }
+        }
+    }
+
+    const controlPoints = [];
+    for (let i = 0; i < n - 1; ++i) {
+        const segmentDx = dx[i];
+        controlPoints.push({
+            cp1x: points[i].x + segmentDx / 3,
+            cp1y: points[i].y + tangents[i] * segmentDx / 3,
+            cp2x: points[i + 1].x - segmentDx / 3,
+            cp2y: points[i + 1].y - tangents[i + 1] * segmentDx / 3
+        });
+    }
+    return controlPoints;
+}
+
+// ---------------------------------------------------------------------------
+// Series runs and stroking
+// ---------------------------------------------------------------------------
+
+// Consecutive available slots with finite values, mapped to {x, y, i} points. An unavailable slot
+// or a missing value breaks the run, so no spline segment ever spans those columns (Pitfall 5).
+function seriesRuns(slots, getter, geom, scale) {
+    var runs = [];
+    var cur = null;
+    var list = (slots && typeof slots.length === "number") ? slots : [];
+    for (var i = 0; i < list.length; ++i) {
+        var s = list[i];
+        var v = isAvailable(s) ? getter(s) : null;
+        if (isNum(v)) {
+            if (!cur) {
+                cur = [];
+                runs.push(cur);
+            }
+            cur.push({
+                x: slotCenterX(geom, i),
+                y: valueToY(v, scale.min, scale.max, geom.plotTop, geom.plotBottom),
+                i: i
+            });
+        } else {
+            cur = null;
+        }
+    }
+    return runs;
+}
+
+// moveTo plus one bezierCurveTo per segment; runs shorter than 2 points are skipped.
+function strokeRuns(ctx, runs) {
+    for (var r = 0; r < runs.length; ++r) {
+        var run = runs[r];
+        if (!run || run.length < 2)
+            continue;
+        var cps = computeMonotoneSplineControlPoints(run);
+        ctx.beginPath();
+        ctx.moveTo(run[0].x, run[0].y);
+        for (var k = 0; k < cps.length; ++k)
+            ctx.bezierCurveTo(cps[k].cp1x, cps[k].cp1y, cps[k].cp2x, cps[k].cp2y, run[k + 1].x, run[k + 1].y);
+        ctx.stroke();
+    }
+}
+
+function _hasStrokableRun(runs) {
+    for (var i = 0; i < runs.length; ++i) {
+        if (runs[i] && runs[i].length >= 2)
+            return true;
+    }
+    return false;
+}
+
+function _tempOf(s) {
+    return s.thermal ? s.thermal.tempC : undefined;
+}
+
+function _feelsOf(s) {
+    return s.thermal ? s.thermal.feelsLikeC : undefined;
+}
+
+// ---------------------------------------------------------------------------
+// Draw: temperature card (D-54.4-13/14/15/17)
+// ---------------------------------------------------------------------------
+
+// Temperature: smooth monotone spline stroked with the fixed ramp gradient (lineWidth 2).
+// Feels-like: dashed spline, same gradient at FEELS_ALPHA (lineWidth 1.5). No band, no fill and
+// no rain drawing.
+function drawTemp(ctx, geom, slots, scales) {
+    if (!ctx || !geom || !slots || typeof slots.length !== "number" || slots.length < 2)
+        return;
+    var scale = (scales && scales.temp) ? scales.temp : tempScale(slots);
+    if (!scale || scale.empty)
+        return;
+
+    var tempRuns = seriesRuns(slots, _tempOf, geom, scale);
+    var feelsRuns = seriesRuns(slots, _feelsOf, geom, scale);
+    if (!_hasStrokableRun(tempRuns) && !_hasStrokableRun(feelsRuns))
+        return;
+
+    var grad = ctx.createLinearGradient(0, geom.plotTop, 0, geom.plotBottom);
+    var stops = smoothRampStops(TEMP_RAMP, scale.max, scale.min);
+    for (var i = 0; i < stops.length; ++i)
+        grad.addColorStop(clamp01(stops[i].offset), stops[i].color);
+
+    ctx.save();
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.setLineDash([]);
+    strokeRuns(ctx, tempRuns);
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = grad;
+    ctx.globalAlpha = FEELS_ALPHA;
+    ctx.setLineDash(DASH_DASHED.slice());
+    ctx.lineWidth = 1.5;
+    ctx.lineJoin = "round";
+    strokeRuns(ctx, feelsRuns);
+    ctx.restore();
+}
+
+// Per-kind dispatch. Plans 06 and 07 add the "rainwind" and "airuv" branches.
+function drawKind(ctx, kind, geom, slots, scales) {
+    if (kind === "temp")
+        drawTemp(ctx, geom, slots, scales);
+}

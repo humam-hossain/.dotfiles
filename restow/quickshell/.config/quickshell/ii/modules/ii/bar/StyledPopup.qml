@@ -121,6 +121,13 @@ LazyLoader {
             }
         }
 
+        // Re-clamp when the content size resolves late, e.g. after the screen becomes known (POPUP-01, Pitfall 4)
+        Connections {
+            target: popupBackground
+            function onImplicitWidthChanged() { popupWindow.updateLockedMargins(); }
+            function onImplicitHeightChanged() { popupWindow.updateLockedMargins(); }
+        }
+
         // Screen Boundary Clamping Math (D-19, Pitfall 4)
         margins {
             left: popupWindow.lockedLeftMargin
