@@ -274,6 +274,8 @@ Singleton {
                     property string city: "" // When 'enableGPS' is false
                     property bool useUSCS: false // Instead of metric (SI) units
                     property int fetchInterval: 10 // minutes
+                    property int popupWidthPercent: 50 // % of screen width, popup outer size (D-54.4-03)
+                    property int popupHeightPercent: 50 // % of screen height, popup outer size (D-54.4-03)
                 }
                 property JsonObject indicators: JsonObject {
                     property JsonObject notifications: JsonObject {
