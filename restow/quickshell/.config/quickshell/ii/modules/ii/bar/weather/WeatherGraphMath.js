@@ -46,6 +46,13 @@ var MM_ALPHA = 0.6;
 // Bars use at most this share of the plot height (PA-13, mirrors D-54.4-29).
 var BAR_CAP = 0.4;
 
+// Graph 3 UV index WHO tiers (D-54.4-30/33): <3 Low green, 3-5 Moderate yellow, 6-7 High orange,
+// 8-10 Very High red, 11+ Extreme violet. The violet is #ce93d8 (A4), not the EPA violet.
+var UV_EDGES = [3, 6, 8, 11];
+var UV_COLORS = ["#66bb6a", "#ffee58", "#ffa726", "#ef5350", "#ce93d8"];
+// Height in px of the EPA tier ribbon along the bottom of the Graph 3 plot (D-54.4-27).
+var RIBBON_H = 6;
+
 var Y_LABEL_FONT = "10px sans-serif";
 var LABEL_FONT = "bold 10px sans-serif";
 
@@ -316,7 +323,7 @@ function tempScale(slots) {
     return { min: min, max: max, empty: false };
 }
 
-// Scales computed once per timeline change. Plan 07 owns the airuv branch.
+// Scales computed once per timeline change.
 function computeScales(kind, slots) {
     if (kind === "temp")
         return { temp: tempScale(slots) };
@@ -343,6 +350,23 @@ function computeScales(kind, slots) {
             rain: { min: 0, max: 100 },
             wind: { min: 0, max: windMax },
             mm: { min: 0, max: mmMax }
+        };
+    }
+    if (kind === "airuv") {
+        // D-54.4-29/30: the UV index on its own 0..max scale (floored at 1 so it is never flat).
+        // Historical-unavailable slots never enter a scale.
+        var uvMax = 1;
+        var alist = (slots && typeof slots.length === "number") ? slots : [];
+        for (var a = 0; a < alist.length; ++a) {
+            var as = alist[a];
+            if (!isAvailable(as))
+                continue;
+            var uv = _uvOf(as);
+            if (isNum(uv) && uv > uvMax)
+                uvMax = uv;
+        }
+        return {
+            uv: { min: 0, max: uvMax }
         };
     }
     return {};
@@ -460,6 +484,35 @@ function formatKm(km) {
     if (!isFinite(r))
         return "";
     return r === Math.round(r) ? String(r) : r.toFixed(1);
+}
+
+// UV index -> WHO tier word (D-54.4-33): >=11 Extreme, >=8 Very High, >=6 High, >=3 Moderate,
+// else Low. Non-finite input gives "".
+function uvTier(uv) {
+    if (!isNum(uv))
+        return "";
+    if (uv >= UV_EDGES[3])
+        return "Extreme";
+    if (uv >= UV_EDGES[2])
+        return "Very High";
+    if (uv >= UV_EDGES[1])
+        return "High";
+    if (uv >= UV_EDGES[0])
+        return "Moderate";
+    return "Low";
+}
+
+// UV index -> WHO tier colour, on the uvTier boundaries (D-54.4-30).
+function uvColor(uv) {
+    if (!isNum(uv) || uv < UV_EDGES[0])
+        return UV_COLORS[0];
+    if (uv < UV_EDGES[1])
+        return UV_COLORS[1];
+    if (uv < UV_EDGES[2])
+        return UV_COLORS[2];
+    if (uv < UV_EDGES[3])
+        return UV_COLORS[3];
+    return UV_COLORS[4];
 }
 
 // Hard-edged tier gradient stops (PA-10). A start stop at 0 with colorAt(vTop); for each edge
@@ -801,6 +854,55 @@ function drawRainWind(ctx, geom, slots, scales) {
 }
 
 // ---------------------------------------------------------------------------
+// Draw: air, UV and pressure card (D-54.4-27..34)
+// ---------------------------------------------------------------------------
+
+function _uvOf(s) {
+    return s.solar ? s.solar.uvIndex : undefined;
+}
+
+// Graph 3 scales, falling back to computeScales for any piece the caller did not pass.
+function _airuvScales(slots, scales) {
+    var sc = scales || {};
+    var full = computeScales("airuv", slots);
+    return {
+        uv: sc.uv ? sc.uv : full.uv
+    };
+}
+
+// Graph 3 series geometry: the lines and bars live between plotTop and the top of the EPA
+// ribbon, so nothing is drawn over the ribbon (D-54.4-27/29).
+function airuvRibbonTop(geom) {
+    return geom.plotBottom - RIBBON_H;
+}
+
+function _airuvGeom(geom) {
+    return Object.assign({}, geom, { plotBottom: airuvRibbonTop(geom) });
+}
+
+// Graph 3 (D-54.4-27..31), each inside save/restore:
+// UV index: monotone spline over the full height above the ribbon, stroked with the hard WHO tier
+// gradient, lineWidth 2, solid.
+function drawAirUv(ctx, geom, slots, scales) {
+    if (!ctx || !geom || !slots || typeof slots.length !== "number" || slots.length < 1)
+        return;
+    var sc = _airuvScales(slots, scales);
+    var ug = _airuvGeom(geom);
+
+    var uvRuns = seriesRuns(slots, _uvOf, ug, sc.uv);
+    if (_hasStrokableRun(uvRuns)) {
+        ctx.save();
+        ctx.strokeStyle = _verticalGradient(ctx, ug, tierStops(UV_EDGES, uvColor, sc.uv.max, sc.uv.min));
+        ctx.lineWidth = 2;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.setLineDash([]);
+        strokeRuns(ctx, uvRuns);
+        ctx.restore();
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Legend (D-54.4-09/18)
 // ---------------------------------------------------------------------------
 
@@ -830,6 +932,12 @@ function legendEntries(kind) {
             { label: "Wind", style: "solid", color: WIND_COLOR, colors: [WIND_COLOR], dot: true },
             { label: "Gust", style: "dashed", color: WIND_COLOR, colors: [WIND_COLOR], dot: true },
             { label: "Vis", style: "dotted", color: VIS_COLORS[3], colors: VIS_COLORS.slice(), dot: true }
+        ];
+    }
+    if (kind === "airuv") {
+        // D-54.4-32 order: UV, Solar, AQI, Pressure.
+        return [
+            { label: "UV", style: "solid", color: UV_COLORS[1], colors: UV_COLORS.slice(), dot: false }
         ];
     }
     return [];
@@ -1168,6 +1276,29 @@ function peakCandidates(kind, ctx, geom, slots, scales) {
         }
         ctx.restore();
     }
+    if (kind === "airuv") {
+        var asc = _airuvScales(slots, scales);
+        var ag = _airuvGeom(geom);
+        ctx.save();
+        ctx.font = LABEL_FONT;
+        // UV max at its high point in its tier colour; a UV that never rises above 0 gets none.
+        var upk = _peakOf(slots, _uvOf);
+        if (upk && upk.v > 0) {
+            var utext = String(Math.round(upk.v));
+            out.push({
+                text: utext,
+                x: slotCenterX(geom, upk.i),
+                y: valueToY(upk.v, asc.uv.min, asc.uv.max, ag.plotTop, ag.plotBottom),
+                w: ctx.measureText(utext).width,
+                h: 10,
+                priority: 4,
+                rank: upk.v,
+                color: uvColor(upk.v),
+                anchor: "above"
+            });
+        }
+        ctx.restore();
+    }
     return out;
 }
 
@@ -1201,6 +1332,8 @@ function drawKind(ctx, kind, geom, slots, scales, theme) {
     }
     if (kind === "rainwind")
         drawRainWind(ctx, geom, slots, scales);
+    if (kind === "airuv")
+        drawAirUv(ctx, geom, slots, scales);
     if (!geom || !slots || typeof slots.length !== "number")
         return;
     drawLabels(ctx, placeLabels(peakCandidates(kind, ctx, geom, slots, scales), {
@@ -1311,6 +1444,18 @@ function tooltipLines(kind, slots, i) {
         if (isNum(vis))
             lines.push({ lead: "", icon: "visibility", text: formatKm(vis) + " km " + visibilityTier(vis) });
     }
+    if (kind === "airuv") {
+        // D-54.4-33 line 2 "<light_mode> UV <n> <WHO tier> · <shortRad> W/m²". The tier word is
+        // taken from the rounded index, so the number and the word always agree.
+        var so = slot.solar || {};
+        var uvR = isNum(so.uvIndex) ? Math.round(so.uvIndex) : null;
+        var al2 = _joinDot([
+            uvR !== null ? "UV " + uvR + " " + uvTier(uvR) : "",
+            isNum(so.shortRad) ? Math.round(so.shortRad) + " W/m²" : ""
+        ]);
+        if (al2.length > 0)
+            lines.push({ lead: "", icon: "light_mode", text: al2 });
+    }
     return lines;
 }
 
@@ -1351,6 +1496,13 @@ function markerPoints(kind, slots, i, geom, scales) {
                 color: wv[w][1] !== null ? wv[w][1] : visColor(wv[w][0])
             });
         }
+    }
+    if (kind === "airuv") {
+        var asc = _airuvScales(slots, scales);
+        var ag = _airuvGeom(geom);
+        var uvv = _uvOf(slot);
+        if (isNum(uvv))
+            pts.push({ y: valueToY(uvv, asc.uv.min, asc.uv.max, ag.plotTop, ag.plotBottom), color: uvColor(uvv) });
     }
     return pts;
 }

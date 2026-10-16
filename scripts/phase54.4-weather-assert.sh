@@ -991,6 +991,33 @@ const vf = G.tooltipLines("rainwind", visFrac, 12);
 ok(vf.length === 4 && vf[3].text === "3.3 km Poor", "S3: a fractional visibility reads with one decimal ('3.3 km Poor', got " + JSON.stringify(vf[3] && vf[3].text) + ")");
 const fogTxt = G.tooltipLines("rainwind", ttl, 0).map(function (l) { return l.text; }).join("|");
 ok(fogTxt.indexOf("Fog") < 0, "S3: the zero visibility of an unavailable slot never reads as Fog (T-54.4-20)");
+
+// Graph 3 UV WHO palette and tiers (D-54.4-30/33, A4)
+ok(same(G.UV_EDGES, [3, 6, 8, 11]) && same(G.UV_COLORS, ["#66bb6a", "#ffee58", "#ffa726", "#ef5350", "#ce93d8"]),
+   "S3: UV_EDGES 3,6,8,11 and UV_COLORS #66bb6a, #ffee58, #ffa726, #ef5350, #ce93d8 exactly (D-54.4-30, A4)");
+ok(G.RIBBON_H === 6, "S3: RIBBON_H is 6px (D-54.4-27)");
+const HAS_UV = typeof G.uvTier === "function" && typeof G.uvColor === "function";
+const uvCases = [[0, "Low", "#66bb6a"], [2, "Low", "#66bb6a"], [3, "Moderate", "#ffee58"], [5, "Moderate", "#ffee58"], [6, "High", "#ffa726"],
+                 [7, "High", "#ffa726"], [8, "Very High", "#ef5350"], [10, "Very High", "#ef5350"], [11, "Extreme", "#ce93d8"], [14, "Extreme", "#ce93d8"]];
+for (const [uv, word, hex] of uvCases) {
+  ok(HAS_UV && G.uvTier(uv) === word && G.uvColor(uv) === hex, "S3: uvTier(" + uv + ") = " + word + " and uvColor = " + hex + " (D-54.4-30/33)");
+}
+ok(HAS_UV && [2, 3, 5, 6, 7, 8, 10, 11].map(G.uvTier).join(",") === "Low,Moderate,Moderate,High,High,Very High,Very High,Extreme",
+   "S3: uvTier over 2,3,5,6,7,8,10,11 is Low,Moderate,Moderate,High,High,Very High,Very High,Extreme");
+ok(HAS_UV && G.uvTier(NaN) === "" && G.uvTier(null) === "", "S3: uvTier of a non-finite index is ''");
+for (const hex of (G.UV_COLORS || [])) {
+  ok(contrast(hex, "#292a2a") >= 3 && contrast(hex, "#1f2020") >= 3, "S3: UV colour " + hex + " is at least 3:1 on both card surfaces");
+}
+
+// Graph 3 tooltip line 2 (D-54.4-33)
+const au = G.tooltipLines("airuv", ttl, 12);
+ok(au.length >= 2 && au[1].icon === "light_mode" && /^UV \d+ (Low|Moderate|High|Very High|Extreme) · \d+ W\/m²$/.test(au[1].text),
+   "S3: tooltipLines(airuv) line 2 is light_mode 'UV <n> <tier> · <rad> W/m²' (got " + JSON.stringify(au[1] && au[1].text) + ")");
+ok(au.length >= 2 && HAS_UV && au[1].text === "UV " + s12.solar.uvIndex + " " + G.uvTier(s12.solar.uvIndex) + " · " + Math.round(s12.solar.shortRad) + " W/m²",
+   "S3: tooltipLines(airuv) line 2 values come from the slot uvIndex and shortRad");
+ok(au.length >= 1 && au[0].text === s12.desc, "S3: tooltipLines(airuv) line 1 is the bare condition text (D-54.4-33)");
+const auUn = G.tooltipLines("airuv", ttl, 0);
+ok(auUn.length === 1 && auUn[0].text === "No data", "S3: tooltipLines(airuv) on an unavailable slot is one No data line (T-54.4-21)");
 JS
   run_node_section "S3" "$S3_JS"
 
@@ -1086,7 +1113,18 @@ ok(fx.min === 25 && fx.max === 36 && !fx.empty, "S4: tempScale over the 25-slot 
 ok(G.valueToY(10, 0, 10, 16, 260) === 16 && G.valueToY(0, 0, 10, 16, 260) === 260, "S4: valueToY maps hi to top and lo to bottom");
 ok(G.valueToY(5, 0, 0, 16, 260) === 260, "S4: valueToY on a flat zero scale draws at the bottom");
 ok(G.valueToY(5, 5, 5, 16, 260) === 138, "S4: valueToY on a flat non-zero scale draws at the vertical centre");
-ok(same(G.computeScales("airuv", tl), {}), "S4: computeScales returns an empty object for the kind owned by plan 07");
+ok(same(G.computeScales("bogus", tl), {}), "S4: computeScales returns an empty object for an unknown kind");
+
+// Graph 3 UV scale (D-54.4-29/30)
+let uvMaxFx = 0;
+for (const s of tl) if (G.isAvailable(s)) uvMaxFx = Math.max(uvMaxFx, s.solar.uvIndex);
+const aus = G.computeScales("airuv", tl);
+ok(!!aus.uv && same(aus.uv, { min: 0, max: Math.max(1, uvMaxFx) }), "S4: computeScales(airuv).uv is {min:0, max:max(1, max uvIndex)} over available slots (" + JSON.stringify(aus.uv) + ")");
+const night = mkTimeline().map(function (s) { return Object.assign({}, s, { solar: Object.assign({}, s.solar, { uvIndex: 0 }) }); });
+ok(!!G.computeScales("airuv", night).uv && G.computeScales("airuv", night).uv.max === 1, "S4: the UV scale max is floored at 1 when every index is 0 (T-54.4-16)");
+const unUv = mkTimeline();
+unUv[0] = Object.assign({}, unUv[0], { solar: Object.assign({}, unUv[0].solar, { uvIndex: 15 }) });
+ok(!!G.computeScales("airuv", unUv).uv && G.computeScales("airuv", unUv).uv.max === Math.max(1, uvMaxFx), "S4: historical-unavailable slots never enter the UV scale");
 ok(same(G.computeScales("rainwind", tl).rain, { min: 0, max: 100 }), "S4: computeScales(rainwind).rain is {min:0, max:100} (D-54.4-22)");
 
 // tierStops (PA-10, Pitfalls 1/2): hard-edged tier stops for rain % and visibility
@@ -1161,6 +1199,26 @@ ok(rle.length === 5 && rle.every(function (e) { return e.dot === true && RW_HEX.
    "S4: every legendEntries(rainwind) entry has a colour dot and 7-character hex colours (PA-15)");
 ok(rle.length === 5 && rle[1].color === "#26c6da" && rle[2].color === "#ffffff" && rle[3].color === "#ffffff" && rle[4].color === "#66bb6a" && same(rle[4].colors, G.VIS_COLORS),
    "S4: legend colours: mm #26c6da, Wind and Gust #ffffff, Vis #66bb6a with the VIS_COLORS swatch");
+
+// legendEntries(airuv) first entry (D-54.4-32)
+const ale = G.legendEntries("airuv");
+ok(ale.length >= 1 && ale[0].label === "UV" && ale[0].style === "solid" && ale[0].color === "#ffee58" && same(ale[0].colors, G.UV_COLORS),
+   "S4: legendEntries(airuv)[0] is UV, solid, colour #ffee58, swatch UV_COLORS");
+
+// Graph 3 UV tier gradient stops (D-54.4-30, Pitfalls 1/2)
+if (HAS_TIER) {
+  const us = G.tierStops(G.UV_EDGES, G.uvColor, 7, 0);
+  ok(tierOk(us) && us.length === 6, "S4: tierStops(UV_EDGES, uvColor, 7, 0) gives 6 in-range stops (edges 3 and 6 inside 0..7)");
+  ok(tierOk(us) && us[0].color === "#ffa726" && us[us.length - 1].color === "#66bb6a", "S4: the UV gradient runs from High orange at 7 down to Low green at 0");
+  let uvSamp = true;
+  for (let v = 0; v <= 7; v += 0.25) {
+    if (G.UV_EDGES.some(function (e) { return Math.abs(v - e) <= 0.1; })) continue;
+    if (sampleStops(us, G.valueOffset(v, 7, 0)) !== G.uvColor(v)) uvSamp = false;
+  }
+  ok(uvSamp, "S4: the UV tier gradient sampled away from an edge equals uvColor(value)");
+  const us14 = G.tierStops(G.UV_EDGES, G.uvColor, 14, 0);
+  ok(tierOk(us14) && us14.length === 10 && us14[0].color === "#ce93d8", "S4: a 0..14 UV range carries all four WHO edges (10 stops) with violet at the top");
+}
 
 // Graph 2 shared wind scale and mm scale (D-54.4-22, PA-13)
 const rws = G.computeScales("rainwind", tl);
@@ -1498,8 +1556,7 @@ if (HAS_PEAK) {
   ok(pp.length === 2 && pp[0].text === Math.round(tMax) + "°" && pp[1].text === Math.round(fMax) + "°", "S5: a historical-unavailable slot never yields a peak candidate");
   const noData = mkTimeline({ unavailable: 25 });
   ok(same(G.peakCandidates("temp", mockCtx().ctx, geomFor(25), noData, G.computeScales("temp", noData)), []), "S5: an all-unavailable timeline yields no peak candidate");
-  ok(same(G.peakCandidates("airuv", mockCtx().ctx, geom, tl, {}), []) && same(G.peakCandidates("bogus", mockCtx().ctx, geom, tl, {}), []),
-     "S5: peakCandidates returns [] for the kind owned by plan 07 and unknown kinds");
+  ok(same(G.peakCandidates("bogus", mockCtx().ctx, geom, tl, {}), []), "S5: peakCandidates returns [] for an unknown kind");
 
   // Rain % peak (Graph 2): priority 2, tier colour, skipped when the max is 0
   let rMax = -Infinity, rIdx = -1;
@@ -1741,6 +1798,56 @@ const dkp = mockCtx();
 G.drawKind(dkp.ctx, "rainwind", geom, ptl, psc, THEME);
 const dkpTexts = annotate(dkp.log).filter(function (c) { return c.name === "fillText" && c.st.fillStyle === "#26c6da"; });
 ok(dkpTexts.length >= 1 && dkpTexts.every(function (c) { return c.st.globalAlpha === 1; }), "S5: drawKind(rainwind) writes the mm values at full opacity, never at the bar alpha (Pitfall 11)");
+
+// Graph 3: UV tier spline (D-54.4-27/29/30)
+const ribbonTop = geom.plotBottom - G.RIBBON_H;
+const auSc = G.computeScales("airuv", tl);
+const ak = mockCtx();
+let akThrew = null;
+try { G.drawKind(ak.ctx, "airuv", geom, tl, auSc, THEME); } catch (e) { akThrew = e; }
+ok(akThrew === null, "S5: drawKind(airuv) on the fixture does not throw" + (akThrew ? " (" + akThrew + ")" : ""));
+ok(calls(ak.log, "save").length === calls(ak.log, "restore").length, "S5: drawKind(airuv) save/restore calls are balanced");
+const au1 = mockCtx();
+G.drawAirUv(au1.ctx, geom, tl, auSc);
+const au1Ann = withDash(annotate(au1.log));
+const au1Grad = calls(au1.log, "createLinearGradient");
+ok(au1Grad.length >= 1 && au1Grad[0][2] === geom.plotTop && au1Grad[0][4] === ribbonTop, "S5: the UV gradient runs vertically from plotTop to the ribbon top (plotBottom - RIBBON_H)");
+const au1Stops = au1.log.filter(function (e) { return e[0] === "stop"; });
+const uvGradStops = G.tierStops(G.UV_EDGES, G.uvColor, auSc.uv.max, 0);
+ok(au1Stops.length >= uvGradStops.length && au1Stops.every(function (e) { return e[1] >= 0 && e[1] <= 1; })
+   && same(au1Stops.slice(0, uvGradStops.length).map(function (e) { return e[2]; }), uvGradStops.map(function (s) { return s.color; })),
+   "S5: the UV stroke carries tierStops(UV_EDGES, uvColor, uv.max, 0), every offset in [0,1] (Pitfall 1)");
+const uvStroke = au1Ann.find(function (c) { return c.name === "stroke" && typeof c.st.strokeStyle === "object"; });
+ok(!!uvStroke && uvStroke.st.lineWidth === 2 && same(uvStroke.dash, []), "S5: the UV spline is solid at lineWidth 2");
+let auY = true;
+let auX = true;
+for (const e of au1.log) {
+  if (e[0] === "moveTo" && (e[2] < geom.plotTop - 1e-9 || e[2] > ribbonTop + 1e-9)) auY = false;
+  if (e[0] === "bezierCurveTo" && (e[6] < geom.plotTop - 1e-9 || e[6] > ribbonTop + 1e-9)) auY = false;
+  if (e[0] === "moveTo" && e[1] < minX) auX = false;
+  if (e[0] === "bezierCurveTo" && (e[1] < minX || e[3] < minX || e[5] < minX)) auX = false;
+}
+ok(auY, "S5: every Graph 3 path point lies between plotTop and the ribbon top (the ribbon is never drawn over)");
+ok(auX, "S5: no Graph 3 spline enters the unavailable columns (T-54.4-21)");
+const s12uv = tl[12].solar.uvIndex;
+const amp = G.markerPoints("airuv", tl, 12, geom, auSc);
+ok(amp.length >= 1 && amp[0].color === G.uvColor(s12uv) && near(amp[0].y, G.valueToY(s12uv, 0, auSc.uv.max, geom.plotTop, ribbonTop)),
+   "S5: markerPoints(airuv, fixture, 12) starts with the UV point in uvColor(uv), on the UV scale above the ribbon");
+ok(same(G.markerPoints("airuv", tl, 0, geom, auSc), []), "S5: markerPoints(airuv) at the unavailable index 0 is []");
+let uvPk = -Infinity, uvPkI = -1;
+tl.forEach(function (s, i) { if (G.isAvailable(s) && s.solar.uvIndex > uvPk) { uvPk = s.solar.uvIndex; uvPkI = i; } });
+const apc = G.peakCandidates("airuv", mockCtx().ctx, geom, tl, auSc);
+const uvC = apc.find(function (c) { return c.priority === 4; });
+ok(!!uvC && uvC.text === String(Math.round(uvPk)) && uvC.color === G.uvColor(uvPk) && uvC.anchor === "above" && near(uvC.x, G.slotCenterX(geom, uvPkI))
+   && near(uvC.y, G.valueToY(uvPk, 0, auSc.uv.max, geom.plotTop, ribbonTop)),
+   "S5: peakCandidates(airuv) labels the UV max '" + Math.round(uvPk) + "' at priority 4 in uvColor, at its high point");
+const uvNight = mkTimeline().map(function (s) { return Object.assign({}, s, { solar: Object.assign({}, s.solar, { uvIndex: 0 }) }); });
+ok(!G.peakCandidates("airuv", mockCtx().ctx, geom, uvNight, G.computeScales("airuv", uvNight)).some(function (c) { return c.priority === 4; }),
+   "S5: an all-zero UV series gets no UV peak label");
+const uvPoison = mkTimeline();
+uvPoison[1] = Object.assign({}, uvPoison[1], { solar: Object.assign({}, uvPoison[1].solar, { uvIndex: 12 }) });
+ok(!G.peakCandidates("airuv", mockCtx().ctx, geom, uvPoison, G.computeScales("airuv", uvPoison)).some(function (c) { return c.text === "12"; }),
+   "S5: a historical-unavailable slot never yields a UV peak label");
 JS
   run_node_section "S5" "$S5_JS"
 
