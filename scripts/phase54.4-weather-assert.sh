@@ -2,7 +2,7 @@
 # ===========================================================================
 # Phase 54.4: Modular Popup Inspector and Clean Card Layout Assert Harness
 # Enforces: POPUP-01, POPUP-02, ASVS L1
-# Decisions: D-54.4-01 through D-54.4-34 (sections grow per plan: 01, 03, 05, 06, 07)
+# Decisions: D-54.4-01 through D-54.4-36 (sections grow per plan: 01, 03, 05, 06, 07)
 #
 # Usage (from REPO_ROOT):
 #   ./scripts/phase54.4-weather-assert.sh [1-5] [OPTIONS]
@@ -925,6 +925,72 @@ for (const kind of ["rainwind", "airuv"]) {
   const t = G.tooltipLines(kind, ttl, 12);
   ok(t.length >= 1 && t[0].lead === "Now" && t[0].text.indexOf(s12.desc) === 0, "S3: tooltipLines(" + kind + ") starts with the shared header line");
 }
+
+// Graph 2 rain palette and tiers (D-54.4-23)
+ok(same(G.RAIN_EDGES, [30, 60]) && same(G.RAIN_COLORS, ["#90caf9", "#42a5f5", "#2979ff"]),
+   "S3: RAIN_EDGES 30,60 and RAIN_COLORS #90caf9, #42a5f5, #2979ff exactly (D-54.4-23)");
+const rainCases = [[0, "#90caf9"], [29.9, "#90caf9"], [30, "#42a5f5"], [45, "#42a5f5"], [60, "#42a5f5"], [60.1, "#2979ff"], [100, "#2979ff"]];
+for (const [v, want] of rainCases) {
+  ok(typeof G.rainColor === "function" && G.rainColor(v) === want, "S3: rainColor(" + v + ") = " + want + " (D-54.4-23)");
+}
+
+// Graph 2 tooltip lines 1-2 (D-54.4-26, D-54.4-36)
+const rw = G.tooltipLines("rainwind", ttl, 12);
+const cloudSfx = " · Cloud " + Math.round(s12.moisture.cloudCover) + "%";
+ok(rw.length >= 1 && rw[0].text === s12.desc + cloudSfx, "S3: tooltipLines(rainwind) line 1 is '" + s12.desc + cloudSfx + "' (D-54.4-36, got " + JSON.stringify(rw[0] && rw[0].text) + ")");
+ok(rw.length >= 2 && rw[1].icon === "water_drop" && /^\d+% · \d+\.\d mm$/.test(rw[1].text),
+   "S3: tooltipLines(rainwind) line 2 is water_drop '<rain>% · <mm> mm' with no Thunder/Snow at 0 (got " + JSON.stringify(rw[1] && rw[1].text) + ")");
+ok(rw.length >= 2 && rw[1].text === Math.round(s12.moisture.rainProb) + "% · " + Number(s12.moisture.precipMM).toFixed(1) + " mm",
+   "S3: tooltipLines(rainwind) line 2 values come from the slot rainProb and precipMM");
+function withMoisture(extra) {
+  const c = ttl.slice();
+  c[12] = Object.assign({}, s12, { moisture: Object.assign({}, s12.moisture, extra) });
+  return G.tooltipLines("rainwind", c, 12);
+}
+const th20 = withMoisture({ thunderProb: 20, snowProb: 0 });
+ok(th20.length >= 2 && / · Thunder 20%$/.test(th20[1].text) && th20[1].text.indexOf("Snow") < 0,
+   "S3: thunderProb 20, snowProb 0: line 2 ends ' · Thunder 20%' with no Snow (D-54.4-36, got " + JSON.stringify(th20[1] && th20[1].text) + ")");
+const th20s5 = withMoisture({ thunderProb: 20, snowProb: 5 });
+ok(th20s5.length >= 2 && / · Thunder 20% · Snow 5%$/.test(th20s5[1].text),
+   "S3: thunderProb 20, snowProb 5: line 2 ends ' · Thunder 20% · Snow 5%' (Thunder before Snow)");
+const sn5 = withMoisture({ thunderProb: 0, snowProb: 5 });
+ok(sn5.length >= 2 && / · Snow 5%$/.test(sn5[1].text) && sn5[1].text.indexOf("Thunder") < 0, "S3: snowProb 5 alone: line 2 ends ' · Snow 5%' with no Thunder");
+const cl75 = withMoisture({ cloudCover: 75 });
+ok(cl75.length >= 1 && / · Cloud 75%$/.test(cl75[0].text), "S3: cloudCover 75 reads 'Cloud 75%' on line 1");
+const cl0 = withMoisture({ cloudCover: 0 });
+ok(cl0.length >= 1 && / · Cloud 0%$/.test(cl0[0].text), "S3: cloud cover is always shown on line 1, even at 0% (D-54.4-36)");
+const rwUn = G.tooltipLines("rainwind", ttl, 0);
+ok(rwUn.length === 1 && rwUn[0].text === "No data", "S3: tooltipLines(rainwind) on an unavailable slot is one No data line");
+
+// Graph 2 wind, gust, visibility and mm palette (D-54.4-23, PA-13)
+ok(same(G.VIS_EDGES, [1, 4, 10]) && same(G.VIS_COLORS, ["#ef5350", "#ffa726", "#ffee58", "#66bb6a"]),
+   "S3: VIS_EDGES 1,4,10 and VIS_COLORS #ef5350, #ffa726, #ffee58, #66bb6a exactly (D-54.4-23)");
+ok(G.WIND_COLOR === "#ffffff" && G.WIND_ALPHA === 0.9, "S3: WIND_COLOR #ffffff at WIND_ALPHA 0.9 (D-54.4-23)");
+ok(G.MM_COLOR === "#26c6da" && G.MM_ALPHA === 0.6, "S3: MM_COLOR #26c6da at MM_ALPHA 0.6 (D-54.4-23)");
+ok(G.BAR_CAP === 0.4, "S3: BAR_CAP 0.4 caps mm bars at 40% of the plot height (PA-13)");
+const HAS_VIS = typeof G.visibilityTier === "function" && typeof G.visColor === "function";
+const visCases = [[0, "Fog", "#ef5350"], [0.9, "Fog", "#ef5350"], [1, "Poor", "#ffa726"], [3.9, "Poor", "#ffa726"], [4, "Moderate", "#ffee58"],
+                  [9.9, "Moderate", "#ffee58"], [10, "Good", "#66bb6a"], [12, "Good", "#66bb6a"]];
+for (const [km, word, hex] of visCases) {
+  ok(HAS_VIS && G.visibilityTier(km) === word && G.visColor(km) === hex, "S3: visibilityTier(" + km + ") = " + word + " and visColor = " + hex + " (D-54.4-26)");
+}
+
+// Graph 2 tooltip lines 3-4 (D-54.4-26)
+ok(rw.length === 4, "S3: tooltipLines(rainwind, fixture, 12) has 4 lines (got " + rw.length + ")");
+ok(rw.length === 4 && rw[2].icon === "air" && /^\d+ km\/h · G\d+ · [A-Z]{1,3} \d+°$/.test(rw[2].text),
+   "S3: tooltipLines(rainwind) line 3 is air '<speed> km/h · G<gust> · <dir16> <deg>°' (got " + JSON.stringify(rw[2] && rw[2].text) + ")");
+ok(rw.length === 4 && rw[2].text === Math.round(s12.wind.speedKmph) + " km/h · G" + Math.round(s12.wind.gustKmph) + " · " + s12.wind.dir16 + " " + Math.round(s12.wind.degree) + "°",
+   "S3: tooltipLines(rainwind) line 3 values come from the slot wind group");
+ok(rw.length === 4 && rw[3].icon === "visibility" && /^\d+(\.\d)? km (Good|Moderate|Poor|Fog)$/.test(rw[3].text),
+   "S3: tooltipLines(rainwind) line 4 is visibility '<km> km <tier>' (got " + JSON.stringify(rw[3] && rw[3].text) + ")");
+ok(rw.length === 4 && HAS_VIS && rw[3].text === s12.atmosphere.visibilityKm + " km " + G.visibilityTier(s12.atmosphere.visibilityKm),
+   "S3: tooltipLines(rainwind) line 4 reads the slot visibility in km (POPUP-03 interim)");
+const visFrac = ttl.slice();
+visFrac[12] = Object.assign({}, s12, { atmosphere: Object.assign({}, s12.atmosphere, { visibilityKm: 3.25 }) });
+const vf = G.tooltipLines("rainwind", visFrac, 12);
+ok(vf.length === 4 && vf[3].text === "3.3 km Poor", "S3: a fractional visibility reads with one decimal ('3.3 km Poor', got " + JSON.stringify(vf[3] && vf[3].text) + ")");
+const fogTxt = G.tooltipLines("rainwind", ttl, 0).map(function (l) { return l.text; }).join("|");
+ok(fogTxt.indexOf("Fog") < 0, "S3: the zero visibility of an unavailable slot never reads as Fog (T-54.4-20)");
 JS
   run_node_section "S3" "$S3_JS"
 
@@ -1020,7 +1086,101 @@ ok(fx.min === 25 && fx.max === 36 && !fx.empty, "S4: tempScale over the 25-slot 
 ok(G.valueToY(10, 0, 10, 16, 260) === 16 && G.valueToY(0, 0, 10, 16, 260) === 260, "S4: valueToY maps hi to top and lo to bottom");
 ok(G.valueToY(5, 0, 0, 16, 260) === 260, "S4: valueToY on a flat zero scale draws at the bottom");
 ok(G.valueToY(5, 5, 5, 16, 260) === 138, "S4: valueToY on a flat non-zero scale draws at the vertical centre");
-ok(same(G.computeScales("rainwind", tl), {}) && same(G.computeScales("airuv", tl), {}), "S4: computeScales returns an empty object for kinds owned by plans 06/07");
+ok(same(G.computeScales("airuv", tl), {}), "S4: computeScales returns an empty object for the kind owned by plan 07");
+ok(same(G.computeScales("rainwind", tl).rain, { min: 0, max: 100 }), "S4: computeScales(rainwind).rain is {min:0, max:100} (D-54.4-22)");
+
+// tierStops (PA-10, Pitfalls 1/2): hard-edged tier stops for rain % and visibility
+const HAS_TIER = typeof G.tierStops === "function" && typeof G.rainColor === "function";
+ok(HAS_TIER, "S4: tierStops and rainColor exist");
+// Colour of a gradient at offset o: the colour between the bracketing stops (lerp inside an EPS band).
+function sampleStops(stops, o) {
+  for (let i = 1; i < stops.length; ++i) {
+    if (o <= stops[i].offset) {
+      const a = stops[i - 1];
+      const b = stops[i];
+      if (a.color === b.color || b.offset === a.offset) return b.color;
+      return G.lerpColor(a.color, b.color, (o - a.offset) / (b.offset - a.offset));
+    }
+  }
+  return stops[stops.length - 1].color;
+}
+function tierOk(stops) {
+  if (!Array.isArray(stops) || stops.length < 2) return false;
+  if (stops[0].offset !== 0 || stops[stops.length - 1].offset !== 1) return false;
+  for (let i = 0; i < stops.length; ++i) {
+    const o = stops[i].offset;
+    if (!(o >= 0 && o <= 1)) return false;
+    if (i > 0 && o < stops[i - 1].offset) return false;
+    if (!/^#[0-9a-f]{6}$/i.test(stops[i].color)) return false;
+  }
+  return true;
+}
+if (HAS_TIER) {
+  const rs = G.tierStops(G.RAIN_EDGES, G.rainColor, 100, 0);
+  ok(rs.length === 6 && tierOk(rs), "S4: tierStops(RAIN_EDGES, rainColor, 100, 0) gives 6 in-range non-decreasing stops (start, two per edge, end)");
+  ok(rs.length === 6 && near(rs[1].offset, 0.4) && near(rs[2].offset, 0.4 + G.EPS) && near(rs[3].offset, 0.7) && near(rs[4].offset, 0.7 + G.EPS),
+     "S4: each rain edge (60 at 0.4, 30 at 0.7) contributes two stops EPS apart (Pitfall 2)");
+  ok(rs.length === 6 && rs[0].color === "#2979ff" && rs[1].color === "#2979ff" && rs[2].color === "#42a5f5" && rs[3].color === "#42a5f5" && rs[4].color === "#90caf9" && rs[5].color === "#90caf9",
+     "S4: tierStops colours are hard-edged: deep blue above 60, blue 30-60, light blue below 30");
+  let sampOk = true;
+  let sampBad = "";
+  for (let v = 0; v <= 100; v += 0.5) {
+    if (Math.abs(v - 30) <= 1 || Math.abs(v - 60) <= 1) continue;
+    const got = sampleStops(rs, G.valueOffset(v, 100, 0));
+    if (got !== G.rainColor(v)) {
+      sampOk = false;
+      sampBad = sampBad || (v + " -> " + got + " want " + G.rainColor(v));
+    }
+  }
+  ok(sampOk, "S4: tierStops sampled at every value more than 1 unit from an edge equals rainColor(value)" + (sampOk ? "" : " " + sampBad));
+  const tr = rng(5406);
+  let tierAll = true;
+  let tierBad = "";
+  const tierPairs = [[100, 0], [0, 100], [50, 50], [29, 0], [100, 61], [45, 35]];
+  for (let k = 0; k < 200 - 6; ++k) tierPairs.push([Math.round(-20 + tr() * 160), Math.round(-20 + tr() * 160)]);
+  for (const [top, bottom] of tierPairs) {
+    const s = G.tierStops(G.RAIN_EDGES, G.rainColor, top, bottom);
+    if (!tierOk(s)) {
+      tierAll = false;
+      tierBad = tierBad || JSON.stringify({ top, bottom, s });
+    }
+  }
+  ok(tierAll, "S4: tierStops over 200 random (vTop, vBottom) pairs incl. inverted and flat: offsets in [0,1], non-decreasing, 0..1" + (tierAll ? "" : " " + tierBad));
+  const close = G.tierStops([10, 10.00001], function (v) { return v < 10 ? "#000000" : "#ffffff"; }, 20, 0);
+  ok(tierOk(close), "S4: tierStops stays non-decreasing when two edges lie within EPS of each other");
+}
+
+// legendEntries(rainwind) first entry (D-54.4-25, PA-15)
+const rle = G.legendEntries("rainwind");
+ok(rle.length >= 1 && rle[0].label === "Rain%" && rle[0].style === "solid" && rle[0].dot === true && rle[0].color === "#42a5f5" && same(rle[0].colors, G.RAIN_COLORS),
+   "S4: legendEntries(rainwind)[0] is Rain%, solid, dot, colour #42a5f5, swatch RAIN_COLORS");
+ok(rle.map(function (e) { return e.label; }).join(",") === "Rain%,mm,Wind,Gust,Vis", "S4: legendEntries(rainwind) labels are Rain%, mm, Wind, Gust, Vis in order (D-54.4-25)");
+ok(same(rle.map(function (e) { return e.style; }), ["solid", "bar", "solid", "dashed", "dotted"]), "S4: legendEntries(rainwind) styles are solid, bar, solid, dashed, dotted (D-54.4-09)");
+const RW_HEX = /^#[0-9a-fA-F]{6}$/;
+ok(rle.length === 5 && rle.every(function (e) { return e.dot === true && RW_HEX.test(e.color) && (e.colors || []).every(function (c) { return RW_HEX.test(c); }); }),
+   "S4: every legendEntries(rainwind) entry has a colour dot and 7-character hex colours (PA-15)");
+ok(rle.length === 5 && rle[1].color === "#26c6da" && rle[2].color === "#ffffff" && rle[3].color === "#ffffff" && rle[4].color === "#66bb6a" && same(rle[4].colors, G.VIS_COLORS),
+   "S4: legend colours: mm #26c6da, Wind and Gust #ffffff, Vis #66bb6a with the VIS_COLORS swatch");
+
+// Graph 2 shared wind scale and mm scale (D-54.4-22, PA-13)
+const rws = G.computeScales("rainwind", tl);
+let wMax = 0;
+for (const s of tl) {
+  if (!G.isAvailable(s)) continue;
+  wMax = Math.max(wMax, s.wind.speedKmph, s.wind.gustKmph, s.atmosphere.visibilityKm);
+}
+ok(!!rws.wind && rws.wind.min === 0 && rws.wind.max === Math.max(1, wMax), "S4: computeScales(rainwind).wind is 0..max(speed, gust, visibility) over available slots (" + wMax + ")");
+ok(!!rws.mm && rws.mm.max === 0, "S4: computeScales(rainwind).mm.max is 0 when no hour has rain");
+const rwp = G.computeScales("rainwind", mkTimeline({ precip: true }));
+ok(!!rwp.mm && rwp.mm.max === 3.2, "S4: computeScales(rainwind).mm.max is the largest precipMM (3.2 on the precip variant)");
+const calm = mkTimeline().map(function (s) {
+  return Object.assign({}, s, { wind: Object.assign({}, s.wind, { speedKmph: 0, gustKmph: 0 }), atmosphere: Object.assign({}, s.atmosphere, { visibilityKm: 0 }) });
+});
+ok(!!G.computeScales("rainwind", calm).wind && G.computeScales("rainwind", calm).wind.max === 1, "S4: the wind scale max is floored at 1 when every value is 0 (T-54.4-15)");
+const unWind = mkTimeline();
+unWind[0] = Object.assign({}, unWind[0], { wind: Object.assign({}, unWind[0].wind, { gustKmph: 500 }), moisture: Object.assign({}, unWind[0].moisture, { precipMM: 50 }) });
+const uws = G.computeScales("rainwind", unWind);
+ok(!!uws.wind && uws.wind.max === Math.max(1, wMax) && uws.mm.max === 0, "S4: historical-unavailable slots never enter the wind or mm scale");
 ok(G.computeScales("temp", tl).temp.max === 36, "S4: computeScales(temp) carries tempScale");
 
 // legendEntries (D-54.4-09/18)
@@ -1338,8 +1498,27 @@ if (HAS_PEAK) {
   ok(pp.length === 2 && pp[0].text === Math.round(tMax) + "°" && pp[1].text === Math.round(fMax) + "°", "S5: a historical-unavailable slot never yields a peak candidate");
   const noData = mkTimeline({ unavailable: 25 });
   ok(same(G.peakCandidates("temp", mockCtx().ctx, geomFor(25), noData, G.computeScales("temp", noData)), []), "S5: an all-unavailable timeline yields no peak candidate");
-  ok(same(G.peakCandidates("rainwind", mockCtx().ctx, geom, tl, {}), []) && same(G.peakCandidates("bogus", mockCtx().ctx, geom, tl, {}), []),
-     "S5: peakCandidates returns [] for kinds owned by plans 06/07 and unknown kinds");
+  ok(same(G.peakCandidates("airuv", mockCtx().ctx, geom, tl, {}), []) && same(G.peakCandidates("bogus", mockCtx().ctx, geom, tl, {}), []),
+     "S5: peakCandidates returns [] for the kind owned by plan 07 and unknown kinds");
+
+  // Rain % peak (Graph 2): priority 2, tier colour, skipped when the max is 0
+  let rMax = -Infinity, rIdx = -1;
+  tl.forEach(function (s, i) {
+    if (G.isAvailable(s) && s.moisture.rainProb > rMax) { rMax = s.moisture.rainProb; rIdx = i; }
+  });
+  const rwScales = G.computeScales("rainwind", tl);
+  const rpc = G.peakCandidates("rainwind", mockCtx().ctx, geom, tl, rwScales);
+  const rainPk = rpc.find(function (c) { return c.text === Math.round(rMax) + "%"; });
+  ok(!!rainPk && rainPk.priority === 2 && rainPk.color === G.rainColor(rMax) && rainPk.anchor === "above" && near(rainPk.x, G.slotCenterX(geom, rIdx))
+     && near(rainPk.y, G.valueToY(rMax, 0, 100, geom.plotTop, geom.plotBottom)),
+     "S5: peakCandidates(rainwind) labels the rain max '" + Math.round(rMax) + "%' at priority 2 in rainColor, on the 0..100 scale");
+  const dry = mkTimeline().map(function (s) { return Object.assign({}, s, { moisture: Object.assign({}, s.moisture, { rainProb: 0 }) }); });
+  ok(!G.peakCandidates("rainwind", mockCtx().ctx, geom, dry, G.computeScales("rainwind", dry)).some(function (c) { return /%$/.test(c.text); }),
+     "S5: an all-zero rain series gets no rain peak label (nothing peaks)");
+  const rpoison = mkTimeline();
+  rpoison[1] = Object.assign({}, rpoison[1], { moisture: Object.assign({}, rpoison[1].moisture, { rainProb: 99 }) });
+  ok(!G.peakCandidates("rainwind", mockCtx().ctx, geom, rpoison, G.computeScales("rainwind", rpoison)).some(function (c) { return c.text === "99%"; }),
+     "S5: a historical-unavailable slot never yields a rain peak label");
 
   const dl = mockCtx();
   dl.ctx.globalAlpha = 0.45;
@@ -1409,6 +1588,159 @@ ok(mp.every(function (p) { return /^#[0-9a-f]{6}$/i.test(p.color); }), "S5: mark
 ok(same(G.markerPoints("temp", tl, 0, geom, scales), []), "S5: markerPoints at the unavailable index 0 is []");
 ok(same(G.markerPoints("temp", tl, -1, geom, scales), []) && same(G.markerPoints("temp", tl, 25, geom, scales), []), "S5: markerPoints out of range is []");
 ok(same(G.markerPoints("temp", tl, 12, null, scales), []), "S5: markerPoints without geometry is []");
+
+// Graph 2: rain-probability tier spline (D-54.4-21..23)
+const rwSc = G.computeScales("rainwind", tl);
+const rk = mockCtx();
+let rkThrew = null;
+try { G.drawKind(rk.ctx, "rainwind", geom, tl, rwSc, THEME); } catch (e) { rkThrew = e; }
+ok(rkThrew === null, "S5: drawKind(rainwind) on the fixture does not throw" + (rkThrew ? " (" + rkThrew + ")" : ""));
+ok(calls(rk.log, "bezierCurveTo").length >= 1, "S5: drawKind(rainwind) records at least one bezierCurveTo (rain spline)");
+ok(calls(rk.log, "createLinearGradient").length >= 1, "S5: drawKind(rainwind) creates a linear gradient for the rain tiers");
+const rkStops = rk.log.filter(function (e) { return e[0] === "stop"; });
+ok(rkStops.length >= 2 && rkStops.every(function (e) { return e[1] >= 0 && e[1] <= 1; }), "S5: drawKind(rainwind) adds no colour stop outside [0,1] (Pitfall 1)");
+ok(calls(rk.log, "save").length === calls(rk.log, "restore").length, "S5: drawKind(rainwind) save/restore calls are balanced");
+const rr = mockCtx();
+G.drawRainWind(rr.ctx, geom, tl, rwSc);
+const rrGrad = calls(rr.log, "createLinearGradient");
+ok(rrGrad.length >= 1 && rrGrad[0][2] === geom.plotTop && rrGrad[0][4] === geom.plotBottom, "S5: the rain gradient runs vertically from plotTop to plotBottom");
+const rrStops = rr.log.filter(function (e) { return e[0] === "stop"; }).slice(0, 6).map(function (e) { return e[2]; });
+ok(same(rrStops, ["#2979ff", "#2979ff", "#42a5f5", "#42a5f5", "#90caf9", "#90caf9"]), "S5: the rain gradient carries the six hard-edged tier stops (" + JSON.stringify(rrStops) + ")");
+const rrAnn = annotate(rr.log);
+const rainStroke = rrAnn.find(function (c) { return c.name === "stroke"; });
+ok(!!rainStroke && rainStroke.st.lineWidth === 2, "S5: the rain spline is stroked at lineWidth 2");
+let rxOk = true;
+for (const e of rr.log) {
+  if (e[0] === "moveTo" && e[1] < minX) rxOk = false;
+  if (e[0] === "bezierCurveTo" && (e[1] < minX || e[3] < minX || e[5] < minX)) rxOk = false;
+}
+ok(rxOk, "S5: the rain spline never enters the unavailable columns (T-54.4-20)");
+const rmp = G.markerPoints("rainwind", tl, 12, geom, rwSc);
+ok(rmp.some(function (p) { return p.color === G.rainColor(tl[12].moisture.rainProb) && near(p.y, G.valueToY(tl[12].moisture.rainProb, 0, 100, geom.plotTop, geom.plotBottom)); }),
+   "S5: markerPoints(rainwind, fixture, 12) has the rain point in rainColor(rainProb) on the 0..100 scale");
+ok(same(G.markerPoints("rainwind", tl, 0, geom, rwSc), []), "S5: markerPoints(rainwind) at the unavailable index 0 is []");
+
+// Graph 2: mm bars, wind, gust and visibility (D-54.4-21..24, PA-11, PA-13)
+// Replays an annotated log and attaches the line dash in force at each call (save/restore aware).
+function withDash(ann) {
+  const stack = [];
+  let dash = [];
+  return ann.map(function (c) {
+    if (c.name === "save") stack.push(dash);
+    if (c.name === "restore") dash = stack.length ? stack.pop() : [];
+    if (c.name === "setLineDash") dash = c.args[0];
+    return Object.assign({}, c, { dash: dash });
+  });
+}
+function mmBars(ann) {
+  return ann.filter(function (c) { return c.name === "fillRect" && c.st.fillStyle === "#26c6da" && c.st.globalAlpha === 0.6; });
+}
+const base = mockCtx();
+G.drawRainWind(base.ctx, geom, tl, G.computeScales("rainwind", tl));
+ok(calls(base.log, "fillRect").length === 0, "S5: drawRainWind on the base fixture (all precip 0) records zero fillRect (bars only when precipMM > 0)");
+const ptl = mkTimeline({ precip: true });
+const psc = G.computeScales("rainwind", ptl);
+const pv = mockCtx();
+G.drawRainWind(pv.ctx, geom, ptl, psc);
+const pvAnn = withDash(annotate(pv.log));
+const bars = mmBars(pvAnn);
+ok(calls(pv.log, "fillRect").length === 2 && bars.length === 2, "S5: the precip variant records exactly two mm-bar fillRect calls at #26c6da and alpha 0.6 (" + bars.length + ")");
+const plotH = geom.plotBottom - geom.plotTop;
+const barW = Math.max(2, geom.slotW * 0.6);
+const bar15 = bars.find(function (c) { return near(c.args[0] + c.args[2] / 2, G.slotCenterX(geom, 15)); });
+const bar18 = bars.find(function (c) { return near(c.args[0] + c.args[2] / 2, G.slotCenterX(geom, 18)); });
+ok(!!bar18 && near(bar18.args[2], barW) && near(bar18.args[3], 0.4 * plotH) && near(bar18.args[1] + bar18.args[3], geom.plotBottom),
+   "S5: the 3.2 mm bar is centred on its slot, max(2, slotW*0.6) wide, BAR_CAP of the plot tall, and sits on plotBottom");
+ok(!!bar15 && near(bar15.args[3], 0.4 / 3.2 * 0.4 * plotH), "S5: the 0.4 mm bar height is precipMM / mm.max * BAR_CAP * plot height");
+const firstLine = pvAnn.findIndex(function (c) { return c.name === "stroke"; });
+const lastBar = pvAnn.map(function (c) { return c.name; }).lastIndexOf("fillRect");
+ok(lastBar >= 0 && firstLine > lastBar, "S5: mm bars are drawn first, under the lines");
+const unBar = mkTimeline({ precip: true });
+unBar[1] = Object.assign({}, unBar[1], { moisture: Object.assign({}, unBar[1].moisture, { precipMM: 5 }) });
+const ub = mockCtx();
+G.drawRainWind(ub.ctx, geom, unBar, G.computeScales("rainwind", unBar));
+ok(calls(ub.log, "fillRect").length === 2 && calls(ub.log, "fillRect").every(function (e) { return e[1] >= geom.plotLeft + 3 * geom.slotW; }),
+   "S5: no mm bar falls in an unavailable column (T-54.4-20)");
+const strokes = pvAnn.filter(function (c) { return c.name === "stroke"; });
+const windStroke = strokes.find(function (c) { return c.st.strokeStyle === "#ffffff" && same(c.dash, []); });
+const gustStroke = strokes.find(function (c) { return c.st.strokeStyle === "#ffffff" && same(c.dash, G.DASH_DASHED); });
+const visStroke = strokes.find(function (c) { return typeof c.st.strokeStyle === "object" && same(c.dash, G.DASH_DOTTED); });
+ok(!!windStroke && windStroke.st.globalAlpha === 0.9 && windStroke.st.lineWidth === 1.5, "S5: wind is a solid #ffffff spline at alpha 0.9, lineWidth 1.5 (D-54.4-23)");
+ok(!!gustStroke && gustStroke.st.globalAlpha === 0.9 && gustStroke.st.lineWidth === 1.2, "S5: gust is a DASH_DASHED #ffffff spline at alpha 0.9, lineWidth 1.2");
+ok(!!visStroke && visStroke.st.lineWidth === 1.5, "S5: visibility is a DASH_DOTTED gradient spline at lineWidth 1.5");
+const pvGrads = calls(pv.log, "createLinearGradient");
+ok(pvGrads.length === 2, "S5: drawRainWind builds two vertical gradients (rain tiers, visibility tiers)");
+const pvStops = pv.log.filter(function (e) { return e[0] === "stop"; });
+ok(pvStops.every(function (e) { return e[1] >= 0 && e[1] <= 1; }), "S5: every drawRainWind colour stop lies in [0,1]");
+const visGradColors = pvStops.slice(6).map(function (e) { return e[2]; });
+ok(visGradColors.length >= 2 && visGradColors.every(function (c) { return G.VIS_COLORS.indexOf(c) >= 0; }) && visGradColors[0] === "#66bb6a" && visGradColors[visGradColors.length - 1] === "#ef5350",
+   "S5: the visibility gradient uses the VIS tier colours from Good at the top to Fog at 0 (" + JSON.stringify(visGradColors) + ")");
+ok(calls(pv.log, "save").length === calls(pv.log, "restore").length, "S5: drawRainWind save/restore calls are balanced");
+let pxOk = true;
+for (const e of pv.log) {
+  if (e[0] === "moveTo" && e[1] < minX) pxOk = false;
+  if (e[0] === "bezierCurveTo" && (e[1] < minX || e[3] < minX || e[5] < minX)) pxOk = false;
+}
+ok(pxOk, "S5: no Graph 2 spline enters the unavailable columns (T-54.4-20)");
+
+// All-zero fixture: every recorded numeric argument is finite (T-54.4-15)
+const zero = mkTimeline().map(function (s) {
+  if (!G.isAvailable(s)) return s;
+  return Object.assign({}, s, {
+    moisture: Object.assign({}, s.moisture, { rainProb: 0, precipMM: 0 }),
+    wind: Object.assign({}, s.wind, { speedKmph: 0, gustKmph: 0 }),
+    atmosphere: Object.assign({}, s.atmosphere, { visibilityKm: 0 })
+  });
+});
+const zr = mockCtx();
+let zThrew = null;
+try { G.drawKind(zr.ctx, "rainwind", geom, zero, G.computeScales("rainwind", zero), THEME); } catch (e) { zThrew = e; }
+let finite = true;
+for (const e of zr.log) {
+  for (const a of e.slice(1)) if (typeof a === "number" && !isFinite(a)) finite = false;
+}
+ok(zThrew === null && finite, "S5: drawKind(rainwind) on an all-zero wind/gust/visibility/rain fixture records only finite numbers");
+ok(mmBars(annotate(zr.log)).length === 0, "S5: the all-zero fixture draws no mm bar");
+
+// Markers: rain, wind, gust and visibility (D-54.4-07)
+const mp4 = G.markerPoints("rainwind", ptl, 12, geom, psc);
+ok(mp4.length === 4, "S5: markerPoints(rainwind, fixture, 12) has 4 points (rain, wind, gust, vis; got " + mp4.length + ")");
+ok(mp4.every(function (p) { return p.y >= geom.plotTop && p.y <= geom.plotBottom; }), "S5: every Graph 2 marker y lies in [plotTop, plotBottom]");
+ok(mp4.length === 4 && mp4[1].color === "#ffffff" && mp4[2].color === "#ffffff" && HAS_VIS_FN() && mp4[3].color === G.visColor(ptl[12].atmosphere.visibilityKm)
+   && near(mp4[1].y, G.valueToY(ptl[12].wind.speedKmph, 0, psc.wind.max, geom.plotTop, geom.plotBottom))
+   && near(mp4[2].y, G.valueToY(ptl[12].wind.gustKmph, 0, psc.wind.max, geom.plotTop, geom.plotBottom))
+   && near(mp4[3].y, G.valueToY(ptl[12].atmosphere.visibilityKm, 0, psc.wind.max, geom.plotTop, geom.plotBottom)),
+   "S5: wind and gust markers are #ffffff and visibility is visColor, all on the shared wind scale");
+function HAS_VIS_FN() { return typeof G.visColor === "function"; }
+
+// Peak labels for the precip variant (D-54.4-10, D-54.4-24, PA-11)
+const ppc = G.peakCandidates("rainwind", mockCtx().ctx, geom, ptl, psc);
+const mmC = ppc.filter(function (c) { return c.priority === 7; });
+ok(mmC.length === 2 && mmC.every(function (c) { return c.color === "#26c6da" && /^\d+\.\d$/.test(c.text); }) && same(mmC.map(function (c) { return c.text; }).sort(), ["0.4", "3.2"]),
+   "S5: one mm candidate per bar at priority 7, text toFixed(1), colour #26c6da");
+ok(ppc.some(function (c) { return c.priority === 3 && /^\d+$/.test(c.text) && c.color === "#ffffff"; }) && ppc.some(function (c) { return c.priority === 3 && /^G\d+$/.test(c.text); })
+   && ppc.some(function (c) { return c.priority === 4 && /^\d+(\.\d)? km$/.test(c.text); }),
+   "S5: wind max (priority 3), gust max 'G<n>' (priority 3) and visibility max '<km> km' (priority 4) are candidates");
+const pBounds = { left: geom.plotLeft, right: geom.plotRight, top: 0, bottom: geom.plotBottom };
+const pPlaced = G.placeLabels(ppc, pBounds, []);
+let pClear = true;
+for (let a = 0; a < pPlaced.length; ++a) for (let b = a + 1; b < pPlaced.length; ++b) if (G.rectsIntersect(pPlaced[a], pPlaced[b])) pClear = false;
+ok(pPlaced.length >= 2 && pClear, "S5: placed Graph 2 labels for the precip variant never intersect (" + pPlaced.map(function (p) { return p.text; }).join(",") + ")");
+const mmPlaced = pPlaced.filter(function (p) { return p.color === "#26c6da"; });
+const barTopOf = { "3.2": geom.plotBottom - 0.4 * plotH, "0.4": geom.plotBottom - 0.4 / 3.2 * 0.4 * plotH };
+ok(mmPlaced.length >= 1 && mmPlaced.every(function (p) { return p.y + p.h <= barTopOf[p.text] + 1e-9; }),
+   "S5: every placed mm value sits above its bar, never inside it (D-54.4-24)");
+const adj = mkTimeline();
+adj[15] = Object.assign({}, adj[15], { moisture: Object.assign({}, adj[15].moisture, { precipMM: 3.1 }) });
+adj[16] = Object.assign({}, adj[16], { moisture: Object.assign({}, adj[16].moisture, { precipMM: 3.2 }) });
+adj[17] = Object.assign({}, adj[17], { moisture: Object.assign({}, adj[17].moisture, { precipMM: 3.0 }) });
+const adjPlaced = G.placeLabels(G.peakCandidates("rainwind", mockCtx().ctx, geom, adj, G.computeScales("rainwind", adj)), pBounds, [])
+  .filter(function (p) { return p.color === "#26c6da"; });
+ok(adjPlaced.some(function (p) { return p.text === "3.2"; }) && adjPlaced.length < 3, "S5: when neighbouring mm labels collide, the larger value is kept and a smaller one is dropped (" + adjPlaced.map(function (p) { return p.text; }).join(",") + ")");
+const dkp = mockCtx();
+G.drawKind(dkp.ctx, "rainwind", geom, ptl, psc, THEME);
+const dkpTexts = annotate(dkp.log).filter(function (c) { return c.name === "fillText" && c.st.fillStyle === "#26c6da"; });
+ok(dkpTexts.length >= 1 && dkpTexts.every(function (c) { return c.st.globalAlpha === 1; }), "S5: drawKind(rainwind) writes the mm values at full opacity, never at the bar alpha (Pitfall 11)");
 JS
   run_node_section "S5" "$S5_JS"
 
