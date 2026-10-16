@@ -33,6 +33,28 @@ WeatherBaseCard {
 
     property bool _paintErrorLogged: false
 
+    // Shared hover hour, owned and written only by the popup (D-54.4-07). The graph asks for a
+    // change through hoverRequested(idx) and never writes this itself.
+    property int hoverSlot: -1
+    signal hoverRequested(int idx)
+
+    // Marker points at the hovered hour, in graphArea coordinates. QML items draw them, so hover
+    // never repaints the canvas (54.3 zero-repaint invariant).
+    readonly property var markers: root.hoverSlot >= 0 ? GM.markerPoints(root.graphKind, root.validHours, root.hoverSlot, root.geom(), root.scales) : []
+    readonly property real markerTopY: {
+        let top = Infinity;
+        for (let k = 0; k < root.markers.length; ++k) {
+            if (root.markers[k].y < top)
+                top = root.markers[k].y;
+        }
+        return top === Infinity ? root.plotTop : top;
+    }
+
+    // graphArea's offset inside this card, as plain reactive arithmetic for tooltip anchoring
+    // (D-54.4-08): graphArea -> cardContent -> layout -> card root.
+    readonly property real plotOriginX: graphArea.x + (graphArea.parent ? graphArea.parent.x : 0) + (graphArea.parent && graphArea.parent.parent ? graphArea.parent.parent.x : 0)
+    readonly property real plotOriginY: graphArea.y + (graphArea.parent ? graphArea.parent.y : 0) + (graphArea.parent && graphArea.parent.parent ? graphArea.parent.parent.y : 0)
+
     function slotX(i) {
         return root.plotLeft + (i + 0.5) * root.slotW;
     }
@@ -97,6 +119,61 @@ WeatherBaseCard {
                 }
             }
         }
+
+        // Scrub line at the shared hover hour (D-54.4-07)
+        Rectangle {
+            id: scrubLine
+            x: root.slotX(root.hoverSlot)
+            y: root.plotTop
+            width: 1
+            height: Math.max(0, root.plotBottom - root.plotTop)
+            color: Appearance.colors.colOutlineVariant
+            visible: root.hoverSlot >= 0 && GM.isAvailable(root.validHours[root.hoverSlot])
+        }
+
+        // Point markers at the shared hover hour
+        Repeater {
+            model: root.markers
+
+            delegate: Rectangle {
+                required property var modelData
+
+                x: root.slotX(root.hoverSlot) - 4
+                y: modelData.y - 4
+                width: 8
+                height: 8
+                radius: 4
+                color: modelData.color
+                border.width: 2
+                border.color: Appearance.colors.colLayer2
+            }
+        }
+
+        // Hover input: asks the popup for a new hour only when the index changes. No repaint here.
+        MouseArea {
+            id: hoverMouse
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.NoButton
+            property int lastIdx: -1
+
+            onPositionChanged: mouse => {
+                const n = root.validHours.length;
+                let idx = -1;
+                if (n > 0 && root.slotW > 0 && mouse.x >= root.plotLeft && mouse.x <= root.plotRight) {
+                    idx = Math.max(0, Math.min(n - 1, Math.floor((mouse.x - root.plotLeft) / root.slotW)));
+                }
+                if (idx !== hoverMouse.lastIdx) {
+                    hoverMouse.lastIdx = idx;
+                    root.hoverRequested(idx);
+                }
+            }
+
+            onExited: {
+                hoverMouse.lastIdx = -1;
+                root.hoverRequested(-1);
+            }
+        }
     }
 
     // Own x-axis, identical on every card: 7 ticks, condition icon over a 12-hour label, centre "Now" (D-54.4-06)
@@ -149,6 +226,12 @@ WeatherBaseCard {
         function onTimelineChanged() {
             root.requestRepaint();
         }
+    }
+
+    // A popup-side reset (popup closed) must let the same hour be requested again on reopen
+    onHoverSlotChanged: {
+        if (root.hoverSlot < 0)
+            hoverMouse.lastIdx = -1;
     }
 
     onPopupActiveChanged: root.requestRepaint()

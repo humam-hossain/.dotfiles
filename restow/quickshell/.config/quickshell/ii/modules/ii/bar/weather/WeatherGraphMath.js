@@ -549,3 +549,99 @@ function drawKind(ctx, kind, geom, slots, scales) {
     if (kind === "temp")
         drawTemp(ctx, geom, slots, scales);
 }
+
+// ---------------------------------------------------------------------------
+// Hover: comfort word, tooltip lines and marker points (D-54.4-07/12/19/20)
+// ---------------------------------------------------------------------------
+
+// Dew point -> comfort word (D-54.4-20): <16 Comfortable, 16-20 Humid, 21-23 Muggy, >=24 Oppressive.
+// Non-finite input gives "" so the caller can drop the segment.
+function comfortWord(dew) {
+    if (!isNum(dew))
+        return "";
+    if (dew < 16)
+        return "Comfortable";
+    if (dew <= 20)
+        return "Humid";
+    if (dew <= 23)
+        return "Muggy";
+    return "Oppressive";
+}
+
+// The 25-slot timeline with "Now" at the centre index.
+function isTimeline25(slots) {
+    return !!slots && slots.length === 25 && !!slots[12] && slots[12].isNow === true;
+}
+
+// Joins the non-empty parts with " · ".
+function _joinDot(parts) {
+    var out = [];
+    for (var i = 0; i < parts.length; ++i) {
+        if (parts[i] !== null && parts[i] !== undefined && String(parts[i]).length > 0)
+            out.push(String(parts[i]));
+    }
+    return out.join(" · ");
+}
+
+// Tooltip lines for one graph at slot i: an array of {lead, icon, text}. The popup renders each
+// line as "<lead> · <icon> <text>". Plain strings only; the QML side renders them as PlainText.
+// Plans 06 and 07 append the "rainwind" and "airuv" lines here.
+function tooltipLines(kind, slots, i) {
+    if (!slots || typeof slots.length !== "number" || !isNum(i) || i < 0 || i >= slots.length)
+        return [];
+    var slot = slots[i];
+    if (!slot || typeof slot !== "object")
+        return [];
+    var lead = axisTickLabel(i, slot, isTimeline25(slots));
+    if (!isAvailable(slot))
+        return [{ lead: lead, icon: "", text: "No data" }];
+
+    var header = {
+        lead: lead,
+        icon: slot.glyph ? String(slot.glyph) : "",
+        text: slot.desc ? String(slot.desc) : ""
+    };
+    var lines = [header];
+
+    if (kind === "temp") {
+        // Locked D-54.4-19 lines: "<time> · <icon> <desc> · <comfort>" and
+        // "<thermostat> <temp>° (<feels>°) · Dew <dew>°".
+        var th = slot.thermal || {};
+        header.text = _joinDot([header.text, comfortWord(th.dewPointC)]);
+        if (isNum(th.tempC)) {
+            var l2 = Math.round(th.tempC) + "°";
+            if (isNum(th.feelsLikeC))
+                l2 += " (" + Math.round(th.feelsLikeC) + "°)";
+            if (isNum(th.dewPointC))
+                l2 += " · Dew " + Math.round(th.dewPointC) + "°";
+            lines.push({ lead: "", icon: "thermostat", text: l2 });
+        }
+    }
+    return lines;
+}
+
+// Marker points {y, color} for slot i, in graph-area coordinates. Empty for an invalid or
+// unavailable slot. Plans 06 and 07 append the "rainwind" and "airuv" series here.
+function markerPoints(kind, slots, i, geom, scales) {
+    if (!geom || !slots || typeof slots.length !== "number" || !isNum(i) || i < 0 || i >= slots.length)
+        return [];
+    var slot = slots[i];
+    if (!isAvailable(slot))
+        return [];
+    var pts = [];
+    if (kind === "temp") {
+        var scale = (scales && scales.temp) ? scales.temp : tempScale(slots);
+        if (!scale || scale.empty || !slot.thermal)
+            return [];
+        var vals = [slot.thermal.tempC, slot.thermal.feelsLikeC];
+        for (var k = 0; k < vals.length; ++k) {
+            if (!isNum(vals[k]))
+                continue;
+            pts.push({
+                y: valueToY(vals[k], scale.min, scale.max, geom.plotTop, geom.plotBottom),
+                color: rampColorAt(TEMP_RAMP, vals[k])
+            });
+        }
+    }
+    return pts;
+}
