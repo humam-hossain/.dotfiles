@@ -53,7 +53,8 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
 - [x] **Phase 54.1: Top Status Bar Weather Component Polish (INSERTED)** - Visual alignment, M3 styling, interactive hover/active cues, and pill responsiveness (completed 2026-10-10)
 - [x] **Phase 54.2: Hourly Parameter Modeling and Rolling Cache Service (INSERTED)** - [-12h .. NOW .. +12h] rolling window, 0-cost midnight cache rollover, and structured QML datasets (completed 2026-10-11)
 - [x] **Phase 54.3: Interactive Multi-Metric Hourly Graph Component (INSERTED)** - Multi-metric graph (Thermal, Moisture, Wind, AQI, Atmosphere, Rain volume, UV) with scrub inspection (completed 2026-10-13)
-- [ ] **Phase 54.4: Modular Popup Inspector and Clean Card Layout (INSERTED)** - Clean non-overlapping M3 layout, hero summary, text stats, astronomy card, and multi-day forecast strip
+- [ ] **Phase 54.4: Modular Popup Inspector and Clean Card Layout (INSERTED)** - Three side-by-side hourly graph cards, synced hover tooltips, percent-sized non-scrolling popup
+- [ ] **Phase 54.5: Popup Hero, Daily Stats, Astronomy and Forecast Cards (INSERTED)** - Hero header, stat pills, astronomy card, forecast strip, hidden-card fate
 - [ ] **Phase 55: System Integration, Retirement & Verification** - Prototype retirement, leaf symlink deployment, automated regression harness, and zero git churn
 
 ## Phase Details
@@ -203,10 +204,19 @@ Plans:
 
 ### Phase 54.4: Modular Popup Inspector and Clean Card Layout (INSERTED)
 
-**Goal:** Assemble the complete WeatherPopup with clean M3 spacing, modular non-overlapping card hierarchy, hero location/observation header, daily text stat pills (Min/Avg/Max, Sun hours), astronomy sun/moon card, and multi-day forecast trend strip.
+**Goal:** Replace the five stacked hourly graphs in WeatherPopup with three equal side-by-side graph cards (Temperature; Rain, Wind & Visibility; Air, UV & Pressure) with synced hover and floating tooltips, inside a non-scrolling popup sized as a percentage of its screen, keeping the alert banner and hero card on top (absorbs backlog 999.1; top-section redesign moved to Phase 54.5).
 **Requirements**: POPUP-01, POPUP-02, POPUP-03, POPUP-04
 **Depends on:** Phase 54.3
 **Plans:** 8 plans
+
+**Success Criteria** (what must be TRUE):
+
+  1. The popup outer size is popupWidthPercent x popupHeightPercent of its screen (default 50 x 50), at least 900px wide, clamped to the screen, with no scrolling. StyledPopup anchoring and the horizontal clamp still hold (POPUP-01).
+  2. The alert banner and the unchanged hero card sit on top. The Atmospheric, Wind, AQI and Astronomy cards are hidden, not deleted (POPUP-02).
+  3. Three equal cards sit side by side, each with a legend row, the same left gutter, and an identical 7-tick 12-hour x-axis reading Now at the centre.
+  4. Hovering any graph syncs the scrub line, markers and all three tooltips across the graphs, and the tooltips float above neighbouring cards.
+  5. Humidity, pressure (atm), UV and visibility read out in the graph tooltips (POPUP-03, interim). An EPA tier ribbon and an AQI, PM2.5 and PM10 tooltip line appear in Graph 3 (POPUP-04, interim).
+  6. `./scripts/phase54.4-weather-assert.sh` passes with FAIL=0, and `./arch/dots-hyprland.sh verify --strict` is clean.
 
 Plans:
 **Wave 1**
@@ -235,10 +245,20 @@ Plans:
 
 - [ ] 54.4-08-PLAN.md — Phase gate: full suite, live log smoke after restart, VALIDATION map, verify-work human checks
 
+### Phase 54.5: Popup Hero, Daily Stats, Astronomy and Forecast Cards (INSERTED)
+
+**Goal:** Redesign the WeatherPopup top section deferred from Phase 54.4: hero location/observation header, daily text stat pills (Min/Avg/Max, sun hours, UV max), astronomy sun/moon card (sunrise, sunset, moonrise, moonset, phase, illumination), 3-day forecast trend strip, and the fate of the hidden Atmospheric, Wind and AQI cards.
+**Requirements**: POPUP-02, POPUP-03, POPUP-04, POPUP-05, POPUP-06 (confirm at /gsd-discuss-phase 54.5)
+**Depends on:** Phase 54.4
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 54.5 to break down)
+
 ### Phase 55: System Integration, Retirement & Verification
 
 **Goal**: Retire prototype test files (`TestPill.qml`, `TestPopup.qml`), deploy via GNU Stow leaf symlinks, create automated regression harness, and verify repository cleanliness.  
-**Depends on**: Phase 54.4  
+**Depends on**: Phase 54.5  
 **Requirements**: INTG-01, INTG-02, INTG-03, INTG-04  
 **Success Criteria** (what must be TRUE):
 
@@ -252,7 +272,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 54.3 → 54.4 → 55
+Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 54.3 → 54.4 → 54.5 → 55
 
 | Phase | Plans Complete | Status | Completed |
 |---|---|---|---|
@@ -264,6 +284,7 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 | 54.2. Hourly Parameter Modeling and Rolling Cache Service | 4/4 | Complete    | 2026-10-11 |
 | 54.3. Interactive Multi-Metric Hourly Graph Component | 10/10 | Complete    | 2026-10-15 |
 | 54.4. Modular Popup Inspector and Clean Card Layout | 0/8 | Planned | - |
+| 54.5. Popup Hero, Daily Stats, Astronomy and Forecast Cards | 0/TBD | Not started | - |
 | 55. System Integration, Retirement & Verification | 0/TBD | Not started | - |
 
 ---
@@ -278,4 +299,4 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 **Source phase:** 54.3
 **Deferred at:** 2026-10-15 during /gsd-verify-work 54.3 session completion
 **Follow-ups:**
-- [ ] Test 4: user confirms five stacked graphs work, but wants a future phase to redesign into 2-3 compact graphs (possibly horizontal, smaller) with no scrolling (deferred 2026-10-15)
+- [ ] Test 4: user confirms five stacked graphs work, but wants a future phase to redesign into 2-3 compact graphs (possibly horizontal, smaller) with no scrolling (deferred 2026-10-15) **[absorbed by Phase 54.4]** — three compact side-by-side graphs, no scrolling
