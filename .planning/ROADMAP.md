@@ -207,7 +207,7 @@ Plans:
 **Goal:** Replace the five stacked hourly graphs in WeatherPopup with three equal side-by-side graph cards (Temperature; Rain, Wind & Visibility; Air, UV & Pressure) with synced hover and floating tooltips, inside a non-scrolling popup sized as a percentage of its screen, keeping the alert banner and hero card on top (absorbs backlog 999.1; top-section redesign moved to Phase 54.5).
 **Requirements**: POPUP-01, POPUP-02, POPUP-03, POPUP-04
 **Depends on:** Phase 54.3
-**Plans:** 8/8 plans executed
+**Plans:** 8/11 plans executed
 
 **Success Criteria** (what must be TRUE):
 
@@ -244,6 +244,12 @@ Plans:
 **Wave 6** *(blocked on Wave 5 completion)*
 
 - [x] 54.4-08-PLAN.md — Phase gate: full suite, live log smoke after restart, VALIDATION map, verify-work human checks
+
+**Gap closure (verification 2026-10-17, 2 gaps):**
+
+- [ ] 54.4-09-PLAN.md — Wave 1: StyledPopup clamp reads the bar's real screen, inset-aware centring, bar-screen binding, Node vm placement matrix (gap 1, CR-01)
+- [ ] 54.4-10-PLAN.md — Wave 2: one-row legend fit via GM.legendFit tiers, live-font qml6 probe, four-screen sweep (gap 2, WR-04)
+- [ ] 54.4-11-PLAN.md — Wave 3: gap-closure gate: full suite, consumer regressions, live restart smoke, VALIDATION and review dispositions
 
 ### Phase 54.5: Popup Hero, Daily Stats, Astronomy and Forecast Cards (INSERTED)
 
