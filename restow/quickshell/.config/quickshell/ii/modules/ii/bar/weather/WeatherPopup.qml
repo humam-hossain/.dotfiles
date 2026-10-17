@@ -30,19 +30,21 @@ StyledPopup {
     // Shared hover hour for all three graphs (D-54.4-07). The popup is its only writer.
     property int hoverSlot: -1
 
-    // Closing the popup clears the shared hover slot. Separate block so the handler above stays intact.
-    Connections {
-        target: root
-        function onActiveChanged() {
-            if (!root.active)
-                root.hoverSlot = -1;
-        }
-    }
-
     // Non-scrolling, percent-sized content (D-54.4-03). Centred so padding stays even on all sides.
     Item {
         id: contentRoot
         anchors.centerIn: parent
+
+        // Closing the popup clears the shared hover slot. Separate block so the handler above stays intact.
+        // Lives inside contentRoot: StyledPopup's default property is a single Item, so a top-level
+        // Connections fails to load ("Cannot assign object of type Connections").
+        Connections {
+            target: root
+            function onActiveChanged() {
+                if (!root.active)
+                    root.hoverSlot = -1;
+            }
+        }
 
         // Popup's own screen first (D-54.4-03); the bar's screen while the popup window is not yet
         // resolved (Pitfall 12); 1920x1080 last.

@@ -2299,6 +2299,14 @@ JS
     else
       fail "S5: WeatherPopup.qml lacks the onActiveChanged hoverSlot reset"
     fi
+    # StyledPopup's default property is a single Item: any second top-level child object (e.g. a
+    # Connections) makes the whole ii config fail to load ("Type WeatherPopup unavailable").
+    top_children="$(grep -cE '^    [A-Z][A-Za-z0-9_.]*[[:space:]]*\{' "$POPUP_SRC")"
+    if [ "$top_children" -eq 1 ]; then
+      pass "S5: WeatherPopup.qml has exactly one top-level child object (StyledPopup contentItem)"
+    else
+      fail "S5: WeatherPopup.qml has $top_children top-level child objects; StyledPopup accepts exactly one Item"
+    fi
     if grep -qF 'GlobalStates.activeInspectorCount++;' "$POPUP_SRC" \
       && grep -qF 'GlobalStates.activeInspectorCount = Math.max(0, GlobalStates.activeInspectorCount - 1);' "$POPUP_SRC"; then
       pass "S5: the activeInspectorCount increment and decrement handlers are intact"
