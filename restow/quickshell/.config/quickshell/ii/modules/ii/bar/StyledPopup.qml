@@ -65,6 +65,8 @@ LazyLoader {
     component: PanelWindow {
         id: popupWindow
         color: "transparent"
+        // Open on the hovered bar's output, the same screen the clamp and the size math read (POPUP-01)
+        screen: root.hoverTarget?.QsWindow?.window?.screen ?? null
 
         anchors.left: !Config.options.bar.vertical || (Config.options.bar.vertical && !Config.options.bar.bottom)
         anchors.right: Config.options.bar.vertical && Config.options.bar.bottom
@@ -100,13 +102,11 @@ LazyLoader {
                 lockedTopMargin = Appearance.sizes.barHeight;
             } else {
                 const screenHeight = (scr && scr.height > 0) ? scr.height : 1080;
-                const targetY = root.QsWindow?.mapFromItem(
-                    root.hoverTarget, 
-                    0, (root.hoverTarget.height - popupBackground.implicitHeight) / 2
-                ).y ?? 0;
+                // Same inset rule as the horizontal branch, on the top edge (PA-G1)
+                const targetY = (root.hoverTarget.QsWindow?.mapFromItem(root.hoverTarget, 0, (root.hoverTarget.height - popupBackground.implicitHeight) / 2).y ?? 0) - Appearance.sizes.elevationMargin;
                 const gap = Appearance.sizes.hyprlandGapsOut;
                 const minY = gap;
-                const maxY = screenHeight - popupBackground.implicitHeight - gap;
+                const maxY = screenHeight - popupBackground.implicitHeight - gap - Appearance.sizes.elevationMargin;
                 lockedLeftMargin = Appearance.sizes.verticalBarWidth;
                 lockedTopMargin = (maxY < minY) ? minY : Math.round(Math.max(minY, Math.min(targetY, maxY)));
             }

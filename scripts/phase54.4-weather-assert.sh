@@ -734,6 +734,12 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
     else
       fail "S1: StyledPopup clamp and WeatherPopup size math share the hoverTarget screen source"
     fi
+
+    if grep -qF 'screen: root.hoverTarget?.QsWindow?.window?.screen ?? null' "$STYLED_POPUP_SRC"; then
+      pass "S1: StyledPopup PanelWindow is bound to the hovered bar's screen"
+    else
+      fail "S1: StyledPopup PanelWindow is bound to the hovered bar's screen"
+    fi
   fi
 
   # Repository integrity
@@ -899,6 +905,57 @@ ok(dp1.threw === false && dp1.left === 1600 && dp1.left + 10 + 1700 / 2 === 2460
 ok(dp1.left !== 205 && dp1.left !== 215,
   "S2: StyledPopup clamp no longer pins the DP-1 popup at the 1920px fallback (left !== 205 and !== 215)");
 ok(dp1.top === 40, "S2: StyledPopup clamp keeps lockedTopMargin at barHeight for a horizontal bar");
+
+// okv: ok() that appends the observed value only when the assert fails.
+function okv(cond, msg, got) { ok(cond, msg + (cond ? "" : " got " + got)); }
+
+// Edges: the visible background stays hyprlandGapsOut (5px) inside the screen.
+const right = hClamp(3300);
+okv(right.left === 1725 && right.left + 10 + 1700 === 3435,
+  "S2: StyledPopup clamp holds a pill at x=3300 to the right edge (left 1725, visible right edge 3435)", right.left);
+ok(hClamp(0).left === 5, "S2: StyledPopup clamp holds a pill at x=0 to the left edge (left 5)");
+
+// Boundary probes around maxX = 3440 - 1700 - 5 - 10 = 1725 and minX = 5.
+ok(hClamp(2525).left === 1725, "S2: StyledPopup clamp at targetX === maxX gives maxX (sceneX 2525 -> 1725)");
+ok(hClamp(2526).left === 1725, "S2: StyledPopup clamp one pixel past maxX stays maxX (sceneX 2526 -> 1725)");
+ok(hClamp(2524).left === 1724, "S2: StyledPopup clamp one pixel inside maxX gives maxX - 1 (sceneX 2524 -> 1724)");
+ok(hClamp(805).left === 5, "S2: StyledPopup clamp at targetX === minX gives minX (sceneX 805 -> 5)");
+ok(hClamp(804).left === 5, "S2: StyledPopup clamp one pixel past minX stays minX (sceneX 804 -> 5)");
+ok(hClamp(806).left === 6, "S2: StyledPopup clamp one pixel inside minX gives minX + 1 (sceneX 806 -> 6)");
+
+// Precision: a raw target of 1600.5 rounds half up to an integer margin.
+const half = hClamp(2400, { pillW: 121 });
+okv(half.left === 1601 && Number.isInteger(half.left),
+  "S2: StyledPopup clamp rounds a 1600.5 target half up to the integer 1601", half.left);
+
+// Oversize: a background as wide as the screen leaves maxX < minX, so the margin is minX.
+ok(hClamp(900, { barScreen: { width: 1920, height: 1080 }, bgW: 1920 }).left === 5,
+  "S2: StyledPopup clamp falls back to minX when the background is wider than the screen (left 5)");
+
+// Screen fallbacks: popupWindow.screen when the bar window has no screen, then 1920x1080.
+const viaPopup = hClamp(2000, { barScreen: null, popupScreen: { width: 2560, height: 1440 } });
+okv(viaPopup.left === 845,
+  "S2: StyledPopup clamp falls back to popupWindow.screen (2560px screen, left 845)", viaPopup.left);
+const lastResort = hClamp(2000, { barScreen: null });
+okv(lastResort.left === 205,
+  "S2: StyledPopup clamp falls back to 1920 with no bar or popup screen (left 205 = 1920 - 1700 - 5 - 10)", lastResort.left);
+
+// Null hover target (IN-05): no throw and both margins untouched.
+const none = runClamp({ target: null, bgW: 1700, bgH: 760 });
+ok(none.threw === false && none.left === -1 && none.top === -1,
+  "S2: StyledPopup clamp returns without throwing and leaves both margins unchanged for a null hoverTarget");
+
+// Vertical bar: the same inset rule on the top edge against the real screen height.
+function vClamp(sceneY) {
+  return runClamp({ target: pill(0, sceneY, 46, 40, DP1), bgW: 1700, bgH: 760, vertical: true });
+}
+const vert = vClamp(700);
+okv(vert.threw === false && vert.top === 330 && vert.left === 46 && vert.top + 10 + 380 === 720,
+  "S2: StyledPopup clamp centres a vertical-bar popup on a pill at y=700 (top 330, left 46, centre 720)",
+  JSON.stringify({ top: vert.top, left: vert.left }));
+const vBottom = vClamp(1400);
+okv(vBottom.top === 665 && vBottom.top + 10 + 760 === 1435,
+  "S2: StyledPopup clamp holds a vertical-bar pill at y=1400 to the bottom edge (top 665, visible bottom 1435)", vBottom.top);
 JS
 
   if [[ ! -s "$STYLED_POPUP_SRC" ]]; then
