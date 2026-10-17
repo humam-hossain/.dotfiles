@@ -207,7 +207,7 @@ Plans:
 **Goal:** Replace the five stacked hourly graphs in WeatherPopup with three equal side-by-side graph cards (Temperature; Rain, Wind & Visibility; Air, UV & Pressure) with synced hover and floating tooltips, inside a non-scrolling popup sized as a percentage of its screen, keeping the alert banner and hero card on top (absorbs backlog 999.1; top-section redesign moved to Phase 54.5).
 **Requirements**: POPUP-01, POPUP-02, POPUP-03, POPUP-04
 **Depends on:** Phase 54.3
-**Plans:** 8/11 plans executed
+**Plans:** 9/11 plans executed
 
 **Success Criteria** (what must be TRUE):
 
@@ -247,7 +247,7 @@ Plans:
 
 **Gap closure (verification 2026-10-17, 2 gaps):**
 
-- [ ] 54.4-09-PLAN.md — Wave 1: StyledPopup clamp reads the bar's real screen, inset-aware centring, bar-screen binding, Node vm placement matrix (gap 1, CR-01)
+- [x] 54.4-09-PLAN.md — Wave 1: StyledPopup clamp reads the bar's real screen, inset-aware centring, bar-screen binding, Node vm placement matrix (gap 1, CR-01)
 - [ ] 54.4-10-PLAN.md — Wave 2: one-row legend fit via GM.legendFit tiers, live-font qml6 probe, four-screen sweep (gap 2, WR-04)
 - [ ] 54.4-11-PLAN.md — Wave 3: gap-closure gate: full suite, consumer regressions, live restart smoke, VALIDATION and review dispositions
 
@@ -289,7 +289,7 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 | 54.1. Top Status Bar Weather Component Polish | 3/3 | Complete    | 2026-10-10 |
 | 54.2. Hourly Parameter Modeling and Rolling Cache Service | 4/4 | Complete    | 2026-10-11 |
 | 54.3. Interactive Multi-Metric Hourly Graph Component | 10/10 | Complete    | 2026-10-15 |
-| 54.4. Modular Popup Inspector and Clean Card Layout | 8/8 | In Progress | - |
+| 54.4. Modular Popup Inspector and Clean Card Layout | 9/11 | In Progress | - |
 | 54.5. Popup Hero, Daily Stats, Astronomy and Forecast Cards | 0/TBD | Not started | - |
 | 55. System Integration, Retirement & Verification | 0/TBD | Not started | - |
 
