@@ -73,3 +73,11 @@ stow/rclone/.config/rclone/
 .config/weather/.env
 stow/weather/.config/weather/.env
 
+# Stray npm artifacts — this dotfiles repo has no Node toolchain, so an
+# `npm install` / `npm init` accidentally run at the repo root leaves an empty
+# package.json + lockfile behind. Root-anchored (leading slash) on purpose: a
+# real Node project nested under this repo must keep its own package.json
+# tracked, and only the repo root one is junk.
+/package.json
+/package-lock.json
+
