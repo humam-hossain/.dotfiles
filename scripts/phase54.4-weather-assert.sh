@@ -9,7 +9,7 @@
 #
 # Sections:
 #   1: Static layout, deploy topology and repository integrity (D-54.4-01/02/03/04)
-#   2: Popup sizing math (D-54.4-03, T-54.4-01)
+#   2: Popup sizing and placement math (D-54.4-03, POPUP-01, T-54.4-01)
 #   3: Palette and contrast (D-54.4-11)
 #   4: Axis labels, gradient stops and scales (D-54.4-05/06/14, Pitfalls 1/5/7/8)
 #   5: Draw functions against a recording mock canvas (D-54.4-13/15/17)
@@ -101,7 +101,7 @@ usage() {
   echo ""
   echo "Sections:"
   echo "  1: Static layout, deploy topology and repository integrity (D-54.4-01/02/03/04)"
-  echo "  2: Popup sizing math (D-54.4-03, T-54.4-01)"
+  echo "  2: Popup sizing and placement math (D-54.4-03, POPUP-01, T-54.4-01)"
   echo "  3: Palette and contrast (D-54.4-11)"
   echo "  4: Axis labels, gradient stops and scales (D-54.4-05/06/14)"
   echo "  5: Draw functions against a recording mock canvas (D-54.4-13/15/17)"
@@ -428,6 +428,18 @@ check_leaf_link() {
   fi
 }
 
+# Prints StyledPopup.qml's updateLockedMargins() block: from its declaration line through the
+# first line that is exactly 8 spaces plus "}" (the function's own closing brace). S1 greps it;
+# S2 runs it in a Node vm context (POPUP-01, CR-01).
+extract_clamp_fn() {
+  [[ -s "$STYLED_POPUP_SRC" ]] || return 0
+  awk '
+    index($0, "function updateLockedMargins() {") { on = 1 }
+    on { print }
+    on && $0 == "        }" { exit }
+  ' "$STYLED_POPUP_SRC"
+}
+
 # ===========================================================================
 # Section 1: Static layout, deploy topology and repository integrity
 # ===========================================================================
@@ -696,6 +708,38 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
         fail "S1: StyledPopup.qml lost '$needle'"
       fi
     done
+
+    # Screen source for the placement clamp (CR-01, POPUP-01). QML comment lines are stripped
+    # first, so a comment that describes the defect cannot trip or satisfy these asserts.
+    styled_code="$(grep -v '^[[:space:]]*//' "$STYLED_POPUP_SRC" || true)"
+    if grep -qE 'QsWindow\??\.screen' <<<"$styled_code"; then
+      fail "S1: StyledPopup.qml reads no screen property off an attached QsWindow (CR-01)"
+    else
+      pass "S1: StyledPopup.qml reads no screen property off an attached QsWindow (CR-01)"
+    fi
+
+    clamp_block="$(extract_clamp_fn)"
+    if [[ -n "$clamp_block" ]] \
+      && grep -qF 'if (!root.hoverTarget) return;' <<<"$clamp_block" \
+      && grep -qF 'root.hoverTarget?.QsWindow?.window?.screen' <<<"$clamp_block" \
+      && grep -qF 'popupWindow.screen' <<<"$clamp_block"; then
+      pass "S1: updateLockedMargins resolves the screen via hoverTarget window, then popupWindow.screen, and guards a null hoverTarget"
+    else
+      fail "S1: updateLockedMargins resolves the screen via hoverTarget window, then popupWindow.screen, and guards a null hoverTarget"
+    fi
+
+    if grep -qF 'root.hoverTarget?.QsWindow?.window?.screen' "$STYLED_POPUP_SRC" \
+      && [[ -s "$POPUP_SRC" ]] && grep -qF 'root.hoverTarget?.QsWindow?.window?.screen' "$POPUP_SRC"; then
+      pass "S1: StyledPopup clamp and WeatherPopup size math share the hoverTarget screen source"
+    else
+      fail "S1: StyledPopup clamp and WeatherPopup size math share the hoverTarget screen source"
+    fi
+
+    if grep -qF 'screen: root.hoverTarget?.QsWindow?.window?.screen ?? null' "$STYLED_POPUP_SRC"; then
+      pass "S1: StyledPopup PanelWindow is bound to the hovered bar's screen"
+    else
+      fail "S1: StyledPopup PanelWindow is bound to the hovered bar's screen"
+    fi
   fi
 
   # Repository integrity
@@ -755,10 +799,10 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
 fi
 
 # ===========================================================================
-# Section 2: Popup sizing math (D-54.4-03, T-54.4-01)
+# Section 2: Popup sizing and placement math (D-54.4-03, POPUP-01, T-54.4-01)
 # ===========================================================================
 if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
-  info "--- Section 2: Popup sizing math (D-54.4-03, T-54.4-01) ---"
+  info "--- Section 2: Popup sizing and placement math (D-54.4-03, POPUP-01, T-54.4-01) ---"
   read -r -d '' S2_JS <<'JS' || true
 const pct = [[19, 20], [20, 20], [21, 21], [99, 99], [100, 100], [101, 100], [-5, 20], [200, 100], ["60", 60]];
 for (const [input, want] of pct) {
@@ -808,6 +852,123 @@ ok(intOk, "S2: popupContentSize returns integer width and height over 500 random
 ok(clampOk, "S2: popupContentSize never exceeds the screen clamp over 500 random inputs" + (clampOk ? "" : " " + firstBad));
 ok(G.MIN_OUTER_W === 900, "S2: MIN_OUTER_W is 900 (D-54.4-03)");
 JS
+
+  # Placement clamp (POPUP-01, CR-01): run the real updateLockedMargins() body from
+  # StyledPopup.qml in a fresh vm context with mocked root, popupBackground, Appearance,
+  # Config and popupWindow. o.target is null or a pill item with width/height, a scene
+  # position and an attached QsWindow whose mapFromItem adds the scene offset.
+  read -r -d '' S2_CLAMP_JS <<'JS' || true
+function runClamp(o) {
+  const ctx = vm.createContext({
+    root: { hoverTarget: o.target },
+    popupBackground: { implicitWidth: o.bgW, implicitHeight: o.bgH },
+    Appearance: { sizes: { hyprlandGapsOut: 5, elevationMargin: 10, barHeight: 40, verticalBarWidth: 46 } },
+    Config: { options: { bar: { vertical: !!o.vertical } } },
+    popupWindow: { screen: o.popupScreen },
+    lockedLeftMargin: -1,
+    lockedTopMargin: -1
+  });
+  let threw = false;
+  try {
+    vm.runInContext(process.env.STYLED_CLAMP_FN + "\nupdateLockedMargins();", ctx);
+  } catch (e) {
+    threw = e;
+  }
+  const pick = function (k) {
+    return (ctx.popupWindow && ctx.popupWindow[k] !== undefined) ? ctx.popupWindow[k] : ctx[k];
+  };
+  return { left: pick("lockedLeftMargin"), top: pick("lockedTopMargin"), threw: threw };
+}
+function pill(sceneX, sceneY, width, height, barScreen) {
+  return {
+    width: width, height: height, sceneX: sceneX, sceneY: sceneY,
+    QsWindow: {
+      window: barScreen === undefined ? null : { screen: barScreen },
+      mapFromItem: function (item, x, y) { return { x: item.sceneX + x, y: item.sceneY + y }; }
+    }
+  };
+}
+const DP1 = { width: 3440, height: 1440 };
+function hClamp(sceneX, extra) {
+  const e = extra || {};
+  const scr = e.barScreen === undefined ? DP1 : e.barScreen;
+  return runClamp({
+    target: pill(sceneX, 0, e.pillW || 120, 40, scr === null ? undefined : scr),
+    bgW: e.bgW || 1700, bgH: 760, popupScreen: e.popupScreen
+  });
+}
+
+const dp1 = hClamp(2400);
+ok(dp1.threw === false && dp1.left === 1600 && dp1.left + 10 + 1700 / 2 === 2460,
+  "S2: StyledPopup clamp centres a 1700px popup under a pill at x=2400 on a 3440px screen (lockedLeftMargin 1600)"
+  + (dp1.left === 1600 ? "" : " got " + JSON.stringify({ left: dp1.left, threw: String(dp1.threw) })));
+ok(dp1.left !== 205 && dp1.left !== 215,
+  "S2: StyledPopup clamp no longer pins the DP-1 popup at the 1920px fallback (left !== 205 and !== 215)");
+ok(dp1.top === 40, "S2: StyledPopup clamp keeps lockedTopMargin at barHeight for a horizontal bar");
+
+// okv: ok() that appends the observed value only when the assert fails.
+function okv(cond, msg, got) { ok(cond, msg + (cond ? "" : " got " + got)); }
+
+// Edges: the visible background stays hyprlandGapsOut (5px) inside the screen.
+const right = hClamp(3300);
+okv(right.left === 1725 && right.left + 10 + 1700 === 3435,
+  "S2: StyledPopup clamp holds a pill at x=3300 to the right edge (left 1725, visible right edge 3435)", right.left);
+ok(hClamp(0).left === 5, "S2: StyledPopup clamp holds a pill at x=0 to the left edge (left 5)");
+
+// Boundary probes around maxX = 3440 - 1700 - 5 - 10 = 1725 and minX = 5.
+ok(hClamp(2525).left === 1725, "S2: StyledPopup clamp at targetX === maxX gives maxX (sceneX 2525 -> 1725)");
+ok(hClamp(2526).left === 1725, "S2: StyledPopup clamp one pixel past maxX stays maxX (sceneX 2526 -> 1725)");
+ok(hClamp(2524).left === 1724, "S2: StyledPopup clamp one pixel inside maxX gives maxX - 1 (sceneX 2524 -> 1724)");
+ok(hClamp(805).left === 5, "S2: StyledPopup clamp at targetX === minX gives minX (sceneX 805 -> 5)");
+ok(hClamp(804).left === 5, "S2: StyledPopup clamp one pixel past minX stays minX (sceneX 804 -> 5)");
+ok(hClamp(806).left === 6, "S2: StyledPopup clamp one pixel inside minX gives minX + 1 (sceneX 806 -> 6)");
+
+// Precision: a raw target of 1600.5 rounds half up to an integer margin.
+const half = hClamp(2400, { pillW: 121 });
+okv(half.left === 1601 && Number.isInteger(half.left),
+  "S2: StyledPopup clamp rounds a 1600.5 target half up to the integer 1601", half.left);
+
+// Oversize: a background as wide as the screen leaves maxX < minX, so the margin is minX.
+ok(hClamp(900, { barScreen: { width: 1920, height: 1080 }, bgW: 1920 }).left === 5,
+  "S2: StyledPopup clamp falls back to minX when the background is wider than the screen (left 5)");
+
+// Screen fallbacks: popupWindow.screen when the bar window has no screen, then 1920x1080.
+const viaPopup = hClamp(2000, { barScreen: null, popupScreen: { width: 2560, height: 1440 } });
+okv(viaPopup.left === 845,
+  "S2: StyledPopup clamp falls back to popupWindow.screen (2560px screen, left 845)", viaPopup.left);
+const lastResort = hClamp(2000, { barScreen: null });
+okv(lastResort.left === 205,
+  "S2: StyledPopup clamp falls back to 1920 with no bar or popup screen (left 205 = 1920 - 1700 - 5 - 10)", lastResort.left);
+
+// Null hover target (IN-05): no throw and both margins untouched.
+const none = runClamp({ target: null, bgW: 1700, bgH: 760 });
+ok(none.threw === false && none.left === -1 && none.top === -1,
+  "S2: StyledPopup clamp returns without throwing and leaves both margins unchanged for a null hoverTarget");
+
+// Vertical bar: the same inset rule on the top edge against the real screen height.
+function vClamp(sceneY) {
+  return runClamp({ target: pill(0, sceneY, 46, 40, DP1), bgW: 1700, bgH: 760, vertical: true });
+}
+const vert = vClamp(700);
+okv(vert.threw === false && vert.top === 330 && vert.left === 46 && vert.top + 10 + 380 === 720,
+  "S2: StyledPopup clamp centres a vertical-bar popup on a pill at y=700 (top 330, left 46, centre 720)",
+  JSON.stringify({ top: vert.top, left: vert.left }));
+const vBottom = vClamp(1400);
+okv(vBottom.top === 665 && vBottom.top + 10 + 760 === 1435,
+  "S2: StyledPopup clamp holds a vertical-bar pill at y=1400 to the bottom edge (top 665, visible bottom 1435)", vBottom.top);
+JS
+
+  if [[ ! -s "$STYLED_POPUP_SRC" ]]; then
+    STYLED_CLAMP_FN=""
+  else
+    STYLED_CLAMP_FN="$(extract_clamp_fn)"
+  fi
+  export STYLED_CLAMP_FN
+  if [[ -z "$STYLED_CLAMP_FN" ]]; then
+    fail "S2: could not extract updateLockedMargins from StyledPopup.qml (fail-closed)"
+  else
+    S2_JS+=$'\n'"$S2_CLAMP_JS"
+  fi
   run_node_section "S2" "$S2_JS"
 fi
 
