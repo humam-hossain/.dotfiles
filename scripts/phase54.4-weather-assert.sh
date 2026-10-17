@@ -428,6 +428,131 @@ check_leaf_link() {
   fi
 }
 
+# Live-font legend probe (gap 2, PA-G7, T-54.4-26). Measures GM.legendLabelText(kind) for the
+# three cards with a headless qml6 TextMetrics at the Config.qml appearance.fonts.main default
+# and Appearance.font.pixelSize.smaller. Sets and exports LEGEND_ADV_JSON ({temp, rainwind,
+# airuv} advances); leaves it empty, with a FINDING, when it cannot measure. The probe text comes
+# only from GM legend constants and the tracked font default; it is written into a mktemp -d
+# directory removed by the exit trap and run offscreen under timeout 20.
+LEGEND_ADV_JSON=""
+measure_legend_labels() {
+  LEGEND_ADV_JSON=""
+  export LEGEND_ADV_JSON
+  local qml_bin=""
+  if command -v qml6 >/dev/null 2>&1; then
+    qml_bin="qml6"
+  elif command -v qml >/dev/null 2>&1; then
+    qml_bin="qml"
+  fi
+  local reason=""
+  if [[ "$HAVE_NODE" -eq 0 ]]; then
+    reason="node not on PATH"
+  elif [[ -z "$qml_bin" ]]; then
+    reason="neither qml6 nor qml on PATH"
+  elif ! command -v timeout >/dev/null 2>&1; then
+    reason="timeout not on PATH"
+  elif [[ ! -s "$GM_JS" || ! -s "$CONFIG_SRC" ]]; then
+    reason="WeatherGraphMath.js or Config.qml missing"
+  fi
+  if [[ -n "$reason" ]]; then
+    finding "S4: legend fit live-font probe unavailable ($reason); using committed fixture widths"
+    return 0
+  fi
+
+  local family px appearance cand
+  family="$(sed -n 's/.*property string main: "\(.*\)".*/\1/p' "$CONFIG_SRC" | head -1 || true)"
+  if ! [[ "$family" =~ ^[A-Za-z0-9\ ._-]+$ ]]; then
+    finding "S4: legend fit live-font probe unavailable (Config.qml appearance.fonts.main is missing or not a plain family name: '${family}'); using committed fixture widths"
+    return 0
+  fi
+  px=""
+  appearance=""
+  for cand in "$REPO_ROOT/vendor/dots-hyprland/dots/.config/quickshell/ii/modules/common/Appearance.qml" \
+              "$MAIN_ROOT/vendor/dots-hyprland/dots/.config/quickshell/ii/modules/common/Appearance.qml"; do
+    if [[ -s "$cand" ]]; then
+      appearance="$cand"
+      break
+    fi
+  done
+  if [[ -n "$appearance" ]]; then
+    px="$(sed -n 's/.*property int smaller: *\([0-9][0-9]*\).*/\1/p' "$appearance" | head -1 || true)"
+  fi
+  [[ "$px" =~ ^[0-9]+$ ]] || px=12
+
+  local labels_json
+  set +e
+  labels_json="$(node -e '
+const vm = require("vm");
+const fs = require("fs");
+const G = {};
+vm.createContext(G);
+vm.runInContext(fs.readFileSync(process.argv[1], "utf8"), G, { filename: "WeatherGraphMath.js" });
+process.stdout.write(JSON.stringify({ temp: G.legendLabelText("temp"), rainwind: G.legendLabelText("rainwind"), airuv: G.legendLabelText("airuv") }));
+' "$GM_JS" 2>/dev/null)"
+  local node_rc=$?
+  set -e
+  if [[ "$node_rc" -ne 0 || "$labels_json" != "{"* ]]; then
+    finding "S4: legend fit live-font probe unavailable (GM.legendLabelText failed in node, status $node_rc); using committed fixture widths"
+    return 0
+  fi
+
+  local probe_dir
+  probe_dir="$(mktemp -d "${TMPDIR:-/tmp}/phase54.4-legend-probe.XXXXXX")"
+  TMP_DIRS+=("$probe_dir")
+  cat >"$probe_dir/probe.qml" <<QML
+import QtQuick
+
+Item {
+    id: root
+    readonly property var labels: ${labels_json}
+
+    Repeater {
+        model: Object.keys(root.labels).map(function (k) { return { kind: k, text: root.labels[k] }; })
+        delegate: Item {
+            id: d
+            required property var modelData
+            TextMetrics {
+                id: tm
+                font.family: "${family}"
+                font.pixelSize: ${px}
+                font.variableAxes: ({"wght": 450, "wdth": 100})
+                text: d.modelData.text
+            }
+            Component.onCompleted: console.warn("LEGEND_ADV", d.modelData.kind, tm.advanceWidth.toFixed(2))
+        }
+    }
+
+    Timer {
+        interval: 100
+        running: true
+        onTriggered: Qt.quit()
+    }
+}
+QML
+
+  local probe_out
+  set +e
+  probe_out="$(timeout 20 env QT_FORCE_STDERR_LOGGING=1 QT_QPA_PLATFORM=offscreen "$qml_bin" "$probe_dir/probe.qml" 2>&1)"
+  local probe_rc=$?
+  set -e
+  local kind val json="" missing=""
+  for kind in temp rainwind airuv; do
+    val="$(grep -oE "LEGEND_ADV ${kind} [0-9]+(\.[0-9]+)?" <<<"$probe_out" | head -1 | awk '{ print $3 }' || true)"
+    if [[ -n "$val" ]]; then
+      json="${json:+$json,}\"$kind\":$val"
+    else
+      missing="${missing:+$missing,}$kind"
+    fi
+  done
+  if [[ -n "$missing" ]]; then
+    finding "S4: legend fit live-font probe could not measure $missing ($qml_bin status $probe_rc); using committed fixture widths"
+    return 0
+  fi
+  LEGEND_ADV_JSON="{$json}"
+  export LEGEND_ADV_JSON
+  info "S4: legend fit live-font probe: $LEGEND_ADV_JSON ($family ${px}px)"
+}
+
 # Prints StyledPopup.qml's updateLockedMargins() block: from its declaration line through the
 # first line that is exactly 8 spaces plus "}" (the function's own closing brace). S1 greps it;
 # S2 runs it in a Node vm context (POPUP-01, CR-01).
@@ -1590,6 +1715,39 @@ if (HAS_FIT) {
   ok(deg.every(function (f) { return f.tier === 0 && f.scale === 1; }), "S4: legend fit with an available width of 0, NaN or -5 gives tier 0, scale 1");
   ok(G.legendWidth(fitEnt.rainwind, 0, G.LEGEND_TIERS[2]) === 5 * (10 + 2) + 5 * (6 + 2) + 4 * 5,
      "S4: legend fit keeps every dot and swatch at tier 2 (rainwind zero-label width 120)");
+
+  // Live-font advances from measure_legend_labels (qml6 TextMetrics), else the fixture (PA-G7).
+  const LIVE = process.env.LEGEND_ADV_JSON ? JSON.parse(process.env.LEGEND_ADV_JSON) : null;
+  const ADV = LIVE || LEGEND_FIXTURE_ADV;
+  if (LIVE) {
+    const drift = Object.keys(LEGEND_FIXTURE_ADV).filter(function (k) {
+      return !(typeof LIVE[k] === "number" && Math.abs(LIVE[k] - LEGEND_FIXTURE_ADV[k]) <= 0.05 * LEGEND_FIXTURE_ADV[k]);
+    });
+    if (drift.length > 0) {
+      finding("S4: legend fit font metrics drifted from the fixture by more than 5% for " + drift.join(", ") +
+              " (live " + JSON.stringify(LIVE) + ", fixture " + JSON.stringify(LEGEND_FIXTURE_ADV) + ")");
+    }
+  }
+  // Four-screen sweep (POPUP-01): popup content -> three cards (12px gaps) -> 10px card margins.
+  const SWEEP = [[3440, 1440], [1920, 1080], [1280, 720], [720, 1280]];
+  const fitByScreen = {};
+  for (const scr of SWEEP) {
+    const w = scr[0];
+    const h = scr[1];
+    const content = G.popupContentSize(w, h, 50, 50, { chrome: 40, edgeGap: 5, barHeight: 40, minOuterW: G.MIN_OUTER_W }).width;
+    const avail = Math.floor((content - 24) / 3) - 20;
+    for (const kind of ["temp", "rainwind", "airuv"]) {
+      const f = G.legendFit(fitEnt[kind], ADV[kind], avail);
+      fitByScreen[w + "x" + h + ":" + kind] = f;
+      console.log(kind + " at " + w + "x" + h + " (" + avail + "px): tier " + f.tier + ", width " + f.width.toFixed(2) + ", scale " + f.scale.toFixed(4));
+      ok(f.width * f.scale <= avail + 1e-9, "S4: legend fit " + kind + " at " + w + "x" + h + " (" + avail + "px) is not clipped");
+      if (content >= G.MIN_OUTER_W - 40) {
+        ok(f.scale === 1, "S4: legend fit " + kind + " at " + w + "x" + h + " keeps scale 1 at or above the 900px minimum");
+      }
+    }
+  }
+  const narrow = fitByScreen["720x1280:rainwind"];
+  ok(!!narrow && narrow.scale < 1, "S4: legend fit rainwind at 720x1280 scales below 1 (the fallback engages only below the 900px minimum)");
 }
 ok(ale.length === 4 && ale.every(function (e) { return ["solid", "dashed", "dotted", "bar", "ribbon"].indexOf(e.style) >= 0 && typeof e.dot === "boolean" && /^#[0-9a-fA-F]{6}$/.test(e.color) && (e.colors || []).every(function (c) { return /^#[0-9a-fA-F]{6}$/.test(c); }); }),
    "S4: every Graph 3 legend entry has a known style, a boolean dot and 7-character hex colours");
@@ -1737,6 +1895,7 @@ if (HAS_PLACE) {
   ok(propOk && totalPlaced > 0, "S4: placeLabels property test over 300 random sets: inside bounds, zero intersections, placed is a subset of the input (" + totalPlaced + " placed)" + (propOk ? "" : " " + propBad));
 }
 JS
+  measure_legend_labels
   run_node_section "S4" "$S4_JS"
 fi
 
