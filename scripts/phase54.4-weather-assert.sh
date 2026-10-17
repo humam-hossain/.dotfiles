@@ -663,6 +663,42 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
     else
       fail "S1: legendRow Repeater model is not GM.legendEntries(root.graphKind)"
     fi
+
+    # Legend fit (gap 2, WR-04): spacing, swatch width and scale come from GM.legendFit, which
+    # reads only the layout-assigned width and a TextMetrics advance (T-54.4-25 loop guard).
+    if grep -qF 'GM.legendFit(GM.legendEntries(root.graphKind), legendMetrics.advanceWidth, legendRow.width)' <<<"$legend_block"; then
+      pass "S1: legend fit binds GM.legendFit to legendMetrics.advanceWidth and legendRow.width"
+    else
+      fail "S1: legend fit binding GM.legendFit(GM.legendEntries(root.graphKind), legendMetrics.advanceWidth, legendRow.width) is missing from legendRow"
+    fi
+    for needle in 'id: legendMetrics' 'spacing: legendRow.fit.entryGap' 'spacing: legendRow.fit.innerGap' 'width: legendRow.fit.swatchW' 'scale: legendRow.fit.scale' 'transformOrigin: Item.Left'; do
+      if grep -qF "$needle" <<<"$legend_block"; then
+        pass "S1: legend fit block contains '$needle'"
+      else
+        fail "S1: legend fit block is missing '$needle'"
+      fi
+    done
+    fit_line="$(grep -F 'GM.legendFit(' <<<"$legend_block" || true)"
+    if [[ -n "$fit_line" ]] && ! grep -qw 'implicitWidth' <<<"$fit_line"; then
+      pass "S1: legend fit binding never reads the row's own implicitWidth (no binding loop, T-54.4-25)"
+    else
+      fail "S1: legend fit binding is missing or reads implicitWidth: ${fit_line:-<none>}"
+    fi
+    if grep -qE 'Flow[[:space:]]*\{' <<<"$legend_block"; then
+      fail "S1: legend fit block contains a wrapping Flow element (the legend must stay one row, D-54.4-09)"
+    else
+      pass "S1: legend fit block has no wrapping Flow element (one row, D-54.4-09)"
+    fi
+    if grep -qF 'visible: entry.modelData.dot === true' <<<"$legend_block" && grep -qF 'font.pixelSize: Appearance.font.pixelSize.smaller' <<<"$legend_block"; then
+      pass "S1: legend fit keeps the colour dot and the 12px label size (D-54.4-25)"
+    else
+      fail "S1: legend fit dropped the colour dot or the Appearance.font.pixelSize.smaller label size"
+    fi
+    if grep -F 'font.pixelSize' <<<"$legend_block" | grep -qF 'legendRow.fit'; then
+      fail "S1: legend fit drives a font.pixelSize (label text must stay 12px)"
+    else
+      pass "S1: legend fit never drives a font.pixelSize (label text stays 12px)"
+    fi
     legend_ln="$(grep -n 'id: legendRow' "$GRAPH_SRC" | head -1 | cut -d: -f1 || true)"
     area_ln="$(grep -n 'id: graphArea' "$GRAPH_SRC" | head -1 | cut -d: -f1 || true)"
     if [[ -n "$legend_ln" && -n "$area_ln" && "$legend_ln" -lt "$area_ln" ]]; then
@@ -1498,6 +1534,63 @@ ok(ale.length >= 3 && ale[2].style === "ribbon" && ale[2].color === "#66bb6a" &&
 ok(ale.every(function (e) { return !/PM|DEFRA|diff/i.test(e.label); }), "S4: no Graph 3 legend entry names PM2.5, PM10, DEFRA or diffRad (D-54.4-27)");
 ok(ale.map(function (e) { return e.label; }).join(",") === "UV,Solar,AQI,Pressure", "S4: legendEntries(airuv) labels are exactly UV, Solar, AQI, Pressure (D-54.4-32)");
 ok(ale.length === 4 && ale[3].style === "dashed" && ale[3].color === "#b0bec5" && same(ale[3].colors, ["#b0bec5"]), "S4: the Pressure legend entry is a dashed #b0bec5 swatch");
+
+// Legend fit (gap 2, WR-04, D-54.4-09/25): one 18px row, tightened in tiers, scaled only below
+// the 900px minimum. Label advances of legendLabelText(kind), measured 2026-10-17 with Qt 6
+// TextMetrics under QT_QPA_PLATFORM=offscreen: family "Google Sans Flex", pixelSize 12,
+// variableAxes {"wght": 450, "wdth": 100}. The exact-number asserts below use these values.
+const LEGEND_FIXTURE_ADV = { temp: 58.28, rainwind: 124.69, airuv: 110.33 };
+const HAS_FIT = typeof G.legendFit === "function" && typeof G.legendWidth === "function" && typeof G.legendLabelText === "function";
+ok(HAS_FIT, "S4: legend fit defines legendFit, legendWidth and legendLabelText");
+if (HAS_FIT) {
+  const fitEnt = { temp: G.legendEntries("temp"), rainwind: G.legendEntries("rainwind"), airuv: G.legendEntries("airuv") };
+  const fitAt = function (kind, avail, adv) {
+    return G.legendFit(fitEnt[kind], adv === undefined ? LEGEND_FIXTURE_ADV[kind] : adv, avail);
+  };
+  ok(same(G.LEGEND_TIERS, [{ entryGap: 10, innerGap: 4, swatchW: 14 }, { entryGap: 6, innerGap: 3, swatchW: 12 }, { entryGap: 5, innerGap: 2, swatchW: 10 }]) && G.LEGEND_DOT_W === 6,
+     "S4: legend fit tiers are 10/4/14, 6/3/12, 5/2/10 and LEGEND_DOT_W is 6");
+  ok(G.legendLabelText("rainwind") === "Rain%mmWindGustVis", "S4: legend fit legendLabelText(rainwind) is Rain%mmWindGustVis");
+  const minAvail = Math.floor((G.MIN_OUTER_W - 40 - 2 * 12) / 3) - 20;
+  ok(minAvail === 258, "S4: legend fit minimum legend area from MIN_OUTER_W is 258px (" + minAvail + ")");
+  const r258 = fitAt("rainwind", 258);
+  ok(r258.tier === 2 && r258.scale === 1 && near(r258.width, 249.69, 1e-6),
+     "S4: legend fit rainwind at 258px uses tier 2 at scale 1 (width 249.69, every dot, swatch and name kept)");
+  const r278 = fitAt("rainwind", 278);
+  ok(r278.tier === 1 && r278.scale === 1 && near(r278.width, 273.69, 1e-6), "S4: legend fit rainwind at 278px (1920x1080) uses tier 1 at scale 1 (width 273.69)");
+  const r532 = fitAt("rainwind", 532);
+  ok(r532.tier === 0 && r532.scale === 1 && near(r532.width, 309.69, 1e-6), "S4: legend fit rainwind at 532px (3440x1440) keeps the full 10/4/14 tier 0 (width 309.69)");
+  const r195 = fitAt("rainwind", 195);
+  ok(r195.tier === 2 && near(r195.scale, 195 / 249.69, 1e-6) && r195.width * r195.scale <= 195 + 1e-9,
+     "S4: legend fit rainwind at 195px scales tier 2 by 195 / 249.69 and is not clipped");
+  const a258 = fitAt("airuv", 258);
+  const t258 = fitAt("temp", 258);
+  ok(a258.tier === 0 && a258.scale === 1 && t258.tier === 0 && t258.scale === 1, "S4: legend fit airuv and temp at 258px keep tier 0 at scale 1");
+  const a195 = fitAt("airuv", 195);
+  ok(a195.tier === 1 && a195.scale === 1, "S4: legend fit airuv at 195px uses tier 1 at scale 1 (width " + a195.width.toFixed(2) + ")");
+  // Boundary (POPUP-01 edge probe): equal width fits (inclusive), 0.5px less moves a tier.
+  ok(fitAt("rainwind", 309.69).tier === 0 && fitAt("rainwind", 309.19).tier === 1,
+     "S4: legend fit boundary: rainwind at exactly 309.69 is tier 0, at 309.19 tier 1");
+  const b2 = fitAt("rainwind", 249.69);
+  const b2s = fitAt("rainwind", 249.19);
+  ok(b2.tier === 2 && b2.scale === 1 && b2s.tier === 2 && near(b2s.scale, 249.19 / 249.69, 1e-9),
+     "S4: legend fit boundary: rainwind at exactly 249.69 is tier 2 at scale 1, at 249.19 scale 249.19 / 249.69");
+  // Degenerate inputs never throw.
+  const e0 = G.legendFit([], 0, 258);
+  ok(e0.tier === 0 && e0.scale === 1 && e0.width === 0, "S4: legend fit legendFit([], 0, 258) is tier 0, scale 1, width 0");
+  let nanFit = null;
+  let nanErr = null;
+  try {
+    nanFit = G.legendFit(fitEnt.rainwind, NaN, 258);
+  } catch (err) {
+    nanErr = err;
+  }
+  ok(nanErr === null && nanFit && near(nanFit.width, G.legendWidth(fitEnt.rainwind, 5, G.LEGEND_TIERS[nanFit.tier]), 1e-9),
+     "S4: legend fit with a NaN label advance does not throw and treats the labels as 5px" + (nanErr ? " (" + nanErr + ")" : ""));
+  const deg = [0, NaN, -5].map(function (a) { return G.legendFit(fitEnt.rainwind, 124.69, a); });
+  ok(deg.every(function (f) { return f.tier === 0 && f.scale === 1; }), "S4: legend fit with an available width of 0, NaN or -5 gives tier 0, scale 1");
+  ok(G.legendWidth(fitEnt.rainwind, 0, G.LEGEND_TIERS[2]) === 5 * (10 + 2) + 5 * (6 + 2) + 4 * 5,
+     "S4: legend fit keeps every dot and swatch at tier 2 (rainwind zero-label width 120)");
+}
 ok(ale.length === 4 && ale.every(function (e) { return ["solid", "dashed", "dotted", "bar", "ribbon"].indexOf(e.style) >= 0 && typeof e.dot === "boolean" && /^#[0-9a-fA-F]{6}$/.test(e.color) && (e.colors || []).every(function (c) { return /^#[0-9a-fA-F]{6}$/.test(c); }); }),
    "S4: every Graph 3 legend entry has a known style, a boolean dot and 7-character hex colours");
 
