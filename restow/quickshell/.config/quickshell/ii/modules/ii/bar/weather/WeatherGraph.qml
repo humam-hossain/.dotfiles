@@ -94,12 +94,28 @@ WeatherBaseCard {
 
     // Legend row: the same fixed height on every card so the three plot tops align (D-54.4-09).
     // Entries and colours come from GM; this file carries no colour literal (D-54.4-11).
+    // GM.legendFit tightens the spacing in tiers so the row fits the card, and scales it from the
+    // left edge only below the 900px minimum (gap 2). The fit reads the layout-assigned width and
+    // a TextMetrics advance at the fixed base font, never the row's own natural size (loop guard).
     Row {
         id: legendRow
+
+        readonly property var fit: GM.legendFit(GM.legendEntries(root.graphKind), legendMetrics.advanceWidth, legendRow.width)
+
         Layout.fillWidth: true
         Layout.preferredHeight: 18
         Layout.maximumHeight: 18
-        spacing: 10
+        spacing: legendRow.fit.entryGap
+        transformOrigin: Item.Left
+        scale: legendRow.fit.scale
+
+        TextMetrics {
+            id: legendMetrics
+            font.family: Appearance.font.family.main
+            font.pixelSize: Appearance.font.pixelSize.smaller
+            font.variableAxes: Appearance.font.variableAxes.main
+            text: GM.legendLabelText(root.graphKind)
+        }
 
         Repeater {
             model: GM.legendEntries(root.graphKind)
@@ -116,7 +132,7 @@ WeatherBaseCard {
                 }
 
                 height: legendRow.height
-                spacing: 4
+                spacing: legendRow.fit.innerGap
 
                 Rectangle {
                     visible: entry.modelData.dot === true
@@ -127,11 +143,13 @@ WeatherBaseCard {
                     color: entry.modelData.color
                 }
 
+                // At the narrower tiers the swatch clips its pattern rather than redrawing it (PA-G5)
                 Item {
                     id: swatch
                     anchors.verticalCenter: parent.verticalCenter
-                    width: 14
+                    width: legendRow.fit.swatchW
                     height: 10
+                    clip: true
 
                     // solid: a 3px bar split into equal parts
                     Row {

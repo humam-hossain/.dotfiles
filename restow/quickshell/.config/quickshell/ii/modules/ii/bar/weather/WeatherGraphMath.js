@@ -1126,6 +1126,78 @@ function legendEntries(kind) {
 }
 
 // ---------------------------------------------------------------------------
+// Legend fit (D-54.4-09/25, gap 2)
+// ---------------------------------------------------------------------------
+//
+// The legend stays one fixed 18px row on every card (D-54.4-09) with every colour dot, swatch
+// and 12px name (D-54.4-25). When it is wider than the card, the spacing tightens in tiers; only
+// when even the last tier overflows (the popup is clamped below MIN_OUTER_W) does the row scale
+// down uniformly from its left edge.
+
+// Spacing tiers, widest first: gap between entries, gap inside an entry, swatch width.
+var LEGEND_TIERS = [
+    { entryGap: 10, innerGap: 4, swatchW: 14 },
+    { entryGap: 6, innerGap: 3, swatchW: 12 },
+    { entryGap: 5, innerGap: 2, swatchW: 10 }
+];
+// Colour dot width (the 6 x 6 Rectangle in WeatherGraph.qml).
+var LEGEND_DOT_W = 6;
+// Extra px per label on top of the measured advance, for kerning and rounding (PA-G6).
+var LEGEND_LABEL_PAD = 1;
+
+// All labels of one card joined with no separator; WeatherGraph.qml measures this string with a
+// TextMetrics at the fixed base font, so the fit never reads the row's own size.
+function legendLabelText(kind) {
+    var entries = legendEntries(kind);
+    var out = "";
+    for (var i = 0; i < entries.length; ++i)
+        out += entries[i].label;
+    return out;
+}
+
+// Natural width of a legend row at one tier, given the total label width. 0 for no entries.
+function legendWidth(entries, labelsWidth, tier) {
+    if (!Array.isArray(entries) || entries.length === 0)
+        return 0;
+    var t = tier || LEGEND_TIERS[0];
+    var w = 0;
+    for (var i = 0; i < entries.length; ++i) {
+        w += t.swatchW + t.innerGap;
+        if (entries[i] && entries[i].dot === true)
+            w += LEGEND_DOT_W + t.innerGap;
+    }
+    w += isNum(labelsWidth) ? labelsWidth : 0;
+    w += Math.max(0, entries.length - 1) * t.entryGap;
+    return w;
+}
+
+function _legendFitResult(k, width, scale) {
+    var t = LEGEND_TIERS[k];
+    return { tier: k, entryGap: t.entryGap, innerGap: t.innerGap, swatchW: t.swatchW, width: width, scale: scale };
+}
+
+// Picks the first tier whose unrounded width fits `available` (inclusive). If none fits, the last
+// tier is used with scale = available / width. labelsAdvance is the rendered advance of
+// legendLabelText(kind); LEGEND_LABEL_PAD is added per label. Never throws.
+function legendFit(entries, labelsAdvance, available) {
+    var list = Array.isArray(entries) ? entries : [];
+    var n = list.length;
+    if (n === 0)
+        return _legendFitResult(0, 0, 1);
+    var labels = (isNum(labelsAdvance) && labelsAdvance > 0 ? labelsAdvance : 0) + LEGEND_LABEL_PAD * n;
+    if (!isNum(available) || available <= 0)
+        return _legendFitResult(0, legendWidth(list, labels, LEGEND_TIERS[0]), 1);
+    var last = LEGEND_TIERS.length - 1;
+    for (var k = 0; k <= last; ++k) {
+        var w = legendWidth(list, labels, LEGEND_TIERS[k]);
+        if (w <= available)
+            return _legendFitResult(k, w, 1);
+    }
+    var wl = legendWidth(list, labels, LEGEND_TIERS[last]);
+    return _legendFitResult(last, wl, wl > 0 ? available / wl : 1);
+}
+
+// ---------------------------------------------------------------------------
 // Card furniture: temperature y axis (D-54.4-05/16) and the shared backdrop (PA-4)
 // ---------------------------------------------------------------------------
 

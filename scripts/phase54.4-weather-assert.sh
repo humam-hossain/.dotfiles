@@ -428,6 +428,131 @@ check_leaf_link() {
   fi
 }
 
+# Live-font legend probe (gap 2, PA-G7, T-54.4-26). Measures GM.legendLabelText(kind) for the
+# three cards with a headless qml6 TextMetrics at the Config.qml appearance.fonts.main default
+# and Appearance.font.pixelSize.smaller. Sets and exports LEGEND_ADV_JSON ({temp, rainwind,
+# airuv} advances); leaves it empty, with a FINDING, when it cannot measure. The probe text comes
+# only from GM legend constants and the tracked font default; it is written into a mktemp -d
+# directory removed by the exit trap and run offscreen under timeout 20.
+LEGEND_ADV_JSON=""
+measure_legend_labels() {
+  LEGEND_ADV_JSON=""
+  export LEGEND_ADV_JSON
+  local qml_bin=""
+  if command -v qml6 >/dev/null 2>&1; then
+    qml_bin="qml6"
+  elif command -v qml >/dev/null 2>&1; then
+    qml_bin="qml"
+  fi
+  local reason=""
+  if [[ "$HAVE_NODE" -eq 0 ]]; then
+    reason="node not on PATH"
+  elif [[ -z "$qml_bin" ]]; then
+    reason="neither qml6 nor qml on PATH"
+  elif ! command -v timeout >/dev/null 2>&1; then
+    reason="timeout not on PATH"
+  elif [[ ! -s "$GM_JS" || ! -s "$CONFIG_SRC" ]]; then
+    reason="WeatherGraphMath.js or Config.qml missing"
+  fi
+  if [[ -n "$reason" ]]; then
+    finding "S4: legend fit live-font probe unavailable ($reason); using committed fixture widths"
+    return 0
+  fi
+
+  local family px appearance cand
+  family="$(sed -n 's/.*property string main: "\(.*\)".*/\1/p' "$CONFIG_SRC" | head -1 || true)"
+  if ! [[ "$family" =~ ^[A-Za-z0-9\ ._-]+$ ]]; then
+    finding "S4: legend fit live-font probe unavailable (Config.qml appearance.fonts.main is missing or not a plain family name: '${family}'); using committed fixture widths"
+    return 0
+  fi
+  px=""
+  appearance=""
+  for cand in "$REPO_ROOT/vendor/dots-hyprland/dots/.config/quickshell/ii/modules/common/Appearance.qml" \
+              "$MAIN_ROOT/vendor/dots-hyprland/dots/.config/quickshell/ii/modules/common/Appearance.qml"; do
+    if [[ -s "$cand" ]]; then
+      appearance="$cand"
+      break
+    fi
+  done
+  if [[ -n "$appearance" ]]; then
+    px="$(sed -n 's/.*property int smaller: *\([0-9][0-9]*\).*/\1/p' "$appearance" | head -1 || true)"
+  fi
+  [[ "$px" =~ ^[0-9]+$ ]] || px=12
+
+  local labels_json
+  set +e
+  labels_json="$(node -e '
+const vm = require("vm");
+const fs = require("fs");
+const G = {};
+vm.createContext(G);
+vm.runInContext(fs.readFileSync(process.argv[1], "utf8"), G, { filename: "WeatherGraphMath.js" });
+process.stdout.write(JSON.stringify({ temp: G.legendLabelText("temp"), rainwind: G.legendLabelText("rainwind"), airuv: G.legendLabelText("airuv") }));
+' "$GM_JS" 2>/dev/null)"
+  local node_rc=$?
+  set -e
+  if [[ "$node_rc" -ne 0 || "$labels_json" != "{"* ]]; then
+    finding "S4: legend fit live-font probe unavailable (GM.legendLabelText failed in node, status $node_rc); using committed fixture widths"
+    return 0
+  fi
+
+  local probe_dir
+  probe_dir="$(mktemp -d "${TMPDIR:-/tmp}/phase54.4-legend-probe.XXXXXX")"
+  TMP_DIRS+=("$probe_dir")
+  cat >"$probe_dir/probe.qml" <<QML
+import QtQuick
+
+Item {
+    id: root
+    readonly property var labels: ${labels_json}
+
+    Repeater {
+        model: Object.keys(root.labels).map(function (k) { return { kind: k, text: root.labels[k] }; })
+        delegate: Item {
+            id: d
+            required property var modelData
+            TextMetrics {
+                id: tm
+                font.family: "${family}"
+                font.pixelSize: ${px}
+                font.variableAxes: ({"wght": 450, "wdth": 100})
+                text: d.modelData.text
+            }
+            Component.onCompleted: console.warn("LEGEND_ADV", d.modelData.kind, tm.advanceWidth.toFixed(2))
+        }
+    }
+
+    Timer {
+        interval: 100
+        running: true
+        onTriggered: Qt.quit()
+    }
+}
+QML
+
+  local probe_out
+  set +e
+  probe_out="$(timeout 20 env QT_FORCE_STDERR_LOGGING=1 QT_QPA_PLATFORM=offscreen "$qml_bin" "$probe_dir/probe.qml" 2>&1)"
+  local probe_rc=$?
+  set -e
+  local kind val json="" missing=""
+  for kind in temp rainwind airuv; do
+    val="$(grep -oE "LEGEND_ADV ${kind} [0-9]+(\.[0-9]+)?" <<<"$probe_out" | head -1 | awk '{ print $3 }' || true)"
+    if [[ -n "$val" ]]; then
+      json="${json:+$json,}\"$kind\":$val"
+    else
+      missing="${missing:+$missing,}$kind"
+    fi
+  done
+  if [[ -n "$missing" ]]; then
+    finding "S4: legend fit live-font probe could not measure $missing ($qml_bin status $probe_rc); using committed fixture widths"
+    return 0
+  fi
+  LEGEND_ADV_JSON="{$json}"
+  export LEGEND_ADV_JSON
+  info "S4: legend fit live-font probe: $LEGEND_ADV_JSON ($family ${px}px)"
+}
+
 # Prints StyledPopup.qml's updateLockedMargins() block: from its declaration line through the
 # first line that is exactly 8 spaces plus "}" (the function's own closing brace). S1 greps it;
 # S2 runs it in a Node vm context (POPUP-01, CR-01).
@@ -662,6 +787,42 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
       pass "S1: legendRow holds a Repeater over GM.legendEntries(root.graphKind)"
     else
       fail "S1: legendRow Repeater model is not GM.legendEntries(root.graphKind)"
+    fi
+
+    # Legend fit (gap 2, WR-04): spacing, swatch width and scale come from GM.legendFit, which
+    # reads only the layout-assigned width and a TextMetrics advance (T-54.4-25 loop guard).
+    if grep -qF 'GM.legendFit(GM.legendEntries(root.graphKind), legendMetrics.advanceWidth, legendRow.width)' <<<"$legend_block"; then
+      pass "S1: legend fit binds GM.legendFit to legendMetrics.advanceWidth and legendRow.width"
+    else
+      fail "S1: legend fit binding GM.legendFit(GM.legendEntries(root.graphKind), legendMetrics.advanceWidth, legendRow.width) is missing from legendRow"
+    fi
+    for needle in 'id: legendMetrics' 'spacing: legendRow.fit.entryGap' 'spacing: legendRow.fit.innerGap' 'width: legendRow.fit.swatchW' 'scale: legendRow.fit.scale' 'transformOrigin: Item.Left'; do
+      if grep -qF "$needle" <<<"$legend_block"; then
+        pass "S1: legend fit block contains '$needle'"
+      else
+        fail "S1: legend fit block is missing '$needle'"
+      fi
+    done
+    fit_line="$(grep -F 'GM.legendFit(' <<<"$legend_block" || true)"
+    if [[ -n "$fit_line" ]] && ! grep -qw 'implicitWidth' <<<"$fit_line"; then
+      pass "S1: legend fit binding never reads the row's own implicitWidth (no binding loop, T-54.4-25)"
+    else
+      fail "S1: legend fit binding is missing or reads implicitWidth: ${fit_line:-<none>}"
+    fi
+    if grep -qE 'Flow[[:space:]]*\{' <<<"$legend_block"; then
+      fail "S1: legend fit block contains a wrapping Flow element (the legend must stay one row, D-54.4-09)"
+    else
+      pass "S1: legend fit block has no wrapping Flow element (one row, D-54.4-09)"
+    fi
+    if grep -qF 'visible: entry.modelData.dot === true' <<<"$legend_block" && grep -qF 'font.pixelSize: Appearance.font.pixelSize.smaller' <<<"$legend_block"; then
+      pass "S1: legend fit keeps the colour dot and the 12px label size (D-54.4-25)"
+    else
+      fail "S1: legend fit dropped the colour dot or the Appearance.font.pixelSize.smaller label size"
+    fi
+    if grep -F 'font.pixelSize' <<<"$legend_block" | grep -qF 'legendRow.fit'; then
+      fail "S1: legend fit drives a font.pixelSize (label text must stay 12px)"
+    else
+      pass "S1: legend fit never drives a font.pixelSize (label text stays 12px)"
     fi
     legend_ln="$(grep -n 'id: legendRow' "$GRAPH_SRC" | head -1 | cut -d: -f1 || true)"
     area_ln="$(grep -n 'id: graphArea' "$GRAPH_SRC" | head -1 | cut -d: -f1 || true)"
@@ -1498,6 +1659,96 @@ ok(ale.length >= 3 && ale[2].style === "ribbon" && ale[2].color === "#66bb6a" &&
 ok(ale.every(function (e) { return !/PM|DEFRA|diff/i.test(e.label); }), "S4: no Graph 3 legend entry names PM2.5, PM10, DEFRA or diffRad (D-54.4-27)");
 ok(ale.map(function (e) { return e.label; }).join(",") === "UV,Solar,AQI,Pressure", "S4: legendEntries(airuv) labels are exactly UV, Solar, AQI, Pressure (D-54.4-32)");
 ok(ale.length === 4 && ale[3].style === "dashed" && ale[3].color === "#b0bec5" && same(ale[3].colors, ["#b0bec5"]), "S4: the Pressure legend entry is a dashed #b0bec5 swatch");
+
+// Legend fit (gap 2, WR-04, D-54.4-09/25): one 18px row, tightened in tiers, scaled only below
+// the 900px minimum. Label advances of legendLabelText(kind), measured 2026-10-17 with Qt 6
+// TextMetrics under QT_QPA_PLATFORM=offscreen: family "Google Sans Flex", pixelSize 12,
+// variableAxes {"wght": 450, "wdth": 100}. The exact-number asserts below use these values.
+const LEGEND_FIXTURE_ADV = { temp: 58.28, rainwind: 124.69, airuv: 110.33 };
+const HAS_FIT = typeof G.legendFit === "function" && typeof G.legendWidth === "function" && typeof G.legendLabelText === "function";
+ok(HAS_FIT, "S4: legend fit defines legendFit, legendWidth and legendLabelText");
+if (HAS_FIT) {
+  const fitEnt = { temp: G.legendEntries("temp"), rainwind: G.legendEntries("rainwind"), airuv: G.legendEntries("airuv") };
+  const fitAt = function (kind, avail, adv) {
+    return G.legendFit(fitEnt[kind], adv === undefined ? LEGEND_FIXTURE_ADV[kind] : adv, avail);
+  };
+  ok(same(G.LEGEND_TIERS, [{ entryGap: 10, innerGap: 4, swatchW: 14 }, { entryGap: 6, innerGap: 3, swatchW: 12 }, { entryGap: 5, innerGap: 2, swatchW: 10 }]) && G.LEGEND_DOT_W === 6,
+     "S4: legend fit tiers are 10/4/14, 6/3/12, 5/2/10 and LEGEND_DOT_W is 6");
+  ok(G.legendLabelText("rainwind") === "Rain%mmWindGustVis", "S4: legend fit legendLabelText(rainwind) is Rain%mmWindGustVis");
+  const minAvail = Math.floor((G.MIN_OUTER_W - 40 - 2 * 12) / 3) - 20;
+  ok(minAvail === 258, "S4: legend fit minimum legend area from MIN_OUTER_W is 258px (" + minAvail + ")");
+  const r258 = fitAt("rainwind", 258);
+  ok(r258.tier === 2 && r258.scale === 1 && near(r258.width, 249.69, 1e-6),
+     "S4: legend fit rainwind at 258px uses tier 2 at scale 1 (width 249.69, every dot, swatch and name kept)");
+  const r278 = fitAt("rainwind", 278);
+  ok(r278.tier === 1 && r278.scale === 1 && near(r278.width, 273.69, 1e-6), "S4: legend fit rainwind at 278px (1920x1080) uses tier 1 at scale 1 (width 273.69)");
+  const r532 = fitAt("rainwind", 532);
+  ok(r532.tier === 0 && r532.scale === 1 && near(r532.width, 309.69, 1e-6), "S4: legend fit rainwind at 532px (3440x1440) keeps the full 10/4/14 tier 0 (width 309.69)");
+  const r195 = fitAt("rainwind", 195);
+  ok(r195.tier === 2 && near(r195.scale, 195 / 249.69, 1e-6) && r195.width * r195.scale <= 195 + 1e-9,
+     "S4: legend fit rainwind at 195px scales tier 2 by 195 / 249.69 and is not clipped");
+  const a258 = fitAt("airuv", 258);
+  const t258 = fitAt("temp", 258);
+  ok(a258.tier === 0 && a258.scale === 1 && t258.tier === 0 && t258.scale === 1, "S4: legend fit airuv and temp at 258px keep tier 0 at scale 1");
+  const a195 = fitAt("airuv", 195);
+  ok(a195.tier === 1 && a195.scale === 1, "S4: legend fit airuv at 195px uses tier 1 at scale 1 (width " + a195.width.toFixed(2) + ")");
+  // Boundary (POPUP-01 edge probe): equal width fits (inclusive), 0.5px less moves a tier.
+  ok(fitAt("rainwind", 309.69).tier === 0 && fitAt("rainwind", 309.19).tier === 1,
+     "S4: legend fit boundary: rainwind at exactly 309.69 is tier 0, at 309.19 tier 1");
+  const b2 = fitAt("rainwind", 249.69);
+  const b2s = fitAt("rainwind", 249.19);
+  ok(b2.tier === 2 && b2.scale === 1 && b2s.tier === 2 && near(b2s.scale, 249.19 / 249.69, 1e-9),
+     "S4: legend fit boundary: rainwind at exactly 249.69 is tier 2 at scale 1, at 249.19 scale 249.19 / 249.69");
+  // Degenerate inputs never throw.
+  const e0 = G.legendFit([], 0, 258);
+  ok(e0.tier === 0 && e0.scale === 1 && e0.width === 0, "S4: legend fit legendFit([], 0, 258) is tier 0, scale 1, width 0");
+  let nanFit = null;
+  let nanErr = null;
+  try {
+    nanFit = G.legendFit(fitEnt.rainwind, NaN, 258);
+  } catch (err) {
+    nanErr = err;
+  }
+  ok(nanErr === null && nanFit && near(nanFit.width, G.legendWidth(fitEnt.rainwind, 5, G.LEGEND_TIERS[nanFit.tier]), 1e-9),
+     "S4: legend fit with a NaN label advance does not throw and treats the labels as 5px" + (nanErr ? " (" + nanErr + ")" : ""));
+  const deg = [0, NaN, -5].map(function (a) { return G.legendFit(fitEnt.rainwind, 124.69, a); });
+  ok(deg.every(function (f) { return f.tier === 0 && f.scale === 1; }), "S4: legend fit with an available width of 0, NaN or -5 gives tier 0, scale 1");
+  ok(G.legendWidth(fitEnt.rainwind, 0, G.LEGEND_TIERS[2]) === 5 * (10 + 2) + 5 * (6 + 2) + 4 * 5,
+     "S4: legend fit keeps every dot and swatch at tier 2 (rainwind zero-label width 120)");
+
+  // Live-font advances from measure_legend_labels (qml6 TextMetrics), else the fixture (PA-G7).
+  const LIVE = process.env.LEGEND_ADV_JSON ? JSON.parse(process.env.LEGEND_ADV_JSON) : null;
+  const ADV = LIVE || LEGEND_FIXTURE_ADV;
+  if (LIVE) {
+    const drift = Object.keys(LEGEND_FIXTURE_ADV).filter(function (k) {
+      return !(typeof LIVE[k] === "number" && Math.abs(LIVE[k] - LEGEND_FIXTURE_ADV[k]) <= 0.05 * LEGEND_FIXTURE_ADV[k]);
+    });
+    if (drift.length > 0) {
+      finding("S4: legend fit font metrics drifted from the fixture by more than 5% for " + drift.join(", ") +
+              " (live " + JSON.stringify(LIVE) + ", fixture " + JSON.stringify(LEGEND_FIXTURE_ADV) + ")");
+    }
+  }
+  // Four-screen sweep (POPUP-01): popup content -> three cards (12px gaps) -> 10px card margins.
+  const SWEEP = [[3440, 1440], [1920, 1080], [1280, 720], [720, 1280]];
+  const fitByScreen = {};
+  for (const scr of SWEEP) {
+    const w = scr[0];
+    const h = scr[1];
+    const content = G.popupContentSize(w, h, 50, 50, { chrome: 40, edgeGap: 5, barHeight: 40, minOuterW: G.MIN_OUTER_W }).width;
+    const avail = Math.floor((content - 24) / 3) - 20;
+    for (const kind of ["temp", "rainwind", "airuv"]) {
+      const f = G.legendFit(fitEnt[kind], ADV[kind], avail);
+      fitByScreen[w + "x" + h + ":" + kind] = f;
+      console.log(kind + " at " + w + "x" + h + " (" + avail + "px): tier " + f.tier + ", width " + f.width.toFixed(2) + ", scale " + f.scale.toFixed(4));
+      ok(f.width * f.scale <= avail + 1e-9, "S4: legend fit " + kind + " at " + w + "x" + h + " (" + avail + "px) is not clipped");
+      if (content >= G.MIN_OUTER_W - 40) {
+        ok(f.scale === 1, "S4: legend fit " + kind + " at " + w + "x" + h + " keeps scale 1 at or above the 900px minimum");
+      }
+    }
+  }
+  const narrow = fitByScreen["720x1280:rainwind"];
+  ok(!!narrow && narrow.scale < 1, "S4: legend fit rainwind at 720x1280 scales below 1 (the fallback engages only below the 900px minimum)");
+}
 ok(ale.length === 4 && ale.every(function (e) { return ["solid", "dashed", "dotted", "bar", "ribbon"].indexOf(e.style) >= 0 && typeof e.dot === "boolean" && /^#[0-9a-fA-F]{6}$/.test(e.color) && (e.colors || []).every(function (c) { return /^#[0-9a-fA-F]{6}$/.test(c); }); }),
    "S4: every Graph 3 legend entry has a known style, a boolean dot and 7-character hex colours");
 
@@ -1644,6 +1895,7 @@ if (HAS_PLACE) {
   ok(propOk && totalPlaced > 0, "S4: placeLabels property test over 300 random sets: inside bounds, zero intersections, placed is a subset of the input (" + totalPlaced + " placed)" + (propOk ? "" : " " + propBad));
 }
 JS
+  measure_legend_labels
   run_node_section "S4" "$S4_JS"
 fi
 
