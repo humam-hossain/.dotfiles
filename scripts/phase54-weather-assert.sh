@@ -4,6 +4,7 @@
 # Enforces: POPUP-01..07, GRAPH-01..04, INTG-04, ASVS L1
 # Decisions: D-54-01 through D-54-42
 # Phase 54.4: popup width/scroll asserts superseded by D-54.4-03; greps use here-strings, not echo pipes (SIGPIPE-safe under pipefail).
+# Phase 54.4: S3 spline/roll-up greps follow the move to WeatherGraphMath.js; snapDot/tooltipPill superseded by D-54.4-08.
 #
 # Usage (from REPO_ROOT):
 #   ./scripts/phase54-weather-assert.sh [1-5] [OPTIONS]
@@ -389,15 +390,17 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
     else
       fail "S3: WeatherGraph missing Canvas component"
     fi
-    if grep -q 'bezierCurveTo' <<<"$graph_code" && grep -q 'computeMonotoneSplineControlPoints' <<<"$graph_code"; then
-      pass "S3: WeatherGraph implements Fritsch-Carlson Monotone Cubic Spline interpolation (GRAPH-01, D-54-15)"
+    # Phase 54.4 (D-54.4-02): spline and roll-up filter moved into WeatherGraphMath.js; assert them there.
+    math_code="$(cat "$WEATHER_MOD_SRC/WeatherGraphMath.js" 2>/dev/null)"
+    if grep -q 'bezierCurveTo' <<<"$math_code" && grep -q 'computeMonotoneSplineControlPoints' <<<"$math_code"; then
+      pass "S3: WeatherGraphMath.js implements Fritsch-Carlson Monotone Cubic Spline interpolation (GRAPH-01, D-54-15)"
     else
-      fail "S3: WeatherGraph missing Fritsch-Carlson spline interpolation logic"
+      fail "S3: WeatherGraphMath.js missing Fritsch-Carlson spline interpolation logic"
     fi
-    if grep -q 'time.*!==.*"24"' <<<"$graph_code"; then
-      pass "S3: WeatherGraph normalizes hourly data by explicitly filtering time: '24' day roll-up slot (Pitfall 1)"
+    if grep -q 'String(raw.time) === "24"' <<<"$math_code"; then
+      pass "S3: WeatherGraphMath.js normalizes hourly data by explicitly filtering time: '24' day roll-up slot (Pitfall 1)"
     else
-      fail "S3: WeatherGraph missing time: '24' roll-up filter"
+      fail "S3: WeatherGraphMath.js missing time: '24' roll-up filter"
     fi
     if grep -q 'MouseArea' <<<"$graph_code" && grep -q 'hoverEnabled:\s*true' <<<"$graph_code"; then
       pass "S3: WeatherGraph implements hover scrub MouseArea (GRAPH-03)"
@@ -414,11 +417,7 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 3 ]]; then
     else
       fail "S3: WeatherGraph missing popupActive gating for Canvas repaints"
     fi
-    if grep -q 'tooltipPill' <<<"$graph_code" && grep -q 'snapDot' <<<"$graph_code"; then
-      pass "S3: WeatherGraph includes snapDot and tooltipPill overlay items (D-54-21)"
-    else
-      fail "S3: WeatherGraph missing snapDot or tooltipPill overlay items"
-    fi
+    info "S3: superseded by D-54.4-08 (D-54-21 per-graph snapDot/tooltipPill): tooltip is the popup-level tooltipLayer, asserted in phase54.4 S5"
   else
     fail "S3: Missing or empty $GRAPH_SRC"
   fi
