@@ -85,19 +85,21 @@ LazyLoader {
         property real lockedTopMargin: Appearance.sizes.barHeight
 
         function updateLockedMargins() {
+            // The re-clamp Connections below call this during construction too (IN-05)
+            if (!root.hoverTarget) return;
+            // The attached QsWindow object has no screen; resolve it through the window (CR-01, POPUP-01)
+            const scr = root.hoverTarget?.QsWindow?.window?.screen ?? popupWindow.screen ?? null;
             if (!Config.options.bar.vertical) {
-                const screenWidth = root.QsWindow?.screen?.width ?? 1920;
-                const targetX = root.QsWindow?.mapFromItem(
-                    root.hoverTarget, 
-                    (root.hoverTarget.width - popupBackground.implicitWidth) / 2, 0
-                ).x ?? 0;
+                const screenWidth = (scr && scr.width > 0) ? scr.width : 1920;
+                // popupBackground starts elevationMargin inside the window on the anchored edge (PA-G1)
+                const targetX = (root.hoverTarget.QsWindow?.mapFromItem(root.hoverTarget, (root.hoverTarget.width - popupBackground.implicitWidth) / 2, 0).x ?? 0) - Appearance.sizes.elevationMargin;
                 const gap = Appearance.sizes.hyprlandGapsOut;
                 const minX = gap;
-                const maxX = screenWidth - popupBackground.implicitWidth - gap;
+                const maxX = screenWidth - popupBackground.implicitWidth - gap - Appearance.sizes.elevationMargin;
                 lockedLeftMargin = (maxX < minX) ? minX : Math.round(Math.max(minX, Math.min(targetX, maxX)));
                 lockedTopMargin = Appearance.sizes.barHeight;
             } else {
-                const screenHeight = root.QsWindow?.screen?.height ?? 1080;
+                const screenHeight = (scr && scr.height > 0) ? scr.height : 1080;
                 const targetY = root.QsWindow?.mapFromItem(
                     root.hoverTarget, 
                     0, (root.hoverTarget.height - popupBackground.implicitHeight) / 2
@@ -121,7 +123,8 @@ LazyLoader {
             }
         }
 
-        // Re-clamp when the content size resolves late, e.g. after the screen becomes known (POPUP-01, Pitfall 4)
+        // Re-clamp when the content size resolves late. The clamp reads the bar's real screen, so a
+        // late size change re-centres the popup under its pill (POPUP-01, Pitfall 4)
         Connections {
             target: popupBackground
             function onImplicitWidthChanged() { popupWindow.updateLockedMargins(); }
