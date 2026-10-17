@@ -1,17 +1,10 @@
-MenuBar=Disabled
-
-[ContentDisplay]
-UseShortRelativeDates=false
-
 [DetailsMode]
 PreviewSize=32
-RightPadding=0
 
 [General]
-AlwaysShowTabBar=true
+GlobalViewProps=false
 ShowFullPath=true
 ShowStatusBar=FullWidth
-ShowToolTips=true
 Version=202
 
 [KFileDialog Settings]
