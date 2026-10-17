@@ -37,8 +37,8 @@ Requirements for Milestone v0.10. Each maps to roadmap phases.
 
 ### Multi-Modal Popup Inspector (POPUP)
 
-- [x] **POPUP-01**: `WeatherPopup.qml` anchored via `StyledPopup` with 1000ms hover intent delay and horizontal screen boundary clamping.
-- [x] **POPUP-02**: Hero header card presenting location name (`nearest_area`), local observation time, large temperature readout, and human condition description (`weatherDesc`).
+- [ ] **POPUP-01**: `WeatherPopup.qml` anchored via `StyledPopup` with 1000ms hover intent delay and horizontal screen boundary clamping.
+- [ ] **POPUP-02**: Hero header card presenting location name (`nearest_area`), local observation time, large temperature readout, and human condition description (`weatherDesc`).
 - [ ] **POPUP-03**: Atmospheric metrics grid displaying Humidity (%), Barometric Pressure (hPa), UV Index, and Visibility (km). **[Phase 54.4: interim graph delivery]** — humidity (Graph 1 tooltip), pressure in atm (D-54.4-31, Graph 3), UV (Graph 3) and visibility (Graph 2) read out in the hourly graph tooltips while the Atmospheric grid card is hidden; the card returns in Phase 54.5.
 - [ ] **POPUP-04**: Air Quality Index (AQI) card displaying US-EPA index (1–6) color-coded health badge and fine particulate PM2.5 / PM10 concentrations. **[Phase 54.4: interim graph delivery]** — EPA tier ribbon (D-54.4-28) plus the AQI, PM2.5 and PM10 tooltip line (D-54.4-33) in Graph 3 while the AQI card is hidden; the card returns in Phase 54.5.
 - [ ] **POPUP-05**: Dynamic wind compass card displaying rotating needle angle (`winddirDegree`), 16-point direction (`winddir16Point`), wind speed (km/h), and peak gusts.
@@ -94,8 +94,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GRAPH-02 | Phase 54 | Complete |
 | GRAPH-03 | Phase 54 | Complete |
 | GRAPH-04 | Phase 54 | Complete |
-| POPUP-01 | Phase 54 | Complete |
-| POPUP-02 | Phase 54 | Complete |
+| POPUP-01 | Phase 54 | Gaps Found |
+| POPUP-02 | Phase 54 | Gaps Found |
 | POPUP-03 | Phase 54.4, 54.5 | In Progress |
 | POPUP-04 | Phase 54.4, 54.5 | In Progress |
 | POPUP-05 | Phase 54.5 | Pending |
