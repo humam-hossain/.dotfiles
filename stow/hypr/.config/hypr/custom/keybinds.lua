@@ -199,14 +199,8 @@ hl.bind(
 
 -- voicemode start
 hl.unbind("SUPER + T")
-hl.bind(
-	"SUPER + SHIFT + M",
-	hl.dsp.exec_cmd(HOME .. "/.local/bin/voice --toggle"),
-	{ description = "Voice STT: Push-to-talk toggle" }
-)
-hl.bind(
-	"SUPER + T",
-	hl.dsp.exec_cmd(HOME .. "/.local/bin/voice --speak-selection"),
-	{ description = "Voice TTS: Speak selection" }
-)
+hl.unbind("SUPER + CTRL + M")
+hl.bind("SUPER + SHIFT + M", hl.dsp.exec_cmd(HOME .. "/.local/bin/voice --toggle"), { description = "Voice STT: Push-to-talk toggle" })
+hl.bind("SUPER + CTRL + M", hl.dsp.exec_cmd(HOME .. "/.local/bin/voice --cancel"), { description = "Voice STT: Cancel recording" })
+hl.bind("SUPER + T", hl.dsp.exec_cmd(HOME .. "/.local/bin/voice --speak-selection"), { description = "Voice TTS: Speak selection" })
 -- voicemode end
