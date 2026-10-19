@@ -306,3 +306,13 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 **Deferred at:** 2026-10-15 during /gsd-verify-work 54.3 session completion
 **Follow-ups:**
 - [ ] Test 4: user confirms five stacked graphs work, but wants a future phase to redesign into 2-3 compact graphs (possibly horizontal, smaller) with no scrolling (deferred 2026-10-15) **[absorbed by Phase 54.4]** — three compact side-by-side graphs, no scrolling
+
+### Phase 999.2: Router Ping & Wi-Fi Link Diagnostics with Quickshell Status Bar Integration (BACKLOG)
+
+**Goal:** Detect, diagnose, and alert on local Wi-Fi hop contention, router ping spikes, and driver stalls using system-monitor telemetry and dots-hyprland Quickshell top status bar integration.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
