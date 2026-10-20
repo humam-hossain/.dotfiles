@@ -1,26 +1,27 @@
---- TODO: Colorscheme - catppuccin, highlights ---
+--- Colorscheme - black-metal (darkthrone: pure #000000 bg, monochrome) ---
 return {
-	"catppuccin/nvim",
-	name = "catppuccin",
+	"metalelf0/black-metal-theme-neovim",
 	lazy = false,
 	priority = 1000,
 	config = function()
-		require("catppuccin").setup({
-			flavour = "mocha",
-			transparent_background = false,
-			integrations = {
-				cmp = true, -- blink.cmp reuses nvim-cmp highlight groups
-				gitsigns = true,
-				neotree = true, -- replaces stale nvimtree flag (neo-tree is installed)
-				treesitter = true,
-				markdown = true,
-				snacks = {
-					enabled = true,
-					indent_scope_color = "", -- default = overlay2
-				},
-				-- REMOVED per D-14: nvimtree (no nvim-tree installed), telescope (no telescope installed)
+		require("black-metal").setup({
+			theme = "darkthrone",
+			variant = "dark",
+			alt_bg = false,
+			transparent = false,
+			-- stock darkthrone is all grey: keyword/func/constant barely differ
+			colors = {
+				keyword = "#a06060", -- dusty red: if/for/return/def
+				func = "#6f9a9a", -- muted teal: function names and calls
+				constant = "#b09a68", -- muted sand: constants, True/None
+				number = "#b09a68",
+				string = "#8a9a78", -- muted olive
+				type = "#8c8cac", -- muted slate: types and classes
+				property = "#c1c1c1",
+				comment = "#505050",
 			},
+			code_style = { keywords = "bold", comments = "italic" },
 		})
-		vim.cmd.colorscheme("catppuccin")
+		require("black-metal").load()
 	end,
 }
