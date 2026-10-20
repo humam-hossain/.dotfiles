@@ -83,17 +83,23 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 1 ]]; then
   info "--- Section 1: Template & Config Readiness (INTG-01, D-01..D-04, D-08) ---"
 
   # 1. Matugen hyprland colors template readiness
+  # Personal overlay (restow/matugen) wins when present: it carries the pinned
+  # blue->green active_border gradient (personal decision superseding D-01).
   MATUGEN_HYPR_TPL="$REPO_ROOT/vendor/dots-hyprland/dots/.config/matugen/templates/hyprland/colors.lua"
   [[ -f "$MATUGEN_HYPR_TPL" ]] || MATUGEN_HYPR_TPL="$XDG_CONFIG_HOME/matugen/templates/hyprland/colors.lua"
+  MATUGEN_HYPR_TPL_PERSONAL="$REPO_ROOT/restow/matugen/.config/matugen/templates/hyprland/colors.lua"
+  [[ -f "$MATUGEN_HYPR_TPL_PERSONAL" ]] || MATUGEN_HYPR_TPL_PERSONAL="$XDG_CONFIG_HOME/matugen/templates/hyprland/colors.lua"
 
-  if [[ -f "$MATUGEN_HYPR_TPL" ]] && \
-     grep -q 'active_border.*outline_variant.*77' "$MATUGEN_HYPR_TPL" && \
-     grep -q 'inactive_border.*surface_container_low.*33' "$MATUGEN_HYPR_TPL" && \
-     grep -q 'background_color.*surface\.dark.*FF' "$MATUGEN_HYPR_TPL" && \
-     grep -q 'border_color.*primary.*AA.*primary.*77' "$MATUGEN_HYPR_TPL"; then
-    pass "S1: Matugen hyprland colors template declares active, inactive, background, and pinned border tokens (D-01..D-03, D-08)"
+  # Active border may be either the upstream outline_variant token or the pinned
+  # personal blue->green gradient. Inactive/background/pinned tokens are unchanged.
+  if [[ -f "$MATUGEN_HYPR_TPL_PERSONAL" ]] && \
+     grep -qE 'active_border.*(outline_variant.*77|colors = \{ "rgba\(1c71d8f{2}\)", "rgba\(2ec27ef{2}\)" \}, angle = 45)' "$MATUGEN_HYPR_TPL_PERSONAL" && \
+     grep -q 'inactive_border.*surface_container_low.*33' "$MATUGEN_HYPR_TPL_PERSONAL" && \
+     grep -q 'background_color.*surface\.dark.*FF' "$MATUGEN_HYPR_TPL_PERSONAL" && \
+     grep -q 'border_color.*primary.*AA.*primary.*77' "$MATUGEN_HYPR_TPL_PERSONAL"; then
+    pass "S1: Matugen hyprland colors template declares active (token or pinned gradient), inactive, background, and pinned border tokens (D-01..D-03, D-08)"
   else
-    fail "S1: Matugen hyprland colors template missing required token bindings ($MATUGEN_HYPR_TPL)"
+    fail "S1: Matugen hyprland colors template missing required token bindings ($MATUGEN_HYPR_TPL_PERSONAL)"
   fi
 
   # 2. Live colors.lua existence and syntax
@@ -144,9 +150,18 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 2 ]]; then
   expected_active_gradient=""
   expected_inactive_gradient=""
 
-  # 1. Parse active_border: rgba(46474777) -> RGB=464747, Alpha=77 -> Expected gradient hex: 77464747
+  # 1. Parse active_border: either a single rgba(RRGGBBAA) string
+  #    (rgba(46474777) -> gradient 77464747) or a two-stop gradient table
+  #    (colors = { "rgba(1c71d8ff)", "rgba(2ec27eff)" } -> gradient ff1c71d8).
+  #    The live compositor reports only the FIRST stop's AARRGGBB.
   lua_active_raw="$(grep -oP '\bactive_border\s*=\s*"rgba\(\K[0-9a-fA-F]{8}' "$LIVE_COLORS_LUA" || true)"
-  if [[ -n "$lua_active_raw" && ${#lua_active_raw} -eq 8 ]]; then
+  lua_active_grad="$(grep -oP '\bactive_border\s*=\s*\{\s*colors\s*=\s*\{\s*"rgba\(\K[0-9a-fA-F]{8}' "$LIVE_COLORS_LUA" || true)"
+  if [[ -n "$lua_active_grad" && ${#lua_active_grad} -eq 8 ]]; then
+    lua_active_rgb="${lua_active_grad:0:6}"
+    lua_active_alpha="${lua_active_grad:6:2}"
+    expected_active_gradient="${lua_active_alpha}${lua_active_rgb}"
+    pass "S2: Parsed active_border gradient from colors.lua: first stop rgba(${lua_active_grad}) -> expected gradient ${expected_active_gradient} (D-01, personal blue->green)"
+  elif [[ -n "$lua_active_raw" && ${#lua_active_raw} -eq 8 ]]; then
     lua_active_rgb="${lua_active_raw:0:6}"
     lua_active_alpha="${lua_active_raw:6:2}"
     expected_active_gradient="${lua_active_alpha}${lua_active_rgb}"
@@ -367,6 +382,8 @@ if [[ "$RUN_SECTION" -eq 0 || "$RUN_SECTION" -eq 4 ]]; then
   if [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]] && command -v hyprctl &>/dev/null; then
     sleep 0.2
     new_active_raw="$(grep -oP '\bactive_border\s*=\s*"rgba\(\K[0-9a-fA-F]{8}' "$LIVE_COLORS_LUA" || true)"
+    new_active_grad="$(grep -oP '\bactive_border\s*=\s*\{\s*colors\s*=\s*\{\s*"rgba\(\K[0-9a-fA-F]{8}' "$LIVE_COLORS_LUA" || true)"
+    new_active_raw="${new_active_grad:-$new_active_raw}"
     if [[ -n "$new_active_raw" && ${#new_active_raw} -eq 8 ]]; then
       exp_new="${new_active_raw:6:2}${new_active_raw:0:6}"
       live_new="$(hyprctl -j getoption general:col.active_border 2>/dev/null | jq -r '.gradient // empty' | awk '{print $1}')"
