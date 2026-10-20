@@ -6,11 +6,12 @@ return {
 	font_size = 11.0,
 
 	-- Window
-	window_background_opacity = 0.9,
+	window_background_opacity = 1.0,
 	window_decorations = "NONE", -- Good for tiling WMs
 
 	-- Colors
 	color_scheme = "Dracula",
+	colors = { background = "#000000" },
 
 	-- Disable WezTerm's built-in multiplexing (use tmux instead)
 	enable_tab_bar = false,
