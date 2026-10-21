@@ -1,0 +1,85 @@
+# Black Metal (darkthrone) - pure black bg, monochrome with muted accents
+
+# Main background, empty for terminal default
+theme[main_bg]="#000000"
+
+# Main text color
+theme[main_fg]="#f1f1f1"
+
+# Title color for boxes
+theme[title]="#f1f1f1"
+
+# Highlight color for keyboard shortcuts
+theme[hi_fg]="#c1c1c1"
+
+# Background color of selected item in processes box
+theme[selected_bg]="#222222"
+
+# Foreground color of selected item in processes box
+theme[selected_fg]="#f1f1f1"
+
+# Color of inactive/disabled text
+theme[inactive_fg]="#505050"
+
+# Color of text appearing on top of graphs, i.e uptime and current network graph scaling
+theme[graph_text]="#c1c1c1"
+
+# Background color of the percentage meters
+theme[meter_bg]="#151515"
+
+# Misc colors for processes box including mini cpu graphs, details memory graph and details status text
+theme[proc_misc]="#c1c1c1"
+
+# CPU, Memory, Network, Proc box outline colors
+theme[cpu_box]="#6f9a9a" # muted teal (func)
+theme[mem_box]="#8a9a78" # muted olive (string)
+theme[net_box]="#a06060" # dusty red (keyword)
+theme[proc_box]="#8c8cac" # muted slate (type)
+
+# Box divider line and small boxes line color
+theme[div_line]="#333333"
+
+# Temperature graph color (Green -> Yellow -> Red)
+theme[temp_start]="#8a9a78"
+theme[temp_mid]="#b09a68"
+theme[temp_end]="#a06060"
+
+# CPU graph colors (Teal -> Slate)
+theme[cpu_start]="#6f9a9a"
+theme[cpu_mid]="#7a8a8a"
+theme[cpu_end]="#8c8cac"
+
+# Mem/Disk free meter (Olive -> Slate)
+theme[free_start]="#8a9a78"
+theme[free_mid]="#9aa08a"
+theme[free_end]="#8c8cac"
+
+# Mem/Disk cached meter (Teal -> Slate)
+theme[cached_start]="#6f9a9a"
+theme[cached_mid]="#7f9a9a"
+theme[cached_end]="#8c8cac"
+
+# Mem/Disk available meter (Sand -> Red)
+theme[available_start]="#b09a68"
+theme[available_mid]="#b07868"
+theme[available_end]="#a06060"
+
+# Mem/Disk used meter (Olive -> Teal)
+theme[used_start]="#8a9a78"
+theme[used_mid]="#7f9a88"
+theme[used_end]="#6f9a9a"
+
+# Download graph colors (Sand -> Red)
+theme[download_start]="#b09a68"
+theme[download_mid]="#b07868"
+theme[download_end]="#a06060"
+
+# Upload graph colors (Olive -> Teal)
+theme[upload_start]="#8a9a78"
+theme[upload_mid]="#7f9a88"
+theme[upload_end]="#6f9a9a"
+
+# Process box color gradient for threads, mem and cpu usage (Teal -> Slate -> Sand)
+theme[process_start]="#6f9a9a"
+theme[process_mid]="#8c8cac"
+theme[process_end]="#b09a68"
