@@ -146,3 +146,8 @@ j() {
 
 # Alias 'jrnl' with a leading space to trigger function 'j' while skipping history
 alias jrnl=" j"
+
+# INFO: taskwarrior
+task-left() {
+  task calc "$1.due - now" | sed -E 's/P//; s/T/ /; s/([0-9]+[A-Z])/\1 /g; y/DHWMS/dhwms/' | xargs
+}
