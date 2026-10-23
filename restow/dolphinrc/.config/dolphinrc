@@ -1,7 +1,10 @@
+MenuBar=Disabled
+
 [DetailsMode]
 PreviewSize=32
 
 [General]
+AlwaysShowTabBar=true
 GlobalViewProps=false
 ShowFullPath=true
 ShowStatusBar=FullWidth
