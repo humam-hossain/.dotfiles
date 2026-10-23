@@ -117,3 +117,32 @@ autoload -Uz compinit && compinit -C
 
 # claude
 alias claude="TMPDIR=$HOME/.cache/claude-tmp claude --dangerously-skip-permissions"
+
+# INFO: Ephemeral jrnl + gocryptfs Setup (Zsh)
+export TMPDIR="/tmp"
+setopt HIST_IGNORE_SPACE
+
+j() {
+    local MOUNT_POINT="$HOME/Vault"
+    local CIPHER_DIR="$HOME/.vault_cipher"
+    local WAS_MOUNTED=0
+
+    # 1. Check if Vault is already mounted
+    if mountpoint -q "$MOUNT_POINT"; then
+        WAS_MOUNTED=1
+    else
+        echo "🔓 Unlocking encrypted storage..."
+        gocryptfs "$CIPHER_DIR" "$MOUNT_POINT" || return 1
+    fi
+
+    # 2. Trap signals to handle cleanup on function exit in Zsh
+    if [[ $WAS_MOUNTED -eq 0 ]]; then
+        trap 'fusermount -u "$HOME/Vault" 2>/dev/null && echo "🔒 Vault unmounted and locked."; trap - EXIT INT TERM' EXIT INT TERM
+    fi
+
+    # 3. Use 'command' to execute the binary and avoid alias loops
+    command jrnl "$@"
+}
+
+# Alias 'jrnl' with a leading space to trigger function 'j' while skipping history
+alias jrnl=" j"
