@@ -37,3 +37,7 @@ set -gx PATH $PATH /home/pera/.lmstudio/bin
 
 # Added by Antigravity CLI installer
 set -gx PATH "/home/pera/.local/bin" $PATH
+
+# INFO: jrnl config
+export TMPDIR="/tmp"
+abbr --add jrnl " jrnl"
