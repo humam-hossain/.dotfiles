@@ -5,13 +5,17 @@ return {
 		"kevinhwang91/promise-async",
 	},
 	config = function()
-		-- 1. Modern Highlight Adjustments
-		-- Keep the main line transparent
-		vim.api.nvim_set_hl(0, "Folded", { bg = "NONE" })
-		
-		-- Create a specific highlight for your suffix box
-		-- fg="#11111b" (dark text) makes the light blue background readable
-		vim.api.nvim_set_hl(0, "UfoSuffixHighlight", { bg = "#89b4fa", fg = "#11111b", bold = true })
+		-- 1. Highlight Adjustments (derive from the active colorscheme)
+		-- Keep the fold line transparent but preserve the theme's muted text color.
+		-- Passing only { bg = "NONE" } clears the whole group and drops the fg.
+		local comment_fg = vim.api.nvim_get_hl(0, { name = "Comment", link = false }).fg or "#505050"
+		vim.api.nvim_set_hl(0, "Folded", { bg = "NONE", fg = comment_fg })
+
+		-- Suffix box uses the theme's keyword accent (dusty red in black-metal)
+		-- with the editor background as text color, instead of the old Catppuccin blue.
+		local accent_bg = vim.api.nvim_get_hl(0, { name = "Keyword", link = false }).fg or "#a06060"
+		local normal_bg = vim.api.nvim_get_hl(0, { name = "Normal", link = false }).bg or "#000000"
+		vim.api.nvim_set_hl(0, "UfoSuffixHighlight", { bg = accent_bg, fg = normal_bg, bold = true })
 
 		-- set options
 		vim.o.foldcolumn = "1"

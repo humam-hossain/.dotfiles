@@ -6,6 +6,11 @@ return {
 		"nvim-tree/nvim-web-devicons",
 	},
 	config = function()
+		-- Derive the separator color from the active theme (was a stale Nord #434C5E)
+		local separator_fg = vim.api.nvim_get_hl(0, { name = "WinSeparator", link = false }).fg
+			or vim.api.nvim_get_hl(0, { name = "Comment", link = false }).fg
+			or "#505050"
+
 		require("bufferline").setup({
 			options = {
 				mode = "buffers", -- set to "tabs" to only show tabpages instead
@@ -46,7 +51,7 @@ return {
 			},
 			highlights = {
 				separator = {
-					fg = "#434C5E",
+					fg = separator_fg,
 				},
 				buffer_selected = {
 					bold = true,
