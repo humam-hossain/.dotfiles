@@ -29,5 +29,5 @@ hl.on("hyprland.start", function()
 		"[workspace special:social silent] sh -c 'command -v vesktop >/dev/null 2>&1 && exec vesktop || exec discord'"
 	)
 	hl.exec_cmd("[workspace special:office silent] thunderbird")
-	hl.exec_cmd("[workspace special:office silent] slack")
+	hl.exec_cmd("[workspace special:office silent] slack --enable-features=UseOzonePlatform --ozone-platform=wayland --enable-features=WaylandWindowDecorations --disable-features=WaylandFractionalScaleV1")
 end)
