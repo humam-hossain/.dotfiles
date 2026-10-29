@@ -16,6 +16,7 @@ Singleton {
     }
     readonly property string recorderPidPath: runtimeDir + "/recorder.pid"
     readonly property string ttsPidPath: runtimeDir + "/tts.pid"
+    readonly property string statusPath: runtimeDir + "/status.json"
 
     // Reactive State Properties
     property string sttState: "idle"
@@ -44,6 +45,14 @@ Singleton {
     readonly property int maxDurationSeconds: 300
     property real startTime: 0
 
+    // Incremental Transcription & ETA Properties
+    property real transcribedAudioSeconds: 0.0
+    property string formattedTranscribedDuration: "0:00"
+    property var etaRemainingSeconds: null
+    property string etaSource: ""
+    property bool etaOverrun: false
+    property string etaPillLabel: ""
+
     // Formatting Helper
     function formatDuration(sec) {
         const m = Math.floor(sec / 60);
@@ -62,6 +71,13 @@ Singleton {
     FileView {
         id: ttsFile
         path: root.ttsPidPath
+        printErrors: false
+        blockLoading: true
+    }
+
+    FileView {
+        id: statusFile
+        path: root.statusPath
         printErrors: false
         blockLoading: true
     }
@@ -113,6 +129,12 @@ Singleton {
         elapsedMs = 0;
         elapsedSeconds = 0;
         formattedDuration = "0:00";
+        transcribedAudioSeconds = 0.0;
+        formattedTranscribedDuration = "0:00";
+        etaRemainingSeconds = null;
+        etaSource = "";
+        etaOverrun = false;
+        etaPillLabel = "";
     }
 
     // Recover Start Time on Shell Reload
@@ -159,6 +181,17 @@ Singleton {
     function poll() {
         recorderFile.reload();
         ttsFile.reload();
+        statusFile.reload();
+
+        let st = null;
+        const statusText = statusFile.text().trim();
+        if (statusText.length > 0) {
+            try {
+                st = JSON.parse(statusText);
+            } catch (e) {
+                st = null;
+            }
+        }
 
         const recText = recorderFile.text().trim();
         const ttsText = ttsFile.text().trim();
@@ -167,7 +200,10 @@ Singleton {
         if (recText.length > 0) {
             const parts = recText.split(/\s+/);
             const pid = parseInt(parts[0]);
-            const rawState = parts[1] || "recording";
+            let rawState = parts[1] || "recording";
+            if (st && st.state && typeof st.state === "string") {
+                rawState = st.state;
+            }
 
             if (!isNaN(pid) && pid > 0) {
                 root.sttPid = pid;
@@ -199,12 +235,42 @@ Singleton {
                 }
             }
         } else {
-            if (root.sttState === "transcribing") {
+            if (st && st.state && typeof st.state === "string" && st.state !== "idle") {
+                root.sttState = st.state;
+                if (st.pid && st.pid > 0) {
+                    root.sttPid = st.pid;
+                }
+            } else if (root.sttState === "transcribing") {
                 root.sttState = "typing";
                 typingLingerTimer.restart();
             } else if (!typingLingerTimer.running) {
                 root.sttState = "idle";
                 root.sttPid = 0;
+            }
+        }
+
+        // Process status.json payload properties
+        if (st) {
+            if (st.transcribed_audio_s !== undefined && st.transcribed_audio_s !== null && st.transcribed_audio_s > 0) {
+                root.transcribedAudioSeconds = st.transcribed_audio_s;
+                root.formattedTranscribedDuration = formatDuration(Math.floor(st.transcribed_audio_s));
+            }
+
+            if (st.eta_remaining_s !== undefined) {
+                root.etaRemainingSeconds = st.eta_remaining_s;
+            }
+            if (st.eta_source !== undefined) {
+                root.etaSource = st.eta_source;
+            }
+            if (st.overrun !== undefined) {
+                root.etaOverrun = !!st.overrun;
+            }
+
+            if (st.overrun === true) {
+                root.etaPillLabel = "Finishing…";
+            } else if (st.eta_remaining_s !== null && st.eta_remaining_s !== undefined) {
+                const prefix = (st.eta_source === "prior" || st.eta_source === "cold") ? "~" : "";
+                root.etaPillLabel = prefix + st.eta_remaining_s + "s";
             }
         }
 
@@ -245,6 +311,15 @@ Singleton {
         } else {
             root.ttsState = "idle";
             root.ttsPid = 0;
+        }
+
+        if (root.sttState === "idle" && root.ttsState === "idle" && !typingLingerTimer.running) {
+            root.transcribedAudioSeconds = 0.0;
+            root.formattedTranscribedDuration = "0:00";
+            root.etaPillLabel = "";
+            root.etaRemainingSeconds = null;
+            root.etaSource = "";
+            root.etaOverrun = false;
         }
 
         root.updateDuration();

@@ -49,9 +49,15 @@ BarGroup {
     // Dynamic Text Content Mapping (D-06, D-07)
     readonly property string displayText: {
         switch (effectiveState) {
-            case "recording": return Voice.formattedDuration;
+            case "recording":
+                return (Voice.transcribedAudioSeconds > 0)
+                    ? (Voice.formattedDuration + " | " + Voice.formattedTranscribedDuration)
+                    : Voice.formattedDuration;
             case "speaking": return Voice.formattedDuration;
-            case "transcribing": return Translation.tr("Transcribing...");
+            case "transcribing":
+                return (Voice.etaPillLabel.length > 0)
+                    ? Voice.etaPillLabel
+                    : Translation.tr("Transcribing...");
             case "typing": return Translation.tr("Typing...");
             case "wrapup": return lastRecordedDuration;
             case "starting": return Voice.formattedDuration;
