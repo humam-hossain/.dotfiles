@@ -6,10 +6,6 @@ return {
 		"christoomey/vim-tmux-navigator",
 	},
 	{
-		-- Detect tabstop and shiftwidth automatically
-		"tpope/vim-sleuth",
-	},
-	{
 		-- GitHub integration for vim-fugitive
 		"tpope/vim-rhubarb",
 	},

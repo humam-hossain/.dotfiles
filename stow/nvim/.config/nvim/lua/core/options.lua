@@ -49,3 +49,31 @@ vim.opt.iskeyword:append("-") -- Hyphenated words recognized by searches (defaul
 vim.opt.formatoptions:remove({ "c", "r", "o" }) -- Don't insert the current comment leader automatically for auto-wrapping comments using 'textwidth', hitting <Enter> in insert mode, or hitting 'o' or 'O' in normal mode. (default: 'croql')
 vim.opt.runtimepath:remove("/usr/share/vim/vimfiles") -- Separate Vim plugins from Neovim in case Vim still in use (default: includes this path if Vim is installed)
 
+-- NOTE: Indentation policy - always 4, never 2
+-- The global values above are not enough on their own. Several things fight them:
+--   * runtime ftplugins set their own widths (yaml/ruby/sass => 2, man => 8)
+--   * project .editorconfig files can declare indent_size = 2
+--   * per-file modelines can carry sw=2
+--   * vim-sleuth used to sniff the width from the file on disk (removed, see plugins/misc.lua)
+-- Re-assert 4 after every FileType so no buffer can ever end up at 2. The
+-- deferred call lands after the whole FileType chain (ftplugin, after/ftplugin)
+-- and after modeline processing, so nothing running later can win.
+-- Languages whose tooling requires real tabs keep expandtab off; their indent
+-- still displays as 4 wide because tabstop is 4.
+local tab_indent_filetypes = { go = true, make = true, automake = true, asm = true }
+
+vim.api.nvim_create_autocmd("FileType", {
+	group = vim.api.nvim_create_augroup("user_indent_four", { clear = true }),
+	callback = function(event)
+		vim.schedule(function()
+			if not vim.api.nvim_buf_is_valid(event.buf) then
+				return
+			end
+			local bo = vim.bo[event.buf]
+			bo.shiftwidth = 4
+			bo.tabstop = 4
+			bo.softtabstop = 4
+			bo.expandtab = not tab_indent_filetypes[bo.filetype]
+		end)
+	end,
+})

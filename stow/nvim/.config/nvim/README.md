@@ -26,6 +26,29 @@
 | lua/plugins/bufferline.lua | Buffer tabs |
 | lua/plugins/project.lua | Project scoping |
 | lua/plugins/vim-indent-object.lua | Indent textobjects |
+| .prettierrc.json | Prettier/prettierd default config (4-space indent) |
+
+## Indentation policy: 4 spaces, always
+
+Every buffer indents with 4 spaces, in every language. Two independent layers enforce it, because either one alone leaks 2-space indents:
+
+**Editing** — `lua/core/options.lua` sets `shiftwidth`/`tabstop`/`softtabstop` to 4 globally, then a `FileType` autocmd re-asserts them (and `expandtab`) for every buffer. The re-assertion is deferred with `vim.schedule` so it runs after runtime ftplugins, `after/ftplugin` scripts, project `.editorconfig` files, and modelines — all of which can otherwise set `indent_size`/`sw` to 2. `vim-sleuth` (which guessed the indent width from files on disk) was removed from `lua/plugins/misc.lua` for the same reason.
+
+**Formatting** — `lua/plugins/conform.lua` pins every formatter that hardcodes a 2-space default:
+
+| Formatter | Default | Pinned with |
+|-----------|---------|-------------|
+| google-java-format | 2 spaces (Google style) | `--aosp` (same formatter, 4-space AOSP style) |
+| clang-format | 2 spaces (LLVM style) | `--style={IndentWidth: 4, TabWidth: 4, UseTab: Never, ...}` |
+| prettierd | 2 spaces | `PRETTIERD_DEFAULT_CONFIG` → `.prettierrc.json` (`tabWidth: 4`) |
+| prettier (fallback) | 2 spaces | `--tab-width 4` |
+| latexindent | 2 spaces | `-y=defaultIndent: '    '` |
+| black / isort | already 4 / n/a | no override needed |
+| stylua | tabs, 4 wide | no override needed (repo Lua files use tabs) |
+
+Languages whose tooling requires real tabs (`go`, `make`, `asm`) keep `expandtab` off, but `tabstop=4` so they still display 4 wide. LSP formatting (`jsonls`, `cssls`, `html`, `ts_ls`, …) receives `tabSize` from the buffer, so it inherits the 4-space setting automatically. YAML is formatted by prettierd instead of `yamlls` because `yamlls` bundles its own prettier and ignores the LSP `tabSize`.
+
+Verify with `./scripts/nvim-validate.sh indent`.
 
 ## Rollout and Update Workflow
 
@@ -78,7 +101,7 @@ Run these steps in order from the dotfiles repo root. Each step is idempotent.
    ./scripts/nvim-validate.sh all
    ```
 
-   This runs `startup`, `sync`, `smoke`, `health`, `checkhealth`, `keymaps`, and `formats` in order and fails fast. Expected final line: `==> all PASS`. See **Post-Deploy Verification** below for what to do on failure.
+   This runs `startup`, `sync`, `smoke`, `health`, `checkhealth`, `keymaps`, `formats`, and `indent` in order and fails fast. Expected final line: `==> all PASS`. See **Post-Deploy Verification** below for what to do on failure.
 
 6. **Launch Neovim and confirm the UI**
 
@@ -111,7 +134,7 @@ Run these checks in order after step 5 of the update checklist. Each check has a
    ./scripts/nvim-validate.sh all
    ```
 
-   Expected final line: `==> all PASS`. The suite runs `startup`, `sync`, `smoke`, `health`, `checkhealth`, `keymaps`, and `formats`. Output artifacts land in `.planning/tmp/nvim-validate/` — inspect `health.json` if `health` fails, `checkhealth.txt` if `checkhealth` fails, `keymap-regression.log` if `keymaps` fails, or `format-regression.log` if `formats` fails.
+   Expected final line: `==> all PASS`. The suite runs `startup`, `sync`, `smoke`, `health`, `checkhealth`, `keymaps`, `formats`, and `indent`. Output artifacts land in `.planning/tmp/nvim-validate/` — inspect `health.json` if `health` fails, `checkhealth.txt` if `checkhealth` fails, `keymap-regression.log` if `keymaps` fails, `format-regression.log` if `formats` fails, or `indent-regression.log` if `indent` fails.
 
 2. **In-editor: :checkhealth**
 
@@ -329,7 +352,8 @@ The repo ships a shell-orchestrated headless validation harness so maintainers c
 | `./scripts/nvim-validate.sh checkhealth` | Run headless `:checkhealth`, dump full report to `.planning/tmp/nvim-validate/checkhealth.txt`; fail on unexpected ERROR lines while tolerating documented headless/env-only provider errors |
 | `./scripts/nvim-validate.sh keymaps` | pcall-test the keymap dispatcher against Phase 7 error-prone action string types; fail on any error thrown; artifact: `keymap-regression.log` |
 | `./scripts/nvim-validate.sh formats` | Call the `format_on_save` guard directly with mock buffer contexts (nofile, unnamed, acwrite); verify correct false/options return; artifact: `format-regression.log` |
-| `./scripts/nvim-validate.sh all` | Run startup → sync → smoke → health → checkhealth → keymaps → formats in order; fail fast |
+| `./scripts/nvim-validate.sh indent` | Probe the 4-space indentation policy: `sw`/`ts`/`sts` = 4 and `expandtab` per filetype, `vim-sleuth` absent, and every formatter pinned to 4 spaces; artifact: `indent-regression.log` |
+| `./scripts/nvim-validate.sh all` | Run startup → sync → smoke → health → checkhealth → keymaps → formats → indent in order; fail fast |
 
 ### Interactive health provider
 
@@ -347,6 +371,7 @@ All reports are written to `.planning/tmp/nvim-validate/` (gitignored):
 - `checkhealth.txt` — full rendered `:checkhealth` output
 - `keymap-regression.log` — per-action-type pcall results from the keymap dispatcher probe
 - `format-regression.log` — per-buffer-context guard return values from the format-on-save probe
+- `indent-regression.log` — per-filetype indent options and formatter argument checks from the indentation-policy probe
 
 ### Reading validation output
 
@@ -362,12 +387,13 @@ Each artifact maps to one subcommand and one triage action when it fails:
 | `checkhealth.txt` | `checkhealth` | Classify each `WARNING:` line: config regression → fix repo code; environment gap → document or install; optional tool gap → mark By Design/Won't Fix |
 | `keymap-regression.log` | `keymaps` | Phase 7 lazy dispatcher regression — a string-action type (`<cmd>…`, `<C-…>`, `:…`) threw an error; trace to `keymaps/lazy.lua` |
 | `format-regression.log` | `formats` | `format_on_save` guard regression — a buffer-context case returned the wrong value; trace to `plugins/conform.lua` |
+| `indent-regression.log` | `indent` | Indentation policy regression — a filetype or formatter drifted off 4 spaces; trace to `core/options.lua` (buffer options) or `plugins/conform.lua` (formatter args) |
 
 #### Triage decision path
 
 Use the standard classification taxonomy — do not create a separate TRIAGE.md:
 
-- **Config regression** → fix repo code before rollout. Caused by a change in `.config/nvim/lua/` that breaks the affected behavior. The scripted probes (`keymaps`, `formats`) are the authoritative signal for the Phase 7/10 surfaces; `:checkhealth config` and `checkhealth.txt` cover the rest.
+- **Config regression** → fix repo code before rollout. Caused by a change in `.config/nvim/lua/` that breaks the affected behavior. The scripted probes (`keymaps`, `formats`, `indent`) are the authoritative signal for the Phase 7/10 surfaces and the indentation policy; `:checkhealth config` and `checkhealth.txt` cover the rest.
 - **Environment gap** → document the required tool or install it on the target machine. Not a repo defect. Record in `FAILURES.md` as Won't Fix with the install hint.
 - **Optional tool gap** → keep as `WARNING:` or mark By Design/Won't Fix when the feature is intentionally absent on that machine. Do not attempt to silence these by removing valid config.
 

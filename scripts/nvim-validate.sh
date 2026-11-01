@@ -12,8 +12,12 @@
 #                                           regression cases; write keymap-regression.log
 #   ./scripts/nvim-validate.sh formats      Probe format-on-save guard with direct
 #                                           function calls; write format-regression.log
+#   ./scripts/nvim-validate.sh indent       Probe the 4-space indentation policy
+#                                           per filetype and formatter; write
+#                                           indent-regression.log
 #   ./scripts/nvim-validate.sh all          Run startup, sync, smoke, health, checkhealth,
-#                                           keymaps, formats in that order; fail fast
+#                                           keymaps, formats, indent in that order;
+#                                           fail fast
 # =============================================================================
 
 set -euo pipefail
@@ -71,8 +75,12 @@ Subcommands:
   formats      Probe the format-on-save guard function directly for nofile,
                unnamed, and acwrite buffer cases; write format-regression.log;
                fail if any guard case returns an unexpected value
-  all          Run startup, sync, smoke, health, checkhealth, keymaps, formats
-               in that order; fail fast
+  indent       Probe the 4-space indentation policy: shiftwidth/tabstop/
+               softtabstop = 4 and expandtab on for every filetype, vim-sleuth
+               absent, and every formatter pinned to 4 spaces; write
+               indent-regression.log; fail if any filetype or formatter drifts
+  all          Run startup, sync, smoke, health, checkhealth, keymaps, formats,
+               indent in that order; fail fast
 
 Reports are written to: $REPORT_DIR/
 EOF
@@ -720,6 +728,204 @@ LUA
 }
 
 # =============================================================================
+# Subcommand: indent
+# =============================================================================
+
+cmd_indent() {
+	local log="$REPORT_DIR/indent-regression.log"
+	echo "==> indent: probing the 4-space indentation policy..."
+
+	# Every filetype must end up at shiftwidth/tabstop/softtabstop = 4 with
+	# expandtab on, regardless of what its runtime ftplugin or .editorconfig
+	# wants. Formatters that hardcode 2-space output (google-java-format,
+	# clang-format, latexindent, prettier) must carry explicit 4-space args.
+	local lua_script
+	lua_script=$(cat <<'LUA'
+local log_path = vim.fn.expand(os.getenv('INDENT_LOG') or '')
+local lines = {}
+local any_fail = false
+
+local function pass(msg)
+  table.insert(lines, 'PASS: ' .. msg)
+end
+
+local function fail(msg)
+  table.insert(lines, 'FAIL: ' .. msg)
+  io.stderr:write('FAIL: ' .. msg .. '\n')
+  any_fail = true
+end
+
+-- go/make/asm require real tabs; their indent still displays 4 wide.
+local tab_ft = { go = true, make = true, automake = true, asm = true }
+local filetypes = {
+  'java', 'python', 'javascript', 'typescript', 'lua', 'c', 'cpp', 'json',
+  'yaml', 'markdown', 'sh', 'tex', 'rust', 'ruby', 'html', 'css', 'go', 'make',
+}
+
+for _, ft in ipairs(filetypes) do
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.bo[buf].filetype = ft -- fires FileType; the policy defers via vim.schedule
+  vim.wait(20)               -- let the scheduled FileType callback run
+  local bo = vim.bo[buf]
+  local want_et = not tab_ft[ft]
+  if bo.shiftwidth ~= 4 or bo.tabstop ~= 4 or bo.softtabstop ~= 4 then
+    fail(string.format('%s: expected sw/ts/sts = 4/4/4, got %d/%d/%d',
+      ft, bo.shiftwidth, bo.tabstop, bo.softtabstop))
+  elseif bo.expandtab ~= want_et then
+    fail(string.format('%s: expected expandtab=%s, got %s',
+      ft, tostring(want_et), tostring(bo.expandtab)))
+  else
+    pass(string.format('%s: sw/ts/sts = 4/4/4, expandtab=%s', ft, tostring(bo.expandtab)))
+  end
+  vim.api.nvim_buf_delete(buf, { force = true })
+end
+
+-- vim-sleuth guesses the indent width from files on disk; it must stay gone.
+local ok_misc, misc = pcall(require, 'plugins.misc')
+if not ok_misc then
+  fail('could not load plugins.misc: ' .. tostring(misc))
+else
+  local has_sleuth = false
+  for _, spec in ipairs(misc) do
+    local name = type(spec) == 'table' and spec[1] or spec
+    if name == 'tpope/vim-sleuth' then has_sleuth = true end
+  end
+  if has_sleuth then
+    fail('vim-sleuth is back in plugins.misc (it overrides shiftwidth from file contents)')
+  else
+    pass('vim-sleuth absent from plugins.misc')
+  end
+end
+
+local ok_conf, conform = pcall(require, 'plugins.conform')
+if not ok_conf then
+  fail('could not load plugins.conform: ' .. tostring(conform))
+else
+  local fbt = (conform.opts or {}).formatters_by_ft or {}
+  local overrides = (conform.opts or {}).formatters or {}
+
+  local function mapped(ft, name)
+    local entry = fbt[ft]
+    if type(entry) ~= 'table' then return false end
+    for _, item in ipairs(entry) do
+      if item == name then return true end
+    end
+    return false
+  end
+
+  local function formatter_args(name)
+    local cfg = overrides[name]
+    if type(cfg) ~= 'table' then return nil end
+    return cfg.args
+  end
+
+  local function joined(args)
+    if type(args) ~= 'table' then return '' end
+    return table.concat(args, ' ')
+  end
+
+  local checks = {
+    { ft = 'java', name = 'google-java-format', needle = '--aosp', what = 'google-java-format --aosp' },
+    { ft = 'c',    name = 'clang-format',       needle = 'IndentWidth: 4', what = 'clang-format IndentWidth: 4' },
+    { ft = 'cpp',  name = 'clang-format',       needle = 'IndentWidth: 4', what = 'clang-format IndentWidth: 4 (cpp)' },
+    { ft = 'tex',  name = 'latexindent',        needle = 'defaultIndent', what = 'latexindent defaultIndent override' },
+    { ft = 'javascript', name = 'prettier',     needle = '--tab-width 4', what = 'prettier --tab-width 4' },
+  }
+
+  for _, c in ipairs(checks) do
+    local args = formatter_args(c.name)
+    if not mapped(c.ft, c.name) then
+      fail(string.format('%s: %s is not configured for this filetype', c.ft, c.name))
+    elseif not args then
+      fail(string.format('%s: %s has no explicit args; its default indent is not 4', c.ft, c.name))
+    elseif not joined(args):find(c.needle, 1, true) then
+      fail(string.format('%s: %s args lack "%s" (got: %s)', c.ft, c.name, c.needle, joined(args)))
+    else
+      pass(string.format('%s: %s', c.ft, c.what))
+    end
+  end
+
+  -- prettierd reads its options from a config file, not from argv.
+  local rc_path = vim.fs.joinpath(vim.fn.stdpath('config'), '.prettierrc.json')
+  local fh = io.open(rc_path, 'r')
+  if not fh then
+    fail('missing prettier default config: ' .. rc_path .. ' (re-stow the nvim package)')
+  else
+    local body = fh:read('*a')
+    fh:close()
+    local okj, decoded = pcall(vim.json.decode, body)
+    if not okj or type(decoded) ~= 'table' or decoded.tabWidth ~= 4 then
+      fail('prettier default config does not set tabWidth 4: ' .. rc_path)
+    else
+      pass('prettier default config sets tabWidth 4')
+    end
+  end
+
+  if vim.env.PRETTIERD_DEFAULT_CONFIG ~= rc_path then
+    fail('PRETTIERD_DEFAULT_CONFIG is not ' .. rc_path .. ' (got: '
+      .. tostring(vim.env.PRETTIERD_DEFAULT_CONFIG) .. ')')
+  else
+    pass('PRETTIERD_DEFAULT_CONFIG points at the 4-space config')
+  end
+end
+
+vim.fn.writefile(lines, log_path)
+
+if any_fail then
+  vim.cmd('cq')
+else
+  vim.cmd('qa!')
+end
+LUA
+)
+
+	local lua_tmp
+	lua_tmp=$(mktemp)
+	printf '%s' "$lua_script" > "$lua_tmp"
+
+	local nvim_log
+	nvim_log=$(mktemp)
+
+	INDENT_LOG="$log" nvim --headless \
+		-u "$REPO_ROOT/stow/nvim/.config/nvim/init.lua" \
+		--cmd "set rtp^=$REPO_ROOT/stow/nvim/.config/nvim" \
+		-l "$lua_tmp" \
+		> "$nvim_log" 2>&1
+	local rc=$?
+	rm -f "$lua_tmp"
+
+	if [[ $rc -ne 0 ]]; then
+		echo "FAIL: indent probe exited with code $rc" >&2
+		print_tail "$nvim_log"
+		if [[ -f "$log" ]]; then
+			echo "--- indent-regression.log ---" >&2
+			cat "$log" >&2
+			echo "---" >&2
+		fi
+		rm -f "$nvim_log"
+		return 1
+	fi
+	rm -f "$nvim_log"
+
+	if [[ ! -f "$log" ]]; then
+		echo "FAIL: indent-regression.log was not written" >&2
+		return 1
+	fi
+
+	if grep -q '^FAIL:' "$log" 2>/dev/null; then
+		echo "FAIL: indentation policy regression detected:" >&2
+		grep '^FAIL:' "$log" >&2
+		echo "Artifact: $log"
+		return 1
+	fi
+
+	local pass_count
+	pass_count=$(grep -c '^PASS:' "$log" 2>/dev/null || true)
+	echo "PASS: indent OK — $pass_count probe(s) passed; artifact: $log"
+	return 0
+}
+
+# =============================================================================
 # Subcommand: all
 # =============================================================================
 
@@ -748,8 +954,11 @@ cmd_all() {
 	cmd_formats || rc=$?
 	if [[ $rc -ne 0 ]]; then echo "==> all ABORTED at formats" >&2; exit $rc; fi
 
+	cmd_indent || rc=$?
+	if [[ $rc -ne 0 ]]; then echo "==> all ABORTED at indent" >&2; exit $rc; fi
+
 	echo ""
-	echo "==> all PASS: startup, sync, smoke, health, checkhealth, keymaps, formats all succeeded"
+	echo "==> all PASS: startup, sync, smoke, health, checkhealth, keymaps, formats, indent all succeeded"
 	return 0
 }
 
@@ -768,6 +977,7 @@ case "$SUBCMD" in
 	checkhealth) cmd_checkhealth ;;
 	keymaps)     cmd_keymaps ;;
 	formats)     cmd_formats ;;
+	indent)      cmd_indent ;;
 	all)         cmd_all ;;
 	*)           usage; exit 2 ;;
 esac
