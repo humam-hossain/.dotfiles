@@ -19,13 +19,28 @@ BarGroup {
     property string lastRecordedDuration: "0:00"
     readonly property bool inWrapUp: wrapUpTimer.running
 
+    // Colors & Concurrent Decode Indicator (D-06, D-07, D-08)
+    readonly property color skyBlue: "#38bdf8"
+    readonly property color neonGreen: "#4ade80"
+    readonly property bool isConcurrentlyDecoding: effectiveState === "recording" && Voice.transcribedAudioSeconds > 0
+
+    property color pulsedColor: Appearance.colors.colPrimary
+
+    SequentialAnimation on pulsedColor {
+        running: root.isConcurrentlyDecoding
+        loops: Animation.Infinite
+        ColorAnimation { to: root.skyBlue; duration: 600; easing.type: Easing.InOutSine }
+        ColorAnimation { to: Appearance.colors.colPrimary; duration: 600; easing.type: Easing.InOutSine }
+    }
+
     // Public Component Aliases for Telemetry & Verification
     readonly property alias wrapUpTimer: wrapUpTimer
     readonly property alias pulseAnimation: pulseAnimation
     readonly property alias voiceIcon: voiceIcon
     readonly property alias voiceLabel: voiceLabel
     readonly property alias contentContainer: contentContainer
-    readonly property alias inertMouseArea: inertMouseArea
+    readonly property alias pillMouseArea: pillMouseArea
+    readonly property alias inertMouseArea: pillMouseArea
 
     // Effective Lifecycle State (Sequential Linear Flow)
     readonly property string effectiveState: {
@@ -33,35 +48,35 @@ BarGroup {
         return Voice.overallState;
     }
 
-    // Dynamic Material You Palette Mapping (D-09, zero hardcoded hex colors)
+    // Dynamic State Palette Mapping (D-05, D-06, D-07, D-08)
     readonly property color currentColor: {
+        if (root.isConcurrentlyDecoding) return pulsedColor;
         switch (effectiveState) {
             case "recording": return Appearance.colors.colPrimary;
-            case "transcribing": return Appearance.colors.colTertiary;
-            case "typing": return Appearance.colors.colSecondary;
+            case "transcribing": return root.skyBlue;
+            case "typing": return root.neonGreen;
+            case "wrapup": return root.neonGreen;
             case "speaking": return Appearance.colors.colSecondary;
-            case "wrapup": return Appearance.colors.colSecondary;
             case "starting": return Appearance.colors.colPrimary;
             default: return Appearance.colors.colOnLayer1;
         }
     }
 
-    // Dynamic Text Content Mapping (D-06, D-07)
+    // Dynamic Text Content Mapping (D-01, D-02, D-03, D-04)
     readonly property string displayText: {
         switch (effectiveState) {
             case "recording":
-                return (Voice.transcribedAudioSeconds > 0)
-                    ? (Voice.formattedDuration + " | " + Voice.formattedTranscribedDuration)
-                    : Voice.formattedDuration;
-            case "speaking": return Voice.formattedDuration;
+                return Voice.formattedRecordedDuration + " | " + Voice.formattedTranscribedDuration;
             case "transcribing":
-                return (Voice.etaPillLabel.length > 0)
-                    ? Voice.etaPillLabel
-                    : Translation.tr("Transcribing...");
-            case "typing": return Translation.tr("Typing...");
-            case "wrapup": return lastRecordedDuration;
-            case "starting": return Voice.formattedDuration;
-            default: return "";
+            case "typing":
+            case "wrapup":
+                return Voice.formattedRecordedDuration + " | " + Voice.formattedTranscribedDuration + " | " + Voice.formattedTotalDuration;
+            case "speaking":
+                return Voice.formattedDuration;
+            case "starting":
+                return Voice.formattedDuration;
+            default:
+                return "";
         }
     }
 
@@ -107,14 +122,20 @@ BarGroup {
         }
     ]
 
+    readonly property bool isClickable: effectiveState === "transcribing" || effectiveState === "typing" || effectiveState === "wrapup"
+
     MouseArea {
-        id: inertMouseArea
+        id: pillMouseArea
         parent: root
         anchors.fill: parent
-        acceptedButtons: Qt.AllButtons
-        cursorShape: Qt.ArrowCursor
-        hoverEnabled: false
-        onPressed: event => event.accepted = true
+        acceptedButtons: Qt.LeftButton
+        hoverEnabled: true
+        cursorShape: root.isClickable ? Qt.PointingHandCursor : Qt.ArrowCursor
+        onClicked: {
+            if (root.isClickable) {
+                Voice.openReport();
+            }
+        }
     }
 
     // Content Layout Container (Pitfall 2)
@@ -130,7 +151,7 @@ BarGroup {
             anchors.left: root.vertical ? undefined : parent.left
             anchors.centerIn: root.vertical ? parent : undefined
             anchors.verticalCenter: root.vertical ? undefined : parent.verticalCenter
-            text: "graphic_eq"
+            text: (root.effectiveState === "typing" || root.effectiveState === "wrapup") ? "edit" : "graphic_eq"
             iconSize: Appearance.font.pixelSize.normal
             color: root.currentColor
 
@@ -178,6 +199,8 @@ BarGroup {
             anchors.verticalCenter: parent.verticalCenter
             text: root.displayText
             font.pixelSize: Appearance.font.pixelSize.small
+            font.family: Appearance.font.family.numbers
+            font.features: { "tnum": 1 }
             color: root.currentColor
             visible: root.isExpanded
             opacity: root.isExpanded ? 1.0 : 0.0
