@@ -105,6 +105,73 @@ StyledPopup {
 
     property var recentRuns: []
 
+    readonly property var modelSpecs: ({
+        "tiny": { params: "39M", disk: "~75 MB", ram: "~390 MB", desc: "Fastest STT, lowest resource footprint" },
+        "tiny.en": { params: "39M", disk: "~75 MB", ram: "~390 MB", desc: "Fastest English-only STT" },
+        "base": { params: "74M", disk: "~145 MB", ram: "~500 MB", desc: "Fast multilingual STT, good general accuracy" },
+        "base.en": { params: "74M", disk: "~145 MB", ram: "~500 MB", desc: "Fast English STT, solid balance of speed & quality" },
+        "small": { params: "244M", disk: "~480 MB", ram: "~1.0 GB", desc: "High accuracy multilingual model" },
+        "small.en": { params: "244M", disk: "~480 MB", ram: "~1.0 GB", desc: "High accuracy English dictation" },
+        "medium": { params: "769M", disk: "~1.5 GB", ram: "~2.6 GB", desc: "Near human-level multilingual accuracy" },
+        "medium.en": { params: "769M", disk: "~1.5 GB", ram: "~2.6 GB", desc: "Production English dictation benchmark" },
+        "large-v2": { params: "1550M", disk: "~3.1 GB", ram: "~4.7 GB", desc: "High-capacity legacy Whisper model" },
+        "large-v3": { params: "1550M", disk: "~3.1 GB", ram: "~4.7 GB", desc: "Maximum accuracy across complex accents & noisy audio" },
+        "large-v3-turbo": { params: "809M", disk: "~1.6 GB", ram: "~2.8 GB", desc: "Optimized high accuracy with 8x faster decoding speed" }
+    })
+
+    property var cachedModels: ({})
+    property bool isDownloadingModel: false
+    property string modelDownloadFeedback: ""
+    property bool modelDownloadSuccess: true
+
+    readonly property Process checkModelsProc: Process {
+        id: checkModelsProc
+        command: [root.voiceBin, "--models-info", "--json"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const parsed = JSON.parse(text.trim());
+                    if (parsed && parsed.stt_models) {
+                        const m = {};
+                        for (let i = 0; i < parsed.stt_models.length; i++) {
+                            const item = parsed.stt_models[i];
+                            m[item.id] = Boolean(item.cached);
+                        }
+                        root.cachedModels = m;
+                    }
+                } catch (e) {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    readonly property Process downloadModelProc: Process {
+        id: downloadModelProc
+        property string targetModel: ""
+        command: [root.voiceBin, "--download-model", targetModel]
+        onExited: (exitCode, exitStatus) => {
+            root.isDownloadingModel = false;
+            if (exitCode === 0) {
+                root.modelDownloadSuccess = true;
+                root.modelDownloadFeedback = "✓ Model '" + downloadModelProc.targetModel + "' is ready.";
+                checkModelsProc.running = true;
+            } else {
+                root.modelDownloadSuccess = false;
+                root.modelDownloadFeedback = "Download failed (code " + exitCode + "). Check connection.";
+            }
+        }
+    }
+
+    function downloadCurrentModel() {
+        const m = root.userConfig.model || "medium.en";
+        root.isDownloadingModel = true;
+        root.modelDownloadFeedback = "Downloading & verifying " + m + "...";
+        root.modelDownloadSuccess = true;
+        downloadModelProc.targetModel = m;
+        downloadModelProc.running = true;
+    }
+
     function reloadConfig() {
         try {
             const raw = configFile.text().trim();
@@ -218,12 +285,14 @@ StyledPopup {
             root.reloadConfig();
             root.reloadMetrics();
             Voice.poll();
+            checkModelsProc.running = true;
         }
     }
 
     Component.onCompleted: {
         root.reloadConfig();
         root.reloadMetrics();
+        checkModelsProc.running = true;
     }
 
     // --- Custom reusable control components ---
@@ -258,6 +327,55 @@ StyledPopup {
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: chip.clicked()
+        }
+    }
+
+    // Model option chip with title and concise parameter tag
+    component ModelOptionChip: Rectangle {
+        id: mChip
+        property string text: ""
+        property string subText: ""
+        property bool selected: false
+        signal clicked()
+
+        implicitWidth: Math.max(76, chipCol.implicitWidth + 12)
+        implicitHeight: 38
+        radius: Appearance.rounding.small
+
+        color: mChip.selected ? Appearance.colors.colPrimary : Appearance.colors.colLayer2
+        border.width: chipArea.containsMouse ? 2 : (mChip.selected ? 0 : 1)
+        border.color: chipArea.containsMouse ? Appearance.colors.colPrimary : Appearance.colors.colOutlineVariant
+
+        ColumnLayout {
+            id: chipCol
+            anchors.centerIn: parent
+            spacing: 1
+
+            StyledText {
+                text: mChip.text
+                Layout.alignment: Qt.AlignHCenter
+                font.pixelSize: Appearance.font.pixelSize.small
+                font.weight: mChip.selected ? Font.DemiBold : Font.Normal
+                color: mChip.selected ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer2
+            }
+
+            StyledText {
+                visible: mChip.subText.length > 0
+                text: mChip.subText
+                Layout.alignment: Qt.AlignHCenter
+                font.pixelSize: Appearance.font.pixelSize.smaller - 1
+                font.family: Appearance.font.family.numbers
+                opacity: mChip.selected ? 0.9 : 0.65
+                color: mChip.selected ? Appearance.m3colors.m3onPrimary : Appearance.colors.colOnLayer2
+            }
+        }
+
+        MouseArea {
+            id: chipArea
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: mChip.clicked()
         }
     }
 
@@ -340,10 +458,11 @@ StyledPopup {
                 spacing: 6
                 Repeater {
                     model: ["tiny", "tiny.en", "base", "base.en"]
-                    delegate: OptionChip {
+                    delegate: ModelOptionChip {
                         required property var modelData
                         Layout.fillWidth: true
                         text: modelData
+                        subText: (root.modelSpecs[modelData] ? root.modelSpecs[modelData].params : "")
                         selected: modelGrid.currentVal === modelData
                         onClicked: modelGrid.selected(modelData)
                     }
@@ -355,10 +474,11 @@ StyledPopup {
                 spacing: 6
                 Repeater {
                     model: ["small", "small.en", "medium", "medium.en"]
-                    delegate: OptionChip {
+                    delegate: ModelOptionChip {
                         required property var modelData
                         Layout.fillWidth: true
                         text: modelData
+                        subText: (root.modelSpecs[modelData] ? root.modelSpecs[modelData].params : "")
                         selected: modelGrid.currentVal === modelData
                         onClicked: modelGrid.selected(modelData)
                     }
@@ -369,16 +489,16 @@ StyledPopup {
                 Layout.fillWidth: true
                 spacing: 6
                 Repeater {
-                    model: ["large-v2", "large-v3"]
-                    delegate: OptionChip {
+                    model: ["large-v2", "large-v3", "large-v3-turbo"]
+                    delegate: ModelOptionChip {
                         required property var modelData
                         Layout.fillWidth: true
                         text: modelData
+                        subText: (root.modelSpecs[modelData] ? root.modelSpecs[modelData].params : "")
                         selected: modelGrid.currentVal === modelData
                         onClicked: modelGrid.selected(modelData)
                     }
                 }
-                Item { Layout.fillWidth: true }
                 Item { Layout.fillWidth: true }
             }
         }
@@ -701,10 +821,10 @@ StyledPopup {
                 Layout.fillWidth: true
                 spacing: 14
 
-                // Left Column: Live Telemetry + Recent Dictations + Open Full Report
+                // Left Column: Live Telemetry + Model Engine + Recent Dictations
                 ColumnLayout {
                     Layout.fillWidth: true
-                    Layout.preferredWidth: 400
+                    Layout.preferredWidth: 440
                     Layout.alignment: Qt.AlignTop
                     spacing: 12
 
@@ -770,6 +890,251 @@ StyledPopup {
                                         return root.recentRuns[0].chars;
                                     }
                                     return "--";
+                                }
+                            }
+                        }
+                    }
+
+                    // Card: Model Engine & Cache Status
+                    Rectangle {
+                        id: modelsCard
+                        Layout.fillWidth: true
+                        radius: Appearance.rounding.small
+                        color: Appearance.m3colors.m3surfaceContainerHigh
+                        border.width: 1
+                        border.color: Appearance.colors.colLayer0Border
+                        implicitHeight: modelsCol.implicitHeight + 20
+
+                        readonly property string curModel: String(root.userConfig.model || "medium.en")
+                        readonly property var curSpec: root.modelSpecs[curModel] || ({
+                            params: "--", disk: "--", ram: "--", desc: ""
+                        })
+                        readonly property bool isCached: Boolean(root.cachedModels[curModel])
+                        readonly property string curBackend: String(root.userConfig.tts_backend || "kokoro")
+                        readonly property bool isKokoro: curBackend === "kokoro"
+
+                        ColumnLayout {
+                            id: modelsCol
+                            anchors.fill: parent
+                            anchors.margins: 12
+                            spacing: 10
+
+                            // Card Section Header
+                            RowLayout {
+                                Layout.fillWidth: true
+                                spacing: 8
+                                MaterialSymbol {
+                                    text: "memory"
+                                    iconSize: 18
+                                    color: Appearance.colors.colPrimary
+                                }
+                                StyledText {
+                                    text: "Active Models & Engine"
+                                    font.pixelSize: Appearance.font.pixelSize.normal
+                                    font.weight: Font.DemiBold
+                                    color: Appearance.colors.colPrimary
+                                }
+                                Rectangle {
+                                    Layout.fillWidth: true
+                                    height: 1
+                                    color: Appearance.colors.colLayer0Border
+                                }
+                            }
+
+                            // --- STT Whisper Section ---
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 8
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 8
+
+                                    MaterialSymbol {
+                                        iconSize: 18
+                                        text: modelsCard.isCached ? "check_circle" : "cloud_download"
+                                        color: modelsCard.isCached ? "#4ade80" : "#f59e0b"
+                                    }
+
+                                    StyledText {
+                                        text: "Whisper: " + modelsCard.curModel
+                                        font.pixelSize: Appearance.font.pixelSize.small
+                                        font.weight: Font.DemiBold
+                                        color: Appearance.colors.colOnSurface
+                                    }
+
+                                    Item { Layout.fillWidth: true }
+
+                                    Rectangle {
+                                        radius: Appearance.rounding.small
+                                        color: modelsCard.isCached ? "#133520" : "#3b2a14"
+                                        border.width: 1
+                                        border.color: modelsCard.isCached ? "#4ade80" : "#f59e0b"
+                                        implicitHeight: 22
+                                        implicitWidth: statusBadgeText.implicitWidth + 14
+
+                                        StyledText {
+                                            id: statusBadgeText
+                                            anchors.centerIn: parent
+                                            text: modelsCard.isCached ? "Ready (Cached)" : "Not Cached"
+                                            font.pixelSize: Appearance.font.pixelSize.smaller
+                                            font.weight: Font.Medium
+                                            color: modelsCard.isCached ? "#4ade80" : "#f59e0b"
+                                        }
+                                    }
+                                }
+
+                                // Metrics Row: Parameters | Disk Size | RAM/VRAM
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 8
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 2
+                                        StyledText {
+                                            text: "Parameters"
+                                            font.pixelSize: Appearance.font.pixelSize.smaller
+                                            color: Appearance.colors.colOnSurfaceVariant
+                                        }
+                                        StyledText {
+                                            text: modelsCard.curSpec.params
+                                            font.pixelSize: Appearance.font.pixelSize.small
+                                            font.family: Appearance.font.family.numbers
+                                            font.weight: Font.DemiBold
+                                            color: Appearance.colors.colOnSurface
+                                        }
+                                    }
+
+                                    Rectangle { width: 1; height: 26; color: Appearance.colors.colOutlineVariant }
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 2
+                                        StyledText {
+                                            text: "Download / Disk"
+                                            font.pixelSize: Appearance.font.pixelSize.smaller
+                                            color: Appearance.colors.colOnSurfaceVariant
+                                        }
+                                        StyledText {
+                                            text: modelsCard.curSpec.disk
+                                            font.pixelSize: Appearance.font.pixelSize.small
+                                            font.family: Appearance.font.family.numbers
+                                            font.weight: Font.DemiBold
+                                            color: Appearance.colors.colOnSurface
+                                        }
+                                    }
+
+                                    Rectangle { width: 1; height: 26; color: Appearance.colors.colOutlineVariant }
+
+                                    ColumnLayout {
+                                        Layout.fillWidth: true
+                                        spacing: 2
+                                        StyledText {
+                                            text: "Memory (RAM)"
+                                            font.pixelSize: Appearance.font.pixelSize.smaller
+                                            color: Appearance.colors.colOnSurfaceVariant
+                                        }
+                                        StyledText {
+                                            text: modelsCard.curSpec.ram
+                                            font.pixelSize: Appearance.font.pixelSize.small
+                                            font.family: Appearance.font.family.numbers
+                                            font.weight: Font.DemiBold
+                                            color: Appearance.colors.colPrimary
+                                        }
+                                    }
+                                }
+
+                                // Single-Icon, Distinct-Color Action Button
+                                RippleButtonWithIcon {
+                                    id: updateModelBtn
+                                    Layout.fillWidth: true
+                                    enabled: !root.isDownloadingModel
+                                    opacity: enabled ? 1.0 : 0.6
+                                    mainText: root.isDownloadingModel
+                                        ? "Downloading & Verifying..."
+                                        : (modelsCard.isCached ? "Check / Update Model" : ("Download Model (" + modelsCard.curSpec.disk + ")"))
+                                    materialIcon: root.isDownloadingModel ? "hourglass_top" : (modelsCard.isCached ? "sync" : "cloud_download")
+                                    colBackground: root.isDownloadingModel
+                                        ? Appearance.colors.colLayer2
+                                        : (modelsCard.isCached ? Appearance.colors.colPrimaryContainer : "#1e3a29")
+
+                                    mainContentComponent: Component {
+                                        StyledText {
+                                            text: updateModelBtn.mainText
+                                            font.pixelSize: Appearance.font.pixelSize.small
+                                            font.weight: Font.DemiBold
+                                            color: root.isDownloadingModel
+                                                ? Appearance.colors.colOnSurfaceVariant
+                                                : (modelsCard.isCached ? Appearance.colors.colPrimary : "#4ade80")
+                                        }
+                                    }
+                                    onClicked: {
+                                        root.downloadCurrentModel();
+                                    }
+                                }
+
+                                StyledText {
+                                    visible: root.modelDownloadFeedback.length > 0
+                                    text: root.modelDownloadFeedback
+                                    font.pixelSize: Appearance.font.pixelSize.smaller
+                                    font.weight: Font.Medium
+                                    color: root.modelDownloadSuccess ? "#4ade80" : "#f43f5e"
+                                    Layout.fillWidth: true
+                                }
+                            }
+
+                            // Divider between STT and TTS
+                            Rectangle {
+                                Layout.fillWidth: true
+                                height: 1
+                                color: Appearance.colors.colLayer0Border
+                            }
+
+                            // --- TTS ONNX / Engine Section ---
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 6
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 8
+
+                                    MaterialSymbol {
+                                        iconSize: 18
+                                        text: modelsCard.isKokoro ? "volume_up" : "cloud"
+                                        color: Appearance.colors.colPrimary
+                                    }
+
+                                    StyledText {
+                                        text: modelsCard.isKokoro ? "Kokoro (Local Neural ONNX)" : "Microsoft Edge (Cloud Streaming)"
+                                        font.pixelSize: Appearance.font.pixelSize.small
+                                        font.weight: Font.DemiBold
+                                        color: Appearance.colors.colOnSurface
+                                    }
+                                }
+
+                                RowLayout {
+                                    Layout.fillWidth: true
+                                    spacing: 12
+
+                                    StyledText {
+                                        text: modelsCard.isKokoro ? "Params: 82M" : "Params: Cloud API"
+                                        font.pixelSize: Appearance.font.pixelSize.smaller
+                                        color: Appearance.colors.colOnSurfaceVariant
+                                    }
+
+                                    StyledText {
+                                        text: modelsCard.isKokoro ? "Disk: 338 MB" : "Disk: 0 MB"
+                                        font.pixelSize: Appearance.font.pixelSize.smaller
+                                        color: Appearance.colors.colOnSurfaceVariant
+                                    }
+
+                                    StyledText {
+                                        text: modelsCard.isKokoro ? "Memory: ~500 MB RAM" : "Memory: 0 MB local RAM"
+                                        font.pixelSize: Appearance.font.pixelSize.smaller
+                                        color: Appearance.colors.colPrimary
+                                    }
                                 }
                             }
                         }
@@ -990,7 +1355,7 @@ StyledPopup {
                 // Right Column: Categorized Configuration (3 Distinct Boxes: General, STT, TTS)
                 ColumnLayout {
                     Layout.fillWidth: true
-                    Layout.preferredWidth: 540
+                    Layout.preferredWidth: 480
                     Layout.alignment: Qt.AlignTop
                     spacing: 12
 
