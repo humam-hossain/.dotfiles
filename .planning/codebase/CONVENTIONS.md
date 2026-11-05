@@ -1,161 +1,162 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-08-21
-
-First-party product code lives in `arch/`, `scripts/`, `stow/`, `.config/hypr/`, `debian/`, `ubuntu/`. Treat `vendor/dots-hyprland` as upstream submodule — do not copy its style into new first-party files.
+**Analysis Date:** 2026-11-05
 
 ## Naming Patterns
 
 **Files:**
-- Arch installers: `arch/<tool>.sh` — lowercase, underscore for multi-word (`google_chrome.sh`, `zsh_powerlevel.sh`, `system_monitor.sh`, `dots-hyprland.sh`).
-- Phase asserts: `scripts/phaseNN-<topic>-assert.{py,sh}` or `scripts/phaseNN-*-smoke.sh` (`scripts/phase02-config-assert.py`, `scripts/phase07-live-smoke.sh`, `scripts/phase12-full-smoke.sh`).
-- Neovim Lua: kebab-or-dot modules under `stow/nvim/.config/nvim/lua/` — `lua/plugins/<plugin>.lua`, `lua/core/keymaps/<role>.lua`.
-- Waybar scripts: snake_case under `stow/waybar/.config/waybar/scripts/<domain>/` (`ping_status.sh`, `curr_weather.sh`).
+- Arch installer scripts: `arch/<tool_name>.sh` — lowercase, snake_case for multi-word tools (e.g. `google_chrome.sh`, `system_monitor.sh`, `dots-hyprland.sh`).
+- Test assertion harnesses: `scripts/phase<phase_number>-<topic>-assert.sh` or `.py` (e.g. `phase54.4-weather-assert.sh`, `phase50-opt-assert.sh`, `phase04-ipc-reload-assert.py`).
+- QML components: `PascalCase.qml` (e.g. `WeatherPopup.qml`, `WeatherGraph.qml`, `CpuGpuPill.qml`, `BarContent.qml`).
+- JavaScript utility modules: `PascalCase.js` (e.g. `WeatherGraphMath.js`).
+- Standalone Python daemons: `kebab-case.py` (e.g. `wwo-fetcher.py`).
+- Embedded Python utilities: `snake_case.py` (e.g. `process_tree.py`, `scroll_mark.py`).
+- Neovim Lua modules: kebab-case or dot-separated under `stow/nvim/.config/nvim/lua/` (e.g. `lua/plugins/lsp.lua`, `lua/core/keymaps.lua`).
+- Issue investigations: `issues/YYYY-MM-DD_<topic-description>.md`.
 
-**Functions (bash):**
-- Use `snake_case`: `install_packages`, `ensure_dirs`, `usage`, `pass`, `fail`.
-- Installer sections: `install_packages` then config helpers then `main` dispatcher when the script is more than a linear package list.
-- Subcommand handlers in harnesses: `cmd_<name>` (`scripts/nvim-validate.sh`: `cmd_startup`, `cmd_sync`).
-
-**Functions (Python):**
-- `snake_case`. Type-annotated returns: `def main() -> int:`.
-- Fail helpers raise `AssertionError` or return non-zero (`scripts/phase04-ipc-reload-assert.py` `fail()`).
-
-**Functions (Lua):**
-- Modules return tables: `local M = {}` then `return M` (`lua/core/health.lua`, `lua/core/keymaps/registry.lua`).
-- Lazy plugins: `return { "user/repo", ... }` (`lua/plugins/lsp.lua`, `lua/plugins/conform.lua`).
-- Keymap ids: dotted taxonomy `domain.action` (`mode.switch_escape`, `edit.delete_char`).
+**Functions:**
+- Bash functions: `snake_case` (e.g. `pass`, `fail`, `finding`, `cleanup`, `usage`, `cleanup_old_logs`, `safe_rm_path`).
+- Python functions: `snake_case` with explicit type annotations (e.g. `def get_runtime_dir() -> str:`, `def compute_interval_minutes(...) -> float:`).
+- JavaScript / QML methods: `camelCase` (e.g. `computeBezierControlPoints`, `drawHorizontalGrid`, `formatMetricValue`).
+- Lua functions: `snake_case` on module table exports (`function M.setup()`, `function M.format()`).
 
 **Variables:**
-- Bash: `SCREAMING_SNAKE` for constants and paths (`REPO_ROOT`, `II_ROOT`, `PACKAGES`, `SAFE_DEFAULTS`, `FAIL`).
-- Locals in functions: `snake_case` (`local log`, `local rc`).
-- Python: `CONFIG_PATH`, `REPO_ROOT` at module scope; `snake_case` locals.
-- Env overrides: `${XDG_CONFIG_HOME:-$HOME/.config}`, `${PORT:-8765}`, `${BIND_HOST:-127.0.0.1}`.
+- Bash constants & paths: `SCREAMING_SNAKE_CASE` (e.g. `REPO_ROOT`, `II_ROOT`, `XDG_CONFIG_HOME`, `FAIL`, `FINDINGS`, `TESTS`).
+- Bash local variables: `snake_case` (e.g. `local count`, `local temp_file`, `local exit_code`).
+- Python constants: `SCREAMING_SNAKE_CASE` (e.g. `DAILY_BUDGET = 470`, `ABSOLUTE_CEILING = 500`, `MIN_INTERVAL_MINUTES = 3.0`).
+- Python locals: `snake_case`.
+- QML property declarations: `camelCase` (e.g. `property bool isStale: true`, `readonly property string runtimeCachePath: ...`).
 
-**Types:**
-- Python: `from __future__ import annotations`; `Path` for files; `dict[str, Any]` for JSON-ish structures (`stow/system_monitor/.config/system_monitor/ping/server.py`).
-- Lua: no LuaCATS annotations required; plugin specs are tables.
+**Types & Interfaces:**
+- Python: Uses standard library typing primitives (`Optional[str]`, `dict[str, Any]`, `tuple[float, float]`).
+- QML: Uses standard QtQuick types (`int`, `real`, `string`, `bool`, `var`, `color`).
 
 ## Code Style
 
-**Formatting:**
-- No repo-root Prettier/ESLint/Biome/ruff/pyproject. Format via Neovim Conform (`stow/nvim/.config/nvim/lua/plugins/conform.lua`):
-  - Lua: `stylua`
-  - Python: `isort` then `black`
-  - Shell: `shfmt` (optional tool in `lua/core/health.lua`)
-  - JS/TS: `prettierd` / `prettier`
-  - C/C++: `clang-format`
-- Lua modeline on `stow/nvim/.config/nvim/init.lua`: `ts=2 sts=2 sw=2 et`.
-- Bash: 2-space indent in phase/assert scripts; some nvim-validate functions use tabs. Prefer 2 spaces for new bash.
-- Python: 4-space indent, UTF-8 reads, stdlib-only for phase asserts.
+**Formatting & Indentation:**
+- **Bash:** 2-space indentation standard. Tabs are prohibited except inside heredocs that strip tabs (`<<-EOF`).
+- **Python:** 4-space indentation following PEP 8.
+- **QML:** 4-space indentation standard. Braces follow 1TBS (One True Brace Style) on the same line.
+- **Lua:** 2-space or 4-space indentation enforced by `stylua` configured in Neovim `conform.nvim`.
 
-**Linting:**
-- No committed `.shellcheckrc`. Use inline `# shellcheck disable=SCxxxx` only with a reason nearby (`scripts/phase12-full-smoke.sh` SC2064 on `trap`; `arch/dots-hyprland.sh` SC2016).
-- Syntax gate: `bash -n arch/dots-hyprland.sh` in `scripts/phase12-full-smoke.sh`.
-- Do not invent a CI linter; keep scripts `set -euo pipefail`.
+**Shell Safety Invariants (Mandatory):**
+- All Bash scripts MUST start with:
+  ```bash
+  #!/usr/bin/env bash
+  set -euo pipefail
+  ```
+- Physical path resolution (resolving all symlinks):
+  ```bash
+  REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+  ```
+  `pwd -P` is mandatory to guarantee comparison against canonical filesystem paths.
+- Non-root privilege gate:
+  ```bash
+  if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+    echo "Error: Do not run as root" >&2
+    exit 1
+  fi
+  ```
+- No `eval`. Arguments must be passed using typed Bash arrays:
+  ```bash
+  CMD=("$BIN" "${ARGS[@]}")
+  "${CMD[@]}"
+  ```
+- Temp file handling: Always use `mktemp` and register created paths in an array cleared by `trap cleanup EXIT`.
+
+**GNU Stow Invariants (Mandatory):**
+- When linking packages, always specify `--verbose=5` and `--no-folding`:
+  ```bash
+  stow --verbose=5 --no-folding -t ~ <package-name>
+  ```
+- The `--adopt` flag is **strictly banned** from all automated scripts and phase assertions.
+
+**QML Architecture Invariants (Mandatory):**
+- Top of every service file:
+  ```qml
+  pragma Singleton
+  pragma ComponentBehavior: Bound
+  ```
+- Root object identification: Always use `id: root`.
+- Subprocess ban in polling loops: Never use `Quickshell.Io.Process` inside periodic timers. Telemetry must be read from tmpfs files via `Quickshell.Io.FileView` or direct `/proc` file streams.
+- Safe cold-boot property initialization: All reactive telemetry objects must provide non-null default state dictionaries:
+  ```qml
+  property var current: ({
+      tempC: "--",
+      tempFeelsLikeC: "--",
+      desc: "Offline",
+      glyph: "cloud_off"
+  })
+  ```
 
 ## Import Organization
 
-**Python:**
-1. Module docstring
-2. `from __future__ import annotations`
-3. Stdlib (`json`, `sys`, `pathlib`)
-4. No third-party in `scripts/phase*.py`
+**QML Modules:**
+1. Core QtQuick imports (`import QtQuick`, `import QtQuick.Layouts`)
+2. Quickshell engine imports (`import Quickshell`, `import Quickshell.Io`)
+3. Project common modules (`import qs.modules.common`, `import qs.modules.common.widgets`)
+4. Project service singletons (`import qs.services`)
+5. Local JavaScript math libraries (`import "WeatherGraphMath.js" as GraphMath`)
 
-**Lua:**
-1. Optional `--- TODO:` file banner
-2. `require("core.*")` / `require("lazy")` at init
-3. Plugin files: `return { spec }` with `config = function()` closing over `require("core.keymaps.attach")` as needed
-
-**Path aliases:**
-- Not applicable (no TS path aliases). Resolve repo root as:
-  `REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"` from `arch/` or `scripts/`.
+**Python Modules:**
+1. Standard library imports in alphabetical order (`import argparse`, `import json`, `import os`, `import sys`, `import urllib.request`)
+2. `from datetime import datetime, timezone, timedelta`
+3. Third-party dependencies: strictly banned for background system daemons (pure Python standard library only).
 
 ## Error Handling
 
-**Patterns:**
-- Bash installers: `set -euo pipefail`; many also `set -x` (`arch/necessary.sh`, `arch/waybar.sh`). Do **not** add `set -x` to operator wrappers that need clean help/dry-run output (`arch/dots-hyprland.sh`).
-- Echo labels: `[INSTALL]`, `[CONFIG]`, `[DONE]`, `[PASS]`, `[FAIL]`, `[SOFT]`.
-- Assert scripts: accumulate `FAIL` counter; print `[PASS]`/`[FAIL]`; exit non-zero if `FAIL > 0`. Soft skips use `[SOFT]` when ii is absent (`scripts/phase07-live-smoke.sh`).
-- Python asserts: print `error:` or `config assert FAIL:` to stderr; `return 1`; `sys.exit(main())`.
-- Waybar widgets: never crash the bar — on curl/JSON failure print a JSON fallback and `exit 0` (`stow/waybar/.config/waybar/scripts/network/ping_status.sh`).
-- Lua: `pcall(require, name)` for plugin probes (`lua/core/health.lua`); Lazy clone uses `vim.v.shell_error` then `error(...)`.
-- Dangerous operations: interactive `yes` gates, `--dry-run`, refuse `--skip-backup` without `--allow-skip-backup` (`arch/dots-hyprland.sh`).
+**Bash Scripts:**
+- Immediate termination on unset variables and command failures via `set -euo pipefail`.
+- Exit code semantics: Harnesses track `FAIL` counter and exit with `0` on total pass or non-zero status on failures:
+  ```bash
+  pass() { printf '[PASS] %s\n' "$1"; }
+  fail() { printf '[FAIL] %s\n' "$1"; FAIL=$((FAIL + 1)); }
+  exit "$FAIL"
+  ```
+
+**Python Daemons:**
+- Wrap network operations in specific exception blocks (`urllib.error.HTTPError`, `urllib.error.URLError`, `TimeoutError`).
+- Offline fallback: If network retrieval fails, load the persistent mirror file from `$XDG_STATE_HOME/weather/last_known_weather.json`, mark `is_stale: true`, and write the fallback payload to tmpfs.
+- Atomic file write: Never write directly to the target cache file. Write to a temporary file (`.weather.tmp.*`) and invoke `os.replace` to prevent partial reads by the UI.
+
+**QML Singletons:**
+- Wrap JSON parsing operations in `try / catch`:
+  ```javascript
+  try {
+      const parsed = JSON.parse(rawText);
+      root.current = parsed.current;
+      root.isOffline = false;
+  } catch (e) {
+      root.isOffline = true;
+  }
+  ```
 
 ## Logging
 
-**Framework:** stdout/stderr + Python `logging` in ping-viz only.
+**Deployment & System Bootstrapping:**
+- Dual-stream console and transcript logging in `bootstrap.sh`:
+  ```bash
+  LOG_FILE="$LOG_DIR/bootstrap-$(date +"%Y%m%d_%H%M%S_$$").log"
+  exec 3>&1 4>&2
+  exec > >(tee -a "$LOG_FILE") 2>&1
+  trap cleanup_logging EXIT
+  ```
+- Automated FIFO log rotation retaining the 5 most recent transcripts.
 
-**Patterns:**
-- Installers: `echo "[INSTALL] …"` then the command.
-- Asserts: `echo "=== Phase N … ==="` then `[CONFIG] key=value`.
-- Ping server: `logging.Formatter("[%(asctime)s] [%(levelname)s] %(message)s")` to console and rotating file (`stow/system_monitor/.config/system_monitor/ping/server.py`).
-- Nvim harness: write logs under `.planning/tmp/nvim-validate/`; on fail `print_tail` last 50 lines to stderr.
+**Test Assertions:**
+- Supports both standard human-readable `[PASS]` / `[FAIL]` tags and TAP version 13 (`--tap` flag) for CI/CD ingestion:
+  ```bash
+  printf 'ok %d - %s\n' "$TESTS" "$description"
+  ```
 
 ## Comments
 
-**When to Comment:**
-- File header: purpose, usage, exit codes, mutation constraints (phase scripts).
-- Safety policy: what must never be deleted/called (`arch/dots-hyprland.sh` uninstall comments).
-- Guards: numbered lists in Lua autosave/format (`lua/core/keymaps.lua`, `lua/plugins/conform.lua`).
-- Do not narrate `pacman -S` lines.
+**Header Blocks:**
+- All major scripts and assertion suites must include a comprehensive ASCII header detailing purpose, enforced requirements, and usage flags.
 
-**JSDoc/TSDoc:**
-- Not used. Python module docstrings required on phase scripts. Lua uses `-- NOTE:` / `-- TODO:` banners.
-
-## Function Design
-
-**Size:**
-- Tiny installers may be linear (no functions) like `arch/necessary.sh`.
-- Multi-step installers split `install_packages` / dir ensure / copy / chmod (`arch/waybar.sh`).
-- Wrapper: `usage` + allowlist dispatcher + dedicated uninstall/protect functions (`arch/dots-hyprland.sh`).
-
-**Parameters:**
-- Prefer arrays: `PACKAGES=(...)`, `MANAGED_FILES=(...)`, `EXECUTABLE_FILES=(...)`.
-- CLI: parse `--full`, `--dry-run`, `--help` in a `for arg` / `case` loop; unknown args fail (`scripts/phase10-inventory-assert.sh`).
-
-**Return Values:**
-- Bash functions: `return 0/1`; scripts `exit`.
-- Python `main() -> int`.
-- Lua health probes return tables `{ name, loaded, error }`.
-
-## Module Design
-
-**Exports:**
-- Lua: `local M = {}` public API; keymap registry `M.global` / plugin-scoped lists (`lua/core/keymaps/registry.lua`).
-- Python phase scripts: no package; `__main__` only.
-- Bash: no sourced libraries except optional `.env` in `arch/system_monitor.sh` (`set -a; source ...; set +a`).
-
-**Barrel Files:**
-- Neovim: `require("lazy").setup("plugins")` loads all `lua/plugins/*.lua`.
-- Keymaps: `lua/core/keymaps.lua` bootstraps `core.keymaps.apply`.
-
-## Installer Pattern (prescriptive)
-
-When adding a new Arch package script:
-
-1. `#!/usr/bin/env bash` + `set -euo pipefail`.
-2. `REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"`.
-3. Package array + `sudo pacman -Sy --noconfirm --needed`.
-4. If shipping config: copy from `stow/<pkg>/.config/...` or document stow; chmod scripts.
-5. Label echoes `[INSTALL]` / `[CONFIG]` / `[DONE]`.
-6. Mirror Debian/Ubuntu only if the same tool exists there (`debian/`, `ubuntu/`).
-
-When wrapping upstream (`vendor/dots-hyprland`):
-
-- Allowlist subcommands; inject safe defaults unless `--full`.
-- Keep uninstall/protect wrapper-owned; never call upstream uninstall unless an explicit dangerous flag.
-
-## Config / Overlay Pattern
-
-- Current dual-run Hyprland: edit `.config/hypr/hyprland.conf` (repo), not the vendor tree. Helper scripts: small, `command -v` then `exec` (`.config/hypr/hyprland/scripts/launch_first_available.sh`).
-- Stow packages: GNU Stow layout `stow/<name>/.config/<app>/`.
-- ii Lua overlays (when adding files): parent `.config/hypr/custom/<slot>.lua` matching `vendor/dots-hyprland/dots/.config/hypr/hyprland.lua`:
-  - Guarded requires: `custom.env`, `custom.execs`, `custom.general`, `custom.rules`, `custom.keybinds`
-  - Use `hl.monitor` / `hl.workspace_rule` in `general.lua` for layout; keep `env.lua` / `execs.lua` as empty require slots unless adding env/exec content
-  - Do not add `custom/keybinds.lua` or `custom/rules.lua` unless a phase explicitly migrates binds/rules
-  - Never author machine overlays inside `vendor/dots-hyprland`
+**In-Line Decisions Reference:**
+- Reference specific GSD decisions in code comments using the format `(D-<phase>-<id>)` (e.g. `// Cache Paths (D-52-03)`, `# Dynamic pacing math (D-51-01)`).
 
 ---
 
-*Convention analysis: 2026-08-21*
+*Convention analysis: 2026-11-05*

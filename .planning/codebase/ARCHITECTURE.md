@@ -1,282 +1,222 @@
-<!-- refreshed: 2026-08-21 -->
+<!-- refreshed: 2026-11-05 -->
 # Architecture
 
-**Analysis Date:** 2026-08-21
+**Analysis Date:** 2026-11-05
 
 ## System Overview
 
 ```text
-┌─────────────────────────────────────────────────────────────────────────┐
-│                     Operator / live Arch session                        │
-│              Hyprland + waybar + qs -c ii (dual-run)                    │
-└────────────┬──────────────────────────┬─────────────────────────────────┘
-             │                          │
-             ▼                          ▼
-┌──────────────────────────┐  ┌───────────────────────────────────────────┐
-│   Personal config layer  │  │  GNU Stow packages                         │
-│   `.config/hypr/`        │  │  `stow/<pkg>/.config/...` → `$HOME`        │
-│   hyprland.conf + idle/  │  │  nvim, waybar, kitty, fish, systemd, …     │
-│   lock/paper             │  └───────────────────────────────────────────┘
-│   `.config/hypr/custom/` │  ← **absent** in parent repo (ii overlay slot)
-└────────────┬─────────────┘
-             │ exec-once qs -c ii; env ILLOGICAL_IMPULSE_VIRTUAL_ENV
-             ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  Thin wrapper (first-party)                                             │
-│  `arch/dots-hyprland.sh`  →  vendor `./setup` (allowlisted install*)    │
-│  Wrapper-owned: uninstall, protect, backup gate, --skip-hyprland inject │
-└────────────┬────────────────────────────────────────────────────────────┘
-             │
-             ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│  Upstream submodule (not first-party product)                           │
-│  `vendor/dots-hyprland`  pin gitlink in parent                          │
-│  Live product after install: `~/.config/quickshell` (real dir, not repo)│
-└─────────────────────────────────────────────────────────────────────────┘
-             ▲
-┌────────────┴────────────────────────────────────────────────────────────┐
-│  Distro installers (first-party)                                        │
-│  `arch/*.sh`  (primary)  ·  `ubuntu/*.sh` · `debian/*.sh` (CLI parity)  │
-└─────────────────────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                        Linux Operator / Wayland Session                      │
+│                  Hyprland Compositor (`restow/hypr`, `stow/hypr`)            │
+└──────────────┬───────────────────────────────┬───────────────────────────────┘
+               │                               │
+               ▼                               ▼
+┌────────────────────────────────────────┐ ┌───────────────────────────────────┐
+│     Desktop Shell Engine (Quickshell)  │ │      Cross-Desktop Theming        │
+│          Command: `qs -c ii`           │ │             (Matugen)             │
+│  Base: `vendor/dots-hyprland` (pinned) │ │  `restow/matugen/.config/matugen` │
+│  Overlays: `restow/quickshell/ii/`     │ │  Generates: GTK, Qt, Fuzzel, Hypr │
+└──────────────┬─────────────────────────┘ └───────────────────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                    Personal Quickshell QML Component Hierarchy               │
+│                                                                              │
+│  Presentation Layer:                                                         │
+│  ├── Top Bar (`modules/ii/bar/BarContent.qml`)                              │
+│  │   ├── Weather Component (`WeatherBar.qml` -> `WeatherPopup.qml`)          │
+│  │   ├── Hardware Pills (`CpuGpuPill.qml`, `MemoryStoragePill.qml`)          │
+│  │   ├── Network & Media (`NetworkPingPill.qml`, `Media.qml`)               │
+│  │   └── Clock, Updates, System Tray (`ClockWidget.qml`, `SysTray.qml`)      │
+│  └── Canvas Render Engine (`modules/ii/bar/weather/WeatherGraphMath.js`)     │
+│                                                                              │
+│  Reactive Service Singletons (`restow/quickshell/.../services/`):            │
+│  ├── `Weather.qml` (Watches tmpfs cache via `Quickshell.Io.FileView`)        │
+│  ├── `HardwareTelemetry.qml` (Tiered procfs/sysfs sweeping)                  │
+│  ├── `Audio.qml`, `NetworkUsage.qml`, `PingService.qml`, `StorageUsage.qml`  │
+└──────────────┬───────────────────────────────────────────────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                       System Daemons & Volatile IPC State                    │
+│                                                                              │
+│  systemd user timers: `wwo-fetcher.timer` -> `wwo-fetcher.service`           │
+│  Python daemon: `stow/weather/.config/weather/wwo-fetcher.py`                │
+│  Volatile IPC cache: `$XDG_RUNTIME_DIR/weather/weather.json` (atomic swap)   │
+│  Persistent backup: `$XDG_STATE_HOME/weather/last_known_weather.json`        │
+│  System Telemetry: `/proc/stat`, `/proc/meminfo`, `/proc/net/dev`, `/sys/`    │
+└──────────────┬───────────────────────────────────────────────────────────────┘
+               │
+               ▼
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                     Dotfiles Storage & Symlink Farm Architecture             │
+│                                                                              │
+│  `stow/` (Installer-never-collides): nvim, weather, fish, tmux, systemd      │
+│  `restow/` (Installer-overwrites): quickshell, hypr, matugen, kitty, fuzzel  │
+│  Routing Contract: `collision-map.tsv` & `guard-paths.tsv`                   │
+│  Deployment & Assertions: `bootstrap.sh`, `arch/dots-hyprland.sh verify`    │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Component Responsibilities
 
 | Component | Responsibility | File |
 |-----------|----------------|------|
-| Arch OS bootstrap notes | Useradd, systemd-boot, visudo — not automated | `arch/README.md` |
-| Distro installers | Pacman/apt + stow/copy configs per app | `arch/*.sh`, `ubuntu/*.sh`, `debian/*.sh` |
-| ii thin wrapper | Preflight submodule, inject safe defaults, backup gate, delegate `./setup`, enable hypr hooks, safe uninstall/protect | `arch/dots-hyprland.sh` |
-| Personal Hyprland | Compositor, monitors, autostart dual-run, binds | `.config/hypr/hyprland.conf` |
-| Hypr companions | Idle, lock, wallpaper | `.config/hypr/hypridle.conf`, `hyprlock.conf`, `hyprpaper.conf` |
-| ii hypr/custom overlays | Personal Lua overlays required by upstream `hyprland.lua` after full hypr files | Authoring SoT: parent `.config/hypr/custom/` (**not in repo**). Upstream seeds: `vendor/dots-hyprland/dots/.config/hypr/custom/{env,execs,general,rules,keybinds,variables}.lua`. Live: `~/.config/hypr/custom/` |
-| Stow packages | XDG-shaped trees symlink-deployed to `$HOME` | `stow/<name>/` |
-| Waybar installer | Package list + managed file copy + stale cleanup | `arch/waybar.sh` |
-| Neovim product | Lazy.nvim plugin tree | `stow/nvim/.config/nvim/` |
-| Upstream ii | Quickshell illogical-impulse desktop shell | `vendor/dots-hyprland` (submodule) |
-| Operator playbook | Clone, pin, dry-run, dual-run, pin-bump | `docs/dots-hyprland-workflow.md` |
-| Phase assert scripts | GSD phase verification (not session runtime) | `scripts/phase*.sh`, `scripts/phase*.py` |
+| **Deployment Orchestrator** | Idempotent system bootstrap, transcript logging, non-root enforcement | `bootstrap.sh` |
+| **Submodule Wrapper & Gate** | Wraps `vendor/dots-hyprland/setup`, runs strict verification, manages uninstall | `arch/dots-hyprland.sh` |
+| **Collision Contract** | Formal TSV mapping defining stow vs restow classification based on installer primitives | `collision-map.tsv` |
+| **Collision Generator** | AST parser that inspects upstream installer scripts and generates `collision-map.tsv` | `scripts/gen-collision-map.sh` |
+| **Guard Path Contract** | Specifies files excluded from git tracking to prevent theme churn | `guard-paths.tsv` |
+| **Weather Daemon** | Fetches WWO weather data, enforces daily quota pacing, writes atomic tmpfs cache | `stow/weather/.config/weather/wwo-fetcher.py` |
+| **Weather Service Singleton** | Exposes reactive weather properties to QML without subshell execution | `restow/quickshell/.config/quickshell/ii/services/Weather.qml` |
+| **Weather Glyphs Dictionary** | Maps 59 WWO condition codes, day/night states, AQI, and alerts to Material Symbols | `restow/quickshell/.config/quickshell/ii/services/WeatherGlyphs.qml` |
+| **Weather Popup Inspector** | Modular multi-card weather inspector and graph visualization popup | `restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather/WeatherPopup.qml` |
+| **Weather Graph Engine** | Headless-testable Canvas drawing math for bezier curves, axes, and gradient fills | `restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather/WeatherGraphMath.js` |
+| **Hardware Telemetry** | Tiered polling of `/proc/stat` and `/proc/meminfo` (1s active / 3s idle) | `restow/quickshell/.config/quickshell/ii/services/HardwareTelemetry.qml` |
+| **Resource Usage Parser** | Python helper parsing system process trees without unbounded fork overhead | `restow/quickshell/.config/quickshell/ii/scripts/resource-usage/process_tree.py` |
+| **Material You Theme Engine** | Wallhaven/swww wallpaper color extractor and template coordinator | `restow/matugen/.config/matugen/config.toml` |
+| **Neovim Configuration** | Complete IDE setup with lazy.nvim, conform.nvim, and custom keymap registry | `stow/nvim/.config/nvim/init.lua` |
 
 ## Pattern Overview
 
-**Overall:** Distro-scripted bootstrap + GNU Stow for app configs + **thin wrapper around an upstream submodule** for the Quickshell desktop shell.
+**Overall:** Submodule Fork with Dual-Tree Stow Overlays and Reactive IPC Caching.
 
 **Key Characteristics:**
-- **Arch is the product desktop**; Ubuntu/Debian scripts exist for overlapping CLI tools only (no `dots-hyprland.sh` there).
-- **Personal Hyprland is first-party and skip-protected.** Default wrapper injects `--core --skip-hyprland --skip-sysupdate` so upstream does not replace `hyprland.conf`.
-- **Live ii is installed files**, not a repo symlink: `~/.config/quickshell` after `arch/dots-hyprland.sh install`.
-- **Dual-run:** personal `waybar` stays; `exec-once = qs -c ii` starts the ii shell beside it.
-- **Submodule is canonical vendor path only** (no sibling clone as source of truth). Wrapper never `git submodule update --init`.
+- **Zero Git Churn in Submodule:** Upstream desktop shell is tracked as a clean git submodule in `vendor/dots-hyprland`. No first-party modifications occur inside the submodule tree.
+- **Two-Tree Stow Partitioning:** Configurations are split into `stow/` (isolated packages that upstream installer never collides with) and `restow/` (packages that upstream installer overwrites, requiring re-stowing).
+- **Atomic File-Based IPC:** Background daemons (Python) write data to tmpfs files using temporary names and rename them via `os.replace`. Frontend UI (Quickshell QML) observes these files reactively using `Quickshell.Io.FileView`, avoiding blocking subshell execution.
+- **Fail-Closed Verification:** All deployment and phase changes are validated against strict bash/python test harnesses with non-zero exit codes on failure.
 
 ## Layers
 
-**Operator / session:**
-- Purpose: Running Hyprland compositor and autostarted bars/shells
-- Location: `$HOME/.config/hypr` (copied from `.config/hypr` by `arch/hyprland.sh`)
-- Contains: Live `hyprland.conf`, user session units
-- Depends on: Packages from `arch/hyprland.sh`, `arch/waybar.sh`, wrapper install
-- Used by: User login
+**1. Compositor & Display Layer:**
+- Purpose: Wayland window management, input dispatch, screen configuration, and keybindings.
+- Location: `stow/hypr/`, `restow/hypr/`
+- Contains: Hyprland configuration, window rules, keybinding definitions, hypridle, hyprlock.
+- Depends on: Linux DRM/KMS, Vulkan, proprietary/open GPU drivers.
+- Used by: All graphical applications and Quickshell.
 
-**First-party installers:**
-- Purpose: Install packages and deploy configs
-- Location: `arch/`, `ubuntu/`, `debian/`
-- Contains: One script per concern (`nvim.sh`, `tools.sh`, …)
-- Depends on: `pacman`/`apt`, `yay` where noted, `stow`
-- Used by: Operator running scripts from repo root
+**2. Shell & Presentation Layer:**
+- Purpose: Status bar, system popups, notifications, and application launcher.
+- Location: `restow/quickshell/.config/quickshell/ii/`, `restow/fuzzel/`
+- Contains: QML components (`BarContent.qml`, `WeatherBar.qml`, `CpuGpuPopup.qml`), Canvas math scripts.
+- Depends on: Quickshell runtime, QtQuick 6, PipeWire, system telemetry.
+- Used by: Desktop operator.
 
-**Stow config layer:**
-- Purpose: Versioned XDG trees
-- Location: `stow/`
-- Contains: Package dirs with `.config/<app>/…` (and some home files)
-- Depends on: GNU Stow (`stow -t ~ <pkg>` from `stow/`)
-- Used by: Most `arch/*.sh` `[CONFIG]` steps
+**3. Services & Telemetry Layer:**
+- Purpose: Reactive data ingestion, system resource monitoring, and background polling.
+- Location: `restow/quickshell/.../services/`, `stow/weather/`
+- Contains: `Weather.qml`, `HardwareTelemetry.qml`, `wwo-fetcher.py`.
+- Depends on: Linux `/proc` and `/sys` filesystems, external WWO API.
+- Used by: Presentation layer QML components.
 
-**Personal Hyprland overlay:**
-- Purpose: Machine-specific compositor policy + dual-run hooks
-- Location: `.config/hypr/`
-- Contains: Monolithic `hyprland.conf` (not split via `source=` except comments). No `custom/` Lua tree in this repo.
-- Depends on: Hyprland ecosystem packages
-- Used by: Compositor; wrapper `enable_hypr_ii_hooks` / uninstall hook deletion
+**4. Theming & Styling Layer:**
+- Purpose: System-wide dynamic Material You color synchronization.
+- Location: `restow/matugen/`
+- Contains: `config.toml`, templates for GTK 3/4, Qt/KDE, Fuzzel, Hyprland.
+- Depends on: `matugen` binary, current desktop wallpaper.
+- Used by: GTK apps, Qt apps, terminal emulators, Hyprland window borders.
 
-**ii `hypr/custom` Lua (contract present; parent files absent):**
-- Purpose: After full hypr files, `hyprland.lua` optionally `require("custom.*")`
-- Location (live): `~/.config/hypr/custom/*.lua` — guarded by `is_file_exists` in `vendor/dots-hyprland/dots/.config/hypr/hyprland.lua`
-- Location (upstream seed): `vendor/dots-hyprland/dots/.config/hypr/custom/`
-- Location (parent authoring): `.config/hypr/custom/` — **does not exist**
-- Depends on: Full-install Lua session (not the current `hyprland.conf` dual-run)
-- Used by: Future full-adopt; do not commit machine overlays into `vendor/dots-hyprland`
-
-**Vendor desktop shell:**
-- Purpose: illogical-impulse Quickshell UI
-- Location: `vendor/dots-hyprland`
-- Contains: Upstream `setup`, QML, meta packages
-- Depends on: Nested submodules, AUR (`yay`)
-- Used by: `arch/dots-hyprland.sh` only for allowlisted `install*`
-
-**Planning / verification:**
-- Purpose: GSD phases and asserts
-- Location: `.planning/`, `scripts/`
-- Contains: Inventories, dispositions, smoke scripts
-- Depends on: Repo layout + live system for some smokes
-- Used by: Phase execution, not daily session
+**5. Dotfile Management & Packaging Layer:**
+- Purpose: Automated symlink deployment, package installation, and hardware bootstrapping.
+- Location: `stow/`, `restow/`, `arch/`, `bootstrap.sh`
+- Contains: Package manifests, Stow symlink structures, bash installer scripts.
+- Depends on: GNU Stow, Pacman, Yay.
+- Used by: System administrator / developer during installation and updates.
 
 ## Data Flow
 
-### Primary Request Path
+### Primary Weather Telemetry Path
 
-1. Operator clones repo with `--recurse-submodules` (`docs/dots-hyprland-workflow.md`).
-2. OS/user/bootloader from `arch/README.md` (manual).
-3. `arch/necessary.sh` and other `arch/*.sh` install packages; many `cd …/stow && stow -t ~ <pkg>`.
-4. `arch/hyprland.sh` copies `.config/hypr/*` to `~/.config/hypr/` and stows `systemd` + `swaync`.
-5. `./arch/dots-hyprland.sh install` preflights submodule, backup-gates, injects safe flags, runs `vendor/dots-hyprland/setup`, then `enable_hypr_ii_hooks`.
-6. Session starts: `hyprland.conf` `exec-once` launches waybar, swaync, hyprpaper, `qs -c ii`.
+1. **Systemd Trigger:** `wwo-fetcher.timer` fires on user session schedule (`stow/weather/.config/systemd/user/wwo-fetcher.timer:1`).
+2. **API Pacing & Fetch:** `wwo-fetcher.py` validates time elapsed against dynamic formula `(M_rem / max(1, 470 - calls)) >= 3.0 min`, loads API key from `$XDG_CONFIG_HOME/weather/.env`, and queries WWO endpoint (`stow/weather/.config/weather/wwo-fetcher.py:120`).
+3. **Atomic Cache Write:** `wwo-fetcher.py` writes payload to `$XDG_RUNTIME_DIR/weather/weather.tmp.*` and renames to `weather.json` via `os.replace` (`stow/weather/.config/weather/wwo-fetcher.py:285`).
+4. **Persistent Mirror:** Mirror copy is written to `$XDG_STATE_HOME/weather/last_known_weather.json`.
+5. **Reactive QML Update:** `Weather.qml` `FileView` detects file modification, parses JSON into reactive properties, and updates `WeatherBar.qml` and `WeatherPopup.qml` without launching any subprocess (`restow/quickshell/.../services/Weather.qml:45`).
+6. **Canvas Rendering:** `WeatherPopup.qml` passes hourly metrics to `WeatherGraphMath.js` to render temperature/AQI curves onto an HTML5-style QML Canvas (`restow/quickshell/.../weather/WeatherGraph.qml:80`).
 
-### Thin wrapper install family
+### Hardware Telemetry Path
 
-1. `main()` allowlists subcommand (`arch/dots-hyprland.sh` ~1496).
-2. `preflight()` requires `vendor/dots-hyprland/.git` and executable `setup` (never auto-init).
-3. `backup_gate()` for `install` / `install-files` (type `yes`).
-4. Safe defaults injected unless `--full`.
-5. `--dry-run` prints argv; live execs `./setup`.
-6. Success path re-marks `PROTECT_EXPLICIT` and enables hypr ii hooks in live + repo conf.
+1. **Timer Event:** `HardwareTelemetry.qml` triggers on 1000ms (active popup) or 3000ms (idle pill) cadence (`restow/quickshell/.../services/HardwareTelemetry.qml:30`).
+2. **Procfs Reading:** Reads `/proc/stat` and `/proc/meminfo` directly via Quickshell file streams.
+3. **Pill & Popup Bindings:** Updates `CpuGpuPill.qml` and `MemoryStoragePill.qml`. When popups open, tiered sweeps expand to inspect individual CPU cores and top process consumers.
 
-### Safe uninstall / protect
+### Dynamic Theming Path
 
-1. `uninstall` does **not** call upstream `./setup uninstall` unless `--upstream-dangerous`.
-2. Removes `illogical-impulse-*` metas with `pacman -R` (no `-s` cascade).
-3. Re-marks personal stack explicit; optionally strips configs/state and hypr hook lines.
-4. `protect` heals `--asdeps` demotion without uninstalling ii.
-
-**State Management:**
-- Package install reason (`--asexplicit` vs `--asdeps`) is session-critical; wrapper owns protect list.
-- Quickshell runtime venv: `~/.local/state/quickshell/.venv` (env in `hyprland.conf`).
-- Upstream backups: `~/ii-original-dots-backup`.
-- No application database; nvim lockfile at `stow/nvim/.config/nvim/lazy-lock.json`.
+1. **Wallpaper Change:** Operator selects wallpaper via `swww` or `switchwall.sh`.
+2. **Matugen Generation:** `matugen image <wallpaper>` reads image palette and evaluates templates in `restow/matugen/.config/matugen/templates/`.
+3. **File Output:** Generated themes are written directly to `$XDG_CONFIG_HOME/{gtk-3.0,gtk-4.0,fuzzel,hypr}/` (guarded by `guard-paths.tsv`).
+4. **Live Reload:** Hyprland reloads `colors.lua`, GTK applications reload CSS, and Fuzzel reloads color definitions immediately.
 
 ## Key Abstractions
 
-**Thin wrapper:**
-- Purpose: Policy around dangerous upstream setup (hypr skip, backup, uninstall)
-- Examples: `arch/dots-hyprland.sh`
-- Pattern: Allowlist + injected flags + wrapper-owned uninstall/protect
-
-**Stow package:**
-- Purpose: One app config tree
-- Examples: `stow/nvim`, `stow/waybar`, `stow/kitty`
-- Pattern: Directory named after package; contents relative to `$HOME`
-
-**Arch installer script:**
-- Purpose: Idempotent package + config deploy
-- Examples: `arch/nvim.sh`, `arch/hyprland.sh`, `arch/waybar.sh`
-- Pattern: `set -euo pipefail`; `[INSTALL]` / `[CONFIG]` / `[DONE]` echoes; `pacman -Sy --noconfirm --needed`
-
-**PROTECT_EXPLICIT:**
-- Purpose: Packages that must remain explicit after ii demotes deps
-- Examples: listed in `arch/dots-hyprland.sh`
-- Pattern: Curated dual-run + personal stack, not every `arch/*.sh` package
-
-**Dual-run hooks:**
-- Purpose: Start ii without replacing personal hypr
-- Examples: `exec-once = qs -c ii` and `env = ILLOGICAL_IMPULSE_VIRTUAL_ENV,…` in `.config/hypr/hyprland.conf`
-- Pattern: Wrapper enable on install, delete on uninstall
+- **Reactive Singleton Pattern:**
+  - Implemented in QML via `pragma Singleton` and `pragma ComponentBehavior: Bound`.
+  - Ensures a single system-wide source of truth for telemetry states (`Weather.qml`, `HardwareTelemetry.qml`, `Audio.qml`, `GlobalStates.qml`).
+- **Two-Tree Stow Partitioning:**
+  - `stow/`: Guaranteed zero-conflict packages.
+  - `restow/`: Overwrite-handled packages with explicit recovery instructions.
+  - Governed by machine-generated `collision-map.tsv`.
+- **Pure Math Rendering Engine:**
+  - `WeatherGraphMath.js`: Encapsulates all Canvas scaling, bezier control point calculations, grid boundaries, and label positions in pure JS functions with zero QML or DOM dependencies.
+  - Enables 100% headless unit testing in Node.js VM (`scripts/phase54.4-weather-assert.sh`).
 
 ## Entry Points
 
-**`arch/dots-hyprland.sh`:**
-- Location: `arch/dots-hyprland.sh`
-- Triggers: Operator; only first-party ii install path
-- Responsibilities: Preflight, gates, defaults, setup exec, hooks, uninstall, protect
-
-**`vendor/dots-hyprland/setup`:**
-- Location: submodule
-- Triggers: Wrapper `install*` only; experimental cmds operator-direct
-- Responsibilities: Upstream deps/setups/files
-
-**`arch/hyprland.sh`:**
-- Location: `arch/hyprland.sh`
-- Triggers: Operator
-- Responsibilities: Hyprland ecosystem packages, copy personal hypr, stow systemd/swaync
-
-**`arch/*.sh` (other):**
-- Location: `arch/`
-- Triggers: Operator, typically after `necessary.sh`
-- Responsibilities: Per-app packages + stow/copy
-
-**Hyprland compositor:**
-- Location: live `~/.config/hypr/hyprland.conf` (source `.config/hypr/hyprland.conf`)
-- Triggers: Graphical login
-- Responsibilities: Monitors, autostart, binds, env
-
-**Neovim:**
-- Location: `stow/nvim/.config/nvim/init.lua`
-- Triggers: `nvim` after `arch/nvim.sh`
-- Responsibilities: Load `core.*`, Lazy `plugins`
-
-**`scripts/clone_repo.sh`:**
-- Location: `scripts/clone_repo.sh`
-- Triggers: Operator with `gh`
-- Responsibilities: Clone all GitHub repos via `gh repo list` — unrelated to ii pin
+- **`bootstrap.sh`:**
+  - Location: `/home/pera/github_repo/.dotfiles/bootstrap.sh`
+  - Triggers: Manual invocation during fresh workstation setup or disaster recovery.
+  - Responsibilities: Preflights Arch release, enforces non-root execution, establishes dual-stream logging, runs installer scripts in sequence, links Stow packages, and runs test assertions.
+- **`arch/dots-hyprland.sh`:**
+  - Location: `/home/pera/github_repo/.dotfiles/arch/dots-hyprland.sh`
+  - Triggers: Invoked to install or verify the Quickshell desktop shell.
+  - Responsibilities: Validates allowlisted subcommands, manages `vendor/dots-hyprland` submodule, executes `./setup`, runs `verify --strict`.
+- **`stow/weather/.config/weather/wwo-fetcher.py`:**
+  - Location: `$XDG_CONFIG_HOME/weather/wwo-fetcher.py`
+  - Triggers: Scheduled systemd timer `wwo-fetcher.timer` or manual CLI execution.
+  - Responsibilities: Paced weather fetching, tmpfs caching, offline recovery.
 
 ## Architectural Constraints
 
-- **Threading:** Shell sequential; Hyprland/Quickshell are their own processes. Wrapper is single-process bash.
-- **Global state:** Pacman explicit/asdeps; live `~/.config/*`; no in-repo runtime DB.
-- **Circular imports:** Not applicable (shell/config). Avoid treating `vendor/` as editable product.
-- **Submodule:** Nested submodules required (`--recursive`). Wrapper does not init them.
-- **Hypr skip is one-way:** `--skip-hyprland` has no upstream undo; use `--full` for full profile (may rename personal hypr to `.old`).
-- **Debian/Ubuntu:** No ii wrapper; desktop shell Arch-only.
-- **No in-repo Quickshell or Neovim config at `.config/`:** `scripts/phase04-ipc-reload-assert.py` and `scripts/nvim-validate.sh` still point at `.config/quickshell` and `.config/nvim`, which are not in this tree. Live Quickshell is `~/.config/quickshell`; Neovim SoT is `stow/nvim/.config/nvim/`.
+- **Non-Root Execution:** All deployment and test scripts MUST fail immediately if run as `root` (`EUID -eq 0`). Sudo is requested interactively only when installing system packages.
+- **Zero Submodule Drift:** The `vendor/dots-hyprland` tree must remain clean at all times (`git status --porcelain` in vendor must be empty).
+- **No `--adopt` with GNU Stow:** Using `stow --adopt` is strictly prohibited in all scripts because it silently destroys git repository contents with live filesystem state.
+- **Strict Rclone Confidentiality:** `/home/pera/.config/rclone/rclone.conf` and all files matching `*rclone.conf*` are strictly forbidden from being read, parsed, printed, or processed by scripts or AI tools.
+- **Resource Budgeting:** QML components must never spawn polling shell commands in timers. Telemetry must use Qt file streams or background daemons writing to tmpfs.
 
 ## Anti-Patterns
 
-### Edit or develop against a sibling `dots-hyprland` clone
+### Using `stow --adopt` to resolve conflicts
+**What happens:** Running `stow --adopt` overwrites the repository files with whatever exists on disk.
+**Why it's wrong:** It destroys git authoring source of truth without warning, importing uncommitted or corrupted live files into git.
+**Do this instead:** Follow the manual recovery procedure in `stow/README.md`: simulate first with `stow -n -v`, back up conflicting live files, remove live files, and run standard `stow --no-folding`.
 
-**What happens:** Operator treats `~/github_repo/dots-hyprland` as source of truth.
-**Why it's wrong:** Parent pin and wrapper only see `vendor/dots-hyprland`.
-**Do this instead:** All pin/install work from `vendor/dots-hyprland` (`docs/dots-hyprland-workflow.md`).
+### Spawning child processes inside QML timers
+**What happens:** Using `Quickshell.Io.Process` or `sh -c curl` inside periodic QML timers to fetch data.
+**Why it's wrong:** Incurs huge CPU spikes, context switch storms (Phase 49 measured 453/s), and battery drain on idle systems.
+**Do this instead:** Use persistent background daemons (e.g. `wwo-fetcher.py`) writing to tmpfs files, read via `Quickshell.Io.FileView` as done in `Weather.qml` (reduces CPU to <= 0.01%).
 
-### Call upstream `./setup uninstall` by default
-
-**What happens:** `yay -Rns` on metas cascade-removes hyprland/fish/etc.
-**Why it's wrong:** Dual-run personal stack is marked asdeps by ii install.
-**Do this instead:** `arch/dots-hyprland.sh uninstall` (safe). `--upstream-dangerous` only with typed `UPSTREAM-UNINSTALL`.
-
-### Symlink repo Quickshell as live product
-
-**What happens:** Expect `.config/quickshell` in this repo or a stow link.
-**Why it's wrong:** Product tree was retired; live tree is a real directory under `~/.config/quickshell`.
-**Do this instead:** Install via wrapper; assert `test ! -L ~/.config/quickshell`.
-
-### Auto-init submodule in the wrapper
-
-**What happens:** Missing pin silently fetched.
-**Why it's wrong:** Reproducibility requires explicit operator `git submodule update --init --recursive`.
-**Do this instead:** Fail preflight with the fix command printed.
-
-### Bare `--skip-backup` on first adoption
-
-**What happens:** Upstream overwrites without backup dir.
-**Why it's wrong:** First-run clobber of Quickshell/other dots.
-**Do this instead:** Confirm backup gate; dual-key `--skip-backup --allow-skip-backup` only when intentional.
+### Committing dynamic theme outputs to git
+**What happens:** Adding files like `kdeglobals`, `gtk.css`, or `colors.lua` to git tracking.
+**Why it's wrong:** Causes constant git dirty working tree churn every time wallpaper or theme colors change.
+**Do this instead:** Exclude them via `guard-paths.tsv` and `.gitignore`, letting Matugen generate them on-the-fly from templates.
 
 ## Error Handling
 
-**Strategy:** `set -euo pipefail` on installers; wrapper prints `[FAIL]` / `[CONFIG]` and exits 1 on policy violations.
+**Strategy:** Fail-closed execution with automated cleanup traps.
 
 **Patterns:**
-- Preflight missing submodule → print `git submodule update --init --recursive`, exit 1
-- Backup/uninstall gates require exact tokens (`yes`, `UPSTREAM-UNINSTALL`)
-- Non-allowlisted subcommands refused with pointer to vendor `./setup`
-- Pacman `--needed` for idempotent package installs
+- **Bash Scripts:** `set -euo pipefail` standard across all files; `trap cleanup EXIT` handles removal of temporary files and restoration of standard I/O descriptors.
+- **Python Daemons:** Try/except blocks around network I/O with exponential backoff; writes to tmpfs files only replace cache if JSON deserialization succeeds; falls back to `is_stale: true` and persistent disk cache on network loss.
+- **QML UI Components:** Safe fallback default objects (`tempC: "--"`, `desc: "Offline"`, `glyph: "cloud_off"`) ensure components never crash or render null references during cold boots or network outages.
 
 ## Cross-Cutting Concerns
 
-**Logging:** Echo prefixes `[INSTALL]`, `[CONFIG]`, `[DONE]`, `[FAIL]`. Many scripts also `set -x`. Wrapper dry-run prints would-exec argv.
-
-**Validation:** Phase scripts (`scripts/phase10-inventory-assert.sh`, `scripts/phase12-full-smoke.sh`, etc.) encode contracts; nvim has `scripts/nvim-validate.sh`.
-
-**Authentication:** GitHub SSH for clone/submodule (`git@github.com:humam-hossain/dots-hyprland.git` in `.gitmodules`). Session polkit agent in `hyprland.conf`. No app auth layer.
+- **Logging:** Dual-stream stdout/stderr teeing to `$XDG_STATE_HOME/dotfiles/logs/bootstrap-*.log` with automated log rotation keeping the last 5 runs.
+- **Security & Secret Isolation:** `.gitleaks.toml` configuration preventing credential leaks; local `.env` files kept outside version control; strict rclone confidentiality barrier.
+- **Assertion Gates:** Every phase and major subsystem is coupled with a dedicated assertion script in `scripts/` validating static structure, runtime contracts, and deployment invariants.
 
 ---
 
-*Architecture analysis: 2026-08-21*
+*Architecture analysis: 2026-11-05*

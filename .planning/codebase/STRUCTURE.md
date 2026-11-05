@@ -1,204 +1,181 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-08-21
+**Analysis Date:** 2026-11-05
 
 ## Directory Layout
 
 ```
-.dotfiles/                          # Personal Arch Hyprland/Quickshell dots
-├── arch/                           # Primary OS installers (pacman/yay + stow)
-│   ├── README.md                   # Manual Arch bootstrap (bootloader, user)
-│   ├── necessary.sh                # Base packages
-│   ├── hyprland.sh                 # Compositor stack + copy `.config/hypr`
-│   ├── dots-hyprland.sh            # Thin wrapper → vendor ./setup
-│   ├── waybar.sh                   # Bar packages + managed file copy
-│   └── *.sh                        # One script per tool/app
-├── ubuntu/                         # apt + stow parity (CLI; no ii)
-├── debian/                         # apt + stow parity (CLI; no ii)
-├── stow/                           # GNU Stow packages (XDG-shaped)
-│   ├── nvim/.config/nvim/          # Neovim (init.lua, lua/)
-│   ├── waybar/.config/waybar/      # Waybar config/scripts
-│   ├── kitty/, fish/, zsh/, …      # Terminals, shells, apps
-│   └── systemd/.config/            # User systemd (hyprland-session)
-├── .config/hypr/                   # First-party Hyprland (copied, not stowed)
-│   ├── hyprland.conf               # Monolithic compositor config
-│   ├── hypridle.conf
-│   ├── hyprlock.conf
-│   ├── hyprpaper.conf
-│   ├── hyprland/scripts/           # Helper scripts
-│   └── custom/                     # NOT PRESENT — parent authoring SoT for ii Lua overlays
-├── .config/nvim/                   # NOT PRESENT — nvim SoT is stow/nvim; harness still points here
-├── .config/quickshell/             # NOT PRESENT — retired in-repo product; live is ~/.config/quickshell
-├── vendor/
-│   └── dots-hyprland/              # Upstream submodule (not first-party)
-├── scripts/                        # Clone helper + GSD phase asserts
-├── docs/                           # Operator playbooks
-│   └── dots-hyprland-workflow.md
-├── issues/                         # Hardware/session notes
-├── .planning/                      # GSD plans, inventories, this map
-├── README.md                       # Desktop shell + nvim/tmux pointers
-├── .gitmodules                     # vendor/dots-hyprland pin (no branch=)
-└── .gitignore                      # .claude, .planning/tmp, secrets-ish paths
+.dotfiles/                                      # Repository root (Arch Linux / Quickshell environment)
+├── arch/                                       # Arch Linux package installers and system configuration scripts
+│   ├── dots-hyprland.sh                        # Thin wrapper & strict verification gate for upstream submodule
+│   ├── pkglist-native.txt                      # Explicit native pacman package inventory (208 packages)
+│   ├── pkglist-aur.txt                         # Explicit foreign AUR package inventory (56 packages)
+│   ├── README.md                               # Arch system bootstrap and manual setup guide
+│   └── *.sh                                    # Modular package installation scripts (audio, hyprland, nvim, etc.)
+├── bootstrap.sh                                # Master non-root deployment orchestrator with dual-stream logging
+├── collision-map.tsv                           # Formal machine contract routing packages to stow/ or restow/
+├── guard-paths.tsv                             # Specification of dynamic generated theme paths excluded from git
+├── restow/                                     # GNU Stow tree for packages where upstream installer overwrites configs
+│   ├── chrome-flags/                           # Chrome Wayland flags (.config/chrome-flags.conf)
+│   ├── dolphinrc/                              # KDE Dolphin file manager configuration
+│   ├── fuzzel/                                 # Fuzzel Wayland application launcher config
+│   ├── hypr/                                   # Hyprland session configs (hypridle.conf, hyprlock.conf, scripts)
+│   ├── kitty/                                  # Kitty terminal config and Python helper scripts
+│   ├── matugen/                                # Material You theme generator config and templates
+│   ├── quickshell/                             # Personal Quickshell QML overlays (ii status bar, popups, services)
+│   ├── starship/                               # Starship prompt configuration
+│   └── README.md                               # Contract and exact recovery commands for restow packages
+├── stow/                                       # GNU Stow tree for packages that never collide with upstream
+│   ├── alacritty/, btop/, coredump/, fish/     # User application and shell configurations
+│   ├── gtk/, hypr/, kde/, nvim/, qbittorrent/  # Editor, GUI themes, window manager overlays
+│   ├── rclone/                                 # Rclone user services (credentials strictly isolated)
+│   ├── smartmontools/                          # Drive health monitoring collector configuration
+│   ├── systemd/                                # User systemd units and environment generators
+│   ├── system_monitor/, tmux/, waybar/, yazi/  # System tools, terminal multiplexer, file manager
+│   ├── weather/                                # Python WWO weather fetcher daemon and systemd timer
+│   └── README.md                               # Contract and safe stow linking guidelines
+├── scripts/                                    # Assertion harnesses, generators, and profiling tools
+│   ├── phase*-assert.sh                        # 50+ fail-closed test assertion suites enforcing phase invariants
+│   ├── gen-collision-map.sh                    # AST generator that parses installer primitives into collision-map.tsv
+│   ├── nvim-validate.sh                        # Headless Neovim validation and plugin smoke suite
+│   ├── profile-quickshell.sh                   # Quickshell CPU, context-switch, and GPU profiling tool
+│   └── clone_repo.sh                           # Git helper script
+├── tests/                                      # Test fixtures and mock data
+│   └── fixtures/weather/                       # Mock WWO weather JSON payloads (nominal, severe alerts, offline, etc.)
+├── vendor/                                     # Pinned git submodules
+│   └── dots-hyprland/                          # Upstream illogical-impulse desktop shell repository
+├── docs/                                       # Operator playbooks and architecture guides
+│   ├── dots-hyprland-workflow.md               # Upstream workflow, pin bumps, and wrapper reference
+│   ├── config-redistribution.md                # Config distribution documentation
+│   └── phase14-adopt-runbook.md                # Desktop shell adoption history and procedures
+├── issues/                                     # Post-mortem incident logs and hardware diagnostics
+│   ├── 2026-07-16_igpu-flickering-hang-no-display.md
+│   ├── 2026-09-30_keyboard-lag-kitty-freeze-investigation.md
+│   └── 2026-10-19_usb-port-enumeration-failures-mouse-wifi-ddcutil.md
+├── debian/                                     # Debian compatibility installer scripts (CLI / nvim parity)
+├── ubuntu/                                     # Ubuntu compatibility installer scripts (CLI / nvim parity)
+├── .planning/                                  # GSD project state, phase roadmaps, and codebase maps
+├── .gitleaks.toml                              # Secret scanning patterns and detection rules
+├── CLAUDE.md / AGENTS.md / GEMINI.md           # AI assistant instructions, boundaries, and safety rules
+└── README.md                                   # Repository introduction and desktop shell overview
 ```
 
 ## Directory Purposes
 
 **`arch/`:**
-- Purpose: Arch Linux package + config deployment
-- Contains: Executable `*.sh`, `README.md`
-- Key files: `arch/dots-hyprland.sh`, `arch/hyprland.sh`, `arch/necessary.sh`, `arch/waybar.sh`, `arch/nvim.sh`
-
-**`ubuntu/`, `debian/`:**
-- Purpose: Parallel installers for overlapping CLI (nvim, zsh, docker, fonts)
-- Contains: `*.sh` named like Arch counterparts
-- Key files: `ubuntu/nvim.sh`, `debian/nvim.sh` — **no** `dots-hyprland.sh`
+- Purpose: Primary package installation, hardware driver configuration, and system initialization for Arch Linux.
+- Contains: Standalone shell scripts invoked by `bootstrap.sh`.
+- Key files: `arch/dots-hyprland.sh`, `arch/pkglist-native.txt`, `arch/pkglist-aur.txt`, `arch/README.md`.
 
 **`stow/`:**
-- Purpose: Stow package roots; run `stow -t ~ <name>` from this directory
-- Contains: One subdirectory per package with files relative to `$HOME`
-- Key files: `stow/nvim/.config/nvim/init.lua`, `stow/waybar/.config/waybar/`
+- Purpose: GNU Stow packages for applications and configurations that upstream `dots-hyprland` installer never touches.
+- Contains: Discrete XDG directory trees (`.config/`, `.local/share/`).
+- Key files: `stow/weather/.config/weather/wwo-fetcher.py`, `stow/nvim/.config/nvim/init.lua`, `stow/systemd/.config/systemd/user/`.
 
-**`.config/hypr/`:**
-- Purpose: Personal Hyprland source of truth in-repo (current dual-run session)
-- Contains: Conf files copied by `arch/hyprland.sh` to `~/.config/hypr/`
-- Key files: `.config/hypr/hyprland.conf`
-- Absent: `.config/hypr/custom/` (ii overlay authoring tree — put new `general.lua` / `env.lua` / `execs.lua` here, not in `vendor/`)
-
-**`vendor/`:**
-- Purpose: Pinned upstream forks
-- Contains: `dots-hyprland` git submodule
-- Key files: `.gitmodules`; treat contents as upstream, not product edits
+**`restow/`:**
+- Purpose: GNU Stow packages for configurations where upstream `dots-hyprland` installer overwrites files or replaces symlinks.
+- Contains: First-party Quickshell QML overlays, Matugen theme templates, Hyprland custom scripts, Kitty terminal configurations.
+- Key files: `restow/quickshell/.config/quickshell/ii/services/Weather.qml`, `restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather/WeatherPopup.qml`, `restow/matugen/.config/matugen/config.toml`, `restow/README.md`.
 
 **`scripts/`:**
-- Purpose: Validation and one-off operator tools
-- Contains: `phaseNN-*.sh|py`, nvim validators, `clone_repo.sh`
-- Key files: `scripts/phase12-full-smoke.sh`, `scripts/nvim-validate.sh`
+- Purpose: Test execution, regression assertion, performance measurement, and metadata generation.
+- Contains: Automated phase assertion scripts (`phase*-assert.sh`), Neovim validation harness, and collision map generator.
+- Key files: `scripts/phase54.4-weather-assert.sh`, `scripts/gen-collision-map.sh`, `scripts/nvim-validate.sh`, `scripts/profile-quickshell.sh`.
 
-**`docs/`:**
-- Purpose: Human playbooks
-- Contains: `dots-hyprland-workflow.md`
+**`tests/fixtures/`:**
+- Purpose: Static sample payloads used by assertion harnesses to test JSON parsers and headless math functions without active network connections.
+- Key files: `tests/fixtures/weather/nominal.json`, `tests/fixtures/weather/severe_alerts.json`, `tests/fixtures/weather/heavy_rain.json`.
 
-**`.planning/`:**
-- Purpose: GSD phases, research, codebase maps
-- Contains: `phases/`, `codebase/`, `research/`
-- Generated: Phase artifacts; committed as project planning
-
-**`.claude/`:**
-- Purpose: GSD/Claude tooling (gitignored)
-- Generated: Yes (local)
-- Committed: No (`.gitignore`)
+**`vendor/dots-hyprland/`:**
+- Purpose: Upstream desktop shell baseline repository tracked as a submodule.
+- Contains: Upstream Quickshell setup, scripts, assets, and base configurations.
 
 ## Key File Locations
 
 **Entry Points:**
-- `arch/dots-hyprland.sh`: Only first-party ii install/uninstall/protect
-- `arch/hyprland.sh`: Hyprland packages + personal conf copy
-- `arch/necessary.sh`: Base system packages
-- `.config/hypr/hyprland.conf`: Session autostart / dual-run
-- `stow/nvim/.config/nvim/init.lua`: Neovim bootstrap
-- `vendor/dots-hyprland/setup`: Upstream installer (via wrapper)
+- `bootstrap.sh`: Primary system-wide bootstrap and state reproduction.
+- `arch/dots-hyprland.sh`: Desktop shell installation, verification (`verify --strict`), and clean uninstallation.
+- `stow/weather/.config/weather/wwo-fetcher.py`: CLI and background weather fetching daemon.
 
 **Configuration:**
-- `.config/hypr/*`: Compositor
-- `stow/<pkg>/.config/…`: App configs
-- `.gitmodules`: Submodule URL (SSH fork)
+- `collision-map.tsv`: Authoritative specification governing Stow package partitioning.
+- `guard-paths.tsv`: Authoritative specification of untracked dynamic theme files.
+- `restow/matugen/.config/matugen/config.toml`: Matugen dynamic theme configuration and template declarations.
+- `stow/nvim/.config/nvim/init.lua`: Neovim entry point and Lazy plugin configuration.
 
-**Core Logic:**
-- `arch/dots-hyprland.sh`: Policy wrapper (allowlist, gates, `PROTECT_EXPLICIT`, hooks)
-- `arch/waybar.sh`: Explicit `PACKAGES`, `MANAGED_FILES`, stale cleanup
-- `docs/dots-hyprland-workflow.md`: Operator contract
+**Core Desktop UI Logic:**
+- `restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml`: Status bar layout and component positioning.
+- `restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather/WeatherPopup.qml`: Multi-card weather inspector dialog.
+- `restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather/WeatherGraphMath.js`: Canvas math and drawing calculations.
+- `restow/quickshell/.config/quickshell/ii/services/Weather.qml`: Reactive weather data singleton.
+- `restow/quickshell/.config/quickshell/ii/services/HardwareTelemetry.qml`: Hardware resource polling singleton.
 
-**Testing:**
-- `scripts/phase02-config-assert.py` … `scripts/phase12-full-smoke.sh`: Phase contracts
-- `scripts/nvim-validate.sh`, `scripts/nvim-audit-failures.sh`: Neovim checks
-- No unit-test tree for bash wrappers
+**Testing & Verification:**
+- `scripts/phase54.4-weather-assert.sh`: Weather popup and canvas math assertion harness.
+- `scripts/nvim-validate.sh`: Headless Neovim test harness.
+- `arch/dots-hyprland.sh verify --strict`: Live symlink and submodule integrity checker.
 
 ## Naming Conventions
 
 **Files:**
-- Distro installers: `snake_case.sh` matching app (`google_chrome.sh`, `system_monitor.sh`)
-- Wrapper: `arch/dots-hyprland.sh` (product name, hyphenated)
-- Phase scripts: `scripts/phaseNN-<topic>-assert.sh|py` or `phaseNN-*-smoke.sh`
-- Hypr conf: `hypr*.conf`
+- Arch installers: `arch/<tool_name>.sh` (lowercase, underscore for multi-word, e.g. `google_chrome.sh`, `system_monitor.sh`).
+- Test assertion scripts: `scripts/phase<phase_number>-<topic>-assert.sh` (e.g. `phase54.4-weather-assert.sh`).
+- QML components: `PascalCase.qml` (e.g. `WeatherPopup.qml`, `CpuGpuPill.qml`, `BarContent.qml`).
+- JavaScript helper modules: `PascalCase.js` (e.g. `WeatherGraphMath.js`).
+- Python scripts: `kebab-case.py` for standalone executables (`wwo-fetcher.py`), `snake_case.py` for embedded libraries (`process_tree.py`).
+- Issue post-mortems: `issues/YYYY-MM-DD_<topic-description>.md`.
 
 **Directories:**
-- Stow packages: lowercase app name (`nvim`, `waybar`, `qbittorrent`)
-- Distro folders: `arch`, `ubuntu`, `debian`
-- Vendor: `vendor/<upstream-name>`
-
-**Script internals (prescriptive):**
-- Use `set -euo pipefail`
-- Resolve `REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"` when paths needed
-- Echo `[INSTALL]` / `[CONFIG]` / `[DONE]` / `[FAIL]`
-- Stow from `stow/`: `cd "$(dirname "${BASH_SOURCE[0]}")/../stow" && stow -v=5 -t ~ <pkg>`
-- Pacman: `sudo pacman -Sy --noconfirm --needed` (avoid unattended `-Syu` in targeted scripts)
+- Stow packages: kebab-case or tool name matching installed application (e.g. `chrome-flags`, `smartmontools`, `system_monitor`).
+- QML modules: structured according to Quickshell module taxonomy (`modules/ii/bar/`, `modules/ii/mediaControls/`, `services/`).
 
 ## Where to Add New Code
 
-**New Arch package + config:**
-- Installer: `arch/<name>.sh`
-- Config tree: `stow/<name>/.config/<app>/…`
-- Wire stow at end of installer (see `arch/nvim.sh`)
-- Optional Ubuntu/Debian copies only if CLI parity is wanted
+**New Quickshell UI Component:**
+- Implementation: `restow/quickshell/.config/quickshell/ii/modules/ii/bar/<subsystem>/<ComponentName>.qml`
+- Placement in Bar: Include in `restow/quickshell/.config/quickshell/ii/modules/ii/bar/BarContent.qml`
+- Reactive Data Source: Add singleton in `restow/quickshell/.config/quickshell/ii/services/<ServiceName>.qml`
+- Verification Test: Add assertion block or new test harness in `scripts/phase<N>-<subsystem>-assert.sh`
 
-**New Hyprland behavior (binds, exec-once, monitors) — current dual-run:**
-- Edit `.config/hypr/hyprland.conf` (repo source)
-- Deploy via `arch/hyprland.sh` copy or manual copy to `~/.config/hypr/`
-- Do **not** put personal hypr under `stow/` unless changing the copy-vs-stow pattern
-- Dual-run ii lines: let `arch/dots-hyprland.sh` enable/delete; keep the two canonical hook lines
+**New Application Configuration:**
+1. Determine collision disposition: Check if upstream `vendor/dots-hyprland/setup` writes to the target path.
+2. If upstream touches target path: Add package under `restow/<app_name>/.config/...` and update `collision-map.tsv`.
+3. If upstream NEVER touches target path: Add package under `stow/<app_name>/.config/...`.
+4. Deploy package: `cd stow && stow --verbose=5 --no-folding -t ~ <app_name>` (or `restow`).
 
-**ii `hypr/custom` Lua overlays (full-adopt layer):**
-- Author in parent `.config/hypr/custom/` (`general.lua`, empty `env.lua` / `execs.lua` slots)
-- Match require names in `vendor/dots-hyprland/dots/.config/hypr/hyprland.lua` (`custom.general`, `custom.env`, `custom.execs`)
-- Do **not** commit machine overlays into `vendor/dots-hyprland/dots/.config/hypr/custom/`
-- Do **not** add parent `.config/hypr/monitors.lua` or `workspaces.lua` unless intentionally using nwg-displays
-- Live apply is copy onto `~/.config/hypr/custom/` after ii files install — not stow, not wrapper rewrite
+**New System Package / Tool:**
+- Installer: Create or update `arch/<tool_name>.sh`.
+- Package List: Add package name to `arch/pkglist-native.txt` or `arch/pkglist-aur.txt`.
+- Orchestrator: Register invocation inside `bootstrap.sh`.
 
-**ii / Quickshell changes:**
-- Do not add a first-party `.config/quickshell` product tree
-- Pin bumps: submodule SHA in parent; playbook in `docs/dots-hyprland-workflow.md`
-- Wrapper policy (flags, protect list, uninstall): `arch/dots-hyprland.sh` only
-- Upstream QML/setup: `vendor/dots-hyprland` (fork), not this repo’s `stow/`
-
-**New validation:**
-- `scripts/` named for the phase or tool (`phaseNN-…`, `nvim-…`)
-
-**Utilities:**
-- Shared helpers: none extracted; keep logic in the owning `arch/*.sh` unless a second consumer appears
-- Repo clone helper stays `scripts/clone_repo.sh`
-
-**New Component/Module:**
-- Neovim plugin spec: `stow/nvim/.config/nvim/lua/plugins/`
-- Neovim core: `stow/nvim/.config/nvim/lua/core/`
-- Waybar scripts: `stow/waybar/.config/waybar/scripts/…` and register in `arch/waybar.sh` `MANAGED_FILES` / `EXECUTABLE_FILES`
+**New Shared Utility / Helper Script:**
+- Standalone CLI utility: Place in `stow/<app_name>/.local/bin/` or `arch/`.
+- Developer test/validation tool: Place in `scripts/<utility_name>.sh`.
 
 ## Special Directories
 
-**`vendor/dots-hyprland`:**
-- Purpose: Pinned illogical-impulse fork
-- Generated: No (submodule checkout)
-- Committed: Gitlink SHA in parent; nested submodules required
+**`restow/`:**
+- Purpose: Contains dotfiles that collide with or are overwritten by upstream `dots-hyprland` installer.
+- Generated: No (hand-authored personal overlays).
+- Committed: Yes (tracked in git).
+- Recovery idiom: Re-stowed manually or verified via `arch/dots-hyprland.sh verify`.
+
+**`stow/`:**
+- Purpose: Contains dotfiles completely isolated from upstream installer actions.
+- Generated: No (hand-authored personal dotfiles).
+- Committed: Yes (tracked in git).
+- Recovery idiom: Linked once on bootstrap; never disturbed by upstream updates.
+
+**`vendor/dots-hyprland/`:**
+- Purpose: Upstream submodule containing base desktop shell source code.
+- Generated: Managed via `git submodule`.
+- Committed: Pinned gitlink commit SHA tracked in `.gitmodules`. Working tree is NEVER edited directly.
 
 **`.planning/`:**
-- Purpose: GSD planning artifacts and codebase maps
-- Generated: Partially (phase outputs)
-- Committed: Yes (except `.planning/tmp/` gitignored)
-
-**`.claude/`:**
-- Purpose: Local GSD/agent runtime
-- Generated: Yes
-- Committed: No
-
-**`stow/qbittorrent/.config/qBittorrent/`:**
-- Purpose: App config; lock/ipc/rss state gitignored
-- Generated: Runtime files ignored
-- Committed: Config only
-
-**`scripts/__pycache__/`:**
-- Purpose: Python bytecode from phase asserts
-- Generated: Yes
-- Committed: No (`__pycache__/` in `.gitignore`)
+- Purpose: Project roadmap, milestone specifications, requirements contracts, and codebase state documents.
+- Generated: Managed by GSD tooling.
+- Committed: Yes (tracked in git for state synchronization).
 
 ---
 
-*Structure analysis: 2026-08-21*
+*Structure analysis: 2026-11-05*

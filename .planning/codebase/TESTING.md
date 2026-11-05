@@ -1,214 +1,203 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-08-21
+**Analysis Date:** 2026-11-05
 
-This repo has **no unit-test framework** (no Jest, pytest, Bats, or CI test job). Verification is **assert/smoke scripts** plus Neovim headless harnesses. Do not add a JS/Python test runner unless a phase explicitly requires it. Do not treat `vendor/dots-hyprland` testers as first-party.
+This repository enforces quality and correctness through **custom fail-closed assertion harnesses**, headless Neovim probe suites, and sandboxed JavaScript VM evaluation. There are no generic third-party test runners (e.g. Jest, Pytest, Bats); all verification runs via deterministic bash/python scripts in `scripts/`.
 
 ## Test Framework
 
 **Runner:**
-- Custom bash/Python scripts under `scripts/`
-- Neovim `--headless` via `scripts/nvim-validate.sh`
-- Config: none (`jest.config.*` / `vitest.config.*` / `pytest.ini` Not detected)
+- Custom Bash assertion suites in `scripts/phase*-assert.sh` (53 dedicated phase harnesses).
+- Headless Node.js VM sandbox (`vm.runInNewContext`) for QML Canvas drawing math.
+- Headless Neovim test harness in `scripts/nvim-validate.sh` (`nvim --headless`).
+- Submodule & symlink integrity gate in `arch/dots-hyprland.sh verify --strict`.
 
 **Assertion Library:**
-- Bash: `pass` / `fail` / `soft` helpers + `grep` / `test` / `bash -n`
-- Python: `assert` + `AssertionError` / `KeyError` in `scripts/phase0{2,3,4}-*.py`
+- Bash: Built-in `pass()`, `fail()`, `finding()`, and `info()` primitives with fail-closed exit codes.
+- TAP Output: Emits Test Anything Protocol (TAP version 13) when executed with `--tap`.
+- Python: Standard library `assert` and `AssertionError`.
 
 **Run Commands:**
 ```bash
-# Phase / wrapper policy (from REPO_ROOT)
-./scripts/phase02-config-assert.py
-./scripts/phase03-config-assert.py
-./scripts/phase04-ipc-reload-assert.py
-./scripts/phase07-live-smoke.sh
-./scripts/phase10-inventory-assert.sh
-./scripts/phase10-inventory-assert.sh --full
-./scripts/phase11-dispositions-assert.sh
-./scripts/phase12-full-smoke.sh
+# Execute latest weather subsystem assertions (Sections 1-5)
+./scripts/phase54.4-weather-assert.sh
 
-# Neovim
-./scripts/nvim-validate.sh startup
+# Run specific section only (e.g. Section 2: Popup sizing and placement math)
+./scripts/phase54.4-weather-assert.sh --section 2
+
+# Run assertions in TAP 13 format
+./scripts/phase54.4-weather-assert.sh --tap
+
+# Run performance and optimization assertion suite
+./scripts/phase50-opt-assert.sh
+
+# Strict repository verification (no broken symlinks, clean vendor tree)
+./arch/dots-hyprland.sh verify --strict
+
+# Headless Neovim validation suite (startup, sync, health, keymaps, formatters)
 ./scripts/nvim-validate.sh all
+
+# Neovim plugin failure audit
 ./scripts/nvim-audit-failures.sh
 
-# Wrapper dry-run (non-mutating)
-./arch/dots-hyprland.sh help
-./arch/dots-hyprland.sh install --dry-run
-printf 'yes\n' | ./arch/dots-hyprland.sh install --full --dry-run
-./arch/dots-hyprland.sh uninstall --dry-run
+# Run Quickshell resource profiler (CPU, context switches, GPU boosts)
+./scripts/profile-quickshell.sh
 ```
 
 ## Test File Organization
 
 **Location:**
-- All first-party checks in `scripts/` (not co-located with `arch/` or `stow/`).
-- Reports: `.planning/tmp/nvim-validate/` (startup.log, health.json, keymap-regression.log, format-regression.log).
-- Planning inventories grepped by asserts: `.planning/phases/10-full-install-impact-inventory/10-INVENTORY.md`.
+- Harness scripts: `scripts/`
+- Mock JSON fixtures: `tests/fixtures/weather/`
+- Temporary test run outputs: `.planning/tmp/`
 
 **Naming:**
-- `phaseNN-<slug>-assert.py|sh` — Wave 0 structural/live config
-- `phaseNN-*-smoke.sh` — non-mutating or live-policy smoke
-- `nvim-validate.sh` / `nvim-audit-failures.sh` — editor harness
+- Assertion scripts: `scripts/phase<phase_number>-<topic>-assert.sh`
+- Fixture files: `tests/fixtures/<domain>/<scenario>.json`
 
-**Structure:**
-```
-scripts/
-├── phase02-config-assert.py      # live ~/.config/illogical-impulse/config.json
-├── phase03-config-assert.py
-├── phase04-ipc-reload-assert.py  # QML + qs ipc
-├── phase07-live-smoke.sh         # dual-run + wrapper policy
-├── phase10-inventory-assert.sh   # markdown structure + optional host checklist
-├── phase11-dispositions-assert.sh
-├── phase12-full-smoke.sh         # --full flag / dry-run argv
-├── nvim-validate.sh
-├── nvim-audit-failures.sh
-└── clone_repo.sh                 # not a test
+**Structure of a Standard Multi-Section Assertion Suite:**
+```text
+scripts/phase54.4-weather-assert.sh
+├── Section 1: Static layout, deploy topology, and repository integrity
+├── Section 2: Popup sizing and placement math
+├── Section 3: Palette, contrast, and theme bindings
+├── Section 4: Axis labels, gradient stops, and scales
+└── Section 5: Canvas draw functions against a recording mock canvas
 ```
 
 ## Test Structure
 
-**Suite Organization:**
+**Standard Assertion Harness Implementation Pattern:**
 ```bash
-# Pattern from scripts/phase12-full-smoke.sh
+#!/usr/bin/env bash
 set -euo pipefail
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$REPO_ROOT"
-FAIL=0
-pass() { printf '[PASS] %s\n' "$1"; }
-fail() { printf '[FAIL] %s\n' "$1"; FAIL=$((FAIL + 1)); }
 
-if bash -n arch/dots-hyprland.sh; then
-  pass "syntax: bash -n arch/dots-hyprland.sh"
-else
-  fail "syntax: bash -n arch/dots-hyprland.sh"
+# Fail closed if run as root
+if [[ "${EUID:-$(id -u)}" -eq 0 ]]; then
+  echo "Error: Do not run as root" >&2
+  exit 1
 fi
-# ... more checks ...
+
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+cd "$REPO_ROOT"
+
+FAIL=0
+TESTS=0
+TAP_MODE=0
+
+pass() {
+  TESTS=$((TESTS + 1))
+  if [[ "$TAP_MODE" -eq 1 ]]; then
+    printf 'ok %d - %s\n' "$TESTS" "$1"
+  else
+    printf '[PASS] %s\n' "$1"
+  fi
+}
+
+fail() {
+  TESTS=$((TESTS + 1))
+  FAIL=$((FAIL + 1))
+  if [[ "$TAP_MODE" -eq 1 ]]; then
+    printf 'not ok %d - %s\n' "$TESTS" "$1"
+  else
+    printf '[FAIL] %s\n' "$1"
+  fi
+}
+
+# Example assertion: AST and regex invariant verification
+if grep -q "pragma ComponentBehavior: Bound" restow/quickshell/.config/quickshell/ii/services/Weather.qml; then
+  pass "Weather.qml specifies bound component behavior"
+else
+  fail "Weather.qml missing Bound pragma"
+fi
+
 exit "$FAIL"
 ```
 
-Python pattern (`scripts/phase02-config-assert.py`):
-```python
-def main() -> int:
-    if not CONFIG_PATH.is_file():
-        print(f"error: missing config file: {CONFIG_PATH}", file=sys.stderr)
-        return 1
-    try:
-        config = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
-        assert workspaces["shown"] == 4, f"bar.workspaces.shown=... want 4"
-    except KeyError as exc:
-        print(f"config assert FAIL: missing key {exc}", file=sys.stderr)
-        return 1
-    except AssertionError as exc:
-        print(f"config assert FAIL: {exc}", file=sys.stderr)
-        return 1
-    print("config asserts OK")
-    return 0
-```
+**Setup & Teardown Patterns:**
+```bash
+# Temporary directory management with guaranteed EXIT trap
+TMP_DIRS=()
+cleanup() {
+  for d in "${TMP_DIRS[@]}"; do
+    rm -rf "$d" 2>/dev/null || true
+  done
+}
+trap cleanup EXIT
 
-**Patterns:**
-- Setup: resolve `REPO_ROOT`, `cd` there, `mktemp` for command capture, `trap` cleanup.
-- Teardown: `trap 'rm -f "$HELP_OUT" ...' EXIT`.
-- Assertion: labeled IDs (`LIVE-01`, `FULL-01`, `D-04`, `D-13`) matching planning decisions.
-- Host-state branching: if `~/.config/quickshell/ii/shell.qml` missing, LIVE asserts become `[SOFT]` (`scripts/phase07-live-smoke.sh`).
+TEST_DIR="$(mktemp -d /tmp/test-assert-XXXXXX)"
+TMP_DIRS+=("$TEST_DIR")
+```
 
 ## Mocking
 
-**Framework:** Not detected.
+**Headless Canvas 2D Mocking in Node.js:**
+- Pure math functions in `WeatherGraphMath.js` (e.g. bezier curve fitting, canvas path creation) are evaluated without a running display server by injecting a recording mock context:
+```javascript
+const vm = require('vm');
+const fs = require('fs');
 
-**Patterns:**
-```bash
-# Drive interactive gates without mutating the machine
-printf 'yes\n' | ./arch/dots-hyprland.sh install --dry-run
-# Capture argv; grep for residual flags
-"$WRAP" install --full --dry-run >"$FULL_OUT" 2>&1
-grep -q -- '--skip-hyprland' "$FULL_OUT" && fail "leaked --skip-hyprland"
+const code = fs.readFileSync('restow/quickshell/.config/quickshell/ii/modules/ii/bar/weather/WeatherGraphMath.js', 'utf8');
+
+const recordedCalls = [];
+const mockContext = {
+    beginPath: () => recordedCalls.push('beginPath'),
+    moveTo: (x, y) => recordedCalls.push(`moveTo(${x},${y})`),
+    bezierCurveTo: (cp1x, cp1y, cp2x, cp2y, x, y) => recordedCalls.push(`bezierCurveTo(...)`),
+    stroke: () => recordedCalls.push('stroke'),
+    createLinearGradient: () => ({ addColorStop: () => {} }),
+};
+
+const sandbox = { console, Math };
+vm.createContext(sandbox);
+vm.runInContext(code, sandbox);
+// Assert that math functions correctly call mock context methods
 ```
+
+**Static JSON Fixture Mocking:**
+- `tests/fixtures/weather/nominal.json`: Standard 3-day forecast with hourly data.
+- `tests/fixtures/weather/severe_alerts.json`: Payloads containing extreme weather warnings to verify alert banner rendering.
+- `tests/fixtures/weather/sparse_offline.json`: Minimal payloads verifying cold-boot fallback resilience.
 
 **What to Mock:**
-- Do not mock pacman/yay. Use `--dry-run` and refuse live `install --full` in smoke scripts.
-- Phase 10 `--full` is **read-only** `test -e` host checklist, not a mock.
+- Wayland display server and Qt Quick scenegraph during headless testing.
+- HTML5 Canvas 2D rendering context.
+- External WWO API network responses.
 
 **What NOT to Mock:**
-- Live JSON/QML when the assert is explicitly a live gate (`phase02`, `phase04`).
-- Neovim plugins: load real modules via `pcall(require, ...)` in `nvim-validate.sh smoke`.
+- Physical filesystem paths and real symlink targets.
+- Pacman and Git command return statuses during verification runs.
+- `collision-map.tsv` and `guard-paths.tsv` files.
 
-## Fixtures and Factories
+## Coverage & Quality Gates
 
-**Test Data:**
-```python
-# phase04 still names in-tree QML as fixture — those files are not in the repo
-REPO_ROOT = Path(__file__).resolve().parent.parent
-BAR_QML = REPO_ROOT / ".config" / "quickshell" / "modules" / "ii" / "bar" / "Bar.qml"
-PROBE_MARKER = "// phase04-ipc-reload-assert-probe"
-```
+**Coverage Philosophy:**
+- 100% invariant requirement traceability. Each milestone phase defines formal requirement IDs (e.g. `POPUP-01`, `WWO-02`, `OPT-03`) that are directly mapped to assert functions in `scripts/phase*-assert.sh`.
+- Code changes must never regress previous phase assertions.
 
-**Location:**
-- Expected keys live in the assert source, not YAML fixtures.
-- Inventories under `.planning/phases/` are the documents under test for phase 10/11.
-- **Broken in-tree fixtures (verified 2026-08-21):**
-  - `scripts/phase04-ipc-reload-assert.py` → `.config/quickshell/...` **missing** (retired product; live tree is `~/.config/quickshell`)
-  - `scripts/nvim-validate.sh` → `$REPO_ROOT/.config/nvim/init.lua` **missing** (SoT is `stow/nvim/.config/nvim/init.lua`)
-
-## Coverage
-
-**Requirements:** None enforced (no coverage tool).
-
-**View Coverage:**
-```bash
-# Not applicable. Treat PASS/FAIL labels as the report.
-./scripts/phase12-full-smoke.sh
-./scripts/nvim-validate.sh health   # writes .planning/tmp/nvim-validate/health.json
-```
+**Pre-Commit Verification Checklist:**
+1. Execute phase-specific test harness: `./scripts/phase<N>-*-assert.sh`
+2. Run strict repository verification: `./arch/dots-hyprland.sh verify --strict`
+3. Verify zero dirty submodule drift: `git submodule status`
+4. Run secret scan: `.gitleaks.toml` patterns
 
 ## Test Types
 
-**Unit Tests:**
-- Not used. Closest: `bash -n` syntax, grep of help text, JSON key asserts.
+**1. Static Invariant Tests:**
+- Inspects source files using strict regex/grep to verify architectural rules (e.g. no subshell spawns in QML timers, non-root checks in bash scripts, Bound component pragmas).
 
-**Integration Tests:**
-- `scripts/phase04-ipc-reload-assert.py` — `qs list` / `qs ipc` against a running shell; soft-reload PID probe.
-- `scripts/phase07-live-smoke.sh` — XDG trees, dual-run waybar vs ii, wrapper uninstall policy.
-- `scripts/nvim-validate.sh` — headless nvim against `$REPO_ROOT/.config/nvim` (`-u` / `rtp^=`). That path **does not exist**; SoT is `stow/nvim/.config/nvim`. Align `-u` to the stow tree or the harness cannot start.
+**2. Sandboxed Logic Tests:**
+- Evaluates JavaScript and Python algorithms (bezier math, pacing intervals, date rollovers) in headless isolation.
 
-**E2E Tests:**
-- Manual operator playbook `docs/dots-hyprland-workflow.md`.
-- Phase smokes **must not** run live `install --full` (`scripts/phase12-full-smoke.sh` header).
+**3. Integration & Deployment Tests:**
+- Validates that GNU Stow correctly creates leaf symlinks without folding, tests that `collision-map.tsv` is in sync with installer primitives, and tests that wrapper allowlists reject unauthorized flags.
 
-## Common Patterns
-
-**Async Testing:**
-```bash
-# nvim-validate startup uses lua defer then qa
-nvim --headless -u "$REPO_ROOT/.config/nvim/init.lua" \
-  --cmd "set rtp^=$REPO_ROOT/.config/nvim" \
-  +"lua vim.defer_fn(function() vim.cmd('qa!') end, 50)"
-# Lazy sync: timeout 120; rc 124 = FAIL
-```
-
-**Error Testing:**
-```bash
-# Unknown CLI args must fail
-./scripts/phase10-inventory-assert.sh --nope  # expect [FAIL] unknown arg
-# nvim-validate fails on Error|E5108|E484|stack traceback in logs
-# health: FAIL if plugin loaded=false or required tool missing; WARN optional tools
-```
-
-**Soft vs hard:**
-- Hard fail → increment `FAIL`, script exits non-zero.
-- Soft → print `[SOFT]`, do not fail the suite (expected after uninstall).
-
-**Safety constraints for new tests:**
-- Never `rsync`/`cp`/`mv`/`rm` into XDG from inventory asserts (`scripts/phase10-inventory-assert.sh`).
-- Never call `./setup` or `arch/dots-hyprland.sh` without `--dry-run` unless the phase is explicitly a live install.
-- Do not invoke upstream `./setup uninstall`.
-
-**Adding a new check:**
-1. Put it in `scripts/phaseNN-*.sh|py` matching the planning phase.
-2. Label with the decision/ID from the plan (`D-xx`, `LIVE-xx`, `FULL-xx`).
-3. Use `[PASS]`/`[FAIL]`; keep stdlib-only Python.
-4. Document mutation (none vs live) in the file header.
+**4. Performance Benchmark Tests:**
+- Run via `scripts/profile-quickshell.sh`:
+  - Captures baseline idle CPU consumption over 60 seconds (must remain <= 1.70%).
+  - Counts context switches per second using `perf stat` or `/proc/stat` (target <= 75/s).
+  - Checks GPU boost clock behavior (ensures telemetry pills do not trigger high-power dGPU/iGPU clocks).
 
 ---
 
-*Testing analysis: 2026-08-21*
+*Testing analysis: 2026-11-05*

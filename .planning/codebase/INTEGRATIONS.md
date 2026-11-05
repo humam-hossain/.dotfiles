@@ -1,160 +1,134 @@
 # External Integrations
 
-**Analysis Date:** 2026-08-21
+**Analysis Date:** 2026-11-05
 
 ## APIs & External Services
 
-**Git hosting:**
-- GitHub — origin `.dotfiles` clone (`git@github.com:humam-hossain/.dotfiles.git` per `docs/dots-hyprland-workflow.md`)
-  - SDK/Client: `git`, `github-cli` (`gh`) via `arch/tools.sh`
-  - Auth: SSH keys / `gh` login (never store tokens in repo)
-- GitHub — personal fork submodule `vendor/dots-hyprland` (`.gitmodules`: `git@github.com:humam-hossain/dots-hyprland.git`; upstream conceptual source end-4/dots-hyprland)
-  - Nested submodules inside vendor (shapes / rounded-polygon)
-- AUR — `yay-bin` clone `https://aur.archlinux.org/yay-bin` (`arch/aur.sh`)
+**Weather Telemetry:**
+- **WorldWeatherOnline (WWO) Premium API** — Provides current weather conditions, 24-hour hourly forecasts, 3-day astronomical metrics, air quality indices (AQI), and weather alerts.
+  - Endpoint: `https://api.worldweatheronline.com/premium/v1/weather.ashx`
+  - Implementation: `stow/weather/.config/weather/wwo-fetcher.py` (executed via user systemd timer `wwo-fetcher.timer` in `stow/weather/.config/systemd/user/wwo-fetcher.timer`).
+  - Auth: `WWO_API_KEY` loaded from `$XDG_CONFIG_HOME/weather/.env` (template in `stow/weather/.config/weather/.env.example`).
+  - Quota Governance: Enforces strict dynamic budget pacing (`(M_rem / max(1, 470 - calls)) >= 3.0 min`), hard ceiling of 500 requests/day, UTC midnight reset counter, and 25-second HTTP timeout with exponential backoff on failure.
+  - UI Consumer: `restow/quickshell/.config/quickshell/ii/services/Weather.qml` and `modules/ii/bar/weather/WeatherBar.qml`.
 
-**Time tracking:**
-- Wakapi / WakaTime-compatible API — `arch/wakatime.sh`, `debian/wakatime.sh`, `ubuntu/wakatime.sh`
-  - SDK/Client: WakaTime editor plugins reading `~/.wakatime.cfg`
-  - Auth: interactive `WAKATIME_API_KEY` written to `api_key=` (file gitignored by practice; do not commit)
-  - Endpoint set in script: `api_url=https://wakapi.dev/api`
+**Git Hosting & Repositories:**
+- **GitHub** — Hosts primary dotfiles repository and upstream fork:
+  - Parent repository: `git@github.com:humam-hossain/.dotfiles.git`
+  - Upstream submodule: `git@github.com:humam-hossain/dots-hyprland.git` pinned in `vendor/dots-hyprland`.
+  - Client: `git` CLI, GitHub CLI (`gh` installed via `arch/tools.sh`).
+  - Auth: SSH agent authentication (`id_ed25519` / `id_rsa`); no tokens stored in repository.
 
-**AI CLIs (Debian/Ubuntu only):**
-- Google Gemini CLI — `debian/gemini.sh` / `ubuntu/gemini.sh`: `npm install -g @google/gemini-cli` after `nodejs`/`npm`
-  - Auth: Gemini/Google user login at runtime (not in-repo)
+**Package & Plugin Repositories:**
+- **Arch User Repository (AUR)** — Upstream PKGBUILD sources for foreign packages (`arch/pkglist-aur.txt`).
+  - Client: `yay` (`arch/aur.sh`).
+- **lazy.nvim / GitHub Plugin Ecosystem** — Fetches and manages Neovim plugin dependencies.
+  - Source: `https://github.com/folke/lazy.nvim.git` bootstrapped in `stow/nvim/.config/nvim/init.lua`.
+  - Lockfile: `stow/nvim/.config/nvim/lazy-lock.json`.
+- **Fisher Plugin Registry** — Fish shell plugin management (`arch/fish.sh`).
+- **Tmux Plugin Manager (TPM)** — Cloned from `https://github.com/tmux-plugins/tpm.git` (`arch/tmux.sh`).
 
-**Messaging automation:**
-- hermit-msg — `arch/hermit.sh`: `pipx install git+https://github.com/MuTe43/hermit.git` + Playwright Chromium in pipx venv
-  - Usage: `hermit login fb` / `hermit login wa` (session cookies live on machine)
+**Developer Metrics & Time Tracking:**
+- **Wakapi / WakaTime** — Activity telemetry tracking editor usage across Neovim.
+  - Endpoint: `https://wakapi.dev/api` configured in `arch/wakatime.sh`.
+  - Client: WakaTime Neovim plugin.
+  - Auth: `api_key` written to `~/.wakatime.cfg` (local host configuration; excluded from git).
 
-**Package / release downloads:**
-- GitHub Releases — Neovim tarball (`debian/nvim.sh`), WezTerm `.deb` (`debian/wezterm.sh` uses `https://api.github.com/repos/wez/wezterm/releases/latest`), Nerd Fonts zip (`debian/fonts.sh`)
-- lazy.nvim bootstrap — `https://github.com/folke/lazy.nvim.git` (`stow/nvim/.config/nvim/init.lua`)
-- Fisher plugin HTTP — `https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish` (`arch/fish.sh`)
-- TPM — `https://github.com/tmux-plugins/tpm.git`
-
-**Network / speed:**
-- speedtest.net CLI — package `speedtest-cli` in `arch/tools.sh` (outbound bandwidth tests)
-
-**Not applicable as product APIs:** Stripe, AWS SDK, Supabase — not used.
+**Hardware & Messaging Automations:**
+- **Hermit (Playwright / Chromium)** — Messaging automation client installed via pipx (`arch/hermit.sh`).
+  - Auth: Local session cookies stored under user profile.
 
 ## Data Storage
 
 **Databases:**
-- InfluxDB (bundled inside Scrutiny omnibus container) — `arch/scrutiny.sh`
-  - Connection: volume `/opt/scrutiny/influxdb`
-  - Client: in-container Scrutiny; dashboard `http://localhost:9090`
-- No application ORM. Neovim/lazy lock is JSON file, not a DB.
+- None. The dotfiles codebase operates entirely without relational or NoSQL database servers.
 
 **File Storage:**
-- Local filesystem only for dotfiles (GNU Stow → `$HOME`)
-- Upstream ii backup dir `~/ii-original-dots-backup`
-- Live Quickshell tree `~/.config/quickshell`; ii conf `~/.config/illogical-impulse`
-- qBittorrent state under `stow/qbittorrent/.config/qBittorrent/` (lock/rss gitignored in `.gitignore`)
+- **Volatile IPC tmpfs Cache:**
+  - Location: `$XDG_RUNTIME_DIR/weather/weather.json` (defaults to `/run/user/$UID/weather/weather.json`).
+  - Pattern: `stow/weather/.config/weather/wwo-fetcher.py` writes to a temporary file in the same tmpfs directory and replaces it atomically via `os.replace` to eliminate race conditions with the QML UI thread.
+- **Persistent State Mirror:**
+  - Location: `$XDG_STATE_HOME/weather/last_known_weather.json` (`~/.local/state/weather/last_known_weather.json`).
+  - Purpose: Survives reboots and system shutdowns, providing immediate offline cold-boot data to `Weather.qml` before the first network fetch completes.
+- **Operational Transcripts & Logs:**
+  - Location: `$XDG_STATE_HOME/dotfiles/logs/bootstrap-*.log`.
+  - Retention: `bootstrap.sh` enforces automated FIFO cleanup retaining only the 5 most recent transcripts.
 
 **Caching:**
-- pacman / yay caches on host
-- pipx venvs under `~/.local/share/pipx/`
-- Quickshell venv `~/.local/state/quickshell/.venv`
-- None as Redis/Memcached
+- **Quickshell Reactive In-Memory Cache:**
+  - `restow/quickshell/.config/quickshell/ii/services/Weather.qml` binds `Quickshell.Io.FileView` to the tmpfs JSON file with a 60-second fallback poll timer. Eliminates all subshell child processes (`curl`/`wttr.in`), maintaining CPU usage <= 0.01%.
 
 ## Authentication & Identity
 
 **Auth Provider:**
-- OS user + sudo/wheel (`arch/README.md` useradd `pera`)
-- GitHub SSH for git/submodules
-- `gh` for `scripts/clone_repo.sh` (`gh repo list --limit 1000 --json nameWithOwner,name`)
-- WakaTime API key in `~/.wakatime.cfg`
-- Docker Hub / GHCR pull for images (host docker credentials)
-- VS Code: `gnome-keyring` + `libsecret` (`arch/vscode.sh`) for editor login
-- Google Chrome as default browser (`arch/google_chrome.sh` + `xdg-settings` / `xdg-mime`)
-- Custom: no OAuth app in this repo
+- **Linux PAM & Non-Root Operator Model:**
+  - Managed by local OS (`/etc/passwd`, `/etc/shadow`).
+  - Enforced Policy: All orchestrator scripts (`bootstrap.sh`, `arch/dots-hyprland.sh`, `scripts/phase*-assert.sh`) refuse execution as `root` (`EUID -eq 0`) to prevent privilege escalation and permissions corruption. Sudo is requested on-demand.
+
+**Cloud Storage Authentication:**
+- **Rclone:**
+  - Configuration directory: `stow/rclone/` links generic service units.
+  - Live configuration: `~/.config/rclone/rclone.conf` contains sensitive OAuth tokens and cloud remotes. Under strict repository confidentiality rules, rclone config files and tokens are never committed or inspected by automated tools.
+
+**Secret Management:**
+- Local secrets are isolated in gitignored files:
+  - `$XDG_CONFIG_HOME/weather/.env` (for WWO weather API key).
+  - `~/.wakatime.cfg` (for Wakapi token).
+  - Repository-level detection: `.gitleaks.toml` scans for private keys, AWS tokens, and OAuth secrets.
 
 ## Monitoring & Observability
 
-**Error Tracking:**
-- None (no Sentry/etc.)
+**System Telemetry Services:**
+- **Quickshell Built-in Telemetry:**
+  - CPU & Memory: `restow/quickshell/.config/quickshell/ii/services/HardwareTelemetry.qml` and `services/ResourceUsage.qml` parse `/proc/stat` and `/proc/meminfo` with tiered polling (1s active, 3s idle).
+  - Storage: `services/StorageUsage.qml` monitors disk mount capacities.
+  - Network: `services/NetworkUsage.qml` monitors `/proc/net/dev` throughput.
+  - ICMP Latency: `services/PingService.qml` executes periodic background pings to verify gateway and internet reachability.
+  - Process Tree Inspector: `restow/quickshell/.config/quickshell/ii/scripts/resource-usage/process_tree.py` provides top CPU/memory consumer hierarchy.
+
+**Disk & Hardware Health:**
+- `smartmontools` — Configured in `stow/smartmontools/.config/smartmontools/collector.yml` for NVMe/SATA drive health telemetry.
 
 **Logs:**
-- Installer `echo "[INSTALL]|[CONFIG]|[FAIL]|[DONE]"` prefixes (`arch/dots-hyprland.sh`, `arch/*.sh`)
-- `set -x` on most `arch/*.sh` (trace to terminal)
-- systemd journal for user/session services (`pipewire`, NetworkManager)
-- udev logger line in `arch/wifi.sh` Realtek modeswitch rule
-- Scrutiny health: `curl http://localhost:9090/api/health`
-
-**Disk SMART:**
-- Scrutiny container `ghcr.io/analogj/scrutiny:master-omnibus` (`arch/scrutiny.sh`)
-  - Devices: `/dev/sda`, `/dev/nvme0`, `/dev/nvme1`; cap `SYS_RAWIO`
-  - Wrapper: `stow/smartmontools/.config/smartmontools/smartctl-wrapper.sh` → `/usr/local/bin/smartctl-wrapper`
-  - Config: `collector.yml` → `/opt/scrutiny/config`
-
-**Ping / network viz:**
-- `debian/system_monitor.sh` / `ubuntu/monitor_system.sh` + `stow/system_monitor` docker compose (`ping-viz`); ping `.env` gitignored
+- User Daemons: Inspected via `journalctl --user -u <service-name>` (e.g. `wwo-fetcher.service`).
+- Bootstrap & Install Runs: Dual-stream logging via `exec > >(tee -a "$LOG_FILE") 2>&1` in `bootstrap.sh`.
 
 ## CI/CD & Deployment
 
 **Hosting:**
-- Local machine only. No cloud app host.
+- Self-hosted workstation environment. No cloud deployment targets.
 
-**CI Pipeline:**
-- None in first-party tree (no `.github/workflows` at repo root). Vendor submodule may contain `.github/` — ignore as upstream.
-
-**Container images:**
-- `ghcr.io/analogj/scrutiny:master-omnibus`
-- Docker CE from `https://download.docker.com/linux/debian` on Debian (`debian/docker.sh`)
+**Deployment Engine:**
+- **`bootstrap.sh`** — Master idempotent entry point executing preflight checks, package installations, Stow linking, and verification assertions.
+- **GNU Stow Deployment Model:**
+  - `stow/`: Packages where upstream never collides (`stow -t ~ <pkg>`).
+  - `restow/`: Packages where upstream installer overwrites or conflicts (`stow --verbose=5 --no-folding -t ~ <pkg>`).
+  - Routing contract: Defined in `collision-map.tsv` and enforced by `scripts/gen-collision-map.sh`.
+- **Integrity Gate:**
+  - `arch/dots-hyprland.sh verify --strict` validates that all live symlinks point to valid repo targets, no unmanaged files conflict, and no submodule drift exists.
 
 ## Environment Configuration
 
-**Required env vars:**
-- `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME` — optional; wrapper defaults to `~/.config`, `~/.local/share`, `~/.local/state`
-- `BACKUP_DIR` — optional override for ii backup path
-- `ILLOGICAL_IMPULSE_VIRTUAL_ENV` — injected into Hyprland conf by wrapper install hooks
-- WakaTime key — prompted, not an exported env var
-- System monitor ping `.env` — local only (`.gitignore`)
+**Required Environment Variables:**
+- `XDG_CONFIG_HOME` — Defaults to `$HOME/.config`.
+- `XDG_DATA_HOME` — Defaults to `$HOME/.local/share`.
+- `XDG_STATE_HOME` — Defaults to `$HOME/.local/state`.
+- `XDG_RUNTIME_DIR` — Defaults to `/run/user/$UID`.
+- `WWO_API_KEY` — Defined in `$XDG_CONFIG_HOME/weather/.env` for weather data retrieval.
 
-**Secrets location:**
-- `~/.wakatime.cfg` (created by `arch/wakatime.sh`)
-- SSH keys for GitHub (user home, not repo)
-- Docker credentials on host
-- `.gitignore` ignores `.config/system_monitor/ping/.env` (repo-root shaped path) and ping `data/`
-- Tracked file: `stow/system_monitor/.config/system_monitor/ping/.env` is **in git** (gitignore does not cover the stow path). Do not quote contents. Treat as a secret-location bug, not a required env var for this repo.
+**Secrets Location:**
+- Weather API key: `$XDG_CONFIG_HOME/weather/.env`
+- WakaTime key: `~/.wakatime.cfg`
+- Cloud storage remotes: `~/.config/rclone/rclone.conf` (unmanaged, confidential)
 
 ## Webhooks & Callbacks
 
 **Incoming:**
-- None
+- None. Workstation shell client only; no public HTTP listener ports opened.
 
 **Outgoing:**
-- WakaTime heartbeats to `https://wakapi.dev/api`
-- `gh` / git HTTPS/SSH to GitHub
-- pacman/AUR mirrors; Docker registry pulls
-- speedtest-cli to speedtest.net
-- Fisher/lazy.nvim git clones on first install
-
-## First-party vs vendor boundary
-
-**Use these as product/install code:**
-- `arch/dots-hyprland.sh` — only supported ii install entry
-- `arch/*.sh`, `debian/*.sh`, `ubuntu/*.sh`
-- `stow/*`, `.config/hypr/`
-- `scripts/*`, `docs/dots-hyprland-workflow.md`
-
-**Do not implement features inside:**
-- `vendor/dots-hyprland` — pin-bump submodule; run `vendor/dots-hyprland/./setup` only for non-allowlisted experiments (`exp-update`, `virtmon`, …)
-- Retired: in-repo `.config/quickshell` and `arch/quickshell.sh` (removed; live tree is `~/.config/quickshell`)
-
-## Package sources (Arch personal stack)
-
-| Area | Script | Notable packages / remotes |
-|------|--------|----------------------------|
-| Base | `arch/necessary.sh` | base-devel, linux, NetworkManager, limine, Intel VA-API |
-| Compositor | `arch/hyprland.sh` | hyprland ecosystem, swaync, blueman; AUR `gnome-network-displays` |
-| ii shell | `arch/dots-hyprland.sh` | `illogical-impulse-*` meta pkgs via upstream `./setup` |
-| Bar | `arch/waybar.sh` | waybar + jq/bc/python dual-run |
-| Audio | `arch/audio.sh` | PipeWire, espeak-ng, festival |
-| AUR helper | `arch/aur.sh` | yay-bin |
-| Browser | `arch/google_chrome.sh` | AUR `google-chrome` |
-| Editor GUI | `arch/vscode.sh` | AUR `visual-studio-code-bin` |
+- Desktop notification dispatch via `libnotify` (`notify-send`) in Quickshell shell scripts (`system-update.sh`, `record.sh`, `WeatherAlertBanner.qml`).
 
 ---
 
-*Integration audit: 2026-08-21*
+*Integration audit: 2026-11-05*
