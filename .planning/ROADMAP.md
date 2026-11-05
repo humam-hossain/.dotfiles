@@ -53,7 +53,7 @@ See full archived phase details in [milestones/v0.9-ROADMAP.md](milestones/v0.9-
 - [x] **Phase 54.1: Top Status Bar Weather Component Polish (INSERTED)** - Visual alignment, M3 styling, interactive hover/active cues, and pill responsiveness (completed 2026-10-10)
 - [x] **Phase 54.2: Hourly Parameter Modeling and Rolling Cache Service (INSERTED)** - [-12h .. NOW .. +12h] rolling window, 0-cost midnight cache rollover, and structured QML datasets (completed 2026-10-11)
 - [x] **Phase 54.3: Interactive Multi-Metric Hourly Graph Component (INSERTED)** - Multi-metric graph (Thermal, Moisture, Wind, AQI, Atmosphere, Rain volume, UV) with scrub inspection (completed 2026-10-13)
-- [ ] **Phase 54.4: Modular Popup Inspector and Clean Card Layout (INSERTED)** - Three side-by-side hourly graph cards, synced hover tooltips, percent-sized non-scrolling popup
+- [x] **Phase 54.4: Modular Popup Inspector and Clean Card Layout (INSERTED)** - Three side-by-side hourly graph cards, synced hover tooltips, percent-sized non-scrolling popup (completed 2026-11-05)
 - [ ] **Phase 54.5: Popup Hero, Daily Stats, Astronomy and Forecast Cards (INSERTED)** - Hero header, stat pills, astronomy card, forecast strip, hidden-card fate
 - [ ] **Phase 55: System Integration, Retirement & Verification** - Prototype retirement, leaf symlink deployment, automated regression harness, and zero git churn
 
@@ -207,7 +207,7 @@ Plans:
 **Goal:** Replace the five stacked hourly graphs in WeatherPopup with three equal side-by-side graph cards (Temperature; Rain, Wind & Visibility; Air, UV & Pressure) with synced hover and floating tooltips, inside a non-scrolling popup sized as a percentage of its screen, keeping the alert banner and hero card on top (absorbs backlog 999.1; top-section redesign moved to Phase 54.5).
 **Requirements**: POPUP-01, POPUP-02, POPUP-03, POPUP-04
 **Depends on:** Phase 54.3
-**Plans:** 11/11 plans executed
+**Plans:** 11/11 plans complete
 
 **Success Criteria** (what must be TRUE):
 
@@ -259,6 +259,7 @@ Plans:
 **Plans:** 0 plans
 
 Plans:
+
 - [ ] TBD (run /gsd-plan-phase 54.5 to break down)
 
 ### Phase 55: System Integration, Retirement & Verification
@@ -289,7 +290,7 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 | 54.1. Top Status Bar Weather Component Polish | 3/3 | Complete    | 2026-10-10 |
 | 54.2. Hourly Parameter Modeling and Rolling Cache Service | 4/4 | Complete    | 2026-10-11 |
 | 54.3. Interactive Multi-Metric Hourly Graph Component | 10/10 | Complete    | 2026-10-15 |
-| 54.4. Modular Popup Inspector and Clean Card Layout | 11/11 | In Progress | - |
+| 54.4. Modular Popup Inspector and Clean Card Layout | 11/11 | Complete    | 2026-11-05 |
 | 54.5. Popup Hero, Daily Stats, Astronomy and Forecast Cards | 0/TBD | Not started | - |
 | 55. System Integration, Retirement & Verification | 0/TBD | Not started | - |
 
@@ -305,6 +306,7 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 **Source phase:** 54.3
 **Deferred at:** 2026-10-15 during /gsd-verify-work 54.3 session completion
 **Follow-ups:**
+
 - [ ] Test 4: user confirms five stacked graphs work, but wants a future phase to redesign into 2-3 compact graphs (possibly horizontal, smaller) with no scrolling (deferred 2026-10-15) **[absorbed by Phase 54.4]** — three compact side-by-side graphs, no scrolling
 
 ### Phase 999.2: Router Ping & Wi-Fi Link Diagnostics with Quickshell Status Bar Integration (BACKLOG)
@@ -314,5 +316,5 @@ Phases execute in numeric order: 51 → 52 → 53 → 54 → 54.1 → 54.2 → 5
 **Plans:** 0 plans
 
 Plans:
-- [ ] TBD (promote with /gsd-review-backlog when ready)
 
+- [ ] TBD (promote with /gsd-review-backlog when ready)

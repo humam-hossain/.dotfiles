@@ -380,11 +380,14 @@ Existing infrastructure the shell builds on (not replaced by this project):
 - ✓ **WWO-02**: Quickshell `WeatherService.qml` singleton consuming local cache via reactive `FileView` observer with offline resilience and zero API calls on shell reloads — Phase 52
 - ✓ **GLYPH-01**: Design-matched weather iconography and glyph mapping for all WWO condition codes, day vs. night (`isdaytime`), precipitation, wind, and severe alert states aligned to Material You / Material Symbols — Phase 52
 - ✓ **BAR-01**: Top status bar `WeatherBar.qml` component integrated into `BarContent.qml` Center Zone with fluid M3 width resizing, double padding eliminated, integer Celsius formatting, imminent rain badge, 3-loop breathing pulse animation, 300ms hover delay, and M3 inner surface highlight — Phase 53, Phase 54.1
+- ✓ **POPUP-01**: Multi-modal `WeatherPopup.qml` inspector anchored with 1000ms hover intent delay and horizontal screen boundary clamping (`StyledPopup`) — Phase 54.4
+- ✓ **POPUP-02**: Hero header card presenting location name (`nearest_area`), local observation time, large temperature readout, and human condition description (`weatherDesc`) — Phase 54.4
+- ✓ **POPUP-03**: Atmospheric metrics grid displaying Humidity (%), Barometric Pressure (hPa), UV Index, and Visibility (km) [interim graph tooltips] — Phase 54.4
+- ✓ **POPUP-04**: Air Quality Index (AQI) card displaying US-EPA index (1–6) color-coded health badge and fine particulate PM2.5 / PM10 concentrations [interim graph tooltips & EPA ribbon] — Phase 54.4
 
 ### Active
 
 - [ ] **PARAM-01**: Systematic parameter evaluation and UI representation mapping across all categories in `WEATHER_PARAMETERS.md` (Thermal/Comfort, Atmospheric, Wind, Air Quality AQI/PM2.5, Astronomy, Severe Alerts)
-- [ ] **POPUP-01**: Multi-modal `WeatherPopup.qml` inspector anchored with 1000ms hover intent delay and screen boundary clamping (`StyledPopup`)
 - ✓ **GRAPH-01**: Interactive Canvas time-series graphs in popup (24-hour temperature/feels-like trendline and hourly precipitation/rain probability bars) with hover scrub inspection — Phase 54, stacked locked instances (temp + Wind + AQI + Baro + UV, no tab chrome) fulfilled in Phase 54.3 per scope_decision_54_3_07
 - [ ] **INTG-01**: Personal overlay deployment under `restow/quickshell/` via GNU Stow leaf symlinks, zero git churn in `vendor/dots-hyprland`, and automated regression test suite
 
@@ -607,6 +610,8 @@ Existing infrastructure the shell builds on (not replaced by this project):
 | Phase 53: Severe alert precedence & breathing pulse | Active alert warning icon takes precedence over rain badge; triggers 3-loop breathing pulse (1.0 ↔ 0.4) settling at 1.0 (D-53-14..17, BAR-03) | ✓ 53-01 Complete |
 | Phase 53: WeatherPopup hover anchoring & lifecycle gating | Anchors WeatherPopup with 1000ms hover delay, absorbs clicks (accepted = true), and exposes popupActive (D-53-29..33, BAR-04) | ✓ 53-01 Complete |
 | Phase 53: Comprehensive 5-section assertion test harness | `scripts/phase53-weather-assert.sh` validates symlinks, BarContent non-mutation, temp parsing, alert logic, and popup anchoring (D-53-10) | ✓ 53-02 Complete |
+| Phase 54.4: 3-Card modular popup inspector & non-scrolling percent sizing | Three equal cards (Temp, Rain/Wind/Vis, Air/UV/Pressure) sized via popupWidthPercent/HeightPercent with 900px minimum and StyledPopup centering/clamping (D-54.4-01..04) | ✓ 54.4 Complete |
+| Phase 54.4: Synchronized multi-graph hover and cross-card tooltips | Shared hoverSlot across all three cards driving simultaneous vertical scrub lines, markers, and floating unclipped tooltips (D-54.4-19..36, SC4) | ✓ 54.4 Complete |
 
 ## Evolution
 
@@ -626,7 +631,7 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-10-15 after Phase 54.3*
+*Last updated: 2026-11-05 after Phase 54.4*
 
 
 

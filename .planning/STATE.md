@@ -2,19 +2,19 @@
 gsd_state_version: "1.0"
 milestone: v0.10
 milestone_name: Phases
-current_phase: "54.4"
-current_phase_name: Modular Popup Inspector and Clean Card Layout (INSERTED)
-status: executing
-stopped_at: Phase 54.4 context gathered
-last_updated: "2026-10-17T13:31:35.278Z"
-last_activity: 2026-10-17
-last_activity_desc: Phase 54.4 execution started
-state_head: 0d7d6d045f6f3f7482dcd1d03380a33b0786f6ce
+current_phase: "54.5"
+current_phase_name: Popup Hero, Daily Stats, Astronomy and Forecast Cards
+status: planning
+stopped_at: Phase 54.4 complete, ready to plan Phase 54.5
+last_updated: "2026-11-05T09:25:52.486Z"
+last_activity: 2026-11-05
+last_activity_desc: Phase 54.4 complete, transitioned to Phase 54.5
+state_head: 64ecfaa8c6e8e46c5e908d5e012f86cac4f2237e
 progress:
   total_phases: 10
   completed_phases: 7
   total_plans: 40
-  completed_plans: 37
+  completed_plans: 40
   percent: 70
 ---
 
@@ -25,23 +25,23 @@ Progress: [████████░░░░░░░░░░] 4/9 phases ([
 
 ## Current Position
 
-Phase: 54.4 (Modular Popup Inspector and Clean Card Layout (INSERTED)) — EXECUTING
-Plan: 1 of 11
-Status: Executing Phase 54.4
-Last activity: 2026-10-17 — Phase 54.4 execution started
+Phase: 54.5 — Popup Hero, Daily Stats, Astronomy and Forecast Cards
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-11-05 — Phase 54.4 complete, transitioned to Phase 54.5
 
 ## Session
 
-**Last session:** 2026-10-16T13:43:27.036Z
-**Stopped at:** Phase 54.4 context gathered
-**Resume file:** .planning/phases/54.4-modular-popup-inspector-and-clean-card-layout/54.4-CONTEXT.md
+**Last session:** 2026-11-05T15:27:00Z
+**Stopped at:** Phase 54.4 complete, ready to plan Phase 54.5
+**Resume file:** None
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-10-05 after Phase 53)
+See: .planning/PROJECT.md (updated 2026-11-05 after Phase 54.4)
 
 **Core value:** Desktop capability via upstream dots-hyprland + personal overlays with unified system-wide Material You theming across GTK, Qt/KDE, Hyprland, Quickshell ii, and terminal/launcher tools with zero git churn.  
-**Current focus:** Phase 54.4 — Modular Popup Inspector and Clean Card Layout (INSERTED)
+**Current focus:** Phase 54.5 — Popup Hero, Daily Stats, Astronomy and Forecast Cards
 
 ## Deferred Items
 
@@ -67,6 +67,7 @@ See also: `milestones/v0.1-phases/04-ipc-keybinds-integration/04-DEFERRED.md`
 - Phase 49 added: Quickshell Resource Profiling & Component Performance Audit — comprehensive component-by-component and popup-by-popup resource measurement (GPU idle baseline <=10% vs 30-60%), upstream comparison, and targeted optimization.
 - Phase 48 added: Right-Zone Media Expansion & System Tray Empty State Gating — responsive screen-width media player sizing, track & artist metadata display, and empty system tray pill hiding.
 - Phase 54.1 inserted after Phase 54: Top Status Bar Weather Component Polish (URGENT)
+- Phase 54.4 complete: Modular Popup Inspector and Clean Card Layout (three equal cards, synchronized hover scrub, 900px minimum clamp, non-scrolling percent sizing).
 
 ### Decisions (carry-forward)
 
